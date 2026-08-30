@@ -2,6 +2,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Documents;
 using ProGlassAutomation.Services.DeliveryNote;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Utilities;
@@ -248,21 +249,22 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         // ══════════════════════════════════════════════════════════════════
 
         private Dictionary<string, JobOrderSqmSummary> _sqmCache = new();
+        private DocumentProgressSnapshot _progress = DocumentProgressSnapshot.Empty;
 
         public IReadOnlyList<JobOrderGroupRowViewModel> AllItemsGrouped
-            => JobOrderGroupRowViewModel.GroupFrom(_allItems, _sqmCache);
+            => JobOrderGroupRowViewModel.GroupFrom(_allItems, _sqmCache, _progress);
 
         public IReadOnlyList<JobOrderGroupRowViewModel> PreparedItemsGrouped
-            => JobOrderGroupRowViewModel.GroupFrom(_preparedItems, _sqmCache);
+            => JobOrderGroupRowViewModel.GroupFrom(_preparedItems, _sqmCache, _progress);
 
         public IReadOnlyList<JobOrderGroupRowViewModel> DeliveredItemsGrouped
-            => JobOrderGroupRowViewModel.GroupFrom(_deliveredItems, _sqmCache);
+            => JobOrderGroupRowViewModel.GroupFrom(_deliveredItems, _sqmCache, _progress);
 
         public IReadOnlyList<JobOrderGroupRowViewModel> ReworkItemsGrouped
-            => JobOrderGroupRowViewModel.GroupFrom(_reworkItems, _sqmCache);
+            => JobOrderGroupRowViewModel.GroupFrom(_reworkItems, _sqmCache, _progress);
 
         public IReadOnlyList<JobOrderGroupRowViewModel> ReturnedItemsGrouped
-            => JobOrderGroupRowViewModel.GroupFrom(_returnedItems, _sqmCache);
+            => JobOrderGroupRowViewModel.GroupFrom(_returnedItems, _sqmCache, _progress);
 
         public int AllGroupedCount => AllItemsGrouped.Count;
         public int PreparedGroupedCount => PreparedItemsGrouped.Count;
@@ -853,6 +855,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
                 _sqmCache = await App.DeliveryNotes
                     .GetSqmSummariesByJobOrderAsync(allJobOrderIds);
+
+                _progress = await DocumentProgressSnapshot.LoadAsync(
+                    allJobOrderIds.Select(id => (id, "")));
 
                 AllItems =
                     new ObservableCollection<DeliveryNoteRowViewModel>(allItems);

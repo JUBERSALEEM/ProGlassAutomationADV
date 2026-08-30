@@ -9,6 +9,7 @@ using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Documents;
 using ProGlassAutomation.Services.JobOrder.Export;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.ProformaInvoice.Attachments;
@@ -314,9 +315,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 // list columns. JobOrderRowViewModel takes JobOrderListRow.
                 var rows = await App.Jobs.GetListRowsAsync();
 
-                // Load per-job-order delivery qty from the Delivery Notes
-                // repository so the list can show the delivery-derived status.
-                var deliveryMap = await LoadDeliveryQtyMapAsync();
+                // Master ordered + confirmed delivered (includes fully
+                // delivered jobs — pending-qty map used to drop those).
+                var deliveryMap = await LoadDeliveryQtyMapAsync(rows);
 
                 _allJobs = rows
                     .Select(e =>
@@ -394,7 +395,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             {
                 "Newest first" => query.OrderByDescending(j => j.UpdatedAt),
                 "Oldest first" => query.OrderBy(j => j.UpdatedAt),
-                "Delivery date (soonest)" => query.OrderBy(j => j.DeliveryDate ?? DateTime.MaxValue),
+            "Delivery date (soonest)" => query.OrderBy(j => j.DeliveryDate ?? DateTime.MaxValue),
                 "Delivery date (latest)" => query.OrderByDescending(j => j.DeliveryDate ?? DateTime.MinValue),
                 "Priority (high first)" => query.OrderByDescending(j => PriorityRank(j.PriorityRaw)),
                 "Priority (low first)" => query.OrderBy(j => PriorityRank(j.PriorityRaw)),
@@ -923,32 +924,27 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         // ═════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Builds a { JobOrderId → (ordered, delivered) } map from the Delivery
-        /// Notes repository. Never throws — if DN data is unavailable the rows
-        /// simply show "Not delivered".
+        /// Builds a { JobOrderId → (ordered, delivered) } map from Master DN
+        /// ordered qty and confirmed real DNs. Includes fully delivered jobs
+        /// that a pending-qty query would drop. Never throws.
         /// </summary>
         private async Task<Dictionary<string, (int Ordered, int Delivered)>>
-            LoadDeliveryQtyMapAsync()
+            LoadDeliveryQtyMapAsync(IReadOnlyList<JobOrderListRow> rows)
         {
             var map = new Dictionary<string, (int, int)>(
                 StringComparer.OrdinalIgnoreCase);
             try
             {
-                if (App.DeliveryNotes == null) return map;
-
-                var summaries = await App.DeliveryNotes.GetPendingQtyJobsAsync();
-                if (summaries == null) return map;
-
-                foreach (var s in summaries)
-                {
-                    if (string.IsNullOrWhiteSpace(s.JobOrderId)) continue;
-                    map[s.JobOrderId] = (s.TotalOrdered, s.TotalDelivered);
-                }
+                var jobs = rows.Select(r => (r.JobOrderId ?? "", r.SourceProformaId ?? ""));
+                var snap = await DocumentProgressSnapshot.LoadAsync(jobs);
+                foreach (var kv in snap.ByJobOrder)
+                    map[kv.Key] = (kv.Value.Ordered, kv.Value.ConfirmedDelivered);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                // DN unavailable — rows show "Not delivered".
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedJobOrdersListViewModel] Delivery-qty map unavailable; rows show 'Not delivered': " + ex.Message);
+                AppLogService.Debug(
+                    "[SavedJobOrdersListViewModel] Delivery-qty map unavailable; rows show 'Not delivered': "
+                    + ex.Message);
             }
             return map;
         }

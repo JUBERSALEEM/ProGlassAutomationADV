@@ -10,6 +10,7 @@ using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Documents;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.ViewModels;
 using System;
@@ -396,9 +397,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             {
                 var entities = await App.Invoices.GetAllAsync();
 
-                // Load downstream lifecycle data once so the list can derive the
-                // business status (full job created / delivered / invoiced).
-                var lifecycle = await LoadLifecycleStateAsync();
+                var progress = await DocumentProgressSnapshot.LoadAsync();
                 var confirmedWithAttachments = await LoadApprovalProofStateAsync(entities);
 
                 _allItems = entities.Select(e =>
@@ -417,7 +416,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     };
 
                     bool hasApprovalProof = confirmedWithAttachments.Contains(e.ProformaId ?? "");
-                    var ls = lifecycle.Compute(e.ProformaId ?? "", e.Status ?? "Draft", hasApprovalProof);
+                    var ls = DocumentListStatus.ForProforma(
+                        e.Status ?? "Draft",
+                        hasApprovalProof,
+                        progress.ForProforma(e.ProformaId));
                     item.DisplayStatus = ls.Status;
                     item.DisplayStatusBrushKey = ls.BrushKey;
                     return item;
@@ -443,72 +445,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         // ══════════════════════════════════════════════════════════════════
         //  LIFECYCLE STATUS (computed list status)
         // ══════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Loads downstream data (Job Orders, Delivery Notes, Tax Invoices) once
-        /// and returns a helper that derives each invoice's business status.
-        /// Never throws — any unavailable database just leaves derived states
-        /// empty so the list still works.
-        /// </summary>
-        private async Task<LifecycleState> LoadLifecycleStateAsync()
-        {
-            var state = new LifecycleState();
-            try
-            {
-                // Job Orders by source proforma.
-                if (App.Jobs != null)
-                {
-                    var jobs = await App.Jobs.GetAllAsync();
-                    foreach (var j in jobs ?? new())
-                    {
-                        if (!string.IsNullOrWhiteSpace(j.SourceProformaId))
-                            state.JobOrderByProforma[j.SourceProformaId] = true;
-                    }
-                }
-            }
-            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
-
-            try
-            {
-                // Delivery Notes by proforma (delivered/ordered qty).
-                if (App.DeliveryNotes != null)
-                {
-                    var dns = await App.DeliveryNotes.GetAllAsync();
-                    foreach (var d in dns ?? new())
-                    {
-                        if (string.IsNullOrWhiteSpace(d.ProformaId)) continue;
-                        if (!state.DeliveryByProforma.TryGetValue(d.ProformaId, out var agg))
-                        {
-                            agg = (0, 0);
-                            state.DeliveryByProforma[d.ProformaId] = agg;
-                        }
-                        agg.Item1 += Math.Max(0, d.TotalDeliveredQty);
-                        agg.Item2 += Math.Max(0, d.TotalOrderedQty);
-                        state.DeliveryByProforma[d.ProformaId] = agg;
-                    }
-                }
-            }
-            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
-
-            try
-            {
-                // Tax Invoices by proforma — SUM the invoiced quantity so the
-                // list can distinguish Fully vs Partially invoiced.
-                if (App.TaxInvoices != null)
-                {
-                    var tis = await App.TaxInvoices.GetAllAsync();
-                    foreach (var t in tis ?? new())
-                    {
-                        if (string.IsNullOrWhiteSpace(t.ProformaId)) continue;
-                        state.InvoicedQtyByProforma.TryGetValue(t.ProformaId, out var qty);
-                        state.InvoicedQtyByProforma[t.ProformaId] = qty + Math.Max(0, t.TotalQty);
-                    }
-                }
-            }
-            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
-
-            return state;
-        }
 
         /// <summary>
         /// Loads Step 8 confirmation proof state once for the current list.
@@ -547,77 +483,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             return confirmed;
         }
 
-        /// <summary>
-        /// Cached downstream data used to derive the list status.
-        /// </summary>
-        private sealed class LifecycleState
-        {
-            public Dictionary<string, bool> JobOrderByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
-            public Dictionary<string, (int Delivered, int Ordered)> DeliveryByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
 
-            /// <summary>Invoiced quantity per proforma (sum of TI TotalQty).</summary>
-            public Dictionary<string, int> InvoicedQtyByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
-
-            public (string Status, string BrushKey) Compute(
-                string proformaId,
-                string storedStatus,
-                bool hasConfirmationAttachment)
-            {
-                // Cancelled (stored Cancelled/Rejected)
-                if (string.Equals(storedStatus, "Cancelled", StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(storedStatus, "Rejected", StringComparison.OrdinalIgnoreCase))
-                    return ("Cancelled", "DangerBrush");
-
-                // Quantity context: ordered (from delivery notes / master DN),
-                // delivered, invoiced (sum of TI TotalQty).
-                int ordered = 0, delivered = 0, invoiced = 0;
-                if (DeliveryByProforma.TryGetValue(proformaId, out var dq))
-                {
-                    delivered = dq.Delivered;
-                    ordered = dq.Ordered;
-                }
-                if (InvoicedQtyByProforma.TryGetValue(proformaId, out var iq))
-                    invoiced = iq;
-
-                // Invoicing states are QUANTITY-AWARE: a single partial tax
-                // invoice is NOT "Fully invoiced". Only when the invoiced qty
-                // reaches the ordered qty is the PI fully invoiced; anything
-                // in between is "Partially invoiced".
-                if (invoiced > 0)
-                {
-                    if (ordered > 0 && invoiced >= ordered)
-                        return ("Fully invoiced", "SuccessBrush");
-                    return ("Partially invoiced", "AccentBrush");
-                }
-
-                // Delivered states (derived from delivery notes)
-                if (delivered > 0)
-                {
-                    bool fullyDelivered = ordered > 0 && delivered >= ordered;
-                    if (fullyDelivered)
-                        return ("Fully delivered", "SuccessBrush");
-                    return ("Partially delivered", "WarningBrush");
-                }
-
-                // Full job created
-                if (JobOrderByProforma.ContainsKey(proformaId))
-                    return ("Full job created", "InfoBrush");
-
-                // PI confirmed requires BOTH: stored Approved and a real
-                // Step 8 confirmation attachment (signed PI / LPO upload).
-                if (string.Equals(storedStatus, "Approved", StringComparison.OrdinalIgnoreCase)
-                    && hasConfirmationAttachment)
-                    return ("PI confirmed", "AccentBrush");
-
-                if (string.Equals(storedStatus, "Sent", StringComparison.OrdinalIgnoreCase))
-                    return ("PI sent", "AccentDarkBrush");
-
-                // Approved-without-attachment is treated as still only created.
-                // This protects the list from legacy/bad saves that skipped the
-                // Step 8 confirmation proof requirement.
-                return ("PI created", "NeutralBrush");
-            }
-        }
 
         /// <summary>
         /// BUG-73/74: Pure in-memory filter over _allItems.

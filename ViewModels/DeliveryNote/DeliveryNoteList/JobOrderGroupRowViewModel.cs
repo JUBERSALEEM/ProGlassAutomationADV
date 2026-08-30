@@ -6,10 +6,9 @@
 // JobOrderGroupRowViewModel.cs split out (Phase 11/12 God-VM split) — behaviour unchanged.
 // ═══════════════════════════════════════════════════════════════════════
 
-using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus;
-using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryType;
-using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Services.DeliveryNote;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Services.Documents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,6 +42,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public bool AllDelivered { get; }
         public bool AnyDelivered { get; }
         public string StatusLabel { get; }
+        public string StatusTintKey { get; }
+        public string StatusForegroundKey { get; }
         public double ProgressPercent { get; }
         public string ProgressDisplay { get; }
 
@@ -63,13 +64,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         public static IReadOnlyList<JobOrderGroupRowViewModel> GroupFrom(
             IEnumerable<DeliveryNoteRowViewModel>? source,
-            Dictionary<string, JobOrderSqmSummary>? sqmCache = null)
+            Dictionary<string, JobOrderSqmSummary>? sqmCache = null,
+            DocumentProgressSnapshot? progress = null)
         {
             if (source == null)
                 return Array.Empty<JobOrderGroupRowViewModel>();
 
             var cache = sqmCache
                 ?? new Dictionary<string, JobOrderSqmSummary>();
+            var snap = progress ?? DocumentProgressSnapshot.Empty;
 
             return source
                 .Where(x => !string.IsNullOrWhiteSpace(x.JobOrderId)
@@ -80,7 +83,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 {
                     cache.TryGetValue(g.Key, out var sqm);
                     return new JobOrderGroupRowViewModel(
-                        g.Key, g.ToList(), sqm);
+                        g.Key, g.ToList(), sqm, snap.ForJobOrder(g.Key));
                 })
                 .OrderByDescending(g => g.LatestDeliveryDate)
                 .ThenByDescending(g => g.LatestSequenceNumber)
@@ -92,12 +95,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         private JobOrderGroupRowViewModel(
             string jobOrderId,
             List<DeliveryNoteRowViewModel> family,
-            JobOrderSqmSummary? sqm)
+            JobOrderSqmSummary? sqm,
+            DocumentProgress progress)
         {
             JobOrderId = jobOrderId;
 
-            // Count real delivery notes only — Dummy DNs are auto-generated
-            // balance placeholders, not actual deliveries.
             DnCount = family.Count(x =>
                 !string.Equals(x.DeliveryType, "Dummy",
                     StringComparison.OrdinalIgnoreCase));
@@ -120,8 +122,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             CustomerName = latest.CustomerName;
             ProjectName = latest.ProjectName;
 
-            TotalOrdered = family.Max(x => x.TotalOrderedQty);
-            TotalDelivered = family.Sum(x => x.TotalDeliveredQty);
+            int familyOrdered = family.Max(x => x.TotalOrderedQty);
+            int confirmedDelivered = family
+                .Where(x => DeliveryNoteWorkflow.IsConfirmedDelivery(x.Status))
+                .Sum(x => x.TotalDeliveredQty);
+
+            TotalOrdered = progress.Ordered > 0 ? progress.Ordered : familyOrdered;
+            TotalDelivered = progress.ConfirmedDelivered > 0
+                ? progress.ConfirmedDelivered
+                : confirmedDelivered;
             TotalBalance = Math.Max(0, TotalOrdered - TotalDelivered);
 
             TotalOrderedSqm = sqm?.OrderedSqm ?? 0m;
@@ -138,25 +147,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 $"{TotalDeliveredSqm:0.000} del  ·  " +
                 $"{TotalBalanceSqm:0.000} bal";
 
-            AllDelivered = family.All(x =>
-                string.Equals(x.Status, "Delivered",
-                    StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(x.Status, "Signed",
-                    StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(x.Status, "Received",
-                    StringComparison.OrdinalIgnoreCase));
+            AllDelivered = TotalOrdered > 0 && TotalDelivered >= TotalOrdered;
 
             AnyDelivered = family.Any(x =>
-                string.Equals(x.Status, "Dispatched",
-                    StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(x.Status, "Delivered",
-                    StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(x.Status, "Signed",
-                    StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(x.Status, "Received",
-                    StringComparison.OrdinalIgnoreCase));
+                DeliveryNoteWorkflow.IsConfirmedDelivery(x.Status));
 
-            StatusLabel = AllDelivered ? "Completed" : "In Progress";
+            var familyStatus = DocumentListStatus.ForDeliveryFamily(progress);
+            StatusLabel = familyStatus.Status;
+            StatusTintKey = familyStatus.TintKey;
+            StatusForegroundKey = familyStatus.ForegroundKey;
 
             ProgressPercent = TotalOrdered > 0
                 ? Math.Round((double)TotalDelivered / TotalOrdered * 100, 1)

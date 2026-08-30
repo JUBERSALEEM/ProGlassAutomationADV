@@ -14,6 +14,7 @@
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.JobOrder.Common.JobPriority;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Services.Documents;
 using System;
 
 namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
@@ -65,24 +66,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         ///   "Partially delivered"  — some but not all delivered.
         ///   "Not delivered"        — nothing delivered yet.
         /// </summary>
-        public string DisplayStatus
-        {
-            get
-            {
-                if (TotalOrderedQty > 0 && TotalDeliveredQty >= TotalOrderedQty)
-                    return "Fully delivered";
-                if (TotalDeliveredQty > 0)
-                    return "Partially delivered";
-                return "Not delivered";
-            }
-        }
+        public string DisplayStatus =>
+            DocumentListStatus.ForJobOrder(TotalOrderedQty, TotalDeliveredQty);
 
-        public string DisplayStatusBrushKey => DisplayStatus switch
-        {
-            "Fully delivered" => "SuccessBrush",
-            "Partially delivered" => "WarningBrush",
-            _ => "NeutralBrush"
-        };
+        public string DisplayStatusBrushKey =>
+            DocumentListStatus.BrushKeyForJobOrder(DisplayStatus);
 
         /// <summary>
         /// Lightweight constructor used by the saved list. Takes the narrow

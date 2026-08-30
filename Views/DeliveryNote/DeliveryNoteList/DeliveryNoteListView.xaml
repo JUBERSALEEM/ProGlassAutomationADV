@@ -138,29 +138,12 @@
 
                     <StackPanel Grid.Column="6" VerticalAlignment="Center" Margin="8,6">
                         <StackPanel Orientation="Horizontal">
-                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2" Margin="0,0,4,0">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding AllDelivered}" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <TextBlock Text="{Binding StatusLabel}" FontSize="{StaticResource TextCaption}" FontWeight="Bold">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding AllDelivered}" Value="True">
-                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2" Margin="0,0,4,0"
+                                    Background="{Binding StatusTintKey,
+                                                 Converter={StaticResource BrushKeyConverter}}">
+                                <TextBlock Text="{Binding StatusLabel}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                           Foreground="{Binding StatusForegroundKey,
+                                                        Converter={StaticResource BrushKeyConverter}}"/>
                             </Border>
                             <Border Background="{DynamicResource TintIndigoBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"

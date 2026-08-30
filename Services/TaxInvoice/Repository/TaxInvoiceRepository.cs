@@ -354,6 +354,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             entity.Status = newStatus;
             entity.UpdatedAt = DateTime.Now;
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+            DocumentLifecycle.Raise();
         }
 
         // ── Attachments ─────────────────────────────────────────────
