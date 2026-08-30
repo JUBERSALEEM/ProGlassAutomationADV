@@ -662,8 +662,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 return;
             }
 
-            List<SavedJobOrder> jobOrders;
-            try { jobOrders = await App.Jobs.GetAllAsync(); }
+            List<SavedJobOrder> allJobOrders;
+            try { allJobOrders = await App.Jobs.GetAllAsync(); }
             catch (Exception ex)
             {
                 MessageBox.Show(
@@ -674,12 +674,51 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 return;
             }
 
-            if (jobOrders.Count == 0)
+            if (allJobOrders.Count == 0)
             {
                 MessageBox.Show(
                     "No job orders found.\n\n" +
                     "Create a Job Order from a Proforma Invoice first.",
                     "No Job Orders",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            // Filter: Show ONLY job orders with balance remaining
+            var jobOrdersWithBalance = new List<SavedJobOrder>();
+            
+            foreach (var jo in allJobOrders)
+            {
+                try
+                {
+                    var masterDn = await App.DeliveryNotes.GetMasterDnForJobOrderAsync(jo.JobOrderId);
+                    
+                    if (masterDn == null)
+                    {
+                        // No DN created yet - show this job order
+                        jobOrdersWithBalance.Add(jo);
+                    }
+                    else if (masterDn.TotalBalanceQty > 0)
+                    {
+                        // Has balance remaining - show this job order
+                        jobOrdersWithBalance.Add(jo);
+                    }
+                    // else: Fully delivered - don't show
+                }
+                catch
+                {
+                    // If we can't check, include it
+                    jobOrdersWithBalance.Add(jo);
+                }
+            }
+
+            if (jobOrdersWithBalance.Count == 0)
+            {
+                MessageBox.Show(
+                    "All job orders have been fully delivered.\n\n" +
+                    "No delivery notes to create.",
+                    "All Delivered",
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;
@@ -693,7 +732,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
             catch { /* picker still searches JO fields */ }
 
-            var dialog = new JobOrderPickerDialog(jobOrders, dns)
+            var dialog = new JobOrderPickerDialog(jobOrdersWithBalance, dns)
             {
                 Owner = Application.Current.MainWindow
             };

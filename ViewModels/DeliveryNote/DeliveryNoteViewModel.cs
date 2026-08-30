@@ -505,65 +505,24 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 // ── SCENARIO B: Fully delivered ───────────────────────────
                 if (masterDn.TotalBalanceQty <= 0)
                 {
-                    var viewLatest = MessageBox.Show(
-                        $"All quantities have been delivered for this Job Order.\n\n" +
-                        $"Job Order : {jobOrder.JobOrderId}\n" +
-                        $"Customer  : {jobOrder.CustomerName}\n" +
-                        $"Ordered   : {masterDn.TotalOrderedQty} pcs\n" +
-                        $"Delivered : {masterDn.TotalDeliveredQty} pcs\n" +
-                        $"Balance   : 0 pcs\n\n" +
-                        "Would you like to view the latest delivery note?",
-                        "Fully Delivered",
-                        MessageBoxButton.YesNo,
-                        MessageBoxImage.Information);
+                    // Job order fully delivered - open latest DN for viewing
+                    var latestDns = await App.DeliveryNotes
+                        .GetByJobOrderIdAsync(jobOrder.JobOrderId);
+                    var latest = latestDns
+                        .OrderByDescending(d => d.SequenceNumber)
+                        .FirstOrDefault();
 
-                    if (viewLatest == MessageBoxResult.Yes)
+                    if (latest != null)
                     {
-                        var latestDns = await App.DeliveryNotes
-                            .GetByJobOrderIdAsync(jobOrder.JobOrderId);
-                        var latest = latestDns
-                            .OrderByDescending(d => d.SequenceNumber)
-                            .FirstOrDefault();
-
-                        if (latest != null)
-                        {
-                            await DetailVM.LoadAsync(latest.Id);
-                            IsListView = false;
-                            await SafeLoadListAsync();
-                        }
+                        await DetailVM.LoadAsync(latest.Id);
+                        IsListView = false;
+                        await SafeLoadListAsync();
                     }
                     return;
                 }
 
                 // ── SCENARIO C: Partial balance remaining ─────────────────
-                // Calculate balance items for display
-                var balanceItems = masterDn.Items
-                    .Where(i => i.BalanceQty > 0)
-                    .ToList();
-
-                int totalBalance = balanceItems.Sum(i => i.BalanceQty);
-                int totalOrdered = masterDn.TotalOrderedQty;
-                int totalDelivered = masterDn.TotalDeliveredQty;
-
-                var choice = MessageBox.Show(
-                    $"This Job Order has partial deliveries remaining.\n\n" +
-                    $"Job Order : {jobOrder.JobOrderId}\n" +
-                    $"Customer  : {jobOrder.CustomerName}\n\n" +
-                    $"  Ordered   : {totalOrdered} pcs\n" +
-                    $"  Delivered : {totalDelivered} pcs\n" +
-                    $"  Balance   : {totalBalance} pcs " +
-                    $"({balanceItems.Count} items)\n\n" +
-                    "Create a new delivery note for the remaining balance?\n\n" +
-                    "  Yes    → Create next DN (pre-filled with balance)\n" +
-                    "  No     → Cancel\n\n" +
-                    "Tip: Use 'SELECT ALL REMAINING' in the DN to fill\n" +
-                    $"all {totalBalance} pcs instantly.",
-                    "Remaining Balance Found",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (choice != MessageBoxResult.Yes) return;
-
+                // Create DN directly with balance items (no popup)
                 await CreateDnFromMasterBalanceAsync(jobOrder, masterDn);
             }
             catch (Exception ex)
@@ -681,22 +640,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             var dnEntity = DeliveryNoteMapper.FromJobOrder(
                 jobOrder, joSnapshot, dnId, nextSeq);
-
-            // Show clear confirmation with next steps
-            MessageBox.Show(
-                $"Delivery Note Created Successfully\n\n" +
-                $"  DN Number:  {dnEntity.DeliveryNoteId}\n" +
-                $"  Job Order:  {dnEntity.JobOrderId}\n" +
-                $"  Customer:   {dnEntity.CustomerName}\n" +
-                $"  Items:      {dnEntity.Items.Count}\n" +
-                $"  Total Qty:  {dnEntity.TotalOrderedQty} pcs\n\n" +
-                $"NEXT STEPS:\n" +
-                $"  1. Fill in the DELIVERED QTY for each item\n" +
-                $"  2. Click DISPATCH when ready\n\n" +
-                $"For partial delivery, enter only the quantity being delivered now.",
-                "Delivery Note Created",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
 
             foreach (var item in dnEntity.Items)
             {
