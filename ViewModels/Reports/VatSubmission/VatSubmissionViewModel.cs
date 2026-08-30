@@ -126,7 +126,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             return filter;
         }
 
-        public async Task LoadFilterOptionsAsync()
+        public new async Task LoadFilterOptionsAsync()
         {
             try
             {
