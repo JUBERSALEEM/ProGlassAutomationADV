@@ -275,11 +275,10 @@
                                            Text="DRIVER NAME"/>
                                 <TextBox Text="{Binding DriverName,
                                                 UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource ModernTextBoxStyle}"
                                          FontSize="13" Padding="8,8"
                                          Height="36" MinHeight="36"
-                                         VerticalContentAlignment="Center"
-                                         Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                         Background="{DynamicResource CardBackgroundBrush}"/>
+                                         VerticalContentAlignment="Center"/>
                             </StackPanel>
 
                             <StackPanel MinWidth="180" MaxWidth="260"
@@ -291,11 +290,10 @@
                                            Text="VEHICLE NUMBER"/>
                                 <TextBox Text="{Binding VehicleNumber,
                                                 UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource ModernTextBoxStyle}"
                                          FontSize="13" Padding="8,8"
                                          Height="36" MinHeight="36"
-                                         VerticalContentAlignment="Center"
-                                         Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                         Background="{DynamicResource CardBackgroundBrush}"/>
+                                         VerticalContentAlignment="Center"/>
                             </StackPanel>
 
                             <StackPanel MinWidth="150" MaxWidth="220"
@@ -322,11 +320,10 @@
                                            Text="RECEIVER NAME"/>
                                 <TextBox Text="{Binding ReceiverName,
                                                 UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource ModernTextBoxStyle}"
                                          FontSize="13" Padding="8,8"
                                          Height="36" MinHeight="36"
-                                         VerticalContentAlignment="Center"
-                                         Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                         Background="{DynamicResource CardBackgroundBrush}"/>
+                                         VerticalContentAlignment="Center"/>
                             </StackPanel>
 
                             <StackPanel MinWidth="180" MaxWidth="300"
@@ -338,11 +335,10 @@
                                            Text="NOTES"/>
                                 <TextBox Text="{Binding Notes,
                                                 UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource ModernTextBoxStyle}"
                                          FontSize="13" Padding="8,8"
                                          Height="36" MinHeight="36"
                                          VerticalContentAlignment="Center"
-                                         Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                         Background="{DynamicResource CardBackgroundBrush}"
                                          TextWrapping="NoWrap"/>
                             </StackPanel>
                         </WrapPanel>
