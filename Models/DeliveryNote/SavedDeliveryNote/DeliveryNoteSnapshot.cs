@@ -100,6 +100,10 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public int BalanceQty { get; set; }
         public int ReworkQty { get; set; }
         public int ReturnedQty { get; set; }
+        
+        /// <summary>Weight per piece in kilograms (calculated from glass dimensions and thickness).</summary>
+        public decimal WeightPerPiece { get; set; }
+        
         public string Notes { get; set; } = "";
     }
 

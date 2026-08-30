@@ -200,6 +200,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                         cols.ConstantColumn(46);   // Prev
                         cols.ConstantColumn(52);   // This DN
                         cols.ConstantColumn(52);   // Balance
+                        cols.ConstantColumn(60);   // Weight/pc (kg)
+                        cols.ConstantColumn(60);   // Total Wt (kg)
                     });
 
                     t.Header(h =>
@@ -210,6 +212,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                         HeaderCell(h.Cell(), "PREV");
                         HeaderCell(h.Cell(), "THIS DN");
                         HeaderCell(h.Cell(), "BALANCE");
+                        HeaderCell(h.Cell(), "WT/PC");
+                        HeaderCell(h.Cell(), "TOTAL WT");
                     });
 
                     bool alt = false;
@@ -230,6 +234,15 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                         DataCell(t.Cell(), item.BalanceQty.ToString(), bg,
                             highlight: item.BalanceQty > 0,
                             highlightColor: DocumentStyle.ColorDanger);
+                        DataCell(t.Cell(),
+                            item.WeightPerPiece > 0
+                                ? item.WeightPerPiece.ToString("F2")
+                                : "—", bg);
+                        DataCell(t.Cell(),
+                            item.TotalWeight > 0
+                                ? item.TotalWeight.ToString("F2")
+                                : "—", bg,
+                            highlight: item.TotalWeight > 0);
 
                         alt = !alt;
                     }
@@ -237,9 +250,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
 
                 int groupDelivered = items.Sum(i => i.DeliveredQty);
                 int groupBalance = items.Sum(i => i.BalanceQty);
+                decimal groupWeight = items.Sum(i => i.TotalWeight);
                 col.Item().AlignRight().PaddingTop(2)
                     .Text($"Group: {groupDelivered} delivered · " +
-                          $"{groupBalance} balance")
+                          $"{groupBalance} balance" +
+                          (groupWeight > 0 ? $" · {groupWeight:F2} kg" : ""))
                     .FontSize(DocumentStyle.FontSizeCaption)
                     .FontColor(DocumentStyle.ColorMuted);
             });
@@ -304,6 +319,22 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                             .FontSize(DocumentStyle.FontSizeH1).Bold()
                             .FontColor(DocumentStyle.ColorText);
                     });
+
+                    // Total weight (only show if weight data is available)
+                    decimal totalWeight = (_entity.Items ?? new())
+                        .Sum(i => i.TotalWeight);
+                    if (totalWeight > 0)
+                    {
+                        row.RelativeItem().Column(col =>
+                        {
+                            col.Item().Text("TOTAL WEIGHT")
+                                .FontSize(DocumentStyle.FontSizeCaption)
+                                .FontColor(DocumentStyle.ColorMuted);
+                            col.Item().Text($"{totalWeight:F2} kg")
+                                .FontSize(DocumentStyle.FontSizeH1).Bold()
+                                .FontColor(DocumentStyle.ColorAccent);
+                        });
+                    }
                 });
         }
 

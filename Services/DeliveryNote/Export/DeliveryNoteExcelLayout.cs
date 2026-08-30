@@ -150,7 +150,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             {
                 "DN ID", "JO ID", "Customer", "Spec #", "Spec Group",
                 "Row #", "Glass Ref", "W1", "H1", "W2", "H2",
-                "Ordered", "Prev Delivered", "This DN", "Balance"
+                "Ordered", "Prev Delivered", "This DN", "Balance",
+                "Weight/pc (kg)", "Total Wt (kg)"
             };
 
             for (int c = 0; c < headers.Length; c++)
@@ -198,6 +199,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 ws.Cell(r, 13).Value = item.PreviouslyDeliveredQty;
                 ws.Cell(r, 14).Value = item.DeliveredQty;
                 ws.Cell(r, 15).Value = item.BalanceQty;
+                ws.Cell(r, 16).Value = item.WeightPerPiece;
+                ws.Cell(r, 17).Value = item.TotalWeight;
 
                 StyleDataRow(ws, r, item.BalanceQty > 0, alt);
                 alt = !alt;
@@ -217,8 +220,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 ws.Cell(r, 13).Value = _entity.TotalPreviouslyDeliveredQty;
                 ws.Cell(r, 14).Value = _entity.TotalDeliveredQty;
                 ws.Cell(r, 15).Value = _entity.TotalBalanceQty;
+                ws.Cell(r, 16).Value = "";  // Weight/pc not applicable for totals
+                ws.Cell(r, 17).Value = orderedItems.Sum(i => i.TotalWeight);
 
-                ws.Range(r, 12, r, 15).Style
+                ws.Range(r, 12, r, 17).Style
                     .Font.SetBold()
                     .Fill.SetBackgroundColor(
                         XLColor.FromHtml("#" + WorkbookStyle.ColorTotalRowBg));
@@ -246,6 +251,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             ws.Column(13).Width = 14;
             ws.Column(14).Width = 10;
             ws.Column(15).Width = 10;
+            ws.Column(16).Width = 14;  // Weight/pc (kg)
+            ws.Column(17).Width = 14;  // Total Wt (kg)
 
             ws.SheetView.FreezeRows(1);
         }
@@ -282,7 +289,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         private static void StyleDataRow(
             IXLWorksheet ws, int row, bool hasBalance, bool alt)
         {
-            var range = ws.Range(row, 1, row, 15);
+            var range = ws.Range(row, 1, row, 17);
             range.Style.Font.SetFontSize(WorkbookStyle.FontSizeBody);
             range.Style.Alignment
                 .SetVertical(XLAlignmentVerticalValues.Center);

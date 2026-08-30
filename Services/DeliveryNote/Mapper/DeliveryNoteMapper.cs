@@ -79,6 +79,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
             // ── Build items from JO spec groups ──────────────────────────
             var items = new List<DeliveryNoteItem>();
 
+            // Extract glass composition from Step 4 pricing for weight calculation
+            var step4Pricing = pi?.Step4Pricing;
+            string glassTypeCode = step4Pricing?.SelectedGlassTypeCode ?? "";
+
             if (pi?.SpecGroups != null)
             {
                 foreach (var group in pi.SpecGroups)
@@ -104,6 +108,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                     {
                         var row = rowGroup.First();
 
+                        // Calculate weight per piece using glass dimensions and composition
+                        decimal weightPerPiece = CalculateWeightPerPiece(
+                            row.W1, row.H1, glassTypeCode, step4Pricing);
+
                         var item = new DeliveryNoteItem
                         {
                             DeliveryNoteId = deliveryNoteId,
@@ -126,6 +134,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                             BalanceQty = rowGroup.Max(r => r.Qty),
                             ReworkQty = 0,
                             ReturnedQty = 0,
+                            WeightPerPiece = weightPerPiece,
                             Notes = ""
                         };
 
@@ -221,6 +230,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                     BalanceQty = representative.BalanceQty,
                     ReworkQty = 0,
                     ReturnedQty = 0,
+                    WeightPerPiece = representative.WeightPerPiece,
                     Notes = ""
                 };
 
@@ -285,6 +295,79 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
             var snapshot = BuildSnapshot(entity, null, joRef);
             entity.FullSnapshotJson = JsonSerializer.Serialize(
                 snapshot, _jsonOptions);
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        //  PRIVATE — weight calculation helper
+        // ════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Calculate weight per piece in kilograms from glass dimensions and composition.
+        /// Uses GlassWeightCalculator with thickness data from Step 4 pricing.
+        /// Returns 0 if data is insufficient or calculation fails.
+        /// </summary>
+        private static decimal CalculateWeightPerPiece(
+            int widthMm,
+            int heightMm,
+            string glassTypeCode,
+            Step4PricingSnapshot? step4Pricing)
+        {
+            if (widthMm <= 0 || heightMm <= 0 || step4Pricing == null)
+                return 0m;
+
+            try
+            {
+                // Calculate area using SqmCalculator (applies 0.5 m² minimum)
+                decimal areaM2 = SqmCalculator.CalculatePanel(widthMm, heightMm);
+                if (areaM2 <= 0) return 0m;
+
+                // Extract thickness based on glass type
+                string type = (glassTypeCode ?? "").Trim().ToUpperInvariant();
+                decimal totalThicknessMm = 0m;
+
+                if (type == "SGU" && step4Pricing.Sgu != null)
+                {
+                    totalThicknessMm = GlassWeightCalculator.ExtractTotalThickness(
+                        "SGU",
+                        step4Pricing.Sgu.SelectedThickness,
+                        "");
+                }
+                else if (type == "DGU" && step4Pricing.Dgu != null)
+                {
+                    totalThicknessMm = GlassWeightCalculator.ExtractTotalThickness(
+                        "DGU",
+                        step4Pricing.Dgu.OuterThickness,
+                        step4Pricing.Dgu.InnerThickness);
+                }
+                else if (type == "LAM" && step4Pricing.Lam != null)
+                {
+                    totalThicknessMm = GlassWeightCalculator.ExtractTotalThickness(
+                        "LAM",
+                        step4Pricing.Lam.OuterThickness,
+                        step4Pricing.Lam.InnerThickness);
+                }
+                else if (type == "DGU+LAM" && step4Pricing.DguLam != null)
+                {
+                    totalThicknessMm = GlassWeightCalculator.ExtractTotalThickness(
+                        "DGU+LAM",
+                        step4Pricing.DguLam.OuterThickness,
+                        "",
+                        step4Pricing.DguLam.LamOuterThickness,
+                        step4Pricing.DguLam.LamInnerThickness);
+                }
+
+                if (totalThicknessMm <= 0) return 0m;
+
+                // Calculate weight using GlassWeightCalculator
+                return GlassWeightCalculator.CalculatePieceWeight(areaM2, totalThicknessMm);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug(
+                    $"[DeliveryNoteMapper] Weight calculation failed for " +
+                    $"W1={widthMm}, H1={heightMm}, Type={glassTypeCode}: {ex.Message}");
+                return 0m;
+            }
         }
 
         // ════════════════════════════════════════════════════════════════
@@ -367,6 +450,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                     BalanceQty = i.BalanceQty,
                     ReworkQty = i.ReworkQty,
                     ReturnedQty = i.ReturnedQty,
+                    WeightPerPiece = i.WeightPerPiece,
                     Notes = i.Notes
                 }).ToList() ?? new(),
                 Attachments = entity.Attachments?.Select(a => new DnAttachmentSnapshot

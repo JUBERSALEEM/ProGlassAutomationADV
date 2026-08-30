@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
@@ -92,6 +92,24 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
 
         /// <summary>Qty marked as returned/rejected (not re-deliverable).</summary>
         public int ReturnedQty { get; set; }
+
+        // ── Weight tracking ────────────────────────────────────────────────
+
+        /// <summary>
+        /// Weight per piece in kilograms.
+        /// Calculated from glass dimensions, thickness, and type using GlassWeightCalculator.
+        /// Formula: Area (m²) × Total Glass Thickness (mm) × 2.5 kg/m²/mm
+        /// </summary>
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal WeightPerPiece { get; set; }
+
+        /// <summary>
+        /// Total weight for delivered quantity in kilograms.
+        /// Computed property: WeightPerPiece × DeliveredQty
+        /// Used for logistics planning and vehicle load calculations.
+        /// </summary>
+        [NotMapped]
+        public decimal TotalWeight => WeightPerPiece * DeliveredQty;
 
         // ── Notes ────────────────────────────────────────────────────────
 

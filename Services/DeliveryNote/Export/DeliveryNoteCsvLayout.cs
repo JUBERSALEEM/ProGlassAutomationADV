@@ -77,6 +77,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             writer.WriteField("PrevDelivered");
             writer.WriteField("ThisDN");
             writer.WriteField("Balance");
+            writer.WriteField("WeightPerPiece");
+            writer.WriteField("TotalWeight");
             writer.NextRecord();
 
             // ── Shared context values ─────────────────────────────────────
@@ -130,6 +132,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 writer.WriteField(item.PreviouslyDeliveredQty);
                 writer.WriteField(item.DeliveredQty);
                 writer.WriteField(item.BalanceQty);
+                writer.WriteField(item.WeightPerPiece);
+                writer.WriteField(item.TotalWeight);
                 writer.NextRecord();
             }
         }
