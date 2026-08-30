@@ -2162,8 +2162,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         private void RecalculateTotals()
         {
-            // Phase 6: Delegated to domain service — pure calculation
-            var totals = Services.DeliveryNote.DeliveryNoteLineService.CalculateTotals(ItemRows);
+            // Calculate totals from ALL items (not filtered), so the KPI strip
+            // shows the complete picture even when fully delivered items are hidden
+            var totals = Services.DeliveryNote.DeliveryNoteLineService.CalculateTotals(
+                _entity?.Items ?? Enumerable.Empty<Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteItem>());
             TotalOrderedQty = totals.Ordered;
             TotalPreviouslyDeliveredQty = totals.PrevDelivered;
             TotalDeliveredQty = totals.Delivered;

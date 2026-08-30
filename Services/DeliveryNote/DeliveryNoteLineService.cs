@@ -112,6 +112,16 @@ namespace ProGlassAutomation.Services.DeliveryNote
             return (ordered, prev, delivered, balance);
         }
 
+        public static (int Ordered, int PrevDelivered, int Delivered, int Balance) CalculateTotals(
+            IEnumerable<Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteItem> items)
+        {
+            int ordered = items.Sum(i => i.OrderedQty);
+            int prev = items.Sum(i => i.PreviouslyDeliveredQty);
+            int delivered = items.Sum(i => i.DeliveredQty);
+            int balance = items.Sum(i => i.BalanceQty);
+            return (ordered, prev, delivered, balance);
+        }
+
         public static double CalculateProgressPercent(int ordered, int prevDelivered, int delivered)
         {
             if (ordered == 0) return 0;
