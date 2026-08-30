@@ -296,7 +296,7 @@
                 <!-- ═══════ GROUP: WORKFLOW ═══════ -->
                 <TextBlock Text="WORKFLOW"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Pick a module to auto-record it from start to finish, with live human narration."
+                <TextBlock Text="Pick a module. Generate lands on that workspace first so the voice and the picture stay together."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">

@@ -266,11 +266,24 @@ namespace ProGlassAutomation.Services.Recording
                     return;
                 }
 
+                // Concat-demuxer first: dropped captures leave holes in
+                // f%05d.jpg and the numbered encoder then writes an empty
+                // or truncated MP4 ("ffmpeg ran but did not leave a valid
+                // MP4"). Demo Director already uses this path.
                 string? produced = await FfmpegMp4Composer
-                    .ComposeFramesAudioAsync(
-                        Path.Combine(folder, "frames"), "f%05d.jpg", liveMix, mp4,
+                    .ComposeFrameListAudioAsync(
+                        framesList, liveMix, mp4,
                         (int)Math.Round(actualFps), outW, outH, ct, rec.EncodeCrf)
                     .ConfigureAwait(false);
+
+                if (produced == null)
+                {
+                    produced = await FfmpegMp4Composer
+                        .ComposeFramesAudioAsync(
+                            Path.Combine(folder, "frames"), "f%05d.jpg", liveMix, mp4,
+                            (int)Math.Round(actualFps), outW, outH, ct, rec.EncodeCrf)
+                        .ConfigureAwait(false);
+                }
 
                 if (produced == null || !FfmpegMp4Composer.IsValidMp4(mp4))
                 {

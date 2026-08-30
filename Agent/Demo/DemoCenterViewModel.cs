@@ -317,7 +317,7 @@ namespace ProGlassAutomation.Agent.Demo
                 : "");
 
         public string WorkflowHint =>
-            "Generate Selected records that module like a clerk using it. Generate All queues every catalog module, one MP4 each. A job fails if ffmpeg, TTS or frames are missing.";
+            "Generate Selected opens the live module, waits for the page to paint, then narrates in sync with the screen. Generate All queues every catalog module, one MP4 each. A job fails if ffmpeg or frames are missing.";
 
         public string StatusText { get; private set; } =
             "A demo is successful only when a valid MP4 is written. " +

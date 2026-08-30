@@ -158,10 +158,7 @@ namespace ProGlassAutomation.Agent.Demo
                 // Now: close leftover wizards and land DIRECTLY on the
                 // workflow's own module BEFORE the first frame is
                 // captured. Recording starts already on the right page.
-                await ResetUiStateAsync(
-                    ct,
-                    DemoWorkflowCatalog.Find(module)?.NavigateTarget)
-                    .ConfigureAwait(false);
+                await ResetUiStateAsync(ct, module).ConfigureAwait(false);
 
                 Set(DemoJobState.Recording,
                     "Recording the live " + module + " window at " + rec.Summary + ".");
@@ -551,33 +548,17 @@ namespace ProGlassAutomation.Agent.Demo
         }
 
         /// <summary>
-        /// Returns the live UI to a neutral state before each recorded
-        /// workflow: closes a wizard the previous job may have left open
-        /// and navigates to the dashboard (the home screen every module
-        /// navigation can reach). Never throws — a failed reset must not
-        /// cancel the recording.
-        /// </summary>
-        /// <summary>
-        /// Returns the live UI to a ready state before a recorded
-        /// workflow: closes a wizard the previous job may have left open
-        /// and lands DIRECTLY on the workflow's own module (passed in
-        /// <paramref name="navigateTarget"/>), so the first captured
-        /// frame already shows the right page. 2026-08-25: previously
-        /// this navigated to the Dashboard after the recorder started —
-        /// the "stays on the dashboard / Settings text in the video"
-        /// complaint.
+        /// Closes a leftover wizard and lands on the workflow's own
+        /// module before the first frame is captured, so the opening
+        /// seconds of the video already match the voice.
         /// </summary>
         private static async Task ResetUiStateAsync(
-            CancellationToken ct, string? navigateTarget = null)
+            CancellationToken ct, string? moduleId = null)
         {
             try
             {
                 var disp = System.Windows.Application.Current?.Dispatcher;
                 if (disp == null) return;
-
-                string target = string.IsNullOrWhiteSpace(navigateTarget)
-                    ? "Dashboard"
-                    : navigateTarget.Trim();
 
                 await disp.InvokeAsync(() =>
                 {
@@ -594,7 +575,7 @@ namespace ProGlassAutomation.Agent.Demo
                             }
                         }
 
-                        ProGlassAutomation.Agent.Core.AgentHost.Navigate?.Invoke(target);
+                        DemoWalk.LandOnModule(moduleId);
                     }
                     catch (Exception ex)
                     {
@@ -603,7 +584,7 @@ namespace ProGlassAutomation.Agent.Demo
                     }
                 }).Task.ConfigureAwait(false);
 
-                await Task.Delay(500, ct).ConfigureAwait(false);
+                await Task.Delay(700, ct).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -682,6 +663,8 @@ namespace ProGlassAutomation.Agent.Demo
                 "SystemCenter" => Tour("SystemCenter", "SystemCenter", "System Center", "Administer users and system access."),
                 "Diagnostics" => Tour("Diagnostics", "Diagnostics", "Diagnostics", "Inspect application health and operational logs."),
                 "Settings" => Tour("Settings", "Settings", "Settings", "Configure recording, services and appearance."),
+                "Features" => Tour("Features", "Settings", "Settings — Features", "Toggle optional fields without editing the layout."),
+                "License" => Tour("License", "Settings", "Settings — License", "Start a trial or activate a licence key."),
                 "About" => Tour("About", "About", "About ProGlass", "Review platform capabilities and release information."),
                 _ => null
             };

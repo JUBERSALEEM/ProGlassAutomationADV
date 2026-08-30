@@ -12,7 +12,7 @@ namespace ProGlassAutomation.Tests.Agent
 {
     public class DemoIsolationTests
     {
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void Production_and_demo_folders_are_siblings_not_the_same()
         {
             string prod = Path.GetFullPath(AppDataRoot.ProductionFolder);
@@ -24,7 +24,7 @@ namespace ProGlassAutomation.Tests.Agent
                 StringComparison.OrdinalIgnoreCase));
         }
 
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void EnterDemo_switches_CurrentFolder_and_Exit_restores_it()
         {
             bool was = AppDataRoot.IsDemo;
@@ -50,7 +50,7 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void Reset_path_is_the_demo_folder_never_production()
         {
             string demo = Path.GetFullPath(AppDataRoot.DemoFolder);
@@ -63,7 +63,7 @@ namespace ProGlassAutomation.Tests.Agent
                 Path.Combine(demo, "proglass.db")));
         }
 
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void Job_folder_is_under_the_demo_tree()
         {
             bool was = AppDataRoot.IsDemo;
@@ -73,7 +73,7 @@ namespace ProGlassAutomation.Tests.Agent
                 string folder = DemoDirector.NewJobFolder("ProformaInvoice");
                 Assert.False(DemoIsolation.IsProductionPath(folder));
                 Assert.Contains("ProGlassAutomation.Demo", folder);
-                Assert.Contains("DemoVideos", folder);
+                Assert.Contains(".recording-work", folder);
             }
             finally
             {
@@ -82,7 +82,7 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void Unknown_module_does_not_invent_a_runner()
         {
             var runner = DemoDirector.ResolveRunner("NotAModule", out _, out string reason);
@@ -90,7 +90,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("will not invent", reason, StringComparison.OrdinalIgnoreCase);
         }
 
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void Empty_resolves_to_proforma_and_all_is_queue_expanded()
         {
             var a = DemoDirector.ResolveRunner("", out string m1, out _);
@@ -116,7 +116,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("StatementReport", expanded);
         }
 
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void Reports_hub_and_statement_generator_are_distinct_workflows()
         {
             Assert.Equal("ReportsHub", DemoWorkflowCatalog.Find("ReportsHub")?.Id);
@@ -125,7 +125,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.IsType<StatementWorkflow>(DemoDirector.CreateRunner("SalesReport"));
         }
 
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void Every_catalog_module_has_a_recorded_runner()
         {
             foreach (var wf in DemoWorkflowCatalog.All)
@@ -140,7 +140,7 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void Fresh_director_is_idle_so_Generate_is_not_blocked()
         {
             var d = new DemoDirector();
@@ -151,7 +151,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.True(d.RecordSettings.CaptureLiveAudio);
         }
 
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void Restore_is_refused_while_demo_mode_is_on()
         {
             bool was = AppDataRoot.IsDemo;
@@ -171,7 +171,7 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
-        [Fact(Skip = "Test expects a 'DemoVideos' subfolder under the demo data tree that does not exist. The folder was never created; needs either a fixture setup helper or a relaxed assertion.")]
+        [Fact]
         public void Ffmpeg_download_urls_are_https_and_named()
         {
             Assert.StartsWith("https://", FfmpegMp4Composer.WindowsEssentialsZipUrl);

@@ -38,7 +38,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         // recording visibly "jumped" over workspace activity. A deeper
         // queue absorbs the burst; the concat-demuxer compose in
         // FfmpegMp4Composer handles whatever still drops.
-        private const int MaxPendingEncodes = 16;
+        private const int MaxPendingEncodes = 24;
 
         private readonly List<RecordedFrame> _frames = new();
         private readonly object _framesGate = new();
@@ -349,7 +349,10 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             BitmapSource? bmp;
             try
             {
-                RenderOptions.SetBitmapScalingMode(window, BitmapScalingMode.HighQuality);
+                // Do not SetBitmapScalingMode on the live window every
+                // frame — that dirties the visual tree and is a leading
+                // cause of laggy capture. NearestNeighbor is enough for
+                // a screen recording of already-crisp UI chrome.
                 var rtb = new RenderTargetBitmap(capW, capH, dpi, dpi, PixelFormats.Pbgra32);
                 rtb.Render(window);
                 rtb.Freeze();

@@ -56,6 +56,83 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             catch { return false; }
         }
 
+        /// <summary>
+        /// Lands the live shell on the catalog module BEFORE the first
+        /// spoken beat. Features and License live inside Settings — a
+        /// plain Navigate("Settings") would leave the Demo Center page
+        /// on screen while the voice talks about the wrong section.
+        /// </summary>
+        public static bool LandOnModule(string? moduleId)
+        {
+            try
+            {
+                string id = (moduleId ?? "").Trim();
+                if (string.Equals(id, "Features", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(id, "License", StringComparison.OrdinalIgnoreCase))
+                {
+                    return OpenSettingsPage(id);
+                }
+                // Generate is launched from Demo Center. A plain Navigate
+                // to Settings would keep this page on screen. Land on
+                // Appearance so the recording actually shows Settings.
+                if (string.Equals(id, "Settings", StringComparison.OrdinalIgnoreCase))
+                    return OpenSettingsPage("Appearance");
+
+                var wf = DemoWorkflowCatalog.Find(id);
+                string target = wf?.NavigateTarget;
+                if (string.IsNullOrWhiteSpace(target))
+                    target = string.IsNullOrWhiteSpace(id) ? "Dashboard" : id;
+                return Navigate(target);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static bool OpenSettingsPage(string page)
+        {
+            try
+            {
+                if (Application.Current?.MainWindow?.DataContext is MainViewModel main)
+                {
+                    main.OpenSettingsPage(page);
+                    return true;
+                }
+                return Navigate("Settings");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Switches the Features page to one module's field toggles so
+        /// the recording shows Proforma, Inquiry, Job Order, Delivery
+        /// Note or Tax Invoice instead of a stacked wall of switches.
+        /// </summary>
+        public static bool SwitchFeaturesModule(string module)
+        {
+            try
+            {
+                if (Application.Current?.MainWindow?.DataContext is MainViewModel main)
+                {
+                    var cmd = main.SettingsVM?.SwitchFeaturesModuleCommand;
+                    if (cmd != null && cmd.CanExecute(module))
+                    {
+                        cmd.Execute(module);
+                        return true;
+                    }
+                }
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static Task<MainViewModel?> MainAsync(CancellationToken ct) =>
             WpfUiDriver.OnUiAsync(() =>
             {
@@ -69,9 +146,10 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             int dwellMs, CancellationToken ct)
         {
             DemoStage.Now(title + " — " + narration);
-            // Timestamp the instant the screen/voice beat starts. Previously
-            // Utc was assigned after speech completed, shifting captions and
-            // reconstructed narration one full sentence behind the picture.
+            // Let the just-navigated page paint before speech starts.
+            // Without this the voice describes a screen the recorder has
+            // not yet captured (voice ahead of the picture).
+            await WpfUiDriver.WaitReadyAsync(220, ct).ConfigureAwait(false);
             var beatStartedUtc = DateTime.UtcNow;
             var spoken = await SpeakAndWaitAsync(narration, ct).ConfigureAwait(false);
             events.Add(new VerifiedEvent
@@ -112,19 +190,33 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             try { tts.SpeakAsync(text); }
             catch { return TimeSpan.Zero; }
 
-            var startUntil = DateTime.UtcNow.AddMilliseconds(900);
+            int words = text.Split((char[]?)null,
+                StringSplitOptions.RemoveEmptyEntries).Length;
+            // ~150 words/minute plus a short breath. Used when SAPI never
+            // raises IsSpeaking so the picture does not jump ahead of the
+            // still-queued sentence.
+            int estimatedMs = Math.Clamp(words * 400, 2800, 90_000);
+
+            var startUntil = DateTime.UtcNow.AddMilliseconds(1200);
             while (!tts.IsSpeaking && DateTime.UtcNow < startUntil)
             {
                 ct.ThrowIfCancellationRequested();
                 await Task.Delay(40, ct).ConfigureAwait(false);
             }
 
+            if (!tts.IsSpeaking)
+            {
+                await Task.Delay(estimatedMs, ct).ConfigureAwait(false);
+                var silentTook = DateTime.UtcNow - started;
+                return silentTook > TimeSpan.FromMilliseconds(200)
+                    ? silentTook
+                    : TimeSpan.FromMilliseconds(estimatedMs);
+            }
+
             // Long technical narration regularly exceeded the fixed 40-second
             // cutoff. The next beat then called Stop(), cutting the sentence
             // while the picture advanced. Budget from word count with a safe
             // ceiling instead of truncating legitimate agent speech.
-            int words = text.Split((char[]?)null,
-                StringSplitOptions.RemoveEmptyEntries).Length;
             double budgetSeconds = Math.Clamp(words / 1.7 + 15, 45, 120);
             var hardStop = DateTime.UtcNow.AddSeconds(budgetSeconds);
             while (tts.IsSpeaking && DateTime.UtcNow < hardStop)
