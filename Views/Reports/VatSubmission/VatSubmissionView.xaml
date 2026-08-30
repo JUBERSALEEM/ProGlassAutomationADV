@@ -38,7 +38,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- ══════════════════════════════════════════════════════════
-                     1. KPI STRIP
+                     1. KPI STRIP (5 cards: Total PI → Salesmen → Revenue → Net → VAT)
                 ══════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <Grid>
@@ -46,13 +46,42 @@
                             <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Card 1: Total Revenue (inc. VAT) — What customers paid -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total revenue including VAT — what customers paid (respects active filters)">
+                        <!-- Card 1: Total PI (Invoice Count) -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total finalized Proforma Invoice count in the selected period">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="TOTAL PI" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalInvoices}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="Finalized invoices" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <!-- Card 2: Salesmen -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Active salesmen contributing to VAT in this period">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="SALESMEN" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.BySalesman.Count}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding Summary.ByCompany.Count, Mode=OneWay, StringFormat={}{0} companies}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <!-- Card 3: Total Revenue (inc. VAT) -->
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total revenue including VAT — what customers paid">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="TOTAL REVENUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
@@ -61,24 +90,10 @@
                             </StackPanel>
                         </StackPanel>
 
-                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                        <!-- Card 2: Total VAT Collected — What we owe FTA -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total 5% VAT collected — payable to UAE FTA">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="VAT COLLECTED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalVatCollected, StringFormat={}AED {0:N2}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="5% FTA rate" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                        <!-- Card 3: Net Revenue (ex. VAT) — What we keep -->
-                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Net revenue excluding VAT — what the business retains">
+                        <!-- Card 4: Net Revenue (ex. VAT) -->
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Net revenue excluding VAT — what the business retains">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE838;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -89,24 +104,24 @@
                             </StackPanel>
                         </StackPanel>
 
-                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <Border Grid.Column="7" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                        <!-- Card 4: Invoice Count — Volume metric -->
-                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total finalized invoice count in the selected period">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <!-- Card 5: VAT Collected (5% FTA) -->
+                        <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total 5% VAT collected — payable to UAE FTA">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintRedBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE7C1;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="INVOICES" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalInvoices}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.BySalesman.Count, Mode=OneWay, StringFormat={}{0} salesmen}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="VAT COLLECTED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalVatCollected, StringFormat={}AED {0:N2}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="5% FTA rate" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <!-- ══════════════════════════════════════════════════════════
-                     2. FILTER BAR
+                     2. FILTER BAR (professional layout with labels above inputs)
                 ══════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
                     <Grid>

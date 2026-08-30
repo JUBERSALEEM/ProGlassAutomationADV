@@ -2293,11 +2293,11 @@ namespace ProGlassAutomation.Services.Reporting
                 using var db = new ProformaInvoicesDbContext();
                 var query = db.ProformaInvoices.AsNoTracking().AsQueryable();
                 
-                // CRITICAL: VAT compliance — only include finalized invoices
-                // Draft = never issued, Sent/Released = pending approval, Rejected/Cancelled = void
-                // Only Approved/Confirmed/Issued represent actual VAT liability to FTA
-                var vatEligibleStatuses = new[] { "Approved", "Confirmed", "Issued" };
-                query = query.Where(i => i.Status != null && vatEligibleStatuses.Contains(i.Status));
+                // VAT compliance — exclude non-finalized invoices
+                // Draft = never issued, Rejected/Cancelled/Void = voided
+                // Include: Approved, Confirmed, Issued, Sent, Released (all have VAT charged)
+                var vatExcludedStatuses = new[] { "Draft", "Rejected", "Cancelled", "Void" };
+                query = query.Where(i => i.Status != null && !vatExcludedStatuses.Contains(i.Status));
                 
                 // Apply filters
                 if (filter.DateFrom.HasValue)
