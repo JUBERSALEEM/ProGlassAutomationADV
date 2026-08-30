@@ -420,6 +420,7 @@
                                                             <ColumnDefinition Width="0.6*"/>
                                                             <ColumnDefinition Width="0.6*"/>
                                                             <ColumnDefinition Width="0.5*"/>
+                                                            <ColumnDefinition Width="0.6*"/>
                                                             <ColumnDefinition Width="0.7*"/>
                                                             <ColumnDefinition Width="0.8*"/>
                                                             <ColumnDefinition Width="0.7*"/>
@@ -452,29 +453,34 @@
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
-                                                        <TextBlock Grid.Column="7" Text="SQM"
+                                                        <TextBlock Grid.Column="7" Text="PREV"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"
+                                                                   ToolTip="Previously delivered in other DNs"/>
+                                                        <TextBlock Grid.Column="8" Text="SQM"
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
-                                                        <TextBlock Grid.Column="8" Text="TOTAL SQM"
+                                                        <TextBlock Grid.Column="9" Text="TOTAL SQM"
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
-                                                        <TextBlock Grid.Column="9" Text="WT/PC"
+                                                        <TextBlock Grid.Column="10" Text="WT/PC"
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"
                                                                    ToolTip="Weight per piece (kg)"/>
-                                                        <TextBlock Grid.Column="10" Text="TOTAL WT"
+                                                        <TextBlock Grid.Column="11" Text="TOTAL WT"
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"
                                                                    ToolTip="Total weight (kg)"/>
-                                                        <TextBlock Grid.Column="11" Text="DELIVERED"
+                                                        <TextBlock Grid.Column="12" Text="DELIVERED"
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Center"
                                                                    Margin="6,8,10,8"/>
-                                                        <TextBlock Grid.Column="12" Text="BALANCE"
+                                                        <TextBlock Grid.Column="13" Text="BALANCE"
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
@@ -524,6 +530,7 @@
                                                                         <ColumnDefinition Width="0.6*"/>
                                                                         <ColumnDefinition Width="0.6*"/>
                                                                         <ColumnDefinition Width="0.5*"/>
+                                                                        <ColumnDefinition Width="0.6*"/>
                                                                         <ColumnDefinition Width="0.7*"/>
                                                                         <ColumnDefinition Width="0.8*"/>
                                                                         <ColumnDefinition Width="0.7*"/>
@@ -579,32 +586,38 @@
                                                                                Text="{Binding OrderedQty}"
                                                                                Style="{StaticResource GridNumericCell}"/>
                                                                     <TextBlock Grid.Column="7"
+                                                                               Text="{Binding PreviouslyDeliveredQty}"
+                                                                               Style="{StaticResource GridNumericCell}"
+                                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                               Opacity="0.7"
+                                                                               ToolTip="Previously delivered in other DNs"/>
+                                                                    <TextBlock Grid.Column="8"
                                                                                Text="{Binding Sqm, StringFormat={}{0:0.000}}"
                                                                                Style="{StaticResource GridNumericCell}"
                                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                                    <TextBlock Grid.Column="8"
+                                                                    <TextBlock Grid.Column="9"
                                                                                Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
                                                                                Style="{StaticResource GridNumericCell}"
                                                                                FontWeight="Bold"/>
-                                                                    <TextBlock Grid.Column="9"
+                                                                    <TextBlock Grid.Column="10"
                                                                                Text="{Binding WeightPerPiece, StringFormat={}{0:0.0}}"
                                                                                Style="{StaticResource GridNumericCell}"
                                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                                ToolTip="Weight per piece (kg)"/>
-                                                                    <TextBlock Grid.Column="10"
+                                                                    <TextBlock Grid.Column="11"
                                                                                Text="{Binding TotalWeight, StringFormat={}{0:0.0}}"
                                                                                Style="{StaticResource GridNumericCell}"
                                                                                FontWeight="Bold"
                                                                                ToolTip="Total weight = Weight/Piece × Delivered Qty"/>
-                                                                    <TextBox Grid.Column="11"
+                                                                    <TextBox Grid.Column="12"
                                                                              Text="{Binding DeliveredQty,
                                                                                     UpdateSourceTrigger=PropertyChanged}"
                                                                              behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                                                              Style="{StaticResource DeliveredQtyTextBoxStyle}"/>
-                                                                    <TextBlock Grid.Column="11"
+                                                                    <TextBlock Grid.Column="12"
                                                                                Text="{Binding DeliveredQty}"
                                                                                Style="{StaticResource DeliveredQtyReadOnlyStyle}"/>
-                                                                    <TextBlock Grid.Column="12"
+                                                                    <TextBlock Grid.Column="13"
                                                                                Text="{Binding BalanceQty}"
                                                                                Style="{StaticResource BalanceCellStyle}"/>
                                                                 </Grid>
