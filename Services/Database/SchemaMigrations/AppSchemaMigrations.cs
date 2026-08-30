@@ -41,8 +41,13 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             = new List<SchemaMigration>();
 
         // deliverynotes.db
-        public static IReadOnlyList<SchemaMigration> DeliveryNotes { get; }
-            = new List<SchemaMigration>();
+        public static IReadOnlyList<SchemaMigration> DeliveryNotes { get; } = new List<SchemaMigration>
+        {
+            new(1, "Add WeightPerPiece column for glass weight tracking", connection =>
+            {
+                SchemaMigrationSql.AddColumnIfMissing(connection, "DeliveryNoteItems", "WeightPerPiece", "TEXT NOT NULL DEFAULT '0'");
+            })
+        };
 
         // taxinvoices.db
         public static IReadOnlyList<SchemaMigration> TaxInvoices { get; }
