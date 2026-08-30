@@ -682,6 +682,22 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             var dnEntity = DeliveryNoteMapper.FromJobOrder(
                 jobOrder, joSnapshot, dnId, nextSeq);
 
+            // Show clear confirmation with next steps
+            MessageBox.Show(
+                $"Delivery Note Created Successfully\n\n" +
+                $"  DN Number:  {dnEntity.DeliveryNoteId}\n" +
+                $"  Job Order:  {dnEntity.JobOrderId}\n" +
+                $"  Customer:   {dnEntity.CustomerName}\n" +
+                $"  Items:      {dnEntity.Items.Count}\n" +
+                $"  Total Qty:  {dnEntity.TotalOrderedQty} pcs\n\n" +
+                $"NEXT STEPS:\n" +
+                $"  1. Fill in the DELIVERED QTY for each item\n" +
+                $"  2. Click DISPATCH when ready\n\n" +
+                $"For partial delivery, enter only the quantity being delivered now.",
+                "Delivery Note Created",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+
             foreach (var item in dnEntity.Items)
             {
                 int previouslyDelivered = await App.DeliveryNotes
