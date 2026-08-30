@@ -8,77 +8,171 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
+    <UserControl.Resources>
+        <Style x:Key="QuickSettingsRow" TargetType="Button">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{DynamicResource TintIndigoBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="QuickSettingsGlyph" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+        <Style x:Key="QuickSettingsLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Margin" Value="10,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        </Style>
+        <Style x:Key="QuickSettingsGroup" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="10,10,10,4"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        </Style>
+    </UserControl.Resources>
+
     <Grid Margin="10,8,10,16">
-    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="24" ShadowDepth="3"
-                              Opacity="0.18" Color="#000000" Direction="270"/>
-        </Border.Effect>
-        <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{DynamicResource ShellLiquidBrush}"
-                BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
-                BorderThickness="1"
-                ClipToBounds="True">
+        <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="3"
+                                  Opacity="0.18" Color="#000000" Direction="270"/>
+            </Border.Effect>
+            <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                    Background="{DynamicResource ShellLiquidBrush}"
+                    BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
+                    BorderThickness="1"
+                    ClipToBounds="True">
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-            <Border Grid.Row="0"
-                    Background="{DynamicResource AccentBrush}"
-                    CornerRadius="16,16,0,0"
-                    Padding="18,12">
-                <StackPanel>
-                    <TextBlock Text="Settings"
-                               FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    <TextBlock Text="Quick access"
-                               FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}"
-                               Opacity="0.85" Margin="0,2,0,0"/>
-                </StackPanel>
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource AccentBrush}"
+                            CornerRadius="16,16,0,0"
+                            Padding="18,12">
+                        <StackPanel>
+                            <TextBlock Text="Settings"
+                                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Text="Every page in the settings sidebar"
+                                       FontSize="{StaticResource TextCaption}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       Opacity="0.85" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1"
+                                  MaxHeight="520"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Padding="8,4,8,10">
+                        <StackPanel>
+
+                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="LOOK"/>
+                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Appearance" Click="Link_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE790;"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Appearance"/>
+                                </StackPanel>
+                            </Button>
+
+                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="INTELLIGENCE"/>
+                            <Button Style="{StaticResource QuickSettingsRow}" Tag="AI" Click="Link_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE8F2;"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="AI Assistant"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Agent" Click="Link_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE99A;"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="AI &amp; Agent"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Voice" Click="Link_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE720;"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Voice"/>
+                                </StackPanel>
+                            </Button>
+
+                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="SYSTEM"/>
+                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Data" Click="Link_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE74E;"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Data &amp; Backup"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Updates" Click="Link_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE72C;"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Updates"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Demo" Click="Link_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE714;"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Demo Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Features" Click="Link_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE762;"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Features"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource QuickSettingsRow}" Tag="License" Click="Link_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE192;"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="License"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource QuickSettingsRow}" Tag="About" Click="Link_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE946;"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="About &amp; Help"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
             </Border>
-
-            <StackPanel Grid.Row="1" Margin="10,10,10,12">
-                <Button Content="Appearance" Tag="Appearance"
-                        Height="36" Margin="0,1" Cursor="Hand"
-                        Background="Transparent" BorderThickness="0"
-                        HorizontalContentAlignment="Left"
-                        FontSize="{StaticResource TextBody}" FontWeight="Medium"
-                        Foreground="{DynamicResource PrimaryForegroundBrush}"
-                        Click="Link_Click"/>
-                <Button Content="AI &amp; Agent" Tag="AI"
-                        Height="36" Margin="0,1" Cursor="Hand"
-                        Background="Transparent" BorderThickness="0"
-                        HorizontalContentAlignment="Left"
-                        FontSize="{StaticResource TextBody}" FontWeight="Medium"
-                        Foreground="{DynamicResource PrimaryForegroundBrush}"
-                        Click="Link_Click"/>
-                <Button Content="Voice" Tag="Voice"
-                        Height="36" Margin="0,1" Cursor="Hand"
-                        Background="Transparent" BorderThickness="0"
-                        HorizontalContentAlignment="Left"
-                        FontSize="{StaticResource TextBody}" FontWeight="Medium"
-                        Foreground="{DynamicResource PrimaryForegroundBrush}"
-                        Click="Link_Click"/>
-                <Button Content="Data &amp; Database" Tag="Data"
-                        Height="36" Margin="0,1" Cursor="Hand"
-                        Background="Transparent" BorderThickness="0"
-                        HorizontalContentAlignment="Left"
-                        FontSize="{StaticResource TextBody}" FontWeight="Medium"
-                        Foreground="{DynamicResource PrimaryForegroundBrush}"
-                        Click="Link_Click"/>
-                <Button Content="Updates" Tag="Updates"
-                        Height="36" Margin="0,1" Cursor="Hand"
-                        Background="Transparent" BorderThickness="0"
-                        HorizontalContentAlignment="Left"
-                        FontSize="{StaticResource TextBody}" FontWeight="Medium"
-                        Foreground="{DynamicResource PrimaryForegroundBrush}"
-                        Click="Link_Click"/>
-            </StackPanel>
-        </Grid>
         </Border>
-    </Border>
     </Grid>
 </UserControl>

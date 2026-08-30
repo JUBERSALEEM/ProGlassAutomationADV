@@ -92,7 +92,12 @@
                             Margin="0,14,0,0"/>
                 </StackPanel>
 
-                <!-- Nav items -->
+                <!-- Nav items — scroll so every page stays reachable on
+                     short windows instead of clipping License / About. -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False"
+                              PanningMode="VerticalOnly">
                 <StackPanel>
 
                     <!-- APPEARANCE -->
@@ -291,6 +296,7 @@
                     </Button>
 
                 </StackPanel>
+                </ScrollViewer>
             </DockPanel>
         </Border>
 

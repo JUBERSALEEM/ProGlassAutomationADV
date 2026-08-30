@@ -1124,7 +1124,7 @@
                IsOpen="{Binding IsSettingsOpen, Mode=TwoWay}"
                Opened="SettingsPopup_Opened"
                Closed="SettingsPopup_Closed">
-            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="340"
+            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="360"
                                             />
         </Popup>
 
