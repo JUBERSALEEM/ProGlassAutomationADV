@@ -33,6 +33,7 @@ using ProGlassAutomation.Services.DeliveryNote.Mapper;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.MasterData.Database;
 using ProGlassAutomation.Services.SheetStore;
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using System.Text.Json;
@@ -645,25 +646,51 @@ namespace ProGlassAutomation.Services.SampleData
             string projectName, string companyName, string companyTrn,
             string status, DateTime issue, DateTime due)
         {
-            // Calculate based on delivered items only
-            decimal deliveredSubtotal = 0;
-            // Spec Group 1 items (first 10) — all delivered
-            var sg1Items = new[]
+            // Build line items from delivered Spec Group 1 items
+            var items = new List<SavedTaxInvoice.TaxInvoiceItem>();
+            
+            // Spec Group 1: Clear Tempered — Main Facade (10 items, all delivered)
+            var sg1Data = new[]
             {
-                (1200m * 900m / 1000000m * 8 * 150m),
-                (1500m * 1000m / 1000000m * 6 * 150m),
-                (1800m * 1200m / 1000000m * 5 * 185m),
-                (2000m * 1500m / 1000000m * 4 * 185m),
-                (2200m * 1400m / 1000000m * 3 * 210m),
-                (2400m * 1600m / 1000000m * 3 * 210m),
-                (1800m * 1200m / 1000000m * 4 * 245m),
-                (2000m * 1500m / 1000000m * 2 * 245m),
-                (1000m * 800m / 1000000m * 6 * 150m),
-                (1600m * 1100m / 1000000m * 4 * 185m),
+                (1, "CT-06-1200x900", 1200, 900, 8, 150m),
+                (2, "CT-06-1500x1000", 1500, 1000, 6, 150m),
+                (3, "CT-08-1800x1200", 1800, 1200, 5, 185m),
+                (4, "CT-08-2000x1500", 2000, 1500, 4, 185m),
+                (5, "CT-10-2200x1400", 2200, 1400, 3, 210m),
+                (6, "CT-10-2400x1600", 2400, 1600, 3, 210m),
+                (7, "CT-12-1800x1200", 1800, 1200, 4, 245m),
+                (8, "CT-12-2000x1500", 2000, 1500, 2, 245m),
+                (9, "CT-06-1000x800", 1000, 800, 6, 150m),
+                (10, "CT-08-1600x1100", 1600, 1100, 4, 185m),
             };
-            deliveredSubtotal = (decimal)sg1Items.Sum();
-            deliveredSubtotal = Math.Round(deliveredSubtotal, 2);
 
+            foreach (var (serial, glassRef, w1, h1, qty, rate) in sg1Data)
+            {
+                decimal sqm = Math.Max(0.5m, (decimal)w1 / 1000m * (decimal)h1 / 1000m);
+                decimal totalSqm = sqm * qty;
+                decimal value = rate * totalSqm;
+                
+                items.Add(new SavedTaxInvoice.TaxInvoiceItem
+                {
+                    InvoiceNumber = num,
+                    ProformaId = piId,
+                    SpecGroupNumber = 1,
+                    SpecGroupName = "Clear Tempered — Main Facade",
+                    GlassType = "SGU",
+                    SerialNumber = serial,
+                    GlassRef = glassRef,
+                    W1 = w1, H1 = h1, W2 = 0, H2 = 0,
+                    Qty = qty,
+                    Sqm = Math.Round(sqm, 3),
+                    TotalSqm = Math.Round(totalSqm, 3),
+                    Rate = rate,
+                    Value = Math.Round(value, 2),
+                    Notes = ""
+                });
+            }
+
+            decimal deliveredSubtotal = items.Sum(i => i.Value);
+            deliveredSubtotal = Math.Round(deliveredSubtotal, 2);
             decimal vat = Math.Round(deliveredSubtotal * 0.05m, 2);
             decimal total = deliveredSubtotal + vat;
 
@@ -684,6 +711,7 @@ namespace ProGlassAutomation.Services.SampleData
                 Subtotal = deliveredSubtotal,
                 VatAmount = vat,
                 GrandTotal = total,
+                Items = items
             };
         }
     }

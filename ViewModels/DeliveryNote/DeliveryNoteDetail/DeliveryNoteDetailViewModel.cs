@@ -1786,19 +1786,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 return;
             }
 
-            var confirm = MessageBox.Show(
-                $"Create Tax Invoice for this specific delivery?\n\n" +
-                $"DN        : {targetDnId}\n" +
-                $"Status    : {targetStatus}\n" +
-                $"Delivered : {targetQty} pcs (THIS DN only)\n" +
-                $"PI        : {ProformaId}\n" +
-                $"Customer  : {CustomerName}",
-                "Convert Single DN to Tax Invoice",
-                MessageBoxButton.OKCancel,
-                MessageBoxImage.Question);
-
-            if (confirm != MessageBoxResult.OK) return;
-
             try
             {
                 await OnRequestOpenTaxInvoiceForDeliveryNote(targetDnId);
