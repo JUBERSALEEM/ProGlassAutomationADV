@@ -202,16 +202,16 @@
                     <StackPanel Grid.Column="7"
                                 VerticalAlignment="Center"
                                 Margin="8,6,10,6">
-                        <Button Style="{StaticResource RowOutlinedButton}"
-                                Tag="&#xE718;" Content="MASTER DN"
-                                ToolTip="Open the Master DN created from this Job Order."
-                                Command="{Binding DataContext.OpenMasterCommand,
+                        <Button Style="{StaticResource RowPrimaryButton}"
+                                Tag="&#xE710;" Content="CREATE DN"
+                                ToolTip="Create a new delivery note for remaining balance."
+                                Command="{Binding DataContext.CreateDnForJobOrderCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"/>
+                                CommandParameter="{Binding JobOrderId}"/>
                         <Button Style="{StaticResource RowSuccessButton}"
-                                Tag="&#xE8A5;" Content="MASTER INVOICE"
+                                Tag="&#xE8A5;" Content="INVOICE"
                                 Margin="0,6,0,0"
-                                ToolTip="Generate Master Tax Invoice for this order."
+                                ToolTip="Generate Tax Invoice for this order."
                                 Command="{Binding DataContext.GenerateMasterInvoiceCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"/>

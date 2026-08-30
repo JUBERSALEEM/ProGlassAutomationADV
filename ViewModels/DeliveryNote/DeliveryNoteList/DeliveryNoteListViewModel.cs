@@ -462,6 +462,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public ICommand OpenGroupCommand { get; }
         public ICommand OpenMasterCommand { get; }
         public ICommand GenerateMasterInvoiceCommand { get; }
+        public ICommand CreateDnForJobOrderCommand { get; }
 
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -547,6 +548,30 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     param is JobOrderGroupRowViewModel g
                     && g.AnyDelivered
                     && !string.IsNullOrWhiteSpace(g.ProformaId));
+
+            // Create DN directly from a job order row (no picker popup)
+            CreateDnForJobOrderCommand = new RelayCommand(
+                execute: async param =>
+                {
+                    string? jobOrderId = param as string;
+                    if (string.IsNullOrWhiteSpace(jobOrderId) || App.Jobs == null) return;
+
+                    try
+                    {
+                        var allJobs = await App.Jobs.GetAllAsync();
+                        var job = allJobs.FirstOrDefault(j => j.JobOrderId == jobOrderId);
+                        if (job != null)
+                            OnCreateDnFromJobOrder?.Invoke(job);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.MessageBox.Show(
+                            $"Failed to load job order:\n\n{ex.Message}",
+                            "Error", System.Windows.MessageBoxButton.OK,
+                            System.Windows.MessageBoxImage.Error);
+                    }
+                },
+                canExecute: param => param is string s && !string.IsNullOrWhiteSpace(s));
 
             DocumentLifecycle.Subscribe(LoadAsync);
 

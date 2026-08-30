@@ -413,16 +413,6 @@
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
-                    <Border Style="{StaticResource MasterDnBadgeStyle}">
-<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE718;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       VerticalAlignment="Center" Margin="0,0,5,0"/>
-                            <TextBlock Text="MASTER DN — READ ONLY"
-                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        </StackPanel>
-                    </Border>
                     <Border Style="{StaticResource FocBadgeStyle}">
                         <TextBlock Text="FREE OF CHARGE"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
@@ -482,10 +472,6 @@
                                         Tag="&#xE81C;" Content="Version history"
                                         Command="{Binding ShowVersionsCommand}"
                                         Click="MenuActionClicked"/>
-                                <Button Style="{StaticResource DnMenuRealOnlyItem}"
-                                        Tag="&#xE718;" Content="View Master DN"
-                                        Command="{Binding OpenMasterCommand}"
-                                        Click="MenuActionClicked"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
@@ -513,69 +499,7 @@
             </Grid>
         </Border>
 
-        <!-- ═══ ROW 1 — MASTER DN BANNER ═══ -->
-        <Border Grid.Row="1" Style="{StaticResource MasterDnBannerStyle}">
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-                    <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="&#xE718;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextDisplayLarge}" VerticalAlignment="Center"
-                           Margin="0,0,14,0"/>
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="MASTER DELIVERY NOTE — REFERENCE TRACKER"
-                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
-                               Margin="0,4,0,0" TextWrapping="Wrap">
-                        <Run Text="Auto-created from Job Order. Read-only."/>
-                        <Run Text=" Updates automatically after each dispatch."/>
-                        <Run Text=" Remaining balance is shown by default."/>
-                        <Run Text=" Use SHOW FULL MASTER for the original JO set."/>
-                    </TextBlock>
-                </StackPanel>
-                <StackPanel Grid.Column="2" VerticalAlignment="Center"
-                            HorizontalAlignment="Right"
-                            Margin="20,0,0,0" MinWidth="140">
-                    <TextBlock HorizontalAlignment="Right"
-                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,0,0,4">
-                        <Run Text="{Binding DeliveryProgressPercent,
-                                    Mode=OneWay, StringFormat={}{0:0.#}}"/>
-                        <Run Text="% delivered"/>
-                    </TextBlock>
-                    <Border x:Name="BannerProgressTrack"
-                            CornerRadius="4" Height="8"
-                            Background="{DynamicResource LiquidGlassSubtleBrush}">
-                        <Border CornerRadius="4" HorizontalAlignment="Left"
-                                Background="{DynamicResource AccentBrush}">
-                            <Border.Width>
-                                <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
-                                    <Binding Path="DeliveryProgressPercent"/>
-                                    <Binding Path="ActualWidth"
-                                             ElementName="BannerProgressTrack"/>
-                                </MultiBinding>
-                            </Border.Width>
-                        </Border>
-                    </Border>
-                    <TextBlock HorizontalAlignment="Right"
-                               FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
-                               Margin="0,4,0,0">
-                        <Run Text="{Binding TotalBalanceQty, Mode=OneWay}"
-                             FontWeight="Bold"/>
-                        <Run Text=" pcs remaining"/>
-                    </TextBlock>
-                </StackPanel>
-            </Grid>
-        </Border>
+        <!-- ROW 1 removed — Master DN banner no longer needed -->
 
         <!-- ═══ ROW 2 — LOADING / ERROR ═══ -->
         <StackPanel Grid.Row="2">

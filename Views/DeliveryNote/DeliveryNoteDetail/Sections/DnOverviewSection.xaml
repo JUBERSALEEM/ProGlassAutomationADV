@@ -347,8 +347,6 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
@@ -357,39 +355,17 @@
                                 </StackPanel>
 
                                 <Button Grid.Column="1"
-                                        Style="{StaticResource MasterScopeButtonStyle}"
-                                        Tag="&#xE8A5;"
-                                        Content="{Binding MasterScopeButtonText}"
-                                        Command="{Binding ToggleFullMasterCommand}"
-                                        ToolTip="Remaining balance only, or the original Job Order Master."/>
-
-                                <!-- SELECT ALL REMAINING -->
-                                <Button Grid.Column="3"
                                         Style="{StaticResource RowPrimaryButton}"
-                                        Tag="&#xE73E;" Content="SELECT ALL REMAINING"
+                                        Tag="&#xE73E;" Content="FILL ALL BALANCE"
                                         Command="{Binding FillRemainingCommand}"
                                         ToolTip="Fill ALL balance quantities into Delivered column."/>
 
-                                <!-- RESET QTY — NEW CHAT 19 -->
-                                <Button Grid.Column="5"
+                                <Button Grid.Column="3"
                                         Style="{StaticResource RowOutlinedButton}"
                                         Tag="&#xE72C;" Content="RESET QTY"
                                         Command="{Binding ResetQtyCommand}"
                                         ToolTip="Reset all Delivered quantities back to 0."/>
                             </Grid>
-
-                            <Border Margin="4,0,4,8" Padding="10,6"
-                                    Background="{DynamicResource TintIndigoBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="{DynamicResource CardBorderThickness}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Visibility="{Binding HasHiddenFullyDeliveredRows,
-                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="{Binding HiddenFullyDeliveredSummary}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           TextWrapping="Wrap"/>
-                            </Border>
 
                             <Border Margin="4,8,4,8" Padding="16,20"
                                     Visibility="{Binding HasNoPendingBalanceItems,
@@ -403,7 +379,7 @@
                                                FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                                HorizontalAlignment="Center" Margin="0,8,0,4"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="No remaining balance on this Master DN."
+                                    <TextBlock Text="No remaining balance to deliver."
                                                FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
@@ -412,14 +388,14 @@
 
                             <ScrollViewer Grid.Row="1"
                                           VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
                                           CanContentScroll="False"
-                                          PanningMode="Both"
+                                          PanningMode="VerticalOnly"
                                           Focusable="True"
                                           FocusVisualStyle="{x:Null}"
                                           behaviors:SmoothScrollBehavior.IsEnabled="True">
                             <ItemsControl ItemsSource="{Binding VisibleGroups}"
-                                          MinWidth="980">
+                                          HorizontalAlignment="Stretch">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Style="{StaticResource SpecGroupCardStyle}">
@@ -449,21 +425,19 @@
                                                 <Border Style="{StaticResource LineItemsHeaderStyle}">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="36"/>
-                                                            <ColumnDefinition Width="160"/>
-                                                            <ColumnDefinition Width="50"/>
-                                                            <ColumnDefinition Width="50"/>
-                                                            <ColumnDefinition Width="50"/>
-                                                            <ColumnDefinition Width="50"/>
-                                                            <ColumnDefinition Width="45"/>
-                                                            <ColumnDefinition Width="62"/>
-                                                            <ColumnDefinition Width="72"/>
-                                                            <ColumnDefinition Width="62"/>
-                                                            <ColumnDefinition Width="72"/>
-                                                            <ColumnDefinition Width="8"/>
-                                                            <ColumnDefinition Width="80"/>
-                                                            <ColumnDefinition Width="8"/>
-                                                            <ColumnDefinition Width="62"/>
+                                                            <ColumnDefinition Width="30"/>
+                                                            <ColumnDefinition Width="1.5*"/>
+                                                            <ColumnDefinition Width="0.6*"/>
+                                                            <ColumnDefinition Width="0.6*"/>
+                                                            <ColumnDefinition Width="0.6*"/>
+                                                            <ColumnDefinition Width="0.6*"/>
+                                                            <ColumnDefinition Width="0.5*"/>
+                                                            <ColumnDefinition Width="0.7*"/>
+                                                            <ColumnDefinition Width="0.8*"/>
+                                                            <ColumnDefinition Width="0.7*"/>
+                                                            <ColumnDefinition Width="0.8*"/>
+                                                            <ColumnDefinition Width="0.8*"/>
+                                                            <ColumnDefinition Width="0.6*"/>
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Grid.Column="0" Text="#"
                                                                    Style="{StaticResource GridHeaderCell}"
@@ -508,12 +482,10 @@
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"
                                                                    ToolTip="Total weight (kg)"/>
-                                                        <Border Grid.Column="11"
-                                                                Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                        <TextBlock Grid.Column="12"
-                                                                   Style="{StaticResource ThisDnHeaderStyle}"/>
-                                                        <Border Grid.Column="11"
-                                                                Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                        <TextBlock Grid.Column="11" Text="DELIVERED"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Center"
+                                                                   Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="12" Text="BALANCE"
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Right"
@@ -557,21 +529,19 @@
                                                                 </Border.Style>
                                                                 <Grid>
                                                                     <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="36"/>
-                                                                        <ColumnDefinition Width="160"/>
-                                                                        <ColumnDefinition Width="50"/>
-                                                                        <ColumnDefinition Width="50"/>
-                                                                        <ColumnDefinition Width="50"/>
-                                                                        <ColumnDefinition Width="50"/>
-                                                                        <ColumnDefinition Width="45"/>
-                                                                        <ColumnDefinition Width="62"/>
-                                                                        <ColumnDefinition Width="72"/>
-                                                                        <ColumnDefinition Width="62"/>
-                                                                        <ColumnDefinition Width="72"/>
-                                                                        <ColumnDefinition Width="8"/>
-                                                                        <ColumnDefinition Width="80"/>
-                                                                        <ColumnDefinition Width="8"/>
-                                                                        <ColumnDefinition Width="62"/>
+                                                                        <ColumnDefinition Width="30"/>
+                                                                        <ColumnDefinition Width="1.5*"/>
+                                                                        <ColumnDefinition Width="0.6*"/>
+                                                                        <ColumnDefinition Width="0.6*"/>
+                                                                        <ColumnDefinition Width="0.6*"/>
+                                                                        <ColumnDefinition Width="0.6*"/>
+                                                                        <ColumnDefinition Width="0.5*"/>
+                                                                        <ColumnDefinition Width="0.7*"/>
+                                                                        <ColumnDefinition Width="0.8*"/>
+                                                                        <ColumnDefinition Width="0.7*"/>
+                                                                        <ColumnDefinition Width="0.8*"/>
+                                                                        <ColumnDefinition Width="0.8*"/>
+                                                                        <ColumnDefinition Width="0.6*"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <TextBlock Grid.Column="0"
                                                                                Text="{Binding SerialNumber}"
@@ -638,19 +608,15 @@
                                                                                Style="{StaticResource GridNumericCell}"
                                                                                FontWeight="Bold"
                                                                                ToolTip="Total weight = Weight/Piece × Delivered Qty"/>
-                                                                    <Border Grid.Column="11"
-                                                                            Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                    <TextBox Grid.Column="12"
+                                                                    <TextBox Grid.Column="11"
                                                                              Text="{Binding DeliveredQty,
                                                                                     UpdateSourceTrigger=PropertyChanged}"
                                                                              behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                                                              Style="{StaticResource DeliveredQtyTextBoxStyle}"/>
-                                                                    <TextBlock Grid.Column="12"
+                                                                    <TextBlock Grid.Column="11"
                                                                                Text="{Binding DeliveredQty}"
                                                                                Style="{StaticResource DeliveredQtyReadOnlyStyle}"/>
-                                                                    <Border Grid.Column="13"
-                                                                            Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                    <TextBlock Grid.Column="14"
+                                                                    <TextBlock Grid.Column="12"
                                                                                Text="{Binding BalanceQty}"
                                                                                Style="{StaticResource BalanceCellStyle}"/>
                                                                 </Grid>

@@ -1333,20 +1333,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (_entity == null || App.DeliveryNotes == null) return;
             if (_entity.IsMasterDn) return;
 
-            bool hasAnyDelivery = ItemRows.Any(r => r.DeliveredQty > 0);
-            if (!hasAnyDelivery)
-            {
-                var warn = MessageBox.Show(
-                    "No items have a delivered quantity — all quantities are 0.\n\n" +
-                    "Are you sure you want to save with zero deliveries?\n\n" +
-                    "  Yes → Save anyway\n  No → Go back and enter quantities",
-                    "Zero Delivered Qty",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
-
-                if (warn != MessageBoxResult.Yes) return;
-            }
-
             try
             {
                 IsSaving = true;
@@ -1416,11 +1402,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     $"{DeliveryNoteId} — status {Status}",
                     "DN", DeliveryNoteId);
 
-                MessageBox.Show(
-                    $"Delivery note '{DeliveryNoteId}' saved successfully.",
-                    "Saved",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -1573,16 +1554,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 return;
             }
 
-            var confirm = MessageBox.Show(
-                $"Confirm dispatch of '{DeliveryNoteId}'?\n\n" +
-                "Status will change to Dispatched.\n" +
-                "The Master DN will be updated with new balance quantities.",
-                "Confirm Dispatch",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (confirm != MessageBoxResult.Yes) return;
-
             try
             {
                 IsSaving = true;
@@ -1659,64 +1630,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     }
                 }
 
-                if (totalBalance <= 0)
-                {
-                    MessageBox.Show(
-                        "Dispatched successfully!\n\n" +
-                        "All items fully delivered.\n" +
-                        "Master DN now shows no remaining balance.\n\n" +
-                        invoiceNote,
-                        "Dispatched",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-
-                    OnRequestBackToList?.Invoke();
-                    return;
-                }
-
-                var nextDn = MessageBox.Show(
-                    $"Dispatched successfully!\n\n" +
-                    $"This delivery     :  {deliveredThisDn} pcs\n" +
-                    $"Balance remaining :  {totalBalance} pcs " +
-                    $"({balanceItemCount} items)\n" +
-                    "Master DN now shows only remaining pcs.\n\n" +
-                    invoiceNote +
-                    "Create the next delivery note for the balance?\n\n" +
-                    "  Yes  →  Create next DN pre-filled with balance\n" +
-                    "  No   →  Go back to list",
-                    "Dispatched — Balance Remaining",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (nextDn == MessageBoxResult.Yes)
-                {
-                    // Load fresh Master DN with updated balances
-                    var masterDn = await App.DeliveryNotes
-                        .GetMasterDnForJobOrderAsync(_entity.JobOrderId);
-
-                    if (masterDn != null &&
-                        masterDn.Items.Any(i => i.BalanceQty > 0))
-                    {
-                        // Fire callback — shell VM creates next DN from balance
-                        OnRequestCreateDnFromMaster?.Invoke(masterDn);
-                    }
-                    else
-                    {
-                        // Fallback — master not found, go to list
-                        MessageBox.Show(
-                            "Could not load Master DN.\n\n" +
-                            "Use 'Create DN' from the list to create next delivery.",
-                            "Master DN Not Found",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Warning);
-
-                        OnRequestBackToList?.Invoke();
-                    }
-                }
-                else
-                {
-                    OnRequestBackToList?.Invoke();
-                }
+                // Dispatch successful — go back to list
+                OnRequestBackToList?.Invoke();
             }
             catch (Exception ex)
             {
