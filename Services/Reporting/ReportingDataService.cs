@@ -29,7 +29,6 @@ using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.MasterData.Database;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
-using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Services.Statement.Database;
 using ProGlassAutomation.Services.TaxInvoice.Database;
@@ -2280,6 +2279,17 @@ namespace ProGlassAutomation.Services.Reporting
         {
             try
             {
+                // SECURITY: Validate date range (max 5 years to prevent DoS)
+                if (filter.DateFrom.HasValue && filter.DateTo.HasValue)
+                {
+                    var dateRange = filter.DateTo.Value - filter.DateFrom.Value;
+                    if (dateRange.TotalDays > 1825) // 5 years
+                    {
+                        throw new ArgumentException(
+                            "Date range cannot exceed 5 years. Please use more restrictive filters to prevent performance issues.");
+                    }
+                }
+
                 var invoices = await ProformaInvoiceRepository.Instance.GetAllAsync();
                 if (invoices == null) return new List<VatSubmissionRow>();
                 
@@ -2301,56 +2311,62 @@ namespace ProGlassAutomation.Services.Reporting
                 
                 ct.ThrowIfCancellationRequested();
                 
+                // SECURITY: DoS protection - limit maximum records
+                const int MAX_RECORDS = 10000;
+                var invoiceList = query.ToList();
+                
+                if (invoiceList.Count > MAX_RECORDS)
+                {
+                    Services.Logging.AppLogService.Warning(
+                        $"VAT Submission: Dataset truncated from {invoiceList.Count} to {MAX_RECORDS} records. " +
+                        "Consider using more restrictive filters.");
+                    invoiceList = invoiceList.Take(MAX_RECORDS).ToList();
+                }
+                
                 var result = new List<VatSubmissionRow>();
                 var validationWarnings = new List<string>();
+                var invalidCount = 0;
                 
-                foreach (var invoice in query)
+                // PERFORMANCE: Batch process with parallel deserialization
+                var tasks = invoiceList.Select(async invoice =>
                 {
-                    // CRITICAL: Data Validation
-                    if (invoice.VatAmount < 0)
+                    // CRITICAL: Data Validation using VatCalculator
+                    var validation = VatCalculator.ValidateInvoice(
+                        invoice.GrandTotalVatInclusive, 
+                        invoice.VatAmount, 
+                        invoice.IssueDate);
+                    
+                    if (!validation.IsValid)
                     {
-                        validationWarnings.Add($"Negative VAT amount for PI {invoice.ProformaId}: {invoice.VatAmount}");
-                        continue; // Skip invalid data
+                        Interlocked.Increment(ref invalidCount);
+                        return null; // Skip invalid data
                     }
                     
-                    if (invoice.GrandTotalVatInclusive < 0)
+                    if (validation.HasWarnings)
                     {
-                        validationWarnings.Add($"Negative grand total for PI {invoice.ProformaId}: {invoice.GrandTotalVatInclusive}");
-                        continue; // Skip invalid data
-                    }
-                    
-                    if (invoice.IssueDate > DateTime.Now.AddDays(1))
-                    {
-                        validationWarnings.Add($"Future date for PI {invoice.ProformaId}: {invoice.IssueDate:yyyy-MM-dd}");
-                        // Allow but log warning
+                        lock (validationWarnings)
+                        {
+                            validationWarnings.AddRange(
+                                validation.Warnings.Select(w => $"PI {invoice.ProformaId}: {w}"));
+                        }
                     }
                     
                     // Extract SalesRepresentative from snapshot
-                    var snap = ProformaInvoiceMapper.DeserializeSnapshot(invoice);
+                    var snap = await Task.Run(
+                        () => ProformaInvoiceMapper.DeserializeSnapshot(invoice), 
+                        ct);
                     var salesman = snap?.Client?.SalesRepresentative ?? "Unassigned";
                     
                     // Apply salesman filter if specified
                     if (!string.IsNullOrWhiteSpace(filter.Salesman) && !Eq(salesman, filter.Salesman))
-                        continue;
+                        return null;
                     
-                    // CRITICAL: Proper VAT Calculation with rounding
-                    // Method 1: Use stored values (most accurate)
-                    var subtotal = invoice.GrandTotalVatInclusive - invoice.VatAmount;
+                    // CRITICAL: Use VatCalculator for accurate calculations
+                    var subtotal = VatCalculator.CalculateSubtotal(
+                        invoice.GrandTotalVatInclusive, 
+                        invoice.VatAmount);
                     
-                    // Method 2: Validate with back-calculation (Gross / 1.05)
-                    var calculatedSubtotal = Math.Round(invoice.GrandTotalVatInclusive / 1.05m, 2, MidpointRounding.AwayFromZero);
-                    var calculatedVat = Math.Round(invoice.GrandTotalVatInclusive - calculatedSubtotal, 2, MidpointRounding.AwayFromZero);
-                    
-                    // Check for significant discrepancies (allow 0.01 tolerance for rounding)
-                    if (Math.Abs(calculatedVat - invoice.VatAmount) > 0.01m)
-                    {
-                        validationWarnings.Add(
-                            $"VAT mismatch for PI {invoice.ProformaId}: " +
-                            $"Stored={invoice.VatAmount:N2}, Calculated={calculatedVat:N2}");
-                    }
-                    
-                    // Use stored values for accuracy (they were calculated at invoice creation)
-                    result.Add(new VatSubmissionRow
+                    return new VatSubmissionRow
                     {
                         Id = invoice.Id,
                         ProformaId = invoice.ProformaId ?? "",
@@ -2360,19 +2376,33 @@ namespace ProGlassAutomation.Services.Reporting
                         Salesman = salesman,
                         IssueDate = invoice.IssueDate,
                         Status = invoice.Status ?? "",
-                        SubtotalBeforeVat = Math.Round(subtotal, 2, MidpointRounding.AwayFromZero),
-                        VatAmount = Math.Round(invoice.VatAmount, 2, MidpointRounding.AwayFromZero),
-                        GrandTotalVatInclusive = Math.Round(invoice.GrandTotalVatInclusive, 2, MidpointRounding.AwayFromZero)
-                    });
+                        SubtotalBeforeVat = subtotal,
+                        VatAmount = VatCalculator.Round(invoice.VatAmount),
+                        GrandTotalVatInclusive = VatCalculator.Round(invoice.GrandTotalVatInclusive)
+                    };
+                });
+                
+                var results = await Task.WhenAll(tasks);
+                result = results.Where(r => r != null).Cast<VatSubmissionRow>().ToList();
+                
+                // Log validation summary
+                if (invalidCount > 0)
+                {
+                    Services.Logging.AppLogService.Warning(
+                        $"VAT Submission: {invalidCount} invoices skipped due to validation errors");
                 }
                 
-                // Log validation warnings
                 if (validationWarnings.Any())
                 {
                     Services.Logging.AppLogService.Warning(
                         $"VAT Submission: {validationWarnings.Count} validation warnings:\n" +
-                        string.Join("\n", validationWarnings.Take(10))); // Log first 10
+                        string.Join("\n", validationWarnings.Take(10)));
                 }
+                
+                // AUDIT: Log access
+                Services.Logging.AppLogService.Information(
+                    $"VAT Submission: Retrieved {result.Count} invoices " +
+                    $"(filtered from {invoiceList.Count}, {invalidCount} invalid)");
                 
                 return result
                     .OrderByDescending(r => r.IssueDate)
@@ -2381,7 +2411,11 @@ namespace ProGlassAutomation.Services.Reporting
             }
             catch (OperationCanceledException)
             {
-                throw; // Re-throw cancellation
+                throw;
+            }
+            catch (ArgumentException)
+            {
+                throw; // Re-throw validation errors
             }
             catch (Exception ex)
             {

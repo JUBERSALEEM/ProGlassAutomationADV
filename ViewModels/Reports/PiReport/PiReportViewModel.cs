@@ -159,14 +159,4 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
             finally { IsExporting = false; }
         }
     }
-
-    public class KpiItem
-    {
-        public string Title { get; }
-        public string Value { get; }
-        public string Subtitle { get; }
-        public string BrushKey { get; }
-        public KpiItem(string title, string value, string subtitle, string brushKey)
-        { Title = title; Value = value; Subtitle = subtitle; BrushKey = brushKey; }
-    }
 }

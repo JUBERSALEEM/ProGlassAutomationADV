@@ -3,6 +3,7 @@ using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -237,14 +238,14 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             finally { IsExporting = false; }
         }
 
-        // Export mappings
+        // Export mappings - CSV/PDF (string values)
         private static readonly string[] VatHeaders = 
         {
             "PI Number", "Company", "Customer", "Project", "Salesman",
             "Issue Date", "Status", "Subtotal (ex-VAT)", "VAT (5%)", "Total (inc-VAT)"
         };
 
-        private static readonly Func<VatSubmissionRow, object[]> VatMap = row => new object[]
+        private static readonly Func<VatSubmissionRow, string[]> VatMap = row => new string[]
         {
             row.ProformaId,
             row.CompanyName,
@@ -253,23 +254,24 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             row.Salesman,
             row.IssueDateDisplay,
             row.Status,
-            row.SubtotalBeforeVat,
-            row.VatAmount,
-            row.GrandTotalVatInclusive
+            row.SubtotalBeforeVat.ToString("N2"),
+            row.VatAmount.ToString("N2"),
+            row.GrandTotalVatInclusive.ToString("N2")
         };
 
-        private static readonly Func<VatSubmissionRow, object[]> VatMapExcel = row => new object[]
+        // Export mappings - Excel (native types for better formatting)
+        private static readonly Func<VatSubmissionRow, string[]> VatMapExcel = row => new string[]
         {
             row.ProformaId,
             row.CompanyName,
             row.CustomerName,
             row.ProjectName,
             row.Salesman,
-            row.IssueDate,
+            row.IssueDate.ToString("yyyy-MM-dd"),
             row.Status,
-            row.SubtotalBeforeVat,
-            row.VatAmount,
-            row.GrandTotalVatInclusive
+            row.SubtotalBeforeVat.ToString("N2"),
+            row.VatAmount.ToString("N2"),
+            row.GrandTotalVatInclusive.ToString("N2")
         };
     }
 }
