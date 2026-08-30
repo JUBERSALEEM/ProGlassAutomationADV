@@ -8,6 +8,7 @@ using ProGlassAutomation.Services.TaxInvoice;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList;
+using ProGlassAutomation.Views.TaxInvoice.TaxInvoiceDetail;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -423,12 +424,20 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(FamilyMemberCount));
                 OnPropertyChanged(nameof(HasMultipleFamilyMembers));
+                OnPropertyChanged(nameof(CanIssueAllDrafts));
             }
         }
 
         public int FamilyMemberCount => _familyMembers?.Count ?? 0;
 
         public bool HasMultipleFamilyMembers => FamilyMemberCount > 1;
+
+        /// <summary>
+        /// True when this PI family has at least one Draft invoice that
+        /// Issue All can send. Hidden in the UI when false.
+        /// </summary>
+        public bool CanIssueAllDrafts =>
+            !_isSaving && FamilyMembers != null && FamilyMembers.Any(m => m.IsDraft);
 
         private TaxInvoiceRowViewModel? _selectedFamilyMember;
         public TaxInvoiceRowViewModel? SelectedFamilyMember
@@ -537,7 +546,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public bool IsSaving
         {
             get => _isSaving;
-            private set { _isSaving = value; OnPropertyChanged(); }
+            private set
+            {
+                _isSaving = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanIssueAllDrafts));
+            }
         }
 
         private string _statusMessage = "";
@@ -561,6 +575,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public ICommand SaveCommand { get; }
         public ICommand BackCommand { get; }
         public ICommand IssueCommand { get; }
+        public ICommand IssueAllCommand { get; }
         public ICommand MarkPaidCommand { get; }
 
         /// <summary>v2 §24: shows this invoice's version history.</summary>
@@ -620,6 +635,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             IssueCommand = new RelayCommand(
                 async _ => await ChangeStatusAndSaveAsync("Issued"),
                 _ => _status == "Draft" && !_isSaving);
+
+            IssueAllCommand = new RelayCommand(
+                async _ => await IssueSelectedDraftsAsync(),
+                _ => CanIssueAllDrafts);
 
             MarkPaidCommand = new RelayCommand(
                 async _ => await ChangeStatusAndSaveAsync("Paid"),
@@ -2178,6 +2197,87 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             FamilyInvoicedTotal = 0m;
             FamilyBalanceTotal = 0m;
             RecalculateFinancials();
+        }
+
+        /// <summary>
+        /// Opens the Issue All popup for every Draft in this PI family.
+        /// Sibling drafts go through UpdateStatusAsync (snapshot header
+        /// patched in the repository). The open invoice, if selected,
+        /// uses ChangeStatusAndSaveAsync so TRN / line validation still runs.
+        /// </summary>
+        private async Task IssueSelectedDraftsAsync()
+        {
+            var drafts = FamilyMembers.Where(m => m.IsDraft).ToList();
+            if (drafts.Count == 0) return;
+
+            var selected = IssueDraftsDialog.Show(
+                Application.Current?.MainWindow, drafts);
+            if (selected == null || selected.Count == 0) return;
+
+            if (App.TaxInvoices == null)
+            {
+                StatusMessage = "Database not initialized.";
+                return;
+            }
+
+            try
+            {
+                IsSaving = true;
+                var others = selected
+                    .Where(m => !string.Equals(
+                        m.InvoiceNumber, _editingInvoiceNumber,
+                        StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                bool includeCurrent = selected.Any(m => string.Equals(
+                    m.InvoiceNumber, _editingInvoiceNumber,
+                    StringComparison.OrdinalIgnoreCase));
+
+                foreach (var member in others)
+                {
+                    await App.TaxInvoices.UpdateStatusAsync(
+                        member.InvoiceNumber, "Issued");
+                    AuditService.Log(
+                        AuditSections.TaxInvoice, "Tax invoice issued",
+                        $"{member.InvoiceNumber} — Issue all",
+                        "TI", member.InvoiceNumber);
+                }
+
+                int issued = others.Count;
+                IsSaving = false;
+
+                if (includeCurrent && _status == "Draft")
+                {
+                    await ChangeStatusAndSaveAsync("Issued");
+                    if (_status == "Issued")
+                    {
+                        issued++;
+                        StatusMessage = $"Issued {issued} tax invoice(s).";
+                    }
+                    else if (others.Count > 0)
+                    {
+                        StatusMessage =
+                            $"Issued {others.Count} sibling invoice(s). " +
+                            $"This invoice was not issued. {StatusMessage}";
+                    }
+                }
+                else
+                {
+                    await LoadFamilyAsync(ProformaId);
+                    if (issued > 0)
+                        StatusMessage = $"Issued {issued} tax invoice(s).";
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Issue all failed: {ex.Message}";
+                MessageBox.Show($"Could not issue invoices:\n\n{ex.Message}",
+                    "Issue All Failed", MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsSaving = false;
+            }
         }
 
         private async Task ChangeStatusAndSaveAsync(string newStatus)

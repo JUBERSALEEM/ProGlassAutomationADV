@@ -10,6 +10,7 @@ using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.TaxInvoice.Database;
+using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -351,7 +352,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             if (entity == null) return;
 
             ThrowIfInvalid(TaxInvoiceValidationService.ValidateStatusTransition(entity.Status, newStatus));
-            entity.Status = newStatus;
+            TaxInvoiceMapper.SetHeaderStatus(entity, newStatus);
             entity.UpdatedAt = DateTime.Now;
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             DocumentLifecycle.Raise();

@@ -189,9 +189,19 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
         // ════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Rebuilds FullSnapshotJson from entity + wizard state.
-        /// Call before InsertAsync / UpdateAsync.
+        /// Writes a new status onto both the entity row and the snapshot
+        /// header so a later Load does not resurrect Draft after Issue All.
         /// </summary>
+        public static void SetHeaderStatus(SavedTaxInvoice entity, string status)
+        {
+            if (entity == null) return;
+            entity.Status = status ?? entity.Status;
+            var snapshot = DeserializeSnapshot(entity);
+            if (snapshot?.Header == null) return;
+            snapshot.Header.Status = entity.Status;
+            entity.FullSnapshotJson = JsonSerializer.Serialize(snapshot, _jsonOptions);
+        }
+
         public static void RefreshSnapshot(
             SavedTaxInvoice entity, InvWizardState state)
         {

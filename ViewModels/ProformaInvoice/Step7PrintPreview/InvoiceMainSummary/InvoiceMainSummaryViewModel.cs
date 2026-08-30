@@ -1,4 +1,6 @@
-﻿using ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary;
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary;
+using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
@@ -35,8 +37,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
         private readonly DataGridViewModel _dataGridVM;
         private readonly OtherChargesViewModel _otherChargesVM;
 
-        // BUG-57: guard flag for batched restore
-        private bool _suspendRecalculation;
+        // BUG-57: nested guard for batched restore / type conversion
+        private int _batchDepth;
+        private bool _suspendRecalculation => _batchDepth > 0;
 
         public string Title { get; } = "INVOICE MAIN SUMMARY";
         public string Subtitle { get; } = "Final financial breakdown — glass materials + other charges + discount + VAT.";
@@ -61,22 +64,50 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
 
         public List<DiscountType> DiscountTypeOptions { get; } = new()
         {
-            DiscountType.Percentage,
-            DiscountType.FixedAmount
+            DiscountType.FixedAmount,
+            DiscountType.Percentage
         };
 
-        private DiscountType _selectedDiscountType = DiscountType.Percentage;
+        private DiscountType _selectedDiscountType = DiscountType.FixedAmount;
         public DiscountType SelectedDiscountType
         {
             get => _selectedDiscountType;
             set
             {
                 if (_selectedDiscountType == value) return;
+                decimal previousAed = DiscountAmount;
+                var previous = _selectedDiscountType;
                 _selectedDiscountType = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DiscountUnitLabel));
-                Recalculate();
+                OnPropertyChanged(nameof(IsAedDiscount));
+                OnPropertyChanged(nameof(IsPercentageDiscount));
+
+                BeginBatchUpdate();
+                if (value == DiscountType.FixedAmount && previous == DiscountType.Percentage)
+                    DiscountValue = previousAed;
+                else if (value == DiscountType.Percentage && previous == DiscountType.FixedAmount)
+                {
+                    decimal net = GlassMaterialsSubtotal + OtherChargesSubtotal;
+                    DiscountValue = net > 0m
+                        ? Math.Round(previousAed / net * 100m, 2)
+                        : 0m;
+                }
+                EndBatchUpdate();
             }
+        }
+
+        /// <summary>True when the clerk is typing an AED amount (the default).</summary>
+        public bool IsAedDiscount
+        {
+            get => _selectedDiscountType == DiscountType.FixedAmount;
+            set { if (value) SelectedDiscountType = DiscountType.FixedAmount; }
+        }
+
+        public bool IsPercentageDiscount
+        {
+            get => _selectedDiscountType == DiscountType.Percentage;
+            set { if (value) SelectedDiscountType = DiscountType.Percentage; }
         }
 
         /// <summary>
@@ -107,6 +138,35 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
 
         public string DiscountUnitLabel =>
             _selectedDiscountType == DiscountType.Percentage ? "%" : "AED";
+
+        // ── Round grand total to a customer figure ────────────────────────
+
+        private decimal _roundToGrandTotal;
+        /// <summary>
+        /// Target VAT-inclusive total (e.g. 15500.00). APPLY writes the
+        /// matching AED discount onto net subtotal.
+        /// </summary>
+        public decimal RoundToGrandTotal
+        {
+            get => _roundToGrandTotal;
+            set
+            {
+                var clamped = value < 0m ? 0m : Math.Round(value, 2);
+                if (_roundToGrandTotal == clamped) return;
+                _roundToGrandTotal = clamped;
+                OnPropertyChanged();
+                ApplyRoundToCommand?.RaiseCanExecuteChanged();
+            }
+        }
+
+        private string _roundToHint = "Type the even total the customer wants, then APPLY.";
+        public string RoundToHint
+        {
+            get => _roundToHint;
+            private set { if (_roundToHint == value) return; _roundToHint = value; OnPropertyChanged(); }
+        }
+
+        public RelayCommand ApplyRoundToCommand { get; }
 
         // ── VAT ────────────────────────────────────────────────────────────
 
@@ -180,8 +240,53 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
             _dataGridVM.SummaryViewModel.PropertyChanged += OnDataGridSummaryChanged;
             _otherChargesVM.PropertyChanged += OnOtherChargesChanged;
 
+            ApplyRoundToCommand = new RelayCommand(
+                _ => ApplyRoundTo(),
+                _ => !_suspendRecalculation && RoundToGrandTotal > 0m);
+
             SyncFromDataGrid();
             SyncFromOtherCharges();
+        }
+
+        /// <summary>
+        /// Sets an AED discount on net subtotal so Grand Total equals
+        /// <see cref="RoundToGrandTotal"/>. Cannot raise the total — only
+        /// discount down.
+        /// </summary>
+        public void ApplyRoundTo()
+        {
+            decimal net = Math.Round(GlassMaterialsSubtotal + OtherChargesSubtotal, 2);
+            decimal target = Math.Round(RoundToGrandTotal, 2);
+            if (net <= 0m || target <= 0m)
+            {
+                RoundToHint = "Enter a target grand total in AED first.";
+                return;
+            }
+
+            decimal maxGrand = InvoiceRoundTo.GrandFromDiscount(
+                net, 0m, VatPercent, IsVatApplicable);
+            if (target > maxGrand)
+            {
+                RoundToHint =
+                    $"Cannot round up. Undiscounted total is AED {maxGrand:N2}.";
+                return;
+            }
+
+            decimal discount = InvoiceRoundTo.DiscountOnNet(
+                net, VatPercent, IsVatApplicable, target);
+
+            BeginBatchUpdate();
+            _selectedDiscountType = DiscountType.FixedAmount;
+            _discountValue = discount;
+            OnPropertyChanged(nameof(SelectedDiscountType));
+            OnPropertyChanged(nameof(DiscountUnitLabel));
+            OnPropertyChanged(nameof(IsAedDiscount));
+            OnPropertyChanged(nameof(IsPercentageDiscount));
+            OnPropertyChanged(nameof(DiscountValue));
+            EndBatchUpdate();
+
+            RoundToHint =
+                $"Discount AED {DiscountAmount:N2} on net subtotal. Grand total AED {GrandTotalVatInclusive:N2}.";
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -198,16 +303,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
         /// </summary>
         public void BeginBatchUpdate()
         {
-            _suspendRecalculation = true;
+            _batchDepth++;
         }
 
         /// <summary>
-        /// BUG-57: Fires ONE Recalculate() after batch update.
+        /// BUG-57: Fires ONE Recalculate() after the outermost batch ends.
         /// </summary>
         public void EndBatchUpdate()
         {
-            _suspendRecalculation = false;
-            Recalculate();
+            if (_batchDepth > 0) _batchDepth--;
+            if (_batchDepth == 0) Recalculate();
         }
 
         // ── Change tracking ───────────────────────────────────────────────

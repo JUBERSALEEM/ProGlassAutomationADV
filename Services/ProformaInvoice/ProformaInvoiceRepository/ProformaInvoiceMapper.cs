@@ -632,6 +632,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             // ── Financial Summary ──────────────────────────────────────
             if (snap.Summary != null)
             {
+                summary.BeginBatchUpdate();
                 if (System.Enum.TryParse<
                     ProGlassAutomation.Models.ProformaInvoice
                         .Step7PrintPreview.InvoiceMainSummary.DiscountType>(
@@ -642,6 +643,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 summary.DiscountValue = snap.Summary.DiscountValue;
                 summary.IsVatApplicable = snap.Summary.IsVatApplicable;
                 summary.VatPercent = snap.Summary.VatPercent;
+                summary.EndBatchUpdate();
             }
 
             // ── Terms & Conditions ─────────────────────────────────────

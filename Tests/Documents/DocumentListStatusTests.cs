@@ -159,6 +159,7 @@ namespace ProGlassAutomation.Tests.Documents
                 "public async Task UpdateStatusAsync(string invoiceNumber, string newStatus)",
                 "// ── Attachments");
             Assert.Contains("DocumentLifecycle.Raise()", statusBlock);
+            Assert.Contains("SetHeaderStatus", statusBlock);
         }
 
         private static DocumentProgressSnapshot SplitDeliverySnapshot() =>

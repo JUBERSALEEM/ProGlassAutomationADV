@@ -30,6 +30,38 @@
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+        <Style x:Key="DiscountKindChip" TargetType="RadioButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Root"
+                                Background="Transparent"
+                                BorderBrush="{DynamicResource AccentBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="10,4"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <Style x:Key="NumericInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -80,8 +112,9 @@
                        Style="{StaticResource SummaryValueStyle}"/>
         </Grid>
 
-        <Grid Margin="0,0,0,10">
+        <Grid Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -92,17 +125,29 @@
                        Style="{StaticResource PiFieldLabelStyle}"
                        VerticalAlignment="Center"
                        Margin="0,0,10,0"/>
-            <ComboBox Grid.Column="1"
-                      ItemsSource="{Binding DiscountTypeOptions}"
-                      SelectedItem="{Binding SelectedDiscountType}"
-                      Style="{StaticResource PiComboBoxStyle}"
-                      Height="32"
-                      MaxWidth="140"
-                      HorizontalAlignment="Left"
-                      Margin="0,0,8,0"/>
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Margin="0,0,10,0">
+                <RadioButton Content="AED"
+                             GroupName="PiDiscountKind"
+                             IsChecked="{Binding IsAedDiscount, Mode=TwoWay}"
+                             Style="{StaticResource DiscountKindChip}"
+                             Margin="0,0,4,0"
+                             ToolTip="Discount as a dirham amount, e.g. 500.23"/>
+                <RadioButton Content="%"
+                             GroupName="PiDiscountKind"
+                             IsChecked="{Binding IsPercentageDiscount, Mode=TwoWay}"
+                             Style="{StaticResource DiscountKindChip}"
+                             ToolTip="Discount as a percent of net subtotal"/>
+            </StackPanel>
             <TextBox Grid.Column="2"
-                     Text="{Binding DiscountValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
-                     Style="{StaticResource NumericInputStyle}"/>
+                     Text="{Binding DiscountValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:0.00}}"
+                     Style="{StaticResource NumericInputStyle}"
+                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                     HorizontalAlignment="Left"
+                     MinWidth="96"
+                     ToolTip="Type the discount in AED (or % if that pill is on)"/>
             <TextBlock Grid.Column="3"
                        Text="{Binding DiscountUnitLabel}"
                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
@@ -114,6 +159,45 @@
                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
                        Foreground="{DynamicResource DangerBrush}"
                        VerticalAlignment="Center"/>
+        </Grid>
+
+        <Grid Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="ROUND TO"
+                       Style="{StaticResource PiFieldLabelStyle}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="AED"
+                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <TextBox Text="{Binding RoundToGrandTotal, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:0.00}}"
+                         Style="{StaticResource NumericInputStyle}"
+                         behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                         MinWidth="110"
+                         ToolTip="Customer even figure, e.g. 15500.00. APPLY writes the AED discount on net subtotal."/>
+                <Button Content="APPLY"
+                        Command="{Binding ApplyRoundToCommand}"
+                        Style="{StaticResource PiFooterPrimaryButton}"
+                        Height="32"
+                        MinWidth="88"
+                        Margin="10,0,0,0"
+                        ToolTip="Apply an AED discount so grand total equals this amount"/>
+            </StackPanel>
+            <TextBlock Grid.Column="2"
+                       Text="{Binding RoundToHint}"
+                       FontSize="{StaticResource TextCaption}"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       VerticalAlignment="Center"
+                       TextWrapping="Wrap"
+                       MaxWidth="220"
+                       Margin="12,0,0,0"/>
         </Grid>
 
         <Grid Margin="0,0,0,10">

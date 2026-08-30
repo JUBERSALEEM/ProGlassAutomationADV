@@ -224,6 +224,12 @@
                                         Command="{Binding IssueCommand}"
                                         Click="MenuActionClicked"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
+                                        Tag="&#xE8FB;" Content="Issue all drafts"
+                                        Command="{Binding IssueAllCommand}"
+                                        Click="MenuActionClicked"
+                                        Visibility="{Binding CanIssueAllDrafts,
+                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                <Button Style="{StaticResource TiMenuActionItem}"
                                         Tag="&#xE73E;" Content="Mark as paid"
                                         Command="{Binding MarkPaidCommand}"
                                         Click="MenuActionClicked"/>

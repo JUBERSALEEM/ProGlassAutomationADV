@@ -52,15 +52,25 @@
                                            Margin="0,2,0,0"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
-                            <Border Grid.Column="1"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
-                                    Background="{DynamicResource GlassSurfaceUltra}"
-                                    VerticalAlignment="Center">
-                                <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}">
-                                    <Run Text="{Binding FamilyMemberCount, Mode=OneWay}"/>
-                                    <Run Text=" invoice(s)"/>
-                                </TextBlock>
-                            </Border>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <Button Content="ISSUE ALL"
+                                        Command="{Binding IssueAllCommand}"
+                                        Style="{StaticResource OutlinedPillButton}"
+                                        Tag="&#xE8FB;"
+                                        Margin="0,0,8,0"
+                                        ToolTip="Issue every draft in this family, or pick with the pills"
+                                        Visibility="{Binding CanIssueAllDrafts,
+                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
+                                        Background="{DynamicResource GlassSurfaceUltra}"
+                                        VerticalAlignment="Center">
+                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                        <Run Text="{Binding FamilyMemberCount, Mode=OneWay}"/>
+                                        <Run Text=" invoice(s)"/>
+                                    </TextBlock>
+                                </Border>
+                            </StackPanel>
                         </Grid>
                     </Border>
 
