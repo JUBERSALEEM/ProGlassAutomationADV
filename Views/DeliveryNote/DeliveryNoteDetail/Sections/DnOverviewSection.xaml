@@ -37,6 +37,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="8"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="1.4*"/>
                 </Grid.ColumnDefinitions>
@@ -54,6 +56,23 @@
 
                 <Border Grid.Column="2"
                         Style="{StaticResource CompactStatTileStyle}"
+                        Background="{DynamicResource TintIndigoBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding TotalPreviouslyDeliveredQty}"
+                                       Style="{StaticResource CompactStatNumberStyle}"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <TextBlock Text=" pcs" Style="{StaticResource CompactStatUnitStyle}"
+                                       Foreground="{DynamicResource AccentBrush}" Opacity="0.75"/>
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource PrevDeliveredLabelStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="4"
+                        Style="{StaticResource CompactStatTileStyle}"
                         Background="{DynamicResource TintGreenBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}">
@@ -69,7 +88,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="4"
+                <Border Grid.Column="6"
                         Style="{StaticResource CompactStatTileStyle}"
                         Background="{DynamicResource TintAmberBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
@@ -88,7 +107,7 @@
                     </StackPanel>
                 </Border>
 
-                <StackPanel Grid.Column="6" VerticalAlignment="Center">
+                <StackPanel Grid.Column="8" VerticalAlignment="Center">
                     <Grid Margin="0,0,0,4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -430,21 +449,21 @@
                                                 <Border Style="{StaticResource LineItemsHeaderStyle}">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="40"/>
-                                                            <ColumnDefinition Width="*" MinWidth="200"/>
-                                                            <ColumnDefinition Width="60"/>
-                                                            <ColumnDefinition Width="60"/>
-                                                            <ColumnDefinition Width="60"/>
-                                                            <ColumnDefinition Width="60"/>
-                                                            <ColumnDefinition Width="55"/>
-                                                            <ColumnDefinition Width="70"/>
+                                                            <ColumnDefinition Width="36"/>
+                                                            <ColumnDefinition Width="160"/>
+                                                            <ColumnDefinition Width="50"/>
+                                                            <ColumnDefinition Width="50"/>
+                                                            <ColumnDefinition Width="50"/>
+                                                            <ColumnDefinition Width="50"/>
+                                                            <ColumnDefinition Width="45"/>
+                                                            <ColumnDefinition Width="62"/>
+                                                            <ColumnDefinition Width="72"/>
+                                                            <ColumnDefinition Width="62"/>
+                                                            <ColumnDefinition Width="72"/>
+                                                            <ColumnDefinition Width="8"/>
                                                             <ColumnDefinition Width="80"/>
-                                                            <ColumnDefinition Width="70"/>
-                                                            <ColumnDefinition Width="80"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                            <ColumnDefinition Width="95"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                            <ColumnDefinition Width="70"/>
+                                                            <ColumnDefinition Width="8"/>
+                                                            <ColumnDefinition Width="62"/>
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Grid.Column="0" Text="#"
                                                                    Style="{StaticResource GridHeaderCell}"
@@ -538,21 +557,21 @@
                                                                 </Border.Style>
                                                                 <Grid>
                                                                     <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="40"/>
-                                                                        <ColumnDefinition Width="*" MinWidth="200"/>
-                                                                        <ColumnDefinition Width="60"/>
-                                                                        <ColumnDefinition Width="60"/>
-                                                                        <ColumnDefinition Width="60"/>
-                                                                        <ColumnDefinition Width="60"/>
-                                                                        <ColumnDefinition Width="55"/>
-                                                                        <ColumnDefinition Width="70"/>
+                                                                        <ColumnDefinition Width="36"/>
+                                                                        <ColumnDefinition Width="160"/>
+                                                                        <ColumnDefinition Width="50"/>
+                                                                        <ColumnDefinition Width="50"/>
+                                                                        <ColumnDefinition Width="50"/>
+                                                                        <ColumnDefinition Width="50"/>
+                                                                        <ColumnDefinition Width="45"/>
+                                                                        <ColumnDefinition Width="62"/>
+                                                                        <ColumnDefinition Width="72"/>
+                                                                        <ColumnDefinition Width="62"/>
+                                                                        <ColumnDefinition Width="72"/>
+                                                                        <ColumnDefinition Width="8"/>
                                                                         <ColumnDefinition Width="80"/>
-                                                                        <ColumnDefinition Width="70"/>
-                                                                        <ColumnDefinition Width="80"/>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                        <ColumnDefinition Width="95"/>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                        <ColumnDefinition Width="70"/>
+                                                                        <ColumnDefinition Width="8"/>
+                                                                        <ColumnDefinition Width="62"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <TextBlock Grid.Column="0"
                                                                                Text="{Binding SerialNumber}"
@@ -758,6 +777,12 @@
                                         <Run Text="SQM: "/><Run Text="{Binding SelectedItemRow.Sqm, Mode=OneWay, StringFormat={}{0:0.000}}" FontWeight="SemiBold"/>
                                         <Run Text="  ·  T.SQM: "/><Run Text="{Binding SelectedItemRow.TotalSqm, Mode=OneWay, StringFormat={}{0:0.000}}" FontWeight="SemiBold"/>
                                     </TextBlock>
+                                    <TextBlock FontSize="{StaticResource TextBody}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               Margin="0,2,0,0">
+                                        <Run Text="Weight/pc: "/><Run Text="{Binding SelectedItemRow.WeightPerPiece, Mode=OneWay, StringFormat={}{0:0.0} kg}" FontWeight="SemiBold"/>
+                                        <Run Text="  ·  Total: "/><Run Text="{Binding SelectedItemRow.TotalWeight, Mode=OneWay, StringFormat={}{0:0.0} kg}" FontWeight="SemiBold"/>
+                                    </TextBlock>
                                 </StackPanel>
                             </Border>
 
@@ -782,6 +807,15 @@
                                     <StackPanel>
                                         <TextBlock Text="ORDERED" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                         <TextBlock Text="{Binding SelectedItemRow.OrderedQty}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" Grid.Row="0" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
+                                        Margin="4,0,0,10"
+                                        Background="{DynamicResource TintIndigoBrush}"
+                                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="PREV DELIVERED" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock Text="{Binding SelectedItemRow.PreviouslyDeliveredQty}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Grid.Column="0" Grid.Row="1" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"

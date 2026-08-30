@@ -45,7 +45,7 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         {
             new(1, "Add WeightPerPiece column for glass weight tracking", connection =>
             {
-                SchemaMigrationSql.AddColumnIfMissing(connection, "DeliveryNoteItems", "WeightPerPiece", "TEXT NOT NULL DEFAULT '0'");
+                SchemaMigrationSql.AddColumnIfMissing(connection, "DeliveryNoteItems", "WeightPerPiece", "REAL NOT NULL DEFAULT 0");
             })
         };
 

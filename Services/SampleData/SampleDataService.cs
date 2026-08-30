@@ -588,9 +588,19 @@ namespace ProGlassAutomation.Services.SampleData
 
             // Deliver all items from Spec Group 1 (first 10 items)
             // Leave Spec Groups 2 & 3 with 0 delivered (balance = ordered)
+            // Also set realistic WeightPerPiece for each item (glass weight = area × thickness × 2.5 kg/m²/mm)
             int itemIndex = 0;
             foreach (var item in dn.Items)
             {
+                // Calculate realistic weight: area(m²) × thickness(mm) × 2.5 kg/m²/mm
+                decimal areaM2 = (decimal)item.W1 / 1000m * (decimal)item.H1 / 1000m;
+                decimal thicknessMm = itemIndex < 10
+                    ? GetThicknessFromRef(item.GlassRef, "CT")  // Clear Tempered
+                    : itemIndex < 17
+                        ? GetThicknessFromRef(item.GlassRef, "TT")  // Tinted
+                        : GetThicknessFromRef(item.GlassRef, "LE"); // Low-E (DGU = double)
+                item.WeightPerPiece = Math.Round(areaM2 * thicknessMm * 2.5m, 1);
+
                 if (itemIndex < 10) // Spec Group 1: deliver all
                 {
                     item.DeliveredQty = item.OrderedQty;
@@ -610,6 +620,24 @@ namespace ProGlassAutomation.Services.SampleData
             dn.TotalOrderedQty = dn.Items.Sum(i => i.OrderedQty);
             DeliveryNoteMapper.RefreshSnapshot(dn);
             return dn;
+        }
+
+        /// <summary>
+        /// Extracts glass thickness in mm from the GlassRef string.
+        /// E.g., "CT-06-1200x900" → 6mm, "CT-12-2000x1500" → 12mm.
+        /// For DGU (Low-E), doubles the thickness (two panes + air gap).
+        /// </summary>
+        private static decimal GetThicknessFromRef(string glassRef, string type)
+        {
+            // GlassRef format: "XX-TT-WWWxHHH" where TT = thickness
+            if (string.IsNullOrEmpty(glassRef)) return 6m;
+            var parts = glassRef.Split('-');
+            if (parts.Length >= 2 && decimal.TryParse(parts[1], out decimal thickness))
+            {
+                // DGU (double glazing unit) = 2× glass + 12mm air gap ≈ 2× + 12
+                return type == "LE" ? (thickness * 2 + 12) : thickness;
+            }
+            return type == "LE" ? 24m : 6m; // defaults
         }
 
         private static SavedTaxInvoice BuildTaxInvoice(

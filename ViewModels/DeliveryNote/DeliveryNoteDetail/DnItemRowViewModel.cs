@@ -42,6 +42,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(BalanceQty));
                 OnPropertyChanged(nameof(HasBalance));
+                OnPropertyChanged(nameof(TotalWeight));
                 DeliveredQtyChanged?.Invoke();
             }
         }
@@ -86,6 +87,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public decimal TotalSqm =>
             SqmCalculator.CalculateTotal(W1, H1, OrderedQty);
 
+        // ── Weight tracking ────────────────────────────────────────────────
+        // WeightPerPiece is stored on the DeliveryNoteItem model (calculated
+        // by DeliveryNoteMapper from glass dimensions + thickness + type).
+        // TotalWeight = WeightPerPiece × DeliveredQty (live calculation).
+        public decimal WeightPerPiece { get; }
+
+        /// <summary>Live weight for THIS delivery: WeightPerPiece × DeliveredQty.</summary>
+        public decimal TotalWeight => WeightPerPiece * DeliveredQty;
+
+        /// <summary>Total weight for ALL ordered pieces (reference).</summary>
+        public decimal TotalOrderedWeight => WeightPerPiece * OrderedQty;
+
         public DnItemRowViewModel(DeliveryNoteItem item)
         {
             SpecGroupNumber = item.SpecGroupNumber;
@@ -100,6 +113,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             PreviouslyDeliveredQty = item.PreviouslyDeliveredQty;
             _deliveredQty = item.DeliveredQty;
             _notes = item.Notes;
+            WeightPerPiece = item.WeightPerPiece;
         }
     }
 }
