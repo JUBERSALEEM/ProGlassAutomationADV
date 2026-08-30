@@ -37,8 +37,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="8"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="8"/>
-                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="1.4*"/>
                 </Grid.ColumnDefinitions>
@@ -56,23 +54,6 @@
 
                 <Border Grid.Column="2"
                         Style="{StaticResource CompactStatTileStyle}"
-                        Background="{DynamicResource TintIndigoBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}">
-                    <StackPanel HorizontalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding TotalPreviouslyDeliveredQty}"
-                                       Style="{StaticResource CompactStatNumberStyle}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
-                            <TextBlock Text=" pcs" Style="{StaticResource CompactStatUnitStyle}"
-                                       Foreground="{DynamicResource AccentBrush}" Opacity="0.75"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource PrevDeliveredLabelStyle}"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Grid.Column="4"
-                        Style="{StaticResource CompactStatTileStyle}"
                         Background="{DynamicResource TintGreenBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}">
@@ -88,7 +69,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Grid.Column="6"
+                <Border Grid.Column="4"
                         Style="{StaticResource CompactStatTileStyle}"
                         Background="{DynamicResource TintAmberBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
@@ -107,7 +88,7 @@
                     </StackPanel>
                 </Border>
 
-                <StackPanel Grid.Column="8" VerticalAlignment="Center">
+                <StackPanel Grid.Column="6" VerticalAlignment="Center">
                     <Grid Margin="0,0,0,4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -459,8 +440,6 @@
                                                             <ColumnDefinition Width="70"/>
                                                             <ColumnDefinition Width="80"/>
                                                             <ColumnDefinition Width="Auto"/>
-                                                            <ColumnDefinition Width="65"/>
-                                                            <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="95"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="70"/>
@@ -500,17 +479,11 @@
                                                                    Margin="6,8,10,8"/>
                                                         <Border Grid.Column="9"
                                                                 Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                        <TextBlock Grid.Column="10" Text="PREV"
-                                                                   Style="{StaticResource GridHeaderCell}"
-                                                                   HorizontalAlignment="Right"
-                                                                   Margin="6,8,10,8"/>
+                                                        <TextBlock Grid.Column="10"
+                                                                   Style="{StaticResource ThisDnHeaderStyle}"/>
                                                         <Border Grid.Column="11"
                                                                 Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                        <TextBlock Grid.Column="12"
-                                                                   Style="{StaticResource ThisDnHeaderStyle}"/>
-                                                        <Border Grid.Column="13"
-                                                                Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                        <TextBlock Grid.Column="14" Text="BALANCE"
+                                                        <TextBlock Grid.Column="12" Text="BALANCE"
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
@@ -562,8 +535,6 @@
                                                                         <ColumnDefinition Width="55"/>
                                                                         <ColumnDefinition Width="70"/>
                                                                         <ColumnDefinition Width="80"/>
-                                                                        <ColumnDefinition Width="Auto"/>
-                                                                        <ColumnDefinition Width="65"/>
                                                                         <ColumnDefinition Width="Auto"/>
                                                                         <ColumnDefinition Width="95"/>
                                                                         <ColumnDefinition Width="Auto"/>
@@ -626,23 +597,17 @@
                                                                                FontWeight="Bold"/>
                                                                     <Border Grid.Column="9"
                                                                             Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                    <TextBlock Grid.Column="10"
-                                                                               Text="{Binding PreviouslyDeliveredQty}"
-                                                                               Style="{StaticResource GridNumericCell}"
-                                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                                    <Border Grid.Column="11"
-                                                                            Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                    <TextBox Grid.Column="12"
+                                                                    <TextBox Grid.Column="10"
                                                                              Text="{Binding DeliveredQty,
                                                                                     UpdateSourceTrigger=PropertyChanged}"
                                                                              behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                                                              Style="{StaticResource DeliveredQtyTextBoxStyle}"/>
-                                                                    <TextBlock Grid.Column="12"
+                                                                    <TextBlock Grid.Column="10"
                                                                                Text="{Binding DeliveredQty}"
                                                                                Style="{StaticResource DeliveredQtyReadOnlyStyle}"/>
-                                                                    <Border Grid.Column="13"
+                                                                    <Border Grid.Column="11"
                                                                             Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                    <TextBlock Grid.Column="14"
+                                                                    <TextBlock Grid.Column="12"
                                                                                Text="{Binding BalanceQty}"
                                                                                Style="{StaticResource BalanceCellStyle}"/>
                                                                 </Grid>
@@ -793,15 +758,6 @@
                                     <StackPanel>
                                         <TextBlock Text="ORDERED" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                         <TextBlock Text="{Binding SelectedItemRow.OrderedQty}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                </Border>
-                                <Border Grid.Column="1" Grid.Row="0" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
-                                        Margin="4,0,0,10"
-                                        Background="{DynamicResource TintIndigoBrush}"
-                                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
-                                    <StackPanel>
-                                        <TextBlock Text="PREV DELIVERED" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                                        <TextBlock Text="{Binding SelectedItemRow.PreviouslyDeliveredQty}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Grid.Column="0" Grid.Row="1" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
