@@ -509,6 +509,24 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     return;
                 }
 
+                // ── SCENARIO 0: Existing Dispatching DN ──────────────────
+                // Check if there's already a DN with status "Dispatching" (draft)
+                // If yes, open it instead of creating a new one
+                var existingDns = await App.DeliveryNotes.GetByJobOrderIdAsync(jobOrder.JobOrderId);
+                var dispatchingDn = existingDns
+                    .Where(d => !d.IsMasterDn && d.Status == "Dispatching")
+                    .OrderByDescending(d => d.SequenceNumber)
+                    .FirstOrDefault();
+
+                if (dispatchingDn != null)
+                {
+                    AppLogService.Info($"[CreateDn] SCENARIO 0: Opening existing Dispatching DN: {dispatchingDn.DeliveryNoteId}");
+                    await DetailVM.LoadAsync(dispatchingDn.Id);
+                    IsListView = false;
+                    await SafeLoadListAsync();
+                    return;
+                }
+
                 // ── SCENARIO B: Fully delivered ───────────────────────────
                 if (masterDn.TotalBalanceQty <= 0)
                 {
