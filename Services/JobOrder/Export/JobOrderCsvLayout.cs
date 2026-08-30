@@ -3,6 +3,7 @@ using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Services.Export.FileSystem;
 using System;
 using System.Linq;
 
@@ -49,8 +50,13 @@ namespace ProGlassAutomation.Services.JobOrder.Export
         public string DocumentPrefix => "JO";
         public string DocumentId => _entity.JobOrderId ?? _snapshot.JobOrderId;
         public string DocumentTitle => "Job Order — Cut List";
-        public string CompanyName => _invoice.Client?.CustomerName ?? string.Empty;
-        public string Reference => ResolveReference();
+        public string CompanyName => _invoice.Client?.CustomerName
+            ?? _entity.CustomerName
+            ?? string.Empty;
+        public string Reference => ExportFileNamer.FirstFilled(
+            _invoice.Project?.ProjectIdentifierName,
+            _entity.ProjectName,
+            _invoice.Project?.ProjectReference);
         public DateTime DocumentDate => _snapshot.ConvertedAt != default
                                            ? _snapshot.ConvertedAt
                                            : _entity.CreatedAt;

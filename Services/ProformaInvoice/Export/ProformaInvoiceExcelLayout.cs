@@ -3,6 +3,7 @@ using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Excel;
+using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
@@ -48,7 +49,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         public string DocumentId => _entity.ProformaId;
         public string DocumentTitle => "PROFORMA INVOICE";
         public string CompanyName => _entity.CustomerName;
-        public string Reference => _entity.ProjectName;
+        public string Reference => ExportFileNamer.FirstFilled(
+            _entity.ProjectName,
+            _snapshot.Project?.ProjectIdentifierName,
+            _snapshot.Project?.ProjectReference);
         public DateTime DocumentDate => _entity.IssueDate;
 
         // ── IExcelLayout ─────────────────────────────────────────────────────

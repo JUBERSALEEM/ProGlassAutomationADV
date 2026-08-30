@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,28 +8,21 @@ using System.Text.RegularExpressions;
 namespace ProGlassAutomation.Services.Export.FileSystem
 {
     /// <summary>
-    /// Consistent filename convention across all modules:
+    /// One filename for every industrial export (PDF, Excel, CSV):
     ///
-    ///   {DocumentId}_{CompanyName}_{Reference}_{DocumentDate:dd-MM-yyyy}.{ext}
+    ///   {DocumentId}_{Customer}_{Project}_{dd-MM-yyyy}.{ext}
     ///
-    /// Examples:
-    ///   PI-2026-001_EMAAR-PROPERTIES_TWR-A-L15_22-07-2026.pdf
-    ///   JOB-2026-001_ALDAR-PROPERTIES_YAS-TWR-B_03-08-2026.pdf
-    ///   DN-2026-001_EMAAR-PROPERTIES_TWR-A-L15_22-07-2026.pdf
-    ///   TAX-2026-001_MERAAS_BB-VILLAS_15-09-2026.xlsx
+    /// Example:
+    ///   PI-2026-001_SKYLINE-INTERIORS-LLC_SHOWROOM-PARTITION-WORKS_30-08-2026.pdf
+    ///   JOB-2026-001_SKYLINE-INTERIORS-LLC_SHOWROOM-PARTITION-WORKS_30-08-2026.xlsx
+    ///   DN-2026-001_SKYLINE-INTERIORS-LLC_SHOWROOM-PARTITION-WORKS_30-08-2026.csv
+    ///   INV-2026-001_SKYLINE-INTERIORS-LLC_SHOWROOM-PARTITION-WORKS_30-08-2026.pdf
     ///
-    /// Sanitization rules:
-    /// - UPPERCASE
-    /// - Spaces → hyphens
-    /// - Strip Windows-invalid filename characters
-    /// - Cap each segment at 40 characters
-    /// - Collapse multiple consecutive hyphens into one
-    /// - Trim leading/trailing hyphens per segment
-    /// - Empty segments are skipped entirely (no placeholders)
+    /// Empty customer or project segments are skipped (no placeholders).
     /// </summary>
     public static class ExportFileNamer
     {
-        private const int MaxSegmentLength = 40;
+        private const int MaxSegmentLength = 48;
 
         private static readonly Regex MultipleHyphens =
             new(@"-{2,}", RegexOptions.Compiled);
@@ -42,54 +35,75 @@ namespace ProGlassAutomation.Services.Export.FileSystem
             if (layout == null)
                 throw new ArgumentNullException(nameof(layout));
 
+            return Build(
+                layout.DocumentId,
+                layout.CompanyName,
+                layout.Reference,
+                layout.DocumentDate,
+                format);
+        }
+
+        public static string Build(
+            string? documentId,
+            string? customer,
+            string? project,
+            DateTime documentDate,
+            ExportFormat format)
+        {
             var segments = new List<string>();
 
-            // Segment 1 — Document ID (mandatory)
-            string id = Sanitize(layout.DocumentId);
+            string id = Sanitize(documentId);
             if (string.IsNullOrWhiteSpace(id))
                 id = "DOCUMENT";
             segments.Add(id);
 
-            // Segment 2 — Company name (optional)
-            string company = Sanitize(layout.CompanyName);
+            string company = Sanitize(customer);
             if (!string.IsNullOrWhiteSpace(company))
                 segments.Add(company);
 
-            // Segment 3 — Reference (optional)
-            string reference = Sanitize(layout.Reference);
+            string reference = Sanitize(project);
             if (!string.IsNullOrWhiteSpace(reference))
                 segments.Add(reference);
 
-            // Segment 4 — Document date (mandatory)
-            string date = layout.DocumentDate == default
-                ? DateTime.Now.ToString("dd-MM-yyyy")
-                : layout.DocumentDate.ToString("dd-MM-yyyy");
-            segments.Add(date);
+            DateTime date = documentDate == default ? DateTime.Now : documentDate;
+            segments.Add(date.ToString("dd-MM-yyyy"));
 
-            // ── Assemble ───────────────────────────────────────────────
-            string ext = format switch
-            {
-                ExportFormat.Pdf => "pdf",
-                ExportFormat.Excel => "xlsx",
-                ExportFormat.Csv => "csv",
-                _ => "bin"
-            };
-
-            return string.Join("_", segments) + "." + ext;
+            return string.Join("_", segments) + "." + Extension(format);
         }
 
         /// <summary>
-        /// Sanitizes a segment: uppercase, spaces→hyphens, strip invalid,
-        /// collapse hyphens, cap length, trim edge hyphens.
-        /// Returns empty string if input is null/whitespace or nothing
-        /// survives sanitization.
+        /// First non-blank value. Used by layouts so the project segment
+        /// is always the identifier name (SHOWROOM-PARTITION-WORKS), not
+        /// a long descriptive reference.
         /// </summary>
-        private static string Sanitize(string? input)
+        public static string FirstFilled(params string?[] values)
+        {
+            if (values == null) return string.Empty;
+            foreach (var value in values)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value.Trim();
+            }
+            return string.Empty;
+        }
+
+        public static string Extension(ExportFormat format) => format switch
+        {
+            ExportFormat.Pdf => "pdf",
+            ExportFormat.Excel => "xlsx",
+            ExportFormat.Csv => "csv",
+            _ => "bin"
+        };
+
+        /// <summary>
+        /// Uppercase, spaces → hyphens, strip invalid characters,
+        /// collapse hyphens, cap length.
+        /// </summary>
+        public static string Sanitize(string? input)
         {
             if (string.IsNullOrWhiteSpace(input))
                 return string.Empty;
 
-            // 1. Uppercase + replace whitespace clusters with single hyphen
             var sb = new StringBuilder(input.Length);
             bool lastWasSpace = false;
             foreach (var ch in input.Trim())
@@ -111,22 +125,13 @@ namespace ProGlassAutomation.Services.Export.FileSystem
 
             string s = sb.ToString();
 
-            // 2. Strip Windows-invalid filename characters
             foreach (var bad in Path.GetInvalidFileNameChars())
                 s = s.Replace(bad.ToString(), string.Empty);
 
-            // 3. Strip anything that's not [A-Z0-9-] (removes underscores,
-            //    dots, punctuation like slashes, quotes, commas, etc.)
             s = NonAlphaNumOrHyphen.Replace(s, "");
-
-            // 4. Collapse multiple hyphens
             s = MultipleHyphens.Replace(s, "-");
-
-            // 5. Trim leading/trailing hyphens
             s = s.Trim('-');
 
-            // 6. Cap length (then re-trim edge hyphens in case cap
-            //    landed on a hyphen)
             if (s.Length > MaxSegmentLength)
                 s = s.Substring(0, MaxSegmentLength).Trim('-');
 

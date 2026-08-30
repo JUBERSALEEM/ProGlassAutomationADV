@@ -1,6 +1,5 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Utilities;
-using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.ProformaInvoice.Step5Grid;
 using System;
 using System.Collections.Generic;
@@ -34,31 +33,41 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         {
             ImportCutListCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ImportCutListAsync, "PI Step5"));
             ExportExcelCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() =>
-                CutListGridIo.ExportExcelAsync(SpecGroups, CurrentDocumentId()), "PI Step5"));
+            {
+                var (id, customer, project) = CurrentDocumentParts();
+                return CutListGridIo.ExportExcelAsync(SpecGroups, id, customer, project);
+            }, "PI Step5"));
             ExportCsvCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() =>
-                CutListGridIo.ExportCsvAsync(SpecGroups, CurrentDocumentId()), "PI Step5"));
+            {
+                var (id, customer, project) = CurrentDocumentParts();
+                return CutListGridIo.ExportCsvAsync(SpecGroups, id, customer, project);
+            }, "PI Step5"));
             ExportPdfCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() =>
-                CutListGridIo.ExportPdfAsync(SpecGroups, CurrentDocumentId()), "PI Step5"));
+            {
+                var (id, customer, project) = CurrentDocumentParts();
+                return CutListGridIo.ExportPdfAsync(SpecGroups, id, customer, project);
+            }, "PI Step5"));
         }
 
-        private static string CurrentDocumentId()
+        private static (string Id, string Customer, string Project) CurrentDocumentParts()
         {
             try
             {
-                return Application.Current?.MainWindow?.DataContext is
-                    ProformaInvoice.ProformaInvoiceViewModel shell
-                    ? shell.Step1VM?.ProformaId ?? "PI"
-                    : "PI";
+                if (Application.Current?.MainWindow?.DataContext is
+                    ProformaInvoice.ProformaInvoiceViewModel shell)
+                {
+                    return (
+                        shell.Step1VM?.ProformaId ?? "PI",
+                        shell.Step2VM?.CustomerName ?? "",
+                        shell.Step3VM?.ProjectIdentifierName ?? "");
+                }
             }
             catch
             {
-                return "PI";
+                // fall through
             }
+            return ("PI", "", "");
         }
-
-        
-
-        
 
         private async Task ImportCutListAsync()
         {

@@ -1,6 +1,8 @@
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Security;
 using ProGlassAutomation.Services.Common;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
@@ -32,10 +34,9 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
     ///     • Open in default viewer (Process.Start)
     ///     • Store in DB as attachment blob
     ///
-    /// FILE NAMING:
-    ///   INV-2026-001.pdf
-    ///   INV-2026-001-A.pdf  (partial)
-    ///   INV-2026-001_WithAttachments.pdf
+    /// FILE NAMING (same as PI / JO / DN):
+    ///   INV-2026-001_CUSTOMER_PROJECT_dd-MM-yyyy.pdf
+    ///   INV-2026-001_CUSTOMER_PROJECT_dd-MM-yyyy_WITH-ATTACHMENTS.pdf
     /// </summary>
     public static class TaxInvoicePdfExporter
     {
@@ -125,9 +126,9 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             {
                 Title = "Save Tax Invoice PDF",
                 Filter = "PDF Files (*.pdf)|*.pdf",
-                FileName = BuildFileName(entity,
-                    withAttachments: attachments != null),
-                DefaultExt = ".pdf"
+                FileName = Path.GetFileNameWithoutExtension(
+                    BuildFileName(entity, withAttachments: attachments != null)),
+                DefaultExt = "pdf"
             };
 
             if (dialog.ShowDialog() != true) return null;
@@ -191,14 +192,18 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
         private static string BuildFileName(
             SavedTaxInvoice entity, bool withAttachments)
         {
-            string safe = entity.InvoiceNumber
-                .Replace("/", "-")
-                .Replace("\\", "-")
-                .Replace(":", "-");
+            string name = ExportFileNamer.Build(
+                entity.InvoiceNumber,
+                entity.CustomerName,
+                entity.ProjectName,
+                entity.IssueDate,
+                ExportFormat.Pdf);
 
-            return withAttachments
-                ? $"{safe}_WithAttachments.pdf"
-                : $"{safe}.pdf";
+            if (!withAttachments)
+                return name;
+
+            return Path.GetFileNameWithoutExtension(name)
+                   + "_WITH-ATTACHMENTS.pdf";
         }
     }
 

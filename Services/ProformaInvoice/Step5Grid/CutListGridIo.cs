@@ -102,38 +102,38 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
         }
 
         public static async Task<ExportResult> ExportExcelAsync(
-            IReadOnlyList<SpecGroup> groups, string documentId)
+            IReadOnlyList<SpecGroup> groups, string documentId,
+            string? customer = null, string? project = null)
         {
-            var layout = new CutListExcelLayout(groups, documentId);
+            var layout = new CutListExcelLayout(groups, documentId, customer, project);
             return await new ExcelExportEngine().ExportAsync(layout, new ExportRequest
             {
                 PromptForLocation = true,
-                OpenAfterSave = true,
-                SuggestedFileName = $"{SafeId(documentId)}_CUT-LIST"
+                OpenAfterSave = true
             });
         }
 
         public static async Task<ExportResult> ExportCsvAsync(
-            IReadOnlyList<SpecGroup> groups, string documentId)
+            IReadOnlyList<SpecGroup> groups, string documentId,
+            string? customer = null, string? project = null)
         {
-            var layout = new CutListCsvLayout(groups, documentId);
+            var layout = new CutListCsvLayout(groups, documentId, customer, project);
             return await new CsvExportEngine().ExportAsync(layout, new ExportRequest
             {
                 PromptForLocation = true,
-                OpenAfterSave = true,
-                SuggestedFileName = $"{SafeId(documentId)}_CUT-LIST"
+                OpenAfterSave = true
             });
         }
 
         public static async Task<ExportResult> ExportPdfAsync(
-            IReadOnlyList<SpecGroup> groups, string documentId)
+            IReadOnlyList<SpecGroup> groups, string documentId,
+            string? customer = null, string? project = null)
         {
-            var layout = new CutListPdfLayout(groups, documentId);
+            var layout = new CutListPdfLayout(groups, documentId, customer, project);
             return await new PdfExportEngine().ExportAsync(layout, new ExportRequest
             {
                 PromptForLocation = true,
-                OpenAfterSave = true,
-                SuggestedFileName = $"{SafeId(documentId)}_CUT-LIST"
+                OpenAfterSave = true
             });
         }
 
@@ -184,12 +184,5 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             return parsed;
         }
 
-        private static string SafeId(string? id)
-        {
-            string raw = string.IsNullOrWhiteSpace(id) ? "PI" : id.Trim();
-            foreach (var c in Path.GetInvalidFileNameChars())
-                raw = raw.Replace(c, '-');
-            return raw;
-        }
     }
 }

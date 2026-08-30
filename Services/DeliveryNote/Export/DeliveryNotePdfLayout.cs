@@ -1,5 +1,6 @@
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Export.Pdf.Renderers;
 using ProGlassAutomation.Utilities;
@@ -49,8 +50,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         // BUG-60: shared constant — single source of truth
         public string DocumentTitle => DeliveryNoteExportConstants.DocumentTitle;
 
-        public string CompanyName => _joRef.CustomerName;
-        public string Reference => _joRef.ProjectName;
+        public string CompanyName => ExportFileNamer.FirstFilled(
+            _joRef.CustomerName, _entity.CustomerName);
+        public string Reference => ExportFileNamer.FirstFilled(
+            _joRef.ProjectName, _entity.ProjectName, _joRef.ProjectReference);
         public DateTime DocumentDate =>
             _entity.DeliveryDate != default
                 ? _entity.DeliveryDate

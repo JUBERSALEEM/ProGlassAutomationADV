@@ -16,22 +16,39 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
     internal class CutListDocument : IDocumentLayout
     {
         private readonly string _id;
-        protected CutListDocument(string documentId) =>
-            _id = string.IsNullOrWhiteSpace(documentId) ? "PI" : documentId;
+        private readonly string _customer;
+        private readonly string _project;
+
+        protected CutListDocument(
+            string documentId,
+            string? customer = null,
+            string? project = null)
+        {
+            string raw = string.IsNullOrWhiteSpace(documentId) ? "PI" : documentId.Trim();
+            _id = raw.EndsWith("-CUTLIST", StringComparison.OrdinalIgnoreCase)
+                ? raw
+                : raw + "-CUTLIST";
+            _customer = customer ?? "";
+            _project = project ?? "";
+        }
 
         public string DocumentPrefix => "PI";
         public string DocumentId => _id;
         public string DocumentTitle => "CUT LIST";
-        public string CompanyName => "";
-        public string Reference => "CUT-LIST";
+        public string CompanyName => _customer;
+        public string Reference => _project;
         public DateTime DocumentDate => DateTime.Today;
     }
 
     internal sealed class CutListExcelLayout : CutListDocument, IExcelLayout
     {
         private readonly IReadOnlyList<SpecGroup> _groups;
-        public CutListExcelLayout(IReadOnlyList<SpecGroup> groups, string documentId)
-            : base(documentId) => _groups = groups;
+        public CutListExcelLayout(
+            IReadOnlyList<SpecGroup> groups,
+            string documentId,
+            string? customer = null,
+            string? project = null)
+            : base(documentId, customer, project) => _groups = groups;
 
         public void RenderWorkbook(IXLWorkbook workbook)
         {
@@ -93,8 +110,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
     internal sealed class CutListCsvLayout : CutListDocument, ICsvLayout
     {
         private readonly IReadOnlyList<SpecGroup> _groups;
-        public CutListCsvLayout(IReadOnlyList<SpecGroup> groups, string documentId)
-            : base(documentId) => _groups = groups;
+        public CutListCsvLayout(
+            IReadOnlyList<SpecGroup> groups,
+            string documentId,
+            string? customer = null,
+            string? project = null)
+            : base(documentId, customer, project) => _groups = groups;
 
         public void WriteRows(CsvWriter writer)
         {
@@ -135,8 +156,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
     internal sealed class CutListPdfLayout : CutListDocument, IPdfLayout
     {
         private readonly IReadOnlyList<SpecGroup> _groups;
-        public CutListPdfLayout(IReadOnlyList<SpecGroup> groups, string documentId)
-            : base(documentId) => _groups = groups;
+        public CutListPdfLayout(
+            IReadOnlyList<SpecGroup> groups,
+            string documentId,
+            string? customer = null,
+            string? project = null)
+            : base(documentId, customer, project) => _groups = groups;
 
         public PageLayout PageLayout => PageLayout.A4Landscape;
         public LetterheadInfo? Letterhead => new()

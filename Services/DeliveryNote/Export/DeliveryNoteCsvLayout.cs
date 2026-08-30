@@ -2,6 +2,7 @@ using CsvHelper;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Linq;
@@ -43,8 +44,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         public string DocumentPrefix => "DN";
         public string DocumentId => _entity.DeliveryNoteId;
         public string DocumentTitle => DeliveryNoteExportConstants.DocumentTitle;
-        public string CompanyName => _joRef.CustomerName;
-        public string Reference => _joRef.ProjectName;
+        public string CompanyName => ExportFileNamer.FirstFilled(
+            _joRef.CustomerName, _entity.CustomerName);
+        public string Reference => ExportFileNamer.FirstFilled(
+            _joRef.ProjectName, _entity.ProjectName, _joRef.ProjectReference);
         public DateTime DocumentDate =>
             _entity.DeliveryDate != default
                 ? _entity.DeliveryDate

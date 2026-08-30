@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
+using System.IO;
 
 namespace ProGlassAutomation.Services.Export.FileSystem
 {
@@ -13,11 +14,20 @@ namespace ProGlassAutomation.Services.Export.FileSystem
             string suggestedFileName,
             string filterString)
         {
+            string raw = string.IsNullOrWhiteSpace(suggestedFileName)
+                ? "DOCUMENT"
+                : Path.GetFileName(suggestedFileName.Trim());
+            string ext = Path.GetExtension(raw);
+            string stem = string.IsNullOrWhiteSpace(ext)
+                ? raw
+                : Path.GetFileNameWithoutExtension(raw);
+
             var dialog = new SaveFileDialog
             {
                 Title = $"Save {dialogTitle}",
-                FileName = suggestedFileName,
+                FileName = stem,
                 Filter = filterString,
+                DefaultExt = string.IsNullOrWhiteSpace(ext) ? null : ext.TrimStart('.'),
                 AddExtension = true,
                 OverwritePrompt = true,
                 RestoreDirectory = true

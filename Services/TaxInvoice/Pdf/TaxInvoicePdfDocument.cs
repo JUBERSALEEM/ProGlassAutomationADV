@@ -1,5 +1,6 @@
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Export.Pdf.Renderers;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
@@ -65,8 +66,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
         public string DocumentPrefix => "INV";
         public string DocumentId => _entity.InvoiceNumber;
         public string DocumentTitle => "TAX INVOICE";
-        public string CompanyName => _entity.CustomerName;
-        public string Reference => _entity.ProjectName;
+        public string CompanyName => ExportFileNamer.FirstFilled(
+            _entity.CustomerName, _ctx.CustomerName);
+        public string Reference => ExportFileNamer.FirstFilled(
+            _entity.ProjectName,
+            _ctx.ProjectIdentifierName,
+            _ctx.ProjectReference);
         public DateTime DocumentDate => _entity.IssueDate;
 
         // ── IPdfLayout ────────────────────────────────────────────────────
