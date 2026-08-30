@@ -5,8 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
     Title="Statement Generation Progress"
-    Width="720" Height="640"
-    MinWidth="640" MinHeight="500"
+    Width="800" Height="700"
+    MinWidth="680" MinHeight="540"
     WindowStartupLocation="CenterOwner"
     WindowStyle="None"
     ResizeMode="CanResize"
@@ -23,7 +23,12 @@
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
-            CornerRadius="{DynamicResource CardCornerRadius}">
+            CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+            Margin="16">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="28" ShadowDepth="0"
+                              Opacity="0.22" Color="#000000"/>
+        </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -41,8 +46,8 @@
             <!-- ══ HEADER — indigo bar with statement info ══ -->
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="12,12,0,0"
-                    Padding="24,18">
+                    CornerRadius="16,16,0,0"
+                    Padding="28,20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets"
@@ -284,8 +289,8 @@
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderThickness="0,1,0,0"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    CornerRadius="0,0,12,12"
-                    Padding="24,14">
+                    CornerRadius="0,0,16,16"
+                    Padding="28,16">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>

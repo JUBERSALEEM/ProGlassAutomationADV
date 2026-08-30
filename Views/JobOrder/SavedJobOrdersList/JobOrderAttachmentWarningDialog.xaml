@@ -3,8 +3,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Job Order Has Related Attachments"
-        Width="470"
-        Height="300"
+        Width="560"
+        Height="380"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
@@ -32,11 +32,11 @@
         re-measure or jump. Margin >= blur radius so the drop shadow
         renders fully.
     -->
-    <Border CornerRadius="{DynamicResource CardCornerRadius}"
+    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
-            Margin="28,24,28,32">
+            Margin="24,20,24,28">
         <Border.Effect>
             <DropShadowEffect BlurRadius="28" ShadowDepth="4"
                               Opacity="0.28" Color="#000000"/>
@@ -53,7 +53,7 @@
             </Grid.RowDefinitions>
 
             <!-- ═══ HEADER ═══ -->
-            <StackPanel Grid.Row="0" Margin="24,20,24,0">
+            <StackPanel Grid.Row="0" Margin="28,24,28,0">
                 <StackPanel Orientation="Horizontal">
                     <Border Width="42" Height="42"
                             CornerRadius="{DynamicResource CardCornerRadius}"
@@ -73,6 +73,8 @@
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="Job Order Has Related Attachments"
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="400"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="The source proforma invoice still has Step 8 attachments."
                                    FontSize="{StaticResource TextBody}"
@@ -97,9 +99,9 @@
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="0,1,0,0"
                     Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="0,0,12,12"
-                    Padding="20,14"
-                    Margin="0,16,0,0">
+                    CornerRadius="0,0,16,16"
+                    Padding="24,16"
+                    Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource OutlinedPillButton}"
                             Tag="&#xE8E5;" Content="KEEP ATTACHMENTS"

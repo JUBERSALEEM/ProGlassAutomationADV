@@ -1064,21 +1064,33 @@
             <viewsAi:AiChatView DataContext="{Binding AiChatVM}"
                                 Panel.ZIndex="200"/>
 
-            <!-- AGENT CHAT OVERLAY (preserved) -->
+            <!-- AGENT CHAT — floating card, bottom-right.
+                 Outer border owns the drop shadow (must not ClipToBounds).
+                 Inner border clips the chat chrome to the 16px radius so
+                 the square UserControl fill cannot square-off the corners. -->
             <Border Panel.ZIndex="210"
-                    Width="520"
-                    Margin="0,0,24,24"
+                    Width="560"
+                    Height="680"
+                    MaxHeight="{Binding ActualHeight,
+                                RelativeSource={RelativeSource AncestorType=Window},
+                                Converter={StaticResource WindowInsetConverter},
+                                ConverterParameter=120}"
+                    Margin="0,16,24,24"
                     HorizontalAlignment="Right"
-                    VerticalAlignment="Stretch"
-                    MaxHeight="720"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    ClipToBounds="True"
+                    VerticalAlignment="Bottom"
+                    CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                    ClipToBounds="False"
                     BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
                     Effect="{DynamicResource ShadowElevated}"
                     Visibility="{Binding IsAgentChatOpen,
                         Converter={StaticResource BoolToVisibilityConverter}}">
-                <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
+                <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                        ClipToBounds="True"
+                        Background="{DynamicResource ModuleBackgroundBrush}">
+                    <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
+                </Border>
             </Border>
 
         </Grid>
@@ -1090,7 +1102,7 @@
         <Popup x:Name="UserSwitchPopup"
                PlacementTarget="{Binding ElementName=UserCardButton}"
                Placement="Bottom"
-               VerticalOffset="0"
+               VerticalOffset="8"
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"
@@ -1105,14 +1117,14 @@
         <Popup x:Name="SettingsPopup"
                PlacementTarget="{Binding ElementName=SettingsButton}"
                Placement="Bottom"
-               VerticalOffset="0"
+               VerticalOffset="8"
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"
                IsOpen="{Binding IsSettingsOpen, Mode=TwoWay}"
                Opened="SettingsPopup_Opened"
                Closed="SettingsPopup_Closed">
-            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="280"
+            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="340"
                                             />
         </Popup>
 
@@ -1123,7 +1135,7 @@
         <Popup x:Name="NotificationsPopup"
                PlacementTarget="{Binding ElementName=NotificationButton}"
                Placement="Bottom"
-               VerticalOffset="0"
+               VerticalOffset="8"
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"
@@ -1153,7 +1165,7 @@
         <Popup x:Name="ScreenRecordPopup"
                PlacementTarget="{Binding ElementName=RecordButton}"
                Placement="Bottom"
-               VerticalOffset="0"
+               VerticalOffset="8"
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"

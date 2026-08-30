@@ -13,14 +13,14 @@
          which makes TextWrapping inert and runs bubbles off-screen.
        • Bubbles cap at MaxWidth so a long answer wraps instead of
          stretching the row. The cap MUST be smaller than the hosting
-         overlay (520px) or it never engages - it was 620 and therefore
-         dead, which is why long replies looked wrong.
+         overlay (560px) or it never engages.
        • This control does NOT replace its own root DataContext.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Agent.UI.AgentChatView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="{DynamicResource AppFontFamily}"
+             Background="Transparent"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
@@ -31,11 +31,11 @@
         <!-- Message bubbles -->
         <Style x:Key="AgentUserBubble" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="CornerRadius" Value="14,14,4,14"/>
+            <Setter Property="CornerRadius" Value="16,16,4,16"/>
             <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="Margin" Value="60,4,0,4"/>
+            <Setter Property="Margin" Value="48,4,0,4"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="MaxWidth" Value="380"/>
+            <Setter Property="MaxWidth" Value="420"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
@@ -43,11 +43,11 @@
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="14,14,14,4"/>
+            <Setter Property="CornerRadius" Value="16,16,16,4"/>
             <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="Margin" Value="0,4,60,4"/>
+            <Setter Property="Margin" Value="0,4,48,4"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="MaxWidth" Value="380"/>
+            <Setter Property="MaxWidth" Value="420"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
@@ -58,13 +58,11 @@
              WHY THIS EXISTS: the header previously used OutlinedPillButton
              for four controls. That style inherits MinWidth=120 from
              PillButtonBase, so four of them demand 4x120 + 24px margins =
-             504px MINIMUM. The overlay is 520px wide and the header has
-             477px usable after border and padding, leaving nothing for the
-             38px icon badge or the title - a 99px overflow that pushed the
-             title out and broke the layout.
+             504px MINIMUM. The overlay is 560px wide; a fifth 36px close
+             button still leaves room for the title.
 
-             36x36 icon buttons need 4x36 + margins = ~168px, which fits
-             with room to spare for the title.
+             36x36 icon buttons need 5x36 + margins = ~204px, which fits
+             the 560px overlay with room to spare for the title.
         ══════════════════════════════════════════════════════════ -->
         <Style x:Key="AgentHeaderIconButton" TargetType="Button">
             <Setter Property="Width" Value="36"/>
@@ -108,7 +106,7 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -116,7 +114,7 @@
         </Grid.RowDefinitions>
 
         <!-- ══ HEADER ══════════════════════════════════════════════════ -->
-        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
+        <Border CornerRadius="16,16,0,0" Grid.Row="0"
                 Padding="20,16"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
@@ -192,9 +190,15 @@
 
                     <Button Content="&#xE74D;"
                             Style="{StaticResource AgentHeaderIconButton}"
-                            Margin="0"
                             Command="{Binding ClearCommand}"
                             ToolTip="Clear this transcript — taught rules and knowledge are kept"/>
+
+                    <Button Content="&#xE711;"
+                            Style="{StaticResource AgentHeaderIconButton}"
+                            Margin="0"
+                            Command="{Binding DataContext.ToggleAgentChatCommand,
+                                RelativeSource={RelativeSource AncestorType=Window}}"
+                            ToolTip="Close"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -258,8 +262,8 @@
         </ScrollViewer>
 
         <!-- ══ COMPOSER ════════════════════════════════════════════════ -->
-        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
-                Padding="20,14"
+        <Border CornerRadius="0,0,16,16" Grid.Row="2"
+                Padding="20,16"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="0,1,0,0">

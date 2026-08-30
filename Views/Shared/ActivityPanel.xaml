@@ -8,15 +8,17 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Border Width="360" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource ShellLiquidBrush}"
-            BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
-            BorderThickness="1"
-            ClipToBounds="True">
+    <Grid Margin="10,8,10,16">
+    <Border Width="400" CornerRadius="{DynamicResource CardCornerRadiusLarge}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="24" ShadowDepth="3"
                               Opacity="0.18" Color="#000000" Direction="270"/>
         </Border.Effect>
+        <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                Background="{DynamicResource ShellLiquidBrush}"
+                BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
+                BorderThickness="1"
+                ClipToBounds="True">
 
         <Grid>
             <Grid.RowDefinitions>
@@ -26,7 +28,7 @@
 
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-
+                    CornerRadius="16,16,0,0"
                     Padding="18,12">
                 <TextBlock Text="Recent Activity"
                            FontSize="{StaticResource TextSection}" FontWeight="Bold"
@@ -39,5 +41,7 @@
                 <StackPanel x:Name="ActivityList" Margin="10,10,10,12"/>
             </ScrollViewer>
         </Grid>
+        </Border>
     </Border>
+    </Grid>
 </UserControl>

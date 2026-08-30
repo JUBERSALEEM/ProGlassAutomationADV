@@ -21,7 +21,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
-        <Setter Property="Padding" Value="20"/>
+        <Setter Property="Padding" Value="24"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
@@ -32,8 +32,8 @@
         <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
-        <Setter Property="CornerRadius" Value="0,0,20,20"/>
-        <Setter Property="Padding" Value="18,14"/>
+        <Setter Property="CornerRadius" Value="0,0,16,16"/>
+        <Setter Property="Padding" Value="24,16"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
