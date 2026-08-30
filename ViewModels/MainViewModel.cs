@@ -32,6 +32,7 @@ using ProGlassAutomation.ViewModels.Optimization;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
 using ProGlassAutomation.ViewModels.Production;
 using ProGlassAutomation.ViewModels.Reports;
+using ProGlassAutomation.ViewModels.Reports.VatSubmission;
 using ProGlassAutomation.ViewModels.Settings;
 using ProGlassAutomation.ViewModels.Shared;
 using ProGlassAutomation.ViewModels.Diagnostics;
@@ -95,6 +96,7 @@ namespace ProGlassAutomation.ViewModels
         public JobProfitabilityViewModel JobProfitabilityVM { get; }
         public CompanyCenterViewModel CompanyCenterVM { get; }
         public UserCenterViewModel UserCenterVM { get; }
+        public VatSubmissionViewModel VatSubmissionVM { get; }
 
         // ── popups ────────────────────────────────────────────────────
         private bool _isAgentChatOpen;
@@ -467,6 +469,7 @@ namespace ProGlassAutomation.ViewModels
             JobProfitabilityVM = ResolveOrNew<JobProfitabilityViewModel>();
             CompanyCenterVM = ResolveOrNew<CompanyCenterViewModel>();
             UserCenterVM = ResolveOrNew<UserCenterViewModel>();
+            VatSubmissionVM = ResolveOrNew<VatSubmissionViewModel>();
 
             // AI chat — may need voice services from App
             try
@@ -978,6 +981,10 @@ namespace ProGlassAutomation.ViewModels
                     CurrentViewModel = JobProfitabilityVM;
                     JobProfitabilityVM.RefreshCommand.Execute(null);
                     break;
+                case "VatSubmission":
+                    CurrentViewModel = VatSubmissionVM;
+                    _ = VatSubmissionVM.LoadAsync();
+                    break;
                 case "Diagnostics":
                     CurrentViewModel = DiagnosticsVM;
                     DiagnosticsVM.OnShown();
@@ -1008,6 +1015,7 @@ namespace ProGlassAutomation.ViewModels
                 "CompanyCenter" => ProGlassAutomation.Services.Theme.WallpaperModules.CompanyCenter,
                 "UserCenter" => ProGlassAutomation.Services.Theme.WallpaperModules.UserCenter,
                 "JobProfitability" => ProGlassAutomation.Services.Theme.WallpaperModules.JobProfitability,
+                "VatSubmission" => ProGlassAutomation.Services.Theme.WallpaperModules.TaxInvoice,
                 _ => ""
             };
             ProGlassAutomation.Services.Theme.VisualThemeEngine.ApplyModule(moduleKey, App.Config?.Appearance);

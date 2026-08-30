@@ -785,6 +785,10 @@
                                                 Content="Job Profitability"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="JobProfitability"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="VAT Submission"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="VatSubmission"/>
                                     </StackPanel>
                                 </Border>
                                 </StackPanel>
