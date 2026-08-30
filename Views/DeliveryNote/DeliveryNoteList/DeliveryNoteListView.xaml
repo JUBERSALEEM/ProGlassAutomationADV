@@ -202,15 +202,8 @@
                     <StackPanel Grid.Column="7"
                                 VerticalAlignment="Center"
                                 Margin="8,6,10,6">
-                        <Button Style="{StaticResource RowPrimaryButton}"
-                                Tag="&#xE8B7;" Content="OPEN"
-                                ToolTip="Open this delivery note group"
-                                Command="{Binding DataContext.OpenGroupCommand,
-                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"/>
                         <Button Style="{StaticResource RowOutlinedButton}"
                                 Tag="&#xE718;" Content="MASTER DN"
-                                Margin="0,6,0,0"
                                 ToolTip="Open the Master DN created from this Job Order."
                                 Command="{Binding DataContext.OpenMasterCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
