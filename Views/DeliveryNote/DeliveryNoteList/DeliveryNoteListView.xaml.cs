@@ -119,7 +119,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                 Style = (Style)FindResource("ModernContextMenuStyle")
             };
 
-            // ── Open latest DN ────────────────────────────────────────
+            // ── Open latest DN — Dispatching only. Dispatched opens from God View.
             var openItem = new MenuItem
             {
                 Header = $"📂  Open latest DN ({group.LatestDnId})",
@@ -128,7 +128,21 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                 Padding = new Thickness(8, 6, 20, 6)
             };
             openItem.Click += (_, __) =>
-                vm.OpenGroupCommand.Execute(group);
+            {
+                if (ProGlassAutomation.Services.DeliveryNote.DeliveryNoteWorkflow
+                    .IsOpenForDispatch(group.LatestStatus))
+                {
+                    vm.OnDeliveryNoteOpenRequested?.Invoke(group.LatestDnDbId);
+                    return;
+                }
+
+                MessageBox.Show(
+                    "Dispatched delivery notes open from God View.\n\n" +
+                    "Use NEW DN on this row for remaining balance.",
+                    "Open from God View",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            };
             menu.Items.Add(openItem);
 
             var masterItem = new MenuItem

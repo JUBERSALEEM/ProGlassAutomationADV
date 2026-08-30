@@ -203,8 +203,8 @@
                                 VerticalAlignment="Center"
                                 Margin="8,6,10,6">
                         <Button Style="{StaticResource RowPrimaryButton}"
-                                Tag="&#xE710;" Content="CREATE DN"
-                                ToolTip="Create a new delivery note for remaining balance."
+                                Tag="&#xE710;" Content="NEW DN"
+                                ToolTip="Open a Dispatching DN with remaining balance only. Dispatched notes open from God View."
                                 Command="{Binding DataContext.CreateDnForJobOrderCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding JobOrderId}"/>
@@ -262,7 +262,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Delivery Notes" Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="One row per job order — open the latest split"
+                    <TextBlock Text="One row per job order — NEW DN opens remaining balance"
                                Style="{StaticResource ModulePageSubtitleStyle}"/>
                 </StackPanel>
                 <Button Grid.Column="1"
@@ -270,7 +270,7 @@
                         Tag="&#xE7F4;" Content="CREATE DN"
                         Command="{Binding CreateDnCommand}"
                         VerticalAlignment="Center"
-                        ToolTip="Pick a Job Order and create a Draft Delivery Note"/>
+                        ToolTip="Pick a Job Order with remaining qty and open a Dispatching DN"/>
             </Grid>
 
             <loading:LoadingStateControl
@@ -562,7 +562,7 @@
                             <emptyState:EmptyStateControl
                                 Icon="&#xE7F4;"
                                 Title="No delivery notes yet"
-                                Message="Delivery notes record what leaves the factory — quantities, driver, vehicle and status. Create one from a Job Order ('Create DN' above) and every shipment will be tracked here."/>
+                                Message="Delivery notes record what leaves the factory — quantities, driver, vehicle and status. NEW DN opens remaining balance only. Dispatched notes are opened from God View."/>
                         </StackPanel>
                     </Grid>
 

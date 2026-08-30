@@ -1,16 +1,14 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.DeliveryNote;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
-using ProGlassAutomation.Services.DeliveryNote.Mapper;
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail;
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList;
 using ProGlassAutomation.ViewModels.DeliveryNote.GodView;
 using ProGlassAutomation.ViewModels.Shared;
 using System;
-using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -20,35 +18,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
     /// <summary>
     /// Shell ViewModel for the Delivery Note module.
     ///
-    /// CHAT 14: Tax Invoice callbacks.
-    ///
-    /// CHAT 19 FINAL:
-    ///   • OnOpenMasterDnRequested removed — Tab 6 removed
-    ///   • OnRequestCreateDnFromMaster removed — Master DN accessed
-    ///     through JO Picker flow only
-    ///   • CreateDnFromJobOrderAsync updated:
-    ///     When JO has balance remaining (Master DN exists with balance),
-    ///     user is offered the option to create next partial DN from
-    ///     Master DN balance — no need to open Master DN separately.
-    ///     Flow:
-    ///       a) No deliveries yet → create first DN from JO snapshot
-    ///       b) All delivered → inform user, nothing to create
-    ///       c) Partial balance → show Master DN balance, offer to
-    ///          create next DN pre-filled with balance quantities
+    /// Workspace NEW DN / CREATE DN:
+    ///   Opens or creates a Dispatching DN with remaining balance only.
+    ///   Never opens a Dispatched DN — those open from God View.
     /// </summary>
     public class DeliveryNoteViewModel : ViewModelBase,
         ProGlassAutomation.Agent.Context.IAgentContextAware
     {
-        // Phase 4: Named handler for static event — detachable
         private Func<Task>? _dataSeededHandler;
         private bool _disposed;
 
         public string Title { get; } = "Delivery Notes";
 
-        // ══════════════════════════════════════════════════════════════
-        //  AGENT CONTEXT (opt-in, read-only) — see JobOrderViewModel for
-        //  the reasoning. Detail view only; identifier only.
-        // ══════════════════════════════════════════════════════════════
         public string AgentContextDetail
         {
             get
@@ -66,7 +47,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         public string Subtitle { get; } =
             "Track glass deliveries, partial shipments and balance quantities";
 
-        // ── Tab strip keys (Workspace | God View | Activity) ─────────────
         public const string TabWorkspace = "Workspace";
         public const string TabGodView = "GodView";
         public const string TabActivity = "Activity";
@@ -80,16 +60,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         /// <summary>Activity tab — live audit feed for this section.</summary>
         public SectionActivityViewModel ActivityVM { get; }
 
-        // ── Cross-module callbacks ────────────────────────────────────────
-
         public Func<string, Task>? OnRequestOpenTaxInvoiceForDeliveryNote
         { get; set; }
         public Func<string, Task>? OnRequestOpenTaxInvoiceForMasterFromProforma
         { get; set; }
         public Func<string, Task<string>>? OnRequestAutoCreateTaxInvoice
         { get; set; }
-
-        // ── Navigation state ──────────────────────────────────────────────
 
         private bool _isListView = true;
         public bool IsListView
@@ -106,11 +82,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
         public bool IsDetailView => !_isListView;
 
-        // ── Tab strip state ──────────────────────────────────────────────
-
         private string _activeTab = TabWorkspace;
 
-        /// <summary>Which tab is active: Workspace / GodView / Activity.</summary>
         public string ActiveTab
         {
             get => _activeTab;
@@ -130,33 +103,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         public bool IsActivityTab => ActiveTab == TabActivity;
 
         public ICommand BackToListCommand { get; }
-
-        /// <summary>Switches tabs. Parameter = tab key constant.</summary>
         public ICommand SwitchTabCommand { get; }
 
         public void Dispose()
         {
             if (_disposed) return;
             _disposed = true;
-            // Detach the static subscribers under this VM and dispose the
-            // children, or they leak and re-run after the module is gone.
-            // (The previous code unsubscribed DataSeeded twice — a bug — and
-            // never disposed ListVM/ActivityVM.)
             try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: DataSeeded detach failed: " + ex.Message); }
             try { ListVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: ListVM teardown failed: " + ex.Message); }
             try { ActivityVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: ActivityVM teardown failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
-
-        private static readonly JsonSerializerOptions _jsonOptions = new()
-        {
-            WriteIndented = false,
-            PropertyNameCaseInsensitive = true
-        };
-
-        // ═════════════════════════════════════════════════════════════════
-        //  CONSTRUCTOR
-        // ═════════════════════════════════════════════════════════════════
 
         public DeliveryNoteViewModel()
         {
@@ -165,16 +122,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
             DetailVM = new DeliveryNoteDetailViewModel();
 
-            // ── List → open real DN detail ────────────────────────────────
             ListVM.OnDeliveryNoteOpenRequested = id => AsyncUtility.SafeFireAndForget(
                 () => LoadDetailAsync(id), "DeliveryNote");
 
-            // ── List → create new DN from JO picker ──────────────────────
-            // CHAT 19: Updated flow handles Master DN balance automatically
             ListVM.OnCreateDnFromJobOrder = jo => AsyncUtility.SafeFireAndForget(
                 () => CreateDnFromJobOrderAsync(jo), "DeliveryNote");
 
-            // ── Chat 14: DN List Master Invoice ───────────────────────────
             ListVM.OnRequestOpenTaxInvoiceForProforma = async piId =>
             {
                 try
@@ -191,13 +144,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 }
             };
 
-            // ── Detail → back to list ─────────────────────────────────────
             DetailVM.OnRequestBackToList = () => AsyncUtility.SafeFireAndForget(ReturnToList, "DeliveryNote");
 
-            // CHAT 19: After dispatch with balance remaining, user chose
-            // "Yes — create next DN". Shell builds next DN from Master DN balance.
             DetailVM.OnRequestCreateDnFromMaster = masterDn => AsyncUtility.SafeFireAndForget(
-                () => CreateDnFromMasterBalanceAsync(
+                () => CreateDnFromJobOrderAsync(
                     new Models.JobOrder.SavedJobOrder.SavedJobOrder
                     {
                         JobOrderId = masterDn.JobOrderId,
@@ -205,8 +155,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                         CustomerName = masterDn.CustomerName,
                         ProjectName = masterDn.ProjectName,
                         FullSnapshotJson = "{}"
-                    },
-                    masterDn), "DeliveryNote");
+                    }), "DeliveryNote");
 
             DetailVM.OnRequestAutoCreateTaxInvoice = async dnId =>
             {
@@ -220,7 +169,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             ListVM.OnRequestOpenMaster = jobOrderId => AsyncUtility.SafeFireAndForget(
                 () => OpenMasterForJobOrderAsync(jobOrderId), "DeliveryNote");
 
-            // ── Chat 14: DN Detail Convert → single-DN invoice ────────────
             DetailVM.OnRequestOpenTaxInvoiceForDeliveryNote = async dnId =>
             {
                 try
@@ -240,22 +188,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             BackToListCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(ReturnToList, "DeliveryNote"));
 
-            // ── God View tab: row-open hands off to detail flow ───────
             GodViewVM = new DeliveryNoteGodViewViewModel();
             GodViewVM.OnOpenRequested = id =>
                 AsyncUtility.SafeFireAndForget(() => LoadDetailAsync(id), "DeliveryNote");
 
-            // ── Activity tab: live audit feed for this section ────────
             ActivityVM = new SectionActivityViewModel(
                 AuditSections.DeliveryNote);
 
             SwitchTabCommand = new RelayCommand(param =>
                 SwitchTab(param as string ?? TabWorkspace));
         }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  TAB SWITCHING
-        // ═════════════════════════════════════════════════════════════════
 
         private void SwitchTab(string tabKey)
         {
@@ -271,10 +213,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     break;
             }
         }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  TAX INVOICE RELAYS
-        // ═════════════════════════════════════════════════════════════════
 
         private async Task RelayMasterInvoiceRequestAsync(string proformaId)
         {
@@ -328,19 +266,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             await OnRequestOpenTaxInvoiceForDeliveryNote(deliveryNoteId);
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  SAFE ASYNC FIRE
-        // ═════════════════════════════════════════════════════════════════
-
-        
-
-        // ═════════════════════════════════════════════════════════════════
-        //  NAVIGATION
-        // ═════════════════════════════════════════════════════════════════
-
         private async Task LoadDetailAsync(int deliveryNoteId)
         {
-            // v2 §28: switching records while edits are pending → confirm.
             if (IsDetailView &&
                 !await ProGlassAutomation.Services.Safety
                     .UnsavedChangesGuard.ConfirmLeaveAsync(
@@ -355,7 +282,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
         private async Task ReturnToList()
         {
-            // v2 §28: confirm before discarding unsaved DN edits.
             if (!await ProGlassAutomation.Services.Safety
                 .UnsavedChangesGuard.ConfirmLeaveAsync(
                     () => DetailVM.HasUnsavedChanges,
@@ -439,399 +365,43 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  CHAT 19 — CREATE DN FROM JO PICKER (updated flow)
-        //
-        //  Three scenarios when user picks a JO:
-        //
-        //  A) No Master DN exists yet (brand new JO, no deliveries):
-        //     → Create first DN from JO snapshot directly
-        //
-        //  B) Master DN exists, balance = 0 (fully delivered):
-        //     → Inform user everything is delivered
-        //     → Offer to view latest DN
-        //
-        //  C) Master DN exists, balance > 0 (partial deliveries done):
-        //     → Show balance summary from Master DN
-        //     → Offer to create next DN pre-filled with balance qty
-        //     → User can still SELECT ALL REMAINING or enter manually
-        //
-        //  This replaces the old flow which only checked for Draft DN.
-        //  Master DN is the single source of truth for balance tracking.
-        // ═════════════════════════════════════════════════════════════════
-
+        /// <summary>
+        /// Workspace NEW DN / CREATE DN. Opens Dispatching with remaining
+        /// qty only. Never opens a Dispatched DN.
+        /// </summary>
         private async Task CreateDnFromJobOrderAsync(SavedJobOrder jobOrder)
         {
-            if (App.DeliveryNotes == null) return;
+            var result = await DeliveryNoteCreateService
+                .CreateOrOpenDispatchingAsync(jobOrder);
 
-            try
+            switch (result.Outcome)
             {
-                // DEBUG: Log entry point
-                AppLogService.Info($"[CreateDn] Starting for JobOrder: {jobOrder.JobOrderId}");
-
-                try
-                {
-                    await App.DeliveryNotes.UpdateMasterDnAsync(
-                        jobOrder.JobOrderId, "");
-                    AppLogService.Debug("[CreateDn] Master DN updated");
-                }
-                catch (System.Exception ex) { AppLogService.Debug("[CreateDn] Master-DN clear during heal failed: " + ex.Message); }
-
-                var masterDn = await App.DeliveryNotes
-                    .GetMasterDnForJobOrderAsync(jobOrder.JobOrderId);
-
-                AppLogService.Info($"[CreateDn] MasterDN found: {masterDn != null}, TotalBalanceQty: {masterDn?.TotalBalanceQty ?? -1}");
-
-                // ── SCENARIO A: No Master DN — first delivery ─────────────
-                if (masterDn == null)
-                {
-                    AppLogService.Info("[CreateDn] SCENARIO A: No Master DN - creating first DN");
-                    try
-                    {
-                        masterDn = await Services.DeliveryNote
-                            .MasterDeliveryNoteService
-                            .EnsureForJobOrderAsync(jobOrder);
-                    }
-                    catch (Exception masterEx)
-                    {
-                        Services.Logging.AppLogService.Error(
-                            "Could not auto-create Master DN before first delivery.",
-                            masterEx,
-                            new Services.Logging.LogContext
-                            {
-                                Module = "DeliveryNote",
-                                Class = nameof(DeliveryNoteViewModel),
-                                Operation = "EnsureMasterDn"
-                            });
-                    }
-
-                    await CreateFirstDnAsync(jobOrder);
-                    return;
-                }
-
-                // ── SCENARIO 0: Existing Dispatching DN ──────────────────
-                // Check if there's already a DN with status "Dispatching" (draft)
-                // If yes, open it instead of creating a new one
-                var existingDns = await App.DeliveryNotes.GetByJobOrderIdAsync(jobOrder.JobOrderId);
-                var dispatchingDn = existingDns
-                    .Where(d => !d.IsMasterDn && d.Status == "Dispatching")
-                    .OrderByDescending(d => d.SequenceNumber)
-                    .FirstOrDefault();
-
-                if (dispatchingDn != null)
-                {
-                    AppLogService.Info($"[CreateDn] SCENARIO 0: Opening existing Dispatching DN: {dispatchingDn.DeliveryNoteId}");
-                    await DetailVM.LoadAsync(dispatchingDn.Id);
+                case DnCreateResult.Kind.OpenExisting:
+                case DnCreateResult.Kind.Created:
+                    ActiveTab = TabWorkspace;
+                    await DetailVM.LoadAsync(result.DeliveryNoteDbId);
                     IsListView = false;
                     await SafeLoadListAsync();
-                    return;
-                }
+                    break;
 
-                // ── SCENARIO B: Fully delivered ───────────────────────────
-                if (masterDn.TotalBalanceQty <= 0)
-                {
-                    AppLogService.Info($"[CreateDn] SCENARIO B: Fully delivered (TotalBalanceQty={masterDn.TotalBalanceQty})");
-                    // Job order fully delivered - show message instead of opening old DN
+                case DnCreateResult.Kind.FullyDelivered:
                     MessageBox.Show(
-                        $"All items for this job order have been fully delivered.\n\n" +
-                        $"Total Ordered: {masterDn.Items.Sum(i => i.OrderedQty)}\n" +
-                        $"Total Delivered: {masterDn.TotalDeliveredQty}\n" +
-                        $"Balance: {masterDn.TotalBalanceQty}\n\n" +
-                        $"To view delivery history, click the job order row to open the Master DN.",
+                        result.Message,
                         "Fully Delivered",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
-                    return;
-                }
+                    break;
 
-                // ── SCENARIO C: Partial balance remaining ─────────────────
-                AppLogService.Info($"[CreateDn] SCENARIO C: Partial balance (TotalBalanceQty={masterDn.TotalBalanceQty})");
-                // Create DN directly with balance items (no popup)
-                await CreateDnFromMasterBalanceAsync(jobOrder, masterDn);
+                default:
+                    MessageBox.Show(
+                        string.IsNullOrWhiteSpace(result.Message)
+                            ? "Failed to create delivery note."
+                            : result.Message,
+                        "Create Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    break;
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Failed to create delivery note:\n\n{ex.Message}",
-                    "Create Failed",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  SCENARIO A — Create FIRST DN from JO snapshot
-        //  Called when no Master DN exists yet for this JO.
-        // ═════════════════════════════════════════════════════════════════
-
-        private async Task CreateFirstDnAsync(SavedJobOrder jobOrder)
-        {
-            if (App.DeliveryNotes == null) return;
-
-            // Also check for an existing Draft (edge case)
-            var existingDns = await App.DeliveryNotes
-                .GetByJobOrderIdAsync(jobOrder.JobOrderId);
-
-            var existingDraft = existingDns
-                .FirstOrDefault(d =>
-                    string.Equals(d.Status, "Draft",
-                        StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(d.Status, "Dispatching",
-                        StringComparison.OrdinalIgnoreCase));
-
-            if (existingDraft != null)
-            {
-                // Open existing draft directly — no popup
-                await DetailVM.LoadAsync(existingDraft.Id);
-                IsListView = false;
-                await SafeLoadListAsync();
-                return;
-            }
-
-            // Deserialize JO snapshot
-            JobOrderSnapshot? joSnapshot = null;
-
-            if (!string.IsNullOrWhiteSpace(jobOrder.FullSnapshotJson)
-                && jobOrder.FullSnapshotJson != "{}")
-            {
-                try
-                {
-                    joSnapshot = JsonSerializer.Deserialize<JobOrderSnapshot>(
-                        jobOrder.FullSnapshotJson, _jsonOptions);
-                }
-                catch (Exception ex)
-                {
-                    // S-5: the user already gets a "snapshot corrupted"
-                    // dialog below (joSnapshot stays null), so this is not
-                    // hidden from them — but the PARSE ERROR itself was
-                    // discarded, which made the corruption impossible to
-                    // diagnose afterwards. Behaviour is unchanged; the
-                    // cause is now recoverable from the log.
-                    AppLogService.Warning(
-                        $"Job Order snapshot for '{jobOrder.JobOrderId}' "
-                        + $"could not be deserialized: {ex.Message}",
-                        new LogContext
-                        {
-                            Module = "DeliveryNote",
-                            Class = nameof(DeliveryNoteViewModel),
-                            Operation = "CreateFirstDnAsync"
-                        });
-                }
-            }
-
-            if (joSnapshot == null)
-            {
-                MessageBox.Show(
-                    $"Could not read Job Order data for " +
-                    $"'{jobOrder.JobOrderId}'.\n\n" +
-                    "The snapshot may be missing or corrupted.",
-                    "Snapshot Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            int nextSeq = await App.DeliveryNotes
-                .GetNextSequenceAsync(jobOrder.JobOrderId);
-
-            string dnId = await App.DeliveryNotes
-                .BuildDeliveryNoteIdAsync(jobOrder.JobOrderId, nextSeq);
-
-            bool exists = await App.DeliveryNotes
-                .ExistsByDeliveryNoteIdAsync(dnId);
-
-            if (exists)
-            {
-                MessageBox.Show(
-                    $"Delivery note '{dnId}' already exists.",
-                    "Already Exists",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            var dnEntity = DeliveryNoteMapper.FromJobOrder(
-                jobOrder, joSnapshot, dnId, nextSeq);
-
-            foreach (var item in dnEntity.Items)
-            {
-                int previouslyDelivered = await App.DeliveryNotes
-                    .GetPreviouslyDeliveredQtyAsync(
-                        jobOrder.JobOrderId,
-                        item.SpecGroupNumber,
-                        item.SerialNumber);
-                item.PreviouslyDeliveredQty = previouslyDelivered;
-                item.BalanceQty = Math.Max(0,
-                    item.OrderedQty - previouslyDelivered - item.DeliveredQty);
-            }
-            dnEntity.Items = dnEntity.Items.Where(i => i.BalanceQty > 0).ToList();
-            dnEntity.TotalPreviouslyDeliveredQty =
-                dnEntity.Items.Sum(i => i.PreviouslyDeliveredQty);
-            dnEntity.TotalBalanceQty = dnEntity.Items.Sum(i => i.BalanceQty);
-            dnEntity.TotalOrderedQty = dnEntity.Items.Sum(i => i.OrderedQty);
-
-            if (dnEntity.Items.Count == 0)
-            {
-                MessageBox.Show(
-                    "Nothing left to deliver on this Job Order.\n\n" +
-                    "Master DN already shows zero remaining balance.",
-                    "Fully Delivered",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-                return;
-            }
-
-            var saved = await App.DeliveryNotes.InsertAsync(dnEntity);
-
-            await DetailVM.LoadAsync(saved.Id);
-            IsListView = false;
-            await SafeLoadListAsync();
-        }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  SCENARIO C — Create next DN from Master DN balance
-        //
-        //  Builds a new Draft DN pre-filled with balance quantities.
-        //  PreviouslyDeliveredQty = what Master DN shows as delivered.
-        //  DeliveredQty = 0 (user enters or clicks SELECT ALL REMAINING).
-        //  BalanceQty = full remaining balance pcs.
-        //
-        //  REMINDER: SELECT ALL REMAINING fills DeliveredQty = BalanceQty
-        //  for ALL items where balance > 0 (all remaining pcs at once).
-        // ═════════════════════════════════════════════════════════════════
-
-        private async Task CreateDnFromMasterBalanceAsync(
-            SavedJobOrder jobOrder,
-            Models.DeliveryNote.SavedDeliveryNote.SavedDeliveryNote masterDn)
-        {
-            if (App.DeliveryNotes == null) return;
-
-            try
-            {
-                await App.DeliveryNotes.UpdateMasterDnAsync(
-                    jobOrder.JobOrderId, masterDn.DeliveryNoteId);
-                masterDn = await App.DeliveryNotes
-                    .GetMasterDnForJobOrderAsync(jobOrder.JobOrderId)
-                    ?? masterDn;
-            }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Master-DN persist denied; using in-memory Master: " + ex.Message); }
-
-            int nextSeq = await App.DeliveryNotes
-                .GetNextSequenceAsync(jobOrder.JobOrderId);
-
-            string dnId = await App.DeliveryNotes
-                .BuildDeliveryNoteIdAsync(jobOrder.JobOrderId, nextSeq);
-
-            bool exists = await App.DeliveryNotes
-                .ExistsByDeliveryNoteIdAsync(dnId);
-
-            if (exists)
-            {
-                MessageBox.Show(
-                    $"Delivery note '{dnId}' already exists.\n\n" +
-                    "Please refresh and try again.",
-                    "Already Exists",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            var now = DateTime.Now;
-
-            var newDn =
-                new Models.DeliveryNote.SavedDeliveryNote.SavedDeliveryNote
-                {
-                    DeliveryNoteId = dnId,
-                    JobOrderId = masterDn.JobOrderId,
-                    ProformaId = masterDn.ProformaId,
-                    SequenceNumber = nextSeq,
-                    CustomerName = masterDn.CustomerName,
-                    ProjectName = masterDn.ProjectName,
-                    Status = "Dispatching",
-                    DeliveryType = "Original",
-                    IsMasterDn = false,
-                    IsFoc = false,
-                    DriverName = "",
-                    VehicleNumber = "",
-                    ReceiverName = "",
-                    DeliveryDate = now,
-                    DeliveryTime = now.ToString("HH:mm"),
-                    Notes = "",
-                    FullSnapshotJson = "{}",
-                    CreatedAt = now,
-                    UpdatedAt = now
-                };
-
-            // Build items from Master DN balance items only
-            // PreviouslyDeliveredQty = already delivered total
-            // DeliveredQty = 0 → user fills or clicks SELECT ALL REMAINING
-            // BalanceQty = full remaining balance pcs
-            var items = new System.Collections.Generic.List<
-                Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteItem>();
-
-            AppLogService.Info($"[CreateDnFromBalance] Building items from Master DN. Total items in master: {masterDn.Items.Count}");
-
-            int serialCounter = 1;
-            foreach (var masterItem in masterDn.Items
-                .Where(i => i.BalanceQty > 0)
-                .OrderBy(i => i.SpecGroupNumber)
-                .ThenBy(i => i.SerialNumber))
-            {
-                AppLogService.Debug($"[CreateDnFromBalance] Adding item: {masterItem.GlassRef}, Ordered={masterItem.OrderedQty}, PrevDelivered={masterItem.PreviouslyDeliveredQty}, Balance={masterItem.BalanceQty}");
-                items.Add(
-                    new Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteItem
-                    {
-                        DeliveryNoteId = dnId,
-                        JobOrderId = masterDn.JobOrderId,
-                        SpecGroupNumber = masterItem.SpecGroupNumber,
-                        SpecGroupName = masterItem.SpecGroupName,
-                        SerialNumber = serialCounter++,  // Continuous numbering across all spec groups
-                        GlassRef = masterItem.GlassRef,
-                        W1 = masterItem.W1,
-                        H1 = masterItem.H1,
-                        W2 = masterItem.W2,
-                        H2 = masterItem.H2,
-                        OrderedQty = masterItem.OrderedQty,
-                        PreviouslyDeliveredQty =
-                            masterItem.PreviouslyDeliveredQty,
-                        DeliveredQty = 0,
-                        BalanceQty = masterItem.BalanceQty,
-                        ReworkQty = 0,
-                        ReturnedQty = 0,
-                        Notes = ""
-                    });
-            }
-
-            AppLogService.Info($"[CreateDnFromBalance] Created {items.Count} items for new DN");
-
-            if (items.Count == 0)
-            {
-                MessageBox.Show(
-                    "Master DN has no remaining balance to deliver.",
-                    "Nothing to Create",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-                return;
-            }
-
-            newDn.Items = items;
-            newDn.TotalOrderedQty = items.Sum(i => i.OrderedQty);
-            newDn.TotalPreviouslyDeliveredQty =
-                items.Sum(i => i.PreviouslyDeliveredQty);
-            newDn.TotalDeliveredQty = 0;
-            newDn.TotalBalanceQty = items.Sum(i => i.BalanceQty);
-
-            // Refresh snapshot from Master DN snapshot context
-            var masterSnapshot = DeliveryNoteMapper
-                .DeserializeSnapshot(masterDn);
-            DeliveryNoteMapper.RefreshSnapshot(
-                newDn, masterSnapshot?.JobOrderRef);
-
-            var saved = await App.DeliveryNotes.InsertAsync(newDn);
-
-            await DetailVM.LoadAsync(saved.Id);
-            IsListView = false;
-            await SafeLoadListAsync();
         }
     }
 }

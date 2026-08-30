@@ -2,6 +2,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.DeliveryNote;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker;
@@ -714,30 +715,45 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 return;
             }
 
-            // Filter: Show ONLY job orders with balance remaining
             var jobOrdersWithBalance = new List<SavedJobOrder>();
-            
+
             foreach (var jo in allJobOrders)
             {
                 try
                 {
-                    var masterDn = await App.DeliveryNotes.GetMasterDnForJobOrderAsync(jo.JobOrderId);
-                    
+                    if (App.DeliveryNotes == null)
+                    {
+                        jobOrdersWithBalance.Add(jo);
+                        continue;
+                    }
+
+                    var masterDn = await App.DeliveryNotes
+                        .GetMasterDnForJobOrderAsync(jo.JobOrderId);
+
                     if (masterDn == null)
                     {
-                        // No DN created yet - show this job order
                         jobOrdersWithBalance.Add(jo);
+                        continue;
                     }
-                    else if (masterDn.TotalBalanceQty > 0)
+
+                    bool hasRemaining = masterDn.TotalBalanceQty > 0 ||
+                        (masterDn.Items?.Any(i => i.ComputedBalanceQty > 0) == true);
+                    if (hasRemaining)
                     {
-                        // Has balance remaining - show this job order
+                        jobOrdersWithBalance.Add(jo);
+                        continue;
+                    }
+
+                    var siblings = await App.DeliveryNotes
+                        .GetByJobOrderIdAsync(jo.JobOrderId);
+                    if (siblings.Any(d =>
+                            DeliveryNoteWorkflow.IsOpenForDispatch(d.Status)))
+                    {
                         jobOrdersWithBalance.Add(jo);
                     }
-                    // else: Fully delivered - don't show
                 }
                 catch
                 {
-                    // If we can't check, include it
                     jobOrdersWithBalance.Add(jo);
                 }
             }

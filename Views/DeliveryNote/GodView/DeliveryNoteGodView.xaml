@@ -62,7 +62,7 @@
                 <TextBlock Text="Delivery Notes — God View"
                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock Text="Every delivery note in the system, at a glance"
+                <TextBlock Text="Open dispatched delivery notes here. Workspace NEW DN only opens remaining balance."
                            FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>

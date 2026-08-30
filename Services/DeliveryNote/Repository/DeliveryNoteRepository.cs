@@ -198,12 +198,16 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             if (masterDn == null) return;
 
-            // Every real DN counts — Dispatching/Draft with saved qty
-            // is already in the list and must move Master balance.
+            // Confirmed deliveries only. Dispatching/Draft qty is in-progress
+            // and must not consume Master remaining until SAVE → Dispatched.
             var realDnIds = await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId &&
                             !x.IsMasterDn &&
-                            x.DeliveryType != "Dummy")
+                            x.DeliveryType != "Dummy" &&
+                            (x.Status == "Dispatched" ||
+                             x.Status == "Delivered" ||
+                             x.Status == "Signed" ||
+                             x.Status == "Received"))
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync();
 
@@ -648,7 +652,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             var siblingIds = await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId
                          && !x.IsMasterDn
-                         && x.DeliveryType != "Dummy")
+                         && x.DeliveryType != "Dummy"
+                         && (x.Status == "Dispatched" ||
+                             x.Status == "Delivered" ||
+                             x.Status == "Signed" ||
+                             x.Status == "Received"))
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync();
 
@@ -669,7 +677,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .Where(x => x.JobOrderId == jobOrderId
                          && x.DeliveryNoteId != excludeDnId
                          && !x.IsMasterDn
-                         && x.DeliveryType != "Dummy")
+                         && x.DeliveryType != "Dummy"
+                         && (x.Status == "Dispatched" ||
+                             x.Status == "Delivered" ||
+                             x.Status == "Signed" ||
+                             x.Status == "Received"))
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync();
 
@@ -691,8 +703,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             foreach (var item in items)
             {
                 if (item.DeliveredQty <= 0) continue;
+                // Spec+serial only. Glass-dimension fallback attributed
+                // identical panels to each other and zeroed remaining qty.
                 Acc(map, SpecKey(item), item.DeliveredQty);
-                Acc(map, GlassKey(item), item.DeliveredQty);
             }
             return map;
         }
@@ -702,16 +715,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             if (map.TryGetValue(SpecKey(item), out var bySpec) && bySpec > 0)
                 return bySpec;
-            if (map.TryGetValue(GlassKey(item), out var byGlass) && byGlass > 0)
-                return byGlass;
             return 0;
         }
 
         private static string SpecKey(DeliveryNoteItem i) =>
             $"{i.SpecGroupNumber}|{i.SerialNumber}";
-
-        private static string GlassKey(DeliveryNoteItem i) =>
-            $"G|{i.GlassRef}|{i.W1}|{i.H1}|{i.W2}|{i.H2}";
 
         private static void Acc(Dictionary<string, int> map, string key, int qty)
         {

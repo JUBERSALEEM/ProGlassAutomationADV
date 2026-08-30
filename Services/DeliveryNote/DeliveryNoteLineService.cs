@@ -56,7 +56,6 @@ namespace ProGlassAutomation.Services.DeliveryNote
             {
                 if (item.DeliveredQty <= 0) continue;
                 Accumulate(map, SpecKey(item), item.DeliveredQty);
-                Accumulate(map, GlassKey(item), item.DeliveredQty);
             }
             return map;
         }
@@ -64,14 +63,12 @@ namespace ProGlassAutomation.Services.DeliveryNote
         public static int LookupDelivered(Dictionary<string, int> map, DeliveryNoteItem item)
         {
             if (map.TryGetValue(SpecKey(item), out var bySpec) && bySpec > 0) return bySpec;
-            if (map.TryGetValue(GlassKey(item), out var byGlass) && byGlass > 0) return byGlass;
             return 0;
         }
 
         public static int LookupPreviouslyDelivered(Dictionary<string, int> map, DeliveryNoteItem item)
         {
             if (map.TryGetValue($"{item.SpecGroupNumber}|{item.SerialNumber}", out var bySpec) && bySpec > 0) return bySpec;
-            if (map.TryGetValue($"G|{item.GlassRef}|{item.W1}|{item.H1}|{item.W2}|{item.H2}", out var byGlass) && byGlass > 0) return byGlass;
             return 0;
         }
 
@@ -118,7 +115,7 @@ namespace ProGlassAutomation.Services.DeliveryNote
             int ordered = items.Sum(i => i.OrderedQty);
             int prev = items.Sum(i => i.PreviouslyDeliveredQty);
             int delivered = items.Sum(i => i.DeliveredQty);
-            int balance = items.Sum(i => i.BalanceQty);
+            int balance = items.Sum(i => i.ComputedBalanceQty);
             return (ordered, prev, delivered, balance);
         }
 

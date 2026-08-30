@@ -431,11 +431,19 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
 
+                    <Button Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE74E;" Content="SAVE"
+                            Command="{Binding SaveCommand}"
+                            Margin="0,0,8,0"
+                            ToolTip="Save this Dispatching DN as Dispatched. Remaining qty stays on the next NEW DN."
+                            Visibility="{Binding IsNotMasterDn,
+                                         Converter={StaticResource BoolToVisibilityConverter}}"/>
+
                     <Button Style="{StaticResource CreateFromMasterButtonStyle}"
                             Tag="&#xE7B8;" Content="CREATE FROM BALANCE"
                             Command="{Binding CreateNewDnFromMasterCommand}"
                             Margin="0,0,8,0"
-                            ToolTip="Create a new DN pre-filled with balance quantities"/>
+                            ToolTip="Create a new Dispatching DN with remaining balance only"/>
 
                     <Button x:Name="ActionsMenuButton"
                             Style="{StaticResource OutlinedPillButton}"
@@ -465,8 +473,8 @@
                             </Border.Effect>
                             <StackPanel>
                                 <Button Style="{StaticResource DnMenuRealOnlyItem}"
-                                        Tag="&#xE7F4;" Content="Make DN"
-                                        Command="{Binding MakeDnCommand}"
+                                        Tag="&#xE74E;" Content="Save &amp; dispatch"
+                                        Command="{Binding SaveCommand}"
                                         Click="MenuActionClicked"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
                                         Tag="&#xE81C;" Content="Version history"

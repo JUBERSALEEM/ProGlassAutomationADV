@@ -5,7 +5,6 @@ using ProGlassAutomation.Models.JobOrder.ProductionDetails;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Audit;
-using ProGlassAutomation.Services.DeliveryNote.Mapper;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
@@ -14,7 +13,6 @@ using ProGlassAutomation.Services.JobOrder.Export;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -321,6 +319,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             ExportCsvCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportCsvAsync, "CSV"));
 
             CreateDeliveryNoteCommand = new RelayCommand(async _ => await CreateDeliveryNoteAsync());
+            OpenMasterDnCommand = new RelayCommand(async _ => await OpenMasterDnAsync());
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -657,98 +656,37 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 return;
             }
 
-            if (App.DeliveryNotes == null)
-            {
-                MessageBox.Show(
-                    "Delivery Notes database not initialized.",
-                    "Cannot Create DN",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-                return;
-            }
-
             try
             {
-                // ── Check if all items already fully delivered ────────────
-                var history = await App.DeliveryNotes
-                    .GetDeliveryHistoryAsync(_entity.JobOrderId);
+                var result = await ProGlassAutomation.Services.DeliveryNote
+                    .DeliveryNoteCreateService
+                    .CreateOrOpenDispatchingAsync(_entity);
 
-                if (history.TotalOrdered > 0 && history.TotalBalance == 0)
+                switch (result.Outcome)
                 {
-                    MessageBox.Show(
-                        $"All items for job order '{_entity.JobOrderId}' " +
-                        "are already fully delivered.\n\n" +
-                        "No new delivery note needed.",
-                        "Already Delivered",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                    return;
+                    case ProGlassAutomation.Services.DeliveryNote.DnCreateResult.Kind.OpenExisting:
+                    case ProGlassAutomation.Services.DeliveryNote.DnCreateResult.Kind.Created:
+                        OnRequestOpenDeliveryNote?.Invoke(result.DeliveryNoteDbId);
+                        break;
+
+                    case ProGlassAutomation.Services.DeliveryNote.DnCreateResult.Kind.FullyDelivered:
+                        MessageBox.Show(
+                            result.Message,
+                            "Fully Delivered",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                        break;
+
+                    default:
+                        MessageBox.Show(
+                            string.IsNullOrWhiteSpace(result.Message)
+                                ? "Failed to create delivery note."
+                                : result.Message,
+                            "Create Failed",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                        break;
                 }
-
-                // ── Confirm creation ──────────────────────────────────────
-                var confirm = MessageBox.Show(
-                    $"Create a new Delivery Note for job order '{_entity.JobOrderId}'?\n\n" +
-                    "A Draft DN will be created with all pending quantities.\n" +
-                    "You can then edit delivered qty per item before dispatching.",
-                    "Create Delivery Note",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (confirm != MessageBoxResult.Yes) return;
-
-                try
-                {
-                    await ProGlassAutomation.Services.DeliveryNote
-                        .MasterDeliveryNoteService
-                        .EnsureForJobOrderAsync(_entity);
-                    await App.DeliveryNotes.UpdateMasterDnAsync(
-                        _entity.JobOrderId, "");
-                }
-                catch { /* real DN still created */ }
-
-                // ── Generate next DN ID + sequence ────────────────────────
-                int nextSeq = await App.DeliveryNotes
-                    .GetNextSequenceAsync(_entity.JobOrderId);
-                string newDnId = await App.DeliveryNotes
-                    .BuildDeliveryNoteIdAsync(_entity.JobOrderId, nextSeq);
-
-                // ── Build DN entity from JO ───────────────────────────────
-                var newDn = DeliveryNoteMapper.FromJobOrder(
-                    _entity, _snapshot, newDnId, nextSeq);
-
-                // Always heal PREV from confirmed siblings and drop
-                // fully delivered lines — including the first real DN
-                // after a partial dispatch already exists.
-                foreach (var item in newDn.Items)
-                {
-                    int previouslyDelivered = await App.DeliveryNotes
-                        .GetPreviouslyDeliveredQtyAsync(
-                            _entity.JobOrderId,
-                            item.SpecGroupNumber,
-                            item.SerialNumber);
-
-                    item.PreviouslyDeliveredQty = previouslyDelivered;
-                    item.BalanceQty = Math.Max(0,
-                        item.OrderedQty - previouslyDelivered - item.DeliveredQty);
-                }
-
-                newDn.TotalPreviouslyDeliveredQty =
-                    newDn.Items.Sum(i => i.PreviouslyDeliveredQty);
-                newDn.TotalBalanceQty = newDn.Items.Sum(i => i.BalanceQty);
-                newDn.Items = newDn.Items.Where(i => i.BalanceQty > 0).ToList();
-
-                // ── Save to DB ────────────────────────────────────────────
-                await App.DeliveryNotes.InsertAsync(newDn);
-
-                MessageBox.Show(
-                    $"Delivery note '{newDnId}' created successfully.\n\n" +
-                    "Opening in Delivery Note module…",
-                    "DN Created",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-
-                // ── Fire callback to shell VMs → navigate to DN detail ───
-                OnRequestOpenDeliveryNote?.Invoke(newDn.Id);
             }
             catch (Exception ex)
             {

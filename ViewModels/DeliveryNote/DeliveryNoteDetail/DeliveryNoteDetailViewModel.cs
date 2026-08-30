@@ -4,6 +4,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.DeliveryNote;
 using ProGlassAutomation.Services.DeliveryNote.Attachments;
 using ProGlassAutomation.Services.DeliveryNote.Export;
 using ProGlassAutomation.Services.DeliveryNote.Mapper;
@@ -546,8 +547,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public ICommand ClearSelectionCommand { get; }
 
         private static bool IsOpenForDispatch(string? status) =>
-            string.Equals(status, "Dispatching", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(status, "Draft", StringComparison.OrdinalIgnoreCase);
+            DeliveryNoteWorkflow.IsOpenForDispatch(status);
 
         private static bool DetectMaster(SavedDeliveryNote entity)
         {
@@ -844,7 +844,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 DetailTab = p2 as string ?? "Overview");
 
             SaveCommand = new RelayCommand(
-                async _ => await SaveAsync(),
+                async _ =>
+                {
+                    if (IsOpenForDispatch(Status))
+                        await ConfirmDispatchAsync();
+                    else
+                        await SaveAsync();
+                },
                 _ => !IsSaving && !IsLoading && !IsMasterDn);
 
             BackCommand = new RelayCommand(
@@ -1117,19 +1123,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ReceiverName = _entity.ReceiverName;
                 Notes = _entity.Notes;
 
-                // Persist sibling totals onto Master (saved Drafts count),
-                // then heal PREV with spec+glass fallback so closed lines
-                // actually drop out of VisibleGroups.
+                // Persist sibling totals onto Master, then heal PREV
+                // with spec+serial so closed lines drop from the grid.
                 await SyncMasterBalancesAsync();
                 await HealItemPrevQtyAsync(_entity);
-                if (IsMasterDn)
+                foreach (var item in _entity.Items)
                 {
-                    foreach (var item in _entity.Items)
-                    {
+                    if (IsMasterDn)
                         item.DeliveredQty = 0;
-                        item.BalanceQty = Math.Max(0,
-                            item.OrderedQty - item.PreviouslyDeliveredQty);
-                    }
+                    item.BalanceQty = Math.Max(0,
+                        item.OrderedQty - item.PreviouslyDeliveredQty - item.DeliveredQty);
                 }
 
                 // BUG-42: unsubscribe from old rows
@@ -1177,12 +1180,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     .ToList();
 
                 _entity.Items = dedupedItems;
+                foreach (var item in _entity.Items)
+                    item.BalanceQty = item.ComputedBalanceQty;
 
-                // Filter out fully delivered items for non-Master DNs
-                // (items where BalanceQty=0 and PreviouslyDeliveredQty>0)
-                var displayItems = _entity.IsMasterDn
+                var displayItems = DetectMaster(_entity)
                     ? dedupedItems
-                    : dedupedItems.Where(i => i.BalanceQty > 0 || i.PreviouslyDeliveredQty == 0).ToList();
+                    : dedupedItems.Where(i => i.DeliveredQty > 0 || i.ComputedBalanceQty > 0).ToList();
 
                 var rows = displayItems
                     .Select(i => new DnItemRowViewModel(i))
@@ -1242,13 +1245,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             Dictionary<string, int> map, DeliveryNoteItem item)
         {
             if (map.TryGetValue(
-                    $"{item.SpecGroupNumber}|{item.SerialNumber}",
+                    DeliveryNoteWorkflow.LineKey(item.SpecGroupNumber, item.SerialNumber),
                     out var bySpec) && bySpec > 0)
                 return bySpec;
-            if (map.TryGetValue(
-                    $"G|{item.GlassRef}|{item.W1}|{item.H1}|{item.W2}|{item.H2}",
-                    out var byGlass) && byGlass > 0)
-                return byGlass;
             return 0;
         }
 
@@ -1609,10 +1608,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     $"{_entity.DeliveryNoteId} dispatched",
                     "DN", _entity.DeliveryNoteId);
 
-                int deliveredThisDn = _entity.Items.Sum(i => i.DeliveredQty);
-                int totalBalance = _entity.Items.Sum(i => i.BalanceQty);
-                int balanceItemCount = _entity.Items.Count(i => i.BalanceQty > 0);
+                HasUnsavedChanges = false;
 
+                int deliveredThisDn = _entity.Items.Sum(i => i.DeliveredQty);
                 string invoiceNote = "";
                 if (deliveredThisDn > 0 && !_entity.HasTaxInvoice
                     && OnRequestAutoCreateTaxInvoice != null)
@@ -1625,18 +1623,26 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                             invoiceNote =
                                 $"Tax Invoice {invoiceNo} created as Draft " +
                                 $"for this delivery ({deliveredThisDn} pcs).\n" +
-                                "Open Tax Invoice to edit dates, bank or rates.\n\n";
+                                "Open Tax Invoice to edit dates, bank or rates.";
                     }
                     catch (Exception tiEx)
                     {
                         invoiceNote =
-                            "Delivery saved, but the tax invoice could not " +
+                            "Delivery dispatched, but the tax invoice could not " +
                             $"be created automatically:\n{tiEx.Message}\n" +
-                            "Use Convert to Tax Invoice from History.\n\n";
+                            "Use Convert to Tax Invoice from History.";
                     }
                 }
 
-                // Dispatch successful — go back to list
+                if (!string.IsNullOrWhiteSpace(invoiceNote))
+                {
+                    MessageBox.Show(
+                        invoiceNote,
+                        "Dispatched",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+
                 OnRequestBackToList?.Invoke();
             }
             catch (Exception ex)

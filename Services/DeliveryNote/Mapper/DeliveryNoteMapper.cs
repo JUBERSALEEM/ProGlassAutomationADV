@@ -160,6 +160,93 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
         }
 
         // ════════════════════════════════════════════════════════════════
+        //  PATH A2 — Master remaining balance → New Dispatching DN
+        //
+        //  SerialNumber is copied from the Master line. Reassigning 1..N
+        //  on remaining-only DNs made PREV lookup hit the WRONG line and
+        //  the grid showed "all items fully delivered" while balance > 0.
+        // ════════════════════════════════════════════════════════════════
+
+        public static SavedDeliveryNote FromMasterBalance(
+            SavedDeliveryNote masterDn,
+            string deliveryNoteId,
+            int sequenceNumber)
+        {
+            if (masterDn == null)
+                throw new ArgumentNullException(nameof(masterDn));
+
+            var now = DateTime.Now;
+
+            var entity = new SavedDeliveryNote
+            {
+                DeliveryNoteId = deliveryNoteId,
+                JobOrderId = masterDn.JobOrderId,
+                ProformaId = masterDn.ProformaId,
+                SequenceNumber = sequenceNumber,
+                CustomerName = masterDn.CustomerName,
+                ProjectName = masterDn.ProjectName,
+                Status = "Dispatching",
+                DeliveryType = "Original",
+                IsMasterDn = false,
+                IsFoc = false,
+                DriverName = "",
+                VehicleNumber = "",
+                ReceiverName = "",
+                DeliveryDate = now,
+                DeliveryTime = now.ToString("HH:mm"),
+                Notes = "",
+                TotalOrderedQty = 0,
+                TotalDeliveredQty = 0,
+                TotalBalanceQty = 0,
+                TotalPreviouslyDeliveredQty = 0,
+                CreatedAt = now,
+                UpdatedAt = now
+            };
+
+            var items = new List<DeliveryNoteItem>();
+
+            foreach (var masterItem in (masterDn.Items ?? new List<DeliveryNoteItem>())
+                .Where(i => i.ComputedBalanceQty > 0)
+                .OrderBy(i => i.SpecGroupNumber)
+                .ThenBy(i => i.SerialNumber))
+            {
+                int remaining = masterItem.ComputedBalanceQty;
+                items.Add(new DeliveryNoteItem
+                {
+                    DeliveryNoteId = deliveryNoteId,
+                    JobOrderId = masterDn.JobOrderId,
+                    SpecGroupNumber = masterItem.SpecGroupNumber,
+                    SpecGroupName = masterItem.SpecGroupName,
+                    SerialNumber = masterItem.SerialNumber,
+                    GlassRef = masterItem.GlassRef,
+                    W1 = masterItem.W1,
+                    H1 = masterItem.H1,
+                    W2 = masterItem.W2,
+                    H2 = masterItem.H2,
+                    OrderedQty = masterItem.OrderedQty,
+                    PreviouslyDeliveredQty = masterItem.PreviouslyDeliveredQty,
+                    DeliveredQty = 0,
+                    BalanceQty = remaining,
+                    ReworkQty = 0,
+                    ReturnedQty = 0,
+                    WeightPerPiece = masterItem.WeightPerPiece,
+                    Notes = ""
+                });
+            }
+
+            entity.Items = items;
+            entity.TotalOrderedQty = items.Sum(i => i.OrderedQty);
+            entity.TotalPreviouslyDeliveredQty =
+                items.Sum(i => i.PreviouslyDeliveredQty);
+            entity.TotalDeliveredQty = 0;
+            entity.TotalBalanceQty = items.Sum(i => i.BalanceQty);
+
+            var masterSnapshot = DeserializeSnapshot(masterDn);
+            RefreshSnapshot(entity, masterSnapshot?.JobOrderRef);
+            return entity;
+        }
+
+        // ════════════════════════════════════════════════════════════════
         //  PATH B — Prior DN Balance → New Dummy Delivery Note
         // ════════════════════════════════════════════════════════════════
 

@@ -53,6 +53,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string LatestDeliveryDateDisplay { get; }
         public string LatestDriverName { get; }
         public int LatestSequenceNumber { get; }
+        public string LatestStatus { get; }
 
         public bool HasFoc { get; }
         public bool HasRework { get; }
@@ -113,6 +114,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             LatestDriverName = string.IsNullOrWhiteSpace(latest.DriverName)
                 ? "—" : latest.DriverName;
             LatestSequenceNumber = latest.SequenceNumber;
+            LatestStatus = latest.Status;
 
             ProformaId = latest.ProformaId;
             CustomerName = latest.CustomerName;

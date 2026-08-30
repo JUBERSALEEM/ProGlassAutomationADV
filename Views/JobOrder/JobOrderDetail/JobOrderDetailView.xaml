@@ -102,7 +102,7 @@
                            HorizontalAlignment="Right">
                     <Button Style="{StaticResource SuccessPillButton}"
                             Tag="&#xE7F4;" Content="CREATE DN"
-                            ToolTip="Create a new Delivery Note for this Job Order"
+                            ToolTip="Open a Dispatching DN with remaining balance only. Dispatched notes open from Delivery Note God View."
                             Command="{Binding CreateDeliveryNoteCommand}"
                             Margin="0,0,8,0"/>
                     <Button Content="MASTER DN"
