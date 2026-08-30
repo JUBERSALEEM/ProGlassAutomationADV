@@ -84,6 +84,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
             var step4Pricing = pi?.Step4Pricing;
             string glassTypeCode = step4Pricing?.SelectedGlassTypeCode ?? "";
 
+            int globalSerialCounter = 1;  // Continuous numbering across all spec groups
+
             if (pi?.SpecGroups != null)
             {
                 foreach (var group in pi.SpecGroups)
@@ -124,7 +126,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                                                          ? group.SelectedSpecName
                                                          : (group.GroupName
                                                             ?? $"Spec {group.GroupNumber}"),
-                            SerialNumber = row.SerialNumber,
+                            SerialNumber = globalSerialCounter++,  // Continuous numbering
                             GlassRef = row.GlassRef ?? "",
                             W1 = row.W1,
                             H1 = row.H1,

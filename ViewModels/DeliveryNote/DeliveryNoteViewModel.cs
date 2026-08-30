@@ -756,6 +756,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             AppLogService.Info($"[CreateDnFromBalance] Building items from Master DN. Total items in master: {masterDn.Items.Count}");
 
+            int serialCounter = 1;
             foreach (var masterItem in masterDn.Items
                 .Where(i => i.BalanceQty > 0)
                 .OrderBy(i => i.SpecGroupNumber)
@@ -769,7 +770,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                         JobOrderId = masterDn.JobOrderId,
                         SpecGroupNumber = masterItem.SpecGroupNumber,
                         SpecGroupName = masterItem.SpecGroupName,
-                        SerialNumber = masterItem.SerialNumber,
+                        SerialNumber = serialCounter++,  // Continuous numbering across all spec groups
                         GlassRef = masterItem.GlassRef,
                         W1 = masterItem.W1,
                         H1 = masterItem.H1,
