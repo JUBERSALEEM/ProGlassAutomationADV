@@ -61,9 +61,13 @@ namespace ProGlassAutomation.Agent.Tools.Read
             {
                 var q = query.ToLowerInvariant();
                 var sb = new StringBuilder();
+                var piId = AgentReferenceResolver.TryExtractDocumentId(query, out var extractedPi)
+                    ? extractedPi
+                    : ExtractId(query, "PI-");
 
                 // ── 1. PI questions ──────────────────────────────────────
-                if (q.Contains("pi ") || q.Contains("proforma") || q.Contains("quotation"))
+                if (q.Contains("pi ") || q.Contains("pi-") || q.Contains("proforma")
+                    || q.Contains("quotation") || !string.IsNullOrEmpty(piId))
                 {
                     var filter = new ReportingFilter();
                     if (q.Contains("confirm")) filter.Status = "Approved";
@@ -91,8 +95,6 @@ namespace ProGlassAutomation.Agent.Tools.Read
                         else sb.AppendLine("• All confirmed PI have a Job Order.");
                     }
 
-                    // If PI id extracted
-                    var piId = ExtractId(query, "PI-");
                     if (!string.IsNullOrEmpty(piId))
                     {
                         var detail = await _reporting.GetPiRowsDetailAsync(piId);

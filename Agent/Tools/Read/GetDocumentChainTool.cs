@@ -70,6 +70,8 @@ namespace ProGlassAutomation.Agent.Tools.Read
         public async Task<ToolResult> ExecuteAsync(string argument)
         {
             string pi = (argument ?? "").Trim();
+            if (AgentReferenceResolver.TryExtractDocumentId(pi, out var extracted))
+                pi = extracted;
 
             if (pi.Length == 0)
             {

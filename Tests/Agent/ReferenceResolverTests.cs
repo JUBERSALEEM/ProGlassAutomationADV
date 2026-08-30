@@ -209,5 +209,26 @@ namespace ProGlassAutomation.Tests.Agent
             }
             finally { ClearScreen(); }
         }
+
+        [Theory]
+        [InlineData("for PI-1052", "PI-1052")]
+        [InlineData("document chain for PI-1052", "PI-1052")]
+        [InlineData("status of PI-2026-014 please", "PI-2026-014")]
+        [InlineData("JO-2201", "JO-2201")]
+        public void Extracts_a_document_id_from_noisy_tool_arguments(
+            string text, string expected)
+        {
+            Assert.True(AgentReferenceResolver.TryExtractDocumentId(text, out var id));
+            Assert.Equal(expected, id);
+        }
+
+        [Theory]
+        [InlineData("for the pipeline")]
+        [InlineData("Job Order")]
+        [InlineData("")]
+        public void Does_not_mint_a_document_id_from_english(string text)
+        {
+            Assert.False(AgentReferenceResolver.TryExtractDocumentId(text, out _));
+        }
     }
 }

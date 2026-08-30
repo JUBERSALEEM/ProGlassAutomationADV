@@ -170,6 +170,10 @@ namespace ProGlassAutomation.Agent.Core
             sb.AppendLine("Look things up (read-only):");
             sb.AppendLine(AgentToolRegistry.Describe(_context.Tools));
             sb.AppendLine();
+            sb.AppendLine("Central reporting: \"erp overview\", " +
+                          "\"how many PI were confirmed this month\", " +
+                          "\"pending invoices\", \"spec rows in PI-1045\".");
+            sb.AppendLine();
             sb.AppendLine("Open screens: say \"open sheet store\", \"go to job orders\".");
             sb.AppendLine();
             sb.AppendLine("Record a demo: \"create a proforma invoice demo\".");

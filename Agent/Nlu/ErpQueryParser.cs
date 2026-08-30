@@ -73,14 +73,17 @@ namespace ProGlassAutomation.Agent.Nlu
         {
             if (ContainsAny(text, "wastage", "waste", "breakage")) return ErpMetric.Wastage;
             if (ContainsAny(text, "deliver", "delivered", "delivery")) return ErpMetric.Delivered;
+            // Last-purchase phrases contain "purchase" / "buy". Matching those
+            // generic keys first made LastPurchase dead code, so "show last
+            // purchase" always became a history (Purchased) question.
+            if (ContainsAny(text, "last purchase", "when did we last",
+                    "last buy", "last bought", "when did we buy"))
+                return ErpMetric.LastPurchase;
             if (ContainsAny(text, "purchase", "purchased", "buy", "bought", "kharida"))
                 return ErpMetric.Purchased;
             if (ContainsAny(text, "used", "consumed", "consume")) return ErpMetric.Consumed;
             if (ContainsAny(text, "supplier", "who supplied", "which supplier"))
                 return ErpMetric.Supplier;
-            if (ContainsAny(text, "last purchase", "when did we buy",
-                    "when did we last", "last buy", "last bought"))
-                return ErpMetric.LastPurchase;
             if (ContainsAny(text, "low stock", "running low", "almost finished"))
                 return ErpMetric.LowStock;
             if (ContainsAny(text, "stock", "left", "available", "bacha", "howmuch"))

@@ -31,6 +31,7 @@
 
 using ProGlassAutomation.Agent.Intent;
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Agent.Nlu;
 using ProGlassAutomation.Agent.Tools.Registry;
 using System;
 using System.Collections.Generic;
@@ -41,8 +42,13 @@ namespace ProGlassAutomation.Tests.Agent
 {
     public class ToolReachabilityTests
     {
-        private static string Detect(string phrase) =>
-            IntentDetector.Detect(phrase, Array.Empty<TeachingRuleView>());
+        public ToolReachabilityTests() => ConversationSlots.Clear();
+
+        private static string Detect(string phrase)
+        {
+            ConversationSlots.Clear();
+            return IntentDetector.Detect(phrase, Array.Empty<TeachingRuleView>());
+        }
 
         /// <summary>
         /// One sentence per tool, phrased the way a user would actually say
@@ -62,6 +68,7 @@ namespace ProGlassAutomation.Tests.Agent
             ["get_screen_context"] = "what am i looking at",
             ["get_statement"] = "what is outstanding",
             ["get_sales_analytics"] = "how much did we sell this month",
+            ["get_reporting"] = "erp overview",
             ["update_sheet_stock"] = "add 10 to sheet 42",
             ["get_stock_detail"] = "running low",
             ["get_stock_history"] = "how much did we purchase",
@@ -72,7 +79,7 @@ namespace ProGlassAutomation.Tests.Agent
         //  THE INVARIANT
         // ══════════════════════════════════════════════════════════════
 
-        [Fact(Skip = "NLU routing returns the wrong tool name for several test phrases (e.g. 'list customers' routes to 'answer' instead of 'search_customer'). The NLU training set is out of sync with the registered tool set; needs NLU re-training.")]
+        [Fact]
         public void Every_registered_tool_is_reachable()
         {
             // navigate is excluded: it is routed by the navigation catalog,
@@ -104,7 +111,7 @@ namespace ProGlassAutomation.Tests.Agent
                 "Unreachable tool(s): " + string.Join("; ", unreachable));
         }
 
-        [Theory(Skip = "NLU routing returns the wrong tool name for several test phrases (e.g. 'list customers' routes to 'answer' instead of 'search_customer'). The NLU training set is out of sync with the registered tool set; needs NLU re-training.")]
+        [Theory]
         [InlineData("show proformas", "search_proforma")]
         [InlineData("list proformas", "search_proforma")]
         [InlineData("show job orders", "search_joborder")]
@@ -114,6 +121,9 @@ namespace ProGlassAutomation.Tests.Agent
         [InlineData("show tax invoices", "search_taxinvoice")]
         [InlineData("list customers", "search_customer")]
         [InlineData("show all customers", "search_customer")]
+        [InlineData("erp overview", "get_reporting")]
+        [InlineData("how many PI were confirmed this month", "get_reporting")]
+        [InlineData("pending invoices", "get_reporting")]
         public void Natural_phrasings_route_correctly(string phrase, string tool)
         {
             // REGRESSION: all of these were unroutable before the keyword
@@ -125,7 +135,7 @@ namespace ProGlassAutomation.Tests.Agent
         //  WIDENING MUST NOT HAVE BROKEN PRECEDENCE
         // ══════════════════════════════════════════════════════════════
 
-        [Theory(Skip = "NLU routing returns the wrong tool name for several test phrases (e.g. 'list customers' routes to 'answer' instead of 'search_customer'). The NLU training set is out of sync with the registered tool set; needs NLU re-training.")]
+        [Theory]
         [InlineData("what is outstanding", "get_statement")]
         [InlineData("show the statement for ABC Glass", "get_statement")]
         [InlineData("which jobs are losing money", "get_profitability")]
@@ -142,7 +152,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains(tool, Detect(phrase));
         }
 
-        [Theory(Skip = "NLU routing returns the wrong tool name for several test phrases (e.g. 'list customers' routes to 'answer' instead of 'search_customer'). The NLU training set is out of sync with the registered tool set; needs NLU re-training.")]
+        [Theory]
         [InlineData("how much did we sell this month", "get_sales_analytics")]
         [InlineData("what gross profit this year", "get_sales_analytics")]
         [InlineData("total sales last month", "get_sales_analytics")]
@@ -155,7 +165,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains(tool, Detect(phrase));
         }
 
-        [Theory(Skip = "NLU routing returns the wrong tool name for several test phrases (e.g. 'list customers' routes to 'answer' instead of 'search_customer'). The NLU training set is out of sync with the registered tool set; needs NLU re-training.")]
+        [Theory]
         [InlineData("how much profit on PI-1052", "get_profitability")]
         [InlineData("which jobs are losing money", "get_profitability")]
         public void Single_job_questions_still_reach_profitability(
@@ -164,7 +174,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains(tool, Detect(phrase));
         }
 
-        [Theory(Skip = "NLU routing returns the wrong tool name for several test phrases (e.g. 'list customers' routes to 'answer' instead of 'search_customer'). The NLU training set is out of sync with the registered tool set; needs NLU re-training.")]
+        [Theory]
         [InlineData("show inventory")]
         [InlineData("what stock do we have")]
         [InlineData("add some stock")]

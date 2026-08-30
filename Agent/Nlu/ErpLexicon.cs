@@ -45,7 +45,8 @@ namespace ProGlassAutomation.Agent.Nlu
             "glass", "stock", "clear", "grey", "bronze", "frosted", "mirror",
             "purchase", "purchased", "buy", "bought", "left", "available",
             "used", "consumed", "delivered", "delivery", "wastage", "waste",
-            "supplier", "customer", "proforma", "joborder", "invoice",
+            "supplier", "customer", "customers", "client", "clients",
+            "proforma", "proformas", "joborder", "invoice", "invoices",
             "statement", "inventory", "sheet", "thickness", "colour", "color",
             "howmuch", "quantity", "pieces", "demo", "record", "video"
         };

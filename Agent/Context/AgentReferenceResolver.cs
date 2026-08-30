@@ -105,6 +105,23 @@ namespace ProGlassAutomation.Agent.Context
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         /// <summary>
+        /// Pulls a PI/JO/DN/TI/MDN identifier out of free text.
+        /// Returns false when nothing hyphen-plus-digit shaped is present,
+        /// so English words like "Pipeline" are never minted as ids.
+        /// </summary>
+        public static bool TryExtractDocumentId(string? text, out string id)
+        {
+            id = "";
+            if (string.IsNullOrWhiteSpace(text)) return false;
+
+            var match = DocumentId.Match(text);
+            if (!match.Success) return false;
+
+            id = match.Groups[1].Value.Trim();
+            return id.Length > 0;
+        }
+
+        /// <summary>
         /// Tries to supply a missing tool argument from screen context.
         /// Returns None for every case where guessing would be unsafe.
         /// </summary>
@@ -144,11 +161,8 @@ namespace ProGlassAutomation.Agent.Context
                 if (string.IsNullOrWhiteSpace(detail))
                     return ResolvedReference.None();
 
-                var match = DocumentId.Match(detail);
-                if (!match.Success) return ResolvedReference.None();
-
-                string id = match.Groups[1].Value.Trim();
-                if (id.Length == 0) return ResolvedReference.None();
+                if (!TryExtractDocumentId(detail, out string id))
+                    return ResolvedReference.None();
 
                 // Rule 5 — state the assumption.
                 return ResolvedReference.From(

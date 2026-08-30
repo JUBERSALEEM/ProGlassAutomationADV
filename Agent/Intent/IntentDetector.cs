@@ -82,12 +82,28 @@ namespace ProGlassAutomation.Agent.Intent
                      "demo video", "workflow demo", "generate demo" },
                 "create_demo_package"),
 
-            // Verb-led forms PLUS the bare plural noun. People say "show me
-            // the customers" far more often than "search customer", and the
-            // verb-only lists made every such phrase unroutable.
+            // Central reporting. Specific keys only — bare "proforma",
+            // "invoice", "this month" would steal search/analytics.
+            // Must sit BEFORE those catalogs so "how many PI this month"
+            // is a count, not a document list or a sales-period total.
+            (new[] { "reporting", "erp overview",
+                     "how many proforma", "how many pi",
+                     "confirmed proforma", "confirmed pi",
+                     "proforma this month", "pi this month",
+                     "spec rows", "glass rows",
+                     "without job order", "not converted",
+                     "pending invoices", "pending invoice",
+                     "rows in pi", "rows inside pi", "rows inside",
+                     "quantity reconciliation",
+                     "companies ordered", "exact spec",
+                     "dgu specification" },
+                "get_reporting"),
+
+            // Verb-led forms PLUS the bare noun. Soft-correct used to
+            // rewrite "customers" → "customer", which then matched nothing.
             (new[] { "search customer", "find customer", "customer named",
                      "look up customer", "client named",
-                     "customers", "customer list", "clients" },
+                     "customers", "customer", "customer list", "clients" },
                 "search_customer"),
 
             (new[] { "search proforma", "find proforma", "search quotation",
@@ -113,25 +129,24 @@ namespace ProGlassAutomation.Agent.Intent
             (new[] { "activity", "audit", "recent actions", "who did", "what happened" },
                 "get_activity"),
 
-            // PHASE N — profit QUESTIONS answer with data.
-            //
-            // Ordering note: the nav catalog also owns "profit" (it opens the
-            // Job Profitability module) and tools are checked FIRST. These
-            // keys are therefore deliberately phrased as questions - "how
-            // much profit", "did we make money" - so that asking a question
-            // returns figures, while "open profitability" still navigates.
-            (new[] { "how much profit", "what profit", "profit on",
-                     "margin on", "did we make money", "are we losing",
-                     "losing money", "loss making", "profitable" },
-                "get_profitability"),
-
-            // Cross-module analytics (§33). Placed BEFORE get_profitability
-            // because "how much profit this month" is a PERIOD question,
-            // while get_profitability answers about individual jobs.
+            // Cross-module analytics (§33). BEFORE get_profitability so
+            // "how much profit this month" is a PERIOD question, while a
+            // question about one job still hits profitability below.
             (new[] { "this month", "last month", "this year", "last year",
                      "year to date", "how much did we sell", "total sales",
                      "gross profit", "sales analytics", "revenue" },
                 "get_sales_analytics"),
+
+            // PHASE N — profit QUESTIONS answer with data.
+            //
+            // The nav catalog also owns "profit" (opens Job Profitability)
+            // and tools are checked FIRST. Keys are phrased as questions
+            // so "how much profit" returns figures while "open
+            // profitability" still navigates.
+            (new[] { "how much profit", "what profit", "profit on",
+                     "margin on", "did we make money", "are we losing",
+                     "losing money", "loss making", "profitable" },
+                "get_profitability"),
 
             // Statements / receivables (§9, §33).
             (new[] { "statement", "outstanding", "receivable", "overdue",
@@ -310,34 +325,21 @@ namespace ProGlassAutomation.Agent.Intent
             if (approve.Success)
                 return $"approve:{approve.Groups[1].Value}";
 
-            // ══════════════════════════════════════════════════════════
-            //  3b ── STOCK ADJUSTMENT (the only write intent)
-            //
-            //  THIS WAS A DEAD FEATURE. The keyword list said "add stock"
-            //  and "add to sheet", but UpdateSheetStockTool's parser
-            //  requires a QUANTITY between the verb and the target -
-            //  "add 10 to sheet 42". No adjacent-keyword match could ever
-            //  fire, so every valid phrase fell through to navigation or
-            //  the reasoning provider and the write tool was unreachable
-            //  from the moment it shipped.
-            //
-            //  Matched by regex here, so intent detection and the tool's
-            //  parser agree on one syntax. Placed BEFORE the keyword
-            //  catalog because "sheet" would otherwise be swallowed by
-            //  get_inventory - the argument is passed through verbatim so
-            //  the tool re-validates it and remains the single authority
-            //  on what is acceptable.
-            // ══════════════════════════════════════════════════════════
-            var stock = StockAdjustPattern.Match(raw);
-            if (stock.Success)
-                return $"tool:update_sheet_stock:{Clean(stock.Value)}";
+            // Stock adjustment is matched once above, before metric
+            // routing. A second copy here was dead code.
 
             // 4 ── tool intents (BEFORE navigation)
             foreach (var (keys, tool) in ToolCatalog)
             {
                 if (!keys.Any(k => lower.Contains(k))) continue;
 
-                string query = ExtractQuery(raw, keys);
+                // Reporting interprets the whole utterance (period, status,
+                // PI id). Stripping the matched key would drop "PI" and
+                // "this month" and the tool would answer a generic overview.
+                string query = string.Equals(tool, "get_reporting",
+                        StringComparison.OrdinalIgnoreCase)
+                    ? Clean(raw)
+                    : ExtractQuery(raw, keys);
                 if (query.Length == 0 && parsed.HasMaterialHint)
                     query = parsed.FilterText();
                 ConversationSlots.Remember(parsed, tool);

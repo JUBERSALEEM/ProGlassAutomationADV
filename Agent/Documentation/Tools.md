@@ -6,11 +6,11 @@ is exactly `Tools/Registry/AgentToolRegistry.cs`.
 
 ## Registered tools
 
-13 tools plus navigation. Verified against
+18 tools including navigation. Verified against
 `Tools/Registry/AgentToolRegistry.cs` — if this table and the registry
 disagree, the registry is right and this file is stale.
 
-### Read (12)
+### Read (15)
 
 | Tool | Permission | What it does |
 |---|---|---|
@@ -20,11 +20,14 @@ disagree, the registry is right and this file is stale.
 | `search_taxinvoice` | `TaxInvoice.View` | Tax invoices |
 | `search_customer` | `ProformaInvoice.View` | Saved clients |
 | `get_inventory` | `SheetStore.View` | Types, available SQM, low stock (≤2) |
+| `get_stock_detail` | `SheetStore.View` | Purchased / consumed / available, supplier, last buy |
+| `get_stock_history` | `SheetStore.View` | Bought / Used ledger rows |
 | `get_activity` | `Audit.View` | Last 5 audited actions |
 | `get_profitability` | `ProformaInvoice.View` | Profit / cost / margin per job |
 | `get_document_chain` | `ProformaInvoice.View` | PI → JO → DN → TI, with delivery progress |
 | `get_statement` | `TaxInvoice.View` | Saved statements: invoiced, outstanding, overdue |
 | `get_sales_analytics` | `ProformaInvoice.View` | Period revenue, cost, profit, margin; glass cost by type |
+| `get_reporting` | `Dashboard.View` | Central PI/JO/DN/TI counts, pending, spec rows |
 | `get_screen_context` | **none** | Active module, recent screens, current theme |
 
 `get_screen_context` is the **only** permissionless tool, because it
@@ -41,6 +44,12 @@ only one, so a future permissionless tool fails the build.
 
 Capped at 500 per call, 15s timeout, reversible by its inverse, audited
 with before/after values. See `WriteTools.md`.
+
+### Demo (1)
+
+| Tool | Permission | What it does |
+|---|---|---|
+| `create_demo_package` | navigation-tier | Isolated screen recording; success requires a verified MP4 |
 
 ### Destructive (0)
 
