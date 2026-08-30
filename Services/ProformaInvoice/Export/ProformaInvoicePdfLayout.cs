@@ -1,5 +1,6 @@
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
+using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Export.Pdf.Renderers;
 using ProGlassAutomation.Utilities;
@@ -192,12 +193,22 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             "#", "GLASS REF", "W1", "H1", "W2", "H2",
                             "QTY", "SQM", "TOTAL SQM", "RATE", "VALUE"
                         };
+                        var colors = new[]
+                        {
+                            ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                            ExportColumnPalette.Pane1, ExportColumnPalette.Pane1,
+                            ExportColumnPalette.Pane2, ExportColumnPalette.Pane2,
+                            ExportColumnPalette.Qty,
+                            ExportColumnPalette.Area, ExportColumnPalette.Area,
+                            ExportColumnPalette.Money, ExportColumnPalette.Money
+                        };
                         for (int i = 0; i < headers.Length; i++)
                         {
                             bool right = i >= 2;
                             bool center = i == 0 || i == 6;
                             PdfChrome.HeaderCell(header.Cell(), headers[i],
-                                center: center, right: right && !center);
+                                center: center, right: right && !center,
+                                background: colors[i]);
                         }
                     });
 
@@ -206,13 +217,20 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     {
                         AddCell(table, row.Serial.ToString(), alt, center: true);
                         AddCell(table, row.GlassRef, alt);
-                        AddCell(table, row.W1.ToString(), alt, right: true);
-                        AddCell(table, row.H1.ToString(), alt, right: true);
-                        AddCell(table, row.W2.ToString(), alt, right: true);
-                        AddCell(table, row.H2.ToString(), alt, right: true);
-                        AddCell(table, row.Qty.ToString(), alt, center: true);
-                        AddCell(table, row.UnitArea.ToString("0.000"), alt, right: true);
-                        AddCell(table, row.TotalArea.ToString("0.000"), alt, right: true);
+                        AddCell(table, row.W1.ToString(), alt, right: true,
+                            background: ExportColumnPalette.Pane1Fill);
+                        AddCell(table, row.H1.ToString(), alt, right: true,
+                            background: ExportColumnPalette.Pane1Fill);
+                        AddCell(table, row.W2.ToString(), alt, right: true,
+                            background: ExportColumnPalette.Pane2Fill);
+                        AddCell(table, row.H2.ToString(), alt, right: true,
+                            background: ExportColumnPalette.Pane2Fill);
+                        AddCell(table, row.Qty.ToString(), alt, center: true,
+                            background: ExportColumnPalette.QtyFill);
+                        AddCell(table, row.UnitArea.ToString("0.000"), alt, right: true,
+                            background: ExportColumnPalette.AreaFill);
+                        AddCell(table, row.TotalArea.ToString("0.000"), alt, right: true,
+                            background: ExportColumnPalette.AreaFill);
                         AddCell(table, row.Rate.ToString("N2"), alt, right: true);
                         AddCell(table, row.Total.ToString("N2"), alt, right: true, bold: true);
                         alt = !alt;
@@ -696,10 +714,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         private static void AddCell(
             TableDescriptor table, string text, bool alt,
-            bool center = false, bool right = false, bool bold = false)
+            bool center = false, bool right = false, bool bold = false,
+            string? background = null)
         {
             PdfChrome.DataCell(table.Cell(), text,
-                alt: alt, center: center, right: right, bold: bold);
+                alt: alt, center: center, right: right, bold: bold,
+                background: background);
         }
 
         // ════════════════════════════════════════════════════════════════════

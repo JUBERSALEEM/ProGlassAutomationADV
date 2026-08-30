@@ -751,24 +751,35 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 
         public static void HeaderCell(
             IContainer cell, string text,
-            bool center = true, bool right = false)
+            bool center = true, bool right = false,
+            string? background = null)
         {
-            IContainer painted = K switch
+            IContainer painted;
+            if (!string.IsNullOrWhiteSpace(background))
             {
-                PdfLayoutKind.SplitConsole =>
-                    cell.Background(T.AccentLight)
-                        .BorderBottom(1).BorderColor(T.Accent),
-                PdfLayoutKind.Editorial =>
-                    cell.BorderBottom(1.2f).BorderColor(T.Text)
-                        .BorderTop(0.4f).BorderColor(T.Text),
-                PdfLayoutKind.QuietForm =>
-                    cell.BorderBottom(0.6f).BorderColor(T.Text),
-                PdfLayoutKind.Workshop =>
-                    cell.Background(T.TableHeader)
-                        .Border(0.6f).BorderColor(T.AccentDark),
-                _ =>
-                    cell.Background(T.TableHeader)
-            };
+                painted = cell.Background(background)
+                    .Border(T.TableGrid ? 0.6f : 0)
+                    .BorderColor(T.AccentDark);
+            }
+            else
+            {
+                painted = K switch
+                {
+                    PdfLayoutKind.SplitConsole =>
+                        cell.Background(T.AccentLight)
+                            .BorderBottom(1).BorderColor(T.Accent),
+                    PdfLayoutKind.Editorial =>
+                        cell.BorderBottom(1.2f).BorderColor(T.Text)
+                            .BorderTop(0.4f).BorderColor(T.Text),
+                    PdfLayoutKind.QuietForm =>
+                        cell.BorderBottom(0.6f).BorderColor(T.Text),
+                    PdfLayoutKind.Workshop =>
+                        cell.Background(T.TableHeader)
+                            .Border(0.6f).BorderColor(T.AccentDark),
+                    _ =>
+                        cell.Background(T.TableHeader)
+                };
+            }
 
             painted = painted
                 .PaddingHorizontal(T.CellPadH)
@@ -777,11 +788,13 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             if (right) painted = painted.AlignRight();
             else if (center) painted = painted.AlignCenter();
 
-            var color = K is PdfLayoutKind.Editorial
-                or PdfLayoutKind.QuietForm
-                or PdfLayoutKind.SplitConsole
-                ? T.Text
-                : T.AccentOn;
+            var color = !string.IsNullOrWhiteSpace(background)
+                ? T.AccentOn
+                : K is PdfLayoutKind.Editorial
+                    or PdfLayoutKind.QuietForm
+                    or PdfLayoutKind.SplitConsole
+                    ? T.Text
+                    : T.AccentOn;
 
             painted.Text(text ?? "")
                 .FontSize(Math.Max(7f, T.TableFont - 0.5f))
@@ -796,9 +809,12 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             bool center = false,
             bool right = false,
             bool bold = false,
-            string? color = null)
+            string? color = null,
+            string? background = null)
         {
-            var bg = (T.Zebra && alt) ? T.TableAlt : T.White;
+            var bg = !string.IsNullOrWhiteSpace(background)
+                ? background
+                : (T.Zebra && alt) ? T.TableAlt : T.White;
             IContainer painted = cell.Background(bg);
 
             if (T.TableGrid)

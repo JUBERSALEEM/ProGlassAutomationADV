@@ -275,15 +275,24 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                     // Header row
                     t.Header(h =>
                     {
-                        PdfChrome.HeaderCell(h.Cell(), "#");
-                        PdfChrome.HeaderCell(h.Cell(), "GLASS REF");
-                        PdfChrome.HeaderCell(h.Cell(), "W1");
-                        PdfChrome.HeaderCell(h.Cell(), "H1");
-                        PdfChrome.HeaderCell(h.Cell(), "W2");
-                        PdfChrome.HeaderCell(h.Cell(), "H2");
-                        PdfChrome.HeaderCell(h.Cell(), "QTY");
-                        PdfChrome.HeaderCell(h.Cell(), "SQM");
-                        PdfChrome.HeaderCell(h.Cell(), "TOTAL SQM");
+                        PdfChrome.HeaderCell(h.Cell(), "#",
+                            background: ExportColumnPalette.Identity);
+                        PdfChrome.HeaderCell(h.Cell(), "GLASS REF",
+                            background: ExportColumnPalette.Identity);
+                        PdfChrome.HeaderCell(h.Cell(), "W1",
+                            background: ExportColumnPalette.Pane1);
+                        PdfChrome.HeaderCell(h.Cell(), "H1",
+                            background: ExportColumnPalette.Pane1);
+                        PdfChrome.HeaderCell(h.Cell(), "W2",
+                            background: ExportColumnPalette.Pane2);
+                        PdfChrome.HeaderCell(h.Cell(), "H2",
+                            background: ExportColumnPalette.Pane2);
+                        PdfChrome.HeaderCell(h.Cell(), "QTY",
+                            background: ExportColumnPalette.Qty);
+                        PdfChrome.HeaderCell(h.Cell(), "SQM",
+                            background: ExportColumnPalette.Area);
+                        PdfChrome.HeaderCell(h.Cell(), "TOTAL SQM",
+                            background: ExportColumnPalette.Area);
                     });
 
                     if (group.ItemRows != null)
@@ -293,13 +302,20 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                         {
                             PdfChrome.DataCell(t.Cell(), r.SerialNumber.ToString(), alt: alt, center: true);
                             PdfChrome.DataCell(t.Cell(), r.GlassRef ?? "—", alt: alt, center: true);
-                            PdfChrome.DataCell(t.Cell(), r.W1 > 0 ? r.W1.ToString() : "—", alt: alt, center: true);
-                            PdfChrome.DataCell(t.Cell(), r.H1 > 0 ? r.H1.ToString() : "—", alt: alt, center: true);
-                            PdfChrome.DataCell(t.Cell(), r.W2 > 0 ? r.W2.ToString() : "—", alt: alt, center: true);
-                            PdfChrome.DataCell(t.Cell(), r.H2 > 0 ? r.H2.ToString() : "—", alt: alt, center: true);
-                            PdfChrome.DataCell(t.Cell(), r.Qty.ToString(), alt: alt, center: true, bold: true);
-                            PdfChrome.DataCell(t.Cell(), r.Sqm1.ToString("0.000"), alt: alt, center: true);
-                            PdfChrome.DataCell(t.Cell(), r.TotalSqm.ToString("0.000"), alt: alt, center: true, bold: true);
+                            PdfChrome.DataCell(t.Cell(), r.W1 > 0 ? r.W1.ToString() : "—", alt: alt, center: true,
+                                background: ExportColumnPalette.Pane1Fill);
+                            PdfChrome.DataCell(t.Cell(), r.H1 > 0 ? r.H1.ToString() : "—", alt: alt, center: true,
+                                background: ExportColumnPalette.Pane1Fill);
+                            PdfChrome.DataCell(t.Cell(), r.W2 > 0 ? r.W2.ToString() : "—", alt: alt, center: true,
+                                background: ExportColumnPalette.Pane2Fill);
+                            PdfChrome.DataCell(t.Cell(), r.H2 > 0 ? r.H2.ToString() : "—", alt: alt, center: true,
+                                background: ExportColumnPalette.Pane2Fill);
+                            PdfChrome.DataCell(t.Cell(), r.Qty.ToString(), alt: alt, center: true, bold: true,
+                                background: ExportColumnPalette.QtyFill);
+                            PdfChrome.DataCell(t.Cell(), r.Sqm1.ToString("0.000"), alt: alt, center: true,
+                                background: ExportColumnPalette.AreaFill);
+                            PdfChrome.DataCell(t.Cell(), r.TotalSqm.ToString("0.000"), alt: alt, center: true, bold: true,
+                                background: ExportColumnPalette.AreaFill);
                             alt = !alt;
                         }
                     }

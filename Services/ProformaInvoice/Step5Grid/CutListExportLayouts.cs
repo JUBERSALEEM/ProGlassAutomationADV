@@ -41,8 +41,22 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 "Spec #", "Spec Name", "Glass Type", "Glass Ref",
                 "W1", "H1", "W2", "H2", "Qty"
             };
+            string[] headerColors =
+            {
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                ExportColumnPalette.Pane1, ExportColumnPalette.Pane1,
+                ExportColumnPalette.Pane2, ExportColumnPalette.Pane2,
+                ExportColumnPalette.Qty
+            };
             for (int c = 0; c < headers.Length; c++)
-                ws.Cell(1, c + 1).Value = headers[c];
+            {
+                var cell = ws.Cell(1, c + 1);
+                cell.Value = headers[c];
+                cell.Style.Font.Bold = true;
+                cell.Style.Font.FontColor = XLColor.White;
+                cell.Style.Fill.BackgroundColor = XLColor.FromHtml(headerColors[c]);
+            }
 
             ws.Row(1).Style.Font.Bold = true;
             int r = 2;
@@ -63,6 +77,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                     ws.Cell(r, 7).Value = row.W2;
                     ws.Cell(r, 8).Value = row.H2;
                     ws.Cell(r, 9).Value = row.Qty;
+                    ws.Range(r, 5, r, 6).Style.Fill.BackgroundColor =
+                        XLColor.FromHtml(ExportColumnPalette.Pane1Fill);
+                    ws.Range(r, 7, r, 8).Style.Fill.BackgroundColor =
+                        XLColor.FromHtml(ExportColumnPalette.Pane2Fill);
+                    ws.Cell(r, 9).Style.Fill.BackgroundColor =
+                        XLColor.FromHtml(ExportColumnPalette.QtyFill);
                     r++;
                 }
             }

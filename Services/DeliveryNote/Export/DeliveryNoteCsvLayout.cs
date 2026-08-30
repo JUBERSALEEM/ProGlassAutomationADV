@@ -2,6 +2,7 @@ using CsvHelper;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Linq;
 
@@ -73,6 +74,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             writer.WriteField("H1");
             writer.WriteField("W2");
             writer.WriteField("H2");
+            writer.WriteField("SQM");
             writer.WriteField("Ordered");
             writer.WriteField("PrevDelivered");
             writer.WriteField("ThisDN");
@@ -128,6 +130,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 writer.WriteField(item.H1);
                 writer.WriteField(item.W2);
                 writer.WriteField(item.H2);
+                writer.WriteField(SqmCalculator.CalculatePanel(item.W1, item.H1).ToString("0.000"));
                 writer.WriteField(item.OrderedQty);
                 writer.WriteField(item.PreviouslyDeliveredQty);
                 writer.WriteField(item.DeliveredQty);

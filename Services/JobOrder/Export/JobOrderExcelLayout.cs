@@ -158,11 +158,23 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                 "SQM", "TOTAL SQM",
                 "Job ID", "Customer", "Delivery Date", "Overdue"
             };
+            string[] headerColors =
+            {
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                ExportColumnPalette.Identity,
+                ExportColumnPalette.Pane1, ExportColumnPalette.Pane1,
+                ExportColumnPalette.Pane2, ExportColumnPalette.Pane2,
+                ExportColumnPalette.Qty,
+                ExportColumnPalette.Area, ExportColumnPalette.Area,
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity
+            };
             for (int c = 0; c < headers.Length; c++)
             {
                 var cell = ws.Cell(r, c + 1);
                 cell.Value = headers[c];
-                cell.Style.Fill.SetBackgroundColor(XLColor.FromHtml("#" + WorkbookStyle.ColorHeaderBg));
+                cell.Style.Fill.SetBackgroundColor(XLColor.FromHtml(headerColors[c]));
                 cell.Style.Font.SetBold().Font.SetFontColor(XLColor.White);
                 cell.Style.Font.SetFontSize(WorkbookStyle.FontSizeHeader);
                 cell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
@@ -197,6 +209,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                         ws.Cell(r, 15).Value = deliveryDisplay;
                         ws.Cell(r, 16).Value = overdueFlag;
                         StyleDataRow(ws, r, isOverdue);
+                        PaintCutListDims(ws, r);
                         r++;
                         continue;
                     }
@@ -222,6 +235,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                         ws.Cell(r, 15).Value = deliveryDisplay;
                         ws.Cell(r, 16).Value = overdueFlag;
                         StyleDataRow(ws, r, isOverdue);
+                        PaintCutListDims(ws, r);
                         r++;
                     }
                 }
@@ -308,6 +322,18 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             l.Style.Fill.SetBackgroundColor(XLColor.FromHtml("#" + WorkbookStyle.ColorAltRowBg));
 
             ws.Cell(row, 2).Value = value ?? "";
+        }
+
+        private static void PaintCutListDims(IXLWorksheet ws, int row)
+        {
+            ws.Range(row, 6, row, 7).Style.Fill.SetBackgroundColor(
+                XLColor.FromHtml(ExportColumnPalette.Pane1Fill));
+            ws.Range(row, 8, row, 9).Style.Fill.SetBackgroundColor(
+                XLColor.FromHtml(ExportColumnPalette.Pane2Fill));
+            ws.Cell(row, 10).Style.Fill.SetBackgroundColor(
+                XLColor.FromHtml(ExportColumnPalette.QtyFill));
+            ws.Range(row, 11, row, 12).Style.Fill.SetBackgroundColor(
+                XLColor.FromHtml(ExportColumnPalette.AreaFill));
         }
 
         private static void StyleDataRow(IXLWorksheet ws, int row, bool isOverdue)

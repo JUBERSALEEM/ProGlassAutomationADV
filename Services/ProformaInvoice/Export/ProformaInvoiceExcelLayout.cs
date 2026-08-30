@@ -1,6 +1,7 @@
 using ClosedXML.Excel;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
+using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Utilities;
 using System;
@@ -169,6 +170,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             };
             int totalCols = headers.Length;
 
+            string[] headerColors =
+            {
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                ExportColumnPalette.Pane1, ExportColumnPalette.Pane1,
+                ExportColumnPalette.Pane2, ExportColumnPalette.Pane2,
+                ExportColumnPalette.Qty,
+                ExportColumnPalette.Area, ExportColumnPalette.Area,
+                ExportColumnPalette.Money, ExportColumnPalette.Money
+            };
             for (int i = 0; i < headers.Length; i++)
             {
                 var cell = ws.Cell(1, i + 1);
@@ -176,7 +187,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 cell.Style.Font.Bold = true;
                 cell.Style.Font.FontColor = XLColor.White;
                 cell.Style.Fill.BackgroundColor =
-                    XLColor.FromHtml(TABLE_HEADER);
+                    XLColor.FromHtml(headerColors[i]);
                 cell.Style.Alignment.Horizontal =
                     XLAlignmentHorizontalValues.Center;
             }
@@ -237,6 +248,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             for (int c = 1; c <= totalCols; c++)
                                 ws.Cell(dataRow, c).Style.Fill
                                     .BackgroundColor = XLColor.FromHtml(ALT_ROW);
+
+                        ws.Range(dataRow, 5, dataRow, 6).Style.Fill.BackgroundColor =
+                            XLColor.FromHtml(ExportColumnPalette.Pane1Fill);
+                        ws.Range(dataRow, 7, dataRow, 8).Style.Fill.BackgroundColor =
+                            XLColor.FromHtml(ExportColumnPalette.Pane2Fill);
+                        ws.Cell(dataRow, 9).Style.Fill.BackgroundColor =
+                            XLColor.FromHtml(ExportColumnPalette.QtyFill);
+                        ws.Range(dataRow, 10, dataRow, 11).Style.Fill.BackgroundColor =
+                            XLColor.FromHtml(ExportColumnPalette.AreaFill);
 
                         groupQty += item.Qty;
                         groupArea += totalArea;

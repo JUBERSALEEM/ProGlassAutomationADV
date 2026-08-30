@@ -2,6 +2,7 @@ using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Export.Pdf.Renderers;
+using ProGlassAutomation.Utilities;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using System;
@@ -16,7 +17,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
     /// - Letterhead (company from JO ref snapshot · DN ID · "Delivery Note")
     /// - Delivery logistics block (Customer · Driver · Vehicle · Date · Time)
     /// - Items table grouped by SpecGroupName
-    ///   Columns: # · Glass Ref · Ordered · Prev · This DN · Balance
+    ///   Columns: # · Glass Ref · W1 · H1 · W2 · H2 · Ordered · Prev · This DN · Balance · SQM · Wt
     /// - Totals strip (Ordered · Prev Delivered · This DN · Balance · Sequence)
     /// - Signature block (Dispatched By · Received By · Date)
     ///
@@ -194,56 +195,91 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 {
                     t.ColumnsDefinition(cols =>
                     {
-                        cols.ConstantColumn(28);   // #
-                        cols.RelativeColumn(2);    // Glass Ref
-                        cols.ConstantColumn(52);   // Ordered
-                        cols.ConstantColumn(46);   // Prev
-                        cols.ConstantColumn(52);   // This DN
-                        cols.ConstantColumn(52);   // Balance
-                        cols.ConstantColumn(60);   // Weight/pc (kg)
-                        cols.ConstantColumn(60);   // Total Wt (kg)
+                        cols.ConstantColumn(20);   // #
+                        cols.RelativeColumn(1.6f); // Glass Ref
+                        cols.ConstantColumn(30);   // W1
+                        cols.ConstantColumn(30);   // H1
+                        cols.ConstantColumn(30);   // W2
+                        cols.ConstantColumn(30);   // H2
+                        cols.ConstantColumn(34);   // Ordered
+                        cols.ConstantColumn(30);   // Prev
+                        cols.ConstantColumn(36);   // This DN
+                        cols.ConstantColumn(36);   // Balance
+                        cols.ConstantColumn(38);   // SQM
+                        cols.ConstantColumn(38);   // Wt/pc
+                        cols.ConstantColumn(42);   // Total Wt
                     });
 
                     t.Header(h =>
                     {
-                        HeaderCell(h.Cell(), "#");
-                        HeaderCell(h.Cell(), "GLASS REF");
-                        HeaderCell(h.Cell(), "ORDERED");
-                        HeaderCell(h.Cell(), "PREV");
-                        HeaderCell(h.Cell(), "THIS DN");
-                        HeaderCell(h.Cell(), "BALANCE");
-                        HeaderCell(h.Cell(), "WT/PC");
-                        HeaderCell(h.Cell(), "TOTAL WT");
+                        PdfChrome.HeaderCell(h.Cell(), "#",
+                            background: ExportColumnPalette.Identity);
+                        PdfChrome.HeaderCell(h.Cell(), "GLASS REF",
+                            background: ExportColumnPalette.Identity);
+                        PdfChrome.HeaderCell(h.Cell(), "W1",
+                            background: ExportColumnPalette.Pane1);
+                        PdfChrome.HeaderCell(h.Cell(), "H1",
+                            background: ExportColumnPalette.Pane1);
+                        PdfChrome.HeaderCell(h.Cell(), "W2",
+                            background: ExportColumnPalette.Pane2);
+                        PdfChrome.HeaderCell(h.Cell(), "H2",
+                            background: ExportColumnPalette.Pane2);
+                        PdfChrome.HeaderCell(h.Cell(), "ORD",
+                            background: ExportColumnPalette.Qty);
+                        PdfChrome.HeaderCell(h.Cell(), "PREV",
+                            background: ExportColumnPalette.Qty);
+                        PdfChrome.HeaderCell(h.Cell(), "THIS",
+                            background: ExportColumnPalette.Qty);
+                        PdfChrome.HeaderCell(h.Cell(), "BAL",
+                            background: ExportColumnPalette.Qty);
+                        PdfChrome.HeaderCell(h.Cell(), "SQM",
+                            background: ExportColumnPalette.Area);
+                        PdfChrome.HeaderCell(h.Cell(), "WT/PC",
+                            background: ExportColumnPalette.Weight);
+                        PdfChrome.HeaderCell(h.Cell(), "TOT WT",
+                            background: ExportColumnPalette.Weight);
                     });
 
                     bool alt = false;
                     foreach (var item in items.OrderBy(i => i.SerialNumber))
                     {
-                        string bg = alt
-                            ? DocumentStyle.ColorTableAlt
-                            : DocumentStyle.ColorWhite;
-
-                        DataCell(t.Cell(), item.SerialNumber.ToString(), bg);
-                        DataCell(t.Cell(), item.GlassRef ?? "—", bg,
-                            align: false);
-                        DataCell(t.Cell(), item.OrderedQty.ToString(), bg);
-                        DataCell(t.Cell(),
-                            item.PreviouslyDeliveredQty.ToString(), bg);
-                        DataCell(t.Cell(), item.DeliveredQty.ToString(), bg,
-                            highlight: item.DeliveredQty > 0);
-                        DataCell(t.Cell(), item.BalanceQty.ToString(), bg,
-                            highlight: item.BalanceQty > 0,
-                            highlightColor: DocumentStyle.ColorDanger);
-                        DataCell(t.Cell(),
-                            item.WeightPerPiece > 0
-                                ? item.WeightPerPiece.ToString("F2")
-                                : "—", bg);
-                        DataCell(t.Cell(),
-                            item.TotalWeight > 0
-                                ? item.TotalWeight.ToString("F2")
-                                : "—", bg,
-                            highlight: item.TotalWeight > 0);
-
+                        decimal sqm = SqmCalculator.CalculatePanel(item.W1, item.H1);
+                        PdfChrome.DataCell(t.Cell(), item.SerialNumber.ToString(),
+                            alt: alt, center: true);
+                        PdfChrome.DataCell(t.Cell(), item.GlassRef ?? "—", alt: alt);
+                        PdfChrome.DataCell(t.Cell(), Mm(item.W1), alt: alt, center: true,
+                            background: ExportColumnPalette.Pane1Fill);
+                        PdfChrome.DataCell(t.Cell(), Mm(item.H1), alt: alt, center: true,
+                            background: ExportColumnPalette.Pane1Fill);
+                        PdfChrome.DataCell(t.Cell(), Mm(item.W2), alt: alt, center: true,
+                            background: ExportColumnPalette.Pane2Fill);
+                        PdfChrome.DataCell(t.Cell(), Mm(item.H2), alt: alt, center: true,
+                            background: ExportColumnPalette.Pane2Fill);
+                        PdfChrome.DataCell(t.Cell(), item.OrderedQty.ToString(),
+                            alt: alt, center: true,
+                            background: ExportColumnPalette.QtyFill);
+                        PdfChrome.DataCell(t.Cell(), item.PreviouslyDeliveredQty.ToString(),
+                            alt: alt, center: true,
+                            background: ExportColumnPalette.QtyFill);
+                        PdfChrome.DataCell(t.Cell(), item.DeliveredQty.ToString(),
+                            alt: alt, center: true, bold: item.DeliveredQty > 0,
+                            color: item.DeliveredQty > 0 ? DocumentStyle.ColorAccent : null,
+                            background: ExportColumnPalette.QtyFill);
+                        PdfChrome.DataCell(t.Cell(), item.BalanceQty.ToString(),
+                            alt: alt, center: true, bold: item.BalanceQty > 0,
+                            color: item.BalanceQty > 0 ? DocumentStyle.ColorDanger : null,
+                            background: ExportColumnPalette.QtyFill);
+                        PdfChrome.DataCell(t.Cell(), sqm.ToString("0.000"),
+                            alt: alt, center: true,
+                            background: ExportColumnPalette.AreaFill);
+                        PdfChrome.DataCell(t.Cell(),
+                            item.WeightPerPiece > 0 ? item.WeightPerPiece.ToString("F2") : "—",
+                            alt: alt, center: true,
+                            background: ExportColumnPalette.WeightFill);
+                        PdfChrome.DataCell(t.Cell(),
+                            item.TotalWeight > 0 ? item.TotalWeight.ToString("F2") : "—",
+                            alt: alt, center: true, bold: item.TotalWeight > 0,
+                            background: ExportColumnPalette.WeightFill);
                         alt = !alt;
                     }
                 });
@@ -251,9 +287,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 int groupDelivered = items.Sum(i => i.DeliveredQty);
                 int groupBalance = items.Sum(i => i.BalanceQty);
                 decimal groupWeight = items.Sum(i => i.TotalWeight);
+                decimal groupSqm = items.Sum(i =>
+                    SqmCalculator.CalculatePanel(i.W1, i.H1) * i.DeliveredQty);
                 col.Item().AlignRight().PaddingTop(2)
                     .Text($"Group: {groupDelivered} delivered · " +
-                          $"{groupBalance} balance" +
+                          $"{groupBalance} balance · {groupSqm:0.000} sqm" +
                           (groupWeight > 0 ? $" · {groupWeight:F2} kg" : ""))
                     .FontSize(DocumentStyle.FontSizeCaption)
                     .FontColor(DocumentStyle.ColorMuted);
@@ -320,7 +358,18 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                             .FontColor(DocumentStyle.ColorText);
                     });
 
-                    // Total weight (only show if weight data is available)
+                    decimal totalSqm = (_entity.Items ?? new())
+                        .Sum(i => SqmCalculator.CalculatePanel(i.W1, i.H1) * i.DeliveredQty);
+                    row.RelativeItem().Column(col =>
+                    {
+                        col.Item().Text("THIS DN SQM")
+                            .FontSize(DocumentStyle.FontSizeCaption)
+                            .FontColor(DocumentStyle.ColorMuted);
+                        col.Item().Text(totalSqm.ToString("0.000"))
+                            .FontSize(DocumentStyle.FontSizeH1).Bold()
+                            .FontColor(DocumentStyle.ColorAccent);
+                    });
+
                     decimal totalWeight = (_entity.Items ?? new())
                         .Sum(i => i.TotalWeight);
                     if (totalWeight > 0)
@@ -369,47 +418,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             });
         }
 
-        // ── Table cell helpers ───────────────────────────────────────────
-
-        private static void HeaderCell(IContainer cell, string text)
-        {
-            cell.Background(DocumentStyle.ColorAccent)
-                .PaddingHorizontal(DocumentStyle.TableCellPaddingH)
-                .PaddingVertical(DocumentStyle.TableCellPaddingV)
-                .AlignCenter()
-                .Text(text)
-                .FontSize(DocumentStyle.FontSizeSmall)
-                .Bold()
-                .FontColor(DocumentStyle.ColorWhite);
-        }
-
-        private static void DataCell(
-            IContainer cell,
-            string text,
-            string bg,
-            bool align = true,
-            bool highlight = false,
-            string? highlightColor = null)
-        {
-            var bordered = cell
-                .Border(0.5f)
-                .BorderColor(DocumentStyle.ColorBorder)
-                .Background(bg)
-                .PaddingHorizontal(DocumentStyle.TableCellPaddingH)
-                .PaddingVertical(DocumentStyle.TableCellPaddingV);
-
-            var textEl = align
-                ? bordered.AlignCenter().Text(text)
-                : bordered.Text(text);
-
-            textEl.FontSize(DocumentStyle.FontSizeSmall);
-
-            if (highlight)
-                textEl.Bold().FontColor(
-                    highlightColor ?? DocumentStyle.ColorAccent);
-        }
-
         // ── Helpers ──────────────────────────────────────────────────────
+
+        private static string Mm(int mm) => mm > 0 ? mm.ToString() : "—";
 
         private string BuildSubtitle()
         {

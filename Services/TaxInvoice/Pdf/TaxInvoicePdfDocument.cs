@@ -1,4 +1,5 @@
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Export.Pdf.Renderers;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
@@ -274,12 +275,22 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                             "#", "GLASS REF", "W1", "H1", "W2", "H2",
                             "QTY", "SQM", "TOTAL SQM", "RATE", "VALUE"
                         };
+                        string[] colors =
+                        {
+                            ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                            ExportColumnPalette.Pane1, ExportColumnPalette.Pane1,
+                            ExportColumnPalette.Pane2, ExportColumnPalette.Pane2,
+                            ExportColumnPalette.Qty,
+                            ExportColumnPalette.Area, ExportColumnPalette.Area,
+                            ExportColumnPalette.Money, ExportColumnPalette.Money
+                        };
                         for (int i = 0; i < heads.Length; i++)
                         {
                             bool center = i == 0 || (i >= 6 && i <= 8);
                             bool right = (i >= 2 && i <= 5) || i >= 9;
                             PdfChrome.HeaderCell(header.Cell(), heads[i],
-                                center: center, right: right);
+                                center: center, right: right,
+                                background: colors[i]);
                         }
                     });
 
@@ -290,21 +301,28 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                             alt: altRow, center: true);
                         PdfChrome.DataCell(table.Cell(), row.GlassRef, alt: altRow);
                         PdfChrome.DataCell(table.Cell(), row.W1.ToString(),
-                            alt: altRow, right: true);
+                            alt: altRow, right: true,
+                            background: ExportColumnPalette.Pane1Fill);
                         PdfChrome.DataCell(table.Cell(), row.H1.ToString(),
-                            alt: altRow, right: true);
+                            alt: altRow, right: true,
+                            background: ExportColumnPalette.Pane1Fill);
                         PdfChrome.DataCell(table.Cell(),
                             row.W2 > 0 ? row.W2.ToString() : "—",
-                            alt: altRow, right: true);
+                            alt: altRow, right: true,
+                            background: ExportColumnPalette.Pane2Fill);
                         PdfChrome.DataCell(table.Cell(),
                             row.H2 > 0 ? row.H2.ToString() : "—",
-                            alt: altRow, right: true);
+                            alt: altRow, right: true,
+                            background: ExportColumnPalette.Pane2Fill);
                         PdfChrome.DataCell(table.Cell(), row.Qty.ToString(),
-                            alt: altRow, center: true, bold: true);
+                            alt: altRow, center: true, bold: true,
+                            background: ExportColumnPalette.QtyFill);
                         PdfChrome.DataCell(table.Cell(), row.Sqm.ToString("0.000"),
-                            alt: altRow, center: true);
+                            alt: altRow, center: true,
+                            background: ExportColumnPalette.AreaFill);
                         PdfChrome.DataCell(table.Cell(), row.TotalSqm.ToString("0.000"),
-                            alt: altRow, center: true, bold: true);
+                            alt: altRow, center: true, bold: true,
+                            background: ExportColumnPalette.AreaFill);
                         PdfChrome.DataCell(table.Cell(), $"AED {row.Rate:N2}",
                             alt: altRow, right: true);
                         PdfChrome.DataCell(table.Cell(), $"AED {row.Value:N2}",

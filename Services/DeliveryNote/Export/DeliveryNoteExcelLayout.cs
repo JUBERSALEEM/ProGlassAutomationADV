@@ -2,6 +2,7 @@ using ClosedXML.Excel;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Excel;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Linq;
 
@@ -149,9 +150,22 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             string[] headers =
             {
                 "DN ID", "JO ID", "Customer", "Spec #", "Spec Group",
-                "Row #", "Glass Ref", "W1", "H1", "W2", "H2",
+                "Row #", "Glass Ref", "W1", "H1", "W2", "H2", "SQM",
                 "Ordered", "Prev Delivered", "This DN", "Balance",
                 "Weight/pc (kg)", "Total Wt (kg)"
+            };
+            string[] headerColors =
+            {
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                ExportColumnPalette.Identity, ExportColumnPalette.Identity,
+                ExportColumnPalette.Identity,
+                ExportColumnPalette.Pane1, ExportColumnPalette.Pane1,
+                ExportColumnPalette.Pane2, ExportColumnPalette.Pane2,
+                ExportColumnPalette.Area,
+                ExportColumnPalette.Qty, ExportColumnPalette.Qty,
+                ExportColumnPalette.Qty, ExportColumnPalette.Qty,
+                ExportColumnPalette.Weight, ExportColumnPalette.Weight
             };
 
             for (int c = 0; c < headers.Length; c++)
@@ -160,7 +174,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 cell.Value = headers[c];
                 cell.Style
                     .Fill.SetBackgroundColor(
-                        XLColor.FromHtml("#" + WorkbookStyle.ColorHeaderBg))
+                        XLColor.FromHtml(headerColors[c]))
                     .Font.SetBold()
                     .Font.SetFontColor(XLColor.White)
                     .Font.SetFontSize(WorkbookStyle.FontSizeHeader);
@@ -195,13 +209,16 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 ws.Cell(r, 9).Value = item.H1;
                 ws.Cell(r, 10).Value = item.W2;
                 ws.Cell(r, 11).Value = item.H2;
-                ws.Cell(r, 12).Value = item.OrderedQty;
-                ws.Cell(r, 13).Value = item.PreviouslyDeliveredQty;
-                ws.Cell(r, 14).Value = item.DeliveredQty;
-                ws.Cell(r, 15).Value = item.BalanceQty;
-                ws.Cell(r, 16).Value = item.WeightPerPiece;
-                ws.Cell(r, 17).Value = item.TotalWeight;
+                ws.Cell(r, 12).Value = SqmCalculator.CalculatePanel(item.W1, item.H1);
+                ws.Cell(r, 12).Style.NumberFormat.Format = "0.000";
+                ws.Cell(r, 13).Value = item.OrderedQty;
+                ws.Cell(r, 14).Value = item.PreviouslyDeliveredQty;
+                ws.Cell(r, 15).Value = item.DeliveredQty;
+                ws.Cell(r, 16).Value = item.BalanceQty;
+                ws.Cell(r, 17).Value = item.WeightPerPiece;
+                ws.Cell(r, 18).Value = item.TotalWeight;
 
+                PaintDimCells(ws, r);
                 StyleDataRow(ws, r, item.BalanceQty > 0, alt);
                 alt = !alt;
                 r++;
@@ -211,19 +228,19 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             if (orderedItems.Count > 0)
             {
                 ws.Cell(r, 1).Value = "TOTAL";
-                ws.Range(r, 1, r, 11).Merge()
+                ws.Range(r, 1, r, 12).Merge()
                     .Style.Font.SetBold()
                     .Fill.SetBackgroundColor(
                         XLColor.FromHtml("#" + WorkbookStyle.ColorTotalRowBg));
 
-                ws.Cell(r, 12).Value = _entity.TotalOrderedQty;
-                ws.Cell(r, 13).Value = _entity.TotalPreviouslyDeliveredQty;
-                ws.Cell(r, 14).Value = _entity.TotalDeliveredQty;
-                ws.Cell(r, 15).Value = _entity.TotalBalanceQty;
-                ws.Cell(r, 16).Value = "";  // Weight/pc not applicable for totals
-                ws.Cell(r, 17).Value = orderedItems.Sum(i => i.TotalWeight);
+                ws.Cell(r, 13).Value = _entity.TotalOrderedQty;
+                ws.Cell(r, 14).Value = _entity.TotalPreviouslyDeliveredQty;
+                ws.Cell(r, 15).Value = _entity.TotalDeliveredQty;
+                ws.Cell(r, 16).Value = _entity.TotalBalanceQty;
+                ws.Cell(r, 17).Value = "";
+                ws.Cell(r, 18).Value = orderedItems.Sum(i => i.TotalWeight);
 
-                ws.Range(r, 12, r, 17).Style
+                ws.Range(r, 13, r, 18).Style
                     .Font.SetBold()
                     .Fill.SetBackgroundColor(
                         XLColor.FromHtml("#" + WorkbookStyle.ColorTotalRowBg));
@@ -247,12 +264,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             ws.Column(9).Width = 8;
             ws.Column(10).Width = 8;
             ws.Column(11).Width = 8;
-            ws.Column(12).Width = 10;
-            ws.Column(13).Width = 14;
-            ws.Column(14).Width = 10;
+            ws.Column(12).Width = 10;  // SQM
+            ws.Column(13).Width = 10;
+            ws.Column(14).Width = 14;
             ws.Column(15).Width = 10;
-            ws.Column(16).Width = 14;  // Weight/pc (kg)
-            ws.Column(17).Width = 14;  // Total Wt (kg)
+            ws.Column(16).Width = 10;
+            ws.Column(17).Width = 14;
+            ws.Column(18).Width = 14;
 
             ws.SheetView.FreezeRows(1);
         }
@@ -286,25 +304,33 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             ws.Cell(row, 2).Value = value ?? "";
         }
 
+        private static void PaintDimCells(IXLWorksheet ws, int row)
+        {
+            ws.Range(row, 8, row, 9).Style.Fill.SetBackgroundColor(
+                XLColor.FromHtml(ExportColumnPalette.Pane1Fill));
+            ws.Range(row, 10, row, 11).Style.Fill.SetBackgroundColor(
+                XLColor.FromHtml(ExportColumnPalette.Pane2Fill));
+            ws.Cell(row, 12).Style.Fill.SetBackgroundColor(
+                XLColor.FromHtml(ExportColumnPalette.AreaFill));
+            ws.Range(row, 13, row, 16).Style.Fill.SetBackgroundColor(
+                XLColor.FromHtml(ExportColumnPalette.QtyFill));
+            ws.Range(row, 17, row, 18).Style.Fill.SetBackgroundColor(
+                XLColor.FromHtml(ExportColumnPalette.WeightFill));
+        }
+
         private static void StyleDataRow(
             IXLWorksheet ws, int row, bool hasBalance, bool alt)
         {
-            var range = ws.Range(row, 1, row, 17);
+            var range = ws.Range(row, 1, row, 18);
             range.Style.Font.SetFontSize(WorkbookStyle.FontSizeBody);
             range.Style.Alignment
                 .SetVertical(XLAlignmentVerticalValues.Center);
 
             if (hasBalance)
             {
-                ws.Cell(row, 15).Style
+                ws.Cell(row, 16).Style
                     .Font.SetBold()
                     .Font.SetFontColor(XLColor.FromHtml("#DC2626"));
-            }
-
-            if (alt)
-            {
-                range.Style.Fill.SetBackgroundColor(
-                    XLColor.FromHtml("#" + WorkbookStyle.ColorAltRowBg));
             }
         }
     }
