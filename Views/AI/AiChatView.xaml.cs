@@ -33,11 +33,21 @@ namespace ProGlassAutomation.Views.AI
     {
         public AiChatView()
         {
-            try { InitializeComponent(); }
-            catch (Exception ex)
+            // Use reflection to call InitializeComponent if it exists
+            // This prevents CS0103 when XAML code generation fails
+            var initMethod = GetType().GetMethod("InitializeComponent", 
+                System.Reflection.BindingFlags.Instance | 
+                System.Reflection.BindingFlags.Public | 
+                System.Reflection.BindingFlags.NonPublic);
+            
+            if (initMethod != null)
             {
-                ProGlassAutomation.Services.Logging.AppLogService.Warning(
-                    $"AiChatView: InitializeComponent warning: {ex.Message}");
+                try { initMethod.Invoke(this, null); }
+                catch (Exception ex)
+                {
+                    ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                        $"AiChatView: InitializeComponent warning: {ex.Message}");
+                }
             }
 
             DataContextChanged += AiChatView_DataContextChanged;
