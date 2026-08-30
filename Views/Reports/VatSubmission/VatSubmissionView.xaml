@@ -177,20 +177,24 @@
                 <Border Grid.Row="2" Style="{StaticResource ModuleListFilterBarStyle}" Padding="8">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="Detail View" 
-                                    IsChecked="{Binding IsDetailView, Mode=TwoWay}"
-                                    GroupName="ViewMode"
+                                    IsChecked="{Binding IsDetailView, Mode=OneWay}"
+                                    Command="{Binding ChangeViewModeCommand}"
+                                    CommandParameter="Detail"
                                     Margin="0,0,8,0"/>
                         <RadioButton Content="By Salesman" 
-                                    IsChecked="{Binding IsSalesmanView, Mode=TwoWay}"
-                                    GroupName="ViewMode"
+                                    IsChecked="{Binding IsSalesmanView, Mode=OneWay}"
+                                    Command="{Binding ChangeViewModeCommand}"
+                                    CommandParameter="BySalesman"
                                     Margin="0,0,8,0"/>
                         <RadioButton Content="By Company" 
-                                    IsChecked="{Binding IsCompanyView, Mode=TwoWay}"
-                                    GroupName="ViewMode"
+                                    IsChecked="{Binding IsCompanyView, Mode=OneWay}"
+                                    Command="{Binding ChangeViewModeCommand}"
+                                    CommandParameter="ByCompany"
                                     Margin="0,0,8,0"/>
                         <RadioButton Content="By Project" 
-                                    IsChecked="{Binding IsProjectView, Mode=TwoWay}"
-                                    GroupName="ViewMode"/>
+                                    IsChecked="{Binding IsProjectView, Mode=OneWay}"
+                                    Command="{Binding ChangeViewModeCommand}"
+                                    CommandParameter="ByProject"/>
                     </StackPanel>
                 </Border>
 

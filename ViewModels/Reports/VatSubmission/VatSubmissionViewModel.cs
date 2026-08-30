@@ -202,7 +202,18 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
                 ProjectFilter = AllFilter;
                 ClearFilters();
             });
+            
+            // Command to change view mode
+            ChangeViewModeCommand = new RelayCommand(mode =>
+            {
+                if (mode is string modeStr && !string.IsNullOrWhiteSpace(modeStr))
+                {
+                    ViewMode = modeStr;
+                }
+            });
         }
+
+        public ICommand ChangeViewModeCommand { get; private set; } = null!;
 
         protected override async Task ExportAsync(ExportFormat format)
         {
