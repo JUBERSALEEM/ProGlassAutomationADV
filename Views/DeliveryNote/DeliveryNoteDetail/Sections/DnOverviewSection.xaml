@@ -439,6 +439,8 @@
                                                             <ColumnDefinition Width="55"/>
                                                             <ColumnDefinition Width="70"/>
                                                             <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="70"/>
+                                                            <ColumnDefinition Width="80"/>
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="95"/>
                                                             <ColumnDefinition Width="Auto"/>
@@ -477,9 +479,19 @@
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Right"
                                                                    Margin="6,8,10,8"/>
-                                                        <Border Grid.Column="9"
+                                                        <TextBlock Grid.Column="9" Text="WT/PC"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"
+                                                                   ToolTip="Weight per piece (kg)"/>
+                                                        <TextBlock Grid.Column="10" Text="TOTAL WT"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"
+                                                                   ToolTip="Total weight (kg)"/>
+                                                        <Border Grid.Column="11"
                                                                 Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                        <TextBlock Grid.Column="10"
+                                                        <TextBlock Grid.Column="12"
                                                                    Style="{StaticResource ThisDnHeaderStyle}"/>
                                                         <Border Grid.Column="11"
                                                                 Style="{StaticResource ColumnSeparatorStyle}"/>
@@ -533,6 +545,8 @@
                                                                         <ColumnDefinition Width="60"/>
                                                                         <ColumnDefinition Width="60"/>
                                                                         <ColumnDefinition Width="55"/>
+                                                                        <ColumnDefinition Width="70"/>
+                                                                        <ColumnDefinition Width="80"/>
                                                                         <ColumnDefinition Width="70"/>
                                                                         <ColumnDefinition Width="80"/>
                                                                         <ColumnDefinition Width="Auto"/>
@@ -595,19 +609,29 @@
                                                                                Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
                                                                                Style="{StaticResource GridNumericCell}"
                                                                                FontWeight="Bold"/>
-                                                                    <Border Grid.Column="9"
+                                                                    <TextBlock Grid.Column="9"
+                                                                               Text="{Binding WeightPerPiece, StringFormat={}{0:0.0}}"
+                                                                               Style="{StaticResource GridNumericCell}"
+                                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                               ToolTip="Weight per piece (kg)"/>
+                                                                    <TextBlock Grid.Column="10"
+                                                                               Text="{Binding TotalWeight, StringFormat={}{0:0.0}}"
+                                                                               Style="{StaticResource GridNumericCell}"
+                                                                               FontWeight="Bold"
+                                                                               ToolTip="Total weight = Weight/Piece × Delivered Qty"/>
+                                                                    <Border Grid.Column="11"
                                                                             Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                    <TextBox Grid.Column="10"
+                                                                    <TextBox Grid.Column="12"
                                                                              Text="{Binding DeliveredQty,
                                                                                     UpdateSourceTrigger=PropertyChanged}"
                                                                              behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                                                              Style="{StaticResource DeliveredQtyTextBoxStyle}"/>
-                                                                    <TextBlock Grid.Column="10"
+                                                                    <TextBlock Grid.Column="12"
                                                                                Text="{Binding DeliveredQty}"
                                                                                Style="{StaticResource DeliveredQtyReadOnlyStyle}"/>
-                                                                    <Border Grid.Column="11"
+                                                                    <Border Grid.Column="13"
                                                                             Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                    <TextBlock Grid.Column="12"
+                                                                    <TextBlock Grid.Column="14"
                                                                                Text="{Binding BalanceQty}"
                                                                                Style="{StaticResource BalanceCellStyle}"/>
                                                                 </Grid>
