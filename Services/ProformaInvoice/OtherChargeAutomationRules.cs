@@ -279,7 +279,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         private static bool IsDoubleGlass(string glassType) =>
             glassType is "DGU" or "LAM" or "DGU+LAM";
 
-        private static string ResolveEffectiveGlassType(string? glassType, string? specName)
+        /// <summary>
+        /// The effective build of a specification. Spec-name markers win
+        /// (spacer → DGU, interlayer → LAM, both → DGU+LAM); when the spec
+        /// text is ambiguous the Step 4 glass-type field is authoritative;
+        /// "SGU" is the final fallback.
+        /// </summary>
+        public static string ResolveEffectiveGlassType(string? glassType, string? specName)
         {
             string spec = specName ?? string.Empty;
             bool hasSpacer = PnLSpecParser.Spacer(spec).Success;
@@ -289,9 +295,27 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             if (hasSpacer && hasInterlayer) return "DGU+LAM";
             if (hasSpacer) return "DGU";
             if (hasInterlayer) return "LAM";
-            if (hasGlass) return "SGU";
 
-            return NormalizeGlassType(glassType);
+            // ══════════════════════════════════════════════════════════════
+            //  TYPE FIELD IS AUTHORITATIVE WHEN THE SPEC NAME IS AMBIGUOUS
+            //
+            //  The old rule returned "SGU" whenever the spec name contained
+            //  a glass pane but no spacer/interlayer token. A DGU whose
+            //  generated name variant does not carry the "+ 12mm ASP" token
+            //  was then classified SGU: Step 6 auto-wastage suggested the
+            //  OUTER side only (the inner checkbox stayed unchecked), argon /
+            //  U-Insert / polish suggestions were lost, and the whole
+            //  Advanced automation looked like it "was not triggering".
+            //
+            //  The Step 4 panel is the authoritative source of the build, so
+            //  when the spec text cannot decide, the selected glass type
+            //  decides. "SGU" remains the fallback when the type is blank
+            //  AND no build marker exists in the spec.
+            // ══════════════════════════════════════════════════════════════
+            string type = NormalizeGlassType(glassType);
+            if (type.Length > 0) return type;
+            if (hasGlass) return "SGU";
+            return type;
         }
 
         private static string NormalizeGlassType(string? glassType) =>

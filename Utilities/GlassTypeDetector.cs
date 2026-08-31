@@ -9,7 +9,8 @@
 // ║    ASP  → spacer present  → DGU family                                   ║
 // ║    PVB  → interlayer      → LAM family                                   ║
 // ║    Both → DGU+LAM hybrid                                                 ║
-// ║    Neither → SGU (monolithic)                                            ║
+// ║    Single pane, no markers → SGU (monolithic)                            ║
+// ║    Multiple panes, no markers → Unknown (build cannot be read)           ║
 // ║                                                                          ║
 // ║  Used by DataGridViewModel to auto-switch Glass Type dropdown when the   ║
 // ║  user picks or types a specification whose glass type differs from the   ║
@@ -35,7 +36,8 @@ namespace ProGlassAutomation.Utilities
         ///   spacer + interlayer → DGU+LAM
         ///   spacer only         → DGU
         ///   interlayer only     → LAM
-        ///   glass only          → SGU
+        ///   one pane, no markers → SGU
+        ///   2+ panes, no markers → Unknown (build ambiguous)
         ///   empty / unparsable  → Unknown
         ///
         /// Using the shared parser matters: the older implementation only
@@ -49,14 +51,44 @@ namespace ProGlassAutomation.Utilities
 
             bool hasSpacer = PnLSpecParser.Spacer(specName).Success;
             bool hasInterlayer = PnLSpecParser.Interlayer(specName).Success;
-            bool hasGlass = PnLSpecParser.GlassMatches(specName).Count > 0;
+            int paneCount = PnLSpecParser.GlassMatches(specName).Count;
 
             if (hasSpacer && hasInterlayer) return "DGU+LAM";
             if (hasSpacer) return "DGU";
             if (hasInterlayer) return "LAM";
-            if (hasGlass) return "SGU";
+
+            // ══════════════════════════════════════════════════════════════
+            //  MULTI-PANE SPECS WITHOUT BUILD MARKERS ARE NOT SINGLE GLAZED
+            //
+            //  A name that lists two or more panes but no spacer (ASP) and
+            //  no interlayer (PVB/SGP/EVA) is a shorthand for DGU, LAM or a
+            //  hybrid — the text alone cannot pick. Returning SGU here made
+            //  Step 5 auto-switch the operator's authoritative glass type to
+            //  "SGU"; Step 6 advanced automation then suggested ONLY the
+            //  outer pane, argon / U-Insert / polish rows vanished, and the
+            //  whole automation looked dead. The Step 4 selection must be
+            //  preserved, so this shape reports Unknown instead of a guess.
+            // ══════════════════════════════════════════════════════════════
+            if (paneCount > 1) return "Unknown";
+            if (paneCount == 1) return "SGU";
 
             return "Unknown";
+        }
+
+        /// <summary>
+        /// True when a spec name lists two or more glass panes but carries no
+        /// spacer/interlayer marker: the build (DGU vs LAM vs DGU+LAM) cannot
+        /// be read from the text, so the authoritative glass-type selection
+        /// must be kept instead of being guessed at.
+        /// </summary>
+        public static bool IsMultiPaneWithoutBuildMarkers(string specName)
+        {
+            if (string.IsNullOrWhiteSpace(specName)) return false;
+
+            if (PnLSpecParser.Spacer(specName).Success) return false;
+            if (PnLSpecParser.Interlayer(specName).Success) return false;
+
+            return PnLSpecParser.GlassMatches(specName).Count > 1;
         }
 
         /// <summary>

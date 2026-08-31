@@ -135,7 +135,7 @@
                                 <TextBlock Text="{Binding ProfitDisplay}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
-                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLoss}" Value="True">
                                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -147,7 +147,7 @@
                                 <TextBlock Text="{Binding MarginDisplay}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Margin="0,2,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLoss}" Value="True">
                                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -288,7 +288,7 @@
                                                Margin="12,0,0,0">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsQuotedRateBelowCost}" Value="True">
                                                         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>

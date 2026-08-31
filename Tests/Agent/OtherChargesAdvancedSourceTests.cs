@@ -52,8 +52,12 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("Step9VM.Bind(", pi);
             Assert.Contains("AppendStep6Costs", pnl);
             Assert.Contains("active Step 6 charges plus advanced inferred charges are included as cost lines", pnl);
-            Assert.Contains("wastage rows are excluded", pnl);
-            Assert.DoesNotContain("_otherChargesVm.WastagesSection.WastageRows", pnl);
+            // Step 6 wastage (outer + inner per specification) now flows into
+            // Step 9 so the P&L outer/inner wastage quantities match Step 6.
+            Assert.Contains("wastage costs now flow into Step 9", pnl);
+            Assert.Contains("AppendWastageCostRows", pnl);
+            Assert.Contains("per checked wastage source", pnl);
+            Assert.DoesNotContain("wastage rows remain OUTSIDE Step 9", pnl);
         }
 
 
@@ -83,6 +87,10 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("ResolveDguLamPaneColors", wastageVm);
             Assert.Contains("Lam Outer (W2/H2)", wastageVm);
             Assert.Contains("Lam Inner (W2/H2)", wastageVm);
+            // BUG: markerless DGU spec names must not drop the inner source;
+            // sources resolve the build the same way the rules do.
+            Assert.Contains("ResolveEffectiveGlassType", wastageVm);
+            Assert.Contains("Inner (W2/H2)", wastageVm);
             Assert.Contains("OptimizationSummaryText", wastageRow);
             Assert.DoesNotContain("private decimal _rate = 40m;", wastageRow);
         }
@@ -164,6 +172,11 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("PnLSpecParser.Interlayer(specName).Success", detector);
             Assert.Contains("ResetSpecSelectionForManualGlassTypeChange", specGroup);
             Assert.Contains("SelectedGlassType = detected;", specGroup);
+            // BUG: the Step 5 auto-switch must not overwrite the authoritative
+            // type with SGU when a markerless multi-pane spec is committed.
+            Assert.Contains("IsMultiPaneWithoutBuildMarkers", detector);
+            Assert.Contains("IsMultiPaneWithoutBuildMarkers", specGroup);
+            Assert.Contains("paneCount > 1", detector);
         }
 
         [Fact]

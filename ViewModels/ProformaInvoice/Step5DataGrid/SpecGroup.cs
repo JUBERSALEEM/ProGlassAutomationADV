@@ -1456,6 +1456,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
             if (detected == "Unknown")
             {
+                // ──────────────────────────────────────────────────────────
+                //  MULTI-PANE SPEC WITHOUT SPACER/INTERLAYER DETAIL
+                //
+                //  The spec name lists several panes but omits the build
+                //  markers (e.g. "6mm Clear FT + 6mm Clear FT" instead of
+                //  "... + 12mm ASP"). The text cannot say DGU vs LAM vs
+                //  hybrid, so the authoritative glass type (Step 4 selection
+                //  or the previous type) is KEPT. Guessing SGU here auto-
+                //  switched the field to single glazing and Step 6 advanced
+                //  automation stopped suggesting the inner pane / cavity
+                //  charges — the "auto charge is not triggering" report.
+                // ──────────────────────────────────────────────────────────
+                if (GlassTypeDetector.IsMultiPaneWithoutBuildMarkers(specName))
+                {
+                    int paneCount = PnLSpecParser.GlassMatches(specName).Count;
+                    string kept = string.IsNullOrWhiteSpace(_selectedGlassType)
+                        ? "(not set)"
+                        : _selectedGlassType;
+
+                    _ = ShowToastAsync(
+                        $"Spec lists {paneCount} glass panes without " +
+                        "spacer/interlayer detail — keeping glass type " +
+                        $"{kept}. Add the build markers to the spec name " +
+                        "to auto-switch it.");
+                    return;
+                }
+
                 _ = ShowToastAsync(
                     "⚠  Cannot detect glass type for this specification. " +
                     "Please update it in Price & Specs Generator.",

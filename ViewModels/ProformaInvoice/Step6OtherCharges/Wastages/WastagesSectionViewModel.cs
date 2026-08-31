@@ -173,7 +173,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             foreach (var group in _dataGrid.SpecGroups)
             {
                 var step4Snapshot = ResolveStep4Snapshot(step4Sections, group.GroupNumber);
-                string type = (group.SelectedGlassType ?? string.Empty).Trim().ToUpperInvariant();
+
+                // ══════════════════════════════════════════════════════════
+                //  BUILD IS RESOLVED FROM THE SPEC FIRST, TYPE FIELD SECOND —
+                //  the SAME rule OtherChargeAutomationRules uses. Previously
+                //  this method read the raw SelectGlassType text, so a DGU
+                //  whose spec-name variant lacks the spacer token was treated
+                //  as single glazing: the inner wastage source was never
+                //  created and "only outer got auto-selected".
+                // ══════════════════════════════════════════════════════════
+                string type = OtherChargeAutomationRules.ResolveEffectiveGlassType(
+                    group.SelectedGlassType, group.SelectedSpecName);
+
+                // A double-glass build's second pane is the same unit size as
+                // the first (W1/H1) unless the grid carries an explicit
+                // W2/H2 — Step 9 already costs both panes on that area, so
+                // the wastage sources must match instead of silently pricing
+                // only the outer pane.
+                decimal innerSqm = group.FooterTotalSqm2 > 0m
+                    ? group.FooterTotalSqm2
+                    : group.FooterTotalSqm;
 
                 if (type == "DGU+LAM")
                 {
@@ -197,7 +216,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                         SpecName = group.GroupName,
                         SideLabel = "Lam Outer (W2/H2)",
                         ColorName = paneColors.LamOuter,
-                        SqmValue = group.FooterTotalSqm2,
+                        SqmValue = innerSqm,
                         SheetWidthMm = group.InnerSheetWidthMm,
                         SheetHeightMm = group.InnerSheetHeightMm,
                         PricePerSqm = group.InnerSheetPricePerSqm
@@ -209,7 +228,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                         SpecName = group.GroupName,
                         SideLabel = "Lam Inner (W2/H2)",
                         ColorName = paneColors.LamInner,
-                        SqmValue = group.FooterTotalSqm2,
+                        SqmValue = innerSqm,
                         SheetWidthMm = group.InnerSheetWidthMm,
                         SheetHeightMm = group.InnerSheetHeightMm,
                         PricePerSqm = group.InnerSheetPricePerSqm
@@ -230,8 +249,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     PricePerSqm = group.OuterSheetPricePerSqm
                 }, step4Snapshot, group.SelectedGlassType, preferInner: false);
 
-                bool hasInner = group.SelectedGlassType != "SGU";
-                if (hasInner)
+                // A resolved double-build offers the inner source; so does a
+                // grid that physically carries a W2/H2 column even when the
+                // type field is blank (manual mode must stay usable).
+                if (type is "DGU" or "LAM" || group.FooterTotalSqm2 > 0m)
                 {
                     AddSource(row, checkedIds, new SpecGroupColorSide
                     {
@@ -239,7 +260,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                         SpecName = group.GroupName,
                         SideLabel = "Inner (W2/H2)",
                         ColorName = group.InnerGlassColor,
-                        SqmValue = group.FooterTotalSqm2,
+                        SqmValue = innerSqm,
                         SheetWidthMm = group.InnerSheetWidthMm,
                         SheetHeightMm = group.InnerSheetHeightMm,
                         PricePerSqm = group.InnerSheetPricePerSqm

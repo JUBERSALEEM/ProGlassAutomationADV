@@ -173,5 +173,40 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(12, metric.PhysicalPanes);
             Assert.Equal(12, option.PhysicalPanes);
         }
+
+        // ── BUG: advanced auto-charge "not triggering itself" ──────────────
+        // A DGU spec-name variant that omits the spacer token ("+ 12mm ASP")
+        // used to be classified as SGU, so Step 6 auto-wastage suggested the
+        // OUTER side only. The Step 4 type field is authoritative for such
+        // names, so BOTH sides must still be suggested.
+
+        [Fact]
+        public void Dgu_spec_without_spacer_marker_still_suggests_inner_wastage()
+        {
+            var rows = OtherChargeAutomationRules.GetWastageSuggestions(
+                7,
+                "DGU",
+                "6mm HD Grey FT Glass + 6mm Clear FT Glass",
+                "HD Grey",
+                "Clear");
+
+            Assert.Equal(2, rows.Count);
+            Assert.Contains(rows, r => r.SourceSideLabel == "Outer (W1/H1)");
+            Assert.Contains(rows, r => r.SourceSideLabel == "Inner (W2/H2)");
+        }
+
+        [Fact]
+        public void Dgu_spec_without_spacer_marker_still_suggests_cavity_charges()
+        {
+            var rules = OtherChargeAutomationRules.GetChargeSuggestions(
+                "DGU",
+                "6mm HD Grey FT Glass + 6mm Clear FT Glass With U-Insert and Argon Gas",
+                matchedSameGlass: false);
+
+            Assert.Contains(rules, r => r.TemplateKey == "U_INSERT"
+                && r.MetricKey == "DGU_CAVITY");
+            Assert.Contains(rules, r => r.TemplateKey == "ARGON_GAS"
+                && r.MetricKey == "DGU_CAVITY");
+        }
     }
 }
