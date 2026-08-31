@@ -87,6 +87,29 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             }
         }
 
+        /// <summary>
+        /// The pane side this wastage charge belongs to, shown beside the
+        /// colour so a DGU's OUTER and INNER rows stay distinguishable even
+        /// when both panes share the same colour.
+        /// </summary>
+        public string SideDisplay
+        {
+            get
+            {
+                var first = AvailableSources.FirstOrDefault(s => s.IsChecked);
+                if (first == null) return "";
+
+                string side = first.SideLabel ?? "";
+                if (side.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "Lam Inner";
+                if (side.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "Lam Outer";
+                if (side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return "Inner";
+                return "Outer";
+            }
+        }
+
         private decimal _totalSqm;
         public decimal TotalSqm
         {
@@ -383,6 +406,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             }
 
             RecalcFromSources();
+            OnPropertyChanged(nameof(SideDisplay));
         }
 
         private void OnSourceChanged(object? sender, PropertyChangedEventArgs e)
@@ -394,6 +418,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
                 or "")
             {
                 RecalcFromSources();
+                OnPropertyChanged(nameof(SideDisplay));
             }
         }
 

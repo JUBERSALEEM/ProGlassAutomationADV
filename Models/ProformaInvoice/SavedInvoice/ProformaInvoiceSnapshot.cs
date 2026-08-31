@@ -410,6 +410,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// <summary>Third-party optimization percentage, e.g. 70 means 70%.</summary>
         public decimal OptimizationPercent { get; set; }
 
+        /// <summary>
+        /// Sheet quantity from the wastage setup box. Step 9 reads this for
+        /// the matching pane's QTY (outer AND inner) even when the wastage
+        /// charge row itself is disabled. Old snapshots default to 1.
+        /// </summary>
+        public int SheetQuantity { get; set; } = 1;
+
         /// <summary>Format: "SpecNumber-SideLabel" (e.g. "1-Outer (W1/H1)").</summary>
         public List<string> CheckedSourceKeys { get; set; } = new();
     }

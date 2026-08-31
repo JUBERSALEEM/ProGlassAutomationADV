@@ -58,6 +58,12 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("AppendWastageCostRows", pnl);
             Assert.Contains("per checked wastage source", pnl);
             Assert.DoesNotContain("wastage rows remain OUTSIDE Step 9", pnl);
+            // Glass pane QTY comes from the Step 6 wastage setup SHEET QTY
+            // box (outer AND inner) instead of Sheet Store rounding; the box
+            // is read even when the wastage charge row is disabled.
+            Assert.Contains("ResolveStep6WastageSheetQuantity", pnl);
+            Assert.Contains("SHEET QTY from Step 6 wastage setup", pnl);
+            Assert.Contains("A DISABLED wastage row still owns", pnl);
         }
 
 
@@ -81,6 +87,10 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("SelectedSourcePricePerSqm", wastageRow);
             Assert.Contains("SelectedSheetWidthText", wastageRow);
             Assert.Contains("SetAutoFormulaPrice", wastageRow);
+            // Same-colour outer and inner rows are told apart by the side
+            // badge beside the colour.
+            Assert.Contains("SideDisplay", wastageView);
+            Assert.Contains("SideDisplay", wastageRow);
             var wastageVm = File.ReadAllText(Path.Combine(root,
                 "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs"));
             Assert.Contains("ExtractColorKey", wastageVm);
@@ -91,6 +101,12 @@ namespace ProGlassAutomation.Tests.Agent
             // sources resolve the build the same way the rules do.
             Assert.Contains("ResolveEffectiveGlassType", wastageVm);
             Assert.Contains("Inner (W2/H2)", wastageVm);
+            // A DGU's outer and inner glass are SEPARATE wastage charges:
+            // same-colour sides must not be folded into one row, and each
+            // row keeps its own setup SHEET QTY across advanced refreshes.
+            Assert.Contains("WastageRowKey", wastageVm);
+            Assert.Contains("NormalizeSideKey", wastageVm);
+            Assert.Contains("SheetQuantity = previousRow?.SheetQuantity", wastageVm);
             Assert.Contains("OptimizationSummaryText", wastageRow);
             Assert.DoesNotContain("private decimal _rate = 40m;", wastageRow);
         }
@@ -194,6 +210,20 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("U-INSERT / SQM", dguView);
             Assert.Contains("UInsertPricePerSqm", dguVm);
             Assert.Contains("UInsertPricePerSqm", pricing);
+        }
+
+        [Fact]
+        public void Wastage_sheet_quantity_is_persisted_and_restored()
+        {
+            var root = LocateProjectRoot();
+            var model = File.ReadAllText(Path.Combine(root,
+                "Models/ProformaInvoice/SavedInvoice/ProformaInvoiceSnapshot.cs"));
+            var mapper = File.ReadAllText(Path.Combine(root,
+                "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs"));
+
+            Assert.Contains("public int SheetQuantity", model);
+            Assert.Contains("SheetQuantity = wastage.SheetQuantity", mapper);
+            Assert.Contains("SheetQuantity = wSnap.SheetQuantity", mapper);
         }
 
         private static string LocateProjectRoot()

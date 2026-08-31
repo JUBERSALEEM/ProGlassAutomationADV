@@ -1,3 +1,4 @@
+using System.Linq;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastages;
@@ -199,6 +200,108 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.Single(vm.WastageRows);
             Assert.True(vm.WastageRows[0].IsActive);
+        }
+
+        [Fact]
+        public void Advanced_auto_generation_splits_outer_and_inner_into_separate_rows()
+        {
+            var grid = new DataGridViewModel();
+            var group = grid.SpecGroups[0];
+            group.SelectedGlassType = "DGU";
+            group.SelectedSpecName =
+                "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass";
+            group.OuterGlassColor = "Clear";
+            group.InnerGlassColor = "Clear";
+
+            var vm = new WastagesSectionViewModel(grid);
+            vm.ApplyAdvancedSuggestions(new[]
+            {
+                new Services.ProformaInvoice.AutoWastageSuggestion
+                {
+                    SpecGroupNumber = 1,
+                    SourceSideLabel = "Outer (W1/H1)",
+                    DisplayName = "Clear — outer glass wastage"
+                },
+                new Services.ProformaInvoice.AutoWastageSuggestion
+                {
+                    SpecGroupNumber = 1,
+                    SourceSideLabel = "Inner (W2/H2)",
+                    DisplayName = "Clear — inner glass wastage"
+                }
+            });
+
+            // A DGU has an outer AND an inner pane — the same colour must
+            // still produce TWO wastage charges, each with its own SHEET QTY.
+            Assert.Equal(2, vm.WastageRows.Count);
+            Assert.Equal(1, vm.WastageRows.Count(r =>
+                r.AvailableSources.Any(s =>
+                    s.IsChecked && s.SideLabel == "Outer (W1/H1)")));
+            Assert.Equal(1, vm.WastageRows.Count(r =>
+                r.AvailableSources.Any(s =>
+                    s.IsChecked && s.SideLabel == "Inner (W2/H2)")));
+
+            var outer = vm.WastageRows.Single(r =>
+                r.AvailableSources.Any(s =>
+                    s.IsChecked && s.SideLabel == "Outer (W1/H1)"));
+            var inner = vm.WastageRows.Single(r =>
+                r.AvailableSources.Any(s =>
+                    s.IsChecked && s.SideLabel == "Inner (W2/H2)"));
+            Assert.Equal("Outer", outer.SideDisplay);
+            Assert.Equal("Inner", inner.SideDisplay);
+        }
+
+        [Fact]
+        public void Advanced_refresh_preserves_per_side_sheet_quantity()
+        {
+            var grid = new DataGridViewModel();
+            var group = grid.SpecGroups[0];
+            group.SelectedGlassType = "DGU";
+            group.SelectedSpecName =
+                "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass";
+            group.OuterGlassColor = "Clear";
+            group.InnerGlassColor = "Clear";
+
+            var vm = new WastagesSectionViewModel(grid);
+            var suggestions = new[]
+            {
+                new Services.ProformaInvoice.AutoWastageSuggestion
+                {
+                    SpecGroupNumber = 1,
+                    SourceSideLabel = "Outer (W1/H1)",
+                    DisplayName = "Clear — outer glass wastage"
+                },
+                new Services.ProformaInvoice.AutoWastageSuggestion
+                {
+                    SpecGroupNumber = 1,
+                    SourceSideLabel = "Inner (W2/H2)",
+                    DisplayName = "Clear — inner glass wastage"
+                }
+            };
+
+            vm.ApplyAdvancedSuggestions(suggestions);
+
+            var outer = vm.WastageRows.Single(r =>
+                r.AvailableSources.Any(s =>
+                    s.IsChecked && s.SideLabel == "Outer (W1/H1)"));
+            var inner = vm.WastageRows.Single(r =>
+                r.AvailableSources.Any(s =>
+                    s.IsChecked && s.SideLabel == "Inner (W2/H2)"));
+            outer.SheetQuantity = 6;
+            inner.SheetQuantity = 3;
+
+            // A spec edit refreshes the rows — the operator's per-side
+            // SHEET QTY must survive the rebuild.
+            vm.ApplyAdvancedSuggestions(suggestions);
+
+            var outerAfter = vm.WastageRows.Single(r =>
+                r.AvailableSources.Any(s =>
+                    s.IsChecked && s.SideLabel == "Outer (W1/H1)"));
+            var innerAfter = vm.WastageRows.Single(r =>
+                r.AvailableSources.Any(s =>
+                    s.IsChecked && s.SideLabel == "Inner (W2/H2)"));
+
+            Assert.Equal(6, outerAfter.SheetQuantity);
+            Assert.Equal(3, innerAfter.SheetQuantity);
         }
 
         [Fact]

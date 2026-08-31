@@ -1873,6 +1873,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             decimal needed = PnLMeasurement.AreaWithWastage(cutSqm, WastagePercent);
             int sheets = PnLMeasurement.WholeSheetsRequired(needed, sheetSqm);
+            bool fromStep6Setup = false;
+
+            // ══════════════════════════════════════════════════════════════
+            //  QTY COMES FROM THE STEP 6 WASTAGE SETUP, NOT FROM SHEET STORE
+            //
+            //  The operator's SHEET QTY box on the matching wastage row is
+            //  authoritative for this pane's quantity (and therefore its
+            //  glass cost). A DISABLED wastage row still owns the setup
+            //  quantity — IsActive only controls whether the wastage CHARGE
+            //  is added to production cost. No match keeps the existing
+            //  Sheet Store / SQM round-up as fallback.
+            // ══════════════════════════════════════════════════════════════
+            if (!priceByRequiredArea)
+            {
+                int setupQty = ResolveStep6WastageSheetQuantity(specNumber, side);
+                if (setupQty > 0)
+                {
+                    sheets = setupQty;
+                    fromStep6Setup = true;
+                }
+            }
 
             decimal quantity = priceByRequiredArea
                 ? Math.Round(needed, 2)
@@ -1889,7 +1910,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             string detail = unitRate > 0m
                 ? priceByRequiredArea
                     ? $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm · priced by required area · {source}"
-                    : $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm → {sheets} sheet(s) · {source}"
+                    : fromStep6Setup
+                        ? $"{cutSqm:0.##} sqm → {sheets} sheet(s) · SHEET QTY from Step 6 wastage setup · {source}"
+                        : $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm → {sheets} sheet(s) · {source}"
                 : "UNPRICED — not in Sheet Store and no Step 4 rate · not included in profit";
 
             return new ProfitLossRow
@@ -1909,6 +1932,53 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 PricePerSqm = unitRate,
                 Amount = amount
             };
+        }
+
+        /// <summary>
+        /// Maps a Step 9 pane side to its Step 6 wastage source label so the
+        /// setup SHEET QTY is read for the EXACT pane — outer, inner, lam
+        /// outer, lam inner — instead of applying one number to the build.
+        /// </summary>
+        private static string? WastageSideLabelForPane(string paneSide)
+        {
+            if (paneSide.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Lam Inner (W2/H2)";
+            if (paneSide.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Lam Outer (W2/H2)";
+            if (paneSide.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Inner (W2/H2)";
+            if (paneSide.IndexOf("Outer", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Outer (W1/H1)";
+            return null;
+        }
+
+        /// <summary>
+        /// The sheet quantity the operator set in Step 6's wastage setup for
+        /// THIS specification's pane side. A DISABLED wastage row still owns
+        /// the setup quantity — IsActive only controls whether the wastage
+        /// charge is added to production cost. 0 means no wastage row targets
+        /// this pane, so the existing Sheet Store calculation remains the
+        /// fallback.
+        /// </summary>
+        private int ResolveStep6WastageSheetQuantity(int specNumber, string paneSide)
+        {
+            string? sideLabel = WastageSideLabelForPane(paneSide);
+            if (sideLabel == null) return 0;
+
+            var rows = _otherChargesVm?.WastagesSection?.WastageRows;
+            if (rows == null) return 0;
+
+            var row = rows
+                .Where(r => r.AvailableSources.Any(s =>
+                    s.IsChecked
+                    && s.SpecNumber == specNumber
+                    && string.Equals(
+                        s.SideLabel, sideLabel,
+                        StringComparison.OrdinalIgnoreCase)))
+                .OrderByDescending(r => r.IsActive)
+                .FirstOrDefault();
+
+            return row?.SheetQuantity ?? 0;
         }
 
 

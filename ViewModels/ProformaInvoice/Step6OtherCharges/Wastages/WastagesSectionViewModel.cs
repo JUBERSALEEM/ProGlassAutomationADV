@@ -94,8 +94,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         /// </summary>
         public void ApplyAdvancedSuggestions(IEnumerable<AutoWastageSuggestion> suggestions)
         {
+            // A DGU build has TWO panes — outer and inner — and DGU+LAM has
+            // three. Each side is its own wastage row with its own setup
+            // SHEET QTY, so same-colour sides must NOT be folded into one
+            // row: they were, and Step 9 could only read one quantity for
+            // both panes. Rows therefore key on colour + side.
             var previousRows = WastageRows
-                .GroupBy(r => r.ColorName ?? "", System.StringComparer.OrdinalIgnoreCase)
+                .GroupBy(r => WastageRowKey(r.ColorName, RowSideKey(r)),
+                    System.StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(
                     g => g.Key,
                     g => g.First(),
@@ -104,7 +110,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             ClearWastageRows();
 
             foreach (var group in suggestions
-                .GroupBy(x => ExtractColorKey(x.DisplayName), System.StringComparer.OrdinalIgnoreCase)
+                .GroupBy(x => WastageRowKey(
+                        ExtractColorKey(x.DisplayName), x.SourceSideLabel),
+                    System.StringComparer.OrdinalIgnoreCase)
                 .OrderBy(x => x.Key, System.StringComparer.OrdinalIgnoreCase))
             {
                 previousRows.TryGetValue(group.Key, out var previousRow);
@@ -112,11 +120,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 var row = new WastageRow
                 {
                     IsActive = previousRow?.IsActive ?? true,
-                    ColorName = group.Key,
+                    ColorName = ExtractColorKey(group.First().DisplayName),
                     Rate = previousRow?.Rate ?? 0m,
                     UseOptimizationFormula = previousRow?.UseOptimizationFormula ?? true,
                     FormulaPricePerSqm = previousRow?.FormulaPricePerSqm ?? 0m,
-                    OptimizationPercent = previousRow?.OptimizationPercent ?? 0m
+                    OptimizationPercent = previousRow?.OptimizationPercent ?? 0m,
+                    SheetQuantity = previousRow?.SheetQuantity ?? 1
                 };
 
                 PopulateSourcesForRestoredRow(row);
@@ -322,7 +331,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         {
             if (e.PropertyName == nameof(WastageRow.ResultAmount)
                 || e.PropertyName == nameof(WastageRow.IsActive))
+            {
                 RecalculateTotal();
+                return;
+            }
+
+            // Step 9 reads the setup SHEET QTY even when the wastage charge
+            // row is DISABLED, so editing the box must notify downstream
+            // consumers even though the disabled row's result (0) did not
+            // change. An active row re-raises through ResultAmount instead.
+            if (e.PropertyName == nameof(WastageRow.SheetQuantity))
+            {
+                bool wasDisabled = sender is WastageRow row && !row.IsActive;
+                RecalculateTotal();
+                if (wasDisabled)
+                    OnPropertyChanged(nameof(TotalWastageValue));
+            }
         }
 
         private static Step4PricingSnapshot? ResolveStep4Snapshot(
@@ -454,6 +478,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
             return text;
         }
+
+        /// <summary>
+        /// Row identity in advanced mode = glass colour + pane side.
+        /// "Clear — outer glass wastage" and "Clear — inner glass wastage"
+        /// are two separate wastage charges (and two setup SHEET QTY boxes).
+        /// </summary>
+        private static string WastageRowKey(string? colorName, string? sideLabel) =>
+            $"{ExtractColorKey(colorName)}:::{NormalizeSideKey(sideLabel)}";
+
+        private static string NormalizeSideKey(string? sideLabel)
+        {
+            string side = (sideLabel ?? string.Empty).Trim();
+            if (side.IndexOf("Lam Inner", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Lam Inner";
+            if (side.IndexOf("Lam Outer", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Lam Outer";
+            if (side.IndexOf("Inner", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Inner";
+            return "Outer";
+        }
+
+        /// <summary>
+        /// The side a live wastage row belongs to (WastageRow.SideDisplay).
+        /// Used to preserve a row's setup across advanced refreshes; a row
+        /// created before the side-aware change falls back to outer.
+        /// </summary>
+        private static string RowSideKey(WastageRow row) =>
+            string.IsNullOrWhiteSpace(row.SideDisplay)
+                ? "Outer"
+                : row.SideDisplay;
 
         private void RecalculateTotal()
         {
