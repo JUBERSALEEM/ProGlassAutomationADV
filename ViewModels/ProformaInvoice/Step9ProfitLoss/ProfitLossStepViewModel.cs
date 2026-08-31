@@ -423,8 +423,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         //  Both report profit margins but answer different questions:
         //
         //    Cost-Based   = the EXISTING Profit ÷ Net Selling × 100 margin
-        //                   (the "13.1%" the current Profit Margin KPI
-        //                   shows) — renamed to "Cost-Based Profit Margin",
+        //                   (the value the current Profit Margin KPI shows)
+        //                   — renamed to "Cost-Based Profit Margin",
         //                   formula, data source and calculation behaviour
         //                   unchanged.
         //    Price-Based  = new KPI: the margin after the job's ACTUAL
