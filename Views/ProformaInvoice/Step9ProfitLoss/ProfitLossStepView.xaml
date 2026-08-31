@@ -103,6 +103,8 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="1.3*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
@@ -129,24 +131,27 @@
                                 <TextBlock Text="{Binding ProductionCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}" BorderThickness="0">
+                        <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}">
+                            <StackPanel>
+                                <TextBlock Text="COST-BASED PROFIT MARGIN" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding CostBasedMarginDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="5" Style="{StaticResource PiKpiCellStyle}">
+                            <StackPanel>
+                                <TextBlock Text="PRICE-BASED PROFIT MARGIN" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding PriceBasedMarginDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <!-- PROFIT — the margin now lives in its own cards
+                             (COST-BASED / PRICE-BASED); the mark-up-over-cost
+                             line remains as the supplemental existing read. -->
+                        <Border Grid.Column="6" Style="{StaticResource PiKpiCellStyle}" BorderThickness="0">
                             <StackPanel>
                                 <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding ProfitDisplay}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
-                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <TextBlock Text="{Binding MarginDisplay}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Margin="0,2,0,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLoss}" Value="True">

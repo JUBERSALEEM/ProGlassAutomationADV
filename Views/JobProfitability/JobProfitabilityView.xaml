@@ -210,6 +210,8 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Style="{StaticResource JpTileStyle}">
@@ -289,8 +291,42 @@
                 </StackPanel>
             </Border>
 
+            <!-- Average Margin % — simple average of the displayed rows'
+                 margin figures; deliberately NOT amount-weighted (that is
+                 the Overall Profit Margin tile above). Coloured by the
+                 average itself, not the portfolio total: a net-loss
+                 portfolio can still show a positive average. -->
+            <Border Grid.Column="8"
+                    ToolTip="Average of the Margin % shown on the displayed costed jobs: Σ (job margin ÷ 100) ÷ number of jobs.&#x0a;Every job counts equally — a small high-margin job moves this as much as a large one.&#x0a;Use Overall Profit Margin (Total Profit ÷ Total Net) for the amount-weighted answer.">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource JpTileStyle}">
+                        <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                        <Setter Property="BorderThickness" Value="2"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsAverageLoss}" Value="True">
+                                <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel>
+                    <TextBlock Text="AVERAGE MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{Binding AverageMarginDisplay}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAverageLoss}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
             <!-- Loss-making job count -->
-            <Border Grid.Column="8" Style="{StaticResource JpTileStyle}">
+            <Border Grid.Column="10" Style="{StaticResource JpTileStyle}">
                 <StackPanel>
                     <TextBlock Text="LOSS-MAKING JOBS" Style="{StaticResource JpTileCaptionStyle}"/>
                     <TextBlock Text="{Binding LossCountDisplay}">

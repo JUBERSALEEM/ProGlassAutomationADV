@@ -305,6 +305,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _marginPercent = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(MarginDisplay));
+                // CostBasedMarginPercent IS MarginPercent (renamed only) —
+                // the rename must not change the displayed value even by
+                // a notification gap.
+                OnPropertyChanged(nameof(CostBasedMarginPercent));
+                OnPropertyChanged(nameof(CostBasedMarginDisplay));
             }
         }
 
@@ -412,6 +417,71 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             (TotalGlassCost + TotalProductionCost) <= 0m
                 ? "mark-up not calculable — no costed rows"
                 : $"{MarkupPercent:0.#}% mark-up over cost";
+
+        // ── KPI CARDS — COST-BASED vs PRICE-BASED PROFIT MARGIN ───────────
+        //
+        //  Both report profit margins but answer different questions:
+        //
+        //    Cost-Based   = the EXISTING Profit ÷ Net Selling × 100 margin
+        //                   (the "13.1%" the current Profit Margin KPI
+        //                   shows) — renamed to "Cost-Based Profit Margin",
+        //                   formula, data source and calculation behaviour
+        //                   unchanged.
+        //    Price-Based  = new KPI: the margin after the job's ACTUAL
+        //                   U-insert cost is added to the cost side,
+        //                   Profit ÷ Net Selling × 100.
+        //
+        //  The U-insert is an additional cost/loss, not a deduction from
+        //  the selling price. Neither number is hardcoded: both follow the
+        //  live recalculation.
+
+        /// <summary>
+        /// Cost-based profit margin: the EXISTING Profit ÷ Net Selling × 100
+        /// margin (renamed only — same as MarginPercent).
+        /// </summary>
+        public decimal CostBasedMarginPercent => MarginPercent;
+
+        /// <summary>KPI card value for the cost-based margin.</summary>
+        public string CostBasedMarginDisplay => $"{CostBasedMarginPercent:0.#}%";
+
+        private decimal _priceBasedMarginPercent;
+        /// <summary>
+        /// Price-based profit margin: (Actual Profit ÷ Net Selling Amount) × 100,
+        /// where Actual Profit = Net Selling − (Glass + Production/ASP + U-Insert).
+        /// </summary>
+        public decimal PriceBasedMarginPercent
+        {
+            get => _priceBasedMarginPercent;
+            private set
+            {
+                if (_priceBasedMarginPercent == value) return;
+                _priceBasedMarginPercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PriceBasedMarginDisplay));
+            }
+        }
+
+        /// <summary>
+        /// KPI card value for the price-based margin. Two decimals so the
+        /// figure can never be mistaken for the cost-based one — both are
+        /// computed live, never from a stored result.
+        /// </summary>
+        public string PriceBasedMarginDisplay => $"{PriceBasedMarginPercent:0.##}%";
+
+        /// <summary>
+        /// The U-insert cost the Price-Based margin uses. Becomes zero when
+        /// no spec in the job carries a U-Insert extra.
+        /// </summary>
+        public decimal PriceBasedUInsertCost { get; private set; }
+
+        /// <summary>Production and ASP cost WITHOUT the U-insert portion (added separately above).</summary>
+        public decimal PriceBasedProductionAspCost { get; private set; }
+
+        /// <summary>Glass + Production/ASP + U-Insert.</summary>
+        public decimal PriceBasedTotalActualCost { get; private set; }
+
+        /// <summary>Net Selling Amount − Total Actual Cost.</summary>
+        public decimal PriceBasedActualProfit { get; private set; }
 
         /// <summary>Tile caption — flips wording instead of showing a minus sign.</summary>
         public string ProfitLabel => IsLoss ? "LOSS" : "PROFIT";
@@ -675,6 +745,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 var specBases = new Dictionary<int, decimal>();
                 decimal glassCost = 0m;
                 decimal productionCost = 0m;
+                decimal uInsertInProduction = 0m;
                 int skipped = 0;
 
                 var groups = _dataGrid?.SpecGroups?.ToList()
@@ -1064,7 +1135,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     }
                 }
 
-                AppendStep6Costs(rows, ref productionCost);
+                AppendStep6Costs(rows, ref productionCost, ref uInsertInProduction);
 
                 // ── Publish rows ──────────────────────────────────────────
                 Rows.Clear();
@@ -1146,6 +1217,49 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     ? Math.Round(Profit / NetExVat * 100m, 1)
                     : 0m;
 
+                // ── PRICE-BASED PROFIT MARGIN (actual data) ────────────────
+                //
+                //  Cost-based (above) measures profit against what the job
+                //  cost; price-based measures it against what the customer
+                //  was actually charged:
+                //
+                //    Net Selling Amount   = NetExVat (actual)
+                //    Glass Cost           = TotalGlassCost (actual)
+                //    Production + ASP     = TotalProductionCost minus any
+                //                            U-insert already inside it
+                //    U-Insert Cost        = applicable U-insert area × rate
+                //                            (reuses the existing U-insert
+                //                            logic; 10/m² comes from the
+                //                            template default, never from a
+                //                            hardcoded margin)
+                //    Total Actual Cost    = Glass + Production/ASP + U-Insert
+                //    Actual Profit        = Net Selling − Total Actual Cost
+                //    Price-Based Margin % = Actual Profit ÷ Net Selling × 100
+                //
+                //  The U-insert is re-derived from the spec groups even when
+                //  its Step 6 charge row was left inactive, so a job whose
+                //  quote carries a U-Insert extra is never reported with an
+                //  overstated margin.
+                // ══════════════════════════════════════════════════════════
+                // Auto-detection (via the spec name + metric hub) is the
+                // primary source for the U-insert area. When the metric hub
+                // is unavailable the amount actually booked into production
+                // cost is used, so the KPI can never UNDERSTATE the U-insert
+                // cost it is supposed to account for.
+                decimal computedUInsert = ComputePriceBasedUInsertCost();
+                PriceBasedUInsertCost = computedUInsert > 0m
+                    ? Math.Round(computedUInsert, 2)
+                    : Math.Round(uInsertInProduction, 2);
+                PriceBasedProductionAspCost = Math.Max(
+                    0m,
+                    Math.Round(TotalProductionCost - Math.Round(uInsertInProduction, 2), 2));
+                PriceBasedTotalActualCost = Math.Round(
+                    TotalGlassCost + PriceBasedProductionAspCost + PriceBasedUInsertCost, 2);
+                PriceBasedActualProfit = Math.Round(NetExVat - PriceBasedTotalActualCost, 2);
+                PriceBasedMarginPercent = NetExVat > 0m
+                    ? Math.Round(PriceBasedActualProfit / NetExVat * 100m, 2)
+                    : 0m;
+
                 StatusMessage = BuildStatus(
                     groups.Count, rows.Count, skipped, gross);
             }
@@ -1202,14 +1316,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         private void AppendStep6Costs(
             List<ProfitLossRow> rows,
-            ref decimal productionCost)
+            ref decimal productionCost,
+            ref decimal uInsertInProduction)
         {
             if (_otherChargesVm == null) return;
 
             var billedCoverage = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var charge in _otherChargesVm.ChargeRows.Where(r => r.IsActive))
-                AppendPredefinedChargeRows(rows, ref productionCost, charge, billedCoverage);
+                AppendPredefinedChargeRows(
+                    rows, ref productionCost, ref uInsertInProduction,
+                    charge, billedCoverage);
 
             // ══════════════════════════════════════════════════════════════
             //  STEP 6 WASTAGE COSTS NOW FLOW INTO STEP 9 — PER SPEC, PER SIDE
@@ -1225,7 +1342,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             AppendWastageCostRows(rows, ref productionCost);
 
             if (_otherChargesVm.UseAdvancedAutomation)
-                AppendAdvancedSuggestedCharges(rows, ref productionCost, billedCoverage);
+                AppendAdvancedSuggestedCharges(
+                    rows, ref productionCost, ref uInsertInProduction,
+                    billedCoverage);
 
             foreach (var custom in _otherChargesVm.CustomChargesSection.AddedCharges.Where(r => r.IsActive))
                 AppendInvoiceWideCharge(rows, ref productionCost,
@@ -1323,6 +1442,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private void AppendPredefinedChargeRows(
             List<ProfitLossRow> rows,
             ref decimal productionCost,
+            ref decimal uInsertInProduction,
             Models.ProformaInvoice.Step6OtherCharges.OtherChargeRow charge,
             HashSet<string> billedCoverage)
         {
@@ -1337,6 +1457,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
 
             if (charge.TargetSelection == null) return;
+
+            bool isUInsert = string.Equals(
+                charge.TemplateKey, "U_INSERT",
+                StringComparison.OrdinalIgnoreCase);
 
             foreach (var spec in charge.TargetSelection.AvailableSpecs.Where(s => s.IsChecked))
             {
@@ -1364,12 +1488,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     Amount = amount
                 });
                 productionCost += amount;
+
+                // The Price-Based KPI re-adds U-insert at the resolved
+                // per-SQM rate, so the amount already inside production cost
+                // must be remembered here or the job's U-insert cost would
+                // be counted twice.
+                if (isUInsert) uInsertInProduction += amount;
             }
         }
 
         private void AppendAdvancedSuggestedCharges(
             List<ProfitLossRow> rows,
             ref decimal productionCost,
+            ref decimal uInsertInProduction,
             HashSet<string> billedCoverage)
         {
             if (_otherChargesVm == null || _dataGrid == null) return;
@@ -1441,6 +1572,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     });
                     productionCost += amount;
                     billedCoverage.Add(coverageKey);
+
+                    // Same anti-double-count bookkeeping as the predefined
+                    // path: the Price-Based KPI needs to know what U-insert
+                    // amount is already part of TotalProductionCost.
+                    if (string.Equals(suggestion.TemplateKey, "U_INSERT",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        uInsertInProduction += amount;
+                    }
                 }
             }
         }
@@ -1525,6 +1665,85 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 return group.UInsertPricePerSqm;
 
             return charge.Rate;
+        }
+
+        /// <summary>
+        /// The U-insert cost the Price-Based Profit Margin KPI must use:
+        /// applicable U-insert area/quantity × the U-insert per-SQM rate.
+        ///
+        /// It reuses the EXACT U-insert machinery the rest of Step 9 uses —
+        /// the same automation detection, the same per-spec metric (cavity
+        /// SQM for DGU/DGU+LAM, SQM1 otherwise) and the same rate
+        /// resolution (Step 4's UInsertPricePerSqm wins, then the Step 6
+        /// row rate, then the U-insert template default of AED 10/m²).
+        /// No separate pricing engine and no hardcoded margin/result.
+        ///
+        /// Deliberately recomputed from the spec groups rather than read
+        /// from the production-cost rows: a job whose quote carries a
+        /// U-Insert extra still carries that cost even when its Step 6
+        /// charge row was left inactive, so the KPI never overstates the
+        /// margin by pretending the extra was free.
+        /// </summary>
+        private decimal ComputePriceBasedUInsertCost()
+        {
+            if (_otherChargesVm == null || _dataGrid == null) return 0m;
+
+            var metricsByGroup = _otherChargesVm.MetricHub.PerSpecMetrics
+                .ToDictionary(x => x.SpecGroupNumber);
+
+            var chargeRow = _otherChargesVm.ChargeRows.FirstOrDefault(r =>
+                string.Equals(r.TemplateKey, "U_INSERT",
+                    StringComparison.OrdinalIgnoreCase));
+
+            // Template default (AED 10/m²) is the last stop when neither
+            // the Step 4 seed nor a Step 6 row exists. Read once, not per
+            // spec group.
+            decimal templateDefault = Models.ProformaInvoice.Step6OtherCharges
+                .PredefinedChargeTemplates.GetAll()
+                .FirstOrDefault(t => string.Equals(
+                    t.Key, "U_INSERT",
+                    StringComparison.OrdinalIgnoreCase))
+                ?.DefaultRate ?? 0m;
+
+            decimal total = 0m;
+
+            foreach (var group in _dataGrid.SpecGroups)
+            {
+                metricsByGroup.TryGetValue(group.GroupNumber, out var metric);
+                if (metric == null) continue;
+
+                // Same matcher usage as AppendAdvancedSuggestedCharges —
+                // the per-spec metric (when present) is authoritative.
+                bool matchedSameGlass = metric.IsMatchedSameGlass;
+
+                foreach (var suggestion in OtherChargeAutomationRules.GetChargeSuggestions(
+                    group.SelectedGlassType,
+                    group.SelectedSpecName,
+                    matchedSameGlass))
+                {
+                    if (!string.Equals(suggestion.TemplateKey, "U_INSERT",
+                            StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    decimal qty = MetricValueForSpec(metric, suggestion.MetricKey);
+                    if (qty <= 0m) continue;
+
+                    // Rate order mirrors ResolveSuggestedChargeRate, with the
+                    // template default as the last stop when no Step 6 row
+                    // exists at all: Step 4 seed → Step 6 row rate → AED 10/m².
+                    decimal rate = group.UInsertPricePerSqm > 0m
+                        ? group.UInsertPricePerSqm
+                        : chargeRow != null && chargeRow.Rate > 0m
+                            ? chargeRow.Rate
+                            : templateDefault;
+
+                    if (rate <= 0m) continue;
+
+                    total += Math.Round(qty * rate, 2);
+                }
+            }
+
+            return total;
         }
 
         private static decimal MetricValueForSpec(

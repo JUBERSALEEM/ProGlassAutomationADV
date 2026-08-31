@@ -219,6 +219,59 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         public string OverallMarginDisplay => $"{OverallMarginPercent:0.#}%";
 
+        private decimal _averageMarginPercent;
+        /// <summary>
+        /// Simple average of the Margin % shown on the displayed, costed rows:
+        /// Σ (row MarginPercent) ÷ number of valid rows. No amount-based
+        /// math — this deliberately weights every job equally, which is a
+        /// different question from OverallMarginPercent (portfolio
+        /// TotalProfit ÷ TotalNet, which Large jobs dominate).
+        /// </summary>
+        public decimal AverageMarginPercent
+        {
+            get => _averageMarginPercent;
+            private set
+            {
+                if (_averageMarginPercent == value) return;
+                _averageMarginPercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AverageMarginDisplay));
+                OnPropertyChanged(nameof(IsAverageLoss));
+            }
+        }
+
+        private int _averageMarginCount;
+        /// <summary>How many rows contributed to the average (0 = no valid rows).</summary>
+        public int AverageMarginCount
+        {
+            get => _averageMarginCount;
+            private set
+            {
+                if (_averageMarginCount == value) return;
+                _averageMarginCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AverageMarginDisplay));
+                OnPropertyChanged(nameof(IsAverageLoss));
+            }
+        }
+
+        /// <summary>
+        /// "12.3%" when at least one valid row exists; "—" when every
+        /// displayed row is uncosted or the list is empty.
+        /// </summary>
+        public string AverageMarginDisplay => AverageMarginCount > 0
+            ? $"{AverageMarginPercent:0.#}%"
+            : "—";
+
+        /// <summary>
+        /// True when the AVERAGE itself is negative. Deliberately NOT the
+        /// portfolio's IsPortfolioLoss: a net-loss portfolio can still have
+        /// a positive average margin (and vice versa), so the colour on this
+        /// tile must mirror the number it displays.
+        /// </summary>
+        public bool IsAverageLoss => AverageMarginCount > 0
+            && AverageMarginPercent < 0m;
+
         /// <summary>True when the portfolio total is negative.</summary>
         public bool IsPortfolioLoss => TotalProfit < 0m;
 
@@ -665,6 +718,16 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             // Step 9 would show for that single PI.
             OverallMarginPercent = TotalNet > 0m
                 ? Math.Round((TotalProfit * 100m) / TotalNet, 1)
+                : 0m;
+
+            // Average Margin %: only the Margin % figures of the displayed
+            // VALID rows (costed rows carry a real Step 9 margin; uncosted
+            // rows have no margin and are excluded). Rows are never
+            // weighted by Net/Cost/Profit amount, so this is a plain mean
+            // of percentages. Zero valid rows → "—".
+            AverageMarginCount = costedRows.Count;
+            AverageMarginPercent = costedRows.Count > 0
+                ? Math.Round(costedRows.Average(r => r.MarginPercent), 1)
                 : 0m;
 
             OnPropertyChanged(nameof(IsPortfolioLoss));
