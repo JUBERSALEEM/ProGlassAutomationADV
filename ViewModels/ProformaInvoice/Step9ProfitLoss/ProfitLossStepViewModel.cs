@@ -1190,7 +1190,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             string basis =
                 $"{rowCount} line(s) from {groupCount} spec group(s) · " +
                 $"glass costed at {CostBasisLabel} · " +
-                $"SGU glass = required SQM + {WastagePercent:0.#}% wastage, cutting and tempering separate · " +
+                $"SGU glass = required SQM + {WastagePercent:0.#}% wastage (Step 6 SHEET QTY wins when set), cutting and tempering separate · " +
                 $"active Step 6 charges plus advanced inferred charges are included as cost lines · " +
                 $"Step 6 wastage rows are excluded until optimization/utilization is implemented · " +
                 $"multi-pane builds still round to whole sheets · VAT stripped at 5%.";
@@ -1880,38 +1880,43 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             //
             //  The operator's SHEET QTY box on the matching wastage row is
             //  authoritative for this pane's quantity (and therefore its
-            //  glass cost). A DISABLED wastage row still owns the setup
-            //  quantity — IsActive only controls whether the wastage CHARGE
-            //  is added to production cost. No match keeps the existing
-            //  Sheet Store / SQM round-up as fallback.
+            //  glass cost) for EVERY pane type — SGU included. SGU panes
+            //  keep the "priced by required area" basis only when no wastage
+            //  row claims them; once the operator has set a sheet quantity
+            //  for the pane, the row's number wins exactly as it does for
+            //  DGU / LAM / DGU+LAM panes. A DISABLED wastage row still owns
+            //  the setup quantity — IsActive only controls whether the
+            //  wastage CHARGE is added to production cost. No match keeps
+            //  the existing Sheet Store / SQM round-up as fallback.
             // ══════════════════════════════════════════════════════════════
-            if (!priceByRequiredArea)
+            int setupQty = ResolveStep6WastageSheetQuantity(specNumber, side);
+            if (setupQty > 0)
             {
-                int setupQty = ResolveStep6WastageSheetQuantity(specNumber, side);
-                if (setupQty > 0)
-                {
-                    sheets = setupQty;
-                    fromStep6Setup = true;
-                }
+                sheets = setupQty;
+                fromStep6Setup = true;
             }
 
-            decimal quantity = priceByRequiredArea
-                ? Math.Round(needed, 2)
-                : sheets;
+            decimal quantity = fromStep6Setup
+                ? sheets
+                : priceByRequiredArea
+                    ? Math.Round(needed, 2)
+                    : sheets;
 
             decimal amount = 0m;
             if (unitRate > 0m)
             {
-                amount = priceByRequiredArea
-                    ? Math.Round(needed * unitRate, 2)
-                    : Math.Round(sheetSqm * sheets * unitRate, 2);
+                amount = fromStep6Setup
+                    ? Math.Round(sheetSqm * sheets * unitRate, 2)
+                    : priceByRequiredArea
+                        ? Math.Round(needed * unitRate, 2)
+                        : Math.Round(sheetSqm * sheets * unitRate, 2);
             }
 
             string detail = unitRate > 0m
-                ? priceByRequiredArea
-                    ? $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm · priced by required area · {source}"
-                    : fromStep6Setup
-                        ? $"{cutSqm:0.##} sqm → {sheets} sheet(s) · SHEET QTY from Step 6 wastage setup · {source}"
+                ? fromStep6Setup
+                    ? $"{cutSqm:0.##} sqm → {sheets} sheet(s) · SHEET QTY from Step 6 wastage setup · {source}"
+                    : priceByRequiredArea
+                        ? $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm · priced by required area · {source}"
                         : $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm → {sheets} sheet(s) · {source}"
                 : "UNPRICED — not in Sheet Store and no Step 4 rate · not included in profit";
 

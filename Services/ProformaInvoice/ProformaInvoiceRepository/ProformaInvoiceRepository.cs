@@ -379,6 +379,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<List<SavedProformaInvoice>> GetByStatusAsync(
+            string status,
+            CancellationToken cancellationToken = default)
+        {
+            using var db = new ProformaInvoicesDbContext();
+            return await db.ProformaInvoices
+                .AsNoTracking()
+                .Where(x => x.Status == status)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync(cancellationToken);
+        }
+
         /// <summary>
         /// PERF-9: list-page projection — see the interface contract.
         /// Never touches FullSnapshotJson; the Saved Invoices list only

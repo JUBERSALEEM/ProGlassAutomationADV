@@ -54,6 +54,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Returns only invoices whose stored Status matches, ordered by
+        /// CreatedAt DESC. Uses the indexed Status column so callers that
+        /// need the full snapshot (e.g. Job Profitability) never materialise
+        /// the FullSnapshotJson blob for drafts / sent / cancelled rows.
+        /// </summary>
+        Task<List<SavedProformaInvoice>> GetByStatusAsync(
+            string status,
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// PERF-2: analytics-only projection for dashboards.
         ///
         /// GetAllAsync materialises every column of every row, including

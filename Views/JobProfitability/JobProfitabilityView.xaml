@@ -241,10 +241,11 @@
                 </Border.Style>
                 <StackPanel>
                     <TextBlock Text="{Binding TotalProfitLabel}" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <!-- No green: profit is reported neutrally; only losses
+                         carry colour (red). -->
                     <TextBlock Text="{Binding TotalProfitDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
-                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPortfolioLoss}" Value="True">
                                         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -258,7 +259,7 @@
 
             <!-- Overall Profit Margin % -->
             <Border Grid.Column="6"
-                    ToolTip="Overall portfolio margin: (Total Profit ÷ Total Net) × 100.&#x0a;Calculated from totals, not averaged from individual margins.&#x0a;Can exceed ±100% when costs greatly exceed revenue.">
+                    ToolTip="Overall portfolio margin for PI-confirmed jobs: (Total Profit ÷ Total Net) × 100.&#x0a;Same formula Step 9 uses for one PI, applied to the portfolio totals.&#x0a;Calculated from totals, not averaged from individual margins.&#x0a;Can exceed ±100% when costs greatly exceed revenue.">
                 <Border.Style>
                     <Style TargetType="Border" BasedOn="{StaticResource JpTileStyle}">
                         <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
@@ -272,10 +273,11 @@
                 </Border.Style>
                 <StackPanel>
                     <TextBlock Text="OVERALL PROFIT MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <!-- No green: margin is reported neutrally; only a
+                         loss-making portfolio carries colour (red). -->
                     <TextBlock Text="{Binding OverallMarginDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
-                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsPortfolioLoss}" Value="True">
                                         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -415,14 +417,15 @@
                                                    HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
-                                        <!-- Profit green, loss red -->
+                                        <!-- Profit neutral (no green);
+                                             loss red, stale amber,
+                                             uncosted muted -->
                                         <TextBlock Grid.Column="6"
                                                    Text="{Binding ProfitDisplay}"
                                                    HorizontalAlignment="Right">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource JpCellStyle}">
                                                     <Setter Property="FontWeight" Value="Bold"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsLoss}" Value="True">
                                                             <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -452,7 +455,6 @@
                                                    ToolTip="{Binding RecalculationWarning}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource JpCellStyle}">
-                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsLoss}" Value="True">
                                                             <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -487,7 +489,7 @@
                                    FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="Save a proforma invoice, or clear the filters above."
+                        <TextBlock Text="No saved proforma has been marked PI confirmed yet — confirm one first, or clear the filters above."
                                    FontSize="{StaticResource TextBody}"
                                    HorizontalAlignment="Center"
                                    Margin="0,4,0,0"

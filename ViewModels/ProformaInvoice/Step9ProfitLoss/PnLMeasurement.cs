@@ -66,7 +66,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>
         /// Required glass area after wastage is applied. This is the SGU
         /// costing basis requested by the business: price the glass by SQM,
-        /// then add cutting and tempering as separate SQM-based rows.
+        /// then add cutting and tempering as separate SQM-based rows. When
+        /// the operator has set a SHEET QTY on the matching Step 6 wastage
+        /// row, that row's quantity wins over this SQM estimate (see
+        /// ProfitLossStepViewModel.BuildGlassRowAsync).
         /// </summary>
         public static decimal AreaWithWastage(decimal cutSqm, decimal wastagePercent)
         {

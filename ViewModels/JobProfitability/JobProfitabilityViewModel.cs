@@ -5,23 +5,29 @@
 //
 // WHAT IT IS
 //   A portfolio view of the Step 9 Profit & Loss data. Step 9 answers
-//   "is THIS invoice profitable?"; this module answers "which jobs,
-//   customers and salesmen are making us money?" across every saved
-//   proforma at once.
+//   "is THIS invoice profitable?"; this module answers "which confirmed
+//   jobs, customers and salesmen are making us money?".
 //
 // DATA SOURCE
-//   App.Invoices.GetAllAsync() → for each SavedProformaInvoice the stored
-//   FullSnapshotJson is deserialized through
-//   ProformaInvoiceMapper.DeserializeSnapshot() (which already swallows
-//   malformed JSON and returns an empty snapshot). Rows therefore appear
-//   even for invoices saved BEFORE Step 9 existed — they simply show zero
-//   cost and are reported as "not costed" rather than being hidden.
+//   ONLY proforma invoices whose stored Status is "Approved" are read —
+//   that is the exact value the Saved PI list persists when the operator
+//   marks a PI as "PI Confirmed". Draft ("PI created"), Sent ("PI sent"),
+//   Rejected, Cancelled and Expired rows are never included, so the
+//   report shows only the business the customer actually confirmed.
+//
+//   Every figure on a row comes straight from the persisted Step 9 P&L:
+//   NetExVat, Profit and MarginPercent are Step 9's own numbers; cost is
+//   Step 9's TotalGlassCost + TotalProductionCost. No margin is recomputed
+//   from the invoice header, and no VAT divisor lives here.
 //
 // FILTERS
-//   CompanyFilter / SalesmanFilter — "All" plus every distinct value found
+//   CompanyFilter / SalesmanFilter / CustomerFilter — "All" plus every
+//   distinct value found among CONFIRMED PIs
 //   SearchText — matches proforma ID, customer or project (case-insensitive)
-//   Totals and the loss count always reflect the FILTERED set, so drilling
-//   into one salesman immediately re-totals for that salesman.
+//   Totals and the loss count reflect the FILTERED set, so drilling into
+//   one salesman immediately re-totals for that salesman. Uncosted rows
+//   stay visible (greyed) but are EXCLUDED from totals: including their
+//   revenue with zero profit is what used to dilute the overall margin.
 //
 // SAFETY: LoadAsync never throws. A DB failure leaves the list empty and
 // says so in StatusMessage.
@@ -46,7 +52,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public string Title { get; } = "JOB PROFITABILITY";
 
         public string Subtitle { get; } =
-            "Profit, cost and margin per proforma — sourced from the Step 9 Profit & Loss data.";
+            "Profit, cost and margin for PI-confirmed proformas only — " +
+            "figures are read straight from the Step 9 Profit & Loss snapshot.";
 
         /// <summary>Sentinel used by both filter dropdowns.</summary>
         public const string AllFilter = "All";
@@ -210,7 +217,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             }
         }
 
-        public string OverallMarginDisplay => $"{OverallMarginPercent:0.1}%";
+        public string OverallMarginDisplay => $"{OverallMarginPercent:0.#}%";
 
         /// <summary>True when the portfolio total is negative.</summary>
         public bool IsPortfolioLoss => TotalProfit < 0m;
@@ -323,8 +330,12 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Reads every saved proforma, projects it to a profitability row
-        /// and rebuilds the filter option lists. Never throws.
+        /// Reads ONLY proforma invoices whose stored Status is "Approved"
+        /// (the value the Saved PI list writes when the operator marks a PI
+        /// as "PI Confirmed" — Draft / "PI created", Sent / "PI sent",
+        /// Rejected, Cancelled and Expired never qualify), projects each to
+        /// a profitability row and rebuilds the filter option lists. Never
+        /// throws.
         /// </summary>
         public async Task LoadAsync()
         {
@@ -360,13 +371,28 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     return;
                 }
 
-                var invoices = await repo.GetAllAsync().ConfigureAwait(true);
+                // The saved entity stores the lifecycle exactly as the Saved
+                // PI list writes it: the "PI Confirmed" action persists the
+                // literal status "Approved"; everything else — Draft (shown
+                // as "PI created"), Sent (shown as "PI sent"), Rejected,
+                // Cancelled, Expired — stays out. Read the indexed Status
+                // column first so drafts / sent / cancelled rows never even
+                // leave the database with their full snapshot blob, then
+                // re-check case-insensitively so a hand-edited value can
+                // never slip in.
+                var invoices = await repo.GetByStatusAsync("Approved")
+                    .ConfigureAwait(true);
 
                 _allRows.Clear();
 
                 foreach (var inv in invoices ?? new List<Models.ProformaInvoice.SavedInvoice.SavedProformaInvoice>())
                 {
                     if (inv == null) continue;
+
+                    if (!string.Equals(
+                            inv.Status, "Approved",
+                            StringComparison.OrdinalIgnoreCase))
+                        continue;
 
                     // DeserializeSnapshot already guards malformed JSON and
                     // returns an empty snapshot rather than throwing.
@@ -378,9 +404,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     decimal production = pl?.TotalProductionCost ?? 0m;
                     decimal cost = glass + production;
 
-                    // An invoice saved before Step 9 existed has no rows and
-                    // no totals — flag it instead of pretending it is pure
-                    // profit.
+                    // An invoice confirmed before Step 9 existed has no rows
+                    // and no totals — flag it instead of pretending it is
+                    // pure profit.
                     // ══════════════════════════════════════════════════
                     //  WHY COST / PROFIT / MARGIN CAME BACK EMPTY
                     //
@@ -414,47 +440,33 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
 
                     // ══════════════════════════════════════════════════
-                    //  PROFIT MUST BE DERIVED FROM THE SAME NET IT IS
-                    //  SHOWN AGAINST.
+                    //  JOB PROFITABILITY READS STEP 9 — IT DOES NOT
+                    //  RECOMPUTE.
                     //
-                    //  The previous code substituted `net` from the invoice
-                    //  header when the Step 9 snapshot had none, but kept
-                    //  `profit` from the snapshot - which Step 9 had computed
-                    //  against its own NetExVat of zero. Profit and net then
-                    //  came from different bases and margin divided one by
-                    //  the other.
+                    //  Step 9 is the single source of truth for money:
+                    //  NetExVat, Profit and MarginPercent are persisted in
+                    //  the snapshot as they were shown to the user, and
+                    //  Step 9's own margin is Profit ÷ NetExVat (already
+                    //  rounded to one decimal in the snapshot).
                     //
-                    //  Worked example: header gross 10,500 (net 10,000),
-                    //  cost 500, snapshot net 0 so snapshot profit -500.
-                    //  The row showed net 10,000 / profit -500 / -5% and
-                    //  flagged a LOSS, when the job actually made 9,500 at
-                    //  95%. A profitable job reported as loss-making.
+                    //  The previous pattern recomputed here — it divided the
+                    //  invoice header gross by 1.05 for step 9's net and
+                    //  derived profit from net − cost, then re-derived margin
+                    //  from those two. Step 9 stores the same numbers, so
+                    //  this module could quote a DIFFERENT margin than the
+                    //  user saw when the costing was taken (the header is
+                    //  re-editable after Step 9, snapshots can be stale, and
+                    //  Step 9 rounds profit/net before persisting it). No
+                    //  VAT divisor or margin formula lives here any more.
                     //
-                    //  Rule now: if the snapshot's own net is usable, trust
-                    //  the snapshot's profit with it. Otherwise recompute
-                    //  profit from the SAME header-derived net, so the two
-                    //  numbers always agree.
+                    //  Uncosted (confirmed before Step 9 existed, no rows, no
+                    //  totals) → net/profit/margin 0 with the greyed "not
+                    //  costed" treatment and EXCLUSION from totals, instead
+                    //  of a header-derived guess.
                     // ══════════════════════════════════════════════════
-                    decimal snapshotNet = pl?.NetExVat ?? 0m;
-                    decimal net;
-                    decimal profit;
-
-                    if (snapshotNet > 0m)
-                    {
-                        net = snapshotNet;
-                        profit = costed ? pl!.Profit : 0m;
-                    }
-                    else
-                    {
-                        // No usable net in the snapshot - fall back to the
-                        // invoice header for BOTH figures.
-                        net = Math.Round(inv.GrandTotalVatInclusive / 1.05m, 2);
-                        profit = costed ? Math.Round(net - cost, 2) : 0m;
-                    }
-
-                    decimal margin = costed && net > 0m
-                        ? Math.Round(profit / net * 100m, 1)
-                        : 0m;
+                    decimal net = costed ? pl!.NetExVat : 0m;
+                    decimal profit = costed ? pl!.Profit : 0m;
+                    decimal margin = costed ? pl!.MarginPercent : 0m;
 
                     _allRows.Add(new JobProfitabilityRow
                     {
@@ -621,29 +633,39 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         private void RecalculateTotals(List<JobProfitabilityRow> rows)
         {
-            TotalNet = Math.Round(rows.Sum(r => r.NetExVat), 2);
-            TotalCost = Math.Round(rows.Sum(r => r.TotalCost), 2);
-            TotalProfit = Math.Round(rows.Sum(r => r.Profit), 2);
+            // ONLY costed rows enter the totals. Uncosted (confirmed before
+            // Step 9 existed) rows carry zero profit AND zero net now, so
+            // even their exclusion from the sum is already reflected — but
+            // the filter keeps the intent explicit: a job with no P&L data
+            // must never dilute the portfolio margin or the loss count.
+            var costedRows = rows.Where(r => r.IsCosted).ToList();
+
+            TotalNet = Math.Round(costedRows.Sum(r => r.NetExVat), 2);
+            TotalCost = Math.Round(costedRows.Sum(r => r.TotalCost), 2);
+            TotalProfit = Math.Round(costedRows.Sum(r => r.Profit), 2);
             LossCount = rows.Count(r => r.IsLoss);
 
-            // Overall profit margin: (TotalProfit / TotalNet) * 100
-            // Same formula as Step 4/9: profit as percentage of net revenue
-            // 
-            // IMPORTANT: This is calculated from the TOTALS, not averaged from
-            // individual margins. This is the correct portfolio-level margin.
+            // Overall portfolio margin uses EXACTLY the Step 9 per-PI
+            // formula applied to the totals:
+            //     Margin% = Profit ÷ NetExVat × 100
+            // Step 9's own margin (ProfitLossStepViewModel) is
+            // Profit / NetExVat * 100 rounded to one decimal; summing
+            // Step 9's net and Step 9's profit first, then applying the
+            // same division, is the portfolio-level equivalent.
+            //
+            // This is computed from the TOTALS, not averaged from the
+            // individual margins — an average of percentages weights tiny
+            // jobs the same as large ones. (Step 9 has no "overall"
+            // concept: it values one PI, and its margin is exactly
+            // Profit ÷ NetExVat — the same division used here.)
             //
             // Edge case: if TotalNet is very small relative to TotalProfit,
-            // the margin can exceed ±100% (e.g., net=10, profit=-121 → -1210%).
-            // This is mathematically correct but may seem unexpected.
-            if (TotalNet > 0m)
-            {
-                decimal margin = (TotalProfit * 100m) / TotalNet;
-                OverallMarginPercent = Math.Round(margin, 1);
-            }
-            else
-            {
-                OverallMarginPercent = 0m;
-            }
+            // the margin can exceed ±100% (e.g., net=10, profit=-121 →
+            // -1210%). This is mathematically correct and matches what
+            // Step 9 would show for that single PI.
+            OverallMarginPercent = TotalNet > 0m
+                ? Math.Round((TotalProfit * 100m) / TotalNet, 1)
+                : 0m;
 
             OnPropertyChanged(nameof(IsPortfolioLoss));
         }
@@ -651,14 +673,14 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         private string BuildStatus(List<JobProfitabilityRow> rows)
         {
             if (_allRows.Count == 0)
-                return "No saved proforma invoices yet.";
+                return "No PI-confirmed proforma invoices yet.";
 
             if (rows.Count == 0)
-                return "No jobs match the current filters.";
+                return "No PI-confirmed jobs match the current filters.";
 
             int uncosted = rows.Count(r => !r.IsCosted);
 
-            string basis = $"{rows.Count} of {_allRows.Count} job(s) shown.";
+            string basis = $"{rows.Count} of {_allRows.Count} PI-confirmed job(s) shown.";
 
             // Stale costings first: an overstated profit is more dangerous
             // than a blank one, because it looks like a real number.

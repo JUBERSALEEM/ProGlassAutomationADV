@@ -2,7 +2,7 @@
 // FILE: Agent/Tools/Read/GetProfitabilityTool.cs
 // PROJECT: ProGlassAutomation — ProGlass Agent (PHASE N)
 //
-// READ-ONLY profit lookup over saved proforma invoices.
+// READ-ONLY profit lookup over PI-confirmed proforma invoices.
 //
 // WHY THIS TOOL EXISTS
 //   The agent could search invoices, jobs, deliveries, customers, stock
@@ -11,9 +11,19 @@
 //   Step 9 computes it and the mapper persists it — so this tool reads it
 //   rather than recalculating and risking a second, disagreeing answer.
 //
+// SCOPE (mirrors the Job Profitability module)
+//   Only proforma invoices whose stored Status is "Approved" are
+//   reportable — the exact value the Saved PI list persists when the
+//   operator marks a PI as "PI Confirmed". Drafts ("PI created"), PI
+//   sent, rejected, cancelled and expired PIs are never quoted as
+//   profit.
+//
 // TRUTHFULNESS RULES OBSERVED HERE
-//   • An invoice saved before Step 9 existed has NO cost data. Reporting
-//     it as 100% margin would be a lie, so it is reported as "not costed".
+//   • Net, profit and margin are READ from the persisted Step 9 P&L
+//     snapshot — nothing is recomputed from the invoice header.
+//   • An invoice confirmed before Step 9 existed has NO cost data.
+//     Reporting it as 100% margin would be a lie, so it is reported as
+//     "not costed".
 //   • A repository failure says so, instead of returning "no results",
 //     which would read as "you have no profitable jobs".
 //   • Losses are stated as losses, not as negative profit buried in a
@@ -34,7 +44,7 @@ using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Agent.Tools.Read
 {
-    /// <summary>Reports profit and margin for saved proforma invoices.</summary>
+    /// <summary>Reports profit and margin for PI-confirmed proformas.</summary>
     public sealed class GetProfitabilityTool : IAgentTool
     {
         private const int MaxRows = 8;
@@ -43,8 +53,8 @@ namespace ProGlassAutomation.Agent.Tools.Read
         {
             Name = "get_profitability",
             Description =
-                "Profit, cost and margin for a saved proforma invoice, " +
-                "or the worst-performing jobs",
+                "Profit, cost and margin for a PI-confirmed proforma invoice, " +
+                "or the worst-performing confirmed jobs",
             Risk = ToolRisk.Read,
             RequiredPermission = AppPermissions.ProformaView
         };
@@ -59,16 +69,27 @@ namespace ProGlassAutomation.Agent.Tools.Read
                 if (repo == null)
                     return ReadToolHelpers.Unavailable("saved invoices");
 
-                var invoices = await repo.GetAllAsync().ConfigureAwait(false);
+                // Only stored "Approved" PIs are PI-confirmed — that is the
+                // exact value the Saved PI list persists for the "PI
+                // Confirmed" action. Filter at the indexed Status column
+                // first; drafts, PI sent and cancelled rows never leave the
+                // database, then re-check case-insensitively in memory.
+                var invoices = await repo.GetByStatusAsync("Approved")
+                    .ConfigureAwait(false);
                 if (invoices == null)
-                    return ReadToolHelpers.Unavailable("saved invoices");
+                    return ReadToolHelpers.Unavailable("PI-confirmed invoices");
 
                 var costed = new List<JobProfit>();
                 int uncosted = 0;
 
-                foreach (var inv in invoices)
+                foreach (var inv in invoices ?? new List<SavedProformaInvoice>())
                 {
                     if (inv == null) continue;
+
+                    if (!string.Equals(
+                            inv.Status, "Approved",
+                            StringComparison.OrdinalIgnoreCase))
+                        continue;
 
                     // Same read path Job Profitability uses, so the agent and
                     // the module can never quote different numbers.
@@ -87,37 +108,19 @@ namespace ProGlassAutomation.Agent.Tools.Read
                         continue;
                     }
 
-                    // Mirror JobProfitabilityViewModel exactly. When the
-                    // snapshot has no usable net, BOTH net and profit come
-                    // from the invoice header - never one from each, which
-                    // would divide figures with different bases and could
-                    // report a profitable job as a loss.
-                    decimal snapshotNet = pl!.NetExVat;
-                    decimal net;
-                    decimal profit;
-
-                    if (snapshotNet > 0m)
-                    {
-                        net = snapshotNet;
-                        profit = pl.Profit;
-                    }
-                    else
-                    {
-                        net = Math.Round(inv.GrandTotalVatInclusive / 1.05m, 2);
-                        profit = Math.Round(net - cost, 2);
-                    }
-
+                    // Mirror JobProfitabilityViewModel exactly: read Step 9's
+                    // own persisted figures. Net, profit and margin are the
+                    // snapshot's numbers — nothing is recomputed from the
+                    // invoice header and no VAT divisor exists here.
                     costed.Add(new JobProfit
                     {
                         ProformaId = inv.ProformaId ?? "",
                         Customer = inv.CustomerName ?? "",
                         Project = inv.ProjectName ?? "",
-                        Net = net,
+                        Net = pl!.NetExVat,
                         Cost = cost,
-                        Profit = profit,
-                        MarginPercent = net > 0m
-                            ? Math.Round(profit / net * 100m, 1)
-                            : 0m
+                        Profit = pl.Profit,
+                        MarginPercent = pl.MarginPercent
                     });
                 }
 
@@ -125,9 +128,10 @@ namespace ProGlassAutomation.Agent.Tools.Read
                 {
                     return ToolResult.Ok(
                         uncosted > 0
-                            ? $"None of the {uncosted} saved invoice(s) have Step 9 " +
-                              "costing yet, so I cannot report profit for any of them."
-                            : "There are no saved invoices to report on.");
+                            ? $"None of the {uncosted} PI-confirmed invoice(s) have " +
+                              "Step 9 costing yet, so I cannot report profit for " +
+                              "any of them."
+                            : "There are no PI-confirmed invoices to report on.");
                 }
 
                 // ── Specific invoice / customer / project ─────────────────
@@ -143,9 +147,9 @@ namespace ProGlassAutomation.Agent.Tools.Read
                     if (hits.Count == 0)
                     {
                         return ToolResult.Ok(
-                            $"No costed invoice matches \"{term}\". " +
+                            $"No costed PI-confirmed invoice matches \"{term}\". " +
                             (uncosted > 0
-                                ? $"{uncosted} saved invoice(s) have no Step 9 costing yet."
+                                ? $"{uncosted} PI-confirmed invoice(s) have no Step 9 costing yet."
                                 : ""));
                     }
 
@@ -201,8 +205,8 @@ namespace ProGlassAutomation.Agent.Tools.Read
 
             if (uncosted > 0)
                 sb.AppendLine(
-                    $"{uncosted} further invoice(s) have no Step 9 costing, " +
-                    "so they are excluded rather than counted as pure profit.");
+                    $"{uncosted} further PI-confirmed invoice(s) have no Step 9 " +
+                    "costing, so they are excluded rather than counted as pure profit.");
 
             return sb.ToString().TrimEnd();
         }
