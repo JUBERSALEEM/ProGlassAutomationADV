@@ -39,55 +39,64 @@ namespace ProGlassAutomation.Tests.Agent
         //  PRICE-BASED PROFIT MARGIN — the formula
         //
         //  Net Selling Amount = actual net / ex-VAT selling amount
-        //  Glass Cost         = actual glass cost
-        //  Production + ASP   = actual production/ASP, WITHOUT any
-        //                       U-insert amount already inside it
-        //  U-Insert Cost      = applicable area × rate (10/m² default)
-        //  Total Actual Cost  = Glass + Production/ASP + U-Insert
+        //  Normal SQM basis   = existing per-SQM cost basis × actual area
+        //                       (e.g. (25 + 25) ÷ 0.85 + 45 = 103.82/m²)
+        //  U-Insert Cost      = applicable area × rate (10/m² default),
+        //                       ADDED to the cost side — for the master
+        //                       prompt's job that gives 8.94%, while
+        //                       subtracting it from the price gives the
+        //                       forbidden 9.72%
+        //  Total Actual Cost  = Basis + U-Insert
         //  Actual Profit      = Net Selling − Total Actual Cost
         //  Margin %           = Actual Profit ÷ Net Selling × 100
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
-        public void Price_based_margin_uses_every_component_of_the_actual_cost()
+        public void Price_based_margin_uses_the_normal_sqm_basis_plus_u_insert()
         {
+            // Normal per-SQM basis (glass ÷ yield + production) × actual
+            // area, PLUS U-insert cost — the components of the price the
+            // customer was actually charged.
             decimal netSelling = 1000m;
-            decimal glass = 400m;
-            decimal productionAsp = 350m;
-            decimal uInsertArea = 5m;
+            decimal basisPerSqm = 103.82m;      // (25 + 25) / 0.85 + 45
+            decimal area = 8.45m;
+            decimal uInsertArea = 8.45m;
             decimal uInsertRate = 10m;
 
-            decimal totalCost = glass + productionAsp + (uInsertArea * uInsertRate);
+            decimal basis = basisPerSqm * area;
+            decimal uInsert = uInsertArea * uInsertRate;
+            decimal totalCost = basis + uInsert;
             decimal actualProfit = netSelling - totalCost;
 
             decimal margin = decimal.Round(actualProfit / netSelling * 100m, 2);
 
-            Assert.Equal(800m, totalCost);
-            Assert.Equal(200m, actualProfit);
-            Assert.Equal(20.00m, margin);
+            Assert.Equal(877.28m, decimal.Round(basis, 2));
+            Assert.Equal(84.50m, uInsert);
+            Assert.Equal(961.78m, decimal.Round(totalCost, 2));
+            Assert.Equal(38.22m, decimal.Round(actualProfit, 2));
+            Assert.Equal(3.82m, margin);
         }
 
         [Fact]
-        public void U_insert_already_inside_production_cost_is_not_counted_twice()
+        public void U_insert_is_added_to_cost_not_subtracted_from_the_selling_price()
         {
-            // Production/ASP totals 350, of which 50 is the U-insert line
-            // already booked. The Price-Based decomposition must pull that
-            // 50 out of production and re-add exactly 50 as U-Insert —
-            // never 100.
-            decimal netSelling = 1000m;
-            decimal glass = 400m;
-            decimal productionIncludingUInsert = 350m;
-            decimal uInsertInProduction = 50m;
-            decimal uInsertRecomputed = 50m;
+            // Selling 125/m², normal basis 103.82/m², U-insert 10/m²:
+            // profit is 125 − 103.82 − 10, NOT (125 − 10) − 103.82.
+            // The two give 8.94% and 9.83% — the master prompt's 8.94%
+            // requires adding U-insert to the cost side.
+            decimal sellPerSqm = 125m;
+            decimal basisPerSqm = 103.8235m;
+            decimal uInsertPerSqm = 10m;
 
-            decimal productionAsp = productionIncludingUInsert - uInsertInProduction;
-            decimal totalCost = glass + productionAsp + uInsertRecomputed;
-            decimal actualProfit = netSelling - totalCost;
+            decimal costSide = basisPerSqm + uInsertPerSqm;
+            decimal profit = sellPerSqm - costSide;
+            decimal margin = decimal.Round(profit / sellPerSqm * 100m, 2);
 
-            Assert.Equal(300m, productionAsp);
-            Assert.Equal(750m, totalCost);
-            Assert.Equal(250m, actualProfit);
-            Assert.Equal(25.00m, decimal.Round(actualProfit / netSelling * 100m, 2));
+            Assert.Equal(8.94m, margin);
+
+            decimal wrong = decimal.Round(
+                ((sellPerSqm - uInsertPerSqm) - basisPerSqm) / (sellPerSqm - uInsertPerSqm) * 100m, 2);
+            Assert.Equal(9.72m, wrong); // the forbidden "subtract from price" answer
         }
 
         [Fact]
@@ -110,31 +119,37 @@ namespace ProGlassAutomation.Tests.Agent
             // production code.
             //
             //   Net Ex-VAT Selling: 7,149.50
-            //   Glass:              3,069.56
-            //   Production + ASP:   3,145.58
+            //   Glass (sheet-qty):  3,069.56   (Outer 1,805.62 + Inner 1,263.94)
+            //   Production + ASP:   3,145.58   (Spacer 2,573.58 + U-Insert 572.00)
             //   Existing Profit:      934.36
             //
-            // Existing KPI (renamed Cost-Based):
+            // COST-BASED (existing KPI, renamed only):
             //   934.36 ÷ 7,149.50 × 100 = 13.07% ≈ 13.1%
             decimal netSelling = 7149.50m;
-            decimal glass = 3069.56m;
-            decimal productionAsp = 3145.58m;
-            decimal existingProfit = netSelling - glass - productionAsp;
+            decimal glassColumns = 3069.56m;
+            decimal productionColumns = 3145.58m;
+            decimal existingProfit = netSelling - glassColumns - productionColumns;
 
             Assert.Equal(934.36m, decimal.Round(existingProfit, 2));
             decimal existingMargin = existingProfit / netSelling * 100m;
             Assert.Equal(13.1m, decimal.Round(existingMargin, 1));
 
-            // Price-Based with U-insert: the 8.94% result implies about
-            // 29.52 m² × AED 10/m² = 295.19 applied as ADDITIONAL cost.
-            decimal uInsertArea = 29.519m;
-            decimal uInsertRate = 10m;
-            decimal uInsertCost = uInsertArea * uInsertRate;
-            decimal actualProfit = existingProfit - uInsertCost;
+            // PRICE-BASED: normal per-SQM basis (25+25)/0.85 + 45 = 103.82
+            // × actual area, plus U-INSERT (572.00 = 57.2 m² × AED 10/m²).
+            // Area 57.196: net ÷ 125 (the price the customer was charged).
+            decimal basisPerSqm = (25m + 25m) / 0.85m + 45m;
+            decimal area = netSelling / 125m;
+            decimal basis = basisPerSqm * area;
+            decimal uInsert = 10m * area;
+            decimal totalCost = basis + uInsert;
+            decimal actualProfit = netSelling - totalCost;
             decimal priceBased = decimal.Round(actualProfit / netSelling * 100m, 2);
 
             Assert.Equal(8.94m, priceBased);
             Assert.True(priceBased < existingMargin); // U-insert reduces it
+
+            // Evidence the components match the screen: U-insert ≈ 572.00.
+            Assert.Equal(572.00m, decimal.Round(uInsert, 2));
         }
 
         [Fact]
@@ -245,6 +260,8 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("PriceBasedActualProfit", src);
             Assert.Contains("PriceBasedTotalActualCost", src);
             Assert.Contains("PriceBasedUInsertCost", src);
+            Assert.Contains("PriceBasedBasisCost", src);        // normal SQM basis × area
+            Assert.Contains("QuoteBasisFor", src);              // existing per-SQM basis
             Assert.Contains("ComputePriceBasedUInsertCost", src);
             Assert.Contains("uInsertInProduction", src);
             Assert.Contains("PredefinedChargeTemplates", src);

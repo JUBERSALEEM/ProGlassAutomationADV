@@ -474,10 +474,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// </summary>
         public decimal PriceBasedUInsertCost { get; private set; }
 
-        /// <summary>Production and ASP cost WITHOUT the U-insert portion (added separately above).</summary>
-        public decimal PriceBasedProductionAspCost { get; private set; }
+        /// <summary>
+        /// Glass + Production + ASP at the job's NORMAL pre-margin per-SQM
+        /// basis (existing QuoteBasisFor × actual area), WITHOUT the U-insert
+        /// portion — the number a quoted rate is measured against. When no
+        /// Step 4 panel exists this falls back to the actual P&L rows.
+        /// </summary>
+        public decimal PriceBasedBasisCost { get; private set; }
 
-        /// <summary>Glass + Production/ASP + U-Insert.</summary>
+        /// <summary>Glass + Production/ASP (normal basis) + U-Insert.</summary>
         public decimal PriceBasedTotalActualCost { get; private set; }
 
         /// <summary>Net Selling Amount − Total Actual Cost.</summary>
@@ -1217,44 +1222,61 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     ? Math.Round(Profit / NetExVat * 100m, 1)
                     : 0m;
 
-                // ── PRICE-BASED PROFIT MARGIN (actual data) ────────────────
+                // ── PRICE-BASED PROFIT MARGIN (normal SQM price basis) ─────
                 //
-                //  Cost-based (above) measures profit against what the job
-                //  cost; price-based measures it against what the customer
-                //  was actually charged:
+                //  Cost-based measures profit against what the job ACTUALLY
+                //  cost (the sheet-quantity rows shown on the P&L).
+                //  Price-based measures it against the NORMAL per-SQM price
+                //  basis the quote was derived from — (sheet1 + sheet2) ÷
+                //  yield + production (existing QuoteBasisFor) — and the
+                //  customer's actual net selling price:
                 //
                 //    Net Selling Amount   = NetExVat (actual)
-                //    Glass Cost           = TotalGlassCost (actual)
-                //    Production + ASP     = TotalProductionCost minus any
-                //                            U-insert already inside it
+                //    Glass + Prod + ASP   = existing QuoteBasisFor × actual
+                //                            area (per specification)
                 //    U-Insert Cost        = applicable U-insert area × rate
                 //                            (reuses the existing U-insert
-                //                            logic; 10/m² comes from the
-                //                            template default, never from a
+                //                            logic; AED 10/m² comes from the
+                //                            template default — never a
                 //                            hardcoded margin)
-                //    Total Actual Cost    = Glass + Production/ASP + U-Insert
+                //    Total Actual Cost    = basis + U-Insert
                 //    Actual Profit        = Net Selling − Total Actual Cost
                 //    Price-Based Margin % = Actual Profit ÷ Net Selling × 100
                 //
-                //  The U-insert is re-derived from the spec groups even when
-                //  its Step 6 charge row was left inactive, so a job whose
-                //  quote carries a U-Insert extra is never reported with an
-                //  overstated margin.
+                //  The U-insert is an ADDITIONAL cost inside the selling
+                //  price — it is never subtracted from the price. It is
+                //  re-derived from the spec groups even when its Step 6
+                //  charge row was left inactive, so a job whose quote
+                //  carries a U-Insert extra is never reported with an
+                //  overstated margin. When the normal basis is unavailable
+                //  (no Step 4 panel), the actual P&L rows minus the booked
+                //  U-insert are used instead, so the KPI can never
+                //  UNDERSTATE the cost either.
                 // ══════════════════════════════════════════════════════════
-                // Auto-detection (via the spec name + metric hub) is the
-                // primary source for the U-insert area. When the metric hub
-                // is unavailable the amount actually booked into production
-                // cost is used, so the KPI can never UNDERSTATE the U-insert
-                // cost it is supposed to account for.
+                decimal basisTotal = 0m;
+                foreach (var group in groups)
+                {
+                    if (!specBases.TryGetValue(group.GroupNumber, out decimal basis))
+                        continue;
+                    if (!specAreas.TryGetValue(group.GroupNumber, out decimal area))
+                        continue;
+                    if (basis <= 0m || area <= 0m) continue;
+                    basisTotal += Math.Round(basis * area, 2);
+                }
+
                 decimal computedUInsert = ComputePriceBasedUInsertCost();
                 PriceBasedUInsertCost = computedUInsert > 0m
                     ? Math.Round(computedUInsert, 2)
                     : Math.Round(uInsertInProduction, 2);
-                PriceBasedProductionAspCost = Math.Max(
-                    0m,
-                    Math.Round(TotalProductionCost - Math.Round(uInsertInProduction, 2), 2));
+
+                PriceBasedBasisCost = basisTotal > 0m
+                    ? Math.Round(basisTotal, 2)
+                    : Math.Max(0m, Math.Round(
+                        TotalGlassCost + TotalProductionCost
+                        - Math.Round(uInsertInProduction, 2), 2));
+
                 PriceBasedTotalActualCost = Math.Round(
-                    TotalGlassCost + PriceBasedProductionAspCost + PriceBasedUInsertCost, 2);
+                    PriceBasedBasisCost + PriceBasedUInsertCost, 2);
                 PriceBasedActualProfit = Math.Round(NetExVat - PriceBasedTotalActualCost, 2);
                 PriceBasedMarginPercent = NetExVat > 0m
                     ? Math.Round(PriceBasedActualProfit / NetExVat * 100m, 2)
