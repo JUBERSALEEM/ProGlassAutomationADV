@@ -112,7 +112,7 @@
                     <Button Style="{StaticResource OutlinedPillButton}"
                             Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
                             ToolTip="{DynamicResource ProformaInvoice.CloseWithoutUploading}"
-                            Click="OnCancelClick"
+                            
                             IsCancel="True"/>
                 </StackPanel>
             </Border>

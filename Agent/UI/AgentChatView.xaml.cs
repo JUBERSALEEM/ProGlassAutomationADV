@@ -80,24 +80,5 @@ namespace ProGlassAutomation.Agent.UI
         /// Enter sends. Shift+Enter is deliberately ignored here so it can
         /// become a newline later without changing this contract.
         /// </summary>
-        private void InputBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key != Key.Enter) return;
-            if ((Keyboard.Modifiers & ModifierKeys.Shift) == ModifierKeys.Shift) return;
-
-            try
-            {
-                if (DataContext is AgentChatViewModel vm
-                    && vm.SendCommand?.CanExecute(null) == true)
-                {
-                    vm.SendCommand.Execute(null);
-                    e.Handled = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Debug($"[AgentChatView] send key failed: {ex.Message}");
-            }
         }
-    }
 }

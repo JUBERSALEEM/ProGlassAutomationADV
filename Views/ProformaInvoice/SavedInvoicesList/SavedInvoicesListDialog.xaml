@@ -53,7 +53,7 @@
                         Style="{StaticResource OutlinedPillButton}"
                         Tag="&#xE711;" Content="{DynamicResource Action.Close}"
                         ToolTip="{DynamicResource Action.Close}"
-                        Click="OnCloseClick"/>
+                        IsCancel="True"/>
             </Grid>
         </Border>
     </Grid>

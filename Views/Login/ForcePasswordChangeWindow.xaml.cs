@@ -98,12 +98,6 @@ namespace ProGlassAutomation.Views.Login
             }
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            PasswordChanged = false;
-            DialogResult = false;
-        }
-
         private void PasswordBox_Reset()
         {
             NewPasswordBox.Clear();

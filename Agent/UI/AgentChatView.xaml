@@ -317,8 +317,11 @@
                                  VerticalAlignment="Center"
                                  VerticalContentAlignment="Center"
                                  AcceptsReturn="False"
-                                 KeyDown="InputBox_KeyDown"
-                                 ToolTip="Ask a question, or teach: whenever I say X, open Y"/>
+                                 ToolTip="Ask a question, or teach: whenever I say X, open Y">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Modifiers="None" Command="{Binding SendCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
                     </Border>
 
                     <!-- Circular send, matching AiChatView's SendBtn (42px,

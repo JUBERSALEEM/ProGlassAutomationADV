@@ -245,7 +245,7 @@
                             Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
                             Margin="0,0,10,0"
                             ToolTip="{DynamicResource ProformaInvoice.CloseWithoutChangingStatus}"
-                            Click="OnCancelClick"
+                            
                             IsCancel="True"/>
                     <Button Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE73E;" Content="{DynamicResource ProformaInvoice.ApproveInvoice}"

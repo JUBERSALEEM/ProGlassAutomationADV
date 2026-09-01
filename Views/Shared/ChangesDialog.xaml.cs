@@ -35,9 +35,5 @@ namespace ProGlassAutomation.Views.Shared
             dialog.ShowDialog();
         }
 
-        private void OnCloseClick(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
-    }
 }

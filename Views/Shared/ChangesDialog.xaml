@@ -129,7 +129,7 @@
                 Padding="22,9"
                 Cursor="Hand"
                 BorderThickness="0"
-                Click="OnCloseClick">
+                IsCancel="True">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{DynamicResource AccentBrush}"

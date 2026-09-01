@@ -101,9 +101,5 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             Close();
         }
 
-        private void OnCloseClick(object sender, RoutedEventArgs e)
-        {
-            Close();
         }
-    }
 }

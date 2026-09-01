@@ -96,11 +96,6 @@ namespace ProGlassAutomation.Views.Login
             }
         }
 
-        private void Cancel_Click(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-        }
-
         private void ShowError(string message)
         {
             ErrorText.Text = message;

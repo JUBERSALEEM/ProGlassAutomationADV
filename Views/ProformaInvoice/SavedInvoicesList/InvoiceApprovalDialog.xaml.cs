@@ -100,10 +100,5 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             DialogResult = true;
         }
 
-        private void OnCancelClick(object sender, RoutedEventArgs e)
-        {
-            Approved = false;
-            DialogResult = false;
         }
-    }
 }

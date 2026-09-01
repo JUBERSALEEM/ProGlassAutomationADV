@@ -134,7 +134,7 @@
                             Tag="&#xEDE1;"
                             Height="32" MinWidth="96" Margin="0,0,10,0"
                             VerticalAlignment="Center"
-                            Click="ExportMenuButton_Click"
+                            behaviors:ContextMenuButtonBehavior.Menu="{Binding ContextMenu, RelativeSource={RelativeSource Self}}"
                             ToolTip="{DynamicResource Dg.ExportCutList}"
                             Content="{DynamicResource Dg.Export}">
                         <Button.ContextMenu>
