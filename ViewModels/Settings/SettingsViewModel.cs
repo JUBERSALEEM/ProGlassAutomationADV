@@ -49,14 +49,16 @@ namespace ProGlassAutomation.ViewModels.Settings
         private readonly IDialogService _dialogs = null!;
         private readonly ISpeechToTextService _speechToText = null!;
         private readonly IDatabaseServices _database = null!;
+        private readonly Services.AI.IAiProviderEvents _providerEvents = null!;
 
-        public SettingsViewModel(IAiService? ai, AppConfig? config, IDialogService? dialogs, ISpeechToTextService? speechToText, IDatabaseServices? database)
+        public SettingsViewModel(IAiService? ai, AppConfig? config, IDialogService? dialogs, ISpeechToTextService? speechToText, IDatabaseServices? database, Services.AI.IAiProviderEvents? providerEvents = null)
         {
             _ai = ai!;
             _config = config!;
             _dialogs = dialogs!;
             _speechToText = speechToText!;
             _database = database!;
+            _providerEvents = providerEvents ?? new Services.AI.AiProviderEvents();
         }
 
         // Phase 4: Named handlers for static events — detachable
@@ -1397,7 +1399,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     _config.Ai.ActiveProvider = value;
                     SaveConfig();
                     _ai = AiProviderFactory.CreateActive(_config.Ai);
-                    App.RaiseAiProviderChanged();
+                    _providerEvents.RaiseChanged();
 
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsGeminiActive));

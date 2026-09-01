@@ -42,6 +42,7 @@ namespace ProGlassAutomation.ViewModels.AI
         // Now mutable + swapped safely in the ModelLoadFailed handler.
         private ISpeechToTextService _stt;
         private readonly ITextToSpeechService _tts;
+        private readonly Services.AI.IAiProviderEvents _providerEvents;
 
         private string _currentInput;
         private bool _isBusy;
@@ -209,12 +210,14 @@ public AiChatViewModel(
             IConnectivityService? connectivity,
             IAiService ai,
             ISpeechToTextService stt = null,
-            ITextToSpeechService tts = null)
+            ITextToSpeechService tts = null,
+            Services.AI.IAiProviderEvents? providerEvents = null)
         {
             _config = config!;
             _connectivity = connectivity!;
             _stt = stt;
             _tts = tts;
+            _providerEvents = providerEvents ?? new Services.AI.AiProviderEvents();
 
             // ── Wire Whisper events (all Dispatcher-marshaled) ────────
             if (_stt is WhisperSpeechService whisper)
@@ -331,7 +334,7 @@ public AiChatViewModel(
             // 2026-08-25: named handler instead of an anonymous lambda —
             // anonymous subscriptions to static events are invisible in
             // audits and impossible to detach.
-            App.AiProviderChanged += OnAiProviderChanged;
+            _providerEvents.Changed += OnAiProviderChanged;
 
             // ══════════════════════════════════════════════════════════
             //  TEXT COMMANDS

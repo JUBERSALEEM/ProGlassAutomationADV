@@ -8,6 +8,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Behaviors;
+using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
@@ -801,6 +802,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
+        /// <summary>
+        /// Injected specifications store (replaces the App-level static).
+        /// Set by DataGridViewModel when it creates the group.
+        /// </summary>
+        public ISpecificationsRepository? Specifications { get; set; }
+
         public SpecGroup()
         {
             _filteredSpecsView = CollectionViewSource.GetDefaultView(_specSource);
@@ -1380,7 +1387,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 finally { _isProgrammaticSpecChange = false; }
             }
 
-            if (string.IsNullOrWhiteSpace(_selectedGlassType) || App.Specs == null)
+            if (string.IsNullOrWhiteSpace(_selectedGlassType) || Specifications == null)
             {
                 _filteredSpecsView?.Refresh();
                 return;
@@ -1388,7 +1395,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
             try
             {
-                var specs = await App.Specs.GetAllAsync(_selectedGlassType);
+                var specs = await Specifications.GetAllAsync(_selectedGlassType);
                 if (specs != null)
                 {
                     foreach (var s in specs)
@@ -1411,7 +1418,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         private async Task LoadAllTypesFallbackAsync()
         {
-            if (_allTypeSpecsMerged || App.Specs == null) return;
+            if (_allTypeSpecsMerged || Specifications == null) return;
             _allTypeSpecsMerged = true;
 
             try
@@ -1423,7 +1430,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                             StringComparison.OrdinalIgnoreCase))
                         continue;
 
-                    var specs = await App.Specs.GetAllAsync(type);
+                    var specs = await Specifications.GetAllAsync(type);
                     if (specs == null) continue;
 
                     foreach (var s in specs)

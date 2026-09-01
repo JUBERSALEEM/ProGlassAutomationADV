@@ -63,9 +63,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
     public partial class DataGridViewModel : ViewModelBase
     {
-        public DataGridViewModel(IDialogService? dialogs)
+        public DataGridViewModel(IDialogService? dialogs, ISpecificationsRepository? specs = null)
         {
             _dialogs = dialogs!;
+            _specs = specs!;
         }
 
         public string Title { get; } = "SPECIFICATION SUB-GROUPS";
@@ -105,8 +106,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         private readonly IDialogService _dialogs = null!;
 
+        private readonly ISpecificationsRepository _specs = null!;
+
         public DataGridViewModel() : this(
-            App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService())
+            App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService(),
+            App.ServiceProvider?.GetService<ISpecificationsRepository>())
         {
             SpecGroups = new ObservableCollection<SpecGroup>();
             SpecGroups.CollectionChanged += (_, e) =>
@@ -220,7 +224,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 ImportedPrice = 0m,
                 BaseRate = 0m,
                 SurchargePercent = 0m,
-                SelectedGlassType = "SGU"
+                SelectedGlassType = "SGU",
+                Specifications = _specs
             };
 
             if (!string.IsNullOrWhiteSpace(specName))

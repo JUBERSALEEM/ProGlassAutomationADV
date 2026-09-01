@@ -73,16 +73,6 @@ namespace ProGlassAutomation
         /// </summary>
         public static IAiService Ai { get; set; }
 
-        /// <summary>
-        /// Raised when SettingsViewModel swaps the active AI provider.
-        /// AiChatViewModel subscribes to refresh its provider display.
-        /// </summary>
-        public static event EventHandler AiProviderChanged;
-
-        /// <summary>Raises AiProviderChanged so all subscribers refresh.</summary>
-        public static void RaiseAiProviderChanged() =>
-            AiProviderChanged?.Invoke(null, EventArgs.Empty);
-
         public static IConnectivityService Connectivity { get; private set; }
 
         /// <summary>
