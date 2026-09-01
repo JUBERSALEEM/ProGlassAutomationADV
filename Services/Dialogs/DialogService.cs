@@ -29,9 +29,10 @@ namespace ProGlassAutomation.Services.Dialogs
             => Create<TWindow>(ctorArgs).Show();
         public MessageBoxResult Show(string message, string? caption = null,
             MessageBoxButton button = MessageBoxButton.OK,
-            MessageBoxImage icon = MessageBoxImage.None)
+            MessageBoxImage icon = MessageBoxImage.None,
+            MessageBoxResult defaultResult = MessageBoxResult.None)
             => MessageBox.Show(message, caption ?? string.Empty,
-                button, icon);
+                button, icon, defaultResult);
 
         public void Info(string message, string? caption = null)
             => Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Information);

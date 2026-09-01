@@ -69,13 +69,12 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBox x:Name="SearchBox"
-                         Grid.Column="0"
+                <TextBox Grid.Column="0"
                          Height="38"
                          VerticalContentAlignment="Center"
                          Padding="12,0"
                          FontSize="{StaticResource TextBodyLarge}"
-                         TextChanged="OnSearchChanged"
+                         Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Background="{DynamicResource ModuleBackgroundBrush}"
                          Foreground="{DynamicResource PrimaryForegroundBrush}"
                          BorderBrush="{DynamicResource BorderBrush}"
@@ -86,25 +85,22 @@
                      from an approved quote. The toggle exists because the
                      status vocabulary (Draft/Sent/Approved/Rejected/Expired)
                      is set by hand, so a real approval can lag the paperwork. -->
-                <CheckBox x:Name="ShowAllCheck"
-                          Grid.Column="1"
+                <CheckBox Grid.Column="1"
                           Margin="14,0,0,0"
                           VerticalAlignment="Center"
                           Content="{DynamicResource JobOrder.ShowStatuses}"
                           FontSize="{StaticResource TextBody}"
                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                          Checked="OnShowAllChanged"
-                          Unchecked="OnShowAllChanged"
+                          IsChecked="{Binding ShowAll, Mode=TwoWay}"
                           ToolTip="{DynamicResource JobOrder.IncludeDraftSentRejectedExpiredQuotes}"/>
             </Grid>
 
             <!-- ── COUNT LINE ──────────────────────────────────────────── -->
-            <TextBlock x:Name="CountLabel"
-                       Grid.Row="2"
+            <TextBlock Grid.Row="2"
                        Margin="28,12,28,0"
                        FontSize="{StaticResource TextBody}"
                        Foreground="{DynamicResource MutedForegroundBrush}"
-                       Text=""/>
+                       Text="{Binding CountText}"/>
 
             <!-- ── LIST ────────────────────────────────────────────────── -->
             <ScrollViewer Grid.Row="3"
@@ -115,12 +111,11 @@
             </ScrollViewer>
 
             <!-- ── APPROVAL WARNING ────────────────────────────────────── -->
-            <Border x:Name="ApprovalWarning"
-                    Grid.Row="4"
+            <Border Grid.Row="4"
                     Margin="28,16,28,0"
                     Padding="14,12"
                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Visibility="Collapsed"
+                    Visibility="{Binding WarningVisibility}"
                     Background="{DynamicResource TintAmberBrush}"
                     BorderBrush="{DynamicResource WarningBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}">
@@ -131,8 +126,8 @@
                                VerticalAlignment="Top"
                                Margin="0,1,10,0"
                                Foreground="{DynamicResource WarningBrush}"/>
-                    <TextBlock x:Name="ApprovalWarningText"
-                               FontSize="{StaticResource TextBody}"
+                    <TextBlock FontSize="{StaticResource TextBody}"
+                               Text="{Binding WarningText}"
                                TextWrapping="Wrap"
                                MaxWidth="580"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -153,9 +148,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock x:Name="SelectedLabel"
-                               Grid.Column="0"
-                               Text="{DynamicResource JobOrder.NoSelection}"
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding SelectedLabelText}"
                                FontSize="{StaticResource TextBody}"
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
@@ -167,13 +161,12 @@
                                 MinWidth="96"
                                 Margin="0,0,10,0"
                                 IsCancel="True"/>
-                        <Button x:Name="ConfirmButton"
-                                Style="{StaticResource PrimaryPillButton}"
+                        <Button Style="{StaticResource PrimaryPillButton}"
                                 Tag="&#xE7B8;"
                                 Content="{DynamicResource JobOrder.CreateJOBOrder}"
                                 MinWidth="180"
-                                IsEnabled="False"
-                                Click="OnConfirmClick"/>
+                                IsEnabled="{Binding IsConfirmEnabled}"
+                                Command="{Binding ConfirmCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>

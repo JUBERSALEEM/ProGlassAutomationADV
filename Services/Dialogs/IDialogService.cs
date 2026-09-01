@@ -19,10 +19,14 @@ namespace ProGlassAutomation.Services.Dialogs
     /// <summary>Dialog abstraction for ViewModels (MVVM boundary).</summary>
     public interface IDialogService
     {
-        /// <summary>Generic show; same signature as MessageBox.Show.</summary>
+        /// <summary>Generic show; same signature as MessageBox.Show.
+        /// <c>defaultResult</c> (None = no explicit default) is forwarded so
+        /// Yes/No confirms can default to No (Phase 3.7 — picker override
+        /// confirm).</summary>
         MessageBoxResult Show(string message, string? caption = null,
             MessageBoxButton button = MessageBoxButton.OK,
-            MessageBoxImage icon = MessageBoxImage.None);
+            MessageBoxImage icon = MessageBoxImage.None,
+            MessageBoxResult defaultResult = MessageBoxResult.None);
 
         /// <summary>Information message (OK).</summary>
         void Info(string message, string? caption = null);
