@@ -69,7 +69,7 @@ def main() -> int:
     langs = args.langs.split(",") if args.langs else []
     files = sorted(HERE.glob("*.py"))
     codes = [f.stem for f in files
-             if not f.stem.startswith(("build", "merge", "sweep", "__"))]
+             if not f.stem.startswith(("build", "merge", "sweep", "chunk", "__"))]
 
     def current(code: str) -> dict:
         return merged_en if code == "en-US" else load_py(code)
