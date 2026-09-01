@@ -22,7 +22,7 @@
             <Setter Property="Height"                   Value="26"/>
             <Setter Property="Width"                    Value="120"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="ToolTip"                  Value="Limit the search to one module"/>
+            <Setter Property="ToolTip"                  Value="{DynamicResource ToolTip.SearchModuleFilter}"/>
         </Style>
 
         <!-- Borderless query box -->
@@ -59,7 +59,7 @@
              SEARCH PILL — module filter · query · clear
         ══════════════════════════════════════════════════════════════ -->
         <Border x:Name="SearchPill"
-                CornerRadius="14"
+                CornerRadius="{StaticResource TopPillCornerRadius}"
                 Height="36"
                 Padding="14,0,8,0"
                 VerticalAlignment="Center"
@@ -98,7 +98,7 @@
                      reads as an empty shape - it shows "Search anything..." only
                      while the query is blank. -->
                 <Grid>
-                    <TextBlock Text="Search anything..."
+                    <TextBlock Text="{DynamicResource Shell.SearchWatermark}"
                                FontSize="{StaticResource TextBody}"
                                VerticalAlignment="Center"
                                Margin="2,0,0,0"
@@ -121,7 +121,7 @@
                     <TextBox x:Name="QueryBox"
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=250}"
                              Style="{StaticResource GsInputStyle}"
-                             ToolTip="Search documents, companies and clients across every module"/>
+                             ToolTip="{DynamicResource ToolTip.SearchQuery}"/>
                 </Grid>
 
                 <Button Command="{Binding ClearCommand}"
@@ -135,7 +135,7 @@
                         Background="Transparent"
                         Foreground="{DynamicResource MutedForegroundBrush}"
                         VerticalAlignment="Center"
-                        ToolTip="Clear search">
+                        ToolTip="{DynamicResource ToolTip.ClearSearch}">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -253,12 +253,12 @@
                                        HorizontalAlignment="Center"
                                        Margin="0,0,0,8"
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <TextBlock Text="No matches"
+                            <TextBlock Text="{DynamicResource Shell.SearchNoMatches}"
                                        FontSize="{StaticResource TextBody}"
                                        FontWeight="SemiBold"
                                        HorizontalAlignment="Center"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock Text="Try a document number, customer or project name."
+                            <TextBlock Text="{DynamicResource Shell.SearchNoMatchesHint}"
                                        FontSize="{StaticResource TextCaption}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"

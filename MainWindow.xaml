@@ -617,6 +617,45 @@
                     </Border.Background>
                 </Border>
 
+                <!-- Drawer header — brand mark + close affordance
+                     (uses the long-available Shell.Menu / Shell.DrawerClose
+                     keys that the original drawer design planned). The
+                     header sits in row 0 so the accent edge stays pinned
+                     to the very top of the panel. -->
+                <Grid Grid.Row="0" Margin="16,10,12,4">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="30" Height="30"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Background="{StaticResource AvatarGradient}"
+                                Margin="0,0,10,0"
+                                SnapsToDevicePixels="True">
+                            <TextBlock Text="&#xE700;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource TextBody}"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Shell.Menu}"
+                                       FontSize="{StaticResource TextBody}"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="{DynamicResource Shell.AppSuiteTagline}"
+                                       FontSize="{StaticResource TextXSmall}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="0,1,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Button Style="{StaticResource TopIconButton}"
+                            Content="&#xE711;"
+                            Command="{Binding ToggleMenuCommand}"
+                            ToolTip="{DynamicResource Shell.DrawerClose}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"/>
+                </Grid>
+
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -633,7 +672,7 @@
                                       Focusable="False"
                                       FocusVisualStyle="{x:Null}"
                                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-                            <StackPanel Margin="0,12,0,16">
+                            <StackPanel Margin="0,6,0,16">
 
                                 <!-- MAIN -->
                                 <TextBlock Text="{DynamicResource Nav.GroupMain}"

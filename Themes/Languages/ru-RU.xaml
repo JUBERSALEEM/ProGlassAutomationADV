@@ -2440,4 +2440,13 @@
     <sys:String x:Key="Storage.Fonts">Fonts</sys:String>
     <sys:String x:Key="Storage.Other">Other files</sys:String>
 
+    <sys:String x:Key="Shell.AiAgentTitle">AI Agent</sys:String>
+    <sys:String x:Key="Shell.AiAgentSubtitle">Assistant</sys:String>
+    <sys:String x:Key="Shell.SearchWatermark">Search anything...</sys:String>
+    <sys:String x:Key="Shell.SearchNoMatches">No matches</sys:String>
+    <sys:String x:Key="Shell.SearchNoMatchesHint">Try a document number, customer or project name.</sys:String>
+    <sys:String x:Key="ToolTip.SearchModuleFilter">Limit the search to one module</sys:String>
+    <sys:String x:Key="ToolTip.SearchQuery">Search documents, companies and clients across every module</sys:String>
+    <sys:String x:Key="ToolTip.ClearSearch">Clear search</sys:String>
+
 </ResourceDictionary>

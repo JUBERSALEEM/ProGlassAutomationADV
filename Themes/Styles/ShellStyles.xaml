@@ -208,11 +208,11 @@
                                              VerticalAlignment="Center"/>
                                 </Grid>
                                 <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="AI AGENT"
+                                    <TextBlock Text="{DynamicResource Shell.AiAgentTitle}"
                                                Style="{StaticResource TopPillCaptionStyle}"
                                                FontWeight="Bold"
                                                Foreground="{DynamicResource AccentBrush}"/>
-                                    <TextBlock Text="Assistant"
+                                    <TextBlock Text="{DynamicResource Shell.AiAgentSubtitle}"
                                                Style="{StaticResource TopPillTitleStyle}"
                                                Foreground="{DynamicResource AccentBrush}"
                                                Margin="0,1,0,0"/>
