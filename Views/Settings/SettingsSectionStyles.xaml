@@ -30,7 +30,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          1. FROZEN BRUSHES (local constants)
     ═══════════════════════════════════════════════════════════════ -->
-    <SolidColorBrush x:Key="PillBorderLightBrush" Color="{DynamicResource AccentColor}"/>
+    
     <SolidColorBrush x:Key="ProviderDotBlue"      Color="#4285F4" po:Freeze="True"/>
     <SolidColorBrush x:Key="ProviderDotAmber"     Color="{DynamicResource WarningColor}"/>
     <SolidColorBrush x:Key="ProviderDotViolet"    Color="#8B5CF6" po:Freeze="True"/>
@@ -56,21 +56,7 @@
         <Setter Property="UseLayoutRounding"   Value="True"/>
     </Style>
 
-    <Style x:Key="InfoCardStyle" TargetType="Border">
-        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceUltra}"/>
-        <!-- Was StaticResource PillBorderLightBrush, a frozen #93C5FD.
-             StaticResource resolves ONCE at load, so this keyline could
-             never follow a Light/Dark swap or a Monet/Professional
-             recolour - which is why the About and Help cards stayed pale
-             blue while Appearance adapted. Now the shared dynamic token. -->
-        <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness"     Value="1.5"/>
-        <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadiusLarge}"/>
-        <Setter Property="Padding"             Value="22,18"/>
-        <Setter Property="Margin"              Value="0,0,0,18"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="UseLayoutRounding"   Value="True"/>
-    </Style>
+    
 
     <!-- Base setters for the AI provider cards. Each card extends this
          with BasedOn + its own IsXxxActive DataTrigger. -->
@@ -99,23 +85,9 @@
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
-    <Style x:Key="InfoCardBodyStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="LineHeight"       Value="20"/>
-        <Setter Property="Foreground"       Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="TextWrapping"     Value="Wrap"/>
-        <Setter Property="Margin"           Value="0,10,0,0"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
+    
 
-    <Style x:Key="InfoCardBulletStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="LineHeight"       Value="19"/>
-        <Setter Property="Foreground"       Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="TextWrapping"     Value="Wrap"/>
-        <Setter Property="Margin"           Value="0,6,0,0"/>
-        <Setter Property="IsHitTestVisible" Value="False"/>
-    </Style>
+    
 
     <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>

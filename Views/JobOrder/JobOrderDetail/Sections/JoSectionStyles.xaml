@@ -8,55 +8,18 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
-        <Style x:Key="FieldInputStyle" TargetType="TextBox">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="Padding"     Value="10,8"/>
-            <Setter Property="Margin"      Value="0,0,0,14"/>
-            <Setter Property="Background"  Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"  Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
-<Style x:Key="MultiLineInputStyle" TargetType="TextBox"
-               BasedOn="{StaticResource FieldInputStyle}">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="False"/>
-            <Setter Property="AcceptsReturn" Value="True"/>
-            <Setter Property="TextWrapping"  Value="Wrap"/>
-            <Setter Property="MinHeight"     Value="70"/>
-            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-        </Style>
-        <Style x:Key="ReadOnlyFieldStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,1,0,0"/>
-        </Style>
-        <Style x:Key="ReadOnlyLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-        </Style>
+        
+
+        
+        
         <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
-        <Style x:Key="SpecDataCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
-            <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Padding"           Value="6,4"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-        <Style x:Key="SpecHeaderCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="Padding"    Value="6,5"/>
-        </Style>
-        <Style x:Key="SubSectionHeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-        </Style>
+        
+        
+        
 <!-- Production form card — a light surface that groups related
              fields (Status & Delivery / Site Delivery / Assignment /
              Factory Floor) so the production panel reads as labelled

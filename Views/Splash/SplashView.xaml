@@ -61,7 +61,7 @@
         <BlurEffect x:Key="HaloBlur" Radius="26" RenderingBias="Performance"/>
 
         <!-- ═══ PALETTE (frozen once) — blueish crystal spectrum ═══ -->
-        <SolidColorBrush x:Key="Azure"    Color="#60A5FA" po:Freeze="True"/>
+        
         <SolidColorBrush x:Key="Cerulean" Color="#93C5FD" po:Freeze="True"/>
         <SolidColorBrush x:Key="Frost"    Color="#BFDBFE" po:Freeze="True"/>
         <SolidColorBrush x:Key="Ice"      Color="#DBEAFE" po:Freeze="True"/>
@@ -86,12 +86,7 @@
             <GradientStop Color="#3B82F633" Offset="0.55"/>
             <GradientStop Color="#3B82F600" Offset="1.0"/>
         </RadialGradientBrush>
-        <RadialGradientBrush x:Key="OrbCore"
-                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#93C5FD40" Offset="0.0"/>
-            <GradientStop Color="#60A5FA1F" Offset="0.6"/>
-            <GradientStop Color="#60A5FA00" Offset="1.0"/>
-        </RadialGradientBrush>
+        
 
         <!-- ═══ BRAND NAME — metallic crystal gradient + glow ═══ -->
         <LinearGradientBrush x:Key="NameGradient" StartPoint="0,0" EndPoint="1,0">
@@ -101,13 +96,7 @@
         </LinearGradientBrush>
 
         <!-- ═══ ICON HALO + CRYSTAL ═══ -->
-        <RadialGradientBrush x:Key="IconHalo"
-                             Center="0.5,0.5" GradientOrigin="0.5,0.5"
-                             RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#4F8EF766" Offset="0.0"/>
-            <GradientStop Color="#4F8EF71F" Offset="0.6"/>
-            <GradientStop Color="#4F8EF700" Offset="1.0"/>
-        </RadialGradientBrush>
+        
 
         <LinearGradientBrush x:Key="SplashPlate" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#F7FFFFFF" Offset="0.0"/>

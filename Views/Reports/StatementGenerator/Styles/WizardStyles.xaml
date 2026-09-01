@@ -273,49 +273,7 @@
          CLEAR ALL BUTTON (high contrast on gradient header)
     ═════════════════════════════════════════════════════════════════ -->
 
-    <Style x:Key="ClearAllButtonStyle" TargetType="Button">
-        <Setter Property="Height"           Value="32"/>
-        <Setter Property="Padding"          Value="14,0"/>
-        <Setter Property="Cursor"           Value="Hand"/>
-        <Setter Property="BorderThickness"  Value="0"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight"       Value="SemiBold"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="bd"
-                            Background="{DynamicResource ElevatedSurfaceBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock x:Name="ic" Text="✕"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,6,0"/>
-                            <TextBlock x:Name="tx" Text="{DynamicResource About.Clear}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource TintRedBrush}"/>
-                            <Setter TargetName="ic" Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                            <Setter TargetName="tx" Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource TintRedBrush}"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+    
 
     <!-- ═════════════════════════════════════════════════════════════════
          TOOLTIP STYLE — rounded, dark, professional, ALWAYS WRAPS
@@ -407,12 +365,7 @@
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
-    <Style x:Key="SectionSubHeaderStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight"   Value="Bold"/>
-        <Setter Property="Foreground"   Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="Margin"       Value="0,0,0,8"/>
-    </Style>
+    
 
     <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
@@ -425,62 +378,21 @@
          FORM INPUTS
     ═════════════════════════════════════════════════════════════════ -->
 
-    <Style x:Key="FormComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="Height"           Value="36"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Padding"          Value="10,0"/>
-        <Setter Property="IsEditable"       Value="True"/>
-        <Setter Property="Background"       Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="BorderBrush"      Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness"  Value="1"/>
-    </Style>
+    
 
-    <Style x:Key="FormDatePickerStyle" TargetType="DatePicker">
-        <Setter Property="Height"           Value="36"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Background"       Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="BorderBrush"      Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness"  Value="1"/>
-        <Setter Property="Padding"          Value="8,0"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
+    
 
     <!-- ═════════════════════════════════════════════════════════════════
          PDF OPTION CARDS (compact)
     ═════════════════════════════════════════════════════════════════ -->
 
-    <Style x:Key="OptionCardStyle" TargetType="Border">
-        <Setter Property="Background"           Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness"      Value="1.5"/>
-        <Setter Property="CornerRadius"         Value="10"/>
-        <Setter Property="Padding"              Value="12,10"/>
-        <Setter Property="Margin"               Value="0,0,8,8"/>
-        <Setter Property="Cursor"               Value="Hand"/>
-        <Setter Property="SnapsToDevicePixels"  Value="True"/>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                <Setter Property="Background"  Value="{DynamicResource TintIndigoBrush}"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
+    
 
     <!-- ═════════════════════════════════════════════════════════════════
          METRIC CARD (used in Execute step)
     ═════════════════════════════════════════════════════════════════ -->
 
-    <Style x:Key="MetricCardStyle" TargetType="Border">
-        <Setter Property="Background"           Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness"      Value="1.5"/>
-        <Setter Property="CornerRadius"         Value="12"/>
-        <Setter Property="Padding"              Value="20,18"/>
-        <Setter Property="MinHeight"            Value="90"/>
-        <Setter Property="SnapsToDevicePixels"  Value="True"/>
-    </Style>
+    
 
 
     <!-- ═══ Shared Statement Generator Resources ═══

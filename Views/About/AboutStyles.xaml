@@ -133,21 +133,9 @@
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
-    <Style x:Key="SubHeadingStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource LiquidAccent}"/>
-        <Setter Property="Margin"            Value="0,16,0,8"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
+    
 
-    <Style x:Key="BodyTextStyle" TargetType="TextBlock">
-        <Setter Property="TextWrapping"      Value="Wrap"/>
-        <Setter Property="LineHeight"        Value="24"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="Foreground"        Value="{DynamicResource LiquidIce}"/>
-        <Setter Property="IsHitTestVisible"  Value="False"/>
-    </Style>
+    
 
     <Style x:Key="WorkflowGroupLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>

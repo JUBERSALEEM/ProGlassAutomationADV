@@ -203,31 +203,7 @@
             </Border>
         </DataTemplate>
 
-        <DataTemplate x:Key="DnRowTemplate">
-            <Border Style="{StaticResource ModuleListRowStyle}"
-                    BorderThickness="3,0,0,1"
-                    Padding="14,10"
-                    Cursor="Hand"
-                    MouseLeftButtonUp="OnRowLeftClick"
-                    MouseRightButtonUp="OnRowRightClick">
-                <Border.BorderBrush>
-                    <Binding Path="TypeBrushKey" Converter="{StaticResource BrushKeyConverter}"/>
-                </Border.BorderBrush>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding DeliveryNoteId}"
-                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Grid.Column="1" Text="{Binding DisplayStatus}"
-                               FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               VerticalAlignment="Center"/>
-                </Grid>
-            </Border>
-        </DataTemplate>
+        
 
     </UserControl.Resources>
 

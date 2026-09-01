@@ -38,21 +38,7 @@
         <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
     </Style>
 
-    <Style x:Key="TintedCardStyle" TargetType="Border">
-        <Setter Property="Background"
-                Value="{Binding TintColor,
-                        Converter={StaticResource BrushKeyConverter}}"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadiusLarge}"/>
-        <Setter Property="Padding"         Value="22"/>
-        <Setter Property="Margin"          Value="8"/>
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding IsAlert}" Value="True">
-                <Setter Property="BorderBrush"     Value="{DynamicResource DangerBrush}"/>
-                <Setter Property="BorderThickness" Value="2"/>
-            </DataTrigger>
-        </Style.Triggers>
-    </Style>
+    
 
     <Style x:Key="StatCardStyle" TargetType="Border"
            BasedOn="{StaticResource BaseCardStyle}">

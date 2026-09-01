@@ -119,10 +119,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="TintedCardStyle" TargetType="Border"
-           BasedOn="{StaticResource DashTileStyle}">
-        <Setter Property="Margin" Value="{StaticResource DashCardMargin}"/>
-    </Style>
+    
 
     <!-- ═══════════════════════════════════════════════════════════════
          TYPOGRAPHY

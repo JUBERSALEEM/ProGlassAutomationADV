@@ -40,11 +40,11 @@
              FROZEN BRUSHES
         ══════════════════════════════════════════════════════════ -->
         <SolidColorBrush x:Key="IndigoPrimary" Color="{DynamicResource AccentColor}"/>
-        <SolidColorBrush x:Key="IndigoDark" Color="{DynamicResource AccentColor}"/>
+        
         <SolidColorBrush x:Key="IndigoLight" Color="{DynamicResource TintIndigoColor}"/>
         <SolidColorBrush x:Key="CyanAccent" Color="{DynamicResource AccentLightColor}"/>
-        <SolidColorBrush x:Key="BorderSubtle" Color="{DynamicResource BorderColor}"/>
-        <SolidColorBrush x:Key="BorderHover" Color="{DynamicResource BorderColor}"/>
+        
+        
         <SolidColorBrush x:Key="ChevronBrush" Color="{DynamicResource MutedForegroundColor}"/>
         <SolidColorBrush x:Key="CountBadgeBg" Color="{DynamicResource TintGrayColor}"/>
         <SolidColorBrush x:Key="CountBadgeText" Color="{DynamicResource SecondaryForegroundColor}"/>

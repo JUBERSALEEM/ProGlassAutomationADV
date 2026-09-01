@@ -13,7 +13,7 @@
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
     <!-- ═══ Converters (used by sidebar navigation templates) ═══ -->
-    <conv:StringEqualsMultiConverter x:Key="StringEqualsMultiConverter"/>
+    
 
         <!-- ═══════════════════════════════════════════════════════════════
              FROZEN SHADOWS &amp; GRADIENTS (theme-based accent)

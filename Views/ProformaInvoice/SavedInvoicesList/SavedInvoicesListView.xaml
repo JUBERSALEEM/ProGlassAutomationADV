@@ -18,30 +18,7 @@
 
     <UserControl.Resources>
 
-        <Style x:Key="StatusPillStyle" TargetType="Border">
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-            <Setter Property="Padding" Value="10,4"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="MinWidth" Value="76"/>
-            <Setter Property="Background" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Status}" Value="Draft">
-                    <Setter Property="Background" Value="{DynamicResource SecondaryForegroundBrush}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Status}" Value="Sent">
-                    <Setter Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Status}" Value="Approved">
-                    <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Status}" Value="Rejected">
-                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
-                </DataTrigger>
-                <DataTrigger Binding="{Binding Status}" Value="Expired">
-                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
+        
 
         <Style x:Key="EmptyStateStyle" TargetType="StackPanel">
             <Setter Property="Visibility" Value="Collapsed"/>
