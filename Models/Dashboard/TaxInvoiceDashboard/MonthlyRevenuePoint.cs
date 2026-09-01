@@ -20,7 +20,7 @@ namespace ProGlassAutomation.Models.Dashboard.TaxInvoiceDashboard
     /// <summary>
     /// One month's revenue data point for the Tax Invoice trend bar chart.
     /// Designed to bind directly to the same bar chart XAML template
-    /// used in OverviewDashboardView (NormalizedHeight + ScaleConverter).
+    /// used in OverviewDashboardView (NormalizedHeight × pixel factor).
     /// </summary>
     public sealed class MonthlyRevenuePoint   // ← 'public' was missing before
     {
@@ -53,9 +53,7 @@ namespace ProGlassAutomation.Models.Dashboard.TaxInvoiceDashboard
         /// Normalised height (0.0 to 1.0) relative to the highest month.
         /// Highest month = 1.0. Months with zero data = 0.04 (stub bar).
         /// Set by TiDashboardViewModel after computing max(TotalInvoiced).
-        /// XAML: Height="{Binding NormalizedHeight,
-        ///        Converter={StaticResource ScaleConverter},
-        ///        ConverterParameter=140}"
+        /// XAML: Height="{Binding NormalizedHeight, Converter=…}"
         /// </summary>
         public double NormalizedHeight { get; set; }
 

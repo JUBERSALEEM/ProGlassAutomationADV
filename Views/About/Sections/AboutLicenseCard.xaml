@@ -155,7 +155,7 @@
                 </Border>
             </UniformGrid>
 
-            <Grid Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVis}}"
+            <Grid Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVisibilityConverter}}"
                   Margin="0,0,0,18">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -227,7 +227,7 @@
             </Grid>
 
             <Border Style="{StaticResource LicensePanelStyle}"
-                    Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVis}}"
+                    Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVisibilityConverter}}"
                     Margin="0,0,0,18">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.IdentifiersMachineScope}"
@@ -269,7 +269,7 @@
             </Border>
 
             <Border Style="{StaticResource LicensePanelStyle}"
-                    Visibility="{Binding HasNotes, Converter={StaticResource BoolToVis}}">
+                    Visibility="{Binding HasNotes, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource About.IssuerNotes}"
                                Style="{StaticResource AboutPanelKickerStyle}"/>

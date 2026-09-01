@@ -120,8 +120,6 @@
                  "BoolToVis" / "InverseBoolToVis" names that match the
                  app's other XAML conventions. Both names resolve to
                  the same converter instance, so either is fine. -->
-            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
 
             <sys:Double x:Key="UiScale">1.0</sys:Double>
 
@@ -134,7 +132,6 @@
             <conv:DecimalIsPositiveConverter        x:Key="DecimalIsPositiveConverter"/>
             <conv:DecimalTypingConverter            x:Key="DecimalTypingConverter"/>
             <conv:ReferenceEqualityConverter        x:Key="ReferenceEqualityConverter"/>
-            <conv:ScaleConverter                    x:Key="ScaleConverter"/>
             <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
             <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>
             <conv:PercentToWidthConverter           x:Key="PercentToWidthConverter"/>
@@ -143,8 +140,6 @@
             <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
             <conv:StringEqualsMultiConverter        x:Key="StringEqualsMultiConverter"/>
             <conv:WindowInsetConverter              x:Key="WindowInsetConverter"/>
-            <conv:NullToVisibilityConverter         x:Key="NullToVisibilityConverter"/>
-            <conv:ListToStringConverter             x:Key="ListToStringConverter"/>
 
             <!-- ══════════════════════════════════════════════════════════
                      GLOBAL TEXTBOX STYLE — Bug 2 + Bug 5

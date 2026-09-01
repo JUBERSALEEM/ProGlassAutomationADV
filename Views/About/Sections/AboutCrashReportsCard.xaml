@@ -210,7 +210,7 @@
 
                     <Border Style="{StaticResource AboutCodeStripStyle}"
                             Margin="0,2,0,0"
-                            Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
+                            Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{DynamicResource About.NOCrashReportsDISK}"
                                        Style="{StaticResource InfoLabelStyle}"

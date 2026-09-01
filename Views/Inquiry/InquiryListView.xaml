@@ -277,7 +277,7 @@
                 BorderBrush="{DynamicResource WarningBrush}"
                 BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"
                 Padding="14,10" SnapsToDevicePixels="True"
-                Visibility="{Binding IsAwaitingNewPiSelection, Converter={StaticResource BoolToVis}}">
+                Visibility="{Binding IsAwaitingNewPiSelection, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

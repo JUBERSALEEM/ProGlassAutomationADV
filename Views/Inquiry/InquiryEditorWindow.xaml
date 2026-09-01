@@ -192,7 +192,7 @@
                             <TextBlock Text="●" FontSize="{StaticResource TextBody}" Margin="8,0,0,0" VerticalAlignment="Center"
                                        Foreground="{DynamicResource WarningBrush}"
                                        ToolTip="{DynamicResource Inquiry.UnsavedChanges}"
-                                       Visibility="{Binding IsDirty, Converter={StaticResource BoolToVis}}"/>
+                                       Visibility="{Binding IsDirty, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <Border Margin="11,0,0,0" Padding="9,3" CornerRadius="12"
                                     Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding Status}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
@@ -365,7 +365,7 @@
                                 <StackPanel Grid.Column="2"
                                             Visibility="{Binding Path=ShowCustomerLocation,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
-                                                Converter={StaticResource BoolToVis}}">
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
                                     <TextBlock Text="{DynamicResource CompanyCenter.Location}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <!-- Editable ComboBox: shows the saved addresses for
                                          the currently-typed customer, but the user can still
@@ -404,7 +404,7 @@
                                 <StackPanel Grid.Column="2"
                                             Visibility="{Binding Path=ShowInquiryReference,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
-                                                Converter={StaticResource BoolToVis}}">
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
                                     <TextBlock Text="{DynamicResource Inquiry.InquiryReference}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <TextBox Text="{Binding Reference, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource ModernTextBoxStyle}"/>
@@ -413,7 +413,7 @@
                             <StackPanel Margin="0,12,0,0"
                                         Visibility="{Binding Path=ShowProjectDescription,
                                             Source={x:Static features:InquiryFieldVisibility.Instance},
-                                            Converter={StaticResource BoolToVis}}">
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="{DynamicResource Inquiry.DescriptionSubject}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <TextBox Text="{Binding ProjectDescription, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ModernTextBoxStyle}" Height="66" AcceptsReturn="True"
@@ -448,7 +448,7 @@
                                 <StackPanel Grid.Column="2"
                                             Visibility="{Binding Path=ShowSalesman,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
-                                                Converter={StaticResource BoolToVis}}">
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
                                     <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <ComboBox ItemsSource="{Binding Salesmen}"
                                               Text="{Binding SalesmanName, UpdateSourceTrigger=PropertyChanged}"
@@ -460,7 +460,7 @@
                                 <StackPanel Grid.Column="4"
                                             Visibility="{Binding Path=ShowPriority,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
-                                                Converter={StaticResource BoolToVis}}">
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
                                     <TextBlock Text="{DynamicResource Common.Priority}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}"
                                               Style="{StaticResource ModernComboBoxStyle}"/>
@@ -469,7 +469,7 @@
                             <StackPanel Margin="0,12,0,0" MaxWidth="260" HorizontalAlignment="Left"
                                         Visibility="{Binding Path=ShowInquiryValue,
                                             Source={x:Static features:InquiryFieldVisibility.Instance},
-                                            Converter={StaticResource BoolToVis}}">
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="{DynamicResource Inquiry.InquiryValueAED}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <TextBox x:Name="ValueInput"
                                          Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}"
@@ -497,7 +497,7 @@
                     <Border Style="{StaticResource SectionCardStyle}"
                             Visibility="{Binding Path=ShowNotes,
                                 Source={x:Static features:InquiryFieldVisibility.Instance},
-                                Converter={StaticResource BoolToVis}}">
+                                Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                 <TextBlock Text="{DynamicResource Common.Notes}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
@@ -639,7 +639,7 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Ellipse Width="8" Height="8" Fill="{DynamicResource DangerBrush}" VerticalAlignment="Center"
-                             Visibility="{Binding IsStatusError, Converter={StaticResource BoolToVis}}"/>
+                             Visibility="{Binding IsStatusError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     <TextBlock Text="{Binding StatusText}" FontSize="{StaticResource TextBody}" VerticalAlignment="Center" Margin="9,0,0,0"
                                TextWrapping="Wrap" MaxWidth="640"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>

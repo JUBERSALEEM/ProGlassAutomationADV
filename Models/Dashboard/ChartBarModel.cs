@@ -3,9 +3,8 @@
     /// <summary>
     /// Single bar entry for any bar chart on a dashboard page.
     /// NormalizedHeight (0.0–1.0) is computed by the parent ViewModel
-    /// against the max value in the set.
-    /// ScaleConverter in XAML multiplies NormalizedHeight × ConverterParameter
-    /// to get the actual pixel height.
+    /// against the max value in the set; the bar chart XAML multiplies it
+    /// by a fixed pixel factor for the actual bar height.
     /// </summary>
     public class ChartBarModel
     {
