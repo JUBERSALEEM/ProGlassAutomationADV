@@ -53,12 +53,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         private readonly IDeliveryNoteRepository _deliveryNotes = null!;
         private readonly IDialogService _dialogs = null!;
         private readonly IStatusService _statusService = null!;
+        private readonly IDatabaseServices _database = null!;
 
-        public DeliveryNoteDetailViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IStatusService? status)
+        public DeliveryNoteDetailViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IStatusService? status, IDatabaseServices? database)
         {
             _deliveryNotes = deliveryNotes!;
             _dialogs = dialogs!;
             _statusService = status!;
+            _database = database!;
         }
 
         // ── callbacks ──────────────────────────────────────────────────────
@@ -852,7 +854,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
          : this(
             App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<IStatusService>()!){
+            App.ServiceProvider?.GetService<IStatusService>()!,
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){
             // v2 §24: version history (read-only list for DN — restore
             // needs relational-item support and ships in a later phase).
             ShowVersionsCommand = new RelayCommand(
@@ -1686,7 +1689,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (_entity == null || _deliveryNotes == null) return;
             if (_entity.IsMasterDn) return;
 
-            var guard = await DependencyGuard.CheckAsync(
+            var guard = await _database.CheckDependencyAsync(
                 DependencyGuard.Kind.DeliveryNote,
                 _entity.DeliveryNoteId);
             if (guard.HasDependents)

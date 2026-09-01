@@ -31,20 +31,18 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
         private readonly IDialogService _dialogs = null!;
 
         public DeliveryReportViewModel() : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IReportingDataService>(),
+            App.ServiceProvider?.GetService<IDatabaseServices>())
         {
-        }
-
-        public DeliveryReportViewModel(IDialogService? dialogs)
-        {
-            _dialogs = dialogs!;
         }
 
         /// <summary>Sentinel shown at the top of every filter dropdown.</summary>
         public const string AllFilter = "All";
 
-        public DeliveryReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
+        public DeliveryReportViewModel(IDialogService? dialogs, IReportingDataService? service = null, IDatabaseServices? database = null) : base(service ?? new ReportingDataService(), database)
         {
+            _dialogs = dialogs!;
             InitCommands();
 
             SelectedStatus = AllStatusesOption;

@@ -22,6 +22,7 @@ using System.Windows.Input;
 
 using ProGlassAutomation.Services.Dialogs;
 using Microsoft.Extensions.DependencyInjection;
+using ProGlassAutomation.Services.Database;
 namespace ProGlassAutomation.ViewModels.Reports
 {
     /// <summary>
@@ -89,8 +90,8 @@ public StatementModuleViewModel() : this(
             App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService())
         {
             var repo = new StatementRepository();
-            ListVM = new StatementListViewModel(_dialogs, repo);
-            GeneratorVM = new StatementGeneratorViewModel(_dialogs, App.ServiceProvider?.GetService<IMasterDataRepository>() ?? App.MasterData, repo);
+            ListVM = new StatementListViewModel(_dialogs, repo, App.ServiceProvider?.GetService<IDatabaseServices>()!);
+            GeneratorVM = new StatementGeneratorViewModel(_dialogs, App.ServiceProvider?.GetService<IMasterDataRepository>() ?? App.MasterData, repo, App.ServiceProvider?.GetService<IDatabaseServices>()!);
 
             ListVM.OnRequestNewStatement = () =>
             {

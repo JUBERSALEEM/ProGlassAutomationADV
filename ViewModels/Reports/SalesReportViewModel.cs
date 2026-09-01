@@ -32,17 +32,22 @@ using System.Windows.Input;
 
 using ProGlassAutomation.Services.Dialogs;
 using Microsoft.Extensions.DependencyInjection;
+using ProGlassAutomation.Services.Database;
 namespace ProGlassAutomation.ViewModels.Reports
 {
     public class SalesReportViewModel : ViewModelBase
     {
         private readonly IDialogService _dialogs = null!;
         private readonly IReportingDataService _reporting = null!;
+        private readonly IDatabaseServices _database = null!;
 
-        public SalesReportViewModel(IDialogService? _dialogs, IReportingDataService? _reporting)
+        public SalesReportViewModel(IDialogService? dialogs,
+            IReportingDataService? reporting,
+            IDatabaseServices? database)
         {
             _dialogs = dialogs!;
             _reporting = reporting!;
+            _database = database!;
         }
 
         private readonly IReportingDataService _reportingService;
@@ -133,17 +138,18 @@ namespace ProGlassAutomation.ViewModels.Reports
         public SalesReportViewModel()
          : this(
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<IReportingDataService>()!){
+            App.ServiceProvider?.GetService<IReportingDataService>()!,
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){
             _reportingService = _reporting ?? new ReportingDataService();
 
             ToggleRailCommand = new RelayCommand(_ => IsRailOpen = !IsRailOpen);
 
-            PiReport = new PiReportViewModel(_dialogs, _reportingService);
-            JoReport = new JoReportViewModel(_dialogs, _reportingService);
-            DeliveryReport = new DeliveryReportViewModel(_dialogs, _reportingService);
-            TaxInvoiceReport = new TaxInvoiceReportViewModel(_dialogs, _reportingService);
-            StatementReport = new StatementReportViewModel(_dialogs, _reportingService);
-            VatSubmission = new VatSubmissionViewModel(_dialogs, _reportingService);
+            PiReport = new PiReportViewModel(_dialogs, _reportingService, _database);
+            JoReport = new JoReportViewModel(_dialogs, _reportingService, _database);
+            DeliveryReport = new DeliveryReportViewModel(_dialogs, _reportingService, _database);
+            TaxInvoiceReport = new TaxInvoiceReportViewModel(_dialogs, _reportingService, _database);
+            StatementReport = new StatementReportViewModel(_dialogs, _reportingService, _database);
+            VatSubmission = new VatSubmissionViewModel(_dialogs, _reportingService, _database);
 
             // Route "open original document" requests from report sidebars to
             // the shell callbacks (MainViewModel wires OnOpenProforma/...).

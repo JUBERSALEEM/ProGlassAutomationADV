@@ -44,16 +44,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
     public class SavedInvoicesListViewModel : ViewModelBase, IDisposable
     {
         private readonly IDialogService _dialogs = null!;
+        private readonly IDatabaseServices _database = null!;
         private readonly IProformaInvoiceRepository _invoices = null!;
         private readonly IJobOrderRepository _jobs = null!;
         private readonly IStatusService _status = null!;
 
-        public SavedInvoicesListViewModel(IDialogService? dialogs, IProformaInvoiceRepository? invoices, IJobOrderRepository? jobs, IStatusService? status)
+        public SavedInvoicesListViewModel(IDialogService? dialogs, IProformaInvoiceRepository? invoices, IJobOrderRepository? jobs, IStatusService? status, IDatabaseServices? database)
         {
             _dialogs = dialogs!;
             _invoices = invoices!;
             _jobs = jobs!;
             _status = status!;
+            _database = database!;
         }
 
         // Phase 4: Named handler for static event — detachable
@@ -208,7 +210,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
             App.ServiceProvider?.GetService<IJobOrderRepository>()!,
-            App.ServiceProvider?.GetService<IStatusService>()!){
+            App.ServiceProvider?.GetService<IStatusService>()!,
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){
             RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
 
             // Phase 4: Named handler — detachable, no lambda leak
@@ -219,7 +222,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             // TI is created or deleted. Display status is derived from those
             // documents, so a delete in another module must reload this list
             // without waiting for a manual Refresh.
-            DocumentLifecycle.Subscribe(LoadInvoicesAsync);
+            _database.SubscribeDocumentsChanged(LoadInvoicesAsync);
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             LoadInvoiceCommand = new RelayCommand(p => RequestLoad(p as SavedInvoiceListItem));
 
@@ -695,11 +698,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             // Phase 14: orphan protection — refuse to delete a PI that has
             // dependent Job Orders / Tax Invoices.
-            var guard = await ProGlassAutomation.Services.Database
-                .DependencyGuard.CheckAsync(
-                    ProGlassAutomation.Services.Database.DependencyGuard
-                        .Kind.ProformaInvoice,
-                    item.ProformaId ?? "");
+            var guard = await _database.CheckDependencyAsync(
+                DependencyGuard.Kind.ProformaInvoice,
+                item.ProformaId ?? "");
             if (guard.HasDependents)
             {
                 _dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
@@ -1155,7 +1156,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             if (_disposed) return;
             _disposed = true;
             try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DataSeeded detach failed: " + ex.Message); }
-            try { DocumentLifecycle.Unsubscribe(LoadInvoicesAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DocumentLifecycle detach failed: " + ex.Message); }
+            try { _database.UnsubscribeDocumentsChanged(LoadInvoicesAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DocumentLifecycle detach failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
 

@@ -40,14 +40,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     public class DeliveryNoteListViewModel : ViewModelBase, System.IDisposable
     {
         private readonly IDeliveryNoteRepository _deliveryNotes = null!;
+        private readonly IDatabaseServices _database = null!;
         private readonly IDialogService _dialogs = null!;
         private readonly IJobOrderRepository _jobs = null!;
 
-        public DeliveryNoteListViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IJobOrderRepository? jobs)
+        public DeliveryNoteListViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IJobOrderRepository? jobs, IDatabaseServices? database)
         {
             _deliveryNotes = deliveryNotes!;
             _dialogs = dialogs!;
             _jobs = jobs!;
+            _database = database!;
         }
 
         private int _loadingFlag = 0;
@@ -490,7 +492,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
          : this(
             App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<IJobOrderRepository>()!){
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!,
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){
             RefreshCommand = new RelayCommand(async _ =>
             {
                 SelectedRow = null;
@@ -598,7 +601,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 },
                 canExecute: param => param is string s && !string.IsNullOrWhiteSpace(s));
 
-            DocumentLifecycle.Subscribe(LoadAsync);
+            _database.SubscribeDocumentsChanged(LoadAsync);
 
             _ = LoadAsync();
         }
@@ -1092,11 +1095,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
             // Phase 14: orphan protection — refuse to delete a DN that has
             // been invoiced.
-            var guard = await ProGlassAutomation.Services.Database
-                .DependencyGuard.CheckAsync(
-                    ProGlassAutomation.Services.Database.DependencyGuard
-                        .Kind.DeliveryNote,
-                    row.DeliveryNoteId);
+            var guard = await _database.CheckDependencyAsync(
+                DependencyGuard.Kind.DeliveryNote,
+                row.DeliveryNoteId);
             if (guard.HasDependents)
             {
                 _dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
@@ -1174,7 +1175,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         {
             if (_disposed) return;
             _disposed = true;
-            try { ProGlassAutomation.Services.Database.DocumentLifecycle.Unsubscribe(LoadAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteListViewModel] Dispose detach failed: " + ex.Message); }
+            try { _database.UnsubscribeDocumentsChanged(LoadAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteListViewModel] Dispose detach failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
     }

@@ -19,17 +19,15 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
         private readonly IDialogService _dialogs = null!;
 
         public TaxInvoiceReportViewModel() : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IReportingDataService>(),
+            App.ServiceProvider?.GetService<IDatabaseServices>())
         {
         }
 
-        public TaxInvoiceReportViewModel(IDialogService? dialogs)
+        public TaxInvoiceReportViewModel(IDialogService? dialogs, IReportingDataService? service = null, IDatabaseServices? database = null) : base(service ?? new ReportingDataService(), database)
         {
             _dialogs = dialogs!;
-        }
-
-        public TaxInvoiceReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
-        {
             InitCommands();
             SelectedStatus = AllStatusesOption;
             PiFilter = AllFilter;

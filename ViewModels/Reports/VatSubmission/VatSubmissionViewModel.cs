@@ -23,18 +23,16 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
         private readonly IDialogService _dialogs = null!;
 
         public VatSubmissionViewModel() : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IReportingDataService>(),
+            App.ServiceProvider?.GetService<IDatabaseServices>())
         {
         }
 
-        public VatSubmissionViewModel(IDialogService? dialogs)
+        public VatSubmissionViewModel(IDialogService? dialogs, IReportingDataService? service = null, IDatabaseServices? database = null) 
+            : base(service ?? new ReportingDataService(), database)
         {
             _dialogs = dialogs!;
-        }
-
-        public VatSubmissionViewModel(IReportingDataService? service = null) 
-            : base(service ?? new ReportingDataService())
-        {
             InitCommands();
             // Load filter options and data in constructor (same pattern as TaxInvoiceReportViewModel)
             _ = LoadFilterOptionsAsync();

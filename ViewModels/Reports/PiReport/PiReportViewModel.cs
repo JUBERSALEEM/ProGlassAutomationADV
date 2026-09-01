@@ -31,17 +31,15 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
         private readonly IDialogService _dialogs = null!;
 
         public PiReportViewModel() : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IReportingDataService>(),
+            App.ServiceProvider?.GetService<IDatabaseServices>())
         {
         }
 
-        public PiReportViewModel(IDialogService? dialogs)
+        public PiReportViewModel(IDialogService? dialogs, IReportingDataService? service = null, IDatabaseServices? database = null) : base(service ?? new ReportingDataService(), database)
         {
             _dialogs = dialogs!;
-        }
-
-        public PiReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
-        {
             InitCommands();
             SelectedStatus = AllStatusesOption;
             _ = LoadFilterOptionsAsync();

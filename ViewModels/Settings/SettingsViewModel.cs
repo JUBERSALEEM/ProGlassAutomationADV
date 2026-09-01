@@ -48,13 +48,15 @@ namespace ProGlassAutomation.ViewModels.Settings
         private readonly AppConfig _config = null!;
         private readonly IDialogService _dialogs = null!;
         private readonly ISpeechToTextService _speechToText = null!;
+        private readonly IDatabaseServices _database = null!;
 
-        public SettingsViewModel(IAiService? ai, AppConfig? config, IDialogService? dialogs, ISpeechToTextService? speechToText)
+        public SettingsViewModel(IAiService? ai, AppConfig? config, IDialogService? dialogs, ISpeechToTextService? speechToText, IDatabaseServices? database)
         {
             _ai = ai!;
             _config = config!;
             _dialogs = dialogs!;
             _speechToText = speechToText!;
+            _database = database!;
         }
 
         // Phase 4: Named handlers for static events — detachable
@@ -252,7 +254,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             App.ServiceProvider?.GetService<IAiService>()!,
             App.ServiceProvider?.GetService<AppConfig>()?? App.Config,
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<ISpeechToTextService>()!){
+            App.ServiceProvider?.GetService<ISpeechToTextService>()!,
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){
             // v2 shell: navigation between the settings pages.
             SwitchSettingsPageCommand = new RelayCommand(
                 p => SettingsPage = p as string ?? "Appearance");
@@ -2266,10 +2269,10 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             ClearAllDataCommand = new RelayCommand(async _ =>
             {
-                string folder = Services.Database.AppDataRoot.IsDemo
-                    ? Services.Database.AppDataRoot.DemoFolder
-                    : Services.Database.AppDataRoot.ProductionFolder;
-                string which = Services.Database.AppDataRoot.IsDemo
+                string folder = _database.IsDemo
+                    ? _database.DemoFolder
+                    : _database.ProductionFolder;
+                string which = _database.IsDemo
                     ? "the isolated DEMO folder (production files stay closed)"
                     : "the PRODUCTION folder";
 
@@ -2630,7 +2633,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             RestoreSelectedBackupCommand = new RelayCommand(_ =>
             {
-                if (Services.Database.AppDataRoot.IsDemo)
+                if (_database.IsDemo)
                 {
                     BackupStatus =
                         "Restore is blocked in Demo Mode. Exit Demo Mode first — " +
@@ -2831,7 +2834,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 var restart = _dialogs.Show(
                     "✓ All databases were rebuilt at the current schema.\n\n" +
                     "The originals are saved in:\n" +
-                    AppDataRoot.CurrentFolder + "\\MigrationBackups\\\n\n" +
+                    _database.CurrentFolder + "\\MigrationBackups\\\n\n" +
                     "ProGlass must be restarted to load the new databases.\n\n" +
                     "Restart now?",
                     LocalizationService.Instance.T("Msg.CapRebuildComplete"),

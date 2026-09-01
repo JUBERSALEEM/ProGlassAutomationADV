@@ -158,19 +158,22 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
                 private readonly IDialogService _dialogs = null!;
+        private readonly IDatabaseServices _database = null!;
 
 public StatementListViewModel(IDialogService? dialogs,
-            IStatementRepository repo)
+            IStatementRepository repo,
+            IDatabaseServices? database)
         {
             _dialogs = dialogs!;
             _repo = repo;
+            _database = database!;
 
             // LIVE DATA: refresh whenever any document changes (statement
             // created/deleted, or PI/JO/DN/TI writes) — same cross-module
             // signal the module list pages subscribe to. The wizard
             // (StatementGeneratorViewModel) deliberately does NOT subscribe:
             // reloading mid-wizard would wipe the user's filter state.
-            DocumentLifecycle.Subscribe(LoadAsync);
+            _database.SubscribeDocumentsChanged(LoadAsync);
 
             NewStatementCommand = new RelayCommand(
                 _ => OnRequestNewStatement?.Invoke());

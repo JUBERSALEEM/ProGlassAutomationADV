@@ -37,12 +37,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
     public class TaxInvoiceListViewModel : ViewModelBase
     {
         private readonly IDialogService _dialogs = null!;
+        private readonly IDatabaseServices _database = null!;
         private readonly ITaxInvoiceRepository _taxInvoices = null!;
 
-        public TaxInvoiceListViewModel(IDialogService? dialogs, ITaxInvoiceRepository? taxInvoices)
+        public TaxInvoiceListViewModel(IDialogService? dialogs, ITaxInvoiceRepository? taxInvoices, IDatabaseServices? database)
         {
             _dialogs = dialogs!;
             _taxInvoices = taxInvoices!;
+            _database = database!;
         }
 
         private int _loadingFlag = 0;
@@ -376,7 +378,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         public TaxInvoiceListViewModel()
          : this(
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!,
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){
             RefreshCommand = new RelayCommand(async _ =>
             {
                 SelectedFamily = null;
@@ -439,7 +442,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 }
             });
 
-            DocumentLifecycle.Subscribe(LoadAsync);
+            _database.SubscribeDocumentsChanged(LoadAsync);
         }
 
         // ══════════════════════════════════════════════════════════════════

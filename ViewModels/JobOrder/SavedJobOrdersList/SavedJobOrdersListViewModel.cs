@@ -32,14 +32,16 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
     public class SavedJobOrdersListViewModel : ViewModelBase, IDisposable
     {
         private readonly IDialogService _dialogs = null!;
+        private readonly IDatabaseServices _database = null!;
         private readonly IProformaInvoiceRepository _invoices = null!;
         private readonly IJobOrderRepository _jobs = null!;
 
-        public SavedJobOrdersListViewModel(IDialogService? dialogs, IProformaInvoiceRepository? invoices, IJobOrderRepository? jobs)
+        public SavedJobOrdersListViewModel(IDialogService? dialogs, IProformaInvoiceRepository? invoices, IJobOrderRepository? jobs, IDatabaseServices? database)
         {
             _dialogs = dialogs!;
             _invoices = invoices!;
             _jobs = jobs!;
+            _database = database!;
         }
 
         // Phase 4: Named handler for static event — detachable
@@ -235,7 +237,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
          : this(
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
-            App.ServiceProvider?.GetService<IJobOrderRepository>()!){
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!,
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){
             OpenJobOrderCommand = new RelayCommand(param =>
             {
                 if (param is JobOrderRowViewModel row)
@@ -289,7 +292,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             // A DN / TI delete in another module must refresh this list
             // immediately so derived delivery status matches remaining docs.
-            DocumentLifecycle.Subscribe(LoadJobOrdersAsync);
+            _database.SubscribeDocumentsChanged(LoadJobOrdersAsync);
 
             // v2 §24: version history dialog (shared with Proforma).
             ShowVersionsCommand = new RelayCommand(
@@ -479,11 +482,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             // Refuse to delete a Job Order that still has real Delivery
             // Notes or Tax Invoices. The message lists their IDs.
-            var guard = await ProGlassAutomation.Services.Database
-                .DependencyGuard.CheckAsync(
-                    ProGlassAutomation.Services.Database.DependencyGuard
-                        .Kind.JobOrder,
-                    row.JobOrderId);
+            var guard = await _database.CheckDependencyAsync(
+                DependencyGuard.Kind.JobOrder,
+                row.JobOrderId);
             if (guard.HasDependents)
             {
                 _dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
@@ -918,7 +919,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             // Detach the static lifecycle subscriber too, or this VM stays
             // alive forever and re-runs LoadJobOrdersAsync on every document
             // change across the app even when the list is no longer in use.
-            try { ProGlassAutomation.Services.Database.DocumentLifecycle.Unsubscribe(LoadJobOrdersAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedJobOrdersListViewModel] Dispose: DocumentLifecycle detach failed: " + ex.Message); }
+            try { _database.UnsubscribeDocumentsChanged(LoadJobOrdersAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedJobOrdersListViewModel] Dispose: DocumentLifecycle detach failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
 

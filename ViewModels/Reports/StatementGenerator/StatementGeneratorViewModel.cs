@@ -70,6 +70,7 @@ using ProGlassAutomation.Services.Localization;
 
 using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.MasterData.Repository;
+using ProGlassAutomation.Services.Database;
 namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 {
     public class StatementGeneratorViewModel : ViewModelBase
@@ -840,13 +841,16 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
                 private readonly IDialogService _dialogs = null!;
                 private readonly IMasterDataRepository _masterData = null!;
+                private readonly IDatabaseServices _database = null!;
 
 public StatementGeneratorViewModel(IDialogService? dialogs,
             IMasterDataRepository? masterData,
-            IStatementRepository repo)
+            IStatementRepository repo,
+            IDatabaseServices? database)
         {
             _dialogs = dialogs!;
             _masterData = masterData!;
+            _database = database!;
             _repo = repo;
             _aggregator = new StatementAggregator();
 
@@ -1784,7 +1788,7 @@ public StatementGeneratorViewModel(IDialogService? dialogs,
             // Demo recordings run unattended. Auto-resolve the decision so the
             // pipeline never blocks on the modal WorkflowWarningDialog and the
             // demo can capture Execute (step 3) and Review (step 4).
-            if (ProGlassAutomation.Services.Database.AppDataRoot.IsDemo)
+            if (_database.IsDemo)
             {
                 LiveAddLogEntry(LogSeverity.Info,
                     "› Demo mode — auto-continuing past uninvoiced deliveries");
@@ -1829,7 +1833,7 @@ public StatementGeneratorViewModel(IDialogService? dialogs,
                 "› ⚠ Missing signed attachments detected — awaiting user decision");
 
             // Demo recordings run unattended.
-            if (ProGlassAutomation.Services.Database.AppDataRoot.IsDemo)
+            if (_database.IsDemo)
             {
                 LiveAddLogEntry(LogSeverity.Info,
                     "› Demo mode — auto-continuing past missing attachments");

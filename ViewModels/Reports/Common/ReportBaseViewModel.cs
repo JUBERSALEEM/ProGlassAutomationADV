@@ -33,10 +33,12 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
     public abstract class ReportBaseViewModel : ViewModelBase
     {
         protected readonly IReportingDataService _service;
+        private readonly IDatabaseServices _database = null!;
 
-        protected ReportBaseViewModel(IReportingDataService service)
+        protected ReportBaseViewModel(IReportingDataService service, IDatabaseServices? database)
         {
             _service = service ?? new ReportingDataService();
+            _database = database!;
 
             // LIVE DATA: every report screen reloads itself whenever any
             // document changes anywhere in the app (PI / JO / DN / TI /
@@ -46,7 +48,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
             // Refresh. Debounced so a burst of writes (e.g. a PI save that
             // raises the signal several times) triggers ONE reload, and the
             // reload never lands on the user's critical path.
-            DocumentLifecycle.Subscribe(ReloadOnDataChangedAsync);
+            _database.SubscribeDocumentsChanged(ReloadOnDataChangedAsync);
         }
 
         // ── Filter ────────────────────────────────────────────────────────

@@ -79,6 +79,7 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<IInquiryRepository, InquiryRepository>();
             services.AddSingleton<Services.Workflow.IStatusService, Services.Workflow.StatusService>();
             services.AddSingleton<Services.Dialogs.IDialogService, Services.Dialogs.DialogService>();
+            services.AddSingleton<Services.Database.IDatabaseServices, Services.Database.DatabaseServices>();
             services.AddSingleton<IInquiryWorkflowService, InquiryWorkflowService>();
             services.AddSingleton<InquiryAttachmentService>();
             services.AddSingleton<InquiryImportExportService>();

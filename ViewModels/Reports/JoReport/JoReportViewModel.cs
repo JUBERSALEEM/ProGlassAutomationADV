@@ -19,17 +19,15 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
         private readonly IDialogService _dialogs = null!;
 
         public JoReportViewModel() : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IReportingDataService>(),
+            App.ServiceProvider?.GetService<IDatabaseServices>())
         {
         }
 
-        public JoReportViewModel(IDialogService? dialogs)
+        public JoReportViewModel(IDialogService? dialogs, IReportingDataService? service = null, IDatabaseServices? database = null) : base(service ?? new ReportingDataService(), database)
         {
             _dialogs = dialogs!;
-        }
-
-        public JoReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
-        {
             InitCommands();
             SelectedStatus = AllStatusesOption;
             SourcePiFilter = AllFilter;

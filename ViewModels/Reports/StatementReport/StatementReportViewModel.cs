@@ -28,17 +28,15 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
         private readonly IDialogService _dialogs = null!;
 
         public StatementReportViewModel() : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IReportingDataService>(),
+            App.ServiceProvider?.GetService<IDatabaseServices>())
         {
         }
 
-        public StatementReportViewModel(IDialogService? dialogs)
+        public StatementReportViewModel(IDialogService? dialogs, IReportingDataService? service = null, IDatabaseServices? database = null) : base(service ?? new ReportingDataService(), database)
         {
             _dialogs = dialogs!;
-        }
-
-        public StatementReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
-        {
             InitCommands();
 
             // Open the Tax Invoice behind a ledger line — same "open the
