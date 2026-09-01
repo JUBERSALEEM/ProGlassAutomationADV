@@ -1,0 +1,4547 @@
+{
+ "keys": {
+  "Msg.DeleteEveryCrashReportOn": {
+   "en": "Delete every crash report on disk?\n\nThis action cannot be undone. The next crash will start with a fresh report file.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/About/AboutCrashReportsViewModel.cs",
+     162
+    ]
+   ]
+  },
+  "Msg.CapClearCrashReports": {
+   "en": "Clear crash reports",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/About/AboutCrashReportsViewModel.cs",
+     162
+    ]
+   ]
+  },
+  "Msg.DeleteCompanyXExistingInvoices": {
+   "en": "Delete company '{0}'?\n\nExisting invoices keep their own copy of the company details (snapshots are immutable).",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/CompanyCenter/CompanyCenterViewModel.cs",
+     258
+    ]
+   ]
+  },
+  "Msg.CapDeleteCompany": {
+   "en": "Delete Company",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/CompanyCenter/CompanyCenterViewModel.cs",
+     258
+    ]
+   ]
+  },
+  "Msg.DeliveryNoteXNotFound": {
+   "en": "Delivery note '{0}' not found.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1019
+    ]
+   ]
+  },
+  "Msg.CapFound": {
+   "en": "Not Found",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1019
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     866
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     360
+    ]
+   ]
+  },
+  "Msg.FailedToSaveX": {
+   "en": "Failed to save:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1413
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     568
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1557
+    ]
+   ]
+  },
+  "Msg.CapSaveFailed": {
+   "en": "Save Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1413
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     503
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     568
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     365
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     373
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1557
+    ]
+   ]
+  },
+  "Msg.SaveTheDeliveryNoteFirst": {
+   "en": "Save the delivery note first to build its history.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1438
+    ]
+   ]
+  },
+  "Msg.CapVersionHistory": {
+   "en": "Version History",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1438
+    ]
+   ]
+  },
+  "Msg.VersionCouldNotBeApplied": {
+   "en": "This version could not be applied.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1460
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderViewModel.cs",
+     223
+    ]
+   ]
+  },
+  "Msg.CapRestoreVersion": {
+   "en": "Restore Version",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1460
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderViewModel.cs",
+     207
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderViewModel.cs",
+     223
+    ],
+    [
+     "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs",
+     543
+    ]
+   ]
+  },
+  "Msg.CannotDispatchNoItemsHave": {
+   "en": "Cannot dispatch — no items have a delivered quantity.\n\nEnter the quantity delivered for at least one item.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1553
+    ]
+   ]
+  },
+  "Msg.CapDispatchFailed": {
+   "en": "Dispatch Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1553
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1650
+    ]
+   ]
+  },
+  "Msg.CapDispatched": {
+   "en": "Dispatched",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1639
+    ]
+   ]
+  },
+  "Msg.DispatchFailedX": {
+   "en": "Dispatch failed:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1650
+    ]
+   ]
+  },
+  "Msg.CapCannotDelete": {
+   "en": "Cannot Delete",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1676
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     1091
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     470
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     683
+    ]
+   ]
+  },
+  "Msg.DeleteDeliveryNoteXCustomer": {
+   "en": "Delete delivery note '{0}'?\n\nCustomer : {1}\nProject  : {2}\nStatus   : {3}\n\nThis will permanently delete the DN and all attached files.\nThis cannot be undone.",
+   "nargs": 4,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1681
+    ]
+   ]
+  },
+  "Msg.CapConfirmDelete": {
+   "en": "Confirm Delete",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1681
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2105
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     1096
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     475
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     688
+    ],
+    [
+     "ViewModels/Reports/StatementList/StatementListViewModel.cs",
+     329
+    ],
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     852
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     676
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceList/TaxInvoiceListViewModel.cs",
+     397
+    ]
+   ]
+  },
+  "Msg.DeliveryNoteXDeletedSuccessfully": {
+   "en": "Delivery note '{0}' deleted successfully.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1709
+    ]
+   ]
+  },
+  "Msg.CapDeleted": {
+   "en": "Deleted",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1709
+    ]
+   ]
+  },
+  "Msg.FailedToDeleteX": {
+   "en": "Failed to delete:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1719
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     1114
+    ]
+   ]
+  },
+  "Msg.CapDeleteFailed": {
+   "en": "Delete Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1719
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2127
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     1114
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     551
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     708
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     692
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceList/TaxInvoiceListViewModel.cs",
+     421
+    ]
+   ]
+  },
+  "Msg.DeliveryNoteHasNoLinked": {
+   "en": "This delivery note has no linked Proforma Invoice.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1759
+    ]
+   ]
+  },
+  "Msg.CapPIReference": {
+   "en": "No PI Reference",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1759
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     637
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     221
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     370
+    ]
+   ]
+  },
+  "Msg.TaxInvoiceNavigationIsNot": {
+   "en": "Tax Invoice navigation is not wired up.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1769
+    ]
+   ]
+  },
+  "Msg.CapWired": {
+   "en": "Not Wired",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1769
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     648
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     231
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     257
+    ]
+   ]
+  },
+  "Msg.CannotDetermineWhichDNTo": {
+   "en": "Cannot determine which DN to invoice.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1783
+    ]
+   ]
+  },
+  "Msg.CapDNSelected": {
+   "en": "No DN Selected",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1783
+    ]
+   ]
+  },
+  "Msg.DNXHas0Delivered": {
+   "en": "DN '{0}' has 0 delivered qty.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1793
+    ]
+   ]
+  },
+  "Msg.CapNothingToInvoice": {
+   "en": "Nothing to Invoice",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1793
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     286
+    ]
+   ]
+  },
+  "Msg.FailedToOpenTaxInvoice": {
+   "en": "Failed to open Tax Invoice:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1807
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     673
+    ]
+   ]
+  },
+  "Msg.CapNavigationFailed": {
+   "en": "Navigation Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1807
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     673
+    ]
+   ]
+  },
+  "Msg.ExportFailedX": {
+   "en": "Export failed:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1829
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     284
+    ]
+   ]
+  },
+  "Msg.CapXExportFailed": {
+   "en": "{0} Export Failed",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1829
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     284
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     651
+    ]
+   ]
+  },
+  "Msg.LoadADeliveryNoteBefore": {
+   "en": "Load a delivery note before exporting.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1887
+    ]
+   ]
+  },
+  "Msg.CapNothingToExport": {
+   "en": "Nothing to export",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1887
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     757
+    ]
+   ]
+  },
+  "Msg.XExportFailedY": {
+   "en": "{0} export failed:\n\n{1}",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1920
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     770
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     915
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     665
+    ]
+   ]
+  },
+  "Msg.CapExportFailed": {
+   "en": "Export Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1920
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     770
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     915
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     351
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1013
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1022
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1059
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1068
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1109
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1118
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     665
+    ]
+   ]
+  },
+  "Msg.UnsupportedImageFormatAllowedJPG": {
+   "en": "Unsupported image format.\n\nAllowed: JPG, PNG, BMP, GIF, WEBP.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1969
+    ]
+   ]
+  },
+  "Msg.CapInvalidFile": {
+   "en": "Invalid File",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1969
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2037
+    ]
+   ]
+  },
+  "Msg.FileIsTooLargeMaximum": {
+   "en": "File is too large.\n\nMaximum: {0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1980
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2047
+    ]
+   ]
+  },
+  "Msg.CapFileTooLarge": {
+   "en": "File Too Large",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     1980
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2047
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1816
+    ]
+   ]
+  },
+  "Msg.FailedToUploadImageX": {
+   "en": "Failed to upload image:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2011
+    ]
+   ]
+  },
+  "Msg.CapUploadFailed": {
+   "en": "Upload Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2011
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2079
+    ]
+   ]
+  },
+  "Msg.OnlyPDFFilesAreAllowed": {
+   "en": "Only PDF files are allowed in this slot.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2037
+    ]
+   ]
+  },
+  "Msg.FailedToUploadPDFX": {
+   "en": "Failed to upload PDF:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2079
+    ]
+   ]
+  },
+  "Msg.CouldNotOpenFileX": {
+   "en": "Could not open file:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2093
+    ]
+   ]
+  },
+  "Msg.CapOpenFailed": {
+   "en": "Open Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2093
+    ]
+   ]
+  },
+  "Msg.DeleteAttachmentXThisCannot": {
+   "en": "Delete attachment '{0}'?\n\nThis cannot be undone.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2105
+    ]
+   ]
+  },
+  "Msg.FailedToDeleteAttachmentX": {
+   "en": "Failed to delete attachment:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+     2127
+    ]
+   ]
+  },
+  "Msg.FailedToLoadJobOrder": {
+   "en": "Failed to load job order:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     575
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     889
+    ]
+   ]
+  },
+  "Msg.CapError": {
+   "en": "Error",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     575
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     689
+    ],
+    [
+     "ViewModels/SheetStore/SheetStoreHistory/HistoryViewModel.cs",
+     160
+    ],
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     508
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     406
+    ]
+   ]
+  },
+  "Msg.CannotCreateTaxInvoiceNo": {
+   "en": "Cannot create Tax Invoice — no PI reference.\n\nSource: {0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     637
+    ]
+   ]
+  },
+  "Msg.TaxInvoiceNavigationIsNot2": {
+   "en": "Tax Invoice navigation is not wired up.\n\nRestart the app.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     648
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     231
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     257
+    ]
+   ]
+  },
+  "Msg.CreateTaxInvoiceSourceX": {
+   "en": "Create Tax Invoice?\n\nSource : {0}\nPI     : {1}",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     657
+    ]
+   ]
+  },
+  "Msg.CapCreateTaxInvoice": {
+   "en": "Create Tax Invoice",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     657
+    ]
+   ]
+  },
+  "Msg.JobOrdersDatabaseNotInitialized": {
+   "en": "Job Orders database not initialized.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     689
+    ]
+   ]
+  },
+  "Msg.FailedToLoadJobOrders": {
+   "en": "Failed to load job orders:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     701
+    ]
+   ]
+  },
+  "Msg.CapLoadFailed": {
+   "en": "Load Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     701
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     889
+    ],
+    [
+     "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs",
+     482
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     523
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     561
+    ]
+   ]
+  },
+  "Msg.JobOrdersFoundCreateA": {
+   "en": "No job orders found.\n\nCreate a Job Order from a Proforma Invoice first.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     711
+    ]
+   ]
+  },
+  "Msg.CapJobOrders": {
+   "en": "No Job Orders",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     711
+    ]
+   ]
+  },
+  "Msg.JobOrdersHaveBeenFully": {
+   "en": "All job orders have been fully delivered.\n\nNo delivery notes to create.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     765
+    ]
+   ]
+  },
+  "Msg.CapDelivered": {
+   "en": "All Delivered",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     765
+    ]
+   ]
+  },
+  "Msg.FailedToReloadTabX": {
+   "en": "Failed to reload tab: {0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     969
+    ]
+   ]
+  },
+  "Msg.CapLoadError": {
+   "en": "Load Error",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     969
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     437
+    ]
+   ]
+  },
+  "Msg.MasterDNsCannotBeDeleted": {
+   "en": "Master DNs cannot be deleted manually.\n\nThey are managed automatically by the system.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     1073
+    ]
+   ]
+  },
+  "Msg.CapCannotDeleteMasterDN": {
+   "en": "Cannot Delete Master DN",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     1073
+    ]
+   ]
+  },
+  "Msg.DeleteDeliveryNoteXCustomer2": {
+   "en": "Delete delivery note '{0}'?\n\nCustomer: {1}\nThis action cannot be undone.",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     1096
+    ]
+   ]
+  },
+  "Msg.CapStatusChangeNotAllowed": {
+   "en": "Status Change Not Allowed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     1138
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     729
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     753
+    ]
+   ]
+  },
+  "Msg.FailedToChangeStatusX": {
+   "en": "Failed to change status:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     1151
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     762
+    ]
+   ]
+  },
+  "Msg.CapUpdateFailed": {
+   "en": "Update Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+     1151
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     762
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     801
+    ]
+   ]
+  },
+  "Msg.FailedToOpenMasterInvoice": {
+   "en": "Failed to open Master Invoice:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     139
+    ]
+   ]
+  },
+  "Msg.CapNavigationError": {
+   "en": "Navigation Error",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     139
+    ],
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     180
+    ]
+   ]
+  },
+  "Msg.FailedToConvertDNTo": {
+   "en": "Failed to convert DN to Tax Invoice:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     180
+    ]
+   ]
+  },
+  "Msg.CannotCreateMasterInvoiceNo": {
+   "en": "Cannot create Master Invoice — no PI reference.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     221
+    ]
+   ]
+  },
+  "Msg.CannotConvertToTaxInvoice": {
+   "en": "Cannot convert to Tax Invoice — no DN reference.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     247
+    ]
+   ]
+  },
+  "Msg.CapDNReference": {
+   "en": "No DN Reference",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     247
+    ]
+   ]
+  },
+  "Msg.CapMasterDN": {
+   "en": "Master DN",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     329
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     584
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     594
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     616
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     627
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     639
+    ]
+   ]
+  },
+  "Msg.MasterDNExistsForX": {
+   "en": "No Master DN exists for '{0}'.\n\nApprove the Proforma / create the Job Order first.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     341
+    ]
+   ]
+  },
+  "Msg.CapMasterDNNotFound": {
+   "en": "Master DN Not Found",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     341
+    ]
+   ]
+  },
+  "Msg.CapFullyDelivered": {
+   "en": "Fully Delivered",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     388
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     673
+    ]
+   ]
+  },
+  "Msg.CapCreateFailed": {
+   "en": "Create Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+     396
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     681
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     693
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     638
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     706
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     304
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     480
+    ]
+   ]
+  },
+  "Msg.NothingLoadedToSave": {
+   "en": "Nothing loaded to save.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     503
+    ]
+   ]
+  },
+  "Msg.JobOrderXSavedSuccessfully": {
+   "en": "Job order '{0}' saved successfully.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     557
+    ]
+   ]
+  },
+  "Msg.CapSaved": {
+   "en": "Saved",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     557
+    ]
+   ]
+  },
+  "Msg.LoadAJobOrderFirst": {
+   "en": "Load a job order first.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     584
+    ],
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     651
+    ]
+   ]
+  },
+  "Msg.DeliveryNotesDatabaseNotInitialized": {
+   "en": "Delivery Notes database not initialized.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     594
+    ]
+   ]
+  },
+  "Msg.MasterDNExistsForThis": {
+   "en": "No Master DN exists for this Job Order yet.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     627
+    ]
+   ]
+  },
+  "Msg.FailedToOpenMasterDN": {
+   "en": "Failed to open Master DN:\\n\\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     639
+    ]
+   ]
+  },
+  "Msg.CapCannotCreateDN": {
+   "en": "Cannot Create DN",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     651
+    ]
+   ]
+  },
+  "Msg.FailedToCreateDeliveryNote": {
+   "en": "Failed to create delivery note:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     693
+    ]
+   ]
+  },
+  "Msg.LoadAJobOrderBefore": {
+   "en": "Load a job order before exporting.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+     757
+    ]
+   ]
+  },
+  "Msg.CouldNotOpenJobOrder": {
+   "en": "Could not open job order:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderViewModel.cs",
+     162
+    ]
+   ]
+  },
+  "Msg.CapJobOrders2": {
+   "en": "Job Orders",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderViewModel.cs",
+     162
+    ]
+   ]
+  },
+  "Msg.JobOrderXNoLonger": {
+   "en": "Job order '{0}' no longer exists.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/JobOrder/JobOrderViewModel.cs",
+     207
+    ],
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     866
+    ]
+   ]
+  },
+  "Msg.DeleteJobOrderXCustomer": {
+   "en": "Delete job order '{0}'?\n\nCustomer: {1}\nThis action cannot be undone.",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     475
+    ]
+   ]
+  },
+  "Msg.FailedToDeleteJobOrder": {
+   "en": "Failed to delete job order:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     551
+    ]
+   ]
+  },
+  "Msg.DatabasesAreStillInitialisingTry": {
+   "en": "Databases are still initialising. Try again in a moment.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     612
+    ]
+   ]
+  },
+  "Msg.CapReady": {
+   "en": "Not Ready",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     612
+    ]
+   ]
+  },
+  "Msg.ProformaInvoiceXCouldNot": {
+   "en": "Proforma Invoice '{0}' could not be loaded.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     638
+    ]
+   ]
+  },
+  "Msg.XAlreadyHasYJob": {
+   "en": "{0} already has {1} job order(s): {2}.\n\nCreate another one from the same quote?",
+   "nargs": 3,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     658
+    ]
+   ]
+  },
+  "Msg.CapAlreadyConverted": {
+   "en": "Already Converted",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     658
+    ]
+   ]
+  },
+  "Msg.FailedToCreateJobOrder": {
+   "en": "Failed to create job order:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     706
+    ]
+   ]
+  },
+  "Msg.FailedToChangePriorityX": {
+   "en": "Failed to change priority:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     801
+    ]
+   ]
+  },
+  "Msg.JobOrderXHasCorrupt": {
+   "en": "Job order '{0}' has corrupt snapshot data.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     877
+    ]
+   ]
+  },
+  "Msg.CapCorruptData": {
+   "en": "Corrupt Data",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+     877
+    ]
+   ]
+  },
+  "Msg.CapStartProformaInvoiceFromInquiry": {
+   "en": "Start Proforma Invoice from Inquiry?",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/MainViewModel.cs",
+     902
+    ]
+   ]
+  },
+  "Msg.CapUpgradeRequired": {
+   "en": "Upgrade required",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/MainViewModel.cs",
+     938
+    ]
+   ]
+  },
+  "Msg.SelectedInvoiceCouldNotBe": {
+   "en": "Selected invoice could not be found.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs",
+     482
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     561
+    ]
+   ]
+  },
+  "Msg.VersionCouldNotBeRead": {
+   "en": "This version could not be read.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs",
+     543
+    ]
+   ]
+  },
+  "Msg.NothingToExportTheCurrent": {
+   "en": "Nothing to export — the current filter shows no invoices.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     312
+    ]
+   ]
+  },
+  "Msg.CapExportExcel": {
+   "en": "Export Excel",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     312
+    ],
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     549
+    ]
+   ]
+  },
+  "Msg.ExcelExportFailedX": {
+   "en": "Excel export failed: {0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     351
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1059
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1068
+    ]
+   ]
+  },
+  "Msg.FailedToLoadSavedInvoices": {
+   "en": "Failed to load saved invoices:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     437
+    ]
+   ]
+  },
+  "Msg.DuplicateInvoiceXANew": {
+   "en": "Duplicate invoice '{0}'?\n\nA new copy will be created with an auto-incremented ID.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     600
+    ]
+   ]
+  },
+  "Msg.CapConfirmDuplicate": {
+   "en": "Confirm Duplicate",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     600
+    ]
+   ]
+  },
+  "Msg.DuplicatedAsX": {
+   "en": "Duplicated as '{0}'.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     650
+    ]
+   ]
+  },
+  "Msg.CapDuplicateSuccessful": {
+   "en": "Duplicate Successful",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     650
+    ]
+   ]
+  },
+  "Msg.FailedToDuplicateX": {
+   "en": "Failed to duplicate: {0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     658
+    ]
+   ]
+  },
+  "Msg.CapDuplicateFailed": {
+   "en": "Duplicate Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     658
+    ]
+   ]
+  },
+  "Msg.DeleteInvoiceXPermanentlyThis": {
+   "en": "Delete invoice '{0}' permanently?\n\nThis cannot be undone.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     688
+    ]
+   ]
+  },
+  "Msg.FailedToDeleteX2": {
+   "en": "Failed to delete: {0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     708
+    ]
+   ]
+  },
+  "Msg.FailedToChangeStatusX2": {
+   "en": "Failed to change status: {0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     779
+    ]
+   ]
+  },
+  "Msg.CapStatusChangeFailed": {
+   "en": "Status Change Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     779
+    ]
+   ]
+  },
+  "Msg.InvoiceXApprovedAndConverted": {
+   "en": "Invoice '{0}' approved and converted to a Job Order.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     905
+    ]
+   ]
+  },
+  "Msg.CapApproved": {
+   "en": "Approved",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     905
+    ]
+   ]
+  },
+  "Msg.PDFExportFailedX": {
+   "en": "PDF export failed: {0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1013
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1022
+    ]
+   ]
+  },
+  "Msg.CSVExportFailedX": {
+   "en": "CSV export failed: {0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1109
+    ],
+    [
+     "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+     1118
+    ]
+   ]
+  },
+  "Msg.CapPermissionDenied": {
+   "en": "Permission Denied",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs",
+     939
+    ],
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2761
+    ]
+   ]
+  },
+  "Msg.FailedToSaveSpecX": {
+   "en": "Failed to save spec:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs",
+     949
+    ]
+   ]
+  },
+  "Msg.CapDatabaseError": {
+   "en": "Database Error",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs",
+     949
+    ]
+   ]
+  },
+  "Msg.CapImportCutList": {
+   "en": "Import cut list",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.ImportExport.cs",
+     91
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.ImportExport.cs",
+     101
+    ]
+   ]
+  },
+  "Msg.InvoiceDatabaseIsNotInitialized": {
+   "en": "Invoice database is not initialized. Please restart the app.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     365
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     523
+    ]
+   ]
+  },
+  "Msg.CannotSaveProformaIDIs": {
+   "en": "Cannot save — Proforma ID is empty.\n\nPlease set a Proforma ID in Step 1 (Company Details) before saving.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     373
+    ]
+   ]
+  },
+  "Msg.InvoiceWithIDXAlready": {
+   "en": "An invoice with ID '{0}' already exists.\n\n• YES → Update the existing invoice (overwrite)\n• NO → Save as new invoice with ID '{1}'\n• CANCEL → Return to editing without saving",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     403
+    ]
+   ]
+  },
+  "Msg.CapDuplicateProformaID": {
+   "en": "Duplicate Proforma ID",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     403
+    ]
+   ]
+  },
+  "Msg.InvoiceXWasYSuccessfully": {
+   "en": "Invoice '{0}' was {1} successfully.\n\nThis SAVE ONLY action does not confirm the PI. Confirmation happens through Step 8 attachments / the approval flow.",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     506
+    ]
+   ]
+  },
+  "Msg.CapSaveSuccessful": {
+   "en": "Save Successful",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     506
+    ]
+   ]
+  },
+  "Msg.LoadingASavedInvoiceWill": {
+   "en": "Loading a saved invoice will replace your current wizard data.\n\n• YES → Save current invoice first, then load\n• NO → Discard current data and load\n• CANCEL → Return to editing",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     536
+    ]
+   ]
+  },
+  "Msg.CapUnsavedChanges": {
+   "en": "Unsaved Changes",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     536
+    ]
+   ]
+  },
+  "Msg.InvoiceXLoadedSuccessfullyAll": {
+   "en": "Invoice '{0}' loaded successfully.\n\nAll wizard steps have been updated. Review each step and make changes as needed.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     583
+    ]
+   ]
+  },
+  "Msg.CapLoadSuccessful": {
+   "en": "Load Successful",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     583
+    ]
+   ]
+  },
+  "Msg.CannotExportProformaIDIs": {
+   "en": "Cannot export — Proforma ID is empty.\n\nPlease set a Proforma ID in Step 1 (Company Details) before exporting.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     651
+    ]
+   ]
+  },
+  "Msg.XIsComingInY": {
+   "en": "{0} is coming in {1}.\n\nFor now, use the Print button (top-right) — you can 'Print to PDF' via Microsoft Print to PDF to save as PDF.",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     1600
+    ]
+   ]
+  },
+  "Msg.CapXComingSoon": {
+   "en": "{0} — Coming Soon",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+     1600
+    ]
+   ]
+  },
+  "Msg.ResetAllTermsToDefaults": {
+   "en": "Reset all terms to defaults?\n\nThis will DELETE any custom clauses you have added and revert edits to the default 6 UAE clauses.\n\nAre you sure?",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/TermsAndConditions/TermsAndConditionsViewModel.cs",
+     64
+    ]
+   ]
+  },
+  "Msg.CapResetToDefaults": {
+   "en": "Reset to Defaults",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step7PrintPreview/TermsAndConditions/TermsAndConditionsViewModel.cs",
+     64
+    ]
+   ]
+  },
+  "Msg.SetAProformaIDIn": {
+   "en": "Set a Proforma ID in Step 1 before adding attachments.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step8Attachments/AttachmentsStepViewModel.cs",
+     195
+    ]
+   ]
+  },
+  "Msg.CapAttachments": {
+   "en": "Attachments",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step8Attachments/AttachmentsStepViewModel.cs",
+     195
+    ],
+    [
+     "ViewModels/ProformaInvoice/Step8Attachments/AttachmentsStepViewModel.cs",
+     320
+    ]
+   ]
+  },
+  "Msg.CannotOpenFileX": {
+   "en": "Cannot open file:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step8Attachments/AttachmentsStepViewModel.cs",
+     320
+    ]
+   ]
+  },
+  "Msg.RemoveAttachmentXTheFile": {
+   "en": "Remove attachment '{0}'?\n\nThe file will be deleted from disk.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step8Attachments/AttachmentsStepViewModel.cs",
+     364
+    ]
+   ]
+  },
+  "Msg.CapDeleteAttachment": {
+   "en": "Delete Attachment",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/ProformaInvoice/Step8Attachments/AttachmentsStepViewModel.cs",
+     364
+    ]
+   ]
+  },
+  "Msg.CapExport": {
+   "en": "Export",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Reports/DeliveryReport/DeliveryReportViewModel.cs",
+     330
+    ],
+    [
+     "ViewModels/Reports/JoReport/JoReportViewModel.cs",
+     149
+    ],
+    [
+     "ViewModels/Reports/PiReport/PiReportViewModel.cs",
+     157
+    ],
+    [
+     "ViewModels/Reports/StatementReport/StatementReportViewModel.cs",
+     99
+    ],
+    [
+     "ViewModels/Reports/TaxInvoiceReport/TaxInvoiceReportViewModel.cs",
+     144
+    ],
+    [
+     "ViewModels/Reports/VatSubmission/VatSubmissionViewModel.cs",
+     247
+    ]
+   ]
+  },
+  "Msg.StatementWithTheSameFilters": {
+   "en": "A statement with the same filters already exists:\n\n  {0} — {1}\n\nDo you want to generate another copy anyway?",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/Reports/StatementGenerator/StatementGeneratorViewModel.cs",
+     1541
+    ]
+   ]
+  },
+  "Msg.CapDuplicateStatement": {
+   "en": "Duplicate Statement",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Reports/StatementGenerator/StatementGeneratorViewModel.cs",
+     1541
+    ]
+   ]
+  },
+  "Msg.CapMissingSignedAttachments": {
+   "en": "Missing Signed Attachments",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Reports/StatementGenerator/StatementGeneratorViewModel.cs",
+     1850
+    ]
+   ]
+  },
+  "Msg.DeleteStatementXThisWill": {
+   "en": "Delete statement {0}?\n\nThis will also delete the PDF file if it exists.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/Reports/StatementList/StatementListViewModel.cs",
+     329
+    ]
+   ]
+  },
+  "Msg.CapWorkflowWarningsX": {
+   "en": "Workflow Warnings ({0})",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/Reports/Workflow/WorkflowProgressViewModel.cs",
+     317
+    ]
+   ]
+  },
+  "Msg.CapImportFont": {
+   "en": "Import font",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     1310
+    ],
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     1330
+    ]
+   ]
+  },
+  "Msg.RemoveAllSavedAPIKeys": {
+   "en": "Remove all saved API keys from this device?\n\nThey will also be cleared from memory — AI stops working until keys are entered again.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2199
+    ]
+   ]
+  },
+  "Msg.CapRemoveSavedKeys": {
+   "en": "Remove Saved Keys",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2199
+    ]
+   ]
+  },
+  "Msg.CapSampleData": {
+   "en": "Sample Data",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2235
+    ],
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2242
+    ]
+   ]
+  },
+  "Msg.CapClearAllData": {
+   "en": "Clear All Data",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2258
+    ],
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2279
+    ],
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2286
+    ]
+   ]
+  },
+  "Msg.BackupWasCreatedXMinute": {
+   "en": "A backup was created {0} minute(s) ago.\n\nCreate another backup now?",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2594
+    ]
+   ]
+  },
+  "Msg.CapBackupAlreadyRecent": {
+   "en": "Backup Already Recent",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2594
+    ]
+   ]
+  },
+  "Msg.DemoModeIsOnRestore": {
+   "en": "Demo Mode is on. Restore would overwrite production files, so it is blocked. Exit Demo Mode, then restore.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2621
+    ]
+   ]
+  },
+  "Msg.CapRestoreBlocked": {
+   "en": "Restore blocked",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2621
+    ]
+   ]
+  },
+  "Msg.RestoreBackupFromXThis": {
+   "en": "Restore backup from {0}?\n\nThis OVERWRITES all current data with the backup.\nA safety snapshot of the current data is taken first.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2639
+    ]
+   ]
+  },
+  "Msg.CapRestoreBackup": {
+   "en": "Restore Backup",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2639
+    ]
+   ]
+  },
+  "Msg.BackupRestoredSuccessfullyProGlassMust": {
+   "en": "Backup restored successfully.\n\nProGlass must restart to load the restored data.\nRestart now?",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2661
+    ]
+   ]
+  },
+  "Msg.CapRestartRequired": {
+   "en": "Restart Required",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2661
+    ]
+   ]
+  },
+  "Msg.CapRebuildComplete": {
+   "en": "Rebuild complete",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2819
+    ]
+   ]
+  },
+  "Msg.CapRebuildFailed": {
+   "en": "Rebuild failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2845
+    ]
+   ]
+  },
+  "Msg.RestartCouldNotFindThe": {
+   "en": "Restart could not find the application executable.\nSave your work and start the app manually.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2918
+    ]
+   ]
+  },
+  "Msg.CapRestartUnavailable": {
+   "en": "Restart unavailable",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2918
+    ]
+   ]
+  },
+  "Msg.RestartWasBlockedByThe": {
+   "en": "Restart was blocked by the security guard.\nSave your work and start the app manually.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2940
+    ]
+   ]
+  },
+  "Msg.CapRestartBlocked": {
+   "en": "Restart blocked",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2940
+    ]
+   ]
+  },
+  "Msg.RestartFailedToStartA": {
+   "en": "Restart failed to start a new instance.\nSave your work and start the app manually.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2960
+    ]
+   ]
+  },
+  "Msg.CapRestartFailed": {
+   "en": "Restart failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2960
+    ],
+    [
+     "ViewModels/Settings/SettingsViewModel.cs",
+     2983
+    ]
+   ]
+  },
+  "Msg.CapScreenRecording": {
+   "en": "Screen recording",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/Shared/ScreenRecordPanelViewModel.cs",
+     162
+    ]
+   ]
+  },
+  "Msg.NothingToExportTheCurrent2": {
+   "en": "Nothing to export — the current view is empty.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     516
+    ],
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     549
+    ],
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     582
+    ]
+   ]
+  },
+  "Msg.CapExportCSV": {
+   "en": "Export CSV",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     516
+    ]
+   ]
+  },
+  "Msg.ExportedXSheetsToY": {
+   "en": "Exported {0} sheets to:\n\n{1}",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     533
+    ]
+   ]
+  },
+  "Msg.CapExportComplete": {
+   "en": "Export Complete",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     533
+    ],
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     566
+    ],
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     599
+    ]
+   ]
+  },
+  "Msg.ExportedXSheetsToExcel": {
+   "en": "Exported {0} sheets to Excel:\n\n{1}",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     566
+    ]
+   ]
+  },
+  "Msg.CapExportPDF": {
+   "en": "Export PDF",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     582
+    ]
+   ]
+  },
+  "Msg.PDFReportGeneratedXSheets": {
+   "en": "PDF report generated ({0} sheets):\n\n{1}",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     599
+    ]
+   ]
+  },
+  "Msg.CSVFileHasNoRows": {
+   "en": "The CSV file has no rows to import.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     634
+    ]
+   ]
+  },
+  "Msg.CapImportCSV": {
+   "en": "Import CSV",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     634
+    ]
+   ]
+  },
+  "Msg.ImportCompleteXNewSheets": {
+   "en": "Import complete!\n\n✓ {0} new sheets added\n✓ {1} duplicates got stock added\n✓ {2} sheets updated\n✕ {3} duplicates skipped",
+   "nargs": 4,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     721
+    ]
+   ]
+  },
+  "Msg.CapImportSummary": {
+   "en": "Import Summary",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     721
+    ]
+   ]
+  },
+  "Msg.DeleteThisGlassSheetX": {
+   "en": "Delete this glass sheet?\n\n{0} • {1} • {2}\nSize: {3}\nStock: {4} sheets ({5} AED)\n\nThis cannot be undone.",
+   "nargs": 6,
+   "sites": [
+    [
+     "ViewModels/SheetStore/SheetStoreViewModel.cs",
+     852
+    ]
+   ]
+  },
+  "Msg.CannotChangeThisUserThe": {
+   "en": "Cannot change this user.\n\nThe last active admin must stay active.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/SystemCenter/SystemCenterViewModel.cs",
+     265
+    ]
+   ]
+  },
+  "Msg.CapUsers": {
+   "en": "Users",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/SystemCenter/SystemCenterViewModel.cs",
+     265
+    ]
+   ]
+  },
+  "Msg.DeleteInvoiceXThisCannot": {
+   "en": "Delete invoice '{0}'?\n\nThis cannot be undone.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     676
+    ]
+   ]
+  },
+  "Msg.DeleteFailedX": {
+   "en": "Delete failed:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     692
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceList/TaxInvoiceListViewModel.cs",
+     421
+    ]
+   ]
+  },
+  "Msg.FailedToImportDNData": {
+   "en": "Failed to import DN data:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1123
+    ]
+   ]
+  },
+  "Msg.CapImportFailed": {
+   "en": "Import Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1123
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1212
+    ]
+   ]
+  },
+  "Msg.FailedX": {
+   "en": "Failed:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1212
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1733
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1876
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1912
+    ]
+   ]
+  },
+  "Msg.InvoiceHasXAttachmentS": {
+   "en": "This invoice has {0} attachment(s).\n\nInclude them in the PDF?",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1687
+    ]
+   ]
+  },
+  "Msg.CapIncludeAttachments": {
+   "en": "Include Attachments?",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1687
+    ]
+   ]
+  },
+  "Msg.PDFSavedXOpenNow": {
+   "en": "PDF saved:\n\n{0}\n\nOpen now?",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1709
+    ]
+   ]
+  },
+  "Msg.CapPDFReady": {
+   "en": "PDF Ready",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1709
+    ]
+   ]
+  },
+  "Msg.CapReadOnlyMode": {
+   "en": "Read-Only Mode",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1726
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1906
+    ]
+   ]
+  },
+  "Msg.CapPDFExportFailed": {
+   "en": "PDF Export Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1733
+    ]
+   ]
+  },
+  "Msg.FileIsLargerThan10": {
+   "en": "File is larger than 10 MB.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1816
+    ]
+   ]
+  },
+  "Msg.CapAttachmentError": {
+   "en": "Attachment Error",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1876
+    ]
+   ]
+  },
+  "Msg.RemoveX": {
+   "en": "Remove '{0}'?",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1884
+    ]
+   ]
+  },
+  "Msg.CapConfirmRemove": {
+   "en": "Confirm Remove",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1884
+    ]
+   ]
+  },
+  "Msg.CapRemoveFailed": {
+   "en": "Remove Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1912
+    ]
+   ]
+  },
+  "Msg.ProformaInvoiceReferenceIsRequired": {
+   "en": "Proforma Invoice reference is required.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1926
+    ]
+   ]
+  },
+  "Msg.CapValidation": {
+   "en": "Validation",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1926
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1933
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1940
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1947
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1954
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1961
+    ],
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1968
+    ]
+   ]
+  },
+  "Msg.CustomerNameIsRequired": {
+   "en": "Customer name is required.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1933
+    ]
+   ]
+  },
+  "Msg.CompanyTRNMustBeExactly": {
+   "en": "Company TRN must be exactly 15 digits for UAE tax invoices.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1940
+    ]
+   ]
+  },
+  "Msg.DueDateCannotBeEarlier": {
+   "en": "Due date cannot be earlier than issue date.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1947
+    ]
+   ]
+  },
+  "Msg.LeastOneGlassItemRow": {
+   "en": "At least one glass item row is required.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1954
+    ]
+   ]
+  },
+  "Msg.InvoiceRowsMustHaveQty": {
+   "en": "All invoice rows must have qty greater than zero.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1961
+    ]
+   ]
+  },
+  "Msg.GrandTotalMustBeGreater": {
+   "en": "Grand total must be greater than zero.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     1968
+    ]
+   ]
+  },
+  "Msg.CouldNotIssueInvoicesX": {
+   "en": "Could not issue invoices:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     2273
+    ]
+   ]
+  },
+  "Msg.CapIssueAllFailed": {
+   "en": "Issue All Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+     2273
+    ]
+   ]
+  },
+  "Msg.DeleteTaxInvoiceFamilyX": {
+   "en": "Delete tax invoice family '{0}'?\n\n{1} invoice(s) will be permanently deleted.\nThis cannot be undone.",
+   "nargs": 2,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceList/TaxInvoiceListViewModel.cs",
+     397
+    ]
+   ]
+  },
+  "Msg.DispatchedDeliveryYetForThis": {
+   "en": "No dispatched delivery yet for this Job Order.\n\nCreate the DN, enter qty, then click Make DN.\nMaster Invoice uses dispatched pcs only.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     286
+    ]
+   ]
+  },
+  "Msg.FailedToCreateMasterInvoice": {
+   "en": "Failed to create Master invoice:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     304
+    ]
+   ]
+  },
+  "Msg.DeliveryNoteXNotFound2": {
+   "en": "Delivery Note '{0}' not found.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     360
+    ]
+   ]
+  },
+  "Msg.DNXHasNoLinked": {
+   "en": "DN '{0}' has no linked Proforma Invoice.\n\nTax Invoices require a PI reference.",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     370
+    ]
+   ]
+  },
+  "Msg.FailedToConvertDNTo2": {
+   "en": "Failed to convert DN to invoice:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     389
+    ]
+   ]
+  },
+  "Msg.CapConvertFailed": {
+   "en": "Convert Failed",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     389
+    ]
+   ]
+  },
+  "Msg.ProformaInvoiceDatabaseNotInitialized": {
+   "en": "Proforma Invoice database not initialized.",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     406
+    ]
+   ]
+  },
+  "Msg.DeliveredItemsFoundForX": {
+   "en": "No delivered items found for '{0}'.\n\nCreate invoice using FULL Proforma Invoice qty?\n\n  Yes → Import all PI rows (advance invoicing)\n  No  → Cancel",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     461
+    ]
+   ]
+  },
+  "Msg.CapDeliveriesYet": {
+   "en": "No Deliveries Yet",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     461
+    ]
+   ]
+  },
+  "Msg.FailedToCreateInvoiceX": {
+   "en": "Failed to create invoice:\n\n{0}",
+   "nargs": 1,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     480
+    ]
+   ]
+  },
+  "Msg.DraftInvoiceAlreadyExistsFor": {
+   "en": "A Draft invoice already exists for '{0}':\n\n   🧾  {1}\n   📅  {2}\n   💰  AED {3}\n\nWhat would you like to do?\n\n  Yes    → Open the existing Draft\n  No     → Create a NEW invoice (will be Partial: A/B/C)\n  Cancel → Go back",
+   "nargs": 4,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     510
+    ]
+   ]
+  },
+  "Msg.CapDraftInvoiceExists": {
+   "en": "Draft Invoice Exists",
+   "nargs": 0,
+   "sites": [
+    [
+     "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+     510
+    ]
+   ]
+  }
+ },
+ "calls": [
+  [
+   "ViewModels/About/AboutCrashReportsViewModel.cs",
+   162,
+   "Msg.DeleteEveryCrashReportOn",
+   "Msg.CapClearCrashReports",
+   []
+  ],
+  [
+   "ViewModels/CompanyCenter/CompanyCenterViewModel.cs",
+   258,
+   "Msg.DeleteCompanyXExistingInvoices",
+   "Msg.CapDeleteCompany",
+   [
+    "card.CompanyName"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1019,
+   "Msg.DeliveryNoteXNotFound",
+   "Msg.CapFound",
+   [
+    "targetDeliveryNoteId"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1413,
+   "Msg.FailedToSaveX",
+   "Msg.CapSaveFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1438,
+   "Msg.SaveTheDeliveryNoteFirst",
+   "Msg.CapVersionHistory",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1460,
+   "Msg.VersionCouldNotBeApplied",
+   "Msg.CapRestoreVersion",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1553,
+   "Msg.CannotDispatchNoItemsHave",
+   "Msg.CapDispatchFailed",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1639,
+   null,
+   "Msg.CapDispatched",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1650,
+   "Msg.DispatchFailedX",
+   "Msg.CapDispatchFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1676,
+   null,
+   "Msg.CapCannotDelete",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1681,
+   "Msg.DeleteDeliveryNoteXCustomer",
+   "Msg.CapConfirmDelete",
+   [
+    "DeliveryNoteId",
+    "CustomerName",
+    "ProjectName",
+    "Status"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1709,
+   "Msg.DeliveryNoteXDeletedSuccessfully",
+   "Msg.CapDeleted",
+   [
+    "DeliveryNoteId"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1719,
+   "Msg.FailedToDeleteX",
+   "Msg.CapDeleteFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1759,
+   "Msg.DeliveryNoteHasNoLinked",
+   "Msg.CapPIReference",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1769,
+   "Msg.TaxInvoiceNavigationIsNot",
+   "Msg.CapWired",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1783,
+   "Msg.CannotDetermineWhichDNTo",
+   "Msg.CapDNSelected",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1793,
+   "Msg.DNXHas0Delivered",
+   "Msg.CapNothingToInvoice",
+   [
+    "targetDnId"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1807,
+   "Msg.FailedToOpenTaxInvoice",
+   "Msg.CapNavigationFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1829,
+   "Msg.ExportFailedX",
+   "Msg.CapXExportFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1887,
+   "Msg.LoadADeliveryNoteBefore",
+   "Msg.CapNothingToExport",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1920,
+   "Msg.XExportFailedY",
+   "Msg.CapExportFailed",
+   [
+    "formatLabel",
+    "result.ErrorMessage"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1969,
+   "Msg.UnsupportedImageFormatAllowedJPG",
+   "Msg.CapInvalidFile",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   1980,
+   "Msg.FileIsTooLargeMaximum",
+   "Msg.CapFileTooLarge",
+   [
+    "AttachmentLimits.MaxFileSizeDisplay"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   2011,
+   "Msg.FailedToUploadImageX",
+   "Msg.CapUploadFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   2037,
+   "Msg.OnlyPDFFilesAreAllowed",
+   "Msg.CapInvalidFile",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   2047,
+   "Msg.FileIsTooLargeMaximum",
+   "Msg.CapFileTooLarge",
+   [
+    "AttachmentLimits.MaxFileSizeDisplay"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   2079,
+   "Msg.FailedToUploadPDFX",
+   "Msg.CapUploadFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   2093,
+   "Msg.CouldNotOpenFileX",
+   "Msg.CapOpenFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   2105,
+   "Msg.DeleteAttachmentXThisCannot",
+   "Msg.CapConfirmDelete",
+   [
+    "row.FileName"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs",
+   2127,
+   "Msg.FailedToDeleteAttachmentX",
+   "Msg.CapDeleteFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   575,
+   "Msg.FailedToLoadJobOrder",
+   "Msg.CapError",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   637,
+   "Msg.CannotCreateTaxInvoiceNo",
+   "Msg.CapPIReference",
+   [
+    "sourceRef"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   648,
+   "Msg.TaxInvoiceNavigationIsNot2",
+   "Msg.CapWired",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   657,
+   "Msg.CreateTaxInvoiceSourceX",
+   "Msg.CapCreateTaxInvoice",
+   [
+    "sourceRef",
+    "proformaId"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   673,
+   "Msg.FailedToOpenTaxInvoice",
+   "Msg.CapNavigationFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   689,
+   "Msg.JobOrdersDatabaseNotInitialized",
+   "Msg.CapError",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   701,
+   "Msg.FailedToLoadJobOrders",
+   "Msg.CapLoadFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   711,
+   "Msg.JobOrdersFoundCreateA",
+   "Msg.CapJobOrders",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   765,
+   "Msg.JobOrdersHaveBeenFully",
+   "Msg.CapDelivered",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   969,
+   "Msg.FailedToReloadTabX",
+   "Msg.CapLoadError",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   1073,
+   "Msg.MasterDNsCannotBeDeleted",
+   "Msg.CapCannotDeleteMasterDN",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   1091,
+   null,
+   "Msg.CapCannotDelete",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   1096,
+   "Msg.DeleteDeliveryNoteXCustomer2",
+   "Msg.CapConfirmDelete",
+   [
+    "row.DeliveryNoteId",
+    "row.CustomerName"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   1114,
+   "Msg.FailedToDeleteX",
+   "Msg.CapDeleteFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   1138,
+   null,
+   "Msg.CapStatusChangeNotAllowed",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs",
+   1151,
+   "Msg.FailedToChangeStatusX",
+   "Msg.CapUpdateFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+   139,
+   "Msg.FailedToOpenMasterInvoice",
+   "Msg.CapNavigationError",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+   180,
+   "Msg.FailedToConvertDNTo",
+   "Msg.CapNavigationError",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+   221,
+   "Msg.CannotCreateMasterInvoiceNo",
+   "Msg.CapPIReference",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+   231,
+   "Msg.TaxInvoiceNavigationIsNot2",
+   "Msg.CapWired",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+   247,
+   "Msg.CannotConvertToTaxInvoice",
+   "Msg.CapDNReference",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+   257,
+   "Msg.TaxInvoiceNavigationIsNot2",
+   "Msg.CapWired",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+   329,
+   null,
+   "Msg.CapMasterDN",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+   341,
+   "Msg.MasterDNExistsForX",
+   "Msg.CapMasterDNNotFound",
+   [
+    "jobOrderId"
+   ]
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+   388,
+   null,
+   "Msg.CapFullyDelivered",
+   []
+  ],
+  [
+   "ViewModels/DeliveryNote/DeliveryNoteViewModel.cs",
+   396,
+   null,
+   "Msg.CapCreateFailed",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   284,
+   "Msg.ExportFailedX",
+   "Msg.CapXExportFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   503,
+   "Msg.NothingLoadedToSave",
+   "Msg.CapSaveFailed",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   557,
+   "Msg.JobOrderXSavedSuccessfully",
+   "Msg.CapSaved",
+   [
+    "_snapshot.JobOrderId"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   568,
+   "Msg.FailedToSaveX",
+   "Msg.CapSaveFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   584,
+   "Msg.LoadAJobOrderFirst",
+   "Msg.CapMasterDN",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   594,
+   "Msg.DeliveryNotesDatabaseNotInitialized",
+   "Msg.CapMasterDN",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   616,
+   null,
+   "Msg.CapMasterDN",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   627,
+   "Msg.MasterDNExistsForThis",
+   "Msg.CapMasterDN",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   639,
+   "Msg.FailedToOpenMasterDN",
+   "Msg.CapMasterDN",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   651,
+   "Msg.LoadAJobOrderFirst",
+   "Msg.CapCannotCreateDN",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   673,
+   null,
+   "Msg.CapFullyDelivered",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   681,
+   null,
+   "Msg.CapCreateFailed",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   693,
+   "Msg.FailedToCreateDeliveryNote",
+   "Msg.CapCreateFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   757,
+   "Msg.LoadAJobOrderBefore",
+   "Msg.CapNothingToExport",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderDetail/JobOrderDetailViewModel.cs",
+   770,
+   "Msg.XExportFailedY",
+   "Msg.CapExportFailed",
+   [
+    "formatLabel",
+    "result.ErrorMessage"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderViewModel.cs",
+   162,
+   "Msg.CouldNotOpenJobOrder",
+   "Msg.CapJobOrders2",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderViewModel.cs",
+   207,
+   "Msg.JobOrderXNoLonger",
+   "Msg.CapRestoreVersion",
+   [
+    "version.EntityId"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/JobOrderViewModel.cs",
+   223,
+   "Msg.VersionCouldNotBeApplied",
+   "Msg.CapRestoreVersion",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   470,
+   null,
+   "Msg.CapCannotDelete",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   475,
+   "Msg.DeleteJobOrderXCustomer",
+   "Msg.CapConfirmDelete",
+   [
+    "row.JobOrderId",
+    "row.CustomerName"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   551,
+   "Msg.FailedToDeleteJobOrder",
+   "Msg.CapDeleteFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   612,
+   "Msg.DatabasesAreStillInitialisingTry",
+   "Msg.CapReady",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   638,
+   "Msg.ProformaInvoiceXCouldNot",
+   "Msg.CapCreateFailed",
+   [
+    "proformaId"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   658,
+   "Msg.XAlreadyHasYJob",
+   "Msg.CapAlreadyConverted",
+   [
+    "proformaId",
+    "existing.Count",
+    "ids"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   706,
+   "Msg.FailedToCreateJobOrder",
+   "Msg.CapCreateFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   729,
+   null,
+   "Msg.CapStatusChangeNotAllowed",
+   []
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   762,
+   "Msg.FailedToChangeStatusX",
+   "Msg.CapUpdateFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   801,
+   "Msg.FailedToChangePriorityX",
+   "Msg.CapUpdateFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   866,
+   "Msg.JobOrderXNoLonger",
+   "Msg.CapFound",
+   [
+    "row.JobOrderId"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   877,
+   "Msg.JobOrderXHasCorrupt",
+   "Msg.CapCorruptData",
+   [
+    "row.JobOrderId"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   889,
+   "Msg.FailedToLoadJobOrder",
+   "Msg.CapLoadFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs",
+   915,
+   "Msg.XExportFailedY",
+   "Msg.CapExportFailed",
+   [
+    "formatLabel",
+    "result.ErrorMessage"
+   ]
+  ],
+  [
+   "ViewModels/MainViewModel.cs",
+   863,
+   null,
+   null,
+   []
+  ],
+  [
+   "ViewModels/MainViewModel.cs",
+   902,
+   null,
+   "Msg.CapStartProformaInvoiceFromInquiry",
+   []
+  ],
+  [
+   "ViewModels/MainViewModel.cs",
+   938,
+   null,
+   "Msg.CapUpgradeRequired",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs",
+   482,
+   "Msg.SelectedInvoiceCouldNotBe",
+   "Msg.CapLoadFailed",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs",
+   543,
+   "Msg.VersionCouldNotBeRead",
+   "Msg.CapRestoreVersion",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   312,
+   "Msg.NothingToExportTheCurrent",
+   "Msg.CapExportExcel",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   351,
+   "Msg.ExcelExportFailedX",
+   "Msg.CapExportFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   437,
+   "Msg.FailedToLoadSavedInvoices",
+   "Msg.CapLoadError",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   600,
+   "Msg.DuplicateInvoiceXANew",
+   "Msg.CapConfirmDuplicate",
+   [
+    "item.ProformaId"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   650,
+   "Msg.DuplicatedAsX",
+   "Msg.CapDuplicateSuccessful",
+   [
+    "newId"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   658,
+   "Msg.FailedToDuplicateX",
+   "Msg.CapDuplicateFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   683,
+   null,
+   "Msg.CapCannotDelete",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   688,
+   "Msg.DeleteInvoiceXPermanentlyThis",
+   "Msg.CapConfirmDelete",
+   [
+    "item.ProformaId"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   708,
+   "Msg.FailedToDeleteX2",
+   "Msg.CapDeleteFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   753,
+   null,
+   "Msg.CapStatusChangeNotAllowed",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   779,
+   "Msg.FailedToChangeStatusX2",
+   "Msg.CapStatusChangeFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   905,
+   "Msg.InvoiceXApprovedAndConverted",
+   "Msg.CapApproved",
+   [
+    "entity.ProformaId"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   1013,
+   "Msg.PDFExportFailedX",
+   "Msg.CapExportFailed",
+   [
+    "result.ErrorMessage"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   1022,
+   "Msg.PDFExportFailedX",
+   "Msg.CapExportFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   1059,
+   "Msg.ExcelExportFailedX",
+   "Msg.CapExportFailed",
+   [
+    "result.ErrorMessage"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   1068,
+   "Msg.ExcelExportFailedX",
+   "Msg.CapExportFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   1109,
+   "Msg.CSVExportFailedX",
+   "Msg.CapExportFailed",
+   [
+    "result.ErrorMessage"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs",
+   1118,
+   "Msg.CSVExportFailedX",
+   "Msg.CapExportFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs",
+   939,
+   null,
+   "Msg.CapPermissionDenied",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs",
+   949,
+   "Msg.FailedToSaveSpecX",
+   "Msg.CapDatabaseError",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.ImportExport.cs",
+   91,
+   null,
+   "Msg.CapImportCutList",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.ImportExport.cs",
+   101,
+   null,
+   "Msg.CapImportCutList",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   309,
+   null,
+   null,
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   365,
+   "Msg.InvoiceDatabaseIsNotInitialized",
+   "Msg.CapSaveFailed",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   373,
+   "Msg.CannotSaveProformaIDIs",
+   "Msg.CapSaveFailed",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   403,
+   "Msg.InvoiceWithIDXAlready",
+   "Msg.CapDuplicateProformaID",
+   [
+    "entity.ProformaId",
+    "suggestedId"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   506,
+   "Msg.InvoiceXWasYSuccessfully",
+   "Msg.CapSaveSuccessful",
+   [
+    "proformaId",
+    "verb"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   523,
+   "Msg.InvoiceDatabaseIsNotInitialized",
+   "Msg.CapLoadFailed",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   536,
+   "Msg.LoadingASavedInvoiceWill",
+   "Msg.CapUnsavedChanges",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   561,
+   "Msg.SelectedInvoiceCouldNotBe",
+   "Msg.CapLoadFailed",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   583,
+   "Msg.InvoiceXLoadedSuccessfullyAll",
+   "Msg.CapLoadSuccessful",
+   [
+    "entity.ProformaId"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   651,
+   "Msg.CannotExportProformaIDIs",
+   "Msg.CapXExportFailed",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   665,
+   "Msg.XExportFailedY",
+   "Msg.CapExportFailed",
+   [
+    "formatLabel",
+    "result.ErrorMessage"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs",
+   1600,
+   "Msg.XIsComingInY",
+   "Msg.CapXComingSoon",
+   [
+    "featureName",
+    "phase"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step7PrintPreview/TermsAndConditions/TermsAndConditionsViewModel.cs",
+   64,
+   "Msg.ResetAllTermsToDefaults",
+   "Msg.CapResetToDefaults",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step8Attachments/AttachmentsStepViewModel.cs",
+   195,
+   "Msg.SetAProformaIDIn",
+   "Msg.CapAttachments",
+   []
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step8Attachments/AttachmentsStepViewModel.cs",
+   320,
+   "Msg.CannotOpenFileX",
+   "Msg.CapAttachments",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/ProformaInvoice/Step8Attachments/AttachmentsStepViewModel.cs",
+   364,
+   "Msg.RemoveAttachmentXTheFile",
+   "Msg.CapDeleteAttachment",
+   [
+    "row.FileName"
+   ]
+  ],
+  [
+   "ViewModels/Reports/DeliveryReport/DeliveryReportViewModel.cs",
+   330,
+   null,
+   "Msg.CapExport",
+   []
+  ],
+  [
+   "ViewModels/Reports/JoReport/JoReportViewModel.cs",
+   149,
+   null,
+   "Msg.CapExport",
+   []
+  ],
+  [
+   "ViewModels/Reports/PiReport/PiReportViewModel.cs",
+   157,
+   null,
+   "Msg.CapExport",
+   []
+  ],
+  [
+   "ViewModels/Reports/StatementGenerator/StatementGeneratorViewModel.cs",
+   1541,
+   "Msg.StatementWithTheSameFilters",
+   "Msg.CapDuplicateStatement",
+   [
+    "duplicate.StatementNumber",
+    "duplicate.SubTitle"
+   ]
+  ],
+  [
+   "ViewModels/Reports/StatementGenerator/StatementGeneratorViewModel.cs",
+   1850,
+   null,
+   "Msg.CapMissingSignedAttachments",
+   []
+  ],
+  [
+   "ViewModels/Reports/StatementList/StatementListViewModel.cs",
+   329,
+   "Msg.DeleteStatementXThisWill",
+   "Msg.CapConfirmDelete",
+   [
+    "row.StatementNumber"
+   ]
+  ],
+  [
+   "ViewModels/Reports/StatementReport/StatementReportViewModel.cs",
+   99,
+   null,
+   "Msg.CapExport",
+   []
+  ],
+  [
+   "ViewModels/Reports/TaxInvoiceReport/TaxInvoiceReportViewModel.cs",
+   144,
+   null,
+   "Msg.CapExport",
+   []
+  ],
+  [
+   "ViewModels/Reports/VatSubmission/VatSubmissionViewModel.cs",
+   247,
+   null,
+   "Msg.CapExport",
+   []
+  ],
+  [
+   "ViewModels/Reports/Workflow/WorkflowProgressViewModel.cs",
+   317,
+   null,
+   "Msg.CapWorkflowWarningsX",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   1310,
+   null,
+   "Msg.CapImportFont",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   1330,
+   null,
+   "Msg.CapImportFont",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2199,
+   "Msg.RemoveAllSavedAPIKeys",
+   "Msg.CapRemoveSavedKeys",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2235,
+   null,
+   "Msg.CapSampleData",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2242,
+   null,
+   "Msg.CapSampleData",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2258,
+   null,
+   "Msg.CapClearAllData",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2279,
+   null,
+   "Msg.CapClearAllData",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2286,
+   null,
+   "Msg.CapClearAllData",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2594,
+   "Msg.BackupWasCreatedXMinute",
+   "Msg.CapBackupAlreadyRecent",
+   [
+    "mins"
+   ]
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2621,
+   "Msg.DemoModeIsOnRestore",
+   "Msg.CapRestoreBlocked",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2639,
+   "Msg.RestoreBackupFromXThis",
+   "Msg.CapRestoreBackup",
+   [
+    "selected.CreatedAt"
+   ]
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2661,
+   "Msg.BackupRestoredSuccessfullyProGlassMust",
+   "Msg.CapRestartRequired",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2761,
+   null,
+   "Msg.CapPermissionDenied",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2819,
+   null,
+   "Msg.CapRebuildComplete",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2845,
+   null,
+   "Msg.CapRebuildFailed",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2918,
+   "Msg.RestartCouldNotFindThe",
+   "Msg.CapRestartUnavailable",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2940,
+   "Msg.RestartWasBlockedByThe",
+   "Msg.CapRestartBlocked",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2960,
+   "Msg.RestartFailedToStartA",
+   "Msg.CapRestartFailed",
+   []
+  ],
+  [
+   "ViewModels/Settings/SettingsViewModel.cs",
+   2983,
+   null,
+   "Msg.CapRestartFailed",
+   []
+  ],
+  [
+   "ViewModels/Shared/ScreenRecordPanelViewModel.cs",
+   162,
+   null,
+   "Msg.CapScreenRecording",
+   []
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreHistory/HistoryViewModel.cs",
+   160,
+   null,
+   "Msg.CapError",
+   []
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreViewModel.cs",
+   508,
+   null,
+   "Msg.CapError",
+   []
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreViewModel.cs",
+   516,
+   "Msg.NothingToExportTheCurrent2",
+   "Msg.CapExportCSV",
+   []
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreViewModel.cs",
+   533,
+   "Msg.ExportedXSheetsToY",
+   "Msg.CapExportComplete",
+   [
+    "Sheets.Count",
+    "dialog.FileName"
+   ]
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreViewModel.cs",
+   549,
+   "Msg.NothingToExportTheCurrent2",
+   "Msg.CapExportExcel",
+   []
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreViewModel.cs",
+   566,
+   "Msg.ExportedXSheetsToExcel",
+   "Msg.CapExportComplete",
+   [
+    "Sheets.Count",
+    "dialog.FileName"
+   ]
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreViewModel.cs",
+   582,
+   "Msg.NothingToExportTheCurrent2",
+   "Msg.CapExportPDF",
+   []
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreViewModel.cs",
+   599,
+   "Msg.PDFReportGeneratedXSheets",
+   "Msg.CapExportComplete",
+   [
+    "Sheets.Count",
+    "dialog.FileName"
+   ]
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreViewModel.cs",
+   634,
+   "Msg.CSVFileHasNoRows",
+   "Msg.CapImportCSV",
+   []
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreViewModel.cs",
+   721,
+   "Msg.ImportCompleteXNewSheets",
+   "Msg.CapImportSummary",
+   [
+    "addedCount",
+    "stockAddedCount",
+    "updatedCount",
+    "skippedCount"
+   ]
+  ],
+  [
+   "ViewModels/SheetStore/SheetStoreViewModel.cs",
+   852,
+   "Msg.DeleteThisGlassSheetX",
+   "Msg.CapConfirmDelete",
+   [
+    "sheet.Category",
+    "sheet.ThicknessDisplay",
+    "sheet.Color",
+    "sheet.SizeDisplay",
+    "sheet.Stock",
+    "sheet.TotalPurchaseValue"
+   ]
+  ],
+  [
+   "ViewModels/SystemCenter/SystemCenterViewModel.cs",
+   265,
+   "Msg.CannotChangeThisUserThe",
+   "Msg.CapUsers",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   676,
+   "Msg.DeleteInvoiceXThisCannot",
+   "Msg.CapConfirmDelete",
+   [
+    "_editingInvoiceNumber"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   692,
+   "Msg.DeleteFailedX",
+   "Msg.CapDeleteFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1123,
+   "Msg.FailedToImportDNData",
+   "Msg.CapImportFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1212,
+   "Msg.FailedX",
+   "Msg.CapImportFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1557,
+   "Msg.FailedToSaveX",
+   "Msg.CapSaveFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1687,
+   "Msg.InvoiceHasXAttachmentS",
+   "Msg.CapIncludeAttachments",
+   [
+    "attachments.Count"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1709,
+   "Msg.PDFSavedXOpenNow",
+   "Msg.CapPDFReady",
+   [
+    "savedPath"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1726,
+   null,
+   "Msg.CapReadOnlyMode",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1733,
+   "Msg.FailedX",
+   "Msg.CapPDFExportFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1816,
+   "Msg.FileIsLargerThan10",
+   "Msg.CapFileTooLarge",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1876,
+   "Msg.FailedX",
+   "Msg.CapAttachmentError",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1884,
+   "Msg.RemoveX",
+   "Msg.CapConfirmRemove",
+   [
+    "vm.FileName"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1906,
+   null,
+   "Msg.CapReadOnlyMode",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1912,
+   "Msg.FailedX",
+   "Msg.CapRemoveFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1926,
+   "Msg.ProformaInvoiceReferenceIsRequired",
+   "Msg.CapValidation",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1933,
+   "Msg.CustomerNameIsRequired",
+   "Msg.CapValidation",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1940,
+   "Msg.CompanyTRNMustBeExactly",
+   "Msg.CapValidation",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1947,
+   "Msg.DueDateCannotBeEarlier",
+   "Msg.CapValidation",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1954,
+   "Msg.LeastOneGlassItemRow",
+   "Msg.CapValidation",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1961,
+   "Msg.InvoiceRowsMustHaveQty",
+   "Msg.CapValidation",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   1968,
+   "Msg.GrandTotalMustBeGreater",
+   "Msg.CapValidation",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.cs",
+   2273,
+   "Msg.CouldNotIssueInvoicesX",
+   "Msg.CapIssueAllFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceList/TaxInvoiceListViewModel.cs",
+   397,
+   "Msg.DeleteTaxInvoiceFamilyX",
+   "Msg.CapConfirmDelete",
+   [
+    "fam.ProformaId",
+    "fam.InvoiceCount"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceList/TaxInvoiceListViewModel.cs",
+   421,
+   "Msg.DeleteFailedX",
+   "Msg.CapDeleteFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+   286,
+   "Msg.DispatchedDeliveryYetForThis",
+   "Msg.CapNothingToInvoice",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+   304,
+   "Msg.FailedToCreateMasterInvoice",
+   "Msg.CapCreateFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+   360,
+   "Msg.DeliveryNoteXNotFound2",
+   "Msg.CapFound",
+   [
+    "deliveryNoteId"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+   370,
+   "Msg.DNXHasNoLinked",
+   "Msg.CapPIReference",
+   [
+    "deliveryNoteId"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+   389,
+   "Msg.FailedToConvertDNTo2",
+   "Msg.CapConvertFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+   406,
+   "Msg.ProformaInvoiceDatabaseNotInitialized",
+   "Msg.CapError",
+   []
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+   461,
+   "Msg.DeliveredItemsFoundForX",
+   "Msg.CapDeliveriesYet",
+   [
+    "proformaId"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+   480,
+   "Msg.FailedToCreateInvoiceX",
+   "Msg.CapCreateFailed",
+   [
+    "ex.Message"
+   ]
+  ],
+  [
+   "ViewModels/TaxInvoice/TaxInvoiceViewModel.cs",
+   510,
+   "Msg.DraftInvoiceAlreadyExistsFor",
+   "Msg.CapDraftInvoiceExists",
+   [
+    "proformaId",
+    "existingDraft.InvoiceNumber",
+    "existingDraft.IssueDate",
+    "existingDraft.GrandTotal"
+   ]
+  ]
+ ]
+}
