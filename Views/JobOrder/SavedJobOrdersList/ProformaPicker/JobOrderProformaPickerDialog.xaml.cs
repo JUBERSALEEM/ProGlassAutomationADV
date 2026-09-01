@@ -491,9 +491,6 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.ProformaPicker
             DialogResult = true;
         }
 
-        private void OnCancelClick(object sender, RoutedEventArgs e)
-            => DialogResult = false;
-
         // ── Empty / error state ───────────────────────────────────────────
 
         private void ShowMessage(string message, bool error)

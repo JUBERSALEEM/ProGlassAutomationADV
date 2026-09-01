@@ -57,7 +57,7 @@
 
                     <Button Grid.Column="1" Style="{StaticResource RowOutlinedButton}"
                             Tag="&#xE711;" MinWidth="40"
-                            Click="OnCancelClick"
+                            IsCancel="True"
                             ToolTip="{DynamicResource DeliveryNote.CloseEsc}"/>
                 </Grid>
             </Border>
@@ -166,7 +166,7 @@
                                 Content="{DynamicResource Action.Cancel}"
                                 MinWidth="96"
                                 Margin="0,0,10,0"
-                                Click="OnCancelClick"/>
+                                IsCancel="True"/>
                         <Button x:Name="ConfirmButton"
                                 Style="{StaticResource PrimaryPillButton}"
                                 Tag="&#xE7B8;"

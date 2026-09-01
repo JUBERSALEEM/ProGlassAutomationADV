@@ -272,11 +272,6 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
             DialogResult = true;
         }
 
-        private void OnCancelClick(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-        }
-
         // ── Error ─────────────────────────────────────────────────────────
 
         private void ShowError(string message)

@@ -258,9 +258,5 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
             DialogResult = true;
         }
 
-        private void OnCancelClick(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
         }
-    }
 }
