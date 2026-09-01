@@ -242,7 +242,7 @@
 
                     <!-- CREATE INVOICE -->
                     <Button Grid.Column="0"
-                            Click="CreateInvoice_Click"
+                            Command="{Binding CreateInvoiceCommand}"
                             Height="52"
                             Cursor="Hand"
                             BorderThickness="0">
@@ -276,7 +276,7 @@
 
                     <!-- SKIP -->
                     <Button Grid.Column="2"
-                            Click="Skip_Click"
+                            Command="{Binding SkipCommand}"
                             Height="52"
                             Cursor="Hand"
                             BorderThickness="0"
@@ -311,7 +311,7 @@
 
                     <!-- ABORT -->
                     <Button Grid.Column="4"
-                            Click="Abort_Click"
+                            Command="{Binding AbortCommand}"
                             Height="52"
                             Cursor="Hand"
                             BorderThickness="0"

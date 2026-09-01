@@ -64,22 +64,19 @@
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource CrashReports.ErrorID}"
                                Style="{StaticResource CrashFieldLabel}"/>
                     <TextBlock Grid.Row="0" Grid.Column="1"
-                               x:Name="ErrorIdText"
-                               Text="—"
+                               Text="{Binding ErrorId}"
                                Style="{StaticResource CrashFieldValue}"/>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Common.Type}"
                                Style="{StaticResource CrashFieldLabel}"/>
                     <TextBlock Grid.Row="1" Grid.Column="1"
-                               x:Name="ExceptionTypeText"
-                               Text="—"
+                               Text="{Binding ExceptionType}"
                                Style="{StaticResource CrashFieldValue}"/>
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource CrashReports.Message}"
                                Style="{StaticResource CrashFieldLabel}"/>
                     <TextBlock Grid.Row="2" Grid.Column="1"
-                               x:Name="ExceptionMessageText"
-                               Text="—"
+                               Text="{Binding ExceptionMessage}"
                                TextWrapping="Wrap"
                                Style="{StaticResource CrashFieldValue}"/>
                 </Grid>
@@ -87,8 +84,7 @@
                 <TextBlock Text="{DynamicResource CrashReports.CrashReportSaved}"
                            Style="{StaticResource CrashFieldLabel}"
                            Margin="0,4,0,4"/>
-                <TextBlock x:Name="ReportPathText"
-                           Text="—"
+                <TextBlock Text="{Binding ReportPath}"
                            FontFamily="Consolas, Cascadia Mono, Courier New"
                            FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -101,19 +97,19 @@
                     HorizontalAlignment="Right" Margin="0,18,0,0">
             <Button Style="{StaticResource CrashPrimaryButton}"
                     Content="{DynamicResource CrashReports.RestartAPP}"
-                    Click="RestartButton_Click"
+                    Command="{Binding RestartCommand}"
                     Margin="0,0,8,0"/>
             <Button Style="{StaticResource CrashOutlinedButton}"
                     Content="{DynamicResource CrashReports.COPYErrorID}"
-                    Click="CopyErrorIdButton_Click"
+                    Command="{Binding CopyErrorIdCommand}"
                     Margin="0,0,8,0"/>
             <Button Style="{StaticResource CrashOutlinedButton}"
                     Content="{DynamicResource CrashReports.OPENCrashFolder}"
-                    Click="OpenFolderButton_Click"
+                    Command="{Binding OpenFolderCommand}"
                     Margin="0,0,8,0"/>
             <Button Style="{StaticResource CrashGhostButton}"
                     Content="{DynamicResource Action.Close}"
-                    Click="CloseButton_Click"/>
+                    Command="{Binding CloseCommand}"/>
         </StackPanel>
     </Grid>
 </Window>

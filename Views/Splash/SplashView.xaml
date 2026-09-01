@@ -564,7 +564,8 @@
             </Border>
 
             <!-- Crystal accept bar -->
-            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
+            <Border x:Name="TermsBar"
+                    CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="0,1,0,0"
                     Padding="60,20"
@@ -579,13 +580,13 @@
                                 MinWidth="150" Height="42"
                                 Margin="0,0,12,0"
                                 Style="{StaticResource TermsDeclineButtonStyle}"
-                                Click="DeclineTerms_Click"/>
+                                Command="{Binding DeclineCommand}"/>
                         <Button x:Name="ContinueButton"
                                 Content="{DynamicResource Splash.AcceptContinue}"
                                 MinWidth="190" Height="42"
-                                IsEnabled="False"
+                                IsEnabled="{Binding IsContinueEnabled}"
                                 Style="{StaticResource TermsContinueButtonStyle}"
-                                Click="ContinueFromTerms_Click"/>
+                                Command="{Binding ContinueCommand}"/>
                     </StackPanel>
                     <CheckBox x:Name="AcceptTermsCheck"
                               VerticalAlignment="Center"
@@ -593,8 +594,7 @@
                               FontSize="{StaticResource TextBodyLarge}"
                               Cursor="Hand"
                               Margin="0,8,0,0"
-                              Checked="AcceptTerms_Changed"
-                              Unchecked="AcceptTerms_Changed">
+                              IsChecked="{Binding AcceptTerms, Mode=TwoWay}">
                         <TextBlock Text="{DynamicResource Splash.AcceptText}"
                                    TextWrapping="Wrap"/>
                     </CheckBox>

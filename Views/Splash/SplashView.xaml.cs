@@ -17,8 +17,7 @@
 // PRESERVED (zero regression — App.xaml.cs depends on these):
 //   • FadeOutAndClose(Action), RunLoginAsync(), ShowTermsGate()
 //   • TermsAccepted / TermsResolved / SignedIn / HasAcceptedCurrentTerms
-//   • TermsVersion, RecordAcceptance, AcceptTerms_Changed,
-//     ContinueFromTerms_Click, DeclineTerms_Click
+//   • TermsVersion, RecordAcceptance
 //   • SplashView_Loaded / SplashView_Unloaded timers + cleanup
 //   • Animated loading dots (one DispatcherTimer)
 //
@@ -30,6 +29,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIConfig;
+using ProGlassAutomation.ViewModels.Login;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
@@ -132,6 +132,23 @@ namespace ProGlassAutomation.Views.Splash
 
             // Populate the frosted module chip strip once.
             FeaturePanel.ItemsSource = _features;
+
+            // Phase 3.7: terms gate is VM-backed (state + commands);
+            // the view keeps the window-side side effects.
+            TermsBar.DataContext = _termsVm;
+            _termsVm.RequestContinue = () =>
+            {
+                RecordAcceptance();
+                TermsAccepted = true;
+                TermsPanel.Visibility = Visibility.Collapsed;
+                TermsResolved?.Invoke();
+            };
+            _termsVm.RequestDecline = () =>
+            {
+                TermsAccepted = false;
+                TermsResolved?.Invoke();
+                Close();
+            };
 
             Loaded += SplashView_Loaded;
             Unloaded += SplashView_Unloaded;
@@ -287,7 +304,11 @@ namespace ProGlassAutomation.Views.Splash
         /// when a previous acceptance of THIS version was already recorded.
         /// App.xaml.cs must not proceed to sign-in unless this is true.
         /// </summary>
-        public bool TermsAccepted { get; private set; }
+        private readonly TermsGateViewModel _termsVm = new();
+
+        /// <summary>True after the user explicitly accepted the terms
+        /// (Phase 3.7: forwarded from TermsGateViewModel).</summary>
+        public bool TermsAccepted => _termsVm.TermsAccepted;
 
         /// <summary>
         /// Fired when the user accepts or declines the terms gate.
@@ -375,28 +396,6 @@ namespace ProGlassAutomation.Views.Splash
                 Duration = TimeSpan.FromMilliseconds(280),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             });
-        }
-
-        private void AcceptTerms_Changed(object sender, RoutedEventArgs e)
-            => ContinueButton.IsEnabled = AcceptTermsCheck.IsChecked == true;
-
-        private void ContinueFromTerms_Click(object sender, RoutedEventArgs e)
-        {
-            // Defence in depth: the button is disabled until the box is
-            // ticked, but never rely on UI state alone for a consent gate.
-            if (AcceptTermsCheck.IsChecked != true) return;
-
-            RecordAcceptance();
-            TermsAccepted = true;
-            TermsPanel.Visibility = Visibility.Collapsed;
-            TermsResolved?.Invoke();
-        }
-
-        private void DeclineTerms_Click(object sender, RoutedEventArgs e)
-        {
-            TermsAccepted = false;
-            TermsResolved?.Invoke();
-            Close();
         }
 
         /// <summary>
