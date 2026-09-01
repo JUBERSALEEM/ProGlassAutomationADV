@@ -35,12 +35,11 @@
          dictionary — one source of truth for the whole auth flow
          (login, forgot-password reset, forced password change).
 
-         ALL x:Name elements and event handlers required by
-         LoginPanel.xaml.cs are preserved verbatim:
-           SignInBusyDot, SignInStatusText, DefaultCredWarning,
-           UsernameBox, PasswordBox, RememberUserCheck, ErrorPanel,
-           ErrorText, SignInButton, ForgotPasswordButton, ExitButton
-         (StatusStrip is a NEW container used by SetSigningState).
+         2026-09-02 (Phase 3.7): sign-in state moved to
+         LoginPanelViewModel — only the PasswordBox-focused x:Names
+         remain (UsernameBox, PasswordBox, RememberUserCheck,
+         SkipLoginPill, SignInButton, ForgotPasswordButton, ExitButton)
+         plus the by-design Enter-tunnel handler Root_PreviewKeyDown.
     ═══════════════════════════════════════════════════════════════════ -->
     <UserControl.Resources>
         <ResourceDictionary>
@@ -124,13 +123,12 @@
                             <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,18,0,0"/>
 
                             <!-- ── DEFAULT-CREDENTIAL WARNING (first run) ── -->
-                            <Border x:Name="DefaultCredWarning"
-                                    Margin="0,14,0,0" Padding="12,9"
+                            <Border Margin="0,14,0,0" Padding="12,9"
                                     CornerRadius="10"
                                     Background="{DynamicResource WarningSurfaceBrush}"
                                     BorderBrush="{StaticResource WarningOnLiquid}"
                                     BorderThickness="1"
-                                    Visibility="Collapsed">
+                                    Visibility="{Binding DefaultCredWarningVisibility}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BA;"
                                                FontFamily="Segoe MDL2 Assets"
@@ -153,13 +151,16 @@
                                        Margin="2,18,0,6"/>
                             <TextBox x:Name="UsernameBox"
                                      Tag="&#xE77B;"
-                                     Style="{StaticResource RoundedTextBox}"/>
+                                     Style="{StaticResource RoundedTextBox}"
+                                     Text="{Binding Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     IsEnabled="{Binding IsFormEnabled}"/>
 
                             <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource FieldLabel}"
                                        Margin="2,14,0,6"/>
                             <PasswordBox x:Name="PasswordBox"
                                          Tag="&#xE72E;"
-                                         Style="{StaticResource RoundedPasswordBox}"/>
+                                         Style="{StaticResource RoundedPasswordBox}"
+                                         IsEnabled="{Binding IsFormEnabled}"/>
 
                             <!-- ── REMEMBER / FORGOT ROW ─────────────── -->
                             <Grid Margin="2,14,2,0">
@@ -169,14 +170,16 @@
                                 </Grid.ColumnDefinitions>
                                 <CheckBox x:Name="RememberUserCheck"
                                           Content="{DynamicResource Login.RememberMe}"
-                                          IsChecked="True"
+                                          IsChecked="{Binding RememberUsername, Mode=TwoWay}"
+                                          IsEnabled="{Binding IsFormEnabled}"
                                           Style="{StaticResource LoginCheckBoxStyle}"
                                           HorizontalAlignment="Left"/>
                                 <Button x:Name="ForgotPasswordButton"
                                         Grid.Column="1"
                                         Content="{DynamicResource Login.ForgotPassword}"
                                         Style="{StaticResource TextLinkButtonStyle}"
-                                        Click="ForgotPassword_Click"
+                                        Command="{Binding ForgotPasswordCommand}"
+                                        IsEnabled="{Binding IsFormEnabled}"
                                         HorizontalAlignment="Right"/>
                             </Grid>
 
@@ -215,7 +218,8 @@
                                     <ToggleButton x:Name="SkipLoginPill"
                                                   Grid.Column="1"
                                                   Style="{StaticResource PiToggleSwitch}"
-                                                  IsChecked="False"
+                                                  IsChecked="{Binding SkipLogin, Mode=TwoWay}"
+                                                  IsEnabled="{Binding IsFormEnabled}"
                                                   VerticalAlignment="Center"
                                                   Margin="12,0,0,0"
                                                   ToolTip="{DynamicResource Login.AutoSignCredentialsNextLaunchResetsAppUpdate}"
@@ -224,13 +228,12 @@
                             </Border>
 
                             <!-- ── ERROR PANEL ───────────────────────── -->
-                            <Border x:Name="ErrorPanel"
-                                    Margin="0,14,0,0" Padding="13,10"
+                            <Border Margin="0,14,0,0" Padding="13,10"
                                     CornerRadius="10"
                                     Background="{DynamicResource DangerSurfaceBrush}"
                                     BorderBrush="{StaticResource DangerOnLiquid}"
                                     BorderThickness="1"
-                                    Visibility="Collapsed">
+                                    Visibility="{Binding ErrorVisibility}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xEA39;"
                                                FontFamily="Segoe MDL2 Assets"
@@ -238,8 +241,8 @@
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"
                                                Foreground="{StaticResource DangerOnLiquid}"/>
-                                    <TextBlock x:Name="ErrorText"
-                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                                    <TextBlock FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
+                                               Text="{Binding ErrorText}"
                                                TextWrapping="Wrap"
                                                VerticalAlignment="Center"
                                                Foreground="{StaticResource DangerOnLiquid}"/>
@@ -248,11 +251,13 @@
 
                             <!-- ── THE SINGLE ACTION ─────────────────── -->
                             <Button x:Name="SignInButton"
-                                    Content="{DynamicResource Login.SignIn}"
+                                    Content="{Binding SignInButtonText}"
                                     Height="44"
                                     Margin="0,16,0,0"
                                     Style="{StaticResource SignInButtonStyle}"
-                                    Click="SignIn_Click"
+                                    Command="{Binding SignInCommand}"
+                                    CommandParameter="{Binding ElementName=PasswordBox}"
+                                    IsEnabled="{Binding IsFormEnabled}"
                                     IsDefault="True"
                                     ToolTip="{DynamicResource Login.SignProglassAutomation}"
                                     AutomationProperties.Name="Sign in"/>
@@ -261,17 +266,15 @@
                                  Visibility toggles Hidden/Visible only, so
                                  showing "Signing in…" never shifts the
                                  button, footer or version line. ───────── -->
-                            <StackPanel x:Name="StatusStrip"
-                                        Orientation="Horizontal"
+                            <StackPanel Orientation="Horizontal"
                                         HorizontalAlignment="Center"
                                         Margin="0,12,0,0"
-                                        Visibility="Hidden">
-                                <Ellipse x:Name="SignInBusyDot" Width="8" Height="8"
+                                        Visibility="{Binding StatusVisibility}">
+                                <Ellipse Width="8" Height="8"
                                          Fill="{DynamicResource SuccessBrush}" Margin="0,0,8,0"
                                          VerticalAlignment="Center"
-                                         Visibility="Collapsed"/>
-                                <TextBlock x:Name="SignInStatusText"
-                                           Text=""
+                                         Visibility="{Binding BusyDotVisibility}"/>
+                                <TextBlock Text="{Binding StatusText}"
                                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            Foreground="{StaticResource Ice}"
                                            VerticalAlignment="Center"/>
@@ -285,7 +288,8 @@
                                     Height="26"
                                     Margin="0,10,0,0"
                                     Style="{StaticResource TextLinkButtonStyle}"
-                                    Click="Exit_Click"
+                                    Command="{Binding ExitCommand}"
+                                    IsEnabled="{Binding IsFormEnabled}"
                                     HorizontalAlignment="Center"/>
 
                             <TextBlock HorizontalAlignment="Center"
