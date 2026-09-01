@@ -62,7 +62,7 @@ def main() -> int:
     problems = []
     for f in sorted(FILES):
         code = f.stem
-        if code.startswith(("build", "merge", "sweep", "__")):
+        if code.startswith(("build", "merge", "sweep", "chunk", "__")):
             continue
         table = load(code)
         missing = [k for k in english if k not in table]
@@ -72,7 +72,7 @@ def main() -> int:
             continue
         (OUT / f"{code}.xaml").write_text(emit(code, table), encoding="utf-8")
         print(f"  ✓ {code}.xaml ({len(table)} keys)")
-    processed = [f for f in FILES if not f.stem.startswith(("build", "merge", "sweep", "__"))]
+    processed = [f for f in FILES if not f.stem.startswith(("build", "merge", "sweep", "chunk", "__"))]
     if problems:
         print("INCOMPLETE:", problems)
         return 1

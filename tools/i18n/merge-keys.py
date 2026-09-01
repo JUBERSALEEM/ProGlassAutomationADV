@@ -69,7 +69,7 @@ def main() -> int:
     langs = args.langs.split(",") if args.langs else []
     files = sorted(HERE.glob("*.py"))
     codes = [f.stem for f in files
-             if not f.stem.startswith(("build", "merge", "sweep", "__"))]
+             if not f.stem.startswith(("build", "merge", "sweep", "chunk", "__"))]
 
     def current(code: str) -> dict:
         return merged_en if code == "en-US" else load_py(code)
@@ -95,6 +95,10 @@ def main() -> int:
                     continue
                 if not isinstance(v, str) or not v.strip():
                     print(f"  ! {code}: empty value for {k!r} in {tf.name} (ignored)")
+                    continue
+                # A later file restating the English value must never
+                # clobber a real translation from an earlier file.
+                if v == merged_en.get(k) and table[k] != merged_en[k]:
                     continue
                 overlays.setdefault(k, []).append((tf.name, v))
         # guard against silent override: same key in several overlays must agree
