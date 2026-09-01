@@ -986,6 +986,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             // Sheet Store pattern — clear the selected row so the top strip
             // returns to totals.
             ClearSelectionCommand = new RelayCommand(_ => SelectedItemRow = null);
+            ToggleItemSelectionCommand = new RelayCommand(p =>
+            {
+                if (p is DnItemRowViewModel row)
+                    SelectedItemRow = ReferenceEquals(SelectedItemRow, row) ? null : row;
+            });
         }
 
         // ═════════════════════════════════════════════════════════════════

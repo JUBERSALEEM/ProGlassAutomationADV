@@ -161,24 +161,6 @@ namespace ProGlassAutomation.Views.Inquiry
         }
 
         /// <summary>Preview-an outside click on the empty list area → close rail.</summary>
-        private void Root_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (DataContext is not InquiryListViewModel vm) return;
-            // Only close if the click didn't land on a row or on the rail itself.
-            var src = e.OriginalSource as DependencyObject;
-            while (src != null)
-            {
-                if (src is ListBoxItem) return;     // row click — let it through
-                if (src == DetailPanel) return;     // rail click — let it through
-                src = System.Windows.Media.VisualTreeHelper.GetParent(src);
-            }
-            if (vm.SelectedInquiry != null)
-            {
-                vm.SelectedInquiry = null;
-                AnimateRail(false);
-            }
-        }
-
         private void WireEditor()
         {
             if (DataContext is not InquiryListViewModel vm || vm.EditRequested != null) return;

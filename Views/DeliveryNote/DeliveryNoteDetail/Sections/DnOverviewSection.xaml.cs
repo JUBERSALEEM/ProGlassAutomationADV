@@ -76,33 +76,5 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Sections
             }
         }
 
-        private void Row_Click(object sender, MouseButtonEventArgs e)
-        {
-            // Clicking into the editable Delivered-Qty TextBox types, not
-            // toggles selection — let that cell handle its own input.
-            if (e.OriginalSource is DependencyObject src &&
-                (src is TextBox || FindAncestor<TextBox>(src) != null))
-                return;
-
-            if (sender is not Border row ||
-                row.Tag is not DnItemRowViewModel item ||
-                DataContext is not DeliveryNoteDetailViewModel vm)
-                return;
-
-            // Toggle: click the same row again to deselect.
-            vm.SelectedItemRow = ReferenceEquals(vm.SelectedItemRow, item)
-                ? null
-                : item;
         }
-
-        private static T? FindAncestor<T>(DependencyObject? start) where T : DependencyObject
-        {
-            while (start != null)
-            {
-                if (start is T match) return match;
-                start = VisualTreeHelper.GetParent(start);
-            }
-            return null;
-        }
-    }
 }

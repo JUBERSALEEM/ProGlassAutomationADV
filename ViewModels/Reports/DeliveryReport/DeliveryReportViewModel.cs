@@ -62,6 +62,11 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
             });
 
             CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
+            SelectRowCommand = new RelayCommand(p =>
+            {
+                if (p is DeliveryReportRow row)
+                    SelectedRow = ReferenceEquals(SelectedRow, row) ? null : row;
+            });
 
             // Open the Job Order that owns the selected delivery row — same
             // "open the original document" affordance the PI / JO / TI reports

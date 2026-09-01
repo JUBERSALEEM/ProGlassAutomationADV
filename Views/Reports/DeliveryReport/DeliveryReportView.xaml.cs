@@ -41,16 +41,6 @@ namespace ProGlassAutomation.Views.Reports.DeliveryReport
         /// the same row again to close it. Uses the Border's Tag (not the
         /// ListBox SelectedItem, whose ItemContainerStyle disables focus).
         /// </summary>
-        private void Row_Click(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is not Border row ||
-                row.Tag is not DeliveryReportRow item ||
-                DataContext is not DeliveryReportViewModel vm)
-                return;
-
-            vm.SelectedRow = ReferenceEquals(vm.SelectedRow, item) ? null : item;
-        }
-
         private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(DeliveryReportViewModel.HasSelectedRow)) return;

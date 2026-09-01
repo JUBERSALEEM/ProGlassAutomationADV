@@ -494,8 +494,9 @@
                                                                     BorderThickness="0,0,0,1"
                                                                     Padding="0,2"
                                                                     Cursor="Hand"
-                                                                    MouseLeftButtonDown="Row_Click"
-                                                                    Tag="{Binding}">
+                                                                    behaviors:ClickToCommandBehavior.Command="{Binding DataContext.ToggleItemSelectionCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                                    behaviors:ClickToCommandBehavior.CommandParameter="{Binding}"
+                                                                    behaviors:ClickToCommandBehavior.ExcludeAncestorTypes="TextBox">
                                                                 <Border.Style>
                                                                     <Style TargetType="Border">
                                                                         <Setter Property="Background" Value="Transparent"/>

@@ -23,7 +23,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Grid PreviewMouseLeftButtonDown="Root_PreviewMouseLeftButtonDown">
+    <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1.15*"/>
             <ColumnDefinition Width="10"/>
@@ -52,7 +52,7 @@
                             Style="{StaticResource PiFooterGhostButton}"
                             Content="{DynamicResource ProformaInvoice.MORE}"
                             ToolTip="{DynamicResource ProformaInvoice.PrintMoreExportOptions}"
-                            Click="ActionsMenuButton_Click"/>
+                            behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
                     <Popup x:Name="ActionsMenuPopup"
                            PlacementTarget="{Binding ElementName=ActionsMenuButton}"
                            Placement="Top"
@@ -72,18 +72,18 @@
                                         Tag="&#xE749;" Content="{DynamicResource Action.Print}"
                                         Command="{Binding PrintableInvoice.PrintCommand}"
                                         ToolTip="{DynamicResource ProformaInvoice.PrintInvoicePreview}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource PiInvoiceMenuActionItem}"
                                         Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportCSV}"
                                         Command="{Binding PrintableInvoice.ExportCsvCommand}"
                                         ToolTip="{DynamicResource ProformaInvoice.ExportGlassPanelDataCSV}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource PiInvoiceMenuActionItem}"
                                         Tag="&#xE715;" Content="{DynamicResource ProformaInvoice.EmailSoon}"
                                         Command="{Binding PrintableInvoice.SendEmailCommand}"
                                         ToolTip="{DynamicResource ProformaInvoice.ComingPhase720}"
                                         IsEnabled="False"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                             </StackPanel>
                         </Border>
                     </Popup>
