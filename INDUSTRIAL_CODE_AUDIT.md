@@ -365,7 +365,9 @@ strings; transition tests green.
 
 ---
 
-## 10. Phase 4 — completed (2026-09-01)| # | Task | Status |
+## 10. Phase 4 — completed (2026-09-01)
+
+| # | Task | Status |
 |---|---|---|
 | 4.1 | `IStatusService.Transition/Validate` wrapping `StatusTransitions` + audit | ✅ `Services/Workflow/IStatusService.cs` + `StatusService.cs` (in-memory 200-entry ring + log line + `Transitioned` event); singleton in DI; `App.Status` accessor |
 | 4.2 | Replace direct `.Status =` user-transition sites; magic strings → typed constants | ✅ 3 user-transition gaps migrated (DN Detail `Received`, JO Detail save, PI SavedList `Approved`); magic strings → `DeliveryNoteStatusValues` / new `ProformaInvoiceStatus` consts; 2 sites verified already-validated (DN List, JO SavedList, PI SavedList:763); lifecycle-forced writes documented by design (PI Repo `MarkCancelledAsync`, snapshot restore, save-only normalize) |
