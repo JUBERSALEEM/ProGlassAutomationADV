@@ -681,8 +681,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     else
                     {
                         var dupVm = new DuplicateResolutionViewModel(existing, row, duplicateNumber, duplicates.Count);
-                        var dupDialog = new DuplicateResolutionView(dupVm) { Owner = Application.Current.MainWindow };
-                        dupDialog.ShowDialog();
+                        _dialogs.ShowDialog<DuplicateResolutionView>(dupVm);
 
                         if (dupVm.Result == null) break;
                         action = dupVm.Result.Value;
@@ -749,8 +748,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 return;
 
             var vm = new AddEditSheetViewModel();
-            var dialog = new AddEditSheetView(vm) { Owner = Application.Current.MainWindow };
-            dialog.ShowDialog();
+            _dialogs.ShowDialog<AddEditSheetView>(vm);
 
             if (vm.DialogResult == true && vm.Result != null)
             {
@@ -793,8 +791,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             var oldSellPrice = sheet.SellPricePerSqm;
 
             var vm = new AddEditSheetViewModel(sheet);
-            var dialog = new AddEditSheetView(vm) { Owner = Application.Current.MainWindow };
-            dialog.ShowDialog();
+            _dialogs.ShowDialog<AddEditSheetView>(vm);
 
             if (vm.DialogResult == true && vm.Result != null)
             {
@@ -906,8 +903,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 return;
 
             var vm = new BuyDialogViewModel(sheet);
-            var dialog = new BuyDialogView(vm) { Owner = Application.Current.MainWindow };
-            dialog.ShowDialog();
+            _dialogs.ShowDialog<BuyDialogView>(vm);
 
             if (vm.DialogResult == true && vm.Quantity > 0)
             {
@@ -956,8 +952,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
 
             var vm = new UseDialogViewModel(sheet);
-            var dialog = new UseDialogView(vm) { Owner = Application.Current.MainWindow };
-            dialog.ShowDialog();
+            _dialogs.ShowDialog<UseDialogView>(vm);
 
             if (vm.DialogResult == true && vm.Quantity > 0)
             {
@@ -998,8 +993,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         private void ShowHistory()
         {
             var vm = new HistoryViewModel();
-            var dialog = new HistoryView(vm) { Owner = Application.Current.MainWindow };
-            dialog.ShowDialog();
+            _dialogs.ShowDialog<HistoryView>(vm);
         }
     }
 }

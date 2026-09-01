@@ -249,10 +249,7 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
                     string originalName =
                         System.IO.Path.GetFileName(sourcePath);
 
-                    var renameDialog = new RenameAttachmentDialog(originalName)
-                    {
-                        Owner = Application.Current.MainWindow
-                    };
+                    var renameDialog = _dialogs.Create<RenameAttachmentDialog>(originalName);
 
                     if (renameDialog.ShowDialog() != true)
                         continue;   // user cancelled this file
@@ -336,10 +333,7 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
         {
             if (row == null) return;
 
-            var dialog = new RenameAttachmentDialog(row.FileName)
-            {
-                Owner = Application.Current.MainWindow
-            };
+            var dialog = _dialogs.Create<RenameAttachmentDialog>(row.FileName);
 
             if (dialog.ShowDialog() != true) return;
 

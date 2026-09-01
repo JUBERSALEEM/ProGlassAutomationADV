@@ -28,6 +28,7 @@ using ProGlassAutomation.Services.Localization;
 using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.JobOrder.Repository;
 using Microsoft.Extensions.DependencyInjection;
+using ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 {
     /// <summary>
@@ -859,12 +860,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             // Always ask JPG or PDF and forward to Step 8 — even if the
             // invoice already has attachments, so the user re-checks the
             // confirmation document before it is approved.
-            var choice =
-                new ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
-                    .ApprovalUploadChoiceDialog
-                {
-                    Owner = Application.Current?.MainWindow
-                };
+            var choice = _dialogs.Create<ApprovalUploadChoiceDialog>();
             if (choice.ShowDialog() != true || !choice.Chosen)
                 return;   // cancelled — status unchanged
 
@@ -888,12 +884,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 .LoadManifestAsync(entity.ProformaId ?? "");
 
             // Customer-confirmation pattern (Signed PI / LPO + LPO number).
-            var dlg =
-                new ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
-                    .InvoiceApprovalDialog(attachments?.Count ?? 0)
-                {
-                    Owner = Application.Current?.MainWindow
-                };
+            var dlg = _dialogs.Create<InvoiceApprovalDialog>(attachments?.Count ?? 0);
             if (dlg.ShowDialog() != true || !dlg.Approved)
                 return;   // cancelled — status unchanged
 

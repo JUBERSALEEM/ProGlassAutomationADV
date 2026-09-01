@@ -14,6 +14,19 @@ namespace ProGlassAutomation.Services.Dialogs
 {
     public sealed class DialogService : IDialogService
     {
+        public TWindow Create<TWindow>(params object[] ctorArgs) where TWindow : System.Windows.Window
+        {
+            var window = (TWindow)System.Activator.CreateInstance(typeof(TWindow), ctorArgs)!;
+            if (window.Owner == null)
+                window.Owner = System.Windows.Application.Current?.MainWindow;
+            return window;
+        }
+
+        public bool? ShowDialog<TWindow>(params object[] ctorArgs) where TWindow : System.Windows.Window
+            => Create<TWindow>(ctorArgs).ShowDialog();
+
+        public void Show<TWindow>(params object[] ctorArgs) where TWindow : System.Windows.Window
+            => Create<TWindow>(ctorArgs).Show();
         public MessageBoxResult Show(string message, string? caption = null,
             MessageBoxButton button = MessageBoxButton.OK,
             MessageBoxImage icon = MessageBoxImage.None)

@@ -433,10 +433,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
 
             await Task.Yield();
 
-            var dialog = new ProformaPickerDialog
-            {
-                Owner = Application.Current.MainWindow
-            };
+            var dialog = _dialogs.Create<ProformaPickerDialog>();
 
             if (dialog.ShowDialog() != true) return;
 

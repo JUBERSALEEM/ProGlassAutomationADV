@@ -1803,10 +1803,7 @@ public StatementGeneratorViewModel(IDialogService? dialogs,
             {
                 try
                 {
-                    var dialog = new WorkflowWarningDialog(partialResult)
-                    {
-                        Owner = Application.Current?.MainWindow
-                    };
+                    var dialog = _dialogs.Create<WorkflowWarningDialog>(partialResult);
                     dialog.ShowDialog();
 
                     LiveAddLogEntry(LogSeverity.Info,

@@ -36,5 +36,22 @@ namespace ProGlassAutomation.Services.Dialogs
         /// <summary>Yes/No confirmation. Returns true when the user picked
         /// Yes.</summary>
         bool Confirm(string message, string? caption = null);
+
+        // ── Window dialogs (Phase 2.6) ──────────────────────────────────
+        // ViewModels must not instantiate windows (MVVM leakage). These
+        // create the window via the registered factory, attach the main
+        // window as Owner, and return/show it. Result-heavy dialogs expose
+        // their results as view properties read after Create/ShowDialog.
+        // NOTE: the implementation references Views — it moves to the App
+        // layer in the Phase 5.2 Core/App split (interface stays Core-safe).
+
+        /// <summary>Creates the window (Owner = main window) without showing it.</summary>
+        TWindow Create<TWindow>(params object[] ctorArgs) where TWindow : System.Windows.Window;
+
+        /// <summary>Creates and shows the window modally; returns its dialog result.</summary>
+        bool? ShowDialog<TWindow>(params object[] ctorArgs) where TWindow : System.Windows.Window;
+
+        /// <summary>Creates and shows the window non-modally.</summary>
+        void Show<TWindow>(params object[] ctorArgs) where TWindow : System.Windows.Window;
     }
 }

@@ -547,10 +547,7 @@ public PrintableInvoiceViewModel(
                     await ExecuteSaveInvoiceAsync();
             }
 
-            var dialog = new SavedInvoicesListDialog
-            {
-                Owner = Application.Current.MainWindow
-            };
+            var dialog = _dialogs.Create<SavedInvoicesListDialog>();
 
             bool? ok = dialog.ShowDialog();
             if (ok != true || dialog.SelectedInvoiceId <= 0) return;

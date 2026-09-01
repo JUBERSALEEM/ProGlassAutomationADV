@@ -27,6 +27,8 @@ using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.JobOrder.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using Microsoft.Extensions.DependencyInjection;
+using ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.ProformaPicker;
+using ProGlassAutomation.Views.JobOrder.SavedJobOrdersList;
 namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 {
     public class SavedJobOrdersListViewModel : ViewModelBase, IDisposable
@@ -519,13 +521,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
                     if (attachments.Count > 0)
                     {
-                        var warn =
-                            new ProGlassAutomation.Views.JobOrder
-                                .SavedJobOrdersList.JobOrderAttachmentWarningDialog(
-                                    row.JobOrderId, proformaId, attachments.Count)
-                            {
-                                Owner = Application.Current?.MainWindow
-                            };
+                        var warn = _dialogs.Create<JobOrderAttachmentWarningDialog>(
+                            row.JobOrderId, proformaId, attachments.Count);
 
                         // Both buttons resolve true; a window-close (X) keeps
                         // the default (keep attachments — never destroy
@@ -635,9 +632,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 return;
             }
 
-            var dialog = new ProGlassAutomation.Views.JobOrder
-                .SavedJobOrdersList.ProformaPicker
-                .JobOrderProformaPickerDialog();
+            var dialog = _dialogs.Create<JobOrderProformaPickerDialog>();
 
             if (dialog.ShowDialog() != true) return;
 

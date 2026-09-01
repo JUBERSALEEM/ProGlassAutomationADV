@@ -2001,10 +2001,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 }
 
                 var origName = Path.GetFileName(dlg.FileName);
-                var renameDlg = new RenameAttachmentDialog(origName)
-                {
-                    Owner = Application.Current.MainWindow
-                };
+                var renameDlg = _dialogs.Create<RenameAttachmentDialog>(origName);
                 if (renameDlg.ShowDialog() != true) return;
 
                 IsSaving = true;
@@ -2067,10 +2064,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 }
 
                 var origName = Path.GetFileName(dlg.FileName);
-                var renameDlg = new RenameAttachmentDialog(origName)
-                {
-                    Owner = Application.Current.MainWindow
-                };
+                var renameDlg = _dialogs.Create<RenameAttachmentDialog>(origName);
                 if (renameDlg.ShowDialog() != true) return;
 
                 IsSaving = true;

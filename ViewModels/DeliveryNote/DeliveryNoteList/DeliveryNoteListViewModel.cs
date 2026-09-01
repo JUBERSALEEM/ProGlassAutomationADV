@@ -794,10 +794,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
             catch { /* picker still searches JO fields */ }
 
-            var dialog = new JobOrderPickerDialog(jobOrdersWithBalance, dns)
-            {
-                Owner = Application.Current.MainWindow
-            };
+            var dialog = _dialogs.Create<JobOrderPickerDialog>(jobOrdersWithBalance, dns);
 
             if (dialog.ShowDialog() != true) return;
             if (dialog.SelectedJobOrder == null) return;
