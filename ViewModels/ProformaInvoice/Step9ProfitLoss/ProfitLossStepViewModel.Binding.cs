@@ -1,0 +1,67 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.Binding.cs
+// PROJECT: ProGlassAutomation
+// ─────────────────────────────────────────────────────────────────────────
+// Phase 3.4 — partial split. This part owns the ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.Binding members.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.ProformaInvoice;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguLamParameters;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguParameters;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.LamParameters;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.SguParameters;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.Linq;
+using System.Windows;
+using System.Windows.Threading;
+using System.Text.RegularExpressions; // Match still used while production rows read spacer/pvb groups
+using System.Threading.Tasks;
+using System.Windows.Input;
+
+namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
+{
+    public partial class ProfitLossStepViewModel : ViewModelBase
+    {
+        // ══════════════════════════════════════════════════════════════
+        //  BINDING TO THE REST OF THE WIZARD
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Wires this step to its data sources. Called once by the wizard
+        /// shell after all step VMs are constructed. Any argument may be
+        /// null; the step then simply produces an empty report.
+        /// </summary>
+        public void Bind(
+            DataGridViewModel? dataGrid,
+            DguParametersViewModel? dguVm,
+            SguParametersViewModel? sguVm,
+            Func<decimal>? grossProvider,
+            LamParametersViewModel? lamVm = null,
+            DguLamParametersViewModel? dguLamVm = null,
+            OtherChargesViewModel? otherChargesVm = null)
+        {
+            _dataGrid = dataGrid;
+            _dguVm = dguVm;
+            _sguVm = sguVm;
+            _lamVm = lamVm;
+            _dguLamVm = dguLamVm;
+            _otherChargesVm = otherChargesVm;
+            _grossProvider = grossProvider;
+
+            WireLiveRecalculation();
+        }
+
+    }
+}
