@@ -476,6 +476,25 @@ namespace ProGlassAutomation
             // 1) Load persisted config
             Config = ConfigService.Load();
 
+            // 1b) GLOBAL LOCALE — language, currency, country.
+            //     • GeoService: cached country first, IP refresh after.
+            //     • CurrencyService: cached FX rates, live internet
+            //       refresh after (offline → last fetched rate).
+            //     • LocalizationService: apply the saved language, or
+            //       suggest the country language (English stays the
+            //       primary/default everywhere). Language and currency
+            //       are INDEPENDENT — English UI + INR amounts works.
+            //     Nothing here blocks or throws; every refresh is
+            //     fire-and-forget.
+            Services.Localization.GeoService.Instance.Initialize();
+            Services.Localization.CurrencyService.Instance.Initialize();
+            Services.Localization.LocalizationService.Instance.Initialize(Config.Localization);
+            Services.Localization.GeoService.Instance.LocationResolved +=
+                geo => Services.Localization.LocalizationService.Instance
+                    .ApplyRegionalSuggestion(geo.CountryIso);
+            _ = Services.Localization.GeoService.Instance.RefreshAsync();
+            _ = Services.Localization.CurrencyService.Instance.RefreshAsync();
+
             // 2) Main database
             DatabaseInitializer.Initialize();
 

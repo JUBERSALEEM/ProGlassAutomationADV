@@ -10,6 +10,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:features="clr-namespace:ProGlassAutomation.Services.Features"
+             xmlns:shared="clr-namespace:ProGlassAutomation.Views.Shared"
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
 
@@ -124,8 +125,10 @@
                                 Visibility="{Binding Path=ShowRepresentativeMobile,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="MOBILE" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <TextBox Text="{Binding RepresentativeMobile, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBlock Text="{DynamicResource Phone.Label}" Style="{StaticResource PiFieldLabelStyle}"
+                                   TextOptions.TextFormattingMode="Display"/>
+                        <shared:CountryPhoneControl
+                                 PhoneText="{Binding RepresentativeMobile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.RepresentativeMobile"
                                  AutomationProperties.Name="Representative mobile"/>
                     </StackPanel>

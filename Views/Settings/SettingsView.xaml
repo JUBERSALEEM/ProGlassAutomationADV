@@ -93,10 +93,10 @@
                                        VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Settings"
+                            <TextBlock Text="{DynamicResource Settings.Title}"
                                        FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="ProGlass Automation"
+                            <TextBlock Text="{DynamicResource Settings.Subtitle}"
                                        FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
@@ -128,7 +128,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE790;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Appearance"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecAppearance}"/>
                         </StackPanel>
                     </Button>
 
@@ -147,7 +147,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE8F2;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="AI Assistant"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecAi}"/>
                         </StackPanel>
                     </Button>
 
@@ -166,7 +166,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE8F2;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="AI &amp; Agent"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecAgent}"/>
                         </StackPanel>
                     </Button>
 
@@ -185,7 +185,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE720;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Voice"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecVoice}"/>
                         </StackPanel>
                     </Button>
 
@@ -204,7 +204,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE72C;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Updates"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecUpdates}"/>
                         </StackPanel>
                     </Button>
 
@@ -223,7 +223,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE74E;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Data &amp; Backup"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecData}"/>
                         </StackPanel>
                     </Button>
 
@@ -242,7 +242,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE714;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Demo Center"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecDemo}"/>
                         </StackPanel>
                     </Button>
 
@@ -264,7 +264,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE762;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Features"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecFeatures}"/>
                         </StackPanel>
                     </Button>
 
@@ -285,7 +285,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE192;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="License"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecLicense}"/>
                         </StackPanel>
                     </Button>
 
@@ -304,7 +304,7 @@
                         </Button.Style>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE946;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="About &amp; Help"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecAbout}"/>
                         </StackPanel>
                     </Button>
 

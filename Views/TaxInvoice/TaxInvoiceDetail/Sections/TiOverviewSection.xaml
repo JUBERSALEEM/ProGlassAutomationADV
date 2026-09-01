@@ -557,7 +557,7 @@
                                                                      Style="{StaticResource LineItemsDecimalCellStyle}"
                                                                      Margin="2,2"/>
                                                             <TextBlock Grid.Column="10"
-                                                                       Text="{Binding Value, StringFormat=AED {0:N2}}"
+                                                                       Text="{Binding Value, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                                                        Style="{StaticResource GridNumericCell}"
                                                                        FontWeight="Bold"
                                                                        Foreground="{DynamicResource SuccessBrush}"/>
@@ -613,7 +613,7 @@
                                                            VerticalAlignment="Center"
                                                            Foreground="{DynamicResource SuccessBrush}">
                                                     <Run Text="AED "/>
-                                                    <Run Text="{Binding GroupTotalValue, Mode=OneWay, StringFormat={}{0:N2}}"/>
+                                                    <Run Text="{Binding GroupTotalValue, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                                                 </TextBlock>
                                             </Grid>
                                         </Border>

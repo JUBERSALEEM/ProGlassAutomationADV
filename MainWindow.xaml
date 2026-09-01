@@ -77,7 +77,7 @@
         xmlns:viewsJobProfit="clr-namespace:ProGlassAutomation.Views.JobProfitability"
         xmlns:viewsDiagnostics="clr-namespace:ProGlassAutomation.Views.Diagnostics"
         xmlns:viewsVatSubmission="clr-namespace:ProGlassAutomation.Views.Reports.VatSubmission"
-        Title="ProGlass Automation"
+        Title="{DynamicResource Shell.AppTitle}"
         Height="820" Width="1280"
         MinHeight="480" MinWidth="800"
         WindowState="Maximized"
@@ -228,7 +228,7 @@
                             Style="{StaticResource TopIconButton}"
                             Content="&#xE700;"
                             Command="{Binding ToggleMenuCommand}"
-                            ToolTip="Toggle menu"
+                            ToolTip="{DynamicResource ToolTip.ToggleMenu}"
                             Margin="0,0,12,0"
                             VerticalAlignment="Center"/>
 
@@ -240,7 +240,7 @@
                             Margin="0,0,20,0"
                             Cursor="Hand"
                             MouseLeftButtonDown="Logo_MouseLeftButtonDown"
-                            ToolTip="About ProGlass Automation">
+                            ToolTip="{DynamicResource ToolTip.About}">
                     <Border Width="36" Height="36"
                             CornerRadius="{StaticResource TopPillCornerRadius}"
                             Effect="{StaticResource LogoGlow}"
@@ -252,10 +252,10 @@
                         </Border.Background>
                     </Border>
                     <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
-                        <TextBlock Text="ProGlass"
+                        <TextBlock Text="{DynamicResource Shell.AppBrand}"
                                    FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="AUTOMATION SUITE"
+                        <TextBlock Text="{DynamicResource Shell.AppSuiteTagline}"
                                    FontSize="{StaticResource TextXSmall}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    Margin="0,2,0,0"/>
@@ -288,7 +288,7 @@
                          bar, before the AI agent pill. -->
                     <Button x:Name="DarkModeButton"
                             Margin="0,0,10,0"
-                            ToolTip="Toggle Light / Dark theme"
+                            ToolTip="{DynamicResource ToolTip.ToggleTheme}"
                             Command="{Binding ToggleThemeCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource TopIconButton}">
@@ -313,7 +313,7 @@
                          sits right before the AI AGENT pill. -->
                     <Button x:Name="AiBotButton"
                             Margin="0,0,10,0"
-                            ToolTip="ProGlass AI — floating chat assistant"
+                            ToolTip="{DynamicResource ToolTip.AiChat}"
                             Command="{Binding AiChatVM.ToggleChatCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource TopIconButton}">
@@ -332,7 +332,7 @@
                     <Button Style="{StaticResource TopAiPillStyle}"
                             Margin="0,0,10,0"
                             Command="{Binding ToggleAgentChatCommand}"
-                            ToolTip="ProGlass Agent — local assistant you can teach"/>
+                            ToolTip="{DynamicResource ToolTip.Agent}"/>
 
                     <!-- DATE/TIME PILL -->
                     <Border Height="36"
@@ -343,7 +343,7 @@
                             Padding="10,0"
                             Margin="0,0,10,0"
                             SnapsToDevicePixels="True"
-                            ToolTip="Current date and time">
+                            ToolTip="{DynamicResource ToolTip.DateTime}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28"
                                     CornerRadius="{StaticResource TopPillCornerRadius}"
@@ -376,7 +376,7 @@
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
                             SnapsToDevicePixels="True"
-                            ToolTip="Internet connection state">
+                            ToolTip="{DynamicResource ToolTip.NetworkState}">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -417,7 +417,7 @@
                                 Style="{StaticResource TopIconButton}"
                                 Content="&#xEA8F;"
                                 Click="DropdownButton_Click"
-                                ToolTip="Recent activity"/>
+                                ToolTip="{DynamicResource ToolTip.RecentActivity}"/>
                         <Ellipse Width="10" Height="10"
                                  Fill="{DynamicResource DangerBrush}"
                                  Stroke="White"
@@ -433,7 +433,7 @@
                             Style="{StaticResource TopIconButton}"
                             Content="&#xE713;"
                             Click="DropdownButton_Click"
-                            ToolTip="Settings"
+                            ToolTip="{DynamicResource ToolTip.Settings}"
                             Margin="0,0,10,0"/>
 
                     <!-- SCREENSHOT — dedicated capture (separate from About) -->
@@ -441,13 +441,13 @@
                             Style="{StaticResource TopIconButton}"
                             Content="&#xEB9F;"
                             Click="DropdownButton_Click"
-                            ToolTip="Capture screenshot"
+                            ToolTip="{DynamicResource ToolTip.Screenshot}"
                             Margin="0,0,10,0"/>
 
                     <!-- SCREEN RECORD — independent of Demo Center walks -->
                     <Button x:Name="RecordButton"
                             Click="DropdownButton_Click"
-                            ToolTip="Screen recording — this app window"
+                            ToolTip="{DynamicResource ToolTip.ScreenRecording}"
                             AutomationProperties.AutomationId="Shell.ScreenRecord"
                             Margin="0,0,10,0">
                         <Button.Style>
@@ -473,7 +473,7 @@
                             Cursor="Hand"
                             FocusVisualStyle="{x:Null}"
                             Click="DropdownButton_Click"
-                            ToolTip="Switch user — click to open, click again to close">
+                            ToolTip="{DynamicResource ToolTip.SwitchUser}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bg"
@@ -636,30 +636,30 @@
                             <StackPanel Margin="0,12,0,16">
 
                                 <!-- MAIN -->
-                                <TextBlock Text="MAIN"
+                                <TextBlock Text="{DynamicResource Nav.GroupMain}"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <Button Style="{StaticResource SidebarNavItem}"
-                                        Content="Dashboard"
+                                        Content="{DynamicResource Nav.Dashboard}"
                                         Tag="&#xE80F;"
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="Dashboard"/>
 
                                 <!-- INVENTORY -->
-                                <TextBlock Text="INVENTORY"
+                                <TextBlock Text="{DynamicResource Nav.GroupInventory}"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <Button Style="{StaticResource SidebarNavItem}"
-                                        Content="Sheet Store"
+                                        Content="{DynamicResource Nav.SheetStore}"
                                         Tag="&#xE7B8;"
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="SheetStore"/>
 
                                 <!-- SALES (expandable) -->
-                                <TextBlock Text="SALES"
+                                <TextBlock Text="{DynamicResource Nav.GroupSales}"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="SalesGroupHost">
                                 <ToggleButton x:Name="SalesGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
-                                              Content="Sales &amp; Orders"
+                                              Content="{DynamicResource Nav.SalesOrders}"
                                               Tag="&#xE8A5;"
                                               Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
@@ -667,19 +667,19 @@
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
                                     <StackPanel>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Inquiry"
+                                                Content="{DynamicResource Nav.Inquiry}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="Inquiry"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Proforma Invoice"
+                                                Content="{DynamicResource Nav.ProformaInvoice}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="ProformaInvoice"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Job Order"
+                                                Content="{DynamicResource Nav.JobOrder}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="JobOrder"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Tax Invoice"
+                                                Content="{DynamicResource Nav.TaxInvoice}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="TaxInvoice"/>
                                     </StackPanel>
@@ -687,12 +687,12 @@
                                 </StackPanel>
 
                                 <!-- PRODUCTION (expandable) -->
-                                <TextBlock Text="PRODUCTION"
+                                <TextBlock Text="{DynamicResource Nav.GroupProduction}"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="ProductionGroupHost">
                                 <ToggleButton x:Name="ProductionGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
-                                              Content="Production"
+                                              Content="{DynamicResource Nav.ProductionItems}"
                                               Tag="&#xE8C6;"
                                               Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
@@ -700,61 +700,61 @@
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
                                     <StackPanel>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Optimization"
+                                                Content="{DynamicResource Nav.Optimization}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="Optimization"
-                                                ToolTip="Coming soon — module in development"/>
+                                                ToolTip="{DynamicResource ToolTip.ComingSoon}"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Cutting"
+                                                Content="{DynamicResource Nav.Cutting}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="Cutting"
-                                                ToolTip="Coming soon — module in development"/>
+                                                ToolTip="{DynamicResource ToolTip.ComingSoon}"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Holes &amp; Cutouts"
+                                                Content="{DynamicResource Nav.HolesCutouts}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="HolesCutouts"
-                                                ToolTip="Coming soon — module in development"/>
+                                                ToolTip="{DynamicResource ToolTip.ComingSoon}"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Polish"
+                                                Content="{DynamicResource Nav.Polish}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="Polish"
-                                                ToolTip="Coming soon — module in development"/>
+                                                ToolTip="{DynamicResource ToolTip.ComingSoon}"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Edge Deletion"
+                                                Content="{DynamicResource Nav.EdgeDeletion}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="EdgeDeletion"
-                                                ToolTip="Coming soon — module in development"/>
+                                                ToolTip="{DynamicResource ToolTip.ComingSoon}"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Mitring"
+                                                Content="{DynamicResource Nav.Mitring}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="Mitring"
-                                                ToolTip="Coming soon — module in development"/>
+                                                ToolTip="{DynamicResource ToolTip.ComingSoon}"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Tempering"
+                                                Content="{DynamicResource Nav.Tempering}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="Tempering"
-                                                ToolTip="Coming soon — module in development"/>
+                                                ToolTip="{DynamicResource ToolTip.ComingSoon}"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Pairing"
+                                                Content="{DynamicResource Nav.Pairing}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="Pairing"
-                                                ToolTip="Coming soon — module in development"/>
+                                                ToolTip="{DynamicResource ToolTip.ComingSoon}"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Doubling / Lamination"
+                                                Content="{DynamicResource Nav.DoublingLamination}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="DoublingLamination"
-                                                ToolTip="Coming soon — module in development"/>
+                                                ToolTip="{DynamicResource ToolTip.ComingSoon}"/>
                                     </StackPanel>
                                 </Border>
                                 </StackPanel>
 
                                 <!-- DISPATCH (expandable) -->
-                                <TextBlock Text="DISPATCH"
+                                <TextBlock Text="{DynamicResource Nav.GroupDispatch}"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="DispatchGroupHost">
                                 <ToggleButton x:Name="DispatchGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
-                                              Content="Dispatch"
+                                              Content="{DynamicResource Nav.Dispatch}"
                                               Tag="&#xE7F4;"
                                               Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
@@ -762,7 +762,7 @@
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
                                     <StackPanel>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Delivery Note"
+                                                Content="{DynamicResource Nav.DeliveryNote}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="DeliveryNote"/>
                                     </StackPanel>
@@ -770,12 +770,12 @@
                                 </StackPanel>
 
                                 <!-- FINANCE (expandable) -->
-                                <TextBlock Text="FINANCE"
+                                <TextBlock Text="{DynamicResource Nav.GroupFinance}"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="FinanceGroupHost">
                                 <ToggleButton x:Name="FinanceGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
-                                              Content="Finance &amp; Accounting"
+                                              Content="{DynamicResource Nav.FinanceAccounting}"
                                               Tag="&#xE90E;"
                                               Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
@@ -783,15 +783,15 @@
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
                                     <StackPanel>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Statement Generator"
+                                                Content="{DynamicResource Nav.StatementGenerator}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="StatementGenerator"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Job Profitability"
+                                                Content="{DynamicResource Nav.JobProfitability}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="JobProfitability"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="VAT Submission"
+                                                Content="{DynamicResource Nav.VatSubmission}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="VatSubmission"/>
                                     </StackPanel>
@@ -799,12 +799,12 @@
                                 </StackPanel>
 
                                 <!-- REPORTS (expandable) -->
-                                <TextBlock Text="REPORTS"
+                                <TextBlock Text="{DynamicResource Nav.GroupReports}"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="ReportsGroupHost">
                                 <ToggleButton x:Name="ReportsGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
-                                              Content="Reports"
+                                              Content="{DynamicResource Nav.Reports}"
                                               Tag="&#xE9F9;"
                                               Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
@@ -812,27 +812,27 @@
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
                                     <StackPanel>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Overview"
+                                                Content="{DynamicResource Nav.Overview}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="SalesReport"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Proforma Invoice"
+                                                Content="{DynamicResource Nav.ProformaInvoice}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="PiReport"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Job Order"
+                                                Content="{DynamicResource Nav.JobOrder}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="JoReport"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Delivery"
+                                                Content="{DynamicResource Nav.Delivery}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="DeliveryReport"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Tax Invoice"
+                                                Content="{DynamicResource Nav.TaxInvoice}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="TaxInvoiceReport"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Statement"
+                                                Content="{DynamicResource Nav.Statement}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="StatementReport"/>
                                     </StackPanel>
@@ -840,12 +840,12 @@
                                 </StackPanel>
 
                                 <!-- MASTER DATA (expandable) -->
-                                <TextBlock Text="MASTER DATA"
+                                <TextBlock Text="{DynamicResource Nav.GroupMasterData}"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="MasterDataGroupHost">
                                 <ToggleButton x:Name="MasterDataGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
-                                              Content="Master Data"
+                                              Content="{DynamicResource Nav.MasterDataItems}"
                                               Tag="&#xE822;"
                                               Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
@@ -853,11 +853,11 @@
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
                                     <StackPanel>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Company Center"
+                                                Content="{DynamicResource Nav.CompanyCenter}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="CompanyCenter"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="User Center"
+                                                Content="{DynamicResource Nav.UserCenter}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="UserCenter"/>
                                     </StackPanel>
@@ -865,12 +865,12 @@
                                 </StackPanel>
 
                                 <!-- SYSTEM (expandable) -->
-                                <TextBlock Text="SYSTEM"
+                                <TextBlock Text="{DynamicResource Nav.GroupSystem}"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="SystemGroupHost">
                                 <ToggleButton x:Name="SystemGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
-                                              Content="System"
+                                              Content="{DynamicResource Nav.System}"
                                               Tag="&#xE713;"
                                               Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
@@ -878,11 +878,11 @@
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
                                     <StackPanel>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="System Center"
+                                                Content="{DynamicResource Nav.SystemCenter}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="SystemCenter"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Logs &amp; Activity"
+                                                Content="{DynamicResource Nav.LogsActivity}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="Diagnostics"/>
                                     </StackPanel>
@@ -906,7 +906,7 @@
                             SnapsToDevicePixels="True">
                         <StackPanel>
                             <Grid Margin="0,0,0,6">
-                                <TextBlock Text="STORAGE"
+                                <TextBlock Text="{DynamicResource Nav.GroupStorage}"
                                            FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                            Foreground="{DynamicResource MutedForegroundBrush}"/>
                                 <TextBlock Text="{Binding StorageDisplay, FallbackValue=&apos;--&apos;}"
@@ -980,7 +980,7 @@
                                Margin="0,0,12,0"/>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Read-only mode — your data is safe."
+                        <TextBlock Text="{DynamicResource Shell.ReadOnly}"
                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="#FF3D2C00"/>
                         <TextBlock FontSize="{StaticResource TextBody}"
@@ -991,7 +991,7 @@
                     </StackPanel>
 
                     <Button Grid.Column="2"
-                            Content="Activate license"
+                            Content="{DynamicResource Shell.ActivateLicense}"
                             Padding="14,6"
                             VerticalAlignment="Center"
                             Command="{Binding OpenLicenseSettingsCommand}"

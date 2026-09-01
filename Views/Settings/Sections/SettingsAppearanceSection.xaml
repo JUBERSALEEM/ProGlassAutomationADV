@@ -701,6 +701,93 @@
 
                 </StackPanel>
 
+                <!-- ═════════ GROUP: LANGUAGE &amp; CURRENCY ═════════ -->
+                <TextBlock Text="{DynamicResource Settings.GrpLanguage}"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="{DynamicResource Settings.HintLanguage}"
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <UniformGrid Columns="3" Margin="0,0,0,6">
+
+                    <!-- Language (15 shipped, live switch, en-US primary) -->
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8EC;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}"
+                                           Text="{DynamicResource Settings.LblLanguage}"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="{DynamicResource Settings.HintLanguage}"/>
+                            <ComboBox x:Name="LanguageCombo"
+                                      AutomationProperties.AutomationId="Settings.Language"
+                                      SelectionChanged="OnLanguageSelected"
+                                      DisplayMemberPath="DisplayName"
+                                      MinWidth="180" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Currency (live FX, offline = last fetched) -->
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xEAF1;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}"
+                                           Text="{DynamicResource Settings.LblCurrency}"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="{DynamicResource Settings.HintCurrency}"/>
+                            <ComboBox x:Name="CurrencyCombo"
+                                      AutomationProperties.AutomationId="Settings.Currency"
+                                      SelectionChanged="OnCurrencySelected"
+                                      DisplayMemberPath="DisplayName"
+                                      MinWidth="180" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Phone country (from IP, editable) -->
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE717;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}"
+                                           Text="{DynamicResource Settings.LblPhoneCountry}"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="{DynamicResource Settings.HintPhoneCountry}"/>
+                            <ComboBox x:Name="PhoneCountryCombo"
+                                      AutomationProperties.AutomationId="Settings.PhoneCountry"
+                                      SelectionChanged="OnPhoneCountrySelected"
+                                      DisplayMemberPath="DisplayName"
+                                      MinWidth="180" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </UniformGrid>
+
+                <!-- Auto-detect + currency status -->
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+                <Grid Margin="0,4,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center">
+                        <CheckBox x:Name="AutoSuggestCheck"
+                                  Content="{DynamicResource Settings.LblAutoDetect}"
+                                  Checked="OnAutoSuggestToggled"
+                                  Unchecked="OnAutoSuggestToggled"
+                                  AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>
+                        <TextBlock x:Name="FxStatusText"
+                                   Style="{StaticResource SettingsTileCaptionStyle}"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <Button Grid.Column="1"
+                            Content="{DynamicResource Settings.ResetToEnglish}"
+                            Click="OnResetToEnglish"
+                            AutomationProperties.AutomationId="Settings.ResetLocale"
+                            VerticalAlignment="Center"/>
+                </Grid>
+
             </StackPanel>
         </ScrollViewer>
     </Grid>

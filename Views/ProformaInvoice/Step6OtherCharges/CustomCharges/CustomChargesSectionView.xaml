@@ -95,7 +95,7 @@
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Grid.Column="4"
-                                       Text="{Binding Rate, StringFormat=AED {0:N2}}"
+                                       Text="{Binding Rate, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                        FontSize="{StaticResource TextBody}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"

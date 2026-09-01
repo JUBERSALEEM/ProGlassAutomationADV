@@ -247,31 +247,31 @@
                 <Border Grid.Column="0" Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="INVOICED" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="{Binding LastFinancial.TotalInvoiced, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding LastFinancial.TotalInvoiced, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="VAT" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentDarkBrush}"/>
-                        <TextBlock Text="{Binding LastFinancial.TotalVat, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding LastFinancial.TotalVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="4" Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource SuccessBrush}" BorderThickness="1" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="PAID" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
-                        <TextBlock Text="{Binding LastFinancial.TotalPaid, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding LastFinancial.TotalPaid, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="6" Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="OUTSTANDING" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
-                        <TextBlock Text="{Binding LastFinancial.TotalOutstanding, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding LastFinancial.TotalOutstanding, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="8" Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="OVERDUE" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
-                        <TextBlock Text="{Binding LastFinancial.OverdueAmount, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding LastFinancial.OverdueAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="10" Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
@@ -280,7 +280,7 @@
                         <TextBlock FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0">
                             <Run Text="{Binding LastFinancial.TotalQty, Mode=OneWay}"/>
                             <Run Text=" pcs · "/>
-                            <Run Text="{Binding LastFinancial.TotalSqm, Mode=OneWay, StringFormat={}{0:N2}}"/>
+                            <Run Text="{Binding LastFinancial.TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}}"/>
                             <Run Text=" m²"/>
                         </TextBlock>
                     </StackPanel>
@@ -325,31 +325,31 @@
                         <Border Grid.Column="0" Background="{DynamicResource TintGrayBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
                             <StackPanel>
                                 <TextBlock Text="CURRENT" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                <TextBlock Text="{Binding LastAging.Current, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
+                                <TextBlock Text="{Binding LastAging.Current, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="2" Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
                             <StackPanel>
                                 <TextBlock Text="1–30 DAYS" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="{Binding LastAging.Days0To30, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
+                                <TextBlock Text="{Binding LastAging.Days0To30, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="4" Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
                             <StackPanel>
                                 <TextBlock Text="31–60 DAYS" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
-                                <TextBlock Text="{Binding LastAging.Days31To60, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
+                                <TextBlock Text="{Binding LastAging.Days31To60, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="6" Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
                             <StackPanel>
                                 <TextBlock Text="61–90 DAYS" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
-                                <TextBlock Text="{Binding LastAging.Days61To90, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
+                                <TextBlock Text="{Binding LastAging.Days61To90, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="8" Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
                             <StackPanel>
                                 <TextBlock Text="90+ DAYS" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
-                                <TextBlock Text="{Binding LastAging.Days90Plus, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
+                                <TextBlock Text="{Binding LastAging.Days90Plus, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Border>
                     </Grid>

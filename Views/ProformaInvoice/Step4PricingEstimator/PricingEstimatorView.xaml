@@ -198,7 +198,7 @@
                                FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                VerticalAlignment="Bottom" Margin="0,0,6,4"/>
-                    <TextBlock Text="{Binding EstimatedRatePerSqm, StringFormat={}{0:N2}}"
+                    <TextBlock Text="{Binding EstimatedRatePerSqm, Converter={StaticResource CurrencyConverter}}"
                                FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock Text=" /sqm"

@@ -37,6 +37,13 @@ namespace ProGlassAutomation
         {
             InitializeComponent();
 
+            // Global locale: mirror the active language direction onto
+            // the shell (Arabic/Urdu → RightToLeft). The service also
+            // flips this live when the user switches language.
+            FlowDirection = Services.Localization.LocalizationService.Instance.IsRtl
+                ? FlowDirection.RightToLeft
+                : FlowDirection.LeftToRight;
+
             // The active visual family paints its own self-contained
             // window stage in-window (VisualThemeEngine) — no OS-
             // level chrome service to attach.

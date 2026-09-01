@@ -112,6 +112,10 @@
                      BUILT-IN CONVERTERS (preserved)
                 ══════════════════════════════════════════════════════════ -->
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <!-- Live currency: renders BASE (AED) amounts in the active
+                 display currency at the current internet rate (₹, ¥, €…),
+                 offline = last fetched rate. Books stay in AED. -->
+            <conv:CurrencyDisplayConverter x:Key="CurrencyConverter"/>
             <!-- Short aliases so XAML files can use the more concise
                  "BoolToVis" / "InverseBoolToVis" names that match the
                  app's other XAML conventions. Both names resolve to

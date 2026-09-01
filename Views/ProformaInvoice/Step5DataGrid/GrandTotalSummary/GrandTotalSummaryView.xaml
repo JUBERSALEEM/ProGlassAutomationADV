@@ -78,7 +78,7 @@
                                        HorizontalAlignment="Right"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Grid.Column="4"
-                                       Text="{Binding TotalValue, StringFormat=AED {0:N2}}"
+                                       Text="{Binding TotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                        FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        HorizontalAlignment="Right"
@@ -130,7 +130,7 @@
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock Grid.Column="5"
-                           Text="{Binding GrandTotalValue, StringFormat=AED {0:N2}}"
+                           Text="{Binding GrandTotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                            FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource SuccessBrush}"/>

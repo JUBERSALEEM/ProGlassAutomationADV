@@ -470,8 +470,8 @@
                                                 <TextBlock Grid.Column="6" Text="{Binding Qty}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="7" Text="{Binding Sqm1, StringFormat={}{0:0.000}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
                                                 <TextBlock Grid.Column="8" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="9" Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="10" Text="{Binding Value, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                                <TextBlock Grid.Column="9" Text="{Binding Rate, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="10" Text="{Binding Value, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -530,7 +530,7 @@
 
                                     <!-- VALUE total under TOTAL column -->
                                     <TextBlock Grid.Column="9"
-                                               Text="{Binding FooterTotalValue, StringFormat={}{0:N2}}"
+                                               Text="{Binding FooterTotalValue, Converter={StaticResource CurrencyConverter}}"
                                                Style="{StaticResource TableSubTotalStyle}"
                                                Foreground="{DynamicResource SuccessBrush}"
                                                HorizontalAlignment="Right"/>
@@ -585,7 +585,7 @@
                                 VerticalAlignment="Center">
                         <TextBlock Text="VALUE: AED "
                                    FontSize="{StaticResource TextCaption}" Foreground="#CCFFFFFF"/>
-                        <TextBlock Text="{Binding DataGrid.SummaryViewModel.GrandTotalValue, StringFormat={}{0:N2}}"
+                        <TextBlock Text="{Binding DataGrid.SummaryViewModel.GrandTotalValue, Converter={StaticResource CurrencyConverter}}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="White"/>
                     </StackPanel>
@@ -636,10 +636,10 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <TextBlock Text="Rate: AED " Style="{StaticResource PrintLabelStyle}"/>
-                                        <TextBlock Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource PrintValueStyle}"/>
+                                        <TextBlock Text="{Binding Rate, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource PrintValueStyle}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="3"
-                                               Text="{Binding ResultAmount, StringFormat=AED {0:N2}}"
+                                               Text="{Binding ResultAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                                HorizontalAlignment="Right"
                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 </Grid>
@@ -678,10 +678,10 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <TextBlock Text="Rate: AED " Style="{StaticResource PrintLabelStyle}"/>
-                                        <TextBlock Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource PrintValueStyle}"/>
+                                        <TextBlock Text="{Binding Rate, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource PrintValueStyle}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="3"
-                                               Text="{Binding ResultAmount, StringFormat=AED {0:N2}}"
+                                               Text="{Binding ResultAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                                HorizontalAlignment="Right"
                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 </Grid>
@@ -719,10 +719,10 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal">
                                         <TextBlock Text="Rate: AED " Style="{StaticResource PrintLabelStyle}"/>
-                                        <TextBlock Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource PrintValueStyle}"/>
+                                        <TextBlock Text="{Binding Rate, Converter={StaticResource CurrencyConverter}}" Style="{StaticResource PrintValueStyle}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="3"
-                                               Text="{Binding ResultAmount, StringFormat=AED {0:N2}}"
+                                               Text="{Binding ResultAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                                HorizontalAlignment="Right"
                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 </Grid>
@@ -751,7 +751,7 @@
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="3"
-                                       Text="{Binding MainSummary.OtherChargesSubtotal, StringFormat=AED {0:N2}}"
+                                       Text="{Binding MainSummary.OtherChargesSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                        HorizontalAlignment="Right"
                                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource SuccessBrush}"/>
@@ -778,7 +778,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Glass Materials Total:" Style="{StaticResource PrintValueStyle}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.GlassMaterialsSubtotal, StringFormat={}{0:N2} AED}"
+                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.GlassMaterialsSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
                                    Style="{StaticResource PrintValueStyle}" Margin="16,0,0,0"/>
                     </Grid>
 
@@ -789,7 +789,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Other Processing/Delivery Total:" Style="{StaticResource PrintValueStyle}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.OtherChargesSubtotal, StringFormat={}{0:N2} AED}"
+                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.OtherChargesSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
                                    Style="{StaticResource PrintValueStyle}" Margin="16,0,0,0"/>
                     </Grid>
 
@@ -803,7 +803,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Estimated Net Subtotal:"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.NetSubtotal, StringFormat={}{0:N2} AED}"
+                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.NetSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="16,0,0,0"/>
                     </Grid>
 
@@ -815,7 +815,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="Discount:" Style="{StaticResource PrintValueStyle}" Foreground="{DynamicResource DangerBrush}"/>
-                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.DiscountAmount, StringFormat=- {0:N2} AED}"
+                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.DiscountAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=minus}"
                                    Style="{StaticResource PrintValueStyle}" Foreground="{DynamicResource DangerBrush}" Margin="16,0,0,0"/>
                     </Grid>
 
@@ -840,7 +840,7 @@
                             <TextBlock Text="{Binding MainSummary.VatPercent, StringFormat={}{0:0.##}}" Style="{StaticResource PrintValueStyle}"/>
                             <TextBlock Text="%):" Style="{StaticResource PrintValueStyle}"/>
                         </StackPanel>
-                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.VatAmount, StringFormat={}{0:N2} AED}"
+                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.VatAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
                                    Style="{StaticResource PrintValueStyle}" Margin="16,0,0,0"/>
                     </Grid>
 
@@ -856,7 +856,7 @@
                                        FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" Foreground="White"
                                        VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding MainSummary.GrandTotalVatInclusive, StringFormat={}{0:N2} AED}"
+                                       Text="{Binding MainSummary.GrandTotalVatInclusive, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
                                        FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="White"
                                        VerticalAlignment="Center" Margin="16,0,0,0"/>
                         </Grid>

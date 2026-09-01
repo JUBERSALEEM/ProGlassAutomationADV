@@ -316,11 +316,49 @@ namespace ProGlassAutomation.Services.AI.AIConfig
     /// in memory by ConfigService. With RememberApiKeys=false keys exist
     /// only for the running session.
     /// </summary>
+    /// <summary>
+    /// Global language & currency preferences (2026-09-01 system-wide
+    /// localization). Language and currency are INDEPENDENT: the user may
+    /// run the app in English while amounts display in INR, or in Chinese
+    /// with AED — every combination is valid.
+    /// </summary>
+    public class LocalizationSettings
+    {
+        /// <summary>BCP-47 code: "en-US" | "ar-AE" | "zh-CN" | "hi-IN" |
+        /// "es-ES" | "fr-FR" | "de-DE" | "ru-RU" | "pt-BR" | "tr-TR" |
+        /// "ur-PK" | "bn-BD" | "id-ID" | "ja-JP" | "ko-KR".
+        /// DEFAULT en-US everywhere (primary language in every country).</summary>
+        public string Language { get; set; } = "en-US";
+
+        /// <summary>Display currency (ISO 4217). Empty = follow the
+        /// location/geo suggestion. Books always stay in AED — this only
+        /// changes what the user SEES.</summary>
+        public string CurrencyCode { get; set; } = "";
+
+        /// <summary>When true (default) and the user never chose a
+        /// language, the country/region detection offers the local
+        /// language (India → हिन्दी, China → 中文, UAE → العربية).
+        /// English remains primary regardless — this only applies to the
+        /// SUGGESTION, never a forced override.</summary>
+        public bool AutoSuggestByRegion { get; set; } = true;
+
+        /// <summary>ISO country last detected (geo / OS region).</summary>
+        public string LastKnownCountryIso { get; set; } = "";
+
+        /// <summary>Phone-input default country (drives +971 / +91 …).</summary>
+        public string PhoneCountryIso { get; set; } = "";
+
+        /// <summary>Last live FX fetch (informational — cache is the
+        /// source).</summary>
+        public DateTime LastFxFetchUtc { get; set; }
+    }
+
     public class AppConfig
     {
         public AiSettings Ai { get; set; } = new AiSettings();
         public bool OnlineFeaturesEnabled { get; set; } = true;
         public AppearanceSettings Appearance { get; set; } = new();
+        public LocalizationSettings Localization { get; set; } = new();
 
         /// <summary>
         /// Per-field visibility flags for the Proforma Invoice

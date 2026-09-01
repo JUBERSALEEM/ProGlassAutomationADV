@@ -94,7 +94,7 @@
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="QUANTITY" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalQty, StringFormat={}{0:N0} pcs}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalSqm, Mode=OneWay, StringFormat={}{0:N2} SQM}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=sqm}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -280,10 +280,10 @@
                                                 </TextBlock>
                                             </Border>
 
-                                            <TextBlock Grid.Column="6" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                            <TextBlock Grid.Column="6" Text="{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
                                             <TextBlock Grid.Column="7" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right" Margin="0,0,6,0">
-                                                <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs"/><LineBreak/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N2} SQM}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs"/><LineBreak/><Run Text="{Binding TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=sqm}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}"/>
                                             </TextBlock>
 
                                             <TextBlock Grid.Column="8" Text="{Binding TotalRows}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -354,7 +354,7 @@
                                                     <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding ProjectName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
                                                     <TextBlock Grid.Row="8" Grid.Column="0" Text="PI AMOUNT" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
                                                 </Grid>
                                             </Border>
 

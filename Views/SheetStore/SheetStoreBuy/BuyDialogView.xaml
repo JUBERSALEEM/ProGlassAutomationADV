@@ -167,7 +167,7 @@
                     <DockPanel Margin="0,0,0,6">
                         <TextBlock Text="Total SQM" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
+                        <TextBlock Text="{Binding TotalSqm, Converter={StaticResource CurrencyConverter}}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    HorizontalAlignment="Right"/>
@@ -192,7 +192,7 @@
                     <DockPanel Margin="0,8,0,0">
                         <TextBlock Text="Total Cost" FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}"
+                        <TextBlock Text="{Binding TotalCost, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Right"/>
                     </DockPanel>

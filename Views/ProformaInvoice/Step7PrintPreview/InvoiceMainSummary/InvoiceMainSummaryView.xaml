@@ -88,7 +88,7 @@
             </Grid.ColumnDefinitions>
             <TextBlock Text="Glass subtotal" Style="{StaticResource SummaryLabelStyle}"/>
             <TextBlock Grid.Column="1"
-                       Text="{Binding GlassMaterialsSubtotal, StringFormat=AED {0:N2}}"
+                       Text="{Binding GlassMaterialsSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                        Style="{StaticResource SummaryValueStyle}"/>
         </Grid>
         <Grid Margin="0,0,0,10">
@@ -98,7 +98,7 @@
             </Grid.ColumnDefinitions>
             <TextBlock Text="Other charges" Style="{StaticResource SummaryLabelStyle}"/>
             <TextBlock Grid.Column="1"
-                       Text="{Binding OtherChargesSubtotal, StringFormat=AED {0:N2}}"
+                       Text="{Binding OtherChargesSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                        Style="{StaticResource SummaryValueStyle}"/>
         </Grid>
         <Grid Margin="0,0,0,12">
@@ -108,7 +108,7 @@
             </Grid.ColumnDefinitions>
             <TextBlock Text="Net subtotal" Style="{StaticResource SummaryLabelStyle}" FontWeight="SemiBold"/>
             <TextBlock Grid.Column="1"
-                       Text="{Binding NetSubtotal, StringFormat=AED {0:N2}}"
+                       Text="{Binding NetSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                        Style="{StaticResource SummaryValueStyle}"/>
         </Grid>
 
@@ -155,7 +155,7 @@
                        VerticalAlignment="Center"
                        Margin="6,0,12,0"/>
             <TextBlock Grid.Column="4"
-                       Text="{Binding DiscountAmount, StringFormat=- AED {0:N2}}"
+                       Text="{Binding DiscountAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=minus}"
                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
                        Foreground="{DynamicResource DangerBrush}"
                        VerticalAlignment="Center"/>
@@ -207,7 +207,7 @@
             </Grid.ColumnDefinitions>
             <TextBlock Text="Subtotal before VAT" Style="{StaticResource SummaryLabelStyle}"/>
             <TextBlock Grid.Column="1"
-                       Text="{Binding SubtotalBeforeVat, StringFormat=AED {0:N2}}"
+                       Text="{Binding SubtotalBeforeVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                        Style="{StaticResource SummaryValueStyle}"/>
         </Grid>
 
@@ -243,7 +243,7 @@
                        VerticalAlignment="Center"
                        Margin="6,0,12,0"/>
             <TextBlock Grid.Column="5"
-                       Text="{Binding VatAmount, StringFormat=+ AED {0:N2}}"
+                       Text="{Binding VatAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=plus}"
                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
                        Foreground="{DynamicResource SuccessBrush}"
                        VerticalAlignment="Center"/>
@@ -259,7 +259,7 @@
                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                        VerticalAlignment="Center"/>
             <TextBlock Grid.Column="1"
-                       Text="{Binding GrandTotalVatInclusive, StringFormat=AED {0:N2}}"
+                       Text="{Binding GrandTotalVatInclusive, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                        FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
         </Grid>

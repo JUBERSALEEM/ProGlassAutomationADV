@@ -111,7 +111,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock FontSize="{StaticResource TextBody}" Margin="0,2">
-                                        <Run Text="{Binding ProformaId, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/><Run Text=" — "/><Run Text="{Binding CustomerName, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding GrandTotal, Mode=OneWay, StringFormat={}AED {0:N2}}" FontWeight="SemiBold"/>
+                                        <Run Text="{Binding ProformaId, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/><Run Text=" — "/><Run Text="{Binding CustomerName, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding GrandTotal, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontWeight="SemiBold"/>
                                     </TextBlock>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -300,7 +300,7 @@
                                                 </TextBlock>
                                             </Border>
 
-                                            <TextBlock Grid.Column="8" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="8" Text="{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="9" Text="{Binding TotalQty, StringFormat={}{0:N0}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
@@ -378,10 +378,10 @@
                                                     <TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding DueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
                                                     <TextBlock Grid.Row="11" Grid.Column="0" Text="VAT" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                    <TextBlock Grid.Row="11" Grid.Column="1" Text="{Binding VatAmount, StringFormat={}AED {0:N2}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="11" Grid.Column="1" Text="{Binding VatAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
                                                     <TextBlock Grid.Row="12" Grid.Column="0" Text="AMOUNT" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                                    <TextBlock Grid.Row="12" Grid.Column="1" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="12" Grid.Column="1" Text="{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
                                                 </Grid>
                                             </Border>
 
@@ -389,7 +389,7 @@
                                                 <StackPanel>
                                                     <TextBlock Text="QUANTITY &amp; AREA" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"/>
                                                     <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                        <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs · "/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N2} SQM}"/>
+                                                        <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs · "/><Run Text="{Binding TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=sqm}"/>
                                                     </TextBlock>
                                                 </StackPanel>
                                             </Border>

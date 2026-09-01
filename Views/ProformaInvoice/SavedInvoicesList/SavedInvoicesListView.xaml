@@ -136,7 +136,7 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="Value" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalValueSum, StringFormat=AED {0:N2}}"
+                                <TextBlock Text="{Binding TotalValueSum, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"
                                            FontSize="{StaticResource TextTitleLarge}"/>
                                 <TextBlock Text="Filtered sum"
@@ -386,7 +386,7 @@
                                         </Border>
 
                                         <TextBlock Grid.Column="6"
-                                                   Text="{Binding GrandTotal, StringFormat=AED {0:N2}}"
+                                                   Text="{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                                    FontSize="{StaticResource TextBodyLarge}"
                                                    FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"

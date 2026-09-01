@@ -87,10 +87,10 @@
                             CornerRadius="16,16,0,0"
                             Padding="18,12">
                         <StackPanel>
-                            <TextBlock Text="Settings"
+                            <TextBlock Text="{DynamicResource Shell.NavSettings}"
                                        FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Text="Every page in the settings sidebar"
+                            <TextBlock Text="{DynamicResource Settings.HintEveryPage}"
                                        FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        Opacity="0.85" Margin="0,2,0,0"/>
@@ -104,69 +104,69 @@
                                   Padding="8,4,8,10">
                         <StackPanel>
 
-                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="LOOK"/>
+                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="{DynamicResource Settings.GrpLook}"/>
                             <Button Style="{StaticResource QuickSettingsRow}" Tag="Appearance" Click="Link_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE790;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Appearance"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAppearance}"/>
                                 </StackPanel>
                             </Button>
 
-                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="INTELLIGENCE"/>
+                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="{DynamicResource Settings.GrpIntelligence}"/>
                             <Button Style="{StaticResource QuickSettingsRow}" Tag="AI" Click="Link_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE8F2;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="AI Assistant"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAi}"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource QuickSettingsRow}" Tag="Agent" Click="Link_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE99A;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="AI &amp; Agent"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAgent}"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource QuickSettingsRow}" Tag="Voice" Click="Link_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE720;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Voice"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecVoice}"/>
                                 </StackPanel>
                             </Button>
 
-                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="SYSTEM"/>
+                            <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="{DynamicResource Nav.GroupSystem}"/>
                             <Button Style="{StaticResource QuickSettingsRow}" Tag="Data" Click="Link_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE74E;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Data &amp; Backup"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecData}"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource QuickSettingsRow}" Tag="Updates" Click="Link_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE72C;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Updates"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecUpdates}"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource QuickSettingsRow}" Tag="Demo" Click="Link_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE714;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Demo Center"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecDemo}"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource QuickSettingsRow}" Tag="Features" Click="Link_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE762;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="Features"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecFeatures}"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource QuickSettingsRow}" Tag="License" Click="Link_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE192;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="License"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecLicense}"/>
                                 </StackPanel>
                             </Button>
                             <Button Style="{StaticResource QuickSettingsRow}" Tag="About" Click="Link_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE946;"/>
-                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="About &amp; Help"/>
+                                    <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAbout}"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>

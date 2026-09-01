@@ -60,7 +60,7 @@
                                    Foreground="{DynamicResource WarningBrush}"/>
                         <TextBlock Text=" sheets  •  " FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}"
+                        <TextBlock Text="{Binding Sheet.TotalSqmBalance, Converter={StaticResource CurrencyConverter}}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text=" SQM" FontSize="{StaticResource TextBody}"
@@ -129,7 +129,7 @@
                     <DockPanel Margin="0,0,0,6">
                         <TextBlock Text="SQM being used" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
+                        <TextBlock Text="{Binding TotalSqm, Converter={StaticResource CurrencyConverter}}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    HorizontalAlignment="Right"/>
@@ -145,7 +145,7 @@
                     <DockPanel Margin="0,8,0,0">
                         <TextBlock Text="Value consumed" FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding TotalValue, StringFormat={}{0:N2} AED}"
+                        <TextBlock Text="{Binding TotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Right"/>
                     </DockPanel>

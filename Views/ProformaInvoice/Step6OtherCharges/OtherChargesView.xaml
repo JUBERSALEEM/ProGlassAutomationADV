@@ -574,11 +574,11 @@
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                HorizontalAlignment="Right">
                         <Run Text="Wastage AED "/>
-                        <Run Text="{Binding WastagesSection.TotalWastageValue, StringFormat={}{0:N2}, Mode=OneWay}"/>
+                        <Run Text="{Binding WastagesSection.TotalWastageValue, Converter={StaticResource CurrencyConverter}, Mode=OneWay}"/>
                         <Run Text="  ·  Custom AED "/>
-                        <Run Text="{Binding CustomChargesSection.TotalCustomChargesValue, StringFormat={}{0:N2}, Mode=OneWay}"/>
+                        <Run Text="{Binding CustomChargesSection.TotalCustomChargesValue, Converter={StaticResource CurrencyConverter}, Mode=OneWay}"/>
                         <Run Text="  ·  Combined "/>
-                        <Run Text="{Binding TotalOtherCharges, StringFormat=AED {0:N2}, Mode=OneWay}"
+                        <Run Text="{Binding TotalOtherCharges, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix, Mode=OneWay}"
                              FontWeight="Bold"
                              Foreground="{DynamicResource SuccessBrush}"/>
                     </TextBlock>
