@@ -1,6 +1,7 @@
 <Window x:Class="ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList.InvoiceApprovalDialog"
              TextOptions.TextHintingMode="Fixed"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{DynamicResource ProformaInvoice.ConfirmInvoiceApproval}"
         Width="560"
@@ -163,7 +164,7 @@
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <!-- Bounded + wrapping so the runtime note can never
                              overflow the card's right edge. -->
-                        <TextBlock x:Name="AttachmentNote"
+                        <TextBlock Text="{Binding AttachmentNote}"
                                    FontSize="{StaticResource TextCaption}"
                                    FontWeight="SemiBold"
                                    TextWrapping="Wrap"
@@ -176,20 +177,17 @@
 
             <!-- Options -->
             <StackPanel Grid.Row="1" Margin="28,22,28,0">
-                <RadioButton x:Name="SignedPiRadio"
-                             GroupName="ApprovalMode"
-                             IsChecked="True"
-                             Style="{StaticResource ApprovalRadioStyle}"
-                             Checked="OnModeChanged">
+                <RadioButton GroupName="ApprovalMode"
+                             IsChecked="{Binding ApprovalMode, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
+                             Style="{StaticResource ApprovalRadioStyle}">
                     <TextBlock Text="{DynamicResource ProformaInvoice.CustomerSignedProformaInvoice}"
                                TextWrapping="Wrap"/>
                 </RadioButton>
-                <RadioButton x:Name="LpoRadio"
-                             GroupName="ApprovalMode"
-                             IsChecked="False"
+                <RadioButton GroupName="ApprovalMode"
+                             IsChecked="{Binding ApprovalMode, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
                              Margin="0,12,0,0"
                              Style="{StaticResource ApprovalRadioStyle}"
-                             Checked="OnModeChanged">
+                             behaviors:FocusOnCheckedBehavior.Target="{Binding ElementName=LpoBox}">
                     <TextBlock Text="{DynamicResource ProformaInvoice.CustomerProvidedLPOPurchaseOrder}"
                                TextWrapping="Wrap"/>
                 </RadioButton>
@@ -205,19 +203,19 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <TextBlock x:Name="LpoLabel" Grid.Row="0" Text="{DynamicResource ProformaInvoice.LPOPONumber}"
+                <TextBlock Grid.Row="0" Text="{Binding LpoLabelText}"
                            Style="{StaticResource ApprovalFieldLabel}"/>
                 <TextBox x:Name="LpoBox" Grid.Row="1"
                          Height="40"
                          Margin="0,0,0,0"
                          Style="{StaticResource ApprovalTextBox}"
-                         KeyDown="OnLpoKeyDown"/>
+                         Text="{Binding LpoNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Grid>
 
             <!-- Validation strip — always reserved at a fixed height;
                  Visibility toggles Hidden/Visible only, so the window and
                  footer below never move when an error appears. -->
-            <Border x:Name="ValidationBorder" Grid.Row="3"
+            <Border Grid.Row="3"
                     Height="48"
                     Margin="28,14,28,0"
                     Padding="14,10" CornerRadius="{DynamicResource CardCornerRadius}"
@@ -225,8 +223,8 @@
                     BorderBrush="{DynamicResource DangerBrush}"
                     BorderThickness="1"
                     VerticalAlignment="Top"
-                    Visibility="Hidden">
-                <TextBlock x:Name="ValidationText"
+                    Visibility="{Binding ValidationVisibility}">
+                <TextBlock Text="{Binding ValidationMessage}"
                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource DangerBrush}"/>
@@ -250,7 +248,7 @@
                     <Button Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE73E;" Content="{DynamicResource ProformaInvoice.ApproveInvoice}"
                             ToolTip="{DynamicResource ProformaInvoice.ApproveConvertJobOrder}"
-                            Click="OnApproveClick"
+                            Command="{Binding ApproveCommand}"
                             IsDefault="True"/>
                 </StackPanel>
             </Border>
