@@ -431,3 +431,32 @@ file in one pass, flatten ALL spans into a single descending list first —
 grouping deletions per output-file but sorting groups by their first span
 stale-shifts the indices of later spans (the Settings split initially left
 the Backup section duplicated in both the main file and `Data.cs`).
+
+## 13. Senior cross-check — 2026-09-02 (nothing skipped, one audit correction)
+
+Full static re-verification of every refactor step:
+
+- **Wide handler scan (36 event names)** — 0 XAML handler wirings missed by the
+  sweep regex family; reverse scan for dead handler methods: 0; every census
+  attr resolves to a real method (0 broken wirings).
+- **Duplicate-member scan across all 6 partial groups** (SettingsViewModel,
+  ReportingDataService, StatementGeneratorViewModel, ProfitLossStepViewModel,
+  TaxInvoiceDetailViewModel, App): 0 real duplicates — flagged hits were
+  distinct nested classes (`AccentOption` vs `FontColorOption`,
+  `DeliveryRowAgg` vs `StatementLineProjection`) and anonymous types, all
+  legal C#. Partial declarations consistent (one style fix:
+  `SettingsViewModel.AppearanceSection.cs` now repeats the base-type list).
+- **Census correction**: the sweep series (174→57) used an 8-event regex
+  (Click/Checked/Unchecked/SelectionChanged/KeyDown/Closed/Loaded/
+  MouseLeftButtonDown) — it under-counts events outside that family
+  (`Opened`, `PasswordChanged`, `PreviewKeyDown`, `TextChanged`, `MouseMove`,
+  `SizeChanged`, `Drop`, …). True current surface: **86 attrs / 38 files**
+  (78/37 in-app + 8 in `Tools/LicenseGenerator`, a separate tool project).
+  The 174→57 series remains valid as a consistent relative trend; per-file
+  3.7 targets must use the true counts (see `PHASE_BALANCE.md`).
+- **Remaining `App.*` refs** = documented keeps (config + DI facades).
+- **God-file audit**: 16 `.cs` files > 1000 lines remain (largest
+  `DeliveryNoteDetailViewModel` 2199, `VisualThemeEngine` 1979,
+  `SpecGroup` 1918, `StatementWorkflowEngine` 1859) → Phase 3.8 wave,
+  same census-verified split recipe. Theme language dictionaries (2396×15)
+  are generated resources, not targets.

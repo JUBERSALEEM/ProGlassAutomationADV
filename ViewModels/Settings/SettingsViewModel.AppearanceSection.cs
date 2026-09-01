@@ -32,7 +32,7 @@ using System.Windows.Input;
 namespace ProGlassAutomation.ViewModels.Settings
 {
     // ── Language & currency group (Appearance page) ──────────────────
-    public sealed partial class SettingsViewModel
+    public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         public IReadOnlyList<LanguageInfo> Languages => LanguageCatalog.All;
         public IReadOnlyList<CurrencyInfo> Currencies => CurrencyCatalog.All;
