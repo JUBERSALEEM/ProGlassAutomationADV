@@ -414,7 +414,8 @@ as the Phase-D historical artifact (its line drift predates Phase 2).
 |---|---|---|
 | 3.1 | `SettingsViewModel` (128 KB / 3007 lines) → `partial class` per tab | ✅ **3007 → 318-line core** (fields + ctors + nav) + **11 partial files**: `Navigation`, `Features`, `Appearance` (theme/accent), `Typography` (font colour + global font), `Ai` (provider/keys/tests/RAG/model), `Voice` (Whisper), `Security`, `Data` (DB health + backup/restore), `ThemeWallpaper`, `Updates`, `Helpers`. Member census 236 = 236 (0 lost, 0 duplicated); brace-balance invariant MATCH. Each file < 800 lines. |
 | 3.1a | Leftover `App.*` purge | ✅ `AiProviderChanged`/`RaiseAiProviderChanged` static pair → `Services/AI/IAiProviderEvents` (singleton, Settings raises / AiChat subscribes). `App.Specs` ×4 in `SpecGroup` → injected `ISpecificationsRepository` via `DataGridViewModel` ctor. Remaining `App.*` = chain-ctor boundary lines + documented keeps (`DemoModeService` static facade → Phase 5.2). |
-| 3.2 | `ReportingDataService` (125 KB) → partial per report family | ⏳ next |
+| 3.2 | `ReportingDataService` (125 KB) → partial per report family | ✅ **2430 → 202-line core** (shared static helpers) + **10 partials**: `Pi`, `Jo`, `Delivery`, `TaxInvoice`, `MasterData`, `GlassSpecs`, `Statement`, `Profitability`, `DrillDown`, `Vat`. Member census 90 = 90 (0 lost/dup); balance MATCH. |
+| 3.3 | `StatementGeneratorViewModel` (114 KB) → step sub-VMs | ⏳ next |
 | 3.3 | `StatementGeneratorViewModel` (114 KB) → step sub-VMs | ⏳ |
 | 3.4 | `ProfitLossStepViewModel` (103 KB) & `TaxInvoiceDetailViewModel` (94 KB) → partials per section | ⏳ |
 | 3.5 | `App.xaml.cs` (62 KB) → `AppStartupPipeline` service | ⏳ |
