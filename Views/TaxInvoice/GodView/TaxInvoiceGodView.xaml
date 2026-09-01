@@ -58,10 +58,10 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <TextBlock Text="Tax Invoices — God View"
+                <TextBlock Text="{DynamicResource God.TiTitle}"
                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock Text="Every tax invoice in the system, at a glance"
+                <TextBlock Text="{DynamicResource God.TiSubtitle}"
                            FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
@@ -80,15 +80,15 @@
                          Background="Transparent"
                          FontSize="{StaticResource TextBodyLarge}"
                          VerticalAlignment="Center"
-                         ToolTip="Search invoice # / customer / project / status"/>
+                         ToolTip="{DynamicResource God.TiSearch}"/>
             </Border>
 
             <!-- LAYOUT FIX: Grid.Column="2" was missing, so this button
                  rendered in column 0 stacked on top of the title text. -->
             <Button Grid.Column="2"
                     Style="{StaticResource PrimaryPillButton}"
-                    Tag="&#xE72C;" Content="REFRESH"
-                    ToolTip="Refresh overview"
+                    Tag="&#xE72C;" Content="{DynamicResource God.Refresh}"
+                    ToolTip="{DynamicResource God.RefreshOverview}"
                     VerticalAlignment="Center"
                     Command="{Binding RefreshCommand}"/>
         </Grid>
@@ -126,30 +126,30 @@
                                           AncestorType=DataGrid}}"/>
                 </DataGrid.InputBindings>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Invoice #"
+                    <DataGridTextColumn Header="{DynamicResource God.InvoiceNumber}"
                                         Binding="{Binding InvoiceNumber}"
                                         Width="140"/>
-                    <DataGridTextColumn Header="Type"
+                    <DataGridTextColumn Header="{DynamicResource God.Type}"
                                         Binding="{Binding InvoiceType}"
                                         Width="80"/>
-                    <DataGridTextColumn Header="Customer"
+                    <DataGridTextColumn Header="{DynamicResource God.Customer}"
                                         Binding="{Binding CustomerName}"
                                         Width="*"/>
-                    <DataGridTextColumn Header="Project"
+                    <DataGridTextColumn Header="{DynamicResource God.Project}"
                                         Binding="{Binding ProjectName}"
                                         Width="*"/>
-                    <DataGridTextColumn Header="Status"
+                    <DataGridTextColumn Header="{DynamicResource God.Status}"
                                         Binding="{Binding Status}"
                                         Width="105"/>
-                    <DataGridTextColumn Header="Issue Date"
+                    <DataGridTextColumn Header="{DynamicResource God.IssueDate}"
                                         Binding="{Binding IssueDate,
                                             StringFormat='dd MMM yyyy'}"
                                         Width="105"/>
-                    <DataGridTextColumn Header="Due Date"
+                    <DataGridTextColumn Header="{DynamicResource God.DueDate}"
                                         Binding="{Binding DueDate,
                                             StringFormat='dd MMM yyyy'}"
                                         Width="105"/>
-                    <DataGridTextColumn Header="Total (AED)"
+                    <DataGridTextColumn Header="{DynamicResource God.TotalAed}"
                                         Binding="{Binding GrandTotal,
                                             StringFormat='N2'}"
                                         Width="110"/>
@@ -157,7 +157,7 @@
                     <DataGridTemplateColumn Header="" Width="80">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Content="Open"
+                                <Button Content="{DynamicResource God.Open}"
                                         Cursor="Hand"
                                         FontSize="{StaticResource TextBody}"
                                         Padding="10,3"
@@ -192,7 +192,7 @@
                     </StackPanel.Style>
                     <emptyState:EmptyStateControl
                         Icon="&#xE8A5;"
-                        Title="No tax invoices found"
+                        Title="{DynamicResource God.TiEmpty}"
                         Message="Every tax invoice in the system appears in this God View — search by invoice number, customer, project, status or type. Invoices created from deliveries or proformas show up here instantly. If nothing matches, try a different search or press Refresh."/>
                 </StackPanel>
                 </Grid>

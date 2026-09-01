@@ -77,22 +77,36 @@ New `Views/Shared/CountryPhoneControl` — ComboBox 🇦🇪 +971 | number.
 
 ## 5. Coverage audit (run `python3 tools/i18n-audit.py`)
 
+FREEZE LIFTED (2026-09-01): GodView / DataGrid / DeliveryNoteList /
+SettingsViewModel are editable again. The 5 previously-frozen XAML files
+(146 literals) are now fully bound: 0 standalone labels remain in the
+three GodViews; only numeric/unit fragments ("AED ", "05", "pcs",
+" · ") stay literal — they are data separators, not translatable labels.
+
 | Check | Result |
 |---|---|
-| Language dictionaries | 15 × 250 keys, identical key sets |
+| Language dictionaries | 15 × 359 keys, identical key sets |
 | Undefined `{DynamicResource}` locale keys | **0** |
 | Locale keys via `StaticResource` (would not retranslate) | **0** |
-| Live locale refs in Views | 63 (shell, settings, splash, login, phone, currency) |
-| Literal UI strings remaining, non-god views | **2,943 strings / 116 files** |
-| Literal UI strings in FROZEN god files | 137 (5 files) — deferred by design |
+| Live locale refs in Views | 65+ (shell, settings, splash, login, phone, currency, God views) |
+| Literal UI strings remaining, non-god views | **2,956 strings / 118 files** (next phases) |
+| Literal UI strings in ex-frozen files | 13 (units/separator fragments only) |
 
-`tools/gen-languages.py` regenerates all 15 dictionaries from one table.
+`tools/i18n/build.py` regenerates all 15 dictionaries from **one short
+file per language** (`tools/i18n/{code}.py`). Country data lives in **one
+short file per country** (`Services/Localization/Countries/Country.XX.cs`
+— dial code, flag, currency, suggested language) aggregated by
+`CountryCatalog`; `CountryDialCode` is a thin facade. `SeededFxRates`
+was split into its own file. No single new file is large by design.
 
 ### What is fully localized & live
 Shell nav + group titles + tooltips (MainWindow), top bar, Quick Settings,
 Settings sidebar + language/currency page, Login window, Splash + legal
 terms chrome (9 clauses), phone labels, currency/rate status, common
-actions (Save/Cancel/Delete…), module names.
+actions (Save/Cancel/Delete…), module names, and the five
+previously-frozen screens (Delivery Notes / Job Orders / Tax Invoices
+God Views, PI Step-5 DataGrid, Delivery Note List) — 109 extra keys
+author-plate in all 14 non-English languages.
 
 ### 2,943 remaining literals — phased plan (needs the user's go-ahead)
 The literal sweep touches ~116 view files; because the freeze explicitly
@@ -105,12 +119,13 @@ future work uses the same mechanism:
 2. Phase B — record editors & dialogs (Inquiry editor, Sheet dialogs,
    PI steps 1–4/6/8, statement generator shell).
 3. Phase C — report/print surfaces (PrintableInvoice, report views).
-4. Phase D — frozen files (only after the freeze is lifted).
+4. Phase D — ViewModel string literals via `LocalizationService.T(...)`
+   (SettingsViewModel and other code-behind label strings).
 
-Every step adds keys to `tools/gen-languages.py` (must cover all 15
-languages — the generator enforces it) and converts the literal to
-`{DynamicResource Key}`. English stays the merged fallback, so a missing
-translation shows English, never a blank label.
+Every step adds keys to `tools/i18n/{code}.py` (build.py enforces all 15
+languages carry the same key set — missing keys fail the build) and
+converts the literal to `{DynamicResource Key}`. English stays the merged
+fallback, so a missing translation shows English, never a blank label.
 
 ## 6. Exports remain invariant (regression guard preserved)
 

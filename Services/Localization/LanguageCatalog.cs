@@ -96,6 +96,12 @@ namespace ProGlassAutomation.Services.Localization
             string iso = (countryIso ?? "").Trim().ToUpperInvariant();
             if (iso.Length == 0) return Primary;
 
+            // 1) Per-country data (Countries/Country.XX.cs) — IN → hi-IN,
+            //    CN → zh-CN, AE → ar-AE, CA → fr-FR …
+            var country = Countries.CountryCatalog.Find(iso);
+            if (country != null && Find(country.SuggestedLanguage) != null)
+                return Find(country.SuggestedLanguage)!;
+
             foreach (var lang in All)
                 if (lang.PrimaryRegionIso == iso)
                     return lang;

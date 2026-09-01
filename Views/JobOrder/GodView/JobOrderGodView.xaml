@@ -58,10 +58,10 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <TextBlock Text="Job Orders — God View"
+                <TextBlock Text="{DynamicResource God.JoTitle}"
                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock Text="Every job order in the system, at a glance"
+                <TextBlock Text="{DynamicResource God.JoSubtitle}"
                            FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
@@ -80,15 +80,15 @@
                          Background="Transparent"
                          FontSize="{StaticResource TextBodyLarge}"
                          VerticalAlignment="Center"
-                         ToolTip="Search JO / PI / customer / project / status"/>
+                         ToolTip="{DynamicResource God.JoSearch}"/>
             </Border>
 
             <!-- LAYOUT FIX: Grid.Column="2" was missing, so this button
                  rendered in column 0 stacked on top of the title text. -->
             <Button Grid.Column="2"
                     Style="{StaticResource PrimaryPillButton}"
-                    Tag="&#xE72C;" Content="REFRESH"
-                    ToolTip="Refresh overview"
+                    Tag="&#xE72C;" Content="{DynamicResource God.Refresh}"
+                    ToolTip="{DynamicResource God.RefreshOverview}"
                     VerticalAlignment="Center"
                     Command="{Binding RefreshCommand}"/>
         </Grid>
@@ -126,29 +126,29 @@
                                           AncestorType=DataGrid}}"/>
                 </DataGrid.InputBindings>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="JO #"
+                    <DataGridTextColumn Header="{DynamicResource God.JoNumber}"
                                         Binding="{Binding JobOrderId}"
                                         Width="140"/>
-                    <DataGridTextColumn Header="Source PI"
+                    <DataGridTextColumn Header="{DynamicResource God.SourcePi}"
                                         Binding="{Binding SourceProformaId}"
                                         Width="130"/>
-                    <DataGridTextColumn Header="Customer"
+                    <DataGridTextColumn Header="{DynamicResource God.Customer}"
                                         Binding="{Binding CustomerName}"
                                         Width="*"/>
-                    <DataGridTextColumn Header="Project"
+                    <DataGridTextColumn Header="{DynamicResource God.Project}"
                                         Binding="{Binding ProjectName}"
                                         Width="*"/>
-                    <DataGridTextColumn Header="Status"
+                    <DataGridTextColumn Header="{DynamicResource God.Status}"
                                         Binding="{Binding Status}"
                                         Width="110"/>
-                    <DataGridTextColumn Header="Priority"
+                    <DataGridTextColumn Header="{DynamicResource God.Priority}"
                                         Binding="{Binding Priority}"
                                         Width="85"/>
-                    <DataGridTextColumn Header="Value (AED)"
+                    <DataGridTextColumn Header="{DynamicResource God.ValueAed}"
                                         Binding="{Binding GrandTotalVatInclusive,
                                             StringFormat='N2'}"
                                         Width="110"/>
-                    <DataGridTextColumn Header="Delivery"
+                    <DataGridTextColumn Header="{DynamicResource Nav.Delivery}"
                                         Binding="{Binding DeliveryDate,
                                             StringFormat='dd MMM yyyy'}"
                                         Width="110"/>
@@ -156,7 +156,7 @@
                     <DataGridTemplateColumn Header="" Width="80">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Content="Open"
+                                <Button Content="{DynamicResource God.Open}"
                                         Cursor="Hand"
                                         FontSize="{StaticResource TextBody}"
                                         Padding="10,3"
@@ -191,7 +191,7 @@
                     </StackPanel.Style>
                     <emptyState:EmptyStateControl
                         Icon="&#xE8C8;"
-                        Title="No job orders found"
+                        Title="{DynamicResource God.JoEmpty}"
                         Message="Every job order in the system appears in this God View — search by JO, PI, customer, project, status or priority. Job orders created from proforma invoices show up here instantly. If nothing matches, try a different search or press Refresh."/>
                 </StackPanel>
                 </Grid>

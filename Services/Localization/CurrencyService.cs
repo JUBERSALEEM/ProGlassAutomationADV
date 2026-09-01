@@ -39,6 +39,9 @@ namespace ProGlassAutomation.Services.Localization
     {
         public static CurrencyService Instance { get; } = new();
 
+        /// <summary>Where the currency token sits relative to the number.</summary>
+        public enum CurrencyLayout { Prefix, Suffix }
+
         /// <summary>The currency amounts are DISPLAYED in (ISO 4217).</summary>
         public string DisplayCurrency { get; private set; } = "AED";
 
@@ -162,7 +165,8 @@ namespace ProGlassAutomation.Services.Localization
 
         /// <summary>Format an amount for display in the active display
         /// currency, e.g. "AED 12,500.00", "₹ 26.00", "¥ 1,250".</summary>
-        public string Format(decimal baseAmount, bool includeCode = true)
+        public string Format(decimal baseAmount, bool includeCode = true,
+            CurrencyLayout layout = CurrencyLayout.Prefix)
         {
             var info = CurrencyCatalog.Find(DisplayCurrency)
                        ?? CurrencyCatalog.Find(BaseCurrency)!;
@@ -171,9 +175,10 @@ namespace ProGlassAutomation.Services.Localization
                 System.Globalization.CultureInfo.InvariantCulture);
 
             string symbol = info.Symbol;
-            if (includeCode && string.IsNullOrWhiteSpace(symbol) is false && info.Code == "AED")
+            if (includeCode && info.Code == "AED")
                 symbol = "AED"; // the books' base reads as code for clarity
-            return info.SymbolFirst
+            bool prefix = layout == CurrencyLayout.Prefix;
+            return (info.SymbolFirst ? prefix : !prefix)
                 ? $"{symbol} {digits}"
                 : $"{digits} {symbol}";
         }
@@ -358,45 +363,4 @@ namespace ProGlassAutomation.Services.Localization
         }
     }
 
-    /// <summary>
-    /// Approximate seed rates (1 AED → X). ONLY used before the first
-    /// successful internet fetch; the settings page labels the source so
-    /// nobody mistakes a seed for a live quote. Kept in one place so the
-    /// whole switch works on a fresh offline install.
-    /// </summary>
-    public static class SeededFxRates
-    {
-        public static readonly IReadOnlyDictionary<string, decimal> Table =
-            new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["AED"] = 1m,
-                ["USD"] = 0.2723m,
-                ["EUR"] = 0.2508m,
-                ["GBP"] = 0.2131m,
-                ["INR"] = 22.72m,     // ≈ 1 AED → ₹22.7 (2026-09 seed)
-                ["CNY"] = 1.9600m,
-                ["JPY"] = 41.20m,
-                ["KRW"] = 370.0m,
-                ["SAR"] = 1.0214m,
-                ["QAR"] = 0.9913m,
-                ["KWD"] = 0.0836m,
-                ["BHD"] = 0.1027m,
-                ["OMR"] = 0.1048m,
-                ["EGP"] = 13.20m,
-                ["TRY"] = 9.25m,
-                ["RUB"] = 24.60m,
-                ["BRL"] = 1.49m,
-                ["PKR"] = 75.60m,
-                ["BDT"] = 32.30m,
-                ["IDR"] = 4 360m,
-                ["MYR"] = 1.190m,
-                ["PHP"] = 15.35m,
-                ["THB"] = 9.43m,
-                ["VND"] = 6 920m,
-                ["LKR"] = 82.0m,
-                ["NPR"] = 36.40m,
-                ["AUD"] = 0.416m,
-                ["CAD"] = 0.372m,
-            };
-    }
 }

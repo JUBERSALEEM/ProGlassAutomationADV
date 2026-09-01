@@ -72,6 +72,11 @@ namespace ProGlassAutomation.Services.Localization
         public static string CurrencyForRegion(string? countryIso)
         {
             if (string.IsNullOrWhiteSpace(countryIso)) return "AED";
+
+            // 1) Per-country data (Countries/Country.XX.cs).
+            var country = Countries.CountryCatalog.Find(countryIso);
+            if (country != null) return country.CurrencyCode;
+
             var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 ["AE"] = "AED", ["SA"] = "SAR", ["QA"] = "QAR", ["KW"] = "KWD",

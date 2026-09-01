@@ -105,9 +105,9 @@
             <StackPanel Margin="0,0,0,10">
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                     <TextBlock Text="05" Style="{StaticResource PiStationCodeStyle}"/>
-                    <TextBlock Text="CUT LIST" Style="{StaticResource PiStationTitleStyle}"/>
+                    <TextBlock Text="{DynamicResource Dg.CutList}" Style="{StaticResource PiStationTitleStyle}"/>
                 </StackPanel>
-                <TextBlock Text="GLASS REF · W1 H1 W2 H2 · QTY · SQM · T.SQM · RATE · VALUE."
+                <TextBlock Text="{DynamicResource Dg.ColumnsHint}"
                            Style="{StaticResource ModulePageSubtitleStyle}"
                            TextWrapping="Wrap"/>
 
@@ -125,8 +125,8 @@
                             Tag="&#xE8B5;"
                             Height="32" MinWidth="88" Margin="0,0,8,0"
                             VerticalAlignment="Center"
-                            ToolTip="Import REF / W1 / H1 / W2 / H2 / QTY from Excel, CSV, PDF or photo"
-                            Content="IMPORT"/>
+                            ToolTip="{DynamicResource Dg.ImportHint}"
+                            Content="{DynamicResource Dg.Import}"/>
 
                     <Button x:Name="ExportMenuButton"
                             Grid.Column="1"
@@ -135,18 +135,18 @@
                             Height="32" MinWidth="96" Margin="0,0,10,0"
                             VerticalAlignment="Center"
                             Click="ExportMenuButton_Click"
-                            ToolTip="Export this cut list"
-                            Content="EXPORT ▾">
+                            ToolTip="{DynamicResource Dg.ExportCutList}"
+                            Content="{DynamicResource Dg.Export}">
                         <Button.ContextMenu>
                             <ContextMenu Style="{StaticResource ModernContextMenuStyle}"
                                          DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                <MenuItem Header="Excel"
+                                <MenuItem Header="{DynamicResource Dg.Excel}"
                                           Style="{StaticResource ModernMenuItemStyle}"
                                           Command="{Binding ExportExcelCommand}"/>
-                                <MenuItem Header="CSV"
+                                <MenuItem Header="{DynamicResource Dg.Csv}"
                                           Style="{StaticResource ModernMenuItemStyle}"
                                           Command="{Binding ExportCsvCommand}"/>
-                                <MenuItem Header="PDF"
+                                <MenuItem Header="{DynamicResource Dg.Pdf}"
                                           Style="{StaticResource ModernMenuItemStyle}"
                                           Command="{Binding ExportPdfCommand}"/>
                             </ContextMenu>
@@ -177,7 +177,7 @@
                     <StackPanel Grid.Column="3"
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
-                        <TextBlock Text="SPECS"
+                        <TextBlock Text="{DynamicResource Dg.Specs}"
                                    FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -197,8 +197,8 @@
                         <Button Command="{Binding AddSpecGroupCommand}"
                                 Style="{StaticResource PiGhostChipButton}"
                                 Height="32"
-                                ToolTip="Add new spec group (Ctrl+Shift+N)"
-                                Content="+ ADD SPEC"/>
+                                ToolTip="{DynamicResource Dg.AddSpecGroup}"
+                                Content="{DynamicResource Dg.AddSpec}"/>
                     </StackPanel>
                 </Grid>
             </StackPanel>
@@ -245,7 +245,7 @@
                                                    VerticalAlignment="Center"/>
                                     </Border>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="GLASS TYPE" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"/>
+                                        <TextBlock Text="{DynamicResource Dg.GlassType}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"/>
                                         <ComboBox ItemsSource="{Binding DataContext.GlassTypeOptions,
                                                       RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                   SelectedItem="{Binding SelectedGlassType}"
@@ -253,7 +253,7 @@
                                                   Height="34"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="4">
-                                        <TextBlock Text="SPECIFICATION" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"/>
+                                        <TextBlock Text="{DynamicResource Dg.Specification}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"/>
                                         <controls:AutoCompleteTextBox
                                             ItemsSource="{Binding FilteredSpecs}"
                                             Text="{Binding SpecTypedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -262,14 +262,14 @@
                                             DisplayMemberPath="SpecName"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="6" VerticalAlignment="Bottom">
-                                        <TextBlock Text="BASE" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"
+                                        <TextBlock Text="{DynamicResource Dg.Base}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"
                                                    ToolTip="{Binding ImportedPrice, StringFormat=Imported AED {0:N2}}"/>
                                         <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
                                                  Style="{StaticResource GridDecStyle}"
                                                  Width="80"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="8" VerticalAlignment="Bottom">
-                                        <TextBlock Text="SURCHARGE %" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"
+                                        <TextBlock Text="{DynamicResource Dg.SurchargePct}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"
                                                    ToolTip="{Binding SurchargeRate, StringFormat=With surcharge AED {0:N2}}"/>
                                         <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
                                                  Style="{StaticResource GridDecStyle}"
@@ -281,7 +281,7 @@
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource PiIconButtonStyle}"
                                             VerticalAlignment="Bottom"
-                                            ToolTip="Remove spec group">
+                                            ToolTip="{DynamicResource Dg.RemoveSpec}">
                                         <TextBlock Text="&#xE74D;"
                                                    FontFamily="Segoe MDL2 Assets"
                                                    FontSize="{StaticResource TextBodyLarge}"
@@ -328,19 +328,19 @@
                                             <ColumnDefinition Width="1.2*"/>
                                             <ColumnDefinition Width="26"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="#" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                        <TextBlock Grid.Column="1" Text="GLASS REF" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="2" Text="W1" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                        <TextBlock Grid.Column="3" Text="H1" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                        <TextBlock Grid.Column="4" Text="W2" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                        <TextBlock Grid.Column="5" Text="H2" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                        <TextBlock Grid.Column="6" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                        <TextBlock Grid.Column="7" Text="SQM" Style="{StaticResource LineItemsHeaderTextStyle}"
-                                                   ToolTip="Unit panel area"/>
-                                        <TextBlock Grid.Column="8" Text="TOTAL SQM" Style="{StaticResource LineItemsHeaderTextStyle}"
-                                                   ToolTip="Total SQM (SQM × Qty)"/>
-                                        <TextBlock Grid.Column="9" Text="RATE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                        <TextBlock Grid.Column="10" Text="VALUE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="0" Text="{DynamicResource Dg.Hash}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{DynamicResource Dg.GlassRef}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="2" Text="{DynamicResource Dg.W1}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="3" Text="{DynamicResource Dg.H1}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="4" Text="{DynamicResource Dg.W2}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="5" Text="{DynamicResource Dg.H2}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="6" Text="{DynamicResource Dg.Qty}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="7" Text="{DynamicResource God.Sqm}" Style="{StaticResource LineItemsHeaderTextStyle}"
+                                                   ToolTip="{DynamicResource Dg.UnitPanel}"/>
+                                        <TextBlock Grid.Column="8" Text="{DynamicResource Dg.TotalSqm}" Style="{StaticResource LineItemsHeaderTextStyle}"
+                                                   ToolTip="{DynamicResource Dg.TotalSqmHint}"/>
+                                        <TextBlock Grid.Column="9" Text="{DynamicResource Dg.Rate}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="10" Text="{DynamicResource Dg.Value}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
                                     </Grid>
                                 </Border>
 
@@ -371,12 +371,12 @@
                                     </ListView.ItemsPanel>
                                     <ListView.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Header="Add New Row (Ctrl+N)" Command="{Binding AddRowCommand}"/>
+                                            <MenuItem Header="{DynamicResource Dg.AddRow}" Command="{Binding AddRowCommand}"/>
                                             <Separator/>
-                                            <MenuItem Header="Find… (Ctrl+F)" Command="{Binding OpenFindCommand}"/>
-                                            <MenuItem Header="Find and Replace… (Ctrl+H)" Command="{Binding OpenFindReplaceCommand}"/>
+                                            <MenuItem Header="{DynamicResource Dg.Find}" Command="{Binding OpenFindCommand}"/>
+                                            <MenuItem Header="{DynamicResource Dg.FindReplace}" Command="{Binding OpenFindReplaceCommand}"/>
                                             <Separator/>
-                                            <MenuItem Header="Paste — click a cell first, then Ctrl+V"
+                                            <MenuItem Header="{DynamicResource Dg.PasteHint}"
                                                       Command="{Binding PasteExcelCommand}"/>
                                         </ContextMenu>
                                     </ListView.ContextMenu>
@@ -412,7 +412,7 @@
                                                         Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                         CommandParameter="{Binding}"
                                                         Style="{StaticResource PiIconButtonStyle}"
-                                                        ToolTip="Delete row (Ctrl+Delete)">
+                                                        ToolTip="{DynamicResource Dg.DeleteRow}">
                                                     <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource DangerBrush}"/>
                                                 </Button>
@@ -441,16 +441,16 @@
                                         <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBox Width="64" Text="{Binding BulkRowCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                      Style="{StaticResource GridCellStyle}"
-                                                     ToolTip="Number of rows to generate (max 10,000)"/>
+                                                     ToolTip="{DynamicResource Dg.GenerateRows}"/>
                                             <Button Command="{Binding GenerateRowsCommand}"
                                                     Style="{StaticResource PiGhostChipButton}"
                                                     Margin="6,0,8,0"
                                                     Height="24"
-                                                    Content="GENERATE"/>
+                                                    Content="{DynamicResource Dg.Generate}"/>
                                             <Button Command="{Binding AddRowCommand}"
                                                     Style="{StaticResource PiGhostChipButton}"
                                                     Height="24"
-                                                    Content="+ ADD ROW"/>
+                                                    Content="{DynamicResource Dg.AddRowShort}"/>
                                         </StackPanel>
 
                                         <!-- Total QTY under QTY column -->

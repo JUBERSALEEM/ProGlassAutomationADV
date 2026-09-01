@@ -59,10 +59,10 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <TextBlock Text="Delivery Notes — God View"
+                <TextBlock Text="{DynamicResource God.DnTitle}"
                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock Text="Open dispatched delivery notes here. Workspace NEW DN only opens remaining balance."
+                <TextBlock Text="{DynamicResource God.DnSubtitle}"
                            FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
@@ -82,15 +82,15 @@
                          Background="Transparent"
                          FontSize="{StaticResource TextBodyLarge}"
                          VerticalAlignment="Center"
-                         ToolTip="Search DN / JO / customer / project / status"/>
+                         ToolTip="{DynamicResource God.DnSearch}"/>
             </Border>
 
             <!-- LAYOUT FIX: Grid.Column="2" was missing, so this button
                  rendered in column 0 stacked on top of the title text. -->
             <Button Grid.Column="2"
                     Style="{StaticResource PrimaryPillButton}"
-                    Tag="&#xE72C;" Content="REFRESH"
-                    ToolTip="Refresh overview"
+                    Tag="&#xE72C;" Content="{DynamicResource God.Refresh}"
+                    ToolTip="{DynamicResource God.RefreshOverview}"
                     VerticalAlignment="Center"
                     Command="{Binding RefreshCommand}"/>
         </Grid>
@@ -128,34 +128,34 @@
                                           AncestorType=DataGrid}}"/>
                 </DataGrid.InputBindings>
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="DN #"
+                    <DataGridTextColumn Header="{DynamicResource God.DnNumber}"
                                         Binding="{Binding DeliveryNoteId}"
                                         Width="150"/>
-                    <DataGridTextColumn Header="Job Order"
+                    <DataGridTextColumn Header="{DynamicResource Nav.JobOrder}"
                                         Binding="{Binding JobOrderId}"
                                         Width="130"/>
-                    <DataGridTextColumn Header="Customer"
+                    <DataGridTextColumn Header="{DynamicResource God.Customer}"
                                         Binding="{Binding CustomerName}"
                                         Width="*"/>
-                    <DataGridTextColumn Header="Project"
+                    <DataGridTextColumn Header="{DynamicResource God.Project}"
                                         Binding="{Binding ProjectName}"
                                         Width="*"/>
-                    <DataGridTextColumn Header="Status"
+                    <DataGridTextColumn Header="{DynamicResource God.Status}"
                                         Binding="{Binding Status}"
                                         Width="100"/>
-                    <DataGridTextColumn Header="Type"
+                    <DataGridTextColumn Header="{DynamicResource God.Type}"
                                         Binding="{Binding DeliveryType}"
                                         Width="90"/>
-                    <DataGridTextColumn Header="Ordered"
+                    <DataGridTextColumn Header="{DynamicResource God.Ordered}"
                                         Binding="{Binding TotalOrderedQty}"
                                         Width="75"/>
-                    <DataGridTextColumn Header="Delivered"
+                    <DataGridTextColumn Header="{DynamicResource God.Delivered}"
                                         Binding="{Binding TotalDeliveredQty}"
                                         Width="80"/>
-                    <DataGridTextColumn Header="Balance"
+                    <DataGridTextColumn Header="{DynamicResource God.Balance}"
                                         Binding="{Binding TotalBalanceQty}"
                                         Width="75"/>
-                    <DataGridTextColumn Header="Delivery Date"
+                    <DataGridTextColumn Header="{DynamicResource God.DeliveryDate}"
                                         Binding="{Binding DeliveryDate,
                                             StringFormat='dd MMM yyyy'}"
                                         Width="110"/>
@@ -164,7 +164,7 @@
                     <DataGridTemplateColumn Header="" Width="80">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Content="Open"
+                                <Button Content="{DynamicResource God.Open}"
                                         Cursor="Hand"
                                         FontSize="{StaticResource TextBody}"
                                         Padding="10,3"
@@ -199,7 +199,7 @@
                     </StackPanel.Style>
                     <emptyState:EmptyStateControl
                         Icon="&#xE7F4;"
-                        Title="No delivery notes found"
+                        Title="{DynamicResource God.DnEmpty}"
                         Message="Every delivery note in the system appears in this God View — search by DN, job order, customer, project, driver or status. Create delivery notes in the Workspace tab and they show up here instantly. If nothing matches, try a different search or press Refresh."/>
                 </StackPanel>
                 </Grid>

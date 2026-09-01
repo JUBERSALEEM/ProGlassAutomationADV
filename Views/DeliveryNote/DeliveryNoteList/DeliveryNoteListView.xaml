@@ -88,7 +88,7 @@
                         <TextBlock HorizontalAlignment="Left" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,4">
                             <Run Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"/>
-                            <Run Text="%"/>
+                            <Run Text="{DynamicResource God.Percent}"/>
                         </TextBlock>
                         <Border x:Name="ProgressTrack"
                                 CornerRadius="4" Height="6"
@@ -160,7 +160,7 @@
                                     Padding="7,2" Margin="0,0,4,2"
                                     Visibility="{Binding HasFoc,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="FOC" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                <TextBlock Text="{DynamicResource Dnl.Foc}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource WarningBrush}"/>
                             </Border>
                             <Border Background="{DynamicResource TintAmberBrush}"
@@ -168,7 +168,7 @@
                                     Padding="7,2" Margin="0,0,4,2"
                                     Visibility="{Binding HasRework,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="REWORK" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                <TextBlock Text="{DynamicResource God.Rework}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource WarningBrush}"/>
                             </Border>
                             <Border Background="{DynamicResource TintRedBrush}"
@@ -176,7 +176,7 @@
                                     Padding="7,2" Margin="0,0,4,2"
                                     Visibility="{Binding HasReturn,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="RETURN" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                <TextBlock Text="{DynamicResource Dnl.Return}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource DangerBrush}"/>
                             </Border>
                         </WrapPanel>
@@ -186,15 +186,15 @@
                                 VerticalAlignment="Center"
                                 Margin="8,6,10,6">
                         <Button Style="{StaticResource RowPrimaryButton}"
-                                Tag="&#xE710;" Content="NEW DN"
-                                ToolTip="Open a Dispatching DN with remaining balance only. Dispatched notes open from God View."
+                                Tag="&#xE710;" Content="{DynamicResource Dnl.NewDn}"
+                                ToolTip="{DynamicResource Dnl.NewDnHint}"
                                 Command="{Binding DataContext.CreateDnForJobOrderCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding JobOrderId}"/>
                         <Button Style="{StaticResource RowSuccessButton}"
-                                Tag="&#xE8A5;" Content="INVOICE"
+                                Tag="&#xE8A5;" Content="{DynamicResource Dnl.Invoice}"
                                 Margin="0,6,0,0"
-                                ToolTip="Generate Tax Invoice for this order."
+                                ToolTip="{DynamicResource Dnl.InvoiceHint}"
                                 Command="{Binding DataContext.GenerateMasterInvoiceCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"/>
@@ -244,16 +244,16 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Delivery Notes" Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="One row per job order — NEW DN opens remaining balance"
+                    <TextBlock Text="{DynamicResource Dnl.Title}" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Text="{DynamicResource Dnl.Subtitle}"
                                Style="{StaticResource ModulePageSubtitleStyle}"/>
                 </StackPanel>
                 <Button Grid.Column="1"
                         Style="{StaticResource PrimaryPillButton}"
-                        Tag="&#xE7F4;" Content="CREATE DN"
+                        Tag="&#xE7F4;" Content="{DynamicResource Dnl.CreateDn}"
                         Command="{Binding CreateDnCommand}"
                         VerticalAlignment="Center"
-                        ToolTip="Pick a Job Order with remaining qty and open a Dispatching DN"/>
+                        ToolTip="{DynamicResource Dnl.CreateDnHint}"/>
             </Grid>
 
             <loading:LoadingStateControl
@@ -369,7 +369,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Selected"
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Dnl.Selected}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    VerticalAlignment="Center" Margin="0,0,10,0"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -380,8 +380,8 @@
                                    TextTrimming="CharacterEllipsis"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
-                                Tag="&#xE711;" Content="CLEAR"
-                                ToolTip="Clear selection"
+                                Tag="&#xE711;" Content="{DynamicResource God.Clear}"
+                                ToolTip="{DynamicResource Dnl.ClearSelection}"
                                 Command="{Binding ClearSelectionCommand}"/>
                     </Grid>
                 </Border>
@@ -408,20 +408,20 @@
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModuleListFilterInputStyle}"
                                  Margin="0,0,8,0"
-                                 ToolTip="Search job, customer, driver, DN"/>
+                                 ToolTip="{DynamicResource Dnl.Search}"/>
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding StatusFilterOptions}"
                                   SelectedItem="{Binding SelectedStatusFilter}"
                                   Style="{StaticResource ModuleListFilterComboStyle}"
                                   Margin="0,0,8,0"/>
                         <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                                Tag="&#xE711;" Content="CLEAR"
+                                Tag="&#xE711;" Content="{DynamicResource God.Clear}"
                                 Margin="0,0,8,0"
-                                ToolTip="Clear search and filters"
+                                ToolTip="{DynamicResource Dnl.ClearFilters}"
                                 Command="{Binding ClearFiltersCommand}"/>
                         <Button Grid.Column="3" Style="{StaticResource PrimaryPillButton}"
-                                Tag="&#xE72C;" Content="REFRESH"
-                                ToolTip="Refresh list"
+                                Tag="&#xE72C;" Content="{DynamicResource God.Refresh}"
+                                ToolTip="{DynamicResource Dnl.RefreshList}"
                                 Command="{Binding RefreshCommand}"/>
                     </Grid>
                 </Border>
@@ -435,27 +435,27 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Tag="&#xE7B8;" Content="ALL"
+                    <Button Grid.Column="0" Tag="&#xE7B8;" Content="{DynamicResource Dnl.All}"
                             CommandParameter="{Binding AllGroupedCount}"
                             Click="OnTabCardClick" x:Name="TabAll"
                             Style="{StaticResource TabCardActiveStyle}"/>
-                    <Button Grid.Column="1" Tag="&#xE70F;" Content="PREPARED"
+                    <Button Grid.Column="1" Tag="&#xE70F;" Content="{DynamicResource Dnl.Prepared}"
                             CommandParameter="{Binding PreparedGroupedCount}"
                             Click="OnTabCardClick" x:Name="TabPrepared"
                             Style="{StaticResource TabCardInactiveStyle}"/>
-                    <Button Grid.Column="2" Tag="&#xE73E;" Content="DELIVERED"
+                    <Button Grid.Column="2" Tag="&#xE73E;" Content="{DynamicResource Dnl.Delivered}"
                             CommandParameter="{Binding DeliveredGroupedCount}"
                             Click="OnTabCardClick" x:Name="TabDelivered"
                             Style="{StaticResource TabCardInactiveStyle}"/>
-                    <Button Grid.Column="3" Tag="&#xE81C;" Content="PENDING"
+                    <Button Grid.Column="3" Tag="&#xE81C;" Content="{DynamicResource Dnl.Pending}"
                             CommandParameter="{Binding PendingItems.Count}"
                             Click="OnTabCardClick" x:Name="TabPending"
                             Style="{StaticResource TabCardInactiveStyle}"/>
-                    <Button Grid.Column="4" Tag="&#xE713;" Content="REWORK"
+                    <Button Grid.Column="4" Tag="&#xE713;" Content="{DynamicResource God.Rework}"
                             CommandParameter="{Binding ReworkGroupedCount}"
                             Click="OnTabCardClick" x:Name="TabRework"
                             Style="{StaticResource TabCardInactiveStyle}"/>
-                    <Button Grid.Column="5" Tag="&#xE7A7;" Content="RETURNED"
+                    <Button Grid.Column="5" Tag="&#xE7A7;" Content="{DynamicResource Dnl.Returned}"
                             CommandParameter="{Binding ReturnedGroupedCount}"
                             Click="OnTabCardClick" x:Name="TabReturned"
                             Style="{StaticResource TabCardInactiveStyle}"/>
@@ -483,12 +483,12 @@
                             <ColumnDefinition Width="170"/>
                             <ColumnDefinition Width="130"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="JOB ORDER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="CUSTOMER · PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="3" Text="PROGRESS" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="QTY ORD / DEL / BAL" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="5" Text="SQM" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="6" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Dnl.JobOrder}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Dnl.CustomerProject}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource Dnl.Progress}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Dnl.QtyOrdDelBal}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="{DynamicResource God.Sqm}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="6" Text="{DynamicResource Dnl.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                     </Grid>
                 </Border>
 
@@ -544,7 +544,7 @@
                             </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE7F4;"
-                                Title="No delivery notes yet"
+                                Title="{DynamicResource Dnl.EmptyAll}"
                                 Message="Delivery notes record what leaves the factory — quantities, driver, vehicle and status. NEW DN opens remaining balance only. Dispatched notes are opened from God View."/>
                         </StackPanel>
                     </Grid>
@@ -593,7 +593,7 @@
                             </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE70F;"
-                                Title="No prepared delivery notes"
+                                Title="{DynamicResource Dnl.EmptyPrepared}"
                                 Message="Notes you prepare (not dispatched yet) wait in this tab until they go out."/>
                         </StackPanel>
                     </Grid>
@@ -642,7 +642,7 @@
                             </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE73E;"
-                                Title="No delivered notes yet"
+                                Title="{DynamicResource Dnl.EmptyDelivered}"
                                 Message="Notes move to this tab once their status becomes Delivered / Signed / Received."/>
                         </StackPanel>
                     </Grid>
@@ -706,7 +706,7 @@
                                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}">
                                                     <Run Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"/>
-                                                    <Run Text="%"/>
+                                                    <Run Text="{DynamicResource God.Percent}"/>
                                                 </TextBlock>
                                                 <Border x:Name="PendingTrack"
                                                         CornerRadius="4" Height="6"
@@ -742,7 +742,7 @@
                             </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE81C;"
-                                Title="No pending quantities — all delivered!"
+                                Title="{DynamicResource Dnl.NoPending}"
                                 Message="This tab lists job orders that still have undelivered pieces. When everything is delivered, it stays empty."/>
                         </StackPanel>
                     </Grid>
@@ -791,7 +791,7 @@
                             </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE713;"
-                                Title="No rework delivery notes"
+                                Title="{DynamicResource Dnl.NoRework}"
                                 Message="Delivery notes of type Rework — glass coming back for reprocessing — are listed here."/>
                         </StackPanel>
                     </Grid>
@@ -840,7 +840,7 @@
                             </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE7A7;"
-                                Title="No returned delivery notes"
+                                Title="{DynamicResource Dnl.NoReturned}"
                                 Message="Delivery notes of type Return — glass sent back by the customer — are listed here."/>
                         </StackPanel>
                     </Grid>

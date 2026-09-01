@@ -28,6 +28,9 @@ ROOT = Path(__file__).resolve().parents[1]
 LANG_DIR = ROOT / "Themes" / "Languages"
 VIEWS = ROOT / "Views"
 
+# Freeze lifted 2026-09-01: GodViews / DataGrid / DeliveryNoteList /
+# SettingsViewModel may now be edited. Remaining unlocalized strings are
+# reported, not exempted.
 GOD_FROZEN = (
     "ViewModels/DeliveryNote/GodView/", "ViewModels/JobOrder/GodView/",
     "ViewModels/TaxInvoice/GodView/", "Views/DeliveryNote/GodView/",
@@ -123,8 +126,7 @@ def main() -> int:
         if rel_snips:
             if is_god(f):
                 frozen_literals.append((rel, len(file_literals)))
-            else:
-                literals.append((rel, len(file_literals), rel_snips))
+            literals.append((rel, len(file_literals), rel_snips))
 
     print(f"\nDynamicResource references in Views: {len(dynrefs)}")
     if dyn_missing:
@@ -151,8 +153,8 @@ def main() -> int:
         print(f"   {rel}: {c} literals | {' ; '.join(snips[:3])}")
 
     frozen_total = sum(c for _, c in frozen_literals)
-    print(f"\nP4 FROZEN GodView literals (deferred by design): "
-          f"{len(frozen_literals)} files, {frozen_total} strings")
+    print(f"\nP4 EX-GOD-FREEZE files remaining literals: "
+          f"{len(frozen_literals)} files, {frozen_total} strings (now editable)")
     for rel, c in sorted(frozen_literals, key=lambda t: -t[1])[:10]:
         print(f"   {rel}: {c}")
 
