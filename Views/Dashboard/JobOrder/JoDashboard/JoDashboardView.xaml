@@ -42,9 +42,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Job Orders"
+                        <TextBlock Text="{DynamicResource Dashboard.JobOrders}"
                                    Style="{StaticResource SoftHeroTitleStyle}"/>
-                        <TextBlock Text="Production workload, priority mix and recent job activity"
+                        <TextBlock Text="{DynamicResource Dashboard.ProductionWorkloadPriorityMixRecentJob}"
                                    Style="{StaticResource SoftHeroSubtitleStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
@@ -54,7 +54,7 @@
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="Live" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Common.Live}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -69,7 +69,7 @@
                             Padding="16,12"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="Loading job order data…"
+                        <TextBlock Text="{DynamicResource Dashboard.LoadingJobOrderData}"
                                    Style="{StaticResource SoftKpiFootStyle}"/>
                     </Border>
                     <Border Style="{StaticResource SoftSectionStyle}"
@@ -96,9 +96,9 @@
                             Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Production pulse"
+                                <TextBlock Text="{DynamicResource Dashboard.ProductionPulse}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Live job counts across the floor"
+                                <TextBlock Text="{DynamicResource Dashboard.LiveJobCountsFloor}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <ItemsControl ItemsSource="{Binding KpiCards}"
@@ -115,9 +115,9 @@
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
-                            <TextBlock Text="Status mix"
+                            <TextBlock Text="{DynamicResource Dashboard.StatusMix}"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Jobs grouped by current status"
+                            <TextBlock Text="{DynamicResource Dashboard.JobsGroupedCurrentStatus}"
                                        Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding StatusMixSlices}"
@@ -130,9 +130,9 @@
                     <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Priority"
+                                <TextBlock Text="{DynamicResource Common.Priority}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="High / medium / low"
+                                <TextBlock Text="{DynamicResource Dashboard.HighMediumLow}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <Border Style="{StaticResource SoftChartWellStyle}">
@@ -160,9 +160,9 @@
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Workload by status"
+                                <TextBlock Text="{DynamicResource Dashboard.WorkloadStatus}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Job order count"
+                                <TextBlock Text="{DynamicResource Dashboard.JobOrderCount}"
                                            Style="{StaticResource SoftMetaStyle}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
@@ -185,7 +185,7 @@
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock Text="&#xE9F9;"
                                                    Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                        <TextBlock Text="No job orders yet"
+                                        <TextBlock Text="{DynamicResource Dashboard.NoJobOrdersYet}"
                                                    Style="{StaticResource DashEmptyStateTextStyle}"/>
                                     </StackPanel>
                                 </Border>
@@ -196,9 +196,9 @@
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Recent job orders"
+                                <TextBlock Text="{DynamicResource Dashboard.RecentJobOrders}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Latest activity"
+                                <TextBlock Text="{DynamicResource Dashboard.LatestActivity}"
                                            Style="{StaticResource SoftMetaStyle}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
@@ -217,9 +217,9 @@
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE9F9;"
                                                Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="No job orders yet"
+                                    <TextBlock Text="{DynamicResource Dashboard.NoJobOrdersYet}"
                                                Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                    <TextBlock Text="Convert an approved proforma into a job order."
+                                    <TextBlock Text="{DynamicResource Dashboard.ConvertApprovedProformaJobOrder}"
                                                Style="{StaticResource SoftMetaStyle}"
                                                HorizontalAlignment="Center"
                                                TextAlignment="Center"

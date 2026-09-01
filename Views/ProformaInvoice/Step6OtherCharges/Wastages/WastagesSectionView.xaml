@@ -77,11 +77,11 @@
 
     <StackPanel>
         <Grid Margin="0,16,0,6">
-            <TextBlock Text="WASTAGE CHARGES" Style="{StaticResource PiBandTitleStyle}" Margin="0"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.WastageCharges}" Style="{StaticResource PiBandTitleStyle}" Margin="0"/>
             <Button HorizontalAlignment="Right"
                     Command="{Binding AddWastageCommand}"
                     Style="{StaticResource PiGhostChipButton}">
-                <TextBlock Text="+ ADD ROW"
+                <TextBlock Text="{DynamicResource ProformaInvoice.ADDROW}"
                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            Foreground="{DynamicResource AccentBrush}"/>
             </Button>
@@ -99,13 +99,13 @@
                     <ColumnDefinition Width="1.6*"/>
                     <ColumnDefinition Width="36"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="ON" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="1" Text="COLOUR" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                <TextBlock Grid.Column="2" Text="SOURCE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.Colour}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.Source}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
                 <TextBlock Grid.Column="3" Text="SQM" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="4" Text="RATE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="5" Text="SETUP" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="6" Text="AMOUNT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="5" Text="{DynamicResource ProformaInvoice.Setup}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="6" Text="{DynamicResource Common.Amount}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
             </Grid>
         </Border>
 
@@ -170,7 +170,7 @@
                                                 Width="380">
                                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                                 <StackPanel>
-                                                    <TextBlock Text="CHOOSE SQM SOURCES"
+                                                    <TextBlock Text="{DynamicResource ProformaInvoice.ChooseSQMSources}"
                                                                FontSize="{StaticResource TextCaption}"
                                                                FontWeight="Bold"
                                                                Foreground="{DynamicResource AccentBrush}"
@@ -220,8 +220,8 @@
                                 <Grid Grid.Column="5" Margin="4,0">
                                     <ToggleButton x:Name="SetupToggle"
                                                   Style="{StaticResource SourceToggleButtonStyle}"
-                                                  ToolTip="Open wastage setup">
-                                        <TextBlock Text="SETUP"
+                                                  ToolTip="{DynamicResource ProformaInvoice.OpenWastageSetup}">
+                                        <TextBlock Text="{DynamicResource ProformaInvoice.Setup}"
                                                    FontSize="{StaticResource TextBody}"
                                                    FontWeight="Bold"
                                                    VerticalAlignment="Center"/>
@@ -242,7 +242,7 @@
                                             <ScrollViewer VerticalScrollBarVisibility="Auto"
                                                           HorizontalScrollBarVisibility="Disabled">
                                                 <StackPanel>
-                                                    <TextBlock Text="WASTAGE SETUP"
+                                                    <TextBlock Text="{DynamicResource ProformaInvoice.WastageSetup}"
                                                                Style="{StaticResource PiSectionLabelStyle}"
                                                                Margin="0,0,0,10"/>
                                                     <TextBlock Text="{Binding SourceSummaryText}"
@@ -258,7 +258,7 @@
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel>
-                                                            <TextBlock Text="COLOR"
+                                                            <TextBlock Text="{DynamicResource ProformaInvoice.Color}"
                                                                        Style="{StaticResource PiFieldLabelStyle}"
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding ColorName, Mode=OneWay}"
@@ -266,7 +266,7 @@
                                                                      IsReadOnly="True"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
-                                                            <TextBlock Text="OPTIMIZATION FORMULA"
+                                                            <TextBlock Text="{DynamicResource ProformaInvoice.OptimizationFormula}"
                                                                        Style="{StaticResource PiFieldLabelStyle}"
                                                                        Margin="0,0,0,2"/>
                                                             <ToggleButton Style="{StaticResource PiToggleSwitch}"
@@ -288,7 +288,7 @@
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel>
-                                                            <TextBlock Text="SHEET WIDTH"
+                                                            <TextBlock Text="{DynamicResource ProformaInvoice.SheetWidth}"
                                                                        Style="{StaticResource PiFieldLabelStyle}"
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding SelectedSheetWidthText, Mode=OneWay}"
@@ -296,7 +296,7 @@
                                                                      IsReadOnly="True"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
-                                                            <TextBlock Text="SHEET HEIGHT"
+                                                            <TextBlock Text="{DynamicResource ProformaInvoice.SheetHeight}"
                                                                        Style="{StaticResource PiFieldLabelStyle}"
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding SelectedSheetHeightText, Mode=OneWay}"
@@ -304,14 +304,14 @@
                                                                      IsReadOnly="True"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="4">
-                                                            <TextBlock Text="SHEET QTY"
+                                                            <TextBlock Text="{DynamicResource ProformaInvoice.SheetQTY}"
                                                                        Style="{StaticResource PiFieldLabelStyle}"
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding SheetQuantityText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                      Style="{StaticResource RowInputStyle}"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="6">
-                                                            <TextBlock Text="SHEET / SQM PRICE"
+                                                            <TextBlock Text="{DynamicResource ProformaInvoice.SheetSQMPrice}"
                                                                        Style="{StaticResource PiFieldLabelStyle}"
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding FormulaPricePerSqmText, Mode=OneWay}"
@@ -337,7 +337,7 @@
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel>
-                                                            <TextBlock Text="OPT %"
+                                                            <TextBlock Text="{DynamicResource ProformaInvoice.OPT}"
                                                                        Style="{StaticResource PiFieldLabelStyle}"
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding OptimizationPercentText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -345,7 +345,7 @@
                                                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
-                                                            <TextBlock Text="UTILIZED SQM"
+                                                            <TextBlock Text="{DynamicResource ProformaInvoice.UtilizedSQM}"
                                                                        Style="{StaticResource PiFieldLabelStyle}"
                                                                        Margin="0,0,0,2"/>
                                                             <TextBox Text="{Binding UtilizedSqm, StringFormat={}{0:0.00}, Mode=OneWay}"
@@ -375,7 +375,7 @@
                                         Command="{Binding DataContext.RemoveWastageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}"
                                         Style="{StaticResource PiIconButtonStyle}"
-                                        ToolTip="Remove wastage row">
+                                        ToolTip="{DynamicResource ProformaInvoice.RemoveWastageRow}">
                                     <TextBlock Text="&#xE711;"
                                                FontFamily="Segoe MDL2 Assets"
                                                FontSize="{StaticResource TextBody}" FontWeight="Bold"
@@ -388,7 +388,7 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <TextBlock Text="No wastage rows. Add a colour-side scrap charge if needed."
+        <TextBlock Text="{DynamicResource ProformaInvoice.NoWastageRowsAddColourSideScrapChargeIf}"
                    FontSize="{StaticResource TextBody}"
                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                    Margin="0,8,0,0">

@@ -296,7 +296,7 @@
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,6,0"/>
-                            <TextBlock x:Name="tx" Text="Clear All"
+                            <TextBlock x:Name="tx" Text="{DynamicResource About.Clear}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"/>

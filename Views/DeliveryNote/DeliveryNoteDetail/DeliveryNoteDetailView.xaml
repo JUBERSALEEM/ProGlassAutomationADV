@@ -396,10 +396,10 @@
 
                 <Button Grid.Column="0"
                         Style="{StaticResource OutlinedPillButton}"
-                        Tag="&#xE72B;" Content="BACK"
+                        Tag="&#xE72B;" Content="{DynamicResource Action.Back}"
                         Command="{Binding BackCommand}"
                         Margin="0,0,12,0"
-                        ToolTip="Back to list (Esc)"/>
+                        ToolTip="{DynamicResource DeliveryNote.BackListEsc}"/>
 
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
@@ -414,7 +414,7 @@
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
                     <Border Style="{StaticResource FocBadgeStyle}">
-                        <TextBlock Text="FREE OF CHARGE"
+                        <TextBlock Text="{DynamicResource DeliveryNote.FREECharge}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
@@ -432,23 +432,23 @@
                             VerticalAlignment="Center">
 
                     <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE74E;" Content="SAVE"
+                            Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
                             Command="{Binding SaveCommand}"
                             Margin="0,0,8,0"
-                            ToolTip="Save this Dispatching DN as Dispatched. Remaining qty stays on the next NEW DN."
+                            ToolTip="{DynamicResource DeliveryNote.SaveDispatchingDNDispatchedRemainingQtyStays}"
                             Visibility="{Binding IsNotMasterDn,
                                          Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                     <Button Style="{StaticResource CreateFromMasterButtonStyle}"
-                            Tag="&#xE7B8;" Content="CREATE FROM BALANCE"
+                            Tag="&#xE7B8;" Content="{DynamicResource DeliveryNote.CreateBalance}"
                             Command="{Binding CreateNewDnFromMasterCommand}"
                             Margin="0,0,8,0"
-                            ToolTip="Create a new Dispatching DN with remaining balance only"/>
+                            ToolTip="{DynamicResource DeliveryNote.CreateNewDispatchingDNRemainingBalance}"/>
 
                     <Button x:Name="ActionsMenuButton"
                             Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE712;" Content="ACTIONS"
-                            ToolTip="Save, dispatch, export and more"
+                            Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
+                            ToolTip="{DynamicResource DeliveryNote.SaveDispatchExportMore}"
                             Click="ActionsMenuButton_Click"/>
 
                     <Popup x:Name="ActionsMenuPopup"
@@ -473,31 +473,31 @@
                             </Border.Effect>
                             <StackPanel>
                                 <Button Style="{StaticResource DnMenuRealOnlyItem}"
-                                        Tag="&#xE74E;" Content="Save &amp; dispatch"
+                                        Tag="&#xE74E;" Content="{DynamicResource DeliveryNote.SaveDispatch}"
                                         Command="{Binding SaveCommand}"
                                         Click="MenuActionClicked"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
-                                        Tag="&#xE81C;" Content="Version history"
+                                        Tag="&#xE81C;" Content="{DynamicResource Common.VersionHistory}"
                                         Command="{Binding ShowVersionsCommand}"
                                         Click="MenuActionClicked"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
-                                        Tag="&#xE8A5;" Content="Export PDF"
+                                        Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportPDF}"
                                         Command="{Binding ExportPdfCommand}"
                                         Click="MenuActionClicked"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
-                                        Tag="&#xE9F9;" Content="Export Excel"
+                                        Tag="&#xE9F9;" Content="{DynamicResource DeliveryNote.ExportExcel}"
                                         Command="{Binding ExportExcelCommand}"
                                         Click="MenuActionClicked"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
-                                        Tag="&#xE72D;" Content="Export CSV"
+                                        Tag="&#xE72D;" Content="{DynamicResource DeliveryNote.ExportCSV}"
                                         Command="{Binding ExportCsvCommand}"
                                         Click="MenuActionClicked"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource DnMenuRealOnlyItem}"
-                                        Tag="&#xE74D;" Content="Delete delivery note"
+                                        Tag="&#xE74D;" Content="{DynamicResource DeliveryNote.DeleteDeliveryNote}"
                                         Command="{Binding DeleteDnCommand}"
                                         Click="MenuActionClicked"/>
                             </StackPanel>
@@ -529,8 +529,8 @@
         <!-- ═══ ROW 3 — STATS | ATTACHMENTS ═══ -->
         <!-- ══ DETAIL TABS — Overview / Attachments / History ════════ -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,12">
-            <Button Content="OVERVIEW" Tag="&#xE8A5;" Margin="0,0,8,0"
-                    ToolTip="Stats and delivered items"
+            <Button Content="{DynamicResource Nav.Overview}" Tag="&#xE8A5;" Margin="0,0,8,0"
+                    ToolTip="{DynamicResource DeliveryNote.StatsDeliveredItems}"
                     Command="{Binding SwitchDetailTabCommand}" CommandParameter="Overview">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
@@ -543,8 +543,8 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <Button Content="ATTACHMENTS" Tag="&#xE723;" Margin="0,0,8,0"
-                    ToolTip="Attached photos and signed copies"
+            <Button Content="{DynamicResource DeliveryNote.Attachments}" Tag="&#xE723;" Margin="0,0,8,0"
+                    ToolTip="{DynamicResource DeliveryNote.AttachedPhotosSignedCopies}"
                     Command="{Binding SwitchDetailTabCommand}" CommandParameter="Attachments">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
@@ -557,8 +557,8 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <Button Content="HISTORY" Tag="&#xE81C;"
-                    ToolTip="Delivery history timeline"
+            <Button Content="{DynamicResource DeliveryNote.History}" Tag="&#xE81C;"
+                    ToolTip="{DynamicResource DeliveryNote.DeliveryHistoryTimeline}"
                     Command="{Binding SwitchDetailTabCommand}" CommandParameter="History">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">

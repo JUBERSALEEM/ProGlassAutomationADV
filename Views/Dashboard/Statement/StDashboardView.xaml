@@ -120,7 +120,7 @@
                                     VerticalAlignment="Center"
                                     SnapsToDevicePixels="True"
                                     Background="{DynamicResource InfoBrush}"
-                                    ToolTip="Has attachments"
+                                    ToolTip="{DynamicResource Dashboard.Attachments}"
                                     Visibility="{Binding HasAttachments,
                                         Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="&#xE723;"
@@ -133,7 +133,7 @@
                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                             <TextBlock FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                <Run Text="Invoiced: "/>
+                                <Run Text="{DynamicResource Common.Invoiced}"/>
                                 <Run Text="{Binding TotalInvoicedDisplay, Mode=OneWay}"
                                      FontWeight="Bold"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -145,7 +145,7 @@
 
                             <TextBlock FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                <Run Text="Outstanding: "/>
+                                <Run Text="{DynamicResource Common.Outstanding}"/>
                                 <Run Text="{Binding OutstandingDisplay, Mode=OneWay}"
                                      FontWeight="Bold"
                                      Foreground="{DynamicResource WarningBrush}"/>
@@ -160,7 +160,7 @@
                             <TextBlock FontSize="{StaticResource TextBody}"
                                        Visibility="{Binding HasOverdue,
                                            Converter={StaticResource BoolToVisibilityConverter}}">
-                                <Run Text="Overdue: "
+                                <Run Text="{DynamicResource Common.Overdue}"
                                      Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <Run Text="{Binding OverdueDisplay, Mode=OneWay}"
                                      FontWeight="Bold"
@@ -172,7 +172,7 @@
                                    Margin="0,4,0,0"
                                    Foreground="{DynamicResource MutedForegroundBrush}">
                             <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
-                            <Run Text=" invoice(s) · "/>
+                            <Run Text="{DynamicResource Dashboard.InvoiceS}"/>
                             <Run Text="{Binding CreatedAtDisplay, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
@@ -183,7 +183,7 @@
                             Margin="10,0,0,0"
                             VerticalAlignment="Center"
                             Style="{StaticResource SoftPillButtonStyle}"
-                            ToolTip="Open the statement PDF"
+                            ToolTip="{DynamicResource Dashboard.OpenStatementPDF}"
                             Command="{Binding DataContext.OpenPdfCommand,
                                       RelativeSource={RelativeSource
                                           AncestorType=ItemsControl}}"
@@ -219,9 +219,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Statements"
+                        <TextBlock Text="{DynamicResource Dashboard.Statements}"
                                    Style="{StaticResource SoftHeroTitleStyle}"/>
-                        <TextBlock Text="Customer balances, outstanding value and collection risk"
+                        <TextBlock Text="{DynamicResource Dashboard.CustomerBalancesOutstandingValueCollection}"
                                    Style="{StaticResource SoftHeroSubtitleStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
@@ -231,7 +231,7 @@
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="Live" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Common.Live}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -239,12 +239,12 @@
                                    Style="{StaticResource SoftMetaStyle}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,12,0"/>
-                        <Button Content="New Statement" Tag="&#xE710;"
+                        <Button Content="{DynamicResource Dashboard.NewStatement}" Tag="&#xE710;"
                                 Style="{StaticResource SoftPillAccentStyle}"
-                                Command="{Binding NewStatementCommand}" ToolTip="Generate new customer statement"/>
-                        <Button Content="View All" Tag="&#xE8FD;" Margin="0"
+                                Command="{Binding NewStatementCommand}" ToolTip="{DynamicResource Dashboard.GenerateNewCustomerStatement}"/>
+                        <Button Content="{DynamicResource Dashboard.View}" Tag="&#xE8FD;" Margin="0"
                                 Style="{StaticResource SoftPillButtonStyle}"
-                                Command="{Binding GoToStatementsCommand}" ToolTip="View all generated statements"/>
+                                Command="{Binding GoToStatementsCommand}" ToolTip="{DynamicResource Dashboard.ViewGeneratedStatements}"/>
                     </StackPanel>
                 </Grid>
 
@@ -253,7 +253,7 @@
                             Padding="16,12"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="Loading statements…"
+                        <TextBlock Text="{DynamicResource Dashboard.LoadingStatements}"
                                    Style="{StaticResource SoftKpiFootStyle}"/>
                     </Border>
                     <Border Style="{StaticResource SoftSectionStyle}"
@@ -283,9 +283,9 @@
                             Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Statement pulse"
+                                <TextBlock Text="{DynamicResource Dashboard.StatementPulse}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Statements, invoiced, outstanding and overdue"
+                                <TextBlock Text="{DynamicResource Dashboard.StatementsInvoicedOutstandingOverdue}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <ItemsControl ItemsSource="{Binding KpiCards}"
@@ -302,9 +302,9 @@
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
-                            <TextBlock Text="Collection mix"
+                            <TextBlock Text="{DynamicResource Dashboard.CollectionMix}"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Collected vs outstanding vs overdue"
+                            <TextBlock Text="{DynamicResource Dashboard.CollectedVsOutstandingVsOverdue}"
                                        Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding BalanceMixSlices}"
@@ -316,7 +316,7 @@
 
                     <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}" Padding="16,12">
                         <StackPanel>
-                            <TextBlock Text="OVERDUE"
+                            <TextBlock Text="{DynamicResource Common.Overdue}"
                                        Style="{StaticResource SoftKpiLabelStyle}"/>
                             <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
                                      StretchDirection="DownOnly" Margin="0,8,0,4">
@@ -334,7 +334,7 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                             </Viewbox>
-                            <TextBlock Text="Past payment terms"
+                            <TextBlock Text="{DynamicResource Dashboard.PastPaymentTerms}"
                                        Style="{StaticResource SoftKpiFootStyle}"/>
                         </StackPanel>
                     </Border>
@@ -342,7 +342,7 @@
 
                 <Border Grid.Row="3" Style="{StaticResource SoftCardStyle}">
                     <DockPanel>
-                        <TextBlock DockPanel.Dock="Top" Text="Recent statements"
+                        <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Dashboard.RecentStatements}"
                                    Style="{StaticResource SoftSectionTitleStyle}"
                                    Margin="0,0,0,8"/>
 
@@ -352,18 +352,18 @@
                             <StackPanel HorizontalAlignment="Center">
                                 <TextBlock Text="&#xE9D9;"
                                            Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                <TextBlock Text="No statements yet"
+                                <TextBlock Text="{DynamicResource Dashboard.NoStatementsYet}"
                                            Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                <TextBlock Text="Generate a statement to see customer balances here."
+                                <TextBlock Text="{DynamicResource Dashboard.GenerateStatementSeeCustomerBalancesHere}"
                                            Style="{StaticResource SoftMetaStyle}"
                                            HorizontalAlignment="Center"
                                            Margin="0,6,0,14"/>
-                                <Button Content="New Statement"
+                                <Button Content="{DynamicResource Dashboard.NewStatement}"
                                         Tag="&#xE710;"
                                         Margin="0"
                                         HorizontalAlignment="Center"
                                         Style="{StaticResource SoftPillAccentStyle}"
-                                        Command="{Binding NewStatementCommand}" ToolTip="Generate new customer statement"/>
+                                        Command="{Binding NewStatementCommand}" ToolTip="{DynamicResource Dashboard.GenerateNewCustomerStatement}"/>
                             </StackPanel>
                         </Border>
 

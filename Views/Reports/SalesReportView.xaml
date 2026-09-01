@@ -156,9 +156,9 @@
                             <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="REPORTS HUB" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.95"/>
-                            <TextBlock Text="Intelligence Center" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,1,0,0"/>
-                            <TextBlock Text="Row-level traceability" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}" Margin="0,2,0,0"/>
+                            <TextBlock Text="{DynamicResource Reports.ReportsHUB}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.95"/>
+                            <TextBlock Text="{DynamicResource Reports.IntelligenceCenter}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,1,0,0"/>
+                            <TextBlock Text="{DynamicResource Reports.RowLevelTraceability}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}" Margin="0,2,0,0"/>
                         </StackPanel>
                         <!-- Collapse rail button (hamburger style) -->
                         <Button Grid.Column="2"
@@ -167,7 +167,7 @@
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Cursor="Hand"
-                                ToolTip="Collapse navigation rail"
+                                ToolTip="{DynamicResource Reports.CollapseNavigationRail}"
                                 Command="{Binding ToggleRailCommand}">
                             <TextBlock Text="&#xE76B;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Button>
@@ -179,7 +179,7 @@
                     <StackPanel>
 
                         <!-- Overview -->
-                        <Button Tag="Overview" Click="Nav_Click" ToolTip="Global overview dashboard showing combined ERP analytics">
+                        <Button Tag="Overview" Click="Nav_Click" ToolTip="{DynamicResource Reports.GlobalOverviewDashboardShowingCombinedERP}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -200,20 +200,20 @@
                                     <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Overview" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="{DynamicResource Nav.Overview}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="KPI dashboard" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="{DynamicResource Reports.KPIDashboard}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
                         </Button>
 
-                        <TextBlock Text="DOCUMENTS" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
+                        <TextBlock Text="{DynamicResource Reports.Documents}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
 
                         <!-- Proforma Invoice -->
-                        <Button Tag="Pi" Click="Nav_Click" ToolTip="Proforma Invoices: quotes, conversion rates, and itemized rows">
+                        <Button Tag="Pi" Click="Nav_Click" ToolTip="{DynamicResource Reports.ProformaInvoicesQuotesConversionRates}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -228,10 +228,10 @@
                                     <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Proforma Invoice" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="{DynamicResource Module.ProformaInvoice}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Quotes &amp; conversion" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="{DynamicResource Reports.QuotesConversion}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -239,7 +239,7 @@
                         </Button>
 
                         <!-- Job Order -->
-                        <Button Tag="Jo" Click="Nav_Click" ToolTip="Job Orders: factory production stages and delivered balance">
+                        <Button Tag="Jo" Click="Nav_Click" ToolTip="{DynamicResource Reports.JobOrdersFactoryProductionStagesDelivered}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -254,10 +254,10 @@
                                     <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Job Order" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="{DynamicResource Common.JobOrder}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Production &amp; status" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="{DynamicResource Reports.ProductionStatus}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -265,7 +265,7 @@
                         </Button>
 
                         <!-- Delivery -->
-                        <Button Tag="Delivery" Click="Nav_Click" ToolTip="Delivery Notes: dispatch tracking, fulfillment rate, and remaining items">
+                        <Button Tag="Delivery" Click="Nav_Click" ToolTip="{DynamicResource Reports.DeliveryNotesDispatchTrackingFulfillmentRate}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -280,10 +280,10 @@
                                     <TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Delivery" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="{DynamicResource Nav.Delivery}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Dispatched / pending" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="{DynamicResource Reports.DispatchedPending}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -291,7 +291,7 @@
                         </Button>
 
                         <!-- Tax Invoice -->
-                        <Button Tag="TaxInvoice" Click="Nav_Click" ToolTip="Tax Invoices: billing statuses, collections, and overdue aging">
+                        <Button Tag="TaxInvoice" Click="Nav_Click" ToolTip="{DynamicResource Reports.TaxInvoicesBillingStatusesCollectionsOverdue}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -306,10 +306,10 @@
                                     <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Tax Invoice" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="{DynamicResource Module.TaxInvoice}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Billed &amp; overdue" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="{DynamicResource Reports.BilledOverdue}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -317,7 +317,7 @@
                         </Button>
 
                         <!-- Statement -->
-                        <Button Tag="Statement" Click="Nav_Click" ToolTip="Customer statements and aging analysis (read-only report)">
+                        <Button Tag="Statement" Click="Nav_Click" ToolTip="{DynamicResource Reports.CustomerStatementsAgingAnalysisReadReport}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -332,10 +332,10 @@
                                     <TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Statement" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="{DynamicResource Module.Statement}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Customer statements" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="{DynamicResource Reports.CustomerStatements}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -350,9 +350,9 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
-                            <TextBlock Text="Central Data Layer" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Reports.CentralDataLayer}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="Live totals across PI → JO → Delivery → Tax Invoice → Statement." FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="{DynamicResource Reports.LiveTotalsPIJODeliveryTaxInvoiceStatement}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -385,7 +385,7 @@
                             Style="{StaticResource ReportHamburgerButton}"
                             Content="&#xE700;"
                             Command="{Binding ToggleRailCommand}"
-                            ToolTip="Toggle reports navigation"
+                            ToolTip="{DynamicResource Reports.ToggleReportsNavigation}"
                             VerticalAlignment="Center"
                             Margin="0,0,12,0"/>
 
@@ -393,7 +393,7 @@
                         <TextBlock Text="{Binding CurrentReportTitle}"
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="Central Reporting"
+                        <TextBlock Text="{DynamicResource Reports.CentralReporting}"
                                    FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    Margin="0,1,0,0"/>
@@ -411,7 +411,7 @@
                             <Border Width="7" Height="7" CornerRadius="4"
                                     Background="{DynamicResource SuccessBrush}"
                                     VerticalAlignment="Center"/>
-                            <TextBlock Text="LIVE DATA"
+                            <TextBlock Text="{DynamicResource Reports.LIVEDATA}"
                                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource SuccessBrush}"
                                        Margin="6,0,0,0"
@@ -446,12 +446,12 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="REPORTS OVERVIEW" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                <TextBlock Text="Documents &amp; Fulfillment" FontSize="{StaticResource TextHeadline}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,0"/>
-                                <TextBlock Text="Live totals across your Proforma Invoices, Job Orders, Delivery Notes and Tax Invoices — every figure straight from the database." FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
+                                <TextBlock Text="{DynamicResource Reports.ReportsOverview}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                <TextBlock Text="{DynamicResource Reports.DocumentsFulfillment}" FontSize="{StaticResource TextHeadline}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,0"/>
+                                <TextBlock Text="{DynamicResource Reports.LiveTotalsProformaInvoicesJobOrdersDelivery}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                                     <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.95">
-                                        <Run Text="PI"/><Run Text="  →  "/><Run Text="JO"/><Run Text="  →  "/><Run Text="DELIVERY"/><Run Text="  →  "/><Run Text="TAX INVOICE"/><Run Text="  →  "/><Run Text="STATEMENT"/>
+                                        <Run Text="PI"/><Run Text="  →  "/><Run Text="JO"/><Run Text="  →  "/><Run Text="{DynamicResource Nav.Delivery}"/><Run Text="  →  "/><Run Text="{DynamicResource Module.TaxInvoice}"/><Run Text="  →  "/><Run Text="{DynamicResource Module.Statement}"/>
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>
@@ -480,7 +480,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Proforma Invoice -->
-                        <Button Grid.Column="0" Tag="Pi" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="Open Proforma Invoice report">
+                        <Button Grid.Column="0" Tag="Pi" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenProformaInvoiceReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
@@ -489,12 +489,12 @@
                                                 <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintBlueBrush}">
                                                     <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="PROFORMA" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Text="{DynamicResource JobProfitability.Proforma}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                             </StackPanel>
                                             <TextBlock Text="{Binding PiReport.Summary.TotalPi}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
                                             <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
                                                 <Run Text="AED "/><Run Text="{Binding PiReport.Summary.TotalValue, Mode=OneWay, StringFormat={}{0:N0}}"/>
-                                                <Run Text=" · "/><Run Text="{Binding PiReport.Summary.Converted, Mode=OneWay}"/><Run Text=" converted"/>
+                                                <Run Text=" · "/><Run Text="{Binding PiReport.Summary.Converted, Mode=OneWay}"/><Run Text="{DynamicResource Reports.PiReport.Converted}"/>
                                             </TextBlock>
                                         </StackPanel>
                                     </Border>
@@ -508,7 +508,7 @@
                         </Button>
 
                         <!-- Job Order -->
-                        <Button Grid.Column="2" Tag="Jo" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="Open Job Order report">
+                        <Button Grid.Column="2" Tag="Jo" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenJobOrderReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
@@ -517,11 +517,11 @@
                                                 <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintAmberBrush}">
                                                     <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="JOB ORDER" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Text="{DynamicResource Common.JobOrder}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                             </StackPanel>
                                             <TextBlock Text="{Binding JoReport.Summary.TotalJo}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
                                             <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
-                                                <Run Text="{Binding JoReport.Summary.AwaitingJo, Mode=OneWay}"/><Run Text=" awaiting"/>
+                                                <Run Text="{Binding JoReport.Summary.AwaitingJo, Mode=OneWay}"/><Run Text="{DynamicResource Reports.Awaiting}"/>
                                                 <Run Text=" · "/><Run Text="{Binding JoReport.Summary.TotalQty, Mode=OneWay}"/><Run Text=" pcs"/>
                                             </TextBlock>
                                         </StackPanel>
@@ -536,7 +536,7 @@
                         </Button>
 
                         <!-- Delivery -->
-                        <Button Grid.Column="4" Tag="Delivery" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="Open Delivery report">
+                        <Button Grid.Column="4" Tag="Delivery" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenDeliveryReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
@@ -545,11 +545,11 @@
                                                 <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintGreenBrush}">
                                                     <TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="DELIVERY" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Text="{DynamicResource Nav.Delivery}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                             </StackPanel>
                                             <TextBlock Text="{Binding DeliveryReport.Summary.TotalRows}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
                                             <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
-                                                <Run Text="{Binding DeliveryReport.Summary.CompletionPct, Mode=OneWay, StringFormat={}{0:0.#}}"/><Run Text="% delivered"/>
+                                                <Run Text="{Binding DeliveryReport.Summary.CompletionPct, Mode=OneWay, StringFormat={}{0:0.#}}"/><Run Text="{DynamicResource Reports.Delivered}"/>
                                                 <Run Text=" · "/><Run Text="{Binding DeliveryReport.Summary.TotalDeliveredQty, Mode=OneWay}"/><Run Text=" pcs"/>
                                             </TextBlock>
                                         </StackPanel>
@@ -564,7 +564,7 @@
                         </Button>
 
                         <!-- Tax Invoice -->
-                        <Button Grid.Column="6" Tag="TaxInvoice" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="Open Tax Invoice report">
+                        <Button Grid.Column="6" Tag="TaxInvoice" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenTaxInvoiceReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
@@ -573,12 +573,12 @@
                                                 <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintIndigoBrush}">
                                                     <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="TAX INVOICE" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Text="{DynamicResource Module.TaxInvoice}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                             </StackPanel>
                                             <TextBlock Text="{Binding TaxInvoiceReport.Summary.TotalInvoices}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
                                             <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
                                                 <Run Text="AED "/><Run Text="{Binding TaxInvoiceReport.Summary.TotalAmount, Mode=OneWay, StringFormat={}{0:N0}}"/>
-                                                <Run Text=" · "/><Run Text="{Binding TaxInvoiceReport.Summary.Overdue, Mode=OneWay}"/><Run Text=" overdue"/>
+                                                <Run Text=" · "/><Run Text="{Binding TaxInvoiceReport.Summary.Overdue, Mode=OneWay}"/><Run Text="{DynamicResource Common.Overdue}"/>
                                             </TextBlock>
                                         </StackPanel>
                                     </Border>
@@ -592,7 +592,7 @@
                         </Button>
 
                         <!-- Statement -->
-                        <Button Grid.Column="8" Tag="Statement" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="Open Statement report">
+                        <Button Grid.Column="8" Tag="Statement" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenStatementReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
@@ -601,11 +601,11 @@
                                                 <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintGrayBrush}">
                                                     <TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource NeutralBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="STATEMENT" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Text="{DynamicResource Module.Statement}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                             </StackPanel>
                                             <TextBlock Text="{Binding StatementReport.Summary.TotalCount}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
                                             <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
-                                                <Run Text="AED "/><Run Text="{Binding StatementReport.Summary.ClosingBalance, Mode=OneWay, StringFormat={}{0:N0}}"/><Run Text=" outstanding"/>
+                                                <Run Text="AED "/><Run Text="{Binding StatementReport.Summary.ClosingBalance, Mode=OneWay, StringFormat={}{0:N0}}"/><Run Text="{DynamicResource Common.Outstanding}"/>
                                             </TextBlock>
                                         </StackPanel>
                                     </Border>
@@ -623,7 +623,7 @@
                     <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
-                            <TextBlock Text="Trace any glass row end-to-end: PI → Job Order → Delivery → Tax Invoice → Statement. Open a report above to drill into its live rows."
+                            <TextBlock Text="{DynamicResource Reports.TraceGlassRowEndEndPIJobOrderDeliveryTax}"
                                        FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap" Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>

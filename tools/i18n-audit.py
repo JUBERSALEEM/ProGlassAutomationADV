@@ -90,6 +90,14 @@ def main() -> int:
     LOCALE_PREFIXES = (
         "Action.", "Shell.", "Module.", "Settings.", "Login.", "Splash.",
         "About.", "Currency.", "Phone.", "Common.", "Nav.", "ToolTip.",
+        "God.", "Dg.", "Dnl.",
+        # module-scoped keys introduced by tools/i18n/sweep.py
+        "Reports.", "Inquiry.", "SheetStore.", "DeliveryNote.", "JobOrder.",
+        "TaxInvoice.", "ProformaInvoice.", "Dashboard.", "SystemCenter.",
+        "UserCenter.", "CompanyCenter.", "Licensing.", "CrashReports.",
+        "Diagnostics.", "Optimization.", "Production.", "JobProfitability.",
+        "Shared.", "AI.", "App.", "Message.", "Validation.", "Print.",
+        "Statement.",
     )
     def is_locale(k: str) -> bool:
         return k.startswith(LOCALE_PREFIXES)

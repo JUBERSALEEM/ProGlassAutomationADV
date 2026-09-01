@@ -83,14 +83,14 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Review &amp; Select Invoices"
+                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.ReviewSelectInvoices}"
                                Style="{StaticResource StepTitleStyle}"/>
                     <TextBlock Style="{StaticResource StepSubtitleStyle}"
                                Margin="0,0,0,0">
                         <Run Text="{Binding PreviewVM.SelectionSummaryDisplay, Mode=OneWay}"
                              FontWeight="Bold"
                              Foreground="{DynamicResource AccentHoverBrush}"/>
-                        <Run Text=" — Uncheck any invoice you want to exclude from the statement."/>
+                        <Run Text="{DynamicResource Reports.StatementGenerator.UncheckInvoiceWantExcludeStatement}"/>
                     </TextBlock>
                 </StackPanel>
 
@@ -114,7 +114,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="✓ " FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="White" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Select All" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                        <TextBlock Text="{DynamicResource Inquiry.Select}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="White" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
@@ -142,7 +142,7 @@
                                         <TextBlock Text="✕ " FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    VerticalAlignment="Center"/>
-                                        <TextBlock Text="Deselect"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.Deselect}"
                                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    VerticalAlignment="Center"/>
@@ -182,7 +182,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
-                        <TextBlock Text="INVOICED" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource Common.Invoiced}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalInvoicedDisplay}"
                                    FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
@@ -227,7 +227,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
-                        <TextBlock Text="OUTSTANDING" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource Common.Outstanding}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalOutstandingDisplay}"
                                    FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
@@ -242,7 +242,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
-                        <TextBlock Text="OVERDUE" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource DangerBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.OverdueAmountDisplay}"
                                    FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
@@ -257,13 +257,13 @@
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
-                        <TextBlock Text="ATTACHMENTS" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource DeliveryNote.Attachments}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                             <TextBlock Text="{Binding PreviewVM.SelectedAttachmentCount}"
                                        FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text=" files" FontSize="{StaticResource TextBody}"
+                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.Files}" FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="4,2,0,0"/>
@@ -301,19 +301,19 @@
                             <TextBlock Grid.Column="0" Text="✓" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="0,0,14,0" MinWidth="14"/>
-                            <TextBlock Grid.Column="1" Text="INVOICE" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Common.Invoice}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <TextBlock Grid.Column="2" Text="STATUS" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Status}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        HorizontalAlignment="Center" Margin="12,0" MinWidth="70"/>
                             <TextBlock Grid.Column="3" Text="DUE" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="12,0" MinWidth="90"/>
-                            <TextBlock Grid.Column="4" Text="TOTAL AED" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Grid.Column="4" Text="{DynamicResource Reports.StatementGenerator.TotalAED}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource SuccessBrush}"
                                        HorizontalAlignment="Right"
                                        Margin="12,0" MinWidth="110"/>
-                            <TextBlock Grid.Column="5" Text="BALANCE" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Grid.Column="5" Text="{DynamicResource Common.Balance}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource WarningBrush}"
                                        HorizontalAlignment="Right"
                                        Margin="12,0,0,0" MinWidth="110"/>
@@ -454,7 +454,7 @@
                                                     VerticalAlignment="Center"
                                                     Margin="12,0"
                                                     MinWidth="110">
-                                            <TextBlock Text="TOTAL AED" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.TotalAED}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                        Foreground="{DynamicResource SuccessBrush}"
                                                        HorizontalAlignment="Right"/>
                                             <TextBlock Text="{Binding GrandTotalDisplay, Mode=OneWay}"
@@ -467,7 +467,7 @@
                                                     VerticalAlignment="Center"
                                                     Margin="12,0,0,0"
                                                     MinWidth="110">
-                                            <TextBlock Text="BALANCE" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                            <TextBlock Text="{DynamicResource Common.Balance}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                        Foreground="{DynamicResource WarningBrush}"
                                                        HorizontalAlignment="Right"/>
                                             <TextBlock Text="{Binding BalanceDisplay, Mode=OneWay}"
@@ -499,11 +499,11 @@
                         <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}"
                                    Margin="0,0,8,0"
                                    VerticalAlignment="Center"/>
-                        <TextBlock Text="Aging Analysis"
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.AgingAnalysis}"
                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    VerticalAlignment="Center"/>
-                        <TextBlock Text="  ·  Outstanding amounts by days past due"
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.OutstandingAmountsDaysPastDue}"
                                    FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    VerticalAlignment="Center"/>
@@ -558,11 +558,11 @@
                             <TextBlock FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        VerticalAlignment="Center">
-                                <Run Text="Total Qty:"/>
+                                <Run Text="{DynamicResource Reports.DeliveryReport.TotalQTY}"/>
                                 <Run Text="{Binding PreviewVM.TotalQty, Mode=OneWay}"
                                      FontWeight="Bold"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <Run Text=" units  ·  Total Area:"/>
+                                <Run Text="{DynamicResource Reports.StatementGenerator.UnitsTotalArea}"/>
                                 <Run Text="{Binding PreviewVM.TotalSqmDisplay, Mode=OneWay}"
                                      FontWeight="Bold"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -626,7 +626,7 @@
 
                             <!-- Title + summary -->
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Order Fulfillment Reconciliation"
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.OrderFulfillmentReconciliation}"
                                            FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                            Foreground="White"/>
                                 <TextBlock Text="{Binding PreviewVM.ReconciliationHeaderDisplay}"
@@ -637,7 +637,7 @@
 
                             <!-- Info hint -->
                             <TextBlock Grid.Column="2"
-                                       Text="Cross-check of PI Ordered vs DN Delivered vs TI Invoiced"
+                                       Text="{DynamicResource Reports.StatementGenerator.CrossCheckPIOrderedVsDNDeliveredVsTIInvoiced}"
                                        FontSize="{StaticResource TextCaption}"
                                        FontStyle="Italic"
                                        Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"
@@ -722,9 +722,9 @@
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,6"
                                                         Margin="0,0,6,0"
-                                                        ToolTip="Total ordered on Proforma Invoice">
+                                                        ToolTip="{DynamicResource Reports.StatementGenerator.TotalOrderedProformaInvoice}">
                                                     <StackPanel>
-                                                        <TextBlock Text="ORDERED"
+                                                        <TextBlock Text="{DynamicResource Common.Ordered}"
                                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource AccentBrush}"/>
                                                         <TextBlock Text="{Binding TotalOrderedQty}"
@@ -740,9 +740,9 @@
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,6"
                                                         Margin="0,0,6,0"
-                                                        ToolTip="Total delivered across all Delivery Notes">
+                                                        ToolTip="{DynamicResource Reports.StatementGenerator.TotalDeliveredDeliveryNotes}">
                                                     <StackPanel>
-                                                        <TextBlock Text="DELIVERED"
+                                                        <TextBlock Text="{DynamicResource Common.Delivered}"
                                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource SuccessBrush}"/>
                                                         <TextBlock Text="{Binding TotalDeliveredQty}"
@@ -758,9 +758,9 @@
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,6"
                                                         Margin="0,0,6,0"
-                                                        ToolTip="Balance pending delivery">
+                                                        ToolTip="{DynamicResource Reports.StatementGenerator.BalancePendingDelivery}">
                                                     <StackPanel>
-                                                        <TextBlock Text="BALANCE"
+                                                        <TextBlock Text="{DynamicResource Common.Balance}"
                                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource WarningBrush}"/>
                                                         <TextBlock Text="{Binding TotalBalanceQty}"
@@ -776,9 +776,9 @@
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,6"
                                                         Margin="0,0,6,0"
-                                                        ToolTip="Total invoiced across all Tax Invoices">
+                                                        ToolTip="{DynamicResource Reports.StatementGenerator.TotalInvoicedTaxInvoices}">
                                                     <StackPanel>
-                                                        <TextBlock Text="INVOICED"
+                                                        <TextBlock Text="{DynamicResource Common.Invoiced}"
                                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource AccentDarkBrush}"/>
                                                         <TextBlock Text="{Binding TotalInvoicedQty}"
@@ -792,7 +792,7 @@
                                                 <Border BorderThickness="1"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,6"
-                                                        ToolTip="Invoiced minus Delivered (positive = over-invoiced)">
+                                                        ToolTip="{DynamicResource Reports.StatementGenerator.InvoicedMinusDeliveredPositiveInvoiced}">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
@@ -810,7 +810,7 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <StackPanel>
-                                                        <TextBlock Text="DIFF"
+                                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.Diff}"
                                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                         <TextBlock Text="{Binding TotalInvoiceVsDeliveryDiff}"
@@ -854,38 +854,38 @@
                                                     <TextBlock Grid.Column="0" Text="REF"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                                    <TextBlock Grid.Column="1" Text="SPEC"
+                                                    <TextBlock Grid.Column="1" Text="{DynamicResource DeliveryNote.SPEC}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"
                                                                HorizontalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="2" Text="S/N"
+                                                    <TextBlock Grid.Column="2" Text="{DynamicResource Reports.StatementGenerator.SN}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"
                                                                HorizontalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="3" Text="DIMENSIONS"
+                                                    <TextBlock Grid.Column="3" Text="{DynamicResource DeliveryNote.Dimensions}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                                    <TextBlock Grid.Column="4" Text="ORDERED"
+                                                    <TextBlock Grid.Column="4" Text="{DynamicResource Common.Ordered}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                HorizontalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="5" Text="DELIVERED"
+                                                    <TextBlock Grid.Column="5" Text="{DynamicResource Common.Delivered}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource SuccessBrush}"
                                                                HorizontalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="6" Text="BALANCE"
+                                                    <TextBlock Grid.Column="6" Text="{DynamicResource Common.Balance}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource WarningBrush}"
                                                                HorizontalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="7" Text="INVOICED"
+                                                    <TextBlock Grid.Column="7" Text="{DynamicResource Common.Invoiced}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource AccentDarkBrush}"
                                                                HorizontalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="8" Text="DIFF"
+                                                    <TextBlock Grid.Column="8" Text="{DynamicResource Reports.StatementGenerator.Diff}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"
                                                                HorizontalAlignment="Center"/>
-                                                    <TextBlock Grid.Column="9" Text="STATUS"
+                                                    <TextBlock Grid.Column="9" Text="{DynamicResource Common.Status}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"
                                                                Margin="12,0,0,0"/>

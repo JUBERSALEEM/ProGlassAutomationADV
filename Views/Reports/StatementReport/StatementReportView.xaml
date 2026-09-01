@@ -18,8 +18,8 @@
 
         <!-- Page Header -->
         <StackPanel Grid.Row="0" Margin="16,14,16,12">
-            <TextBlock Text="Statement Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"/>
-            <TextBlock Text="Financial statement ledger: every document on generated statements with Debit / Credit / Balance, plus Opening and Closing balances." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+            <TextBlock Text="{DynamicResource Reports.StatementReport.StatementReport}" Style="{StaticResource ModulePageTitleStyle}" FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"/>
+            <TextBlock Text="{DynamicResource Reports.StatementReport.FinancialStatementLedgerDocumentGenerated}" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
         </StackPanel>
 
         <!-- Main Shell Card -->
@@ -45,56 +45,56 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Opening Balance -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Outstanding before the filtered period (0 when no date-from is set)">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.StatementReport.OutstandingBeforeFilteredPeriod0WhenNoDate}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGrayBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource NeutralBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="OPENING" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.StatementReport.Opening}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.OpeningBalance, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Before period" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.StatementReport.BeforePeriod}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <!-- Total Debit -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total billed in the filtered period">
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.StatementReport.TotalBilledFilteredPeriod}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintRedBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="TOTAL DEBIT" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.StatementReport.TotalDebit}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalDebit, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Billed in period" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.StatementReport.BilledPeriod}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <!-- Total Credit -->
-                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total paid in the filtered period">
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.StatementReport.TotalPaidFilteredPeriod}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE8FB;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="TOTAL CREDIT" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.StatementReport.TotalCredit}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalCredit, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Paid in period" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.StatementReport.PaidPeriod}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <!-- Closing Balance -->
-                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Opening + Total Debit − Total Credit">
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.StatementReport.OpeningTotalDebitTotalCredit}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="CLOSING" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.StatementReport.Closing}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.ClosingBalance, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Opening + Debit − Credit" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.StatementReport.OpeningDebitCredit}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -113,46 +113,46 @@
                         <WrapPanel Grid.Column="0" VerticalAlignment="Center">
                             <!-- Search -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="SEARCH" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Width="170" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Invoice # / PI # / DN #..." ToolTip="Search by invoice number, PI #, delivery note or statement number"/>
+                                <TextBlock Text="{DynamicResource Action.Search}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Width="170" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Invoice # / PI # / DN #..." ToolTip="{DynamicResource Reports.StatementReport.SearchInvoiceNumberPIDeliveryNoteStatement}"/>
                             </StackPanel>
 
                             <!-- Date From -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="FROM DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateFrom}" ToolTip="Filter by invoice issue date start"/>
+                                <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateFrom}" ToolTip="{DynamicResource Reports.StatementReport.FilterInvoiceIssueDateStart}"/>
                             </StackPanel>
 
                             <!-- Date To -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="TO DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="Filter by invoice issue date end"/>
+                                <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="{DynamicResource Reports.StatementReport.FilterInvoiceIssueDateEnd}"/>
                             </StackPanel>
 
                             <!-- Company -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="COMPANY" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding SelectedCompany}" ToolTip="Filter by company"/>
+                                <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding SelectedCompany}" ToolTip="{DynamicResource Reports.PiReport.FilterCompany}"/>
                             </StackPanel>
 
                             <!-- Customer -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="CUSTOMER" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CustomerOptions}" SelectedItem="{Binding SelectedCustomer}" ToolTip="Filter by customer"/>
+                                <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CustomerOptions}" SelectedItem="{Binding SelectedCustomer}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterCustomer}"/>
                             </StackPanel>
 
                             <!-- Action Buttons -->
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,6,6">
-                                <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Reset filters"/>
+                                <Button Content="{DynamicResource Action.Clear}" Command="{Binding ClearFilterCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="{DynamicResource Reports.DeliveryReport.ResetFilters}"/>
                             </StackPanel>
                         </WrapPanel>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="8,0,0,6">
-                            <TextBlock Text="EXPORT" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{DynamicResource Action.Export}" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export ledger to CSV"/>
-                                <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export ledger to Excel (.xlsx)"/>
-                                <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ReportExportPrimaryButton}" ToolTip="Export professional PDF report"/>
+                                <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Reports.StatementReport.ExportLedgerCSV}"/>
+                                <Button Content="{DynamicResource JobOrder.Excel}" Command="{Binding ExportExcelCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Reports.StatementReport.ExportLedgerExcelXlsx}"/>
+                                <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ReportExportPrimaryButton}" ToolTip="{DynamicResource Reports.DeliveryReport.ExportProfessionalPDFReport}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -179,28 +179,28 @@
                                 <ColumnDefinition Width="0.9*"/>
                                 <ColumnDefinition Width="0.9*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="DATE" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="1" Text="DOCUMENT #" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="2" Text="TYPE" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="3" Text="DESCRIPTION" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="4" Text="CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="5" Text="DEBIT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="6" Text="CREDIT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="7" Text="BALANCE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Common.Date}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Reports.StatementReport.Document2}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Type}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Common.Description}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="4" Text="{DynamicResource Common.Customer}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="5" Text="{DynamicResource Reports.StatementReport.Debit}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="6" Text="{DynamicResource Reports.StatementReport.Credit}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="7" Text="{DynamicResource Common.Balance}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 
                     <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading statement ledger…"/>
-                    <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No ledger entries found" Message="Generate statements first, then this ledger shows every document with its Debit / Credit / Balance." Icon="&#xE9F7;"/>
+                    <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="{DynamicResource Reports.StatementReport.NoLedgerEntriesFound}" Message="Generate statements first, then this ledger shows every document with its Debit / Credit / Balance." Icon="&#xE9F7;"/>
 
                     <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
                             Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
                             CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Unable to load records" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                            <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
                             <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
-                            <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
+                            <Button Content="{DynamicResource Action.Retry}" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="{DynamicResource Reports.DeliveryReport.RetryLoadingRecords}"/>
                         </StackPanel>
                     </Border>
 
@@ -240,18 +240,18 @@
                                         <Expander.Header>
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
-                                                <TextBlock Text="Ledger entry" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{DynamicResource Reports.StatementReport.LedgerEntry}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Expander.Header>
                                         <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
                                             <StackPanel>
-                                                <Button Content="Open Tax Invoice"
+                                                <Button Content="{DynamicResource Inquiry.OpenTaxInvoice}"
                                                         Command="{Binding DataContext.OpenTaxInvoiceCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         CommandParameter="{Binding}"
                                                         Style="{StaticResource PrimaryPillButton}"
                                                         Height="34" Margin="0,0,0,12"
                                                         HorizontalAlignment="Left"
-                                                        ToolTip="Open the original Tax Invoice"/>
+                                                        ToolTip="{DynamicResource Reports.StatementReport.OpenOriginalTaxInvoice}"/>
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="108"/>
@@ -269,36 +269,36 @@
                                                         <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
 
-                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="DATE" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Common.Date}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="DOCUMENT" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Reports.StatementReport.Document}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding InvoiceNumber}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
-                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="TYPE" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Common.Type}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DocumentType}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="PI #" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource Reports.DeliveryReport.PI}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="STATUS" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource Common.Status}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Status}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="STATEMENT" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="{DynamicResource Module.Statement}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding StatementNumber}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="DEBIT" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="{DynamicResource Reports.StatementReport.Debit}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Debit, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource DangerBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="CREDIT" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="{DynamicResource Reports.StatementReport.Credit}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Credit, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2"/>
 
-                                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="BALANCE" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="{DynamicResource Common.Balance}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                                     <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding Balance, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2"/>
                                                 </Grid>
 
                                                 <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap" Margin="0,8,0,0">
-                                                    <Run Text="Description: "/><Run Text="{Binding Description, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                    <Run Text="{DynamicResource Common.Description}"/><Run Text="{Binding Description, Mode=OneWay}" FontWeight="SemiBold"/>
                                                 </TextBlock>
                                             </StackPanel>
                                         </Border>
@@ -321,9 +321,9 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to previous page"/>
-                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to next page"/>
-                            <Button Content="↻" Command="{Binding RefreshCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Refresh report data"/>
+                            <Button Content="{DynamicResource Reports.DeliveryReport.Prev}" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoPreviousPage}"/>
+                            <Button Content="{DynamicResource Reports.DeliveryReport.Next}" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoNextPage}"/>
+                            <Button Content="↻" Command="{Binding RefreshCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.RefreshReportData}"/>
                         </StackPanel>
                     </Grid>
                 </Border>

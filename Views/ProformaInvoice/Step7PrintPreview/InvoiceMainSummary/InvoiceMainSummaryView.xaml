@@ -79,14 +79,14 @@
     </UserControl.Resources>
 
     <StackPanel>
-        <TextBlock Text="INVOICE SUMMARY" Style="{StaticResource PiSectionLabelStyle}"/>
+        <TextBlock Text="{DynamicResource ProformaInvoice.InvoiceSummary}" Style="{StaticResource PiSectionLabelStyle}"/>
 
         <Grid Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Glass subtotal" Style="{StaticResource SummaryLabelStyle}"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.GlassSubtotal}" Style="{StaticResource SummaryLabelStyle}"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding GlassMaterialsSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                        Style="{StaticResource SummaryValueStyle}"/>
@@ -96,7 +96,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Other charges" Style="{StaticResource SummaryLabelStyle}"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.OtherCharges}" Style="{StaticResource SummaryLabelStyle}"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding OtherChargesSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                        Style="{StaticResource SummaryValueStyle}"/>
@@ -106,7 +106,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Net subtotal" Style="{StaticResource SummaryLabelStyle}" FontWeight="SemiBold"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.NetSubtotal}" Style="{StaticResource SummaryLabelStyle}" FontWeight="SemiBold"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding NetSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                        Style="{StaticResource SummaryValueStyle}"/>
@@ -121,7 +121,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="DISCOUNT"
+            <TextBlock Text="{DynamicResource ProformaInvoice.Discount}"
                        Style="{StaticResource PiFieldLabelStyle}"
                        VerticalAlignment="Center"
                        Margin="0,0,10,0"/>
@@ -134,12 +134,12 @@
                              IsChecked="{Binding IsAedDiscount, Mode=TwoWay}"
                              Style="{StaticResource DiscountKindChip}"
                              Margin="0,0,4,0"
-                             ToolTip="Discount as a dirham amount, e.g. 500.23"/>
+                             ToolTip="{DynamicResource ProformaInvoice.DiscountDirhamAmountEG50023}"/>
                 <RadioButton Content="%"
                              GroupName="PiDiscountKind"
                              IsChecked="{Binding IsPercentageDiscount, Mode=TwoWay}"
                              Style="{StaticResource DiscountKindChip}"
-                             ToolTip="Discount as a percent of net subtotal"/>
+                             ToolTip="{DynamicResource ProformaInvoice.DiscountPercentNetSubtotal}"/>
             </StackPanel>
             <TextBox Grid.Column="2"
                      Text="{Binding DiscountValue, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:0.00}}"
@@ -147,7 +147,7 @@
                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
                      HorizontalAlignment="Left"
                      MinWidth="96"
-                     ToolTip="Type the discount in AED (or % if that pill is on)"/>
+                     ToolTip="{DynamicResource ProformaInvoice.TypeDiscountAEDIfPill}"/>
             <TextBlock Grid.Column="3"
                        Text="{Binding DiscountUnitLabel}"
                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
@@ -167,7 +167,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="ROUND TO"
+            <TextBlock Text="{DynamicResource ProformaInvoice.Round}"
                        Style="{StaticResource PiFieldLabelStyle}"
                        VerticalAlignment="Center"
                        Margin="0,0,10,0"/>
@@ -181,14 +181,14 @@
                          Style="{StaticResource NumericInputStyle}"
                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
                          MinWidth="110"
-                         ToolTip="Customer even figure, e.g. 15500.00. APPLY writes the AED discount on net subtotal."/>
-                <Button Content="APPLY"
+                         ToolTip="{DynamicResource ProformaInvoice.CustomerEvenFigureEG1550000ApplyWritesAED}"/>
+                <Button Content="{DynamicResource Action.Apply}"
                         Command="{Binding ApplyRoundToCommand}"
                         Style="{StaticResource PiFooterPrimaryButton}"
                         Height="32"
                         MinWidth="88"
                         Margin="10,0,0,0"
-                        ToolTip="Apply an AED discount so grand total equals this amount"/>
+                        ToolTip="{DynamicResource ProformaInvoice.ApplyAEDDiscountGrandTotalEqualsAmount}"/>
             </StackPanel>
             <TextBlock Grid.Column="2"
                        Text="{Binding RoundToHint}"
@@ -205,7 +205,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="Subtotal before VAT" Style="{StaticResource SummaryLabelStyle}"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.SubtotalBeforeVAT}" Style="{StaticResource SummaryLabelStyle}"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding SubtotalBeforeVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                        Style="{StaticResource SummaryValueStyle}"/>
@@ -254,7 +254,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="GRAND TOTAL AED"
+            <TextBlock Text="{DynamicResource ProformaInvoice.GrandTotalAED}"
                        FontSize="{StaticResource TextSection}" FontWeight="Bold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                        VerticalAlignment="Center"/>

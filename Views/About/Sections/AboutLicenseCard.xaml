@@ -72,9 +72,9 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="License"
+                    <TextBlock Text="{DynamicResource About.License}"
                                Style="{StaticResource SectionTitleStyle}"/>
-                    <TextBlock Text="Activation health, issuer trust ring and machine scope"
+                    <TextBlock Text="{DynamicResource About.ActivationHealthIssuerTrustRingMachineScope}"
                                Style="{StaticResource SectionSubtitleStyle}"
                                Margin="0,0,0,0"/>
                 </StackPanel>
@@ -104,7 +104,7 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="LICENSE HEALTH"
+                        <TextBlock Text="{DynamicResource About.LicenseHealth}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
                         <TextBlock Text="{Binding StatusDescription}"
                                    FontSize="{StaticResource TextBody}"
@@ -117,7 +117,7 @@
                             Style="{StaticResource AboutCodeStripStyle}"
                             Margin="0,0,0,0">
                         <StackPanel>
-                            <TextBlock Text="SUPPORT SUMMARY"
+                            <TextBlock Text="{DynamicResource About.SupportSummary}"
                                        Style="{StaticResource InfoLabelStyle}"/>
                             <TextBlock Text="{Binding SupportSummary}"
                                        Style="{StaticResource InfoValueStyle}"
@@ -131,25 +131,25 @@
             <UniformGrid Columns="4" Margin="-6,0,-6,12">
                 <Border Style="{StaticResource LicenseMetricCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="EDITION" Style="{StaticResource LicenseMetricLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource About.Edition}" Style="{StaticResource LicenseMetricLabelStyle}"/>
                         <TextBlock Text="{Binding EditionDisplay}" Style="{StaticResource LicenseMetricValueStyle}"/>
                     </StackPanel>
                 </Border>
                 <Border Style="{StaticResource LicenseMetricCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="DAYS REMAINING" Style="{StaticResource LicenseMetricLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource About.DAYSRemaining}" Style="{StaticResource LicenseMetricLabelStyle}"/>
                         <TextBlock Text="{Binding DaysRemainingDisplay}" Style="{StaticResource LicenseMetricValueStyle}"/>
                     </StackPanel>
                 </Border>
                 <Border Style="{StaticResource LicenseMetricCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="ACTIVATION MODE" Style="{StaticResource LicenseMetricLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource About.ActivationMODE}" Style="{StaticResource LicenseMetricLabelStyle}"/>
                         <TextBlock Text="{Binding ActivationModeDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="{StaticResource TextBodyLarge}"/>
                     </StackPanel>
                 </Border>
                 <Border Style="{StaticResource LicenseMetricCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="LICENSE WINDOW" Style="{StaticResource LicenseMetricLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource About.LicenseWindow}" Style="{StaticResource LicenseMetricLabelStyle}"/>
                         <TextBlock Text="{Binding LicenseWindowDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="{StaticResource TextBodyLarge}"/>
                     </StackPanel>
                 </Border>
@@ -165,7 +165,7 @@
 
                 <Border Grid.Column="0" Style="{StaticResource LicensePanelStyle}">
                     <StackPanel>
-                        <TextBlock Text="ACCOUNT &amp; WINDOW"
+                        <TextBlock Text="{DynamicResource About.AccountWindow}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
                         <Grid Margin="0,4,0,0">
                             <Grid.ColumnDefinitions>
@@ -179,16 +179,16 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Customer" Style="{StaticResource LicenseFieldLabelStyle}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Common.Customer}" Style="{StaticResource LicenseFieldLabelStyle}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CustomerDisplay}" Style="{StaticResource LicenseFieldValueStyle}" Margin="0,0,0,4"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Company" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Common.Company}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CompanyDisplay}" Style="{StaticResource LicenseFieldValueStyle}" Margin="0,12,0,4"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Issued" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource About.Issued}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding IssuedDisplay}" Style="{StaticResource LicenseFieldValueStyle}" Margin="0,12,0,4"/>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Expires" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource About.Expires}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ExpiresDisplay}" Style="{StaticResource LicenseFieldValueStyle}" Margin="0,12,0,0"/>
                         </Grid>
                     </StackPanel>
@@ -196,7 +196,7 @@
 
                 <Border Grid.Column="2" Style="{StaticResource LicensePanelStyle}">
                     <StackPanel>
-                        <TextBlock Text="TRUST &amp; ENTITLEMENTS"
+                        <TextBlock Text="{DynamicResource About.TrustEntitlements}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
                         <Grid Margin="0,4,0,0">
                             <Grid.ColumnDefinitions>
@@ -210,16 +210,16 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="License source" Style="{StaticResource LicenseFieldLabelStyle}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource About.LicenseSource}" Style="{StaticResource LicenseFieldLabelStyle}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LicenseSourceDisplay}" Style="{StaticResource LicenseFieldValueStyle}" Margin="0,0,0,4"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Issuer ring" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource About.IssuerRing}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding TrustedIssuerDisplay}" Style="{StaticResource LicenseCodeValueStyle}" Margin="0,12,0,0"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Feature scope" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource About.FeatureScope}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
                             <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding FeatureSummaryDisplay}" Style="{StaticResource LicenseFieldValueStyle}" Margin="0,12,0,4"/>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Features" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource Settings.SecFeatures}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,12,0,0"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding FeaturesDisplay}" Style="{StaticResource LicenseFieldValueStyle}" Margin="0,12,0,0"/>
                         </Grid>
                     </StackPanel>
@@ -230,7 +230,7 @@
                     Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVis}}"
                     Margin="0,0,0,18">
                 <StackPanel>
-                    <TextBlock Text="IDENTIFIERS &amp; MACHINE SCOPE"
+                    <TextBlock Text="{DynamicResource About.IdentifiersMachineScope}"
                                Style="{StaticResource AboutPanelKickerStyle}"/>
                     <Grid Margin="0,4,0,0">
                         <Grid.ColumnDefinitions>
@@ -244,26 +244,26 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="License ID" Style="{StaticResource LicenseFieldLabelStyle}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource About.LicenseID}" Style="{StaticResource LicenseFieldLabelStyle}"/>
                         <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding LicenseIdDisplay}" Style="{StaticResource LicenseCodeValueStyle}" Margin="0,0,0,0"/>
                         <Button Grid.Row="0" Grid.Column="2"
                                 Style="{StaticResource AboutPillButtonStyle}"
                                 Click="CopyLicenseIdButton_Click"
                                 Margin="14,0,0,0"
                                 VerticalAlignment="Top"
-                                Content="COPY ID"/>
+                                Content="{DynamicResource About.COPYID}"/>
 
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Licensed to" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,14,0,0"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource About.Licensed}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,14,0,0"/>
                         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MachineFingerprint}" Style="{StaticResource LicenseCodeValueStyle}" Margin="0,14,0,0"/>
 
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="This machine" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,14,0,0"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource About.Machine}" Style="{StaticResource LicenseFieldLabelStyle}" Margin="0,14,0,0"/>
                         <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CurrentFingerprint}" Style="{StaticResource LicenseCodeValueStyle}" Margin="0,14,0,0"/>
                         <Button Grid.Row="2" Grid.Column="2"
                                 Style="{StaticResource AboutPillButtonStyle}"
                                 Click="CopyFingerprintButton_Click"
                                 Margin="14,14,0,0"
                                 VerticalAlignment="Top"
-                                Content="COPY FINGERPRINT"/>
+                                Content="{DynamicResource About.COPYFingerprint}"/>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -271,7 +271,7 @@
             <Border Style="{StaticResource LicensePanelStyle}"
                     Visibility="{Binding HasNotes, Converter={StaticResource BoolToVis}}">
                 <StackPanel>
-                    <TextBlock Text="ISSUER NOTES"
+                    <TextBlock Text="{DynamicResource About.IssuerNotes}"
                                Style="{StaticResource AboutPanelKickerStyle}"/>
                     <TextBlock Text="{Binding NotesDisplay}"
                                Style="{StaticResource LicenseFieldValueStyle}"

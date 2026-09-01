@@ -319,7 +319,7 @@
                         <TextBlock Text="&#xE735;" Style="{StaticResource ChipGlyphStyle}"/>
                         <TextBlock Style="{StaticResource ChipTextStyle}">
                             <Run Text="{DynamicResource Splash.Enterprise}"/>
-                            <Run Text=" · v"/>
+                            <Run Text="{DynamicResource Splash.V}"/>
                             <Run Text="{x:Static updates:AppInfo.Version}"/>
                         </TextBlock>
                     </StackPanel>
@@ -458,9 +458,9 @@
                            Opacity="0.8"
                            HorizontalAlignment="Center">
                     <Run Text="{DynamicResource Splash.Copyright}"/>
-                    <Run Text="  ·  v"/>
+                    <Run Text="{DynamicResource Splash.V}"/>
                     <Run Text="{x:Static updates:AppInfo.Version}"/>
-                    <Run Text="  ·  Baraut, Uttar Pradesh, India"/>
+                    <Run Text="{DynamicResource Splash.BarautUttarPradeshIndia}"/>
                 </TextBlock>
             </Border>
         </Grid>
@@ -537,39 +537,39 @@
                                TextWrapping="Wrap">
                         <Run Text="{DynamicResource Splash.Term1}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
-                        <Run Text="This software assists with preparing tax invoices and records. Federal Decree-Law No. 8 of 2017 on Value Added Tax and Federal Decree-Law No. 28 of 2022 on Tax Procedures place the obligation to issue correct tax invoices, apply the correct VAT treatment, and retain records for the periods required by the Federal Tax Authority on YOU, the taxable person. You must verify every figure before issuing, filing or relying on it."/>
+                        <Run Text="{DynamicResource Splash.SoftwareAssistsPreparingTaxInvoicesRecords}"/>
                         <LineBreak/><LineBreak/>
                         <Run Text="{DynamicResource Splash.Term2}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
-                        <Run Text="UAE tax law requires accounting records and tax invoices to be retained for the statutory period — generally five years, and longer for real-estate records. All data is stored locally on this computer only. Maintaining backups sufficient to meet that obligation is your responsibility."/>
+                        <Run Text="{DynamicResource Splash.UAETaxLawRequiresAccountingRecordsTax}"/>
                         <LineBreak/><LineBreak/>
                         <Run Text="{DynamicResource Splash.Term3}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
-                        <Run Text="Federal Decree-Law No. 46 of 2021 on Electronic Transactions and Trust Services governs electronic records in the UAE. Documents produced here are electronic records; you are responsible for their integrity, storage, and any signature requirements applicable to your business."/>
+                        <Run Text="{DynamicResource Splash.FederalDecreeLawNo462021Electronic}"/>
                         <LineBreak/><LineBreak/>
                         <Run Text="{DynamicResource Splash.Term4}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
-                        <Run Text="Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data applies to personal data you enter, such as customer and contact details. You act as the data controller. If you enable the optional AI assistant with real business data, customer names, project names and amounts are transmitted to a third-party AI provider outside this device. That feature is optional and can be switched off at any time in Settings."/>
+                        <Run Text="{DynamicResource Splash.FederalDecreeLawNo452021ProtectionPersonal}"/>
                         <LineBreak/><LineBreak/>
                         <Run Text="{DynamicResource Splash.Term5}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
-                        <Run Text="You are granted a non-transferable licence to use this software for your business. The software, its design and its source remain the property of the author. You may not resell, sublicense, or redistribute it."/>
+                        <Run Text="{DynamicResource Splash.GrantedNonTransferableLicenceUseSoftware}"/>
                         <LineBreak/><LineBreak/>
                         <Run Text="{DynamicResource Splash.Term6}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
-                        <Run Text="You agree not to use this software to produce false, misleading or fraudulent invoices or records, or for any purpose unlawful under UAE federal or emirate law."/>
+                        <Run Text="{DynamicResource Splash.AgreeUseSoftwareProduceFalseMisleading}"/>
                         <LineBreak/><LineBreak/>
                         <Run Text="{DynamicResource Splash.Term7}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
-                        <Run Text="The software is provided 'as is', without warranty of any kind, express or implied. Pricing, costing, VAT and profit calculations are aids, not professional advice. To the maximum extent permitted by law, no liability is accepted for any direct, indirect or consequential loss arising from use of, or reliance on, its output. Consult a qualified tax adviser regarding your obligations."/>
+                        <Run Text="{DynamicResource Splash.SoftwareProvidedWithoutWarrantyKindExpress}"/>
                         <LineBreak/><LineBreak/>
                         <Run Text="{DynamicResource Splash.Term8}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
-                        <Run Text="Updates may be offered from time to time. Installing them is your choice; continuing to use an outdated version may affect compliance with changing tax rules."/>
+                        <Run Text="{DynamicResource Splash.UpdatesMayOfferedTimeTimeInstallingChoice}"/>
                         <LineBreak/><LineBreak/>
                         <Run Text="{DynamicResource Splash.Term9}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
-                        <Run Text="These terms are governed by the laws of the United Arab Emirates and of the Emirate in which you operate. Disputes are subject to the competent UAE courts."/>
+                        <Run Text="{DynamicResource Splash.TermsGovernedLawsUnitedArabEmiratesEmirate}"/>
                     </TextBlock>
                 </ScrollViewer>
             </Border>

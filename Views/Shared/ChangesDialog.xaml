@@ -14,7 +14,7 @@
              TextOptions.TextHintingMode="Fixed"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Changes"
+        Title="{DynamicResource Shared.Changes}"
         Width="640" Height="520"
         MinWidth="480" MinHeight="320"
         WindowStartupLocation="CenterOwner"
@@ -31,7 +31,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="0,0,0,14">
-            <TextBlock Text="What changed"
+            <TextBlock Text="{DynamicResource Shared.WhatChanged}"
                        FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
             <TextBlock x:Name="SubtitleText"
@@ -140,7 +140,7 @@
                     </Border>
                 </ControlTemplate>
             </Button.Template>
-            <TextBlock Text="Close" Foreground="White"
+            <TextBlock Text="{DynamicResource Action.Close}" Foreground="White"
                        FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"/>
         </Button>
     </Grid>

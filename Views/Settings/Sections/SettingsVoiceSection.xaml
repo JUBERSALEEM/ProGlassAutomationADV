@@ -39,8 +39,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="Voice" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Offline speech-to-text with OpenAI Whisper — 95%+ accuracy, no cloud."
+            <TextBlock Text="{DynamicResource Settings.SecVoice}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo}"
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -55,9 +55,9 @@
             <StackPanel Margin="32,0,32,32">
 
                 <!-- ═════════ GROUP: WHISPER MODEL ═════════ -->
-                <TextBlock Text="WHISPER MODEL"
+                <TextBlock Text="{DynamicResource Settings.WhisperModel}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Pick a model size and download it once. Larger models are more accurate but bigger and slower."
+                <TextBlock Text="{DynamicResource Settings.PickModelSizeDownloadOnceLargerModelsMore}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -67,10 +67,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE720;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Choose a Model"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ChooseModel}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Click a card to select it. Only one model is active at a time; you can switch or delete freely."/>
+                                       Text="{DynamicResource Settings.ClickCardSelectOneModelActiveTimeSwitch}"/>
 
                             <ItemsControl ItemsSource="{Binding WhisperModelOptions}">
                                 <ItemsControl.ItemTemplate>
@@ -105,9 +105,9 @@
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                IsHitTestVisible="False">
                                                         <Run Text="{Binding SizeMB, Mode=OneWay}"/>
-                                                        <Run Text=" MB · "/>
+                                                        <Run Text="{DynamicResource Settings.MB}"/>
                                                         <Run Text="{Binding Accuracy, Mode=OneWay}"/>
-                                                        <Run Text=" accuracy · "/>
+                                                        <Run Text="{DynamicResource Settings.Accuracy}"/>
                                                         <Run Text="{Binding Speed, Mode=OneWay}"/>
                                                     </TextBlock>
                                                     <TextBlock Text="{Binding Description}"
@@ -141,9 +141,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═════════ GROUP: STATUS ═════════ -->
-                <TextBlock Text="STATUS"
+                <TextBlock Text="{DynamicResource Common.Status}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Where the selected model stands — download, cancel, delete."
+                <TextBlock Text="{DynamicResource Settings.WhereSelectedModelStandsDownloadCancelDelete}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -289,7 +289,7 @@
                                 </Button>
                                 <Button Grid.Column="1"
                                         Style="{StaticResource OutlinedPillButton}"
-                                        Tag="&#xE711;" Content="CANCEL"
+                                        Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
                                         Command="{Binding CancelDownloadCommand}"
                                         Margin="0,0,8,0"
                                         HorizontalAlignment="Stretch"
@@ -297,7 +297,7 @@
                                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <Button Grid.Column="2"
                                         Style="{StaticResource DangerButton}"
-                                        Tag="&#xE74D;" Content="DELETE MODEL"
+                                        Tag="&#xE74D;" Content="{DynamicResource Settings.DeleteModel}"
                                         Command="{Binding DeleteWhisperModelCommand}"
                                         HorizontalAlignment="Stretch"
                                         Visibility="{Binding IsWhisperModelReady,
@@ -324,7 +324,7 @@
                             </TextBlock>
 
                             <!-- File location -->
-                            <TextBlock Text="MODEL STORED AT"
+                            <TextBlock Text="{DynamicResource Settings.ModelStored}"
                                        Style="{StaticResource LabelStyle}"
                                        Margin="0,12,0,4"
                                        Visibility="{Binding IsWhisperModelReady,

@@ -80,7 +80,7 @@
                              Fill="{DynamicResource AccentBrush}"
                              VerticalAlignment="Center"
                              IsHitTestVisible="False"/>
-                    <TextBlock Text="COMING SOON"
+                    <TextBlock Text="{DynamicResource Shared.ComingSOON}"
                                FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}"
@@ -111,7 +111,7 @@
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
             <!-- ══ Roadmap hint ═══════════════════════════════════════ -->
-            <TextBlock Text="This module is in development and will be available in an upcoming release."
+            <TextBlock Text="{DynamicResource Shared.ModuleDevelopmentAvailableUpcomingRelease}"
                        FontSize="{StaticResource TextBody}"
                        FontStyle="Italic"
                        HorizontalAlignment="Center"

@@ -31,19 +31,19 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Job Orders"
+                    <TextBlock Text="{DynamicResource Dashboard.JobOrders}"
                                Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="Track production of approved invoices on the shop floor"
+                    <TextBlock Text="{DynamicResource JobOrder.TrackProductionApprovedInvoicesShopFloor}"
                                Style="{StaticResource ModulePageSubtitleStyle}"/>
                 </StackPanel>
                 <Button Grid.Column="1"
                         Style="{StaticResource PrimaryPillButton}"
                         Command="{Binding CreateJobOrderCommand}"
                         Tag="&#xE710;"
-                        Content="CREATE JOB ORDER"
+                        Content="{DynamicResource JobOrder.CreateJOBOrder}"
                         MinWidth="190"
                         VerticalAlignment="Center"
-                        ToolTip="Raise a job order from an approved Proforma Invoice"/>
+                        ToolTip="{DynamicResource JobOrder.RaiseJobOrderApprovedProformaInvoice}"/>
             </Grid>
 
             <loading:LoadingStateControl
@@ -91,10 +91,10 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Total" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Total}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding TotalCount}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="All job orders"
+                                <TextBlock Text="{DynamicResource JobOrder.JobOrders}"
                                            Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -109,10 +109,10 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="In production" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Dashboard.Production}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding InProductionCount}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="On the shop floor"
+                                <TextBlock Text="{DynamicResource JobOrder.ShopFloor}"
                                            Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -127,10 +127,10 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Completed" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource JobOrder.Completed}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding CompletedCount}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Finished jobs"
+                                <TextBlock Text="{DynamicResource JobOrder.FinishedJobs}"
                                            Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -145,7 +145,7 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Overdue" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Overdue}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding OverdueCount}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleListKpiValueStyle}">
@@ -159,7 +159,7 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <TextBlock Text="Past delivery date"
+                                <TextBlock Text="{DynamicResource JobOrder.PastDeliveryDate}"
                                            Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -180,7 +180,7 @@
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModuleListFilterInputStyle}"
                                  Margin="0,0,8,0"
-                                 ToolTip="Search job, customer, project, PI"/>
+                                 ToolTip="{DynamicResource JobOrder.SearchJobCustomerProjectPI}"/>
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding StatusFilterOptions}"
                                   SelectedItem="{Binding SelectedStatusFilter}"
@@ -197,13 +197,13 @@
                                   Style="{StaticResource ModuleListFilterComboStyle}"
                                   Margin="0,0,8,0"/>
                         <Button Grid.Column="4" Style="{StaticResource OutlinedPillButton}"
-                                Tag="&#xE711;" Content="CLEAR"
+                                Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
                                 Margin="0,0,8,0"
-                                ToolTip="Clear filters"
+                                ToolTip="{DynamicResource Action.ClearFilters}"
                                 Command="{Binding ClearFiltersCommand}"/>
                         <Button Grid.Column="5" Style="{StaticResource PrimaryPillButton}"
-                                Tag="&#xE72C;" Content="REFRESH"
-                                ToolTip="Refresh list"
+                                Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
+                                ToolTip="{DynamicResource JobOrder.RefreshList}"
                                 Command="{Binding RefreshCommand}"/>
                     </Grid>
                 </Border>
@@ -221,15 +221,15 @@
                             <ColumnDefinition Width="100"/>
                             <ColumnDefinition Width="160"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="JOB ORDER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="3" Text="DELIVERY" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="5" Text="VALUE (AED)" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Common.JobOrder}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource Nav.Delivery}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="{DynamicResource JobOrder.ValueAED}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Right" Margin="0,0,12,0"/>
-                        <TextBlock Grid.Column="6" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="7" Text="PRIORITY" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="7" Text="{DynamicResource Common.Priority}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
                     </Grid>
                 </Border>
@@ -303,7 +303,7 @@
                                                         Margin="0,0,6,0">
                                                     <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource AccentBrush}">
-                                                        <Run Text="From "/><Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
+                                                        <Run Text="{DynamicResource Common.From}"/><Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
                                                     </TextBlock>
                                                 </Border>
                                                 <Border CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -368,7 +368,7 @@
                                                     HorizontalAlignment="Center"
                                                     Background="{Binding StatusBrushKey,
                                                                  Converter={StaticResource BrushKeyConverter}}"
-                                                    ToolTip="Production status">
+                                                    ToolTip="{DynamicResource JobOrder.ProductionStatus}">
                                                 <TextBlock Text="{Binding StatusLabel}"
                                                            FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                            Foreground="White"/>
@@ -379,7 +379,7 @@
                                                     HorizontalAlignment="Center"
                                                     Background="{Binding DisplayStatusBrushKey,
                                                                  Converter={StaticResource BrushKeyConverter}}"
-                                                    ToolTip="Delivery status">
+                                                    ToolTip="{DynamicResource JobOrder.DeliveryStatus}">
                                                 <TextBlock Text="{Binding DisplayStatus}"
                                                            FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                            Foreground="White"/>
@@ -403,15 +403,15 @@
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center">
                                             <Button Style="{StaticResource RowPrimaryButton}"
-                                                    Tag="&#xE8E5;" Content="OPEN"
-                                                    ToolTip="Open this job order"
+                                                    Tag="&#xE8E5;" Content="{DynamicResource Action.Open}"
+                                                    ToolTip="{DynamicResource JobOrder.OpenJobOrder}"
                                                     Command="{Binding DataContext.OpenJobOrderCommand,
                                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}"/>
                                             <Button Style="{StaticResource RowOutlinedButton}"
-                                                    Tag="&#xE81C;" Content="HISTORY"
+                                                    Tag="&#xE81C;" Content="{DynamicResource DeliveryNote.History}"
                                                     Margin="6,0,0,0"
-                                                    ToolTip="Version history"
+                                                    ToolTip="{DynamicResource Common.VersionHistory}"
                                                     Command="{Binding DataContext.ShowVersionsCommand,
                                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}"/>
@@ -441,7 +441,7 @@
                         </StackPanel.Style>
                         <emptyState:EmptyStateControl
                             Icon="&#xE8C8;"
-                            Title="No job orders yet"
+                            Title="{DynamicResource Dashboard.NoJobOrdersYet}"
                             Message="Job orders track production for approved invoices. Convert a Proforma Invoice into a Job Order and it will appear here with its status, priority and delivery schedule."/>
                     </StackPanel>
                 </Grid>

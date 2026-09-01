@@ -30,7 +30,7 @@
                     Background="{DynamicResource AccentBrush}"
                     CornerRadius="16,16,0,0"
                     Padding="18,12">
-                <TextBlock Text="Recent Activity"
+                <TextBlock Text="{DynamicResource ToolTip.RecentActivity}"
                            FontSize="{StaticResource TextSection}" FontWeight="Bold"
                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
             </Border>

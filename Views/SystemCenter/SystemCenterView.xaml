@@ -76,13 +76,13 @@
                            FontSize="{StaticResource TextTitle}" VerticalAlignment="Center"
                            Margin="0,0,10,0"
                            Foreground="{DynamicResource AccentBrush}"/>
-                <TextBlock Text="System Center"
+                <TextBlock Text="{DynamicResource Module.SystemCenter}"
                            FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
             </StackPanel>
             <TextBlock FontSize="{StaticResource TextBody}" Margin="0,3,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}">
-                <Run Text="User management &amp; audit trail — signed in as "/>
+                <Run Text="{DynamicResource SystemCenter.UserManagementAuditTrailSigned}"/>
                 <Run Text="{Binding CurrentUserDisplay, Mode=OneWay}"
                      FontWeight="Bold"/>
             </TextBlock>
@@ -97,8 +97,8 @@
                 <!-- TAB Users — STEP D two-button visibility pattern -->
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Users"
-                        Tag="&#xE716;" Content="USERS"
-                        ToolTip="Manage users" Margin="0,0,10,0">
+                        Tag="&#xE716;" Content="{DynamicResource SystemCenter.Users}"
+                        ToolTip="{DynamicResource SystemCenter.ManageUsers}" Margin="0,0,10,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
@@ -111,8 +111,8 @@
                 </Button>
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Users"
-                        Tag="&#xE716;" Content="USERS"
-                        ToolTip="Manage users" Margin="0,0,10,0">
+                        Tag="&#xE716;" Content="{DynamicResource SystemCenter.Users}"
+                        ToolTip="{DynamicResource SystemCenter.ManageUsers}" Margin="0,0,10,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
@@ -127,8 +127,8 @@
                 <!-- TAB Activity — STEP D two-button visibility pattern -->
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Activity"
-                        Tag="&#xE81C;" Content="ACTIVITY LOG"
-                        ToolTip="Audit trail of every recorded action"
+                        Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ActivityLOG}"
+                        ToolTip="{DynamicResource SystemCenter.AuditTrailRecordedAction}"
                         Margin="0,0,10,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
@@ -142,8 +142,8 @@
                 </Button>
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Activity"
-                        Tag="&#xE81C;" Content="ACTIVITY LOG"
-                        ToolTip="Audit trail of every recorded action"
+                        Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ActivityLOG}"
+                        ToolTip="{DynamicResource SystemCenter.AuditTrailRecordedAction}"
                         Margin="0,0,10,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
@@ -192,29 +192,29 @@
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
-                            <TextBlock Text="Create User"
+                            <TextBlock Text="{DynamicResource SystemCenter.CreateUSER}"
                                        FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
 
-                        <TextBlock Text="USERNAME" Style="{StaticResource ScFieldLabel}"/>
+                        <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource ScFieldLabel}"/>
                         <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding NewUsername, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="DISPLAY NAME" Style="{StaticResource ScFieldLabel}"
+                        <TextBlock Text="{DynamicResource Login.DisplayNAME}" Style="{StaticResource ScFieldLabel}"
                                    Margin="0,10,0,5"/>
                         <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding NewDisplayName, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="ROLE" Style="{StaticResource ScFieldLabel}"
+                        <TextBlock Text="{DynamicResource SystemCenter.ROLE}" Style="{StaticResource ScFieldLabel}"
                                    Margin="0,10,0,5"/>
                         <ComboBox ItemsSource="{Binding RoleOptions}"
                                   SelectedItem="{Binding SelectedRole}"
                                   Padding="10,7"
                                   FontSize="{StaticResource TextBodyLarge}"/>
 
-                        <TextBlock Text="PASSWORD" Style="{StaticResource ScFieldLabel}"
+                        <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource ScFieldLabel}"
                                    Margin="0,10,0,5"/>
                         <PasswordBox x:Name="NewPasswordBox"
                                      Padding="10,7"
@@ -227,8 +227,8 @@
                         <Button Style="{StaticResource PrimaryPillButton}"
                                 Margin="0,16,0,0"
                                 HorizontalAlignment="Stretch"
-                                Tag="&#xE710;" Content="CREATE USER"
-                                ToolTip="Create the new user account"
+                                Tag="&#xE710;" Content="{DynamicResource SystemCenter.CreateUSER}"
+                                ToolTip="{DynamicResource SystemCenter.CreateNewUserAccount}"
                                 Command="{Binding CreateUserCommand}"/>
 
                         <TextBlock Text="{Binding UserFormMessage}"
@@ -253,21 +253,21 @@
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
-                            <TextBlock Text="Switch Active User"
+                            <TextBlock Text="{DynamicResource SystemCenter.SwitchActiveUser}"
                                        FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="All future actions are recorded under the active user."
+                        <TextBlock Text="{DynamicResource SystemCenter.FutureActionsRecordedActiveUser}"
                                    FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="0,0,0,12"/>
 
-                        <TextBlock Text="USERNAME" Style="{StaticResource ScFieldLabel}"/>
+                        <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource ScFieldLabel}"/>
                         <TextBox Style="{StaticResource ScTextBox}"
                                  Text="{Binding SwitchUsername, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="PASSWORD" Style="{StaticResource ScFieldLabel}"
+                        <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource ScFieldLabel}"
                                    Margin="0,10,0,5"/>
                         <PasswordBox x:Name="SwitchPasswordBox"
                                      Padding="10,7"
@@ -280,8 +280,8 @@
                         <Button Style="{StaticResource PrimaryPillButton}"
                                 Margin="0,16,0,0"
                                 HorizontalAlignment="Stretch"
-                                Tag="&#xE895;" Content="SWITCH USER"
-                                ToolTip="Sign in as this user"
+                                Tag="&#xE895;" Content="{DynamicResource Login.SwitchUser}"
+                                ToolTip="{DynamicResource SystemCenter.SignUser}"
                                 Command="{Binding SwitchUserCommand}"/>
 
                         <TextBlock Text="{Binding SwitchMessage}"
@@ -307,18 +307,18 @@
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
-                            <TextBlock Text="Online On Your Network"
+                            <TextBlock Text="{DynamicResource SystemCenter.OnlineNetwork}"
                                        FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="Colleagues running ProGlass on the same LAN appear here automatically."
+                        <TextBlock Text="{DynamicResource SystemCenter.ColleaguesRunningProglassLANAppearHere}"
                                    FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="0,0,0,10"/>
 
                         <!-- Empty state -->
-                        <TextBlock Text="No other users detected right now."
+                        <TextBlock Text="{DynamicResource SystemCenter.NoOtherUsersDetectedRightNow}"
                                    FontSize="{StaticResource TextBody}" FontStyle="Italic">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -393,12 +393,12 @@
                                 <ColumnDefinition Width="90"/>
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="USER" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="1" Text="ROLE &amp; PERMISSIONS"
+                            <TextBlock Grid.Column="0" Text="{DynamicResource SystemCenter.USER}" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource SystemCenter.ROLEPermissions}"
                                        Margin="12,0,0,0" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="2" Text="STATUS"
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Status}"
                                        HorizontalAlignment="Center" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="3" Text="ACTION"
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Shared.Action}"
                                        HorizontalAlignment="Center" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </Grid>
                     </Border>
@@ -463,7 +463,7 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
-                                                    <TextBlock Text="ACTIVE NOW"
+                                                    <TextBlock Text="{DynamicResource SystemCenter.ActiveNOW}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource SuccessBrush}"/>
                                                 </Border>
@@ -475,7 +475,7 @@
                                                 <Run Text="{Binding RoleBadge, Mode=OneWay}"/>
                                                 <Run Text="  •  "/>
                                                 <Run Text="{Binding PermissionCount, Mode=OneWay}"/>
-                                                <Run Text="  •  since "/>
+                                                <Run Text="{DynamicResource SystemCenter.Since}"/>
                                                 <Run Text="{Binding CreatedDisplay, Mode=OneWay}"/>
                                             </TextBlock>
                                         </StackPanel>
@@ -501,8 +501,8 @@
                                         </TextBlock>
 
                                         <Button Grid.Column="3"
-                                                Tag="&#xE74D;" Content="DEACTIVATE"
-                                                ToolTip="Disable this user account"
+                                                Tag="&#xE74D;" Content="{DynamicResource SystemCenter.Deactivate}"
+                                                ToolTip="{DynamicResource SystemCenter.DisableUserAccount}"
                                                 MinWidth="92"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
@@ -521,8 +521,8 @@
                                             </Button.Style>
                                         </Button>
                                         <Button Grid.Column="3"
-                                                Tag="&#xE73E;" Content="ACTIVATE"
-                                                ToolTip="Re-enable this user account"
+                                                Tag="&#xE73E;" Content="{DynamicResource SystemCenter.Activate}"
+                                                ToolTip="{DynamicResource SystemCenter.ReEnableUserAccount}"
                                                 MinWidth="92"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
@@ -572,7 +572,7 @@
                         Orientation="Horizontal"
                         Margin="0,0,0,12">
 
-                <TextBlock Text="Section:"
+                <TextBlock Text="{DynamicResource SystemCenter.Section}"
                            FontSize="{StaticResource TextBody}"
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -586,8 +586,8 @@
 
                 <Button Style="{StaticResource PrimaryPillButton}"
                         Margin="12,0,0,0"
-                        Tag="&#xE72C;" Content="REFRESH"
-                        ToolTip="Reload the activity log"
+                        Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
+                        ToolTip="{DynamicResource SystemCenter.ReloadActivityLog}"
                         Command="{Binding RefreshActivityCommand}"/>
             </StackPanel>
 
@@ -613,11 +613,11 @@
                                 <ColumnDefinition Width="150"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="TIME" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="1" Text="SECTION" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="2" Text="ACTION"
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Diagnostics.TIME}" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource SystemCenter.Section}" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Shared.Action}"
                                        Margin="10,0,0,0" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="3" Text="DETAILS"
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Shared.Details}"
                                        Margin="10,0,0,0" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </Grid>
                     </Border>
@@ -639,12 +639,12 @@
                                    Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center"
                                    Opacity="0.6"/>
-                        <TextBlock Text="No activity recorded yet"
+                        <TextBlock Text="{DynamicResource Shared.NoActivityRecordedYet}"
                                    FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
                                    Margin="0,10,0,3"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="Every action in every section is recorded here automatically."
+                        <TextBlock Text="{DynamicResource SystemCenter.ActionSectionRecordedHereAutomatically}"
                                    FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>

@@ -497,17 +497,17 @@
                                     CornerRadius="3"
                                     VerticalAlignment="Center"
                                     Margin="0,0,10,0"/>
-                            <TextBlock Text="STEP 1 OF 4"
+                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.STEP14}"
                                        FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource IndigoPrimary}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="Filter Criteria"
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.FilterCriteria}"
                                    FontSize="30"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource TextPrimary}"/>
-                        <TextBlock Text="Narrow invoices by company, salesman, customer, project, dates, or status. Preview updates automatically as you type."
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.NarrowInvoicesCompanySalesmanCustomerProject}"
                                    FontSize="{StaticResource TextSection}"
                                    Foreground="{StaticResource TextSecondary}"
                                    TextWrapping="Wrap"
@@ -533,7 +533,7 @@
                                         Margin="0,0,10,0"
                                         Background="{StaticResource GreenLed}"
                                         Effect="{StaticResource GreenLedGlow}"/>
-                                <TextBlock Text="LIVE MATCH COUNT"
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.LIVEMatchCount}"
                                            FontSize="{StaticResource TextCaption}"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextMuted}"
@@ -591,11 +591,11 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Statement Filters"
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.StatementFilters}"
                                            FontSize="{StaticResource TextTitle}"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextPrimary}"/>
-                                <TextBlock Text="Configure business dimensions and invoice status"
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.ConfigureBusinessDimensionsInvoiceStatus}"
                                            FontSize="{StaticResource TextBodyLarge}"
                                            Foreground="{StaticResource TextSecondary}"
                                            Margin="0,4,0,0"/>
@@ -609,7 +609,7 @@
                                     BorderThickness="0"
                                     Background="Transparent"
                                     VerticalAlignment="Center"
-                                    ToolTip="Reset all filter values"
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.ResetFilterValues}"
                                     FocusVisualStyle="{x:Null}">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
@@ -630,7 +630,7 @@
                                                       VerticalAlignment="Center"
                                                       Margin="0,0,12,0"/>
                                                 <TextBlock x:Name="tx"
-                                                           Text="Clear filters"
+                                                           Text="{DynamicResource Action.ClearFilters}"
                                                            FontSize="{StaticResource TextBodyLarge}"
                                                            FontWeight="SemiBold"
                                                            Foreground="{StaticResource TextPrimary}"
@@ -683,7 +683,7 @@
                                             VerticalAlignment="Center"
                                             Margin="0,0,12,0"
                                             Background="{StaticResource IndigoAccentBar}"/>
-                                    <TextBlock Text="BUSINESS DIMENSIONS"
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.BusinessDimensions}"
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
                                                Foreground="{DynamicResource IndigoPrimary}"
@@ -691,46 +691,46 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="2" Grid.Column="0">
-                                    <TextBlock Text="Company" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource LiquidFieldLabelStyle}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Companies}"
                                               Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"
-                                              ToolTip="Select the supplier / factory company"/>
+                                              ToolTip="{DynamicResource Reports.StatementGenerator.SelectSupplierFactoryCompany}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="2" Grid.Column="2">
-                                    <TextBlock Text="Salesman" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource LiquidFieldLabelStyle}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Salesmen}"
                                               Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"
-                                              ToolTip="Filter by sales representative"/>
+                                              ToolTip="{DynamicResource Reports.DeliveryReport.FilterSalesRepresentative}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="4" Grid.Column="0">
-                                    <TextBlock Text="Customer" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource LiquidFieldLabelStyle}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Customers}"
                                               Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"
-                                              ToolTip="Select the billing customer"/>
+                                              ToolTip="{DynamicResource Reports.StatementGenerator.SelectBillingCustomer}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="4" Grid.Column="2">
-                                    <TextBlock Text="Project" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource LiquidFieldLabelStyle}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Projects}"
                                               Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"
-                                              ToolTip="Filter by project reference"/>
+                                              ToolTip="{DynamicResource Reports.StatementGenerator.FilterProjectReference}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="6" Grid.Column="0">
-                                    <TextBlock Text="Date From" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Date2}" Style="{StaticResource LiquidFieldLabelStyle}"/>
                                     <DatePicker Style="{StaticResource LiquidDatePickerStyle}"
                                                 SelectedDate="{Binding DateFrom}"
-                                                ToolTip="Invoices issued on or after this date"/>
+                                                ToolTip="{DynamicResource Reports.StatementGenerator.InvoicesIssuedAfterDate}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="6" Grid.Column="2">
-                                    <TextBlock Text="Date To" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Date}" Style="{StaticResource LiquidFieldLabelStyle}"/>
                                     <DatePicker Style="{StaticResource LiquidDatePickerStyle}"
                                                 SelectedDate="{Binding DateTo}"
-                                                ToolTip="Invoices issued on or before this date"/>
+                                                ToolTip="{DynamicResource Reports.StatementGenerator.InvoicesIssuedBeforeDate}"/>
                                 </StackPanel>
                             </Grid>
 
@@ -749,14 +749,14 @@
                                             VerticalAlignment="Center"
                                             Margin="0,0,12,0"
                                             Background="{StaticResource CyanAccentBar}"/>
-                                    <TextBlock Text="INVOICE STATUS"
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.InvoiceStatus}"
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
                                                Foreground="{StaticResource CyanAccent}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
 
-                                <TextBlock Text="Select statuses to include"
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.SelectStatusesInclude}"
                                            FontSize="{StaticResource TextBodyLarge}"
                                            Foreground="{StaticResource TextSecondary}"
                                            Margin="0,6,0,16"/>
@@ -782,7 +782,7 @@
                                                                        FontSize="{StaticResource TextBody}"
                                                                        Foreground="White"
                                                                        TextWrapping="Wrap"/>
-                                                            <TextBlock Text="Click to toggle. Number shows current match count."
+                                                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.ClickToggleNumberShowsCurrentMatchCount}"
                                                                        FontSize="{StaticResource TextBody}"
                                                                        Foreground="{DynamicResource OutlineBrush}"
                                                                        TextWrapping="Wrap"
@@ -834,11 +834,11 @@
                             </Border>
 
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="PDF Generation Options"
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.PDFGenerationOptions}"
                                            FontSize="{StaticResource TextTitle}"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextPrimary}"/>
-                                <TextBlock Text="Choose what to include in the final merged report"
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.ChooseWhatIncludeFinalMergedReport}"
                                            FontSize="{StaticResource TextBodyLarge}"
                                            Foreground="{StaticResource TextSecondary}"
                                            Margin="0,4,0,0"/>
@@ -848,16 +848,16 @@
                         <UniformGrid Grid.Row="1" Rows="2" Columns="3"
                                      Margin="20,0,20,20">
                             <Border Style="{StaticResource PdfOptionCardStyle}"
-                                    ToolTip="Merge tax invoices, delivery notes, proforma invoices">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.MergeTaxInvoicesDeliveryNotesProforma}">
                                 <CheckBox IsChecked="{Binding IncludeAttachments}"
                                           Cursor="Hand"
                                           Padding="18,16"
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
-                                        <TextBlock Text="Include Attachments"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.IncludeAttachments}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
-                                        <TextBlock Text="Merge tax invoices &amp; delivery notes"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.MergeTaxInvoicesDeliveryNotes}"
                                                    FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
@@ -866,16 +866,16 @@
                             </Border>
 
                             <Border Style="{StaticResource PdfOptionCardStyle}"
-                                    ToolTip="Show delivery note line item details">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.ShowDeliveryNoteLineItemDetails}">
                                 <CheckBox IsChecked="{Binding IncludeDnDetails}"
                                           Cursor="Hand"
                                           Padding="18,16"
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
-                                        <TextBlock Text="DN Line Items"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.DNLineItems}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
-                                        <TextBlock Text="Show delivery note details in body"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.ShowDeliveryNoteDetailsBody}"
                                                    FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
@@ -884,16 +884,16 @@
                             </Border>
 
                             <Border Style="{StaticResource PdfOptionCardStyle}"
-                                    ToolTip="Add ordered-vs-delivered comparison table">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.AddOrderedVsDeliveredComparisonTable}">
                                 <CheckBox IsChecked="{Binding IncludeBalanceAnalysis}"
                                           Cursor="Hand"
                                           Padding="18,16"
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
-                                        <TextBlock Text="Balance Analysis"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.BalanceAnalysis}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
-                                        <TextBlock Text="Ordered vs delivered comparison"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.OrderedVsDeliveredComparison}"
                                                    FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
@@ -902,16 +902,16 @@
                             </Border>
 
                             <Border Style="{StaticResource PdfOptionCardStyle}"
-                                    ToolTip="Visual breakdown: 0-30, 31-60, 61-90, 90+ days">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.VisualBreakdown0303160619090Days}">
                                 <CheckBox IsChecked="{Binding IncludeAgingChart}"
                                           Cursor="Hand"
                                           Padding="18,16"
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
-                                        <TextBlock Text="Aging Chart"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.AgingChart}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
-                                        <TextBlock Text="Visual aging bucket breakdown"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.VisualAgingBucketBreakdown}"
                                                    FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
@@ -920,16 +920,16 @@
                             </Border>
 
                             <Border Style="{StaticResource PdfOptionCardStyle}"
-                                    ToolTip="Add placeholder pages for failed regenerations">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.AddPlaceholderPagesFailedRegenerations}">
                                 <CheckBox IsChecked="{Binding IncludeInsertPlaceholders}"
                                           Cursor="Hand"
                                           Padding="18,16"
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
-                                        <TextBlock Text="Insert Placeholders"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.InsertPlaceholders}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
-                                        <TextBlock Text="Pages for failed invoice regenerations"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.PagesFailedInvoiceRegenerations}"
                                                    FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
@@ -938,16 +938,16 @@
                             </Border>
 
                             <Border Style="{StaticResource PdfOptionCardStyle}"
-                                    ToolTip="Include warnings and alerts summary section">
+                                    ToolTip="{DynamicResource Reports.StatementGenerator.IncludeWarningsAlertsSummarySection}">
                                 <CheckBox IsChecked="{Binding IncludeWarningsSummary}"
                                           Cursor="Hand"
                                           Padding="18,16"
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
-                                        <TextBlock Text="Warnings Summary"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.WarningsSummary}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
-                                        <TextBlock Text="All alerts and warnings in report"
+                                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.AlertsWarningsReport}"
                                                    FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>

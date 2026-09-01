@@ -46,10 +46,10 @@
             <!-- HEADER -->
             <DockPanel Margin="0,0,0,18">
                 <StackPanel>
-                    <TextBlock Text="Company Center"
+                    <TextBlock Text="{DynamicResource Module.CompanyCenter}"
                                FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="Your companies — identity, TRN, banking and logo. The default company pre-fills every new proforma invoice."
+                    <TextBlock Text="{DynamicResource CompanyCenter.CompaniesIdentityTRNBankingLogoDefault}"
                                FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
@@ -57,10 +57,10 @@
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center">
                     <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE710;" Content="NEW COMPANY"
+                            Tag="&#xE710;" Content="{DynamicResource CompanyCenter.NEWCompany}"
                             Command="{Binding NewCompanyCommand}"/>
                     <Button Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE72C;" Content="REFRESH"
+                            Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
                             Command="{Binding RefreshCommand}"
                             Margin="10,0,0,0"/>
                 </StackPanel>
@@ -122,11 +122,11 @@
                                                    TextTrimming="CharacterEllipsis"/>
                                         <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                            <Run Text="TRN:"/>
+                                            <Run Text="{DynamicResource CompanyCenter.TRN}"/>
                                             <Run Text="{Binding CompanyTrn, Mode=OneWay}"/>
                                             <Run Text="  ·  "/>
                                             <Run Text="{Binding UsageCount, Mode=OneWay}"/>
-                                            <Run Text=" invoices"/>
+                                            <Run Text="{DynamicResource Common.Invoices}"/>
                                         </TextBlock>
                                     </StackPanel>
 
@@ -145,12 +145,12 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="DEFAULT" FontSize="{StaticResource TextCaption}"
+                                            <TextBlock Text="{DynamicResource CompanyCenter.Default}" FontSize="{StaticResource TextCaption}"
                                                        FontWeight="Bold"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>
                                         <Button Style="{StaticResource RowOutlinedButton}"
-                                                Tag="&#xE8E5;" Content="EDIT"
+                                                Tag="&#xE8E5;" Content="{DynamicResource Action.Edit}"
                                                 Command="{Binding DataContext.SelectCompanyCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
@@ -199,7 +199,7 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
-                                <TextBlock Text="COMPANY NAME *" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.CompanyNAME}" Style="{StaticResource CcFieldLabel}"/>
                                 <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource CcTextBox}"/>
                             </StackPanel>
@@ -210,13 +210,13 @@
                                          Style="{StaticResource CcTextBox}"/>
                             </StackPanel>
                             <StackPanel Grid.Row="2" Grid.Column="2">
-                                <TextBlock Text="LOCATION" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.Location}" Style="{StaticResource CcFieldLabel}"/>
                                 <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource CcTextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="4" Grid.Column="0">
-                                <TextBlock Text="REPRESENTATIVE" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.Representative}" Style="{StaticResource CcFieldLabel}"/>
                                 <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource CcTextBox}"/>
                             </StackPanel>
@@ -230,18 +230,18 @@
                             </StackPanel>
 
                             <StackPanel Grid.Row="6" Grid.Column="0">
-                                <TextBlock Text="COMPANY E-MAIL" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.CompanyEMAIL}" Style="{StaticResource CcFieldLabel}"/>
                                 <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource CcTextBox}"/>
                             </StackPanel>
                             <StackPanel Grid.Row="6" Grid.Column="2">
-                                <TextBlock Text="BANK NAME" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.BANKNAME}" Style="{StaticResource CcFieldLabel}"/>
                                 <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource CcTextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="8" Grid.ColumnSpan="3">
-                                <TextBlock Text="ACCOUNT NUMBER / IBAN" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.AccountNumberIBAN}" Style="{StaticResource CcFieldLabel}"/>
                                 <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource CcTextBox}"/>
                             </StackPanel>
@@ -250,10 +250,10 @@
                         <DockPanel Margin="0,16,0,0">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Button Style="{StaticResource OutlinedPillButton}"
-                                        Tag="&#xE8B9;" Content="CHOOSE LOGO"
+                                        Tag="&#xE8B9;" Content="{DynamicResource CompanyCenter.ChooseLOGO}"
                                         Command="{Binding PickLogoCommand}"/>
                                 <Button Style="{StaticResource RowOutlinedButton}"
-                                        Tag="&#xE711;" Content="CLEAR"
+                                        Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
                                         Command="{Binding ClearLogoCommand}"
                                         Margin="10,0,0,0"/>
                                 <TextBlock Text="{Binding LogoPath}"
@@ -263,7 +263,7 @@
                                            TextTrimming="CharacterEllipsis"
                                            MaxWidth="220"/>
                             </StackPanel>
-                            <CheckBox Content="Default company (pre-fills new invoices)"
+                            <CheckBox Content="{DynamicResource CompanyCenter.DefaultCompanyPreFillsNewInvoices}"
                                       IsChecked="{Binding IsDefaultCompany}"
                                       HorizontalAlignment="Right"
                                       VerticalAlignment="Center"/>
@@ -271,16 +271,16 @@
 
                         <!-- PHASE D — WHY note recorded with the audit entry -->
                         <StackPanel Margin="0,16,0,0">
-                            <TextBlock Text="WHY / NOTE (OPTIONAL — RECORDED IN THE AUDIT TRAIL)"
+                            <TextBlock Text="{DynamicResource CompanyCenter.WHYNOTEOptionalRecordedAuditTrail}"
                                        Style="{StaticResource CcFieldLabel}"/>
                             <TextBox Text="{Binding ReasonNote, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource CcTextBox}"
-                                     ToolTip="Reason for this change, e.g. 'TRN corrected after trade licence renewal'"/>
+                                     ToolTip="{DynamicResource CompanyCenter.ReasonChangeEGTRNCorrectedAfterTradeLicence}"/>
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                             <Button Style="{StaticResource SuccessPillButton}"
-                                    Tag="&#xE74E;" Content="SAVE COMPANY"
+                                    Tag="&#xE74E;" Content="{DynamicResource CompanyCenter.SAVECompany}"
                                     Command="{Binding SaveCompanyCommand}"/>
                         </StackPanel>
 

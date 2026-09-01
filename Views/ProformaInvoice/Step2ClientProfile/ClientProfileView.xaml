@@ -30,12 +30,12 @@
                 <Border Style="{StaticResource PiStationIdentityStyle}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="02" Style="{StaticResource PiStationCodeStyle}"/>
-                        <TextBlock Text="CLIENT" Style="{StaticResource PiStationTitleStyle}"/>
-                        <TextBlock Text="Bill-to party, TRN and sales contact"
+                        <TextBlock Text="{DynamicResource JobOrder.Client}" Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.BillPartyTRNSalesContact}"
                                    Style="{StaticResource PiStationHintStyle}"/>
                     </StackPanel>
                 </Border>
-                <TextBlock Text="BILL TO" Style="{StaticResource PiSectionLabelStyle}"/>
+                <TextBlock Text="{DynamicResource ProformaInvoice.BILL}" Style="{StaticResource PiSectionLabelStyle}"/>
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.3*"/><ColumnDefinition Width="12"/>
@@ -44,7 +44,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel>
                         <TextBlock Style="{StaticResource PiFieldLabelStyle}">
-                            <Run Text="CUSTOMER NAME"/><Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
+                            <Run Text="{DynamicResource ProformaInvoice.CustomerNAME}"/><Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
                         </TextBlock>
                         <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.CustomerName"
@@ -66,7 +66,7 @@
                                 Visibility="{Binding Path=ShowCustomerTrn,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="CUSTOMER TRN" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.CustomerTRN}" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding CustomerTrn, UpdateSourceTrigger=PropertyChanged}" MaxLength="15"
                                  AutomationProperties.AutomationId="ProformaInvoice.CustomerTrn"
                                  AutomationProperties.Name="Customer TRN"/>
@@ -87,7 +87,7 @@
                                 Visibility="{Binding Path=ShowCustomerReferenceCode,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="REFERENCE CODE" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.ReferenceCODE}" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding CustomerReferenceCode, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.CustomerReferenceCode"
                                  AutomationProperties.Name="Customer reference code"/>
@@ -103,7 +103,7 @@
                     <StackPanel Visibility="{Binding Path=ShowSalesRepresentative,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="SALES REPRESENTATIVE" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.SalesRepresentative}" Style="{StaticResource PiFieldLabelStyle}"/>
                         <Grid>
                             <ComboBox Style="{StaticResource PiEditableComboBoxStyle}"
                                       ItemsSource="{Binding SalesmanOptions}"
@@ -129,7 +129,7 @@
                                 Visibility="{Binding Path=ShowDocumentPreparedBy,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="PREPARED BY" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Inquiry.Prepared2}" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding DocumentPreparedBy, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.DocumentPreparedBy"
                                  AutomationProperties.Name="Prepared by"/>
@@ -138,7 +138,7 @@
                                 Visibility="{Binding Path=ShowAttentionExecutive,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="ATTENTION" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.Attention}" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding AttentionExecutiveName, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.AttentionExecutive"
                                  AutomationProperties.Name="Attention (Kind Attn.)"/>
@@ -165,7 +165,7 @@
                 <StackPanel Visibility="{Binding Path=ShowBillingAddress,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="BILLING ADDRESS" Style="{StaticResource PiFieldLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource ProformaInvoice.BillingAddress}" Style="{StaticResource PiFieldLabelStyle}"/>
                     <TextBox Text="{Binding BillingAddress, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True" TextWrapping="Wrap" Height="120" VerticalContentAlignment="Top"
                              AutomationProperties.AutomationId="ProformaInvoice.BillingAddress"
@@ -183,7 +183,7 @@
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>
-                    <Run Text="Loaded: "/><Run Text="{Binding LoadedProfileName, Mode=OneWay}" FontWeight="Bold"/>
+                    <Run Text="{DynamicResource ProformaInvoice.Loaded}"/><Run Text="{Binding LoadedProfileName, Mode=OneWay}" FontWeight="Bold"/>
                 </TextBlock>
             </StackPanel>
         </ScrollViewer>
@@ -192,14 +192,14 @@
 
         <DockPanel Grid.Column="2">
             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                <TextBlock Text="SAVED" Style="{StaticResource PiSectionLabelStyle}" Margin="0" VerticalAlignment="Center"/>
+                <TextBlock Text="{DynamicResource ProformaInvoice.Saved}" Style="{StaticResource PiSectionLabelStyle}" Margin="0" VerticalAlignment="Center"/>
                 <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
-                        Style="{StaticResource PiIconButtonStyle}" ToolTip="Refresh saved clients from database">
+                        Style="{StaticResource PiIconButtonStyle}" ToolTip="{DynamicResource ProformaInvoice.RefreshSavedClientsDatabase}">
                     <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </Button>
             </Grid>
-            <TextBlock DockPanel.Dock="Top" Text="Loading…" FontSize="{StaticResource TextBody}"
+            <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Common.Loading}" FontSize="{StaticResource TextBody}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,8">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
@@ -225,7 +225,7 @@
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
-            <TextBlock DockPanel.Dock="Top" Text="No saved clients yet."
+            <TextBlock DockPanel.Dock="Top" Text="{DynamicResource ProformaInvoice.NoSavedClientsYet}"
                        FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
@@ -251,7 +251,7 @@
                     </Style>
                 </Button.Style>
                 <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" TextDecorations="Underline">
-                    <Run Text="View all ("/><Run Text="{Binding TotalClientCount, Mode=OneWay}"/><Run Text=")"/>
+                    <Run Text="{DynamicResource ProformaInvoice.View}"/><Run Text="{Binding TotalClientCount, Mode=OneWay}"/><Run Text=")"/>
                 </TextBlock>
             </Button>
             <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -271,7 +271,7 @@
                     </ItemsControl.Style>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource PiListRowStyle}" ToolTip="Click to auto-fill all client details">
+                            <Border Style="{StaticResource PiListRowStyle}" ToolTip="{DynamicResource ProformaInvoice.ClickAutoFillClientDetails}">
                                 <Border.InputBindings>
                                     <MouseBinding MouseAction="LeftClick"
                                                   Command="{Binding DataContext.LoadClientCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"

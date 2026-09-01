@@ -37,15 +37,15 @@
 
     <StackPanel>
         <Grid Margin="0,0,0,8">
-            <TextBlock Text="TERMS CHECKLIST" Style="{StaticResource PiSectionLabelStyle}" Margin="0"/>
+            <TextBlock Text="{DynamicResource ProformaInvoice.TermsChecklist}" Style="{StaticResource PiSectionLabelStyle}" Margin="0"/>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Command="{Binding AddCustomClauseCommand}"
                         Style="{StaticResource PiGhostChipButton}"
                         Margin="0,0,8,0"
-                        Content="+ CLAUSE"/>
+                        Content="{DynamicResource ProformaInvoice.Clause}"/>
                     <Button Command="{Binding ResetToDefaultsCommand}"
                             Style="{StaticResource PiViewAllLinkStyle}">
-                        <TextBlock Text="Reset defaults" TextDecorations="Underline"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.ResetDefaults}" TextDecorations="Underline"/>
                     </Button>
             </StackPanel>
         </Grid>
@@ -66,7 +66,7 @@
                                 <ToggleButton Style="{StaticResource PiToggleSwitch}"
                                               IsChecked="{Binding IsActive}"
                                               VerticalAlignment="Center"
-                                              ToolTip="Include this clause on the printed invoice"
+                                              ToolTip="{DynamicResource ProformaInvoice.IncludeClausePrintedInvoice}"
                                               AutomationProperties.Name="Include term"/>
                                 <TextBox Grid.Column="1"
                                          Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
@@ -76,21 +76,21 @@
                                     <Button Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource PiIconButtonStyle}"
-                                            ToolTip="Move up">
+                                            ToolTip="{DynamicResource ProformaInvoice.Move2}">
                                         <TextBlock Text="&#xE70E;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </Button>
                                     <Button Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource PiIconButtonStyle}"
-                                            ToolTip="Move down">
+                                            ToolTip="{DynamicResource ProformaInvoice.Move}">
                                         <TextBlock Text="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </Button>
                                     <Button Command="{Binding DataContext.RemoveClauseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource PiIconButtonStyle}"
-                                            ToolTip="Delete clause">
+                                            ToolTip="{DynamicResource ProformaInvoice.DeleteClause}">
                                         <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="{DynamicResource DangerBrush}"/>
                                     </Button>
@@ -115,7 +115,7 @@
                                         </Style.Triggers>
                                     </Style>
                                 </StackPanel.Style>
-                                <TextBlock Text="Validity days"
+                                <TextBlock Text="{DynamicResource ProformaInvoice.ValidityDays}"
                                            Style="{StaticResource PiInlineMetaStyle}"
                                            Margin="0,0,8,0"/>
                                 <ComboBox ItemsSource="{Binding DataContext.ValidityDayOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -137,7 +137,7 @@
                                     </Style>
                                 </StackPanel.Style>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                    <TextBlock Text="PAYMENT LINES"
+                                    <TextBlock Text="{DynamicResource ProformaInvoice.PaymentLines}"
                                                Style="{StaticResource PiSectionLabelStyle}"
                                                Margin="0"
                                                VerticalAlignment="Center"/>
@@ -145,7 +145,7 @@
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource PiGhostChipButton}"
                                             Margin="10,0,0,0"
-                                            Content="+ LINE"/>
+                                            Content="{DynamicResource ProformaInvoice.LINE}"/>
                                 </StackPanel>
                                 <ItemsControl ItemsSource="{Binding SubLines}">
                                     <ItemsControl.ItemTemplate>
@@ -159,12 +159,12 @@
                                                          Style="{StaticResource InputBoxStyle}"
                                                          FontSize="{StaticResource TextBody}"
                                                          IsReadOnly="True"
-                                                         ToolTip="To edit, remove this line and add a new one"/>
+                                                         ToolTip="{DynamicResource ProformaInvoice.EditRemoveLineAddNewOne}"/>
                                                 <Button Grid.Column="1"
                                                         Style="{StaticResource PiIconButtonStyle}"
                                                         Command="{Binding DataContext.RemovePaymentSubLineCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
-                                                        ToolTip="Remove line">
+                                                        ToolTip="{DynamicResource ProformaInvoice.RemoveLine}">
                                                     <TextBlock Text="&#xE711;"
                                                                FontFamily="Segoe MDL2 Assets"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
@@ -181,7 +181,7 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <TextBlock Text="No terms configured. Add a clause or reset to defaults."
+        <TextBlock Text="{DynamicResource ProformaInvoice.NoTermsConfiguredAddClauseResetDefaults}"
                    FontSize="{StaticResource TextBody}"
                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                    Margin="0,8,0,0">

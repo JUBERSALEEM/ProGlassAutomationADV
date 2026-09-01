@@ -71,12 +71,12 @@
 
                 <!-- Back — always first -->
                 <Button Grid.Column="0"
-                        Content="BACK"
+                        Content="{DynamicResource Action.Back}"
                         Tag="&#xE72B;"
                         Style="{StaticResource OutlinedPillButton}"
                         Command="{Binding BackToListCommand}"
                         Margin="0,0,12,0"
-                        ToolTip="Return to the saved job orders list"/>
+                        ToolTip="{DynamicResource JobOrder.ReturnSavedJobOrdersList}"/>
 
                 <!-- Title / source / converted -->
                 <StackPanel Grid.Column="1"
@@ -87,7 +87,7 @@
                     <TextBlock VerticalAlignment="Center"
                                Margin="10,0,0,0"
                                Style="{StaticResource ModulePageSubtitleStyle}">
-                        <Run Text="From "/><Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
+                        <Run Text="{DynamicResource Common.From}"/><Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
                     </TextBlock>
                     <TextBlock Text="{Binding ConvertedDisplay}"
                                VerticalAlignment="Center"
@@ -101,37 +101,37 @@
                            VerticalAlignment="Center"
                            HorizontalAlignment="Right">
                     <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE7F4;" Content="CREATE DN"
-                            ToolTip="Open a Dispatching DN with remaining balance only. Dispatched notes open from Delivery Note God View."
+                            Tag="&#xE7F4;" Content="{DynamicResource JobOrder.CreateDN}"
+                            ToolTip="{DynamicResource JobOrder.OpenDispatchingDNRemainingBalanceDispatched}"
                             Command="{Binding CreateDeliveryNoteCommand}"
                             Margin="0,0,8,0"/>
-                    <Button Content="MASTER DN"
+                    <Button Content="{DynamicResource JobOrder.MasterDN}"
                             Tag="&#xE718;"
                             Style="{StaticResource OutlinedPillButton}"
                             Command="{Binding OpenMasterDnCommand}"
                             Margin="0,0,8,0"
-                            ToolTip="Open the Master DN created from this Job Order"/>
+                            ToolTip="{DynamicResource JobOrder.OpenMasterDNCreatedJobOrder}"/>
                     <Button Style="{StaticResource SuccessPillButton}"
                             Tag="&#xE8A5;" Content="PDF"
-                            ToolTip="Export PDF"
+                            ToolTip="{DynamicResource DeliveryNote.ExportPDF}"
                             Command="{Binding ExportPdfCommand}"
                             Margin="0,0,8,0"/>
                     <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE9F9;" Content="EXCEL"
-                            ToolTip="Export Excel"
+                            Tag="&#xE9F9;" Content="{DynamicResource JobOrder.Excel}"
+                            ToolTip="{DynamicResource DeliveryNote.ExportExcel}"
                             Command="{Binding ExportExcelCommand}"
                             Margin="0,0,8,0"/>
                     <Button Style="{StaticResource SuccessPillButton}"
                             Tag="&#xE72D;" Content="CSV"
-                            ToolTip="Export CSV"
+                            ToolTip="{DynamicResource DeliveryNote.ExportCSV}"
                             Command="{Binding ExportCsvCommand}"
                             Margin="0,0,8,0"/>
                     <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE74E;" Content="SAVE"
-                            ToolTip="Save the job order"
+                            Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
+                            ToolTip="{DynamicResource JobOrder.SaveJobOrder}"
                             Command="{Binding SaveCommand}"
                             Margin="0,0,12,0"/>
-                    <TextBlock Text="INVOICE VALUE"
+                    <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}"
                                Style="{StaticResource ModuleListKpiLabelStyle}"
                                VerticalAlignment="Center"
                                Margin="0,0,8,0"/>

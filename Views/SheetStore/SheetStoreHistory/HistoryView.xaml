@@ -14,7 +14,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-        Title="Sheet Store — History"
+        Title="{DynamicResource SheetStore.SheetStoreHistory}"
         Width="1000" Height="680"
         WindowStartupLocation="CenterOwner"
         FontFamily="{DynamicResource AppFontFamily}"
@@ -121,7 +121,7 @@
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}" VerticalAlignment="Center"/>
-                <TextBlock Text="HISTORY LOG" FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
+                <TextBlock Text="{DynamicResource SheetStore.HistoryLOG}" FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
                            Margin="12,0,0,0" VerticalAlignment="Center"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <Border Background="{DynamicResource AccentBrush}"
@@ -131,7 +131,7 @@
                                FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                 </Border>
             </StackPanel>
-            <TextBlock Text="Every change to Sheet Store is recorded here."
+            <TextBlock Text="{DynamicResource SheetStore.ChangeSheetStoreRecordedHere}"
                        FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
         </StackPanel>
@@ -159,24 +159,24 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="ACTION" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Shared.Action}" Style="{StaticResource FieldLabelStyle}"/>
                         <ComboBox SelectedValue="{Binding FilterAction, UpdateSourceTrigger=PropertyChanged}"
                                   SelectedValuePath="Content"
                                   Height="38" Padding="10,6" FontSize="{StaticResource TextBody}"
                                   Background="{DynamicResource MenuHoverBrush}"
                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                   VerticalContentAlignment="Center">
-                            <ComboBoxItem Content="All" IsSelected="True"/>
-                            <ComboBoxItem Content="Added"/>
-                            <ComboBoxItem Content="Edited"/>
-                            <ComboBoxItem Content="Deleted"/>
-                            <ComboBoxItem Content="Bought"/>
-                            <ComboBoxItem Content="Used"/>
+                            <ComboBoxItem Content="{DynamicResource Common.All}" IsSelected="True"/>
+                            <ComboBoxItem Content="{DynamicResource ProformaInvoice.Added}"/>
+                            <ComboBoxItem Content="{DynamicResource SheetStore.Edited}"/>
+                            <ComboBoxItem Content="{DynamicResource SheetStore.Deleted}"/>
+                            <ComboBoxItem Content="{DynamicResource SheetStore.Bought}"/>
+                            <ComboBoxItem Content="{DynamicResource SheetStore.USED}"/>
                         </ComboBox>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="FROM DATE" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource FieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding FromDate, Mode=TwoWay}"
                                     Height="38" FontSize="{StaticResource TextBody}"
                                     Background="{DynamicResource MenuHoverBrush}"
@@ -185,7 +185,7 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="4">
-                        <TextBlock Text="TO DATE" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource FieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding ToDate, Mode=TwoWay}"
                                     Height="38" FontSize="{StaticResource TextBody}"
                                     Background="{DynamicResource MenuHoverBrush}"
@@ -196,8 +196,8 @@
                     <StackPanel Grid.Column="6" VerticalAlignment="Bottom">
                         <TextBlock Text=" " FontSize="{StaticResource TextBody}" Margin="0,0,0,6"/>
                         <Button Style="{StaticResource DangerButton}"
-                                Tag="&#xE711;" Content="CLEAR DATES"
-                                ToolTip="Clear the date filter"
+                                Tag="&#xE711;" Content="{DynamicResource SheetStore.ClearDates}"
+                                ToolTip="{DynamicResource SheetStore.ClearDateFilter}"
                                 Command="{Binding ClearDatesCommand}"
                                 Visibility="{Binding HasDateFilter, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
@@ -205,8 +205,8 @@
                     <StackPanel Grid.Column="8" VerticalAlignment="Bottom">
                         <TextBlock Text=" " FontSize="{StaticResource TextBody}" Margin="0,0,0,6"/>
                         <Button Style="{StaticResource PrimaryPillButton}"
-                                Tag="&#xE72C;" Content="REFRESH"
-                                ToolTip="Reload history"
+                                Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
+                                ToolTip="{DynamicResource SheetStore.ReloadHistory}"
                                 Command="{Binding RefreshCommand}"/>
                     </StackPanel>
                 </Grid>
@@ -242,10 +242,10 @@
                             IsHitTestVisible="False"
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="60" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Text="No history yet" FontSize="{StaticResource TextTitle}" FontWeight="SemiBold"
+                    <TextBlock Text="{DynamicResource SheetStore.NoHistoryYet}" FontSize="{StaticResource TextTitle}" FontWeight="SemiBold"
                                Margin="0,16,0,4" HorizontalAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="Actions on Sheet Store will appear here"
+                    <TextBlock Text="{DynamicResource SheetStore.ActionsSheetStoreAppearHere}"
                                FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
@@ -340,8 +340,8 @@
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right"
                     Margin="0,16,0,0">
             <Button Style="{StaticResource OutlinedPillButton}"
-                    Tag="&#xE711;" Content="CLOSE"
-                    ToolTip="Close history"
+                    Tag="&#xE711;" Content="{DynamicResource Action.Close}"
+                    ToolTip="{DynamicResource SheetStore.CloseHistory}"
                     Command="{Binding CloseCommand}"/>
         </StackPanel>
     </Grid>

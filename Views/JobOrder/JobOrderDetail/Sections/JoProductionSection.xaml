@@ -49,11 +49,11 @@
 
         <!-- Section header -->
         <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
-            <TextBlock Text="PRODUCTION DETAILS"
+            <TextBlock Text="{DynamicResource JobOrder.ProductionDetails}"
                        Style="{StaticResource SectionTitleStyle}"
                        VerticalAlignment="Center"
                        Margin="0,0,10,0"/>
-            <TextBlock Text="Status, priority, delivery and shop-floor instructions. Saving goes through the top bar."
+            <TextBlock Text="{DynamicResource JobOrder.StatusPriorityDeliveryShopFloorInstructions}"
                        FontSize="{StaticResource TextBody}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        TextWrapping="Wrap"
@@ -67,7 +67,7 @@
             <!-- Status (workflow control — always visible) -->
             <Border Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
-                    <TextBlock Text="STATUS" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource Common.Status}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding StatusOptions}"
                               SelectedItem="{Binding SelectedStatus}"
                               Style="{StaticResource JoCompactComboStyle}"/>
@@ -77,7 +77,7 @@
             <!-- Priority (workflow control — always visible) -->
             <Border Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
-                    <TextBlock Text="PRIORITY" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource Common.Priority}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding PriorityOptions}"
                               SelectedItem="{Binding SelectedPriority}"
                               Style="{StaticResource JoCompactComboStyle}"/>
@@ -87,7 +87,7 @@
             <!-- Delivery date (workflow control — always visible) -->
             <Border Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
-                    <TextBlock Text="DELIVERY DATE" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource JobOrder.DeliveryDATE}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <DatePicker SelectedDate="{Binding DeliveryDate}"
                                 Style="{StaticResource JoCompactDateStyle}"/>
                 </StackPanel>
@@ -99,7 +99,7 @@
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="ASSIGNED TO" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource JobOrder.Assigned}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding AssignedTo, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource JoCompactInputStyle}"/>
                 </StackPanel>
@@ -111,7 +111,7 @@
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="SITE DELIVERY · CONTACT" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource JobOrder.SITEDeliveryContact}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding SiteDeliveryContact, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource JoCompactInputStyle}"/>
                 </StackPanel>
@@ -123,7 +123,7 @@
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="SITE DELIVERY · PHONE" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource JobOrder.SITEDeliveryPhone}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding SiteDeliveryPhone, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource JoCompactInputStyle}"/>
                 </StackPanel>
@@ -135,7 +135,7 @@
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="DRAWING REFERENCE" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource JobOrder.DrawingReference}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding DrawingReference, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource JoCompactInputStyle}"/>
                 </StackPanel>
@@ -148,7 +148,7 @@
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="SITE DELIVERY ADDRESS" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource JobOrder.SITEDeliveryAddress}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding SiteDeliveryAddress, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource JoCompactInputStyle}"/>
                 </StackPanel>
@@ -161,7 +161,7 @@
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="CUTTING INSTRUCTIONS" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource JobOrder.CuttingInstructions}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding CuttingInstructions, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource JoCompactMultiInputStyle}"/>
                 </StackPanel>
@@ -174,7 +174,7 @@
                         Source={x:Static features:JobOrderFieldVisibility.Instance},
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
-                    <TextBlock Text="INTERNAL NOTES" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBlock Text="{DynamicResource JobOrder.InternalNotes}" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding InternalNotes, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource JoCompactMultiInputStyle}"/>
                 </StackPanel>

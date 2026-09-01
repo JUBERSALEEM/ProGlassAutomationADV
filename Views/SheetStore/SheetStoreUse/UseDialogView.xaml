@@ -17,7 +17,7 @@
              UseLayoutRounding="True"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Use Stock"
+        Title="{DynamicResource SheetStore.USEStock}"
         Width="480" Height="600"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
@@ -31,10 +31,10 @@
             <StackPanel Margin="0,0,0,16">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}" VerticalAlignment="Center"/>
-                    <TextBlock Text="USE STOCK" FontSize="{StaticResource TextHeadline}" FontWeight="Bold" Margin="12,0,0,0"
+                    <TextBlock Text="{DynamicResource SheetStore.USEStock}" FontSize="{StaticResource TextHeadline}" FontWeight="Bold" Margin="12,0,0,0"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 </StackPanel>
-                <TextBlock Text="Consume sheets from inventory for production"
+                <TextBlock Text="{DynamicResource SheetStore.ConsumeSheetsInventoryProduction}"
                            FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
@@ -54,11 +54,11 @@
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <TextBlock Text="Available: " FontSize="{StaticResource TextBody}"
+                        <TextBlock Text="{DynamicResource SheetStore.Available}" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding Sheet.Balance}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
-                        <TextBlock Text=" sheets  •  " FontSize="{StaticResource TextBody}"
+                        <TextBlock Text="{DynamicResource SheetStore.Sheets}" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding Sheet.TotalSqmBalance, Converter={StaticResource CurrencyConverter}}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
@@ -73,7 +73,7 @@
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock Text="JOB ORDER REFERENCE (optional)" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                    <TextBlock Text="{DynamicResource SheetStore.JOBOrderReferenceOptional}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,6"/>
                     <TextBox Text="{Binding JobOrderReference, UpdateSourceTrigger=PropertyChanged}"
                              Height="36" FontSize="{StaticResource TextBodyLarge}" Padding="12,6"
@@ -82,8 +82,8 @@
                              Foreground="{DynamicResource PrimaryForegroundBrush}"
                              BorderThickness="1"
                              BorderBrush="{DynamicResource MenuHoverBrush}"
-                             ToolTip="e.g., JO-2025-001 or customer name"/>
-                    <TextBlock Text="Track which job order or customer is consuming these sheets"
+                             ToolTip="{DynamicResource SheetStore.EGJO2025001CustomerName}"/>
+                    <TextBlock Text="{DynamicResource SheetStore.TrackWhichJobOrderCustomerConsumingSheets}"
                                FontSize="{StaticResource TextCaption}" FontStyle="Italic" Margin="4,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
@@ -93,7 +93,7 @@
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock Text="QUANTITY TO USE (sheets)" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                    <TextBlock Text="{DynamicResource SheetStore.QuantityUSESheets}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -103,7 +103,7 @@
                         </Grid.ColumnDefinitions>
                         <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
                                 Content="−" MinWidth="50"
-                                ToolTip="Decrease quantity"
+                                ToolTip="{DynamicResource SheetStore.DecreaseQuantity}"
                                 Command="{Binding DecreaseCommand}"/>
                         <TextBox Grid.Column="1"
                                  Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"
@@ -114,7 +114,7 @@
                                  BorderThickness="0" Margin="8,0"/>
                         <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
                                 Content="+" MinWidth="50"
-                                ToolTip="Increase quantity"
+                                ToolTip="{DynamicResource SheetStore.IncreaseQuantity}"
                                 Command="{Binding IncreaseCommand}"/>
                     </Grid>
                 </StackPanel>
@@ -124,10 +124,10 @@
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock Text="USAGE PREVIEW" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                    <TextBlock Text="{DynamicResource SheetStore.UsagePreview}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,10"/>
                     <DockPanel Margin="0,0,0,6">
-                        <TextBlock Text="SQM being used" FontSize="{StaticResource TextBody}"
+                        <TextBlock Text="{DynamicResource SheetStore.SQMUsed}" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding TotalSqm, Converter={StaticResource CurrencyConverter}}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
@@ -135,7 +135,7 @@
                                    HorizontalAlignment="Right"/>
                     </DockPanel>
                     <DockPanel Margin="0,0,0,6">
-                        <TextBlock Text="Remaining balance" FontSize="{StaticResource TextBody}"
+                        <TextBlock Text="{DynamicResource SheetStore.RemainingBalance}" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding RemainingBalance}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
@@ -143,7 +143,7 @@
                     </DockPanel>
                     <Separator Opacity="0.3" Margin="0,6"/>
                     <DockPanel Margin="0,8,0,0">
-                        <TextBlock Text="Value consumed" FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
+                        <TextBlock Text="{DynamicResource SheetStore.ValueConsumed}" FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="{Binding TotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
@@ -167,12 +167,12 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
-                        Tag="&#xE711;" Content="CANCEL"
-                        ToolTip="Close without using stock"
+                        Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
+                        ToolTip="{DynamicResource SheetStore.CloseWithoutUsingStock}"
                         Command="{Binding CancelCommand}"/>
                 <Button Grid.Column="2" Style="{StaticResource SuccessPillButton}"
-                        Tag="&#xE73E;" Content="CONFIRM USE"
-                        ToolTip="Confirm stock usage"
+                        Tag="&#xE73E;" Content="{DynamicResource SheetStore.ConfirmUSE}"
+                        ToolTip="{DynamicResource SheetStore.ConfirmStockUsage}"
                         Command="{Binding ConfirmCommand}"/>
             </Grid>
 

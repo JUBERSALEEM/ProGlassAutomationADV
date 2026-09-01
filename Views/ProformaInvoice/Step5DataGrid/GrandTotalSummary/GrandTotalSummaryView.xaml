@@ -37,10 +37,10 @@
                 <ColumnDefinition Width="140"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="#" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-            <TextBlock Grid.Column="1" Text="SPEC GROUP" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.SPECGroup}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
             <TextBlock Grid.Column="2" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-            <TextBlock Grid.Column="3" Text="TOTAL SQM" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-            <TextBlock Grid.Column="4" Text="VALUE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+            <TextBlock Grid.Column="3" Text="{DynamicResource DeliveryNote.TotalSQM}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+            <TextBlock Grid.Column="4" Text="{DynamicResource Inquiry.Value}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
         </Grid>
 
         <ItemsControl ItemsSource="{Binding SummaryRows}">
@@ -110,7 +110,7 @@
                     <ColumnDefinition Width="140"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="1"
-                           Text="GRAND TOTAL"
+                           Text="{DynamicResource ProformaInvoice.GrandTotal}"
                            FontSize="{StaticResource TextBody}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>

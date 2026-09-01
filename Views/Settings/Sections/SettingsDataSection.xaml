@@ -40,8 +40,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="Data &amp; Backup" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Protect your production data and explore with sample data."
+            <TextBlock Text="{DynamicResource Settings.SecData}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.ProtectProductionDataExploreSampleData}"
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -56,9 +56,9 @@
             <StackPanel Margin="32,0,32,32">
 
                 <!-- ═══════ GROUP: BACKUP & RESTORE ═══════ -->
-                <TextBlock Text="BACKUP &amp; RESTORE"
+                <TextBlock Text="{DynamicResource Settings.BackupRestore}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="A backup set copies every database + settings into one timestamped folder. Automatic sets are created when the app closes; restore always takes a safety snapshot first."
+                <TextBlock Text="{DynamicResource Settings.BackupSetCopiesDatabaseSettingsOne}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
@@ -68,22 +68,22 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE74E;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Backup Actions"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BackupActions}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Create a backup set now, refresh the list, or open the folder where backups are kept."/>
+                                       Text="{DynamicResource Settings.CreateBackupSetNowRefreshListOpenFolderWhere}"/>
                             <StackPanel>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="CREATE BACKUP NOW"
+                                        Content="{DynamicResource Settings.CreateBackupNOW}"
                                         Command="{Binding CreateBackupNowCommand}"
                                         HorizontalAlignment="Stretch"/>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="REFRESH"
+                                        Content="{DynamicResource Action.Refresh}"
                                         Command="{Binding RefreshBackupsCommand}"
                                         HorizontalAlignment="Stretch"
                                         Margin="0,8,0,0"/>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="OPEN FOLDER"
+                                        Content="{DynamicResource About.OPENFolder}"
                                         Command="{Binding OpenBackupsFolderCommand}"
                                         HorizontalAlignment="Stretch"
                                         Margin="0,8,0,0"/>
@@ -96,12 +96,12 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE895;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Restore"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.Restore}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Restore always snapshots current data first, so a bad restore is never fatal."/>
+                                       Text="{DynamicResource Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad}"/>
                             <Button Style="{StaticResource SuccessPillButton}"
-                                    Tag="&#xE895;" Content="RESTORE SELECTED BACKUP"
+                                    Tag="&#xE895;" Content="{DynamicResource Settings.RestoreSelectedBackup}"
                                     Command="{Binding RestoreSelectedBackupCommand}"
                                     HorizontalAlignment="Stretch"/>
                             <TextBlock Text="{Binding BackupStatus}"
@@ -116,10 +116,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8F7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Backup Sets"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BackupSets}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Pick a set to restore. Selecting is enough — the restore button lights up."/>
+                                       Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
                             <ListBox ItemsSource="{Binding BackupSets}"
                                      SelectedItem="{Binding SelectedBackup}"
                                      MaxHeight="170"
@@ -142,7 +142,7 @@
                                                              StringFormat='dd MMM yyyy  HH:mm'}"/>
                                                 <Run Text="  •  "/>
                                                 <Run Text="{Binding FileCount, Mode=OneWay}"/>
-                                                <Run Text=" files  •  "/>
+                                                <Run Text="{DynamicResource Settings.Files}"/>
                                                 <Run Text="{Binding SizeDisplay, Mode=OneWay}"/>
                                             </TextBlock>
                                         </StackPanel>
@@ -157,9 +157,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: SAMPLE DATA ═══════ -->
-                <TextBlock Text="SAMPLE DATA"
+                <TextBlock Text="{DynamicResource Settings.SampleDATA}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="New here? Load a small linked demo dataset to explore every module — only on an empty database."
+                <TextBlock Text="{DynamicResource Settings.NewHereLoadSmallLinkedDemoDatasetExplore}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -167,27 +167,27 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8A5;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Explore with Sample Data"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ExploreSampleData}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="6 sheets, 3 proformas, 2 job orders, 2 delivery notes, 3 tax invoices — all linked. Your real data is never touched."/>
+                                       Text="{DynamicResource Settings.6Sheets3Proformas2JobOrders2DeliveryNotes3}"/>
                             <!-- Full-width action row: buttons stretch evenly
                                  across the whole card. -->
                             <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}" Margin="0,10,0,0">
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="LOAD SAMPLE DATA"
+                                        Content="{DynamicResource Settings.LOADSampleDATA}"
                                         Command="{Binding LoadSampleDataCommand}"
                                         HorizontalAlignment="Stretch"
-                                        ToolTip="Seed the demo dataset on an empty database"/>
+                                        ToolTip="{DynamicResource Settings.SeedDemoDatasetEmptyDatabase}"/>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="CLEAR ALL DATA"
+                                        Content="{DynamicResource Settings.ClearDATA}"
                                         Command="{Binding ClearAllDataCommand}"
                                         HorizontalAlignment="Stretch"
                                         Margin="0"
-                                        ToolTip="Permanently delete every record in all modules (e.g. after testing with sample data)"/>
+                                        ToolTip="{DynamicResource Settings.PermanentlyDeleteRecordModulesEGAfterTesting}"/>
                             </UniformGrid>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       Text="Done testing? Use CLEAR ALL DATA to wipe the demo dataset in one step and start entering real data."/>
+                                       Text="{DynamicResource Settings.DoneTestingUseClearDATAWipeDemoDatasetOne}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -199,9 +199,9 @@
                      database file (row counts, schema version, missing /
                      extra columns). The rebuild button is the nuclear
                      option gated behind Manager+ and typed confirmation. -->
-                <TextBlock Text="DATABASE HEALTH"
+                <TextBlock Text="{DynamicResource Settings.DatabaseHealth}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Probes every ProGlass Automation database file. The auto-migration on next app start handles most drift; rebuild is the nuclear option for a file too broken to open."
+                <TextBlock Text="{DynamicResource Settings.ProbesProglassAutomationDatabaseFileAuto}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -227,7 +227,7 @@
                                                Foreground="{DynamicResource AccentBrush}"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold">
-                                            <Run Text="License: "/>
+                                            <Run Text="{DynamicResource About.License}"/>
                                             <Run Text="{Binding LicenseStatus.StatusBadge, Mode=OneWay}"/>
                                         </TextBlock>
                                         <TextBlock Text="{Binding LicenseStatus.StatusDescription}"
@@ -243,16 +243,16 @@
                                  across the whole card. -->
                             <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}">
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="REFRESH"
+                                        Content="{DynamicResource Action.Refresh}"
                                         Command="{Binding RefreshDatabaseHealthCommand}"
                                         HorizontalAlignment="Stretch"
-                                        ToolTip="Probe every database and refresh the row-count table"/>
+                                        ToolTip="{DynamicResource Settings.ProbeDatabaseRefreshRowCountTable}"/>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Content="REBUILD ALL DATABASES (EMERGENCY)"
+                                        Content="{DynamicResource Settings.RebuildDatabasesEmergency}"
                                         Command="{Binding RebuildAllDatabasesCommand}"
                                         HorizontalAlignment="Stretch"
                                         Margin="0"
-                                        ToolTip="Move every .db file to MigrationBackups and recreate at the current schema. Manager+ only."/>
+                                        ToolTip="{DynamicResource Settings.MoveDbFileMigrationbackupsRecreateCurrent}"/>
                             </UniformGrid>
 
                             <ListBox ItemsSource="{Binding DatabaseHealthRows}"

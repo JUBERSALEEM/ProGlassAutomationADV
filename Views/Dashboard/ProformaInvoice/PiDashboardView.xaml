@@ -36,9 +36,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Proforma Invoice"
+                        <TextBlock Text="{DynamicResource Module.ProformaInvoice}"
                                    Style="{StaticResource SoftHeroTitleStyle}"/>
-                        <TextBlock Text="Quote pipeline, status distribution and top customers"
+                        <TextBlock Text="{DynamicResource Dashboard.QuotePipelineStatusDistributionTopCustomers}"
                                    Style="{StaticResource SoftHeroSubtitleStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
@@ -48,7 +48,7 @@
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="Live" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Common.Live}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -63,7 +63,7 @@
                             Padding="16,12"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="Loading invoice data…"
+                        <TextBlock Text="{DynamicResource Dashboard.LoadingInvoiceData}"
                                    Style="{StaticResource SoftKpiFootStyle}"/>
                     </Border>
                     <Border Style="{StaticResource SoftSectionStyle}"
@@ -89,9 +89,9 @@
                             Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Quote pulse"
+                                <TextBlock Text="{DynamicResource Dashboard.QuotePulse}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Pipeline volume and confirmation"
+                                <TextBlock Text="{DynamicResource Dashboard.PipelineVolumeConfirmation}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <ItemsControl ItemsSource="{Binding KpiCards}"
@@ -108,9 +108,9 @@
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
-                            <TextBlock Text="Status mix"
+                            <TextBlock Text="{DynamicResource Dashboard.StatusMix}"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Invoices grouped by current status"
+                            <TextBlock Text="{DynamicResource Dashboard.InvoicesGroupedCurrentStatus}"
                                        Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding StatusMixSlices}"
@@ -123,9 +123,9 @@
                     <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="By status"
+                                <TextBlock Text="{DynamicResource Dashboard.Status}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Count of quotes"
+                                <TextBlock Text="{DynamicResource Dashboard.CountQuotes}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <Border Style="{StaticResource SoftChartWellStyle}">
@@ -145,9 +145,9 @@
                 <Border Grid.Row="3" Style="{StaticResource SoftCardStyle}">
                     <DockPanel>
                         <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                            <TextBlock Text="Top 5 customers"
+                            <TextBlock Text="{DynamicResource Dashboard.Top5Customers}"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Ranked by total invoice value · VAT inclusive"
+                            <TextBlock Text="{DynamicResource Dashboard.RankedTotalInvoiceValueVATInclusive}"
                                        Style="{StaticResource SoftMetaStyle}"
                                        HorizontalAlignment="Right"/>
                         </Grid>
@@ -171,7 +171,7 @@
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE716;"
                                                Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="No customer data yet"
+                                    <TextBlock Text="{DynamicResource Dashboard.NoCustomerDataYet}"
                                                Style="{StaticResource DashEmptyStateTextStyle}"/>
                                 </StackPanel>
                             </Border>

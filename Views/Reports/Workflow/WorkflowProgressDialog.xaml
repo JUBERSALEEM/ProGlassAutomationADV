@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-    Title="Statement Generation Progress"
+    Title="{DynamicResource Reports.StatementGenerationProgress}"
     Width="800" Height="700"
     MinWidth="680" MinHeight="540"
     WindowStartupLocation="CenterOwner"
@@ -54,7 +54,7 @@
                                    FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
                                    Margin="0,0,6,0"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Text="STATEMENT GENERATION"
+                        <TextBlock Text="{DynamicResource Reports.StatementGeneration}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     </StackPanel>
@@ -203,7 +203,7 @@
                                                        Foreground="White">
                                                 <Run Text="&#xE7BA; " FontFamily="Segoe MDL2 Assets"/>
                                                 <Run Text="{Binding Warnings.Count, Mode=OneWay}"/>
-                                                <Run Text=" warning(s)"/>
+                                                <Run Text="{DynamicResource Reports.StatementGenerator.WarningS}"/>
                                             </TextBlock>
                                         </Border>
                                     </StackPanel>
@@ -318,7 +318,7 @@
                                                    Foreground="White"
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,6,0"/>
-                                        <TextBlock Text="VIEW WARNINGS"
+                                        <TextBlock Text="{DynamicResource Reports.VIEWWarnings}"
                                                    FontSize="{StaticResource TextBody}"
                                                    FontWeight="Bold"
                                                    Foreground="White"
@@ -345,7 +345,7 @@
                                    Foreground="{DynamicResource AccentBrush}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"/>
-                        <TextBlock Text="Processing..."
+                        <TextBlock Text="{DynamicResource Reports.Processing}"
                                    FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    VerticalAlignment="Center"/>
@@ -363,7 +363,7 @@
                                         Background="{DynamicResource AccentBrush}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="{TemplateBinding Padding}">
-                                    <TextBlock Text="CLOSE"
+                                    <TextBlock Text="{DynamicResource Action.Close}"
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"

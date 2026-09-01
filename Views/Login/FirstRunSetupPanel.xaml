@@ -92,12 +92,12 @@
                                                           ShadowDepth="0" Opacity="0.55"/>
                                     </Border.Effect>
                                 </Border>
-                                <TextBlock Text="Welcome to ProGlass"
+                                <TextBlock Text="{DynamicResource Login.WelcomeProglass}"
                                            FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                                            Foreground="{StaticResource NameGradient}"
                                            HorizontalAlignment="Center"
                                            Margin="0,12,0,0"/>
-                                <TextBlock Text="Create the first administrator account"
+                                <TextBlock Text="{DynamicResource Login.CreateFirstAdministratorAccount}"
                                            FontSize="{StaticResource TextBody}"
                                            Foreground="{StaticResource Cerulean}"
                                            HorizontalAlignment="Center"
@@ -112,32 +112,32 @@
                                        Opacity="0.9"
                                        Margin="0,14,0,0"
                                        HorizontalAlignment="Center">
-                                <Run Text="ProGlass needs an administrator to get started. Choose a username and password — you will use them to sign in right after."/>
+                                <Run Text="{DynamicResource Login.ProglassNeedsAdministratorGetStartedChoose}"/>
                             </TextBlock>
 
                             <!-- ── USERNAME ─────────────────────────── -->
-                            <TextBlock Text="USERNAME" Style="{StaticResource FieldLabel}"
+                            <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource FieldLabel}"
                                        Margin="2,18,0,6"/>
                             <TextBox x:Name="UsernameBox"
                                      Tag="&#xE77B;"
                                      Style="{StaticResource RoundedTextBox}"/>
 
                             <!-- ── DISPLAY NAME ─────────────────────── -->
-                            <TextBlock Text="DISPLAY NAME" Style="{StaticResource FieldLabel}"
+                            <TextBlock Text="{DynamicResource Login.DisplayNAME}" Style="{StaticResource FieldLabel}"
                                        Margin="2,14,0,6"/>
                             <TextBox x:Name="DisplayNameBox"
                                      Tag="&#xE77B;"
                                      Style="{StaticResource RoundedTextBox}"/>
 
                             <!-- ── PASSWORD ─────────────────────────── -->
-                            <TextBlock Text="PASSWORD" Style="{StaticResource FieldLabel}"
+                            <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource FieldLabel}"
                                        Margin="2,14,0,6"/>
                             <PasswordBox x:Name="PasswordBox"
                                          Tag="&#xE72E;"
                                          Style="{StaticResource RoundedPasswordBox}"/>
 
                             <!-- ── CONFIRM PASSWORD ─────────────────── -->
-                            <TextBlock Text="CONFIRM PASSWORD" Style="{StaticResource FieldLabel}"
+                            <TextBlock Text="{DynamicResource Login.ConfirmPassword}" Style="{StaticResource FieldLabel}"
                                        Margin="2,14,0,6"/>
                             <PasswordBox x:Name="ConfirmPasswordBox"
                                          Tag="&#xE72E;"
@@ -149,7 +149,7 @@
                                        Foreground="{StaticResource Frost}"
                                        Opacity="0.75"
                                        Margin="2,6,0,0">
-                                <Run Text="Password must be at least 6 characters. Choose something you will remember — there is no email-based recovery for offline installs."/>
+                                <Run Text="{DynamicResource Login.PasswordMustLeast6CharactersChooseSomething}"/>
                             </TextBlock>
 
                             <!-- ── ERROR PANEL ───────────────────────── -->
@@ -177,13 +177,13 @@
 
                             <!-- ── THE SINGLE ACTION ─────────────────── -->
                             <Button x:Name="CreateButton"
-                                    Content="CREATE ADMINISTRATOR"
+                                    Content="{DynamicResource Login.CreateAdmin}"
                                     Height="44"
                                     Margin="0,16,0,0"
                                     Style="{StaticResource SignInButtonStyle}"
                                     Click="Create_Click"
                                     IsDefault="True"
-                                    ToolTip="Create the first administrator and continue to sign in"
+                                    ToolTip="{DynamicResource Login.CreateFirstAdministratorContinueSign}"
                                     AutomationProperties.Name="Create administrator"/>
 
                             <!-- ── STATUS STRIP (busy / created) ─────── -->
@@ -211,7 +211,7 @@
                                        Foreground="{StaticResource Frost}"
                                        Opacity="0.65"
                                        Margin="0,10,0,0">
-                                <Run Text="Version"/>
+                                <Run Text="{DynamicResource About.Version}"/>
                                 <Run Text=" "/>
                                 <Run Text="{x:Static updates:AppInfo.Version}"/>
                             </TextBlock>
@@ -221,7 +221,7 @@
                                        Foreground="{StaticResource Frost}"
                                        Opacity="0.55"
                                        Margin="0,6,0,0">
-                                <Run Text="Closing the splash will exit the app — ProGlass cannot run without a user."/>
+                                <Run Text="{DynamicResource Login.ClosingSplashExitAppProglassCannotRunWithout}"/>
                             </TextBlock>
                         </StackPanel>
                     </ScrollViewer>

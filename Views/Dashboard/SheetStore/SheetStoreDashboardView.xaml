@@ -36,9 +36,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Sheet Store"
+                        <TextBlock Text="{DynamicResource Module.SheetStore}"
                                    Style="{StaticResource SoftHeroTitleStyle}"/>
-                        <TextBlock Text="Live snapshot of glass sheet stock, value and coverage"
+                        <TextBlock Text="{DynamicResource Dashboard.LiveSnapshotGlassSheetStockValueCoverage}"
                                    Style="{StaticResource SoftHeroSubtitleStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
@@ -48,7 +48,7 @@
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="Live" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Common.Live}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -63,7 +63,7 @@
                             Padding="16,12"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="Loading sheet store data…"
+                        <TextBlock Text="{DynamicResource Dashboard.LoadingSheetStoreData}"
                                    Style="{StaticResource SoftKpiFootStyle}"/>
                     </Border>
                     <Border Style="{StaticResource SoftSectionStyle}"
@@ -88,9 +88,9 @@
                             Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Stock pulse"
+                                <TextBlock Text="{DynamicResource Dashboard.StockPulse}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Types, value, coverage and alerts"
+                                <TextBlock Text="{DynamicResource Dashboard.TypesValueCoverageAlerts}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <ItemsControl ItemsSource="{Binding KpiCards}"
@@ -106,9 +106,9 @@
 
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="Category mix"
+                            <TextBlock Text="{DynamicResource Dashboard.CategoryMix}"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Available SQM by glass category"
+                            <TextBlock Text="{DynamicResource Dashboard.AvailableSQMGlassCategory}"
                                        Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding CategoryMixSlices}"
@@ -122,9 +122,9 @@
                 <Border Grid.Row="3" Style="{StaticResource SoftCardStyle}">
                     <DockPanel>
                         <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                            <TextBlock Text="Available SQM by category"
+                            <TextBlock Text="{DynamicResource Dashboard.AvailableSQMCategory}"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Balance sheets only"
+                            <TextBlock Text="{DynamicResource Dashboard.BalanceSheets}"
                                        Style="{StaticResource SoftMetaStyle}"
                                        HorizontalAlignment="Right"/>
                         </Grid>
@@ -147,7 +147,7 @@
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE7B8;"
                                                Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="No sheet store data yet"
+                                    <TextBlock Text="{DynamicResource Dashboard.NoSheetStoreDataYet}"
                                                Style="{StaticResource DashEmptyStateTextStyle}"/>
                                 </StackPanel>
                             </Border>

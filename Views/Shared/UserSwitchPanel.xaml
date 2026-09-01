@@ -33,10 +33,10 @@
                     CornerRadius="16,16,0,0"
                     Padding="18,12">
                 <StackPanel>
-                    <TextBlock Text="Switch User"
+                    <TextBlock Text="{DynamicResource Login.SwitchUser}"
                                FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    <TextBlock Text="Pick a user and enter their password to continue as them"
+                    <TextBlock Text="{DynamicResource Shared.PickUserEnterPasswordContinue}"
                                FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Opacity="0.85" Margin="0,2,0,0"
                                TextWrapping="Wrap"/>
@@ -59,7 +59,7 @@
 
                 <StackPanel Grid.Row="1" Margin="0,12,0,0">
                     <TextBlock x:Name="PasswordLabel"
-                               Text="Password for the selected user"
+                               Text="{DynamicResource Shared.PasswordSelectedUser}"
                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     <PasswordBox x:Name="PasswordBox"
@@ -96,7 +96,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"
-                               Text="Double-click anywhere to close."
+                               Text="{DynamicResource Shared.DoubleClickAnywhereClose}"
                                FontSize="{StaticResource TextCaption}"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                VerticalAlignment="Center"
@@ -104,7 +104,7 @@
                     <Button x:Name="SwitchButton"
                             Grid.Column="1"
                             Style="{StaticResource PrimaryPillButton}"
-                            Content="SWITCH"
+                            Content="{DynamicResource Shared.Switch}"
                             MinWidth="110"
                             IsEnabled="False"
                             Click="OnSwitchClick"/>

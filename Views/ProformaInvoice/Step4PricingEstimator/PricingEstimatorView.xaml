@@ -97,7 +97,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="16,0,0,0">
-                            <TextBlock Text="SECTIONS"
+                            <TextBlock Text="{DynamicResource ProformaInvoice.Sections}"
                                        FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -118,11 +118,11 @@
                                     Style="{StaticResource PiGhostChipButton}"
                                     Height="28"
                                     Margin="0,0,6,0"
-                                    Content="+ ADD"/>
+                                    Content="{DynamicResource ProformaInvoice.ADD}"/>
                             <Button Command="{Binding RemoveCalculationSectionCommand}"
                                     Style="{StaticResource PiGhostChipButton}"
                                     Height="28"
-                                    Content="- REMOVE"/>
+                                    Content="{DynamicResource ProformaInvoice.Remove}"/>
                         </StackPanel>
                     </Grid>
                     <TextBlock FontSize="{StaticResource TextBody}"
@@ -190,7 +190,7 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0">
-                    <TextBlock Text="ESTIMATED RATE"
+                    <TextBlock Text="{DynamicResource ProformaInvoice.EstimatedRATE}"
                                FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Bottom" Margin="0,0,10,6"/>
@@ -201,7 +201,7 @@
                     <TextBlock Text="{Binding EstimatedRatePerSqm, Converter={StaticResource CurrencyConverter}}"
                                FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text=" /sqm"
+                    <TextBlock Text="{DynamicResource ProformaInvoice.Sqm}"
                                FontSize="{StaticResource TextBodyLarge}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Bottom" Margin="4,0,0,6"/>
@@ -211,7 +211,7 @@
                         Command="{Binding ApplyRateCommand}"
                         Style="{StaticResource PrimaryPillButton}"
                         Height="42" MinWidth="160" VerticalAlignment="Center"
-                        Content="APPLY RATE"/>
+                        Content="{DynamicResource ProformaInvoice.ApplyRATE}"/>
             </Grid>
         </Border>
 

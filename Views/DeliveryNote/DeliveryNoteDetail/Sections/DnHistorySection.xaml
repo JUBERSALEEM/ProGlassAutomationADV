@@ -42,8 +42,8 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets"/><Run Text="  DELIVERY HISTORY"/></TextBlock>
-                                <TextBlock Text="Click to open · Right-click for options"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource DeliveryNote.DeliveryHistory}"/></TextBlock>
+                                <TextBlock Text="{DynamicResource DeliveryNote.ClickOpenRightClickOptions}"
                                            FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"
                                            TextTrimming="CharacterEllipsis"/>
@@ -82,13 +82,13 @@
                                                       RelativeSource={RelativeSource AncestorType=UserControl}}">
                                             <Border.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem Header="Open this DN"
+                                                    <MenuItem Header="{DynamicResource DeliveryNote.OpenDN}"
                                                               Style="{StaticResource HistoryContextMenuItemStyle}"
                                                               Command="{Binding PlacementTarget.Tag.SelectHistoryEntryCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                               CommandParameter="{Binding}"/>
                                                     <Separator/>
-                                                    <MenuItem Header="Convert to Tax Invoice"
+                                                    <MenuItem Header="{DynamicResource DeliveryNote.ConvertTaxInvoice}"
                                                               Style="{StaticResource HistoryContextMenuItemStyle}"
                                                               Command="{Binding PlacementTarget.Tag.ConvertToTaxInvoiceCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ContextMenu}}"
@@ -132,7 +132,7 @@
                                                                     Visibility="{Binding IsCurrentDn,
                                                                         Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                           Foreground="White"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="  EDITING"/></TextBlock>
+                                                                           Foreground="White"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource DeliveryNote.Editing}"/></TextBlock>
                                                             </Border>
                                                             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="4" Padding="5,1"
         Margin="5,0,0,0"
@@ -169,7 +169,7 @@
                                                             <Run Text="{Binding DriverName, Mode=OneWay}"/>
                                                         </TextBlock>
 
-                                                        <TextBlock Text="You are editing this delivery note"
+                                                        <TextBlock Text="{DynamicResource DeliveryNote.EditingDeliveryNote}"
                                                                    FontSize="{StaticResource TextCaption}" FontStyle="Italic"
                                                                    FontWeight="SemiBold"
                                                                    Foreground="{DynamicResource SuccessBrush}"
@@ -243,7 +243,7 @@
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0"
                                                                     HorizontalAlignment="Center">
-                                                            <TextBlock Text="ORDERED"
+                                                            <TextBlock Text="{DynamicResource Common.Ordered}"
                                                                        Style="{StaticResource CumulativeLabelStyle}"/>
                                                             <TextBlock Text="{Binding OrderedQty, Mode=OneWay}"
                                                                        Style="{StaticResource CumulativeValueStyle}"/>
@@ -252,7 +252,7 @@
                                                                 Style="{StaticResource CumulativeSeparatorStyle}"/>
                                                         <StackPanel Grid.Column="2"
                                                                     HorizontalAlignment="Center">
-                                                            <TextBlock Text="PREV"
+                                                            <TextBlock Text="{DynamicResource DeliveryNote.PREV}"
                                                                        Style="{StaticResource CumulativeLabelStyle}"/>
                                                             <TextBlock Text="{Binding CumulativePrevQty, Mode=OneWay}"
                                                                        Style="{StaticResource CumulativeValueStyle}"
@@ -262,7 +262,7 @@
                                                                 Style="{StaticResource CumulativeSeparatorStyle}"/>
                                                         <StackPanel Grid.Column="4"
                                                                     HorizontalAlignment="Center">
-                                                            <TextBlock Text="THIS DN"
+                                                            <TextBlock Text="{DynamicResource DeliveryNote.DN}"
                                                                        Style="{StaticResource CumulativeLabelStyle}"
                                                                        Foreground="{DynamicResource SuccessBrush}"/>
                                                             <TextBlock Text="{Binding DeliveredQty, Mode=OneWay}"
@@ -273,7 +273,7 @@
                                                                 Style="{StaticResource CumulativeSeparatorStyle}"/>
                                                         <StackPanel Grid.Column="6"
                                                                     HorizontalAlignment="Center">
-                                                            <TextBlock Text="BALANCE"
+                                                            <TextBlock Text="{DynamicResource Common.Balance}"
                                                                        Style="{StaticResource CumulativeLabelStyle}"
                                                                        Foreground="{DynamicResource WarningBrush}"/>
                                                             <TextBlock Text="{Binding CumulativeBalanceQty, Mode=OneWay}"
@@ -306,7 +306,7 @@
                                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <TextBlock Text="Ordered" FontSize="{StaticResource TextCaption}"
+                                <TextBlock Text="{DynamicResource Common.Ordered}" FontSize="{StaticResource TextCaption}"
                                            HorizontalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>
@@ -315,7 +315,7 @@
                                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Foreground="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="Delivered" FontSize="{StaticResource TextCaption}"
+                                <TextBlock Text="{DynamicResource Common.Delivered}" FontSize="{StaticResource TextCaption}"
                                            HorizontalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>
@@ -324,7 +324,7 @@
                                            FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Foreground="{DynamicResource WarningBrush}"/>
-                                <TextBlock Text="Balance" FontSize="{StaticResource TextCaption}"
+                                <TextBlock Text="{DynamicResource Common.Balance}" FontSize="{StaticResource TextCaption}"
                                            HorizontalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>

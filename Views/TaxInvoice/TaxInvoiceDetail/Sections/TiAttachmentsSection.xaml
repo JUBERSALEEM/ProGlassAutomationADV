@@ -46,16 +46,16 @@
                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text="Photos + signed docs · click family entry to switch view"
+                                <TextBlock Text="{DynamicResource TaxInvoice.PhotosSignedDocsClickFamilyEntrySwitchView}"
                                            FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                             <Button Grid.Column="1"
                                     Style="{StaticResource RowOutlinedButton}"
-                                    Tag="&#xE710;" Content="ADD FILE"
+                                    Tag="&#xE710;" Content="{DynamicResource TaxInvoice.ADDFILE}"
                                     Command="{Binding AddAttachmentCommand}"
-                                    ToolTip="Attach PDF or image (max 10 MB)"/>
+                                    ToolTip="{DynamicResource TaxInvoice.AttachPDFImageMax10MB}"/>
                         </Grid>
                     </Border>
 
@@ -78,7 +78,7 @@
                         <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    TextWrapping="Wrap">
-                            <Run Text="&#xE7B3;" FontFamily="Segoe MDL2 Assets"/><Run Text="  Attachments shown are for the selected family member (not the currently loaded invoice)."/>
+                            <Run Text="&#xE7B3;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource TaxInvoice.AttachmentsShownSelectedFamilyMember}"/>
                         </TextBlock>
                     </Border>
 
@@ -107,12 +107,12 @@
                                     <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="32"
                                                HorizontalAlignment="Center"
                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                    <TextBlock Text="No attachments yet"
+                                    <TextBlock Text="{DynamicResource DeliveryNote.NoAttachmentsYet}"
                                                FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"
                                                Margin="0,8,0,4"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Add signed PI or DN PDFs here."
+                                    <TextBlock Text="{DynamicResource TaxInvoice.AddSignedPIDNPdfsHere}"
                                                FontSize="{StaticResource TextBody}"
                                                HorizontalAlignment="Center"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -162,15 +162,15 @@
                                                           Height="28"
                                                           Margin="0,0,6,0"
                                                           VerticalContentAlignment="Center">
-                                                    <ComboBoxItem Content="SignedPI"/>
-                                                    <ComboBoxItem Content="SignedDN"/>
-                                                    <ComboBoxItem Content="Other"/>
+                                                    <ComboBoxItem Content="{DynamicResource TaxInvoice.Signedpi}"/>
+                                                    <ComboBoxItem Content="{DynamicResource TaxInvoice.Signeddn}"/>
+                                                    <ComboBoxItem Content="{DynamicResource TaxInvoice.Other}"/>
                                                 </ComboBox>
 
                                                 <Button Grid.Column="3"
                                                         Style="{StaticResource RowDangerButton}"
                                                         Tag="&#xE74D;" MinWidth="40"
-                                                        ToolTip="Remove attachment"
+                                                        ToolTip="{DynamicResource TaxInvoice.RemoveAttachment}"
                                                         Command="{Binding DataContext.RemoveAttachmentCommand,
                                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"/>
