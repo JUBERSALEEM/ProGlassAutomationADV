@@ -42,7 +42,13 @@ namespace ProGlassAutomation.Views.Licensing
                     ? 0
                     : Math.Max(0, (int)Math.Ceiling((payload.EffectiveExpiresAt - DateTime.UtcNow).TotalDays));
             }
-            catch { }
+            catch
+            {
+                // Defensive: a crafted license payload can carry
+                // DateTime.MaxValue, and MaxValue - UtcNow overflows.
+                // Fall back to 0 remaining days rather than crash the
+                // dialog. (Allowlisted in SilentCatchAuditTests.)
+            }
 
             ProGlass.Licensing.LicensePlanCatalog.Plan? plan = PlanOfPayload(payload);
 

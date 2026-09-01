@@ -20,6 +20,7 @@ using System;
 using System.IO;
 using System.Text.RegularExpressions;
 using Xunit;
+using ProGlassAutomation.Tests.TestSupport;
 
 namespace ProGlassAutomation.Tests.JobOrder
 {
@@ -42,8 +43,8 @@ namespace ProGlassAutomation.Tests.JobOrder
         public void List_viewmodel_detaches_the_static_lifecycle_subscription()
         {
             var root = LocateProjectRoot();
-            var vm = File.ReadAllText(Path.Combine(root,
-                "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs"));
+            var vm = SourceFamily.Read(root,
+                "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs");
 
             Assert.Contains("DocumentLifecycle.Subscribe(LoadJobOrdersAsync)", vm);
             // Dispose must detach BOTH static subscribers (data-seeded +
@@ -79,8 +80,8 @@ namespace ProGlassAutomation.Tests.JobOrder
         public void List_and_god_view_build_rows_from_the_projection()
         {
             var root = LocateProjectRoot();
-            var list = File.ReadAllText(Path.Combine(root,
-                "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs"));
+            var list = SourceFamily.Read(root,
+                "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs");
             var god = File.ReadAllText(Path.Combine(root,
                 "ViewModels/JobOrder/GodView/JobOrderGodViewViewModel.cs"));
             var rowVm = File.ReadAllText(Path.Combine(root,

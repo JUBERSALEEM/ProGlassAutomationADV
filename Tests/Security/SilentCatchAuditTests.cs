@@ -67,6 +67,7 @@ using System.IO;
 using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
+using System.Text.RegularExpressions;
 
 namespace ProGlassAutomation.Tests.Security
 {
@@ -213,6 +214,7 @@ namespace ProGlassAutomation.Tests.Security
             // licensing), audit-sink write (audit must
             // not block startup).
             ("LicenseService.cs",                   "*",                   "Startup best-effort / event-raise must not throw"),
+            ("LicenseActivatedDialog.cs",           "*",                   "Defensive remaining-days arithmetic on an untrusted license payload (MaxValue subtraction can overflow); fallback 0 days"),
 
             // RelayCommand — the inner catch guards the log
             // call itself; logging about a logging failure
@@ -663,7 +665,13 @@ namespace ProGlassAutomation.Tests.Security
         {
             foreach (var allow in AllowedSilentCatches)
             {
-                if (!relativeFile.Contains(allow.PathContains,
+                // Phase 3.8: god files are partial families (X.cs +
+                // X.PartN.cs). An allowlist entry for "X.cs" must cover
+                // the whole family, otherwise every empty catch that
+                // lives in a part becomes a false regression.
+                string family = Regex.Replace(relativeFile,
+                    @"\.Part\d+\.cs$", ".cs");
+                if (!family.Contains(allow.PathContains,
                         StringComparison.Ordinal))
                     continue;
 

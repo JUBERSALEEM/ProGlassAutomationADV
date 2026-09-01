@@ -18,6 +18,7 @@
 using System;
 using System.IO;
 using Xunit;
+using ProGlassAutomation.Tests.TestSupport;
 
 namespace ProGlassAutomation.Tests.DeliveryNote
 {
@@ -27,8 +28,8 @@ namespace ProGlassAutomation.Tests.DeliveryNote
         public void Repository_projects_every_list_query_at_sql_level()
         {
             var root = LocateProjectRoot();
-            var repo = File.ReadAllText(Path.Combine(root,
-                "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs"));
+            var repo = SourceFamily.Read(root,
+                "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs");
 
             // A shared EF-translatable projection that excludes the blob.
             Assert.Contains("ToListItemProjection", repo);
@@ -47,8 +48,8 @@ namespace ProGlassAutomation.Tests.DeliveryNote
         public void Pending_qty_query_does_not_fire_a_query_per_job_order()
         {
             var root = LocateProjectRoot();
-            var repo = File.ReadAllText(Path.Combine(root,
-                "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs"));
+            var repo = SourceFamily.Read(root,
+                "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs");
 
             // The method must batch-load the latest DN per job order in one
             // query (a "latestByJo" dictionary), not run FirstOrDefaultAsync
@@ -80,8 +81,8 @@ namespace ProGlassAutomation.Tests.DeliveryNote
         public void List_vm_is_disposable_and_detaches_lifecycle()
         {
             var root = LocateProjectRoot();
-            var vm = File.ReadAllText(Path.Combine(root,
-                "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs"));
+            var vm = SourceFamily.Read(root,
+                "ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs");
 
             Assert.Contains("System.IDisposable", vm);
             Assert.Contains("DocumentLifecycle.Subscribe(LoadAsync)", vm);
@@ -93,8 +94,8 @@ namespace ProGlassAutomation.Tests.DeliveryNote
         public void Main_vm_disposes_all_module_shells()
         {
             var root = LocateProjectRoot();
-            var main = File.ReadAllText(Path.Combine(root,
-                "ViewModels/MainViewModel.cs"));
+            var main = SourceFamily.Read(root,
+                "ViewModels/MainViewModel.cs");
 
             Assert.Contains("DeliveryNoteVM?.Dispose()", main);
             Assert.Contains("ProformaInvoiceVM?.Dispose()", main);

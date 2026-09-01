@@ -4,6 +4,7 @@ using ProGlassAutomation.Services.Documents;
 using System.Collections.Generic;
 using System.IO;
 using Xunit;
+using ProGlassAutomation.Tests.TestSupport;
 
 namespace ProGlassAutomation.Tests.Documents
 {
@@ -138,10 +139,10 @@ namespace ProGlassAutomation.Tests.Documents
         public void Lists_use_shared_progress_and_raise_on_ti_status()
         {
             var root = LocateProjectRoot();
-            var piList = File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs"));
-            var joList = File.ReadAllText(Path.Combine(root,
-                "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs"));
+            var piList = SourceFamily.Read(root,
+                "ViewModels/ProformaInvoice/SavedInvoicesList/SavedInvoicesListViewModel.cs");
+            var joList = SourceFamily.Read(root,
+                "ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs");
             var dnGroup = File.ReadAllText(Path.Combine(root,
                 "ViewModels/DeliveryNote/DeliveryNoteList/JobOrderGroupRowViewModel.cs"));
             var tiRepo = File.ReadAllText(Path.Combine(root,

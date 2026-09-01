@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Xunit;
+using ProGlassAutomation.Tests.TestSupport;
 
 namespace ProGlassAutomation.Tests.DeliveryNote
 {
@@ -94,12 +95,12 @@ namespace ProGlassAutomation.Tests.DeliveryNote
                 "Services/DeliveryNote/DeliveryNoteCreateService.cs"));
             var mapper = File.ReadAllText(Path.Combine(root,
                 "Services/DeliveryNote/Mapper/DeliveryNoteMapper.cs"));
-            var repo = File.ReadAllText(Path.Combine(root,
-                "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs"));
+            var repo = SourceFamily.Read(root,
+                "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs");
             var listXaml = File.ReadAllText(Path.Combine(root,
                 "Views/DeliveryNote/DeliveryNoteList/DeliveryNoteListView.xaml"));
-            var detailVm = File.ReadAllText(Path.Combine(root,
-                "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs"));
+            var detailVm = SourceFamily.Read(root,
+                "ViewModels/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailViewModel.cs");
 
             Assert.Contains("Content=\"NEW DN\"", listXaml);
             Assert.Contains("IsOpenForDispatch", create);
@@ -116,8 +117,8 @@ namespace ProGlassAutomation.Tests.DeliveryNote
         public void Previously_delivered_map_is_confirmed_only_and_spec_key()
         {
             var root = LocateProjectRoot();
-            var repo = File.ReadAllText(Path.Combine(root,
-                "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs"));
+            var repo = SourceFamily.Read(root,
+                "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs");
             var block = Extraction.Between(
                 repo,
                 "public async Task<Dictionary<string, int>> GetPreviouslyDeliveredMapAsync(",
@@ -132,8 +133,8 @@ namespace ProGlassAutomation.Tests.DeliveryNote
         public void Repository_does_not_count_dispatching_qty_on_master()
         {
             var root = LocateProjectRoot();
-            var repo = File.ReadAllText(Path.Combine(root,
-                "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs"));
+            var repo = SourceFamily.Read(root,
+                "Services/DeliveryNote/Repository/DeliveryNoteRepository.cs");
             var block = Extraction.Between(
                 repo,
                 "public async Task UpdateMasterDnAsync(",

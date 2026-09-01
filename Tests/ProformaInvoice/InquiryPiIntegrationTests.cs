@@ -41,6 +41,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
+using ProGlassAutomation.Tests.TestSupport;
 
 namespace ProGlassAutomation.Tests.ProformaInvoice
 {
@@ -220,10 +221,10 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         public void Inquiry_register_uses_safe_fire_and_forget_instead_of_async_command_lambdas()
         {
             var root = LocateProjectRoot();
-            var inquiryVm = File.ReadAllText(Path.Combine(root,
-                "ViewModels/Inquiry/InquiryListViewModel.cs"));
-            var mainVm = File.ReadAllText(Path.Combine(root,
-                "ViewModels/MainViewModel.cs"));
+            var inquiryVm = SourceFamily.Read(root,
+                "ViewModels/Inquiry/InquiryListViewModel.cs");
+            var mainVm = SourceFamily.Read(root,
+                "ViewModels/MainViewModel.cs");
 
             Assert.DoesNotContain("new RelayCommand(async", inquiryVm);
             Assert.DoesNotContain("async void", inquiryVm);
