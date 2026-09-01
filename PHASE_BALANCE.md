@@ -18,8 +18,8 @@ _Short status file. Last updated: 2026-09-02. Detailed audit: `INDUSTRIAL_CODE_A
 | 3.4 | PnL 2260 → 124+9 · TaxInvoiceDetail 2322 → 223+19 | ✅ | `0401d46` |
 | 3.5 | App.xaml.cs 1338 → 306 + 4 partials | ✅ | `8478841` |
 | 3.6 | MainWindow.xaml → region UserControls | ⏸ deferred — 37 `x:Name` fields contract; needs build | — |
-| 3.7 | Controller dialogs → VM-backed | 🔄 (see remaining list) | `96cf731`…`a8a8b93` |
-| 3.8 | Next god-file wave (16 files > 1000 lines) | ⏳ can proceed statically | — |
+| 3.7 | Controller dialogs → VM-backed | ✅ **COMPLETE** — remaining attrs are documented by-design keeps | `96cf731`…`40643c3` |
+| 3.8 | God-file wave — 16 files > 1000 lines + 7 more ≥ 888 | ✅ **COMPLETE** — all split into partial families, census-verified | `de1e376`, `7bcd88c` |
 | 5.1 | `AppStartupPipeline` service extraction | ⏸ deferred until build | — |
 | 5.2 | OS dialogs / PrintDialog / DemoModeService facade | ⏳ | — |
 | 6 | CommunityToolkit `[ObservableProperty]`/`[RelayCommand]` + `ProGlassAutomation.Core` split | ⏸ deferred until build | — |
@@ -81,6 +81,6 @@ Plus `MainWindow.xaml` (1175 lines, 3.6-deferred). Theme language dictionaries (
 
 ## Next steps
 
-1. 3.7: `RecordOverlayWindow` (5) → `LoginPanel` (4) → `SplashView` (4) → `CrashReportDialog` (4) → `JobOrderProformaPickerDialog` (4) → tails.
-2. 3.8 god-file wave: start `DeliveryNoteDetailViewModel` (2199) or `PrintableInvoiceViewModel` (1601) — same census-verified split recipe.
+1. 3.7: **DONE** — `RecordOverlayWindow` (5) → `LoginPanel` (4) → `SplashView` (4) → `CrashReportDialog` (4) → `JobOrderProformaPickerDialog` (4) → tails; census 86 → **64 attrs / 34 files** app-side (+8 tool).
+2. 3.8: **DONE** — wave 1 (`de1e376`): ThemeManager, VisualThemeEngine, StatementWorkflowEngine, LicenseService, DeliveryNoteDetailViewModel, SpecGroup, PrintableInvoiceViewModel, PricingEstimatorViewModel, SavedInvoicesListViewModel, InquiryListViewModel, DeliveryNoteListViewModel, MainViewModel, SheetStoreViewModel, DeliveryNoteRepository, PdfChrome, GlassAssemblyShowcase; wave 2 (`7bcd88c`): DataGridNavigationBehavior, SavedJobOrdersListViewModel, AiChatViewModel, LicenseActivationView.xaml.cs, ProformaInvoiceMapper, AuditService, StatementAggregator. No app .cs > 903 lines remains.
 3. Deferred until a compile/run is available: 3.6, 5.1, 6 (and 2.6's OS-dialog carve-out in 5.2).
