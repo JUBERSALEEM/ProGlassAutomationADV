@@ -362,3 +362,22 @@ strings; transition tests green.
    target.
 4. **14 XAML god files > 800 lines** (incl. `InquiryListView` 1429,
    `ReviewStep` 1399, `MainWindow` 1182) — Phase-3 decomposition targets.
+
+---
+
+## 10. Phase 4 — completed (2026-09-01)
+
+| # | Task | Status |
+|---|---|---|
+| 4.1 | `IStatusService.Transition/Validate` wrapping `StatusTransitions` + audit | ✅ `Services/Workflow/IStatusService.cs` + `StatusService.cs` (in-memory 200-entry ring + log line + `Transitioned` event); singleton in DI; `App.Status` accessor |
+| 4.2 | Replace direct `.Status =` user-transition sites; magic strings → typed constants | ✅ 3 user-transition gaps migrated (DN Detail `Received`, JO Detail save, PI SavedList `Approved`); magic strings → `DeliveryNoteStatusValues` / new `ProformaInvoiceStatus` consts; 2 sites verified already-validated (DN List, JO SavedList, PI SavedList:763); lifecycle-forced writes documented by design (PI Repo `MarkCancelledAsync`, snapshot restore, save-only normalize) |
+| 4.3 | Transition tests | ✅ existing `Tests/Agent/StatusTransitionsTests.cs` (valid/invalid/idempotent/empty per kind) + NEW `Tests/Workflow/StatusServiceTests.cs` (9 tests: record, reject-never-record, newest-first, event, case-insensitivity, actor/note, unknown kind) |
+| 4.4 | Workflow audit trail | ✅ log-based + in-memory ring (bounded); DB `WorkflowAuditTrail` table deferred — needs EF migration + runtime verification (tracked) |
+
+**Behaviour changes (intended):** illegal transitions are now blocked with a
+localized warning instead of silently persisted — e.g. a JO can no longer
+move `Delivered → Draft`, a PI can no longer become `Approved` after
+`Cancelled`. First-save of a new JO (no prior status) is exempt.
+**Excluded by design** (documented in `IStatusService` header): snapshot
+replay, mapper sync, sample data, report filters, lifecycle-forced
+cascade writes.

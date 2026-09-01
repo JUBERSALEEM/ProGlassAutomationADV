@@ -1,4 +1,6 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Workflow;
+using ProGlassAutomation.Models.ProformaInvoice.Common;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Audit;
@@ -885,8 +887,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     ProformaInvoiceMapper.SerializeSnapshot(snapshot);
             }
 
-            // Approve + persist.
-            entity.Status = "Approved";
+            // Approve + persist — validated against the workflow table so
+            // e.g. a Cancelled PI cannot silently become Approved.
+            if (!App.Status.Validate(
+                    StatusTransitions.Kind.ProformaInvoice,
+                    entity.Status, ProformaInvoiceStatus.Approved).IsValid)
+                return;
+
+            entity.Status = ProformaInvoiceStatus.Approved;
             entity.UpdatedAt = DateTime.Now;
             await App.Invoices.UpdateAsync(entity);
 

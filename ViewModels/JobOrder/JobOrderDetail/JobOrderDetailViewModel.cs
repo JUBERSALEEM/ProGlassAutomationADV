@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
+using ProGlassAutomation.Services.Workflow;
 
 namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 {
@@ -513,6 +514,22 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
             try
             {
+                // Enforce the workflow table on user status changes. New
+                // orders (no prior status yet) skip validation — first save.
+                if (!string.IsNullOrWhiteSpace(previousStatus))
+                {
+                    var statusTransition = App.Status.Validate(
+                        StatusTransitions.Kind.JobOrder,
+                        previousStatus, SelectedStatus);
+                    if (!statusTransition.IsValid)
+                    {
+                        MessageBox.Show(statusTransition.Reason ?? "Invalid status change.",
+                            LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+
                 // Update production fields on the snapshot
                 _snapshot.Production ??= new ProductionDetails();
                 _snapshot.Production.Status = SelectedStatus;

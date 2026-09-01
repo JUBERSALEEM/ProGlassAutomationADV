@@ -111,6 +111,7 @@ namespace ProGlassAutomation
         /// reporting tool (GetReportingTool). Never fabricates.
         /// </summary>
         public static IReportingDataService Reporting { get; private set; }
+        public static Services.Workflow.IStatusService Status { get; private set; } = null!;
 
         /// <summary>
         /// DI composition root — built once at startup. New code must
@@ -519,6 +520,7 @@ namespace ProGlassAutomation
                 TaxInvoices = ServiceProvider.GetRequiredService<ITaxInvoiceRepository>();
                 Statements = ServiceProvider.GetRequiredService<IStatementRepository>();
                 Reporting = ServiceProvider.GetRequiredService<IReportingDataService>();
+                Status = ServiceProvider.GetRequiredService<Services.Workflow.IStatusService>();
                 DashboardMetrics = ServiceProvider.GetRequiredService<IDashboardMetricsService>();
                 DashboardFilter = ServiceProvider.GetRequiredService<IDashboardFilterService>();
             }

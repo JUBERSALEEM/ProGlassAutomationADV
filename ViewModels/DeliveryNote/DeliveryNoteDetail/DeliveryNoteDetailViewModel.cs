@@ -27,6 +27,8 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
+using ProGlassAutomation.Services.Workflow;
+using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus;
 
 namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 {
@@ -2140,8 +2142,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             try
             {
-                Status = "Received";
-                _entity.Status = "Received";
+                // Enforce the workflow table: only valid sources may move
+                // to Received (Signed → Received, Dispatched → Received …).
+                if (!App.Status.Validate(
+                        StatusTransitions.Kind.DeliveryNote,
+                        Status, DeliveryNoteStatusValues.Received).IsValid)
+                    return;
+
+                Status = DeliveryNoteStatusValues.Received;
+                _entity.Status = DeliveryNoteStatusValues.Received;
                 await App.DeliveryNotes.UpdateAsync(_entity);
             }
             catch (Exception ex)

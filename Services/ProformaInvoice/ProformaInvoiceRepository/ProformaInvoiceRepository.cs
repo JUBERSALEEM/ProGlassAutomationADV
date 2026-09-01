@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Models.ProformaInvoice.Common;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 using ProGlassAutomation.Services.ProformaInvoice;   // InquiryLinkSync
@@ -543,7 +544,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 .FirstOrDefaultAsync(x => x.ProformaId == proformaId);
             if (entity == null) return false;
 
-            entity.Status = "Rejected";
+            // Lifecycle-forced write (downstream delete cascade, see
+            // ProformaLifecycleSync): this is a dedicated cancellation write
+            // with its own authorization semantics, so it deliberately
+            // bypasses the user-transition table (the PI is being cancelled
+            // because a dependent document was deleted, not by user action).
+            entity.Status = ProformaInvoiceStatus.Rejected;
             entity.UpdatedAt = DateTime.Now;
 
             // Keep the snapshot's status in sync so Step 1 / print preview
