@@ -389,7 +389,9 @@ namespace ProGlassAutomation.Tests.Security
             // change the recovery path.
             ("MainViewModel.cs",                    "Dispose",             "Main VM teardown"),
             ("MainViewModel.cs",                    "Navigate",            "Navigation fallback"),
-            ("MainViewModel.cs",                    "UpdateStorageDisplay","Storage-probe file walk"),
+            // (UpdateStorageDisplay entry removed 2026-09-02: the storage
+            // probe is now async in RefreshStorage with logged failures —
+            // no silent catch remains, so no allowlist entry is needed.)
             ("MainViewModel.cs",                    "UpdateAiScreenContext","AI context probe: per-VM best effort"),
             ("MainViewModel.cs",                    "MainViewModel",       "DI service resolution with legacy fallback"),
             ("MainViewModel.cs",                    "ResolveOrNew",        "DI service resolution with Activator fallback"),
