@@ -35,9 +35,9 @@ green for a customer.
 
 | Item | Status | Evidence / to do |
 |---|:---:|---|
-| Welcome view (`Views/Licensing/WelcomeView.xaml/.cs`) exists and is a modal Window | ✅ | `Views/Licensing/WelcomeView.xaml(.cs)` — wires Accept / Trial / Continue-Read-Only outcomes. |
-| Welcome view is launched from `App.xaml.cs` when `LicenseService.Current.Status == NotActivated` | ✅ | `App.xaml.cs:679` — the only `==` comparison against `NotActivated` is in the first-run branch. |
-| `ContinueReadOnly` lands the user in a usable shell (no data write paths gated only behind a license) | ⚠️ | The three outcomes are wired (`App.xaml.cs:702–718`); the data-path gating behind `LicenseService.Current.CanRun` has been **started** (`Services/Licensing/LicenseGate.CanNavigate`) but not every write entry point has been audited. To do: walk every `INSERT`/`UPDATE` in `Services/*` and confirm `LicenseGate` is checked. |
+| Activation UI exists (replaces the old modal `WelcomeView`, removed in the secure offline redesign) | ✅ | `Views/Licensing/LicenseActivationView.xaml.cs` — code-constructed `UserControl` (no XAML; deliberate, see header) in 3 partial files (3.8 split); hosted in `Views/Settings/Sections/SettingsLicenseSection.xaml.cs` and triggered as an overlay from the main window. |
+| Activation is driven by license state on startup | ✅ | `App.StartupCore.cs:527–570` — best-effort `LicenseService.Initialize()` (guarded), status logged, `LicenseStatusViewModel.Refresh()` forced before the shell loads; gating via `CanRun`/`CanRunFullUi` (`ViewModels/Licensing/LicenseStatusViewModel.cs:397`) + `LicenseVerifier.cs:96` (`NotActivated => false`). |
+| Continue-read-only / trial land the user in a usable shell (no data write paths gated only behind a license) | ⚠️ | Trial path: `AutoTrialManager` + `TrialLedger` + `TrialKeyVault` (`Services/Licensing/`); read-only path: `ReadOnlyGate.IsReadOnly` (`Services/Licensing/ReadOnlyGate.cs:125`). Data-path gating behind `LicenseGate.CanNavigate` (`Services/Licensing/LicenseGate.cs:112`) is **started** but not every write entry point is audited. To do: walk every `INSERT`/`UPDATE` in `Services/*` and confirm `LicenseGate` is checked. |
 | First-run user-creation → backup-location → preferences flow | ✗ | Only the license-activation slice of the original first-run spec is built. The rest is still on the roadmap. |
 
 ## 2. Licensing system
@@ -48,7 +48,7 @@ green for a customer.
 | RSA-2048-PSS signing | ✅ | `Services/Licensing/LicenseSigner.cs` (12 unit tests in `Tests/Licensing/LicenseSignerTests.cs`). |
 | Public-key verification | ✅ | `Services/Licensing/LicenseVerifier.cs` (public key from `LicensePublicKey.cs`). |
 | Machine fingerprint (CPU + OS + arch + framework + volume serial + NIC MAC, SHA-256) | ✅ | `Services/Licensing/MachineFingerprint.cs`; fully-qualified at call sites after the `568fd2c` fix. |
-| `LicenseService` runtime wrapper (load / validate / trial / grace / install) | ✅ | `Services/Licensing/LicenseService.cs` (8 hermetic tests, `TestDataFolderOverride` seam). |
+| `LicenseService` runtime wrapper (load / validate / trial / grace / install) | ✅ | `Services/Licensing/LicenseService.cs` + `.Part1/Part2.cs` partial family (3.8 split; 8 hermetic tests, `TestDataFolderOverride` seam). |
 | Separate `Tools/LicenseGenerator` (WPF) for the developer to issue keys | ✅ | `Tools/LicenseGenerator/` — rewritten as a WPF tool in `3ab89f9` (3 cards: New, Verify, Batch). |
 | `LicenseGate` — module-key → required-feature map, wired into `MainViewModel.Navigate` | ✅ | `Services/Licensing/LicenseGate.cs` (30 unit tests in `Tests/Licensing/LicenseGateTests.cs`); gated in `MainViewModel` so Cutting / Optimization requires `Cutting.*`. |
 | `LicenseStatusViewModel` (the singleton VM bound to About + Settings) | ✅ | `ViewModels/Licensing/LicenseStatusViewModel.cs` (8 VM tests in `Tests/Licensing/LicenseStatusViewModelTests.cs`). The two required usings (`Services.Licensing` + `Views.Licensing`) are both present. |
