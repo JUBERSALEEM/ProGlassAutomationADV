@@ -67,9 +67,24 @@ def main() -> int:
         merged_en.setdefault(k, v)
 
     langs = args.langs.split(",") if args.langs else []
-    files = sorted(HERE.glob("*.py"))
-    codes = [f.stem for f in files
-             if not f.stem.startswith(("build", "merge", "sweep", "chunk", "__"))]
+    # Language modules are exactly the *.py files that define a STRINGS dict.
+    # Pipeline tools (build/merge/sweep/chunk/msg-*) never define one, so this
+    # self-maintains: adding a new tool file can never break the merge again.
+    codes = []
+    for f in sorted(HERE.glob("*.py")):
+        if f.stem.startswith(("build", "merge", "sweep", "chunk", "__")):
+            continue
+        spec = importlib.util.spec_from_file_location(f"i18n_{f.stem}", f)
+        mod = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(mod)
+        except Exception as exc:  # pragma: no cover - defensive
+            print(f"  ! {f.name}: not loadable as a language module ({exc}); skipped")
+            continue
+        if not isinstance(getattr(mod, "STRINGS", None), dict):
+            print(f"  ! {f.name}: no STRINGS dict; skipped as a tool, not a language")
+            continue
+        codes.append(f.stem)
 
     def current(code: str) -> dict:
         return merged_en if code == "en-US" else load_py(code)

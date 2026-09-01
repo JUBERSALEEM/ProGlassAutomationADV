@@ -56,13 +56,26 @@ def emit(code: str, table: dict) -> str:
 """
 
 
+def is_language_module(f: Path) -> bool:
+    """True only for *.py files that define a STRINGS dict (language modules)."""
+    if f.stem.startswith(("build", "merge", "sweep", "chunk", "__")):
+        return False
+    spec = importlib.util.spec_from_file_location(f"i18n_{f.stem}", f)
+    mod = importlib.util.module_from_spec(spec)
+    try:
+        spec.loader.exec_module(mod)
+    except Exception:  # pragma: no cover - defensive
+        return False
+    return isinstance(getattr(mod, "STRINGS", None), dict)
+
+
 def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     english = load(CANONICAL)
     problems = []
     for f in sorted(FILES):
         code = f.stem
-        if code.startswith(("build", "merge", "sweep", "chunk", "__")):
+        if not is_language_module(f):
             continue
         table = load(code)
         missing = [k for k in english if k not in table]
@@ -72,7 +85,7 @@ def main() -> int:
             continue
         (OUT / f"{code}.xaml").write_text(emit(code, table), encoding="utf-8")
         print(f"  ✓ {code}.xaml ({len(table)} keys)")
-    processed = [f for f in FILES if not f.stem.startswith(("build", "merge", "sweep", "chunk", "__"))]
+    processed = [f.stem for f in FILES if is_language_module(f)]
     if problems:
         print("INCOMPLETE:", problems)
         return 1
