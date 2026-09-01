@@ -204,6 +204,10 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             if (_studioSaveTimer != null)
             {
+                // Flush a pending debounced save so a close right after
+                // the last slider move never loses the final values.
+                if (_studioSaveTimer.IsEnabled)
+                    OnStudioSaveTick(null, EventArgs.Empty);
                 _studioSaveTimer.Stop();
                 _studioSaveTimer.Tick -= OnStudioSaveTick;
                 _studioSaveTimer = null;

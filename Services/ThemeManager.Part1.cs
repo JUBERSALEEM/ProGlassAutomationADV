@@ -38,6 +38,19 @@ namespace ProGlassAutomation.Services
         //  THEME SWITCHING (original API — behaviour preserved)
         // ══════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Parsed theme dictionaries, cached after first load.
+        ///
+        /// WHY CACHE (2026-09-02 perf pass): every Light/Dark toggle used
+        /// to construct a fresh ResourceDictionary from disk (pack URI →
+        /// file IO + XAML/BAML parse) on the UI thread — the single
+        /// biggest cost of the toggle. The engine never writes INTO these
+        /// dictionaries (it writes Application.Resources), so the parsed
+        /// instances are safe to re-add/remove across toggles.
+        /// </summary>
+        private static ResourceDictionary? _lightDict;
+        private static ResourceDictionary? _darkDict;
+
         public static void ApplyTheme(AppTheme theme)
         {
             string themeUri = theme == AppTheme.Dark
@@ -47,10 +60,20 @@ namespace ProGlassAutomation.Services
             ResourceDictionary newDict;
             try
             {
-                newDict = new ResourceDictionary
+                if (theme == AppTheme.Dark)
                 {
-                    Source = new Uri(themeUri, UriKind.Absolute)
-                };
+                    newDict = _darkDict ??= new ResourceDictionary
+                    {
+                        Source = new Uri(themeUri, UriKind.Absolute)
+                    };
+                }
+                else
+                {
+                    newDict = _lightDict ??= new ResourceDictionary
+                    {
+                        Source = new Uri(themeUri, UriKind.Absolute)
+                    };
+                }
             }
             catch (Exception ex)
             {

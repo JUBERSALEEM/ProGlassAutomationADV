@@ -83,12 +83,8 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 _config.Appearance.CardBorderThickness = v;
                 ThemeManager.ApplyCardBorderThickness(v);
-                Services.AI.AIConfig.ConfigService.Save(_config);
-
-                ProGlassAutomation.Services.Audit.AuditService.Log(
-                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
-                    "Card border thickness changed",
-                    $"{v:0.#} DIP");
+                // Debounced: no disk/audit writes per slider tick.
+                ScheduleDebouncedSave(auditBorder: true);
 
                 OnPropertyChanged();
 
@@ -210,12 +206,8 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 _config.Appearance.CardCornerRadius = v;
                 ThemeManager.ApplyCardCornerRadius(v);
-                Services.AI.AIConfig.ConfigService.Save(_config);
-
-                ProGlassAutomation.Services.Audit.AuditService.Log(
-                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
-                    "Card corner radius changed",
-                    $"{v:0} px");
+                // Debounced: no disk/audit writes per slider tick.
+                ScheduleDebouncedSave(auditCorner: true);
 
                 OnPropertyChanged();
 

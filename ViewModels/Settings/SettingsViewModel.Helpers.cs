@@ -724,6 +724,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             try { Services.Updates.UpdateService.StateChanged -= OnUpdateServiceStateChanged; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UpdateService detach failed: " + ex.Message); }
             try { TeardownAppearanceSection(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: appearance-section detach failed: " + ex.Message); }
             try { DisposeThemeStudio(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: theme-studio teardown failed: " + ex.Message); }
+            try { FlushDebouncedSave(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: debounced save flush failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
 

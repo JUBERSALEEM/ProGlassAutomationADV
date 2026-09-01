@@ -84,10 +84,80 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (_config == null) return;
 
                 _config.Appearance.WallpaperOpacity = value;
-                SaveConfig();
+                // Live preview applies immediately; the config write is
+                // debounced so dragging the slider never hits the disk
+                // on every tick (2026-09-02 perf pass).
                 ApplyVisualTheme();
+                ScheduleDebouncedSave();
                 OnPropertyChanged();
             }
+        }
+
+        private System.Windows.Threading.DispatcherTimer? _debouncedSaveTimer;
+        private bool _debouncedSavePending;
+        private bool _auditBorderOnSave;
+        private bool _auditCornerOnSave;
+
+        /// <summary>
+        /// Debounced config write for slider-driven settings (2026-09-02
+        /// perf pass). Dragging a slider used to hit the disk AND the
+        /// audit database on every tick; now the value applies live and
+        /// the write settles 500 ms after the last change. Audit entries
+        /// also fire once per drag instead of once per tick.
+        /// </summary>
+        private void ScheduleDebouncedSave(
+            bool auditBorder = false, bool auditCorner = false)
+        {
+            if (auditBorder) _auditBorderOnSave = true;
+            if (auditCorner) _auditCornerOnSave = true;
+            _debouncedSavePending = true;
+
+            if (_debouncedSaveTimer == null)
+            {
+                _debouncedSaveTimer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(500)
+                };
+                _debouncedSaveTimer.Tick += (_, __) => SaveDebouncedNow();
+            }
+            _debouncedSaveTimer.Stop();
+            _debouncedSaveTimer.Start();
+        }
+
+        private void SaveDebouncedNow()
+        {
+            _debouncedSaveTimer?.Stop();
+            if (!_debouncedSavePending || _config == null) return;
+            _debouncedSavePending = false;
+
+            Services.AI.AIConfig.ConfigService.Save(_config);
+
+            if (_auditBorderOnSave)
+            {
+                _auditBorderOnSave = false;
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "Card border thickness changed",
+                    $"{_config.Appearance?.CardBorderThickness ?? 1.5:0.#} DIP");
+            }
+            if (_auditCornerOnSave)
+            {
+                _auditCornerOnSave = false;
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "Card corner radius changed",
+                    $"{_config.Appearance?.CardCornerRadius ?? 12:0} px");
+            }
+        }
+
+        /// <summary>
+        /// Flushes a pending debounced save (called on VM dispose so a
+        /// close right after a slider drag never loses the last value).
+        /// </summary>
+        public void FlushDebouncedSave()
+        {
+            _debouncedSaveTimer?.Stop();
+            SaveDebouncedNow();
         }
 
         public string WallpaperStatus
