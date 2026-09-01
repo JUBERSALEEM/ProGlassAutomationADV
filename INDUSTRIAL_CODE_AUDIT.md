@@ -365,9 +365,7 @@ strings; transition tests green.
 
 ---
 
-## 10. Phase 4 — completed (2026-09-01)
-
-| # | Task | Status |
+## 10. Phase 4 — completed (2026-09-01)| # | Task | Status |
 |---|---|---|
 | 4.1 | `IStatusService.Transition/Validate` wrapping `StatusTransitions` + audit | ✅ `Services/Workflow/IStatusService.cs` + `StatusService.cs` (in-memory 200-entry ring + log line + `Transitioned` event); singleton in DI; `App.Status` accessor |
 | 4.2 | Replace direct `.Status =` user-transition sites; magic strings → typed constants | ✅ 3 user-transition gaps migrated (DN Detail `Received`, JO Detail save, PI SavedList `Approved`); magic strings → `DeliveryNoteStatusValues` / new `ProformaInvoiceStatus` consts; 2 sites verified already-validated (DN List, JO SavedList, PI SavedList:763); lifecycle-forced writes documented by design (PI Repo `MarkCancelledAsync`, snapshot restore, save-only normalize) |
@@ -381,3 +379,26 @@ move `Delivered → Draft`, a PI can no longer become `Approved` after
 **Excluded by design** (documented in `IStatusService` header): snapshot
 replay, mapper sync, sample data, report filters, lifecycle-forced
 cascade writes.
+
+---
+
+## 11. Phase 2 — in progress (2026-09-01, foundation shipped)
+
+| # | Task | Status |
+|---|---|---|
+| 2.1 | `IDialogService` (wraps `MessageBox` + conveniences) | ✅ `Services/Dialogs/` — singleton in DI, `App.Dialogs` accessor |
+| 2.2 | Replace `MessageBox.` refs in ViewModels | ✅ **209/209 sites, 33 files → `App.Dialogs.Show(...)`**; VM `MessageBox.Show` = 0 (target 0). Passthrough = byte-identical behaviour; single interception point for theming/audit/fakes |
+| 2.3 | Replace `App.*` refs in ViewModels with constructor injection | ⏳ 470 refs / 42 files — next (needs parent-VM manual `new` conversion, see below) |
+| 2.4 | Replace DB refs in VMs with repository interfaces | ⏳ 84 refs / 18 files |
+| 2.5 | Code-behind event handlers → commands/behaviors | ⏳ ~162 handlers (MainWindow 15 worst) |
+| 2.6 | `new Window()`/`ShowDialog` in VMs → `INavigationService` | ⏳ 31 sites / 12 files |
+
+**Blocking note for 2.3:** the 5 list/detail VMs are constructed BOTH via DI
+(transient) AND manually (`new DeliveryNoteListViewModel()` in parent VMs,
+`new SavedInvoicesListViewModel { … }` in a dialog code-behind) — constructor
+injection must convert the manual sites in the same commit. Work item for the
+next Phase-2 pass.
+
+**Toolchain note:** `msg-wire.py` / `msg-extract.py` now recognize
+`App.Dialogs.Show(` as the same call-site shape; `msg-spec.json` stays frozen
+as the Phase-D historical artifact (its line drift predates Phase 2).
