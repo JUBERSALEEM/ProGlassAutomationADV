@@ -320,13 +320,45 @@ strings; transition tests green.
 
 ## 8. KPI dashboard (track after each phase)
 
-| Metric | Today | Target |
+| Metric | Today | Target | Phase-1 result |
+|---|---|---|---|
+| Root `.md` files | 35 | ≤ 6 | ✅ **5** |
+| Dead converter keys in `App.xaml` | 6 | 0 | ✅ **0** |
+| Dead view-local XAML keys | 38 | 0 | ✅ **0** (40 registrations removed) |
+| App-scope duplicate keys | 3 | 0 | ✅ **0** (BrushKeyConverter, StringEqualsMultiConverter, TintedCardStyle ×2) |
+| Theme-level dead keys (WARN) | — | verify | ⚠️ **155** — flagged, needs runtime verification (Phase 1.7) |
+| `App.*` refs in ViewModels | 470 (42 files) | 0 | Phase 2 |
+| `MessageBox.` refs in ViewModels | 208 (33 files) | 0 | Phase 2 |
+| Direct `.Status =` writes outside workflow service | 24 | 0 | Phase 4 |
+| Code-behind event handlers (business) | ~100 | 0 | Phase 2 (MainWindow.xaml.cs = 15, worst) |
+| Files > 60 KB | 9 | 0 | Phase 3 |
+| XAML god files > 800 lines | 14 | 0 | Phase 3 |
+| Tests | 834 | ≥ 1,000 | Phase 6 |
+| `tools/audit-xaml.py` | — | PASS in CI | ✅ **PASS** (exit 0, runnable in CI) |
+| `tools/i18n-audit.py` | PASS | PASS | ✅ PASS |
+
+---
+
+## 9. Phase 1 — completed (2026-09-01, commits `7dbefc3`→`943f6ee`)
+
+| # | Task | Status |
 |---|---|---|
-| Root `.md` files | 35 | ≤ 6 |
-| Dead converter keys in `App.xaml` | 6 | 0 |
-| `App.*` refs in ViewModels | 470 (42 files) | 0 |
-| `MessageBox.` refs in ViewModels | 208 (33 files) | 0 |
-| Direct `.Status =` writes outside workflow service | 24 | 0 |
-| Code-behind event handlers (business) | ~100 | 0 |
-| Files > 60 KB | 9 | 0 |
-| Tests | 834 | ≥ 1,000 (add transition + VM tests) |
+| 1.1 | Delete/consolidate 26 stale root `.md` files; move 5 living docs into `Docs/` | ✅ root 35 → 5 |
+| 1.2 | Remove 6 dead converter resource keys; merge `BoolToVis` alias (14 sites) | ✅ + 3 dead converter classes deleted |
+| 1.3 | Verify 10 `Controls/` components | ✅ 8 used / 2 dead deleted (`GradientHeroCard`, `Sparkline`) |
+| 1.4 | `tools/audit-xaml.py` — dead keys, duplicates, handlers, god files | ✅ PASS; scoping rules documented in header |
+| 1.5 | Resolve TODO/FIXME markers | ✅ 1 real marker audited → business item (§9.1) |
+
+### 9.1 Tracked follow-ups from Phase 1 (NOT deleted — require runtime verification)
+
+1. **155 theme/app/tool-level dead resource keys** (list via
+   `python3 tools/audit-xaml.py --quiet`) — `VisualThemeEngine` may key some
+   dynamically; verify on a running build, then delete.
+2. **`OtherChargeRow.MetricQty` delivery-row hack** — documented business
+   rule (delivery = per-invoice = 1 trip, matches PDF/Excel export); proper
+   fix (PER_ROUND source + editable qty) is a product decision → schedule in
+   a product backlog, do not change silently.
+3. **`MainWindow.xaml.cs` 15 event handlers** — Phase-2 command migration
+   target.
+4. **14 XAML god files > 800 lines** (incl. `InquiryListView` 1429,
+   `ReviewStep` 1399, `MainWindow` 1182) — Phase-3 decomposition targets.
