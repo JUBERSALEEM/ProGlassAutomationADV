@@ -56,6 +56,9 @@ namespace ProGlassAutomation.Services.Localization
             new() { Code = "NPR", Symbol = "Rs",  EnglishName = "Nepalese Rupee",          Decimals = 2 },
             new() { Code = "AUD", Symbol = "A$",  EnglishName = "Australian Dollar",       Decimals = 2 },
             new() { Code = "CAD", Symbol = "C$",  EnglishName = "Canadian Dollar",         Decimals = 2 },
+            new() { Code = "CHF", Symbol = "CHF", EnglishName = "Swiss Franc",             Decimals = 2 },
+            new() { Code = "SGD", Symbol = "S$",  EnglishName = "Singapore Dollar",        Decimals = 2 },
+            new() { Code = "ZAR", Symbol = "R",   EnglishName = "South African Rand",      Decimals = 2 },
         ];
 
         public static CurrencyInfo? Find(string? code)

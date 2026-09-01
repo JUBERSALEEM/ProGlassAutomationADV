@@ -47,6 +47,9 @@ namespace ProGlassAutomation.Services.Localization
                 ["NPR"] = 36.40m,
                 ["AUD"] = 0.416m,
                 ["CAD"] = 0.372m,
+                ["CHF"] = 0.2340m,  // ≈ 1 AED → CHF 0.234 (2026-09 seed)
+                ["SGD"] = 0.3640m,  // ≈ 1 AED → S$ 0.364 (2026-09 seed)
+                ["ZAR"] = 4.850m,   // ≈ 1 AED → R 4.85 (2026-09 seed)
             };
     }
 }
