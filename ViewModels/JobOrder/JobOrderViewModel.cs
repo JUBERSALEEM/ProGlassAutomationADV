@@ -160,7 +160,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.CouldNotOpenJobOrder"), ex.Message),
                     LocalizationService.Instance.T("Dashboard.JobOrders"),
                     System.Windows.MessageBoxButton.OK,
@@ -205,7 +205,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
 
                 if (entity == null)
                 {
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.JobOrderXNoLonger"), version.EntityId),
                         LocalizationService.Instance.T("Msg.CapRestoreVersion"),
                         System.Windows.MessageBoxButton.OK,
@@ -221,7 +221,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
 
                 if (!ok)
                 {
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         LocalizationService.Instance.T("Msg.VersionCouldNotBeApplied"),
                         LocalizationService.Instance.T("Msg.CapRestoreVersion"),
                         System.Windows.MessageBoxButton.OK,

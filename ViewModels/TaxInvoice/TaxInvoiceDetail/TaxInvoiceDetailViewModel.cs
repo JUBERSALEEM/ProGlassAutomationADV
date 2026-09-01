@@ -674,7 +674,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             DeleteCommand = new RelayCommand(async _ =>
             {
                 if (IsNewInvoice) return;
-                var result = MessageBox.Show(
+                var result = App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DeleteInvoiceXThisCannot"), _editingInvoiceNumber),
                     LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                     MessageBoxButton.YesNo,
@@ -689,7 +689,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
+                    App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
                         LocalizationService.Instance.T("Msg.CapDeleteFailed"), MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
@@ -1120,7 +1120,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (Exception ex)
             {
                 StatusMessage = $"Init from DN failed: {ex.Message}";
-                MessageBox.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToImportDNData"), ex.Message),
+                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToImportDNData"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapImportFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1209,7 +1209,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (Exception ex)
             {
                 StatusMessage = $"Master import failed: {ex.Message}";
-                MessageBox.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapImportFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1554,7 +1554,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (Exception ex)
             {
                 StatusMessage = $"Save failed: {ex.Message}";
-                MessageBox.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ex.Message),
+                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1684,7 +1684,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 bool includeAttachments = false;
                 if (attachments != null && attachments.Count > 0)
                 {
-                    var choice = MessageBox.Show(
+                    var choice = App.Dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.InvoiceHasXAttachmentS"), attachments.Count),
                         LocalizationService.Instance.T("Msg.CapIncludeAttachments"),
                         MessageBoxButton.YesNo,
@@ -1705,7 +1705,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 StatusMessage = $"✅ PDF saved: {System.IO.Path.GetFileName(savedPath)}";
 
-                var open = MessageBox.Show(
+                var open = App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.PDFSavedXOpenNow"), savedPath),
                     LocalizationService.Instance.T("Msg.CapPDFReady"), MessageBoxButton.YesNo,
                     MessageBoxImage.Information);
@@ -1722,14 +1722,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (ReadOnlyModeException ex)
             {
                 StatusMessage = ex.UserMessage;
-                MessageBox.Show(ex.UserMessage,
+                App.Dialogs.Show(ex.UserMessage,
                     LocalizationService.Instance.T("Msg.CapReadOnlyMode"), MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 StatusMessage = $"PDF export failed: {ex.Message}";
-                MessageBox.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapPDFExportFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1812,7 +1812,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 if (bytes.Length > 10 * 1024 * 1024)
                 {
-                    MessageBox.Show(LocalizationService.Instance.T("Msg.FileIsLargerThan10"),
+                    App.Dialogs.Show(LocalizationService.Instance.T("Msg.FileIsLargerThan10"),
                         LocalizationService.Instance.T("Msg.CapFileTooLarge"), MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return;
@@ -1872,7 +1872,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapAttachmentError"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1880,7 +1880,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
         private async Task RemoveAttachmentAsync(InvAttachmentViewModel vm)
         {
-            var result = MessageBox.Show(
+            var result = App.Dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.RemoveX"), vm.FileName),
                 LocalizationService.Instance.T("Msg.CapConfirmRemove"),
                 MessageBoxButton.YesNo,
@@ -1902,13 +1902,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (ReadOnlyModeException ex)
             {
-                MessageBox.Show(ex.UserMessage,
+                App.Dialogs.Show(ex.UserMessage,
                     LocalizationService.Instance.T("Msg.CapReadOnlyMode"), MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapRemoveFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1922,49 +1922,49 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         {
             if (string.IsNullOrWhiteSpace(ProformaId))
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.ProformaInvoiceReferenceIsRequired"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.ProformaInvoiceReferenceIsRequired"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(CustomerName))
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.CustomerNameIsRequired"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.CustomerNameIsRequired"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (!IsTrnValid)
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.CompanyTRNMustBeExactly"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.CompanyTRNMustBeExactly"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (DueDate < IssueDate)
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.DueDateCannotBeEarlier"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.DueDateCannotBeEarlier"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (SpecGroups.Count == 0 || SpecGroups.All(g => g.Rows.Count == 0))
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.LeastOneGlassItemRow"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.LeastOneGlassItemRow"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (SpecGroups.SelectMany(g => g.Rows).Any(r => r.Qty <= 0))
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.InvoiceRowsMustHaveQty"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.InvoiceRowsMustHaveQty"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (GrandTotal <= 0m)
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.GrandTotalMustBeGreater"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.GrandTotalMustBeGreater"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
@@ -2269,7 +2269,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (Exception ex)
             {
                 StatusMessage = $"Issue all failed: {ex.Message}";
-                MessageBox.Show(string.Format(LocalizationService.Instance.T("Msg.CouldNotIssueInvoicesX"), ex.Message),
+                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.CouldNotIssueInvoicesX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapIssueAllFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }

@@ -1539,7 +1539,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     LastWorkflowStatusText = "Duplicate detected";
                     LiveAddLogEntry(LogSeverity.Warning,
                         $"› ⚠ A statement with these filters already exists: {duplicate.StatementNumber}");
-                    var confirm = System.Windows.MessageBox.Show(
+                    var confirm = App.Dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.StatementWithTheSameFilters"), duplicate.StatementNumber, duplicate.SubTitle),
                         LocalizationService.Instance.T("Msg.CapDuplicateStatement"),
                         System.Windows.MessageBoxButton.YesNo,
@@ -1846,7 +1846,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     "  3. Return to Statement Generator and run the pipeline again.\n\n" +
                     "Continue generating without these signed attachments?";
 
-                var result = System.Windows.MessageBox.Show(
+                var result = App.Dialogs.Show(
                     "The following required signed attachments are missing:\n\n" +
                     string.Join("\n", missing) + guide,
                     LocalizationService.Instance.T("Msg.CapMissingSignedAttachments"),

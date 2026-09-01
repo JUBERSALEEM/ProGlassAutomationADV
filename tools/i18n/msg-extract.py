@@ -133,7 +133,7 @@ def main():
 
     for fp in files:
         src = open(fp, encoding="utf-8").read()
-        for m in re.finditer(r"MessageBox\.Show\s*\(([^;]{0,800}?)\)\s*;", src, re.S):
+        for m in re.finditer(r"(?:MessageBox|App\.Dialogs)\.Show\s*\(([^;]{0,800}?)\)\s*;", src, re.S):
             args_text = m.group(1)
             line = src.count("\n", 0, m.start()) + 1
             # split top-level commas (respect quotes/parens roughly)

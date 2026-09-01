@@ -1308,7 +1308,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 try
                 {
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         result.Error, LocalizationService.Instance.T("Msg.CapImportFont"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
@@ -1328,7 +1328,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             try
             {
-                System.Windows.MessageBox.Show(
+                App.Dialogs.Show(
                     "Font imported: " + result.Value + "\nIt is now applied app-wide.",
                     LocalizationService.Instance.T("Msg.CapImportFont"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -1566,7 +1566,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // toggle stays off unless the user confirms.
                 if (value && !App.Config.Ai.UseRealData)
                 {
-                    var confirm = System.Windows.MessageBox.Show(
+                    var confirm = App.Dialogs.Show(
                         "Turning on \"Use Real Business Data\" sends a live summary " +
                         "of your invoices, job orders, deliveries, tax invoices and " +
                         "balances — including real customer names, project names and " +
@@ -2197,7 +2197,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             // ── Security commands ─────────────────────────────────────
             RemoveSavedKeysCommand = new RelayCommand(_ =>
             {
-                var confirm = System.Windows.MessageBox.Show(
+                var confirm = App.Dialogs.Show(
                     LocalizationService.Instance.T("Msg.RemoveAllSavedAPIKeys"),
                     LocalizationService.Instance.T("Settings.RemoveSavedKeys"),
                     System.Windows.MessageBoxButton.YesNo,
@@ -2231,14 +2231,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     var summary = await ProGlassAutomation.Services
                         .SampleData.SampleDataService.SeedAsync();
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         summary, LocalizationService.Instance.T("Settings.SampleDATA"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         "Could not load sample data: " + ex.Message,
                         LocalizationService.Instance.T("Settings.SampleDATA"), System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
@@ -2254,7 +2254,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ? "the isolated DEMO folder (production files stay closed)"
                     : "the PRODUCTION folder";
 
-                var confirm = System.Windows.MessageBox.Show(
+                var confirm = App.Dialogs.Show(
                     "This will PERMANENTLY DELETE every record in " +
                     which + ":\n\n" +
                     folder + "\n\n" +
@@ -2275,14 +2275,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     var summary = await ProGlassAutomation.Services
                         .SampleData.SampleDataService.ClearAllDataAsync();
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         summary, LocalizationService.Instance.T("Settings.ClearDATA"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         "Could not clear data: " + ex.Message,
                         LocalizationService.Instance.T("Settings.ClearDATA"), System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
@@ -2590,7 +2590,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         .ManualWarnWindow)
                 {
                     var mins = (int)sinceLast.Value.TotalMinutes;
-                    var confirm = System.Windows.MessageBox.Show(
+                    var confirm = App.Dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.BackupWasCreatedXMinute"), mins),
                         LocalizationService.Instance.T("Msg.CapBackupAlreadyRecent"),
                         System.Windows.MessageBoxButton.YesNo,
@@ -2616,7 +2616,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     BackupStatus =
                         "Restore is blocked in Demo Mode. Exit Demo Mode first — " +
                         "restore writes the production folder.";
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         LocalizationService.Instance.T("Msg.DemoModeIsOnRestore"),
                         LocalizationService.Instance.T("Msg.CapRestoreBlocked"),
                         System.Windows.MessageBoxButton.OK,
@@ -2633,7 +2633,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     return;
                 }
 
-                var confirm = System.Windows.MessageBox.Show(
+                var confirm = App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.RestoreBackupFromXThis"), selected.CreatedAt),
                     LocalizationService.Instance.T("Msg.CapRestoreBackup"),
                     System.Windows.MessageBoxButton.YesNo,
@@ -2653,7 +2653,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 // The restored database only loads after a restart —
                 // surface that explicitly instead of a tiny status line.
-                var restart = System.Windows.MessageBox.Show(
+                var restart = App.Dialogs.Show(
                     LocalizationService.Instance.T("Msg.BackupRestoredSuccessfullyProGlassMust"),
                     LocalizationService.Instance.T("Msg.CapRestartRequired"),
                     System.Windows.MessageBoxButton.YesNo,
@@ -2751,7 +2751,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase);
             if (!isManagerOrAbove)
             {
-                System.Windows.MessageBox.Show(
+                App.Dialogs.Show(
                     "Rebuilding all databases is restricted to Managers " +
                     "and Administrators. Your role: " +
                     (string.IsNullOrEmpty(role) ? "none" : role) + ".",
@@ -2762,7 +2762,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
 
             // Gate 2: confirm the user knows what they're doing.
-            var proceed = System.Windows.MessageBox.Show(
+            var proceed = App.Dialogs.Show(
                 "EMERGENCY DATABASE REBUILD\n\n" +
                 "This will:\n" +
                 "  1. Move every .db file to MigrationBackups/_rebuild_<timestamp>/\n" +
@@ -2809,7 +2809,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // want to copy files out of MigrationBackups first) but
                 // the app's pooled connections still point at the
                 // moved files until restart.
-                var restart = System.Windows.MessageBox.Show(
+                var restart = App.Dialogs.Show(
                     "✓ All databases were rebuilt at the current schema.\n\n" +
                     "The originals are saved in:\n" +
                     AppDataRoot.CurrentFolder + "\\MigrationBackups\\\n\n" +
@@ -2835,7 +2835,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         Operation = "RebuildAllDatabases"
                     });
 
-                System.Windows.MessageBox.Show(
+                App.Dialogs.Show(
                     "Rebuild failed: " + ex.Message +
                     "\n\nThe original databases are still in " +
                     "MigrationBackups and have NOT been deleted.",
@@ -2908,7 +2908,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     ProGlassAutomation.Services.Logging.AppLogService.Warning(
                         "[SettingsViewModel] Restart aborted: could not resolve the running executable.");
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         LocalizationService.Instance.T("Msg.RestartCouldNotFindThe"),
                         LocalizationService.Instance.T("Msg.CapRestartUnavailable"),
                         System.Windows.MessageBoxButton.OK,
@@ -2929,7 +2929,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     ProGlassAutomation.Services.Logging.AppLogService.Warning(
                         "[SettingsViewModel] Restart blocked by security check: " + exe);
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         LocalizationService.Instance.T("Msg.RestartWasBlockedByThe"),
                         LocalizationService.Instance.T("Msg.CapRestartBlocked"),
                         System.Windows.MessageBoxButton.OK,
@@ -2948,7 +2948,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 if (started == null)
                 {
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         LocalizationService.Instance.T("Msg.RestartFailedToStartA"),
                         LocalizationService.Instance.T("Msg.CapRestartFailed"),
                         System.Windows.MessageBoxButton.OK,
@@ -2970,7 +2970,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "[SettingsViewModel] Restart failed: " + ex.Message);
                 try
                 {
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         "Restart failed (" + ex.Message + ").\n" +
                         "Save your work and start the app manually.",
                         LocalizationService.Instance.T("Msg.CapRestartFailed"),

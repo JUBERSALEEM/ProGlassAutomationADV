@@ -89,7 +89,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             catch (Exception ex)
             {
                 IoStatus = "Import failed.";
-                MessageBox.Show(
+                App.Dialogs.Show(
                     "Could not read the cut list.\n\n" + ex.Message +
                     "\n\nMake sure the file is a valid Excel (.xlsx), CSV or TXT file.",
                     LocalizationService.Instance.T("Msg.CapImportCutList"), MessageBoxButton.OK, MessageBoxImage.Error);
@@ -99,7 +99,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             if (parsed.Rows.Count == 0)
             {
                 IoStatus = parsed.Warning ?? "No rows imported.";
-                MessageBox.Show(IoStatus, LocalizationService.Instance.T("Msg.CapImportCutList"),
+                App.Dialogs.Show(IoStatus, LocalizationService.Instance.T("Msg.CapImportCutList"),
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }

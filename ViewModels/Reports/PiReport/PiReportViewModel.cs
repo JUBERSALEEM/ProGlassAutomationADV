@@ -155,7 +155,7 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
                 else
                     res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Proforma Invoice Report", ReportingExportService.PiHeaders, ReportingExportService.PiMap, req);
                 if (!res.Success && !res.Cancelled)
-                    System.Windows.MessageBox.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    App.Dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
         }

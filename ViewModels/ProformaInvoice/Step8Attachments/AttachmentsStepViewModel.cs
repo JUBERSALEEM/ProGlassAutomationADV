@@ -193,7 +193,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
         {
             if (!HasProformaId)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     LocalizationService.Instance.T("Msg.SetAProformaIDIn"),
                     LocalizationService.Instance.T("DeliveryNote.Attachments"),
                     MessageBoxButton.OK,
@@ -318,7 +318,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.CannotOpenFileX"), ex.Message),
                     LocalizationService.Instance.T("DeliveryNote.Attachments"),
                     MessageBoxButton.OK,
@@ -362,7 +362,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
         {
             if (row == null) return;
 
-            var confirm = MessageBox.Show(
+            var confirm = App.Dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.RemoveAttachmentXTheFile"), row.FileName),
                 LocalizationService.Instance.T("Msg.CapDeleteAttachment"),
                 MessageBoxButton.YesNo,

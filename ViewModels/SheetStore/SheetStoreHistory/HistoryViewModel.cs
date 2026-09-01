@@ -158,7 +158,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     "Failed to load history:\n\n" + ex.Message,
                     LocalizationService.Instance.T("Msg.CapError"), MessageBoxButton.OK, MessageBoxImage.Error);
             }

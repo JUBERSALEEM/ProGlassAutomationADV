@@ -160,7 +160,7 @@ namespace ProGlassAutomation.ViewModels.About
 
         private void ClearAll()
         {
-            var answer = MessageBox.Show(
+            var answer = App.Dialogs.Show(
                 LocalizationService.Instance.T("Msg.DeleteEveryCrashReportOn"),
                 LocalizationService.Instance.T("Msg.CapClearCrashReports"),
                 MessageBoxButton.YesNo,

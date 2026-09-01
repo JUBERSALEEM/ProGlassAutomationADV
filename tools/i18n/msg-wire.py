@@ -111,7 +111,7 @@ def pure_literal(expr: str) -> bool:
 def locate_call(src: str, line: int):
     """Return (match, close_paren_index) for the MessageBox.Show call whose
     opening paren sits on the given source line, or None."""
-    for m in re.finditer(r"MessageBox\.Show\s*\(", src):
+    for m in re.finditer(r"(?:MessageBox|App\.Dialogs)\.Show\s*\(", src):
         if src.count("\n", 0, m.start()) + 1 == line:
             depth = 0
             j = m.end() - 1

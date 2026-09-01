@@ -312,7 +312,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
                 if (items.Count == 0)
                 {
-                    MessageBox.Show(
+                    App.Dialogs.Show(
                         LocalizationService.Instance.T("Msg.NothingToExportTheCurrent"),
                         LocalizationService.Instance.T("DeliveryNote.ExportExcel"),
                         MessageBoxButton.OK,
@@ -351,7 +351,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 LastExportStatus = $"✗ Excel export failed: {ex.Message}";
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
@@ -437,7 +437,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToLoadSavedInvoices"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapLoadError"),
                     MessageBoxButton.OK,
@@ -600,7 +600,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             if (item == null || App.Invoices == null) return;
 
-            var confirm = MessageBox.Show(
+            var confirm = App.Dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DuplicateInvoiceXANew"), item.ProformaId),
                 LocalizationService.Instance.T("Msg.CapConfirmDuplicate"),
                 MessageBoxButton.YesNo,
@@ -649,7 +649,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 await App.Invoices.InsertAsync(copy);
                 await LoadInvoicesAsync();
 
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DuplicatedAsX"), newId),
                     LocalizationService.Instance.T("Msg.CapDuplicateSuccessful"),
                     MessageBoxButton.OK,
@@ -657,7 +657,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToDuplicateX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapDuplicateFailed"),
                     MessageBoxButton.OK,
@@ -682,12 +682,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     item.ProformaId ?? "");
             if (guard.HasDependents)
             {
-                MessageBox.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
+                App.Dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var confirm = MessageBox.Show(
+            var confirm = App.Dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DeleteInvoiceXPermanentlyThis"), item.ProformaId),
                 LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,
@@ -706,7 +706,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX2"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
@@ -751,7 +751,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         entity.Status, newStatus);
                 if (!transition.IsValid)
                 {
-                    MessageBox.Show(transition.Reason ?? "Invalid status change.",
+                    App.Dialogs.Show(transition.Reason ?? "Invalid status change.",
                         LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -777,7 +777,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX2"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapStatusChangeFailed"),
                     MessageBoxButton.OK,
@@ -909,7 +909,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             await LoadInvoicesAsync();
 
-            MessageBox.Show(
+            App.Dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.InvoiceXApprovedAndConverted"), entity.ProformaId),
                 LocalizationService.Instance.T("Msg.CapApproved"),
                 MessageBoxButton.OK,
@@ -1016,7 +1016,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     : result.Cancelled ? "" : $"✗ PDF export failed";
 
                 if (!result.Success && !result.Cancelled)
-                    MessageBox.Show(
+                    App.Dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.PDFExportFailedX"), result.ErrorMessage),
                         LocalizationService.Instance.T("Msg.CapExportFailed"),
                         MessageBoxButton.OK,
@@ -1025,7 +1025,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 LastExportStatus = $"✗ PDF export failed: {ex.Message}";
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.PDFExportFailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
@@ -1062,7 +1062,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     : result.Cancelled ? "" : $"✗ Excel export failed";
 
                 if (!result.Success && !result.Cancelled)
-                    MessageBox.Show(
+                    App.Dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), result.ErrorMessage),
                         LocalizationService.Instance.T("Msg.CapExportFailed"),
                         MessageBoxButton.OK,
@@ -1071,7 +1071,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 LastExportStatus = $"✗ Excel export failed: {ex.Message}";
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
@@ -1112,7 +1112,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     : result.Cancelled ? "" : $"✗ CSV export failed";
 
                 if (!result.Success && !result.Cancelled)
-                    MessageBox.Show(
+                    App.Dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.CSVExportFailedX"), result.ErrorMessage),
                         LocalizationService.Instance.T("Msg.CapExportFailed"),
                         MessageBoxButton.OK,
@@ -1121,7 +1121,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 LastExportStatus = $"✗ CSV export failed: {ex.Message}";
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.CSVExportFailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,

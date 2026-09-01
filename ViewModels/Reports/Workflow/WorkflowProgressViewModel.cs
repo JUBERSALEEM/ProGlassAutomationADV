@@ -315,7 +315,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Workflow
                              string.Join("\n\n", _result.AllWarnings
                                  .Select((w, i) => $"{i + 1}. {w}"));
 
-            MessageBox.Show(
+            App.Dialogs.Show(
                 message,
                 LocalizationService.Instance.T("Msg.CapWorkflowWarningsX"),
                 MessageBoxButton.OK,

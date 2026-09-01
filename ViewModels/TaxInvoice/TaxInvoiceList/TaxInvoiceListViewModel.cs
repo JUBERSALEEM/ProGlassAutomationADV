@@ -395,7 +395,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 if (App.TaxInvoices == null) return;
 
                 // NEVER delete directly — explicit confirmation first.
-                var result = System.Windows.MessageBox.Show(
+                var result = App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DeleteTaxInvoiceFamilyX"), fam.ProformaId, fam.InvoiceCount),
                     LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                     System.Windows.MessageBoxButton.YesNo,
@@ -417,7 +417,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.MessageBox.Show(
+                    App.Dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
                         LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                         System.Windows.MessageBoxButton.OK,

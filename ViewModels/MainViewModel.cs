@@ -861,7 +861,7 @@ namespace ProGlassAutomation.ViewModels
                 if (dispatcher == null) return System.Threading.Tasks.Task.FromResult(false);
                 bool Ask()
                 {
-                    var result = System.Windows.MessageBox.Show(message,
+                    var result = App.Dialogs.Show(message,
                         string.IsNullOrWhiteSpace(title) ? "ProGlass Agent" : title,
                         System.Windows.MessageBoxButton.YesNo,
                         destructive ? System.Windows.MessageBoxImage.Warning : System.Windows.MessageBoxImage.Question,
@@ -900,7 +900,7 @@ namespace ProGlassAutomation.ViewModels
                 "• Yes — open the Inquiry list (recommended)\n" +
                 "• No — create a blank Proforma Invoice without an inquiry\n" +
                 "• Cancel — do not start a new Proforma Invoice";
-            var result = System.Windows.MessageBox.Show(message,
+            var result = App.Dialogs.Show(message,
                 LocalizationService.Instance.T("Msg.CapStartProformaInvoiceFromInquiry"),
                 System.Windows.MessageBoxButton.YesNoCancel,
                 System.Windows.MessageBoxImage.Question,
@@ -936,7 +936,7 @@ namespace ProGlassAutomation.ViewModels
                 .CanNavigate(targetKey ?? "");
             if (!gate.Allowed)
             {
-                System.Windows.MessageBox.Show(
+                App.Dialogs.Show(
                     gate.Reason,
                     LocalizationService.Instance.T("Msg.CapUpgradeRequired"),
                     System.Windows.MessageBoxButton.OK,

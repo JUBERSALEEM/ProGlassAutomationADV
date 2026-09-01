@@ -480,7 +480,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             var entity = await App.Invoices.GetByIdAsync(invoiceId);
             if (entity == null)
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.SelectedInvoiceCouldNotBe"), LocalizationService.Instance.T("Msg.CapLoadFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.SelectedInvoiceCouldNotBe"), LocalizationService.Instance.T("Msg.CapLoadFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
@@ -541,7 +541,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(wrapper);
             if (snapshot == null)
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.VersionCouldNotBeRead"), LocalizationService.Instance.T("Msg.CapRestoreVersion"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.VersionCouldNotBeRead"), LocalizationService.Instance.T("Msg.CapRestoreVersion"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             Step7VM.InvoiceMainSummary.BeginBatchUpdate();

@@ -937,7 +937,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 // catch below and be reported as a "Database Error", which
                 // is wrong and would send the user chasing a fault that
                 // does not exist.
-                MessageBox.Show(
+                App.Dialogs.Show(
                     denied.UserMessage, LocalizationService.Instance.T("Msg.CapPermissionDenied"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
@@ -947,7 +947,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             catch (Exception ex)
             {
                 // Errors still use MessageBox — must interrupt the user
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToSaveSpecX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapDatabaseError"),
                     MessageBoxButton.OK,

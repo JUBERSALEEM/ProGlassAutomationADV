@@ -78,6 +78,7 @@ namespace ProGlassAutomation.Services.DependencyInjection
             // Singleton — one per app lifetime, owns DB file + connection pool
             services.AddSingleton<IInquiryRepository, InquiryRepository>();
             services.AddSingleton<Services.Workflow.IStatusService, Services.Workflow.StatusService>();
+            services.AddSingleton<Services.Dialogs.IDialogService, Services.Dialogs.DialogService>();
             services.AddSingleton<IInquiryWorkflowService, InquiryWorkflowService>();
             services.AddSingleton<InquiryAttachmentService>();
             services.AddSingleton<InquiryImportExportService>();

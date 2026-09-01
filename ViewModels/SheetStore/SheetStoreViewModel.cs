@@ -506,7 +506,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         }
 
         private void ShowError(string message) =>
-            MessageBox.Show(message, LocalizationService.Instance.T("Msg.CapError"), MessageBoxButton.OK, MessageBoxImage.Error);
+            App.Dialogs.Show(message, LocalizationService.Instance.T("Msg.CapError"), MessageBoxButton.OK, MessageBoxImage.Error);
 
         // ============ CSV EXPORT ============
 
@@ -514,7 +514,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (!Sheets.Any())
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
                     LocalizationService.Instance.T("DeliveryNote.ExportCSV"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -531,7 +531,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             try
             {
                 await _csvService.ExportAsync(dialog.FileName, Sheets.ToList());
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ExportedXSheetsToY"), Sheets.Count, dialog.FileName),
                     LocalizationService.Instance.T("Msg.CapExportComplete"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -547,7 +547,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (!Sheets.Any())
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
                     LocalizationService.Instance.T("DeliveryNote.ExportExcel"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -564,7 +564,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             try
             {
                 await _excelService.ExportAsync(dialog.FileName, Sheets.ToList(), BuildFilterInfoString());
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ExportedXSheetsToExcel"), Sheets.Count, dialog.FileName),
                     LocalizationService.Instance.T("Msg.CapExportComplete"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -580,7 +580,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (!Sheets.Any())
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
                     LocalizationService.Instance.T("DeliveryNote.ExportPDF"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -597,7 +597,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             try
             {
                 await _pdfService.GenerateReportAsync(dialog.FileName, Sheets.ToList(), BuildFilterInfoString());
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.PDFReportGeneratedXSheets"), Sheets.Count, dialog.FileName),
                     LocalizationService.Instance.T("Msg.CapExportComplete"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -632,7 +632,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             if (imported.Count == 0)
             {
-                MessageBox.Show(LocalizationService.Instance.T("Msg.CSVFileHasNoRows"),
+                App.Dialogs.Show(LocalizationService.Instance.T("Msg.CSVFileHasNoRows"),
                     LocalizationService.Instance.T("Msg.CapImportCSV"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -719,7 +719,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
                 await LoadAsync();
 
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ImportCompleteXNewSheets"), addedCount, stockAddedCount, updatedCount, skippedCount),
                     LocalizationService.Instance.T("Msg.CapImportSummary"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -846,7 +846,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 AppPermissions.SheetStoreDelete, "delete a glass sheet"))
                 return;
 
-            var result = MessageBox.Show(
+            var result = App.Dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DeleteThisGlassSheetX"), sheet.Category, sheet.ThicknessDisplay, sheet.Color, sheet.SizeDisplay, sheet.Stock, sheet.TotalPurchaseValue),
                 LocalizationService.Instance.T("Msg.CapConfirmDelete"), MessageBoxButton.YesNo, MessageBoxImage.Warning);
 

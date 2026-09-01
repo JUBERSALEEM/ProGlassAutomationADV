@@ -327,7 +327,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
 
             if (row == null) return;
 
-            var result = MessageBox.Show(
+            var result = App.Dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DeleteStatementXThisWill"), row.StatementNumber),
                 LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,

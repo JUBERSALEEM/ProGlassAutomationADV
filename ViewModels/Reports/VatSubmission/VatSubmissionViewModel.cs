@@ -245,7 +245,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
                         VatHeaders, VatMap, req);
                 
                 if (!res.Success && !res.Cancelled) 
-                    System.Windows.MessageBox.Show(res.ErrorMessage ?? "Export failed.", 
+                    App.Dialogs.Show(res.ErrorMessage ?? "Export failed.", 
                         LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }

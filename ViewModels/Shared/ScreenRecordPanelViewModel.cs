@@ -160,7 +160,7 @@ namespace ProGlassAutomation.ViewModels.Shared
             {
                 try
                 {
-                    MessageBox.Show(why, LocalizationService.Instance.T("Shared.ScreenRecording"),
+                    App.Dialogs.Show(why, LocalizationService.Instance.T("Shared.ScreenRecording"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 catch { /* status still updated */ }

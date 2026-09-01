@@ -137,7 +137,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
+                    App.Dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.FailedToOpenMasterInvoice"), ex.Message),
                         LocalizationService.Instance.T("Msg.CapNavigationError"),
                         MessageBoxButton.OK,
@@ -178,7 +178,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
+                    App.Dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo"), ex.Message),
                         LocalizationService.Instance.T("Msg.CapNavigationError"),
                         MessageBoxButton.OK,
@@ -219,7 +219,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         {
             if (string.IsNullOrWhiteSpace(proformaId))
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     LocalizationService.Instance.T("Msg.CannotCreateMasterInvoiceNo"),
                     LocalizationService.Instance.T("Msg.CapPIReference"),
                     MessageBoxButton.OK,
@@ -229,7 +229,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             if (OnRequestOpenTaxInvoiceForMasterFromProforma == null)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     LocalizationService.Instance.T("Msg.TaxInvoiceNavigationIsNot2"),
                     LocalizationService.Instance.T("Msg.CapWired"),
                     MessageBoxButton.OK,
@@ -244,7 +244,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         {
             if (string.IsNullOrWhiteSpace(deliveryNoteId))
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     LocalizationService.Instance.T("Msg.CannotConvertToTaxInvoice"),
                     LocalizationService.Instance.T("Msg.CapDNReference"),
                     MessageBoxButton.OK,
@@ -254,7 +254,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             if (OnRequestOpenTaxInvoiceForDeliveryNote == null)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     LocalizationService.Instance.T("Msg.TaxInvoiceNavigationIsNot2"),
                     LocalizationService.Instance.T("Msg.CapWired"),
                     MessageBoxButton.OK,
@@ -325,7 +325,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show(
+                        App.Dialogs.Show(
                             "Could not open Master DN.\n\n" + ex.Message,
                             LocalizationService.Instance.T("JobOrder.MasterDN"),
                             MessageBoxButton.OK,
@@ -337,7 +337,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             if (master == null)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.MasterDNExistsForX"), jobOrderId),
                     LocalizationService.Instance.T("Msg.CapMasterDNNotFound"),
                     MessageBoxButton.OK,
@@ -383,7 +383,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     break;
 
                 case DnCreateResult.Kind.FullyDelivered:
-                    MessageBox.Show(
+                    App.Dialogs.Show(
                         result.Message,
                         LocalizationService.Instance.T("Msg.CapFullyDelivered"),
                         MessageBoxButton.OK,
@@ -391,7 +391,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     break;
 
                 default:
-                    MessageBox.Show(
+                    App.Dialogs.Show(
                         string.IsNullOrWhiteSpace(result.Message)
                             ? "Failed to create delivery note."
                             : result.Message,

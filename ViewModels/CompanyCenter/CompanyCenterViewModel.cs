@@ -256,7 +256,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             {
                 if (p is not CompanyCard card) return;
 
-                var result = System.Windows.MessageBox.Show(
+                var result = App.Dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DeleteCompanyXExistingInvoices"), card.CompanyName),
                     LocalizationService.Instance.T("Msg.CapDeleteCompany"),
                     System.Windows.MessageBoxButton.YesNo,

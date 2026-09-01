@@ -62,7 +62,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
             {
                 if (Clauses.Count > 0)
                 {
-                    var result = MessageBox.Show(
+                    var result = App.Dialogs.Show(
                         LocalizationService.Instance.T("Msg.ResetAllTermsToDefaults"),
                         LocalizationService.Instance.T("Msg.CapResetToDefaults"),
                         MessageBoxButton.YesNo,

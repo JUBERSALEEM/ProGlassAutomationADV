@@ -263,7 +263,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
 
             if (!ok)
             {
-                MessageBox.Show(
+                App.Dialogs.Show(
                     LocalizationService.Instance.T("Msg.CannotChangeThisUserThe"),
                     LocalizationService.Instance.T("SystemCenter.Users"),
                     MessageBoxButton.OK,
