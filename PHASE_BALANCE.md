@@ -28,13 +28,13 @@ _Short status file. Last updated: 2026-09-02. Detailed audit: `INDUSTRIAL_CODE_A
 
 Series used one consistent regex (Click/Checked/Unchecked/SelectionChanged/KeyDown/Closed/Loaded/MouseLeftButtonDown): **174 → 157 → 128 → 113 → 107 → 95 → 86 → 76 → 70 → 64 → 61 → 57** (27 files).
 
-**2026-09-02 cross-check correction:** a wider 36-event scan shows the series under-counts events outside that family (`Opened`, `PasswordChanged`, `PreviewKeyDown`, `TextChanged`, `MouseMove`, `SizeChanged`, `Drop`, …). True current surface: **86 attrs / 38 files** — 78 attrs / 37 files in the app + **8 in `Tools/LicenseGenerator`** (separate tool project). Per-file targets below use the true counts.
+**2026-09-02 cross-check correction:** a wider 36-event scan shows the series under-counts events outside that family (`Opened`, `PasswordChanged`, `PreviewKeyDown`, `TextChanged`, `MouseMove`, `SizeChanged`, `Drop`, …). True current surface: **82 attrs / 38 files** — 74 attrs / 37 files in the app + **8 in `Tools/LicenseGenerator`** (separate tool project). Per-file targets below use the true counts.
 
 ## Remaining 3.7 targets (true counts)
 
 | Attrs | File | Notes |
 |------:|------|-------|
-| 5 | `Views/Shared/RecordOverlayWindow.xaml` | record HUD: pause/stop/open-folder/close + drag |
+| ~~5~~ 1 | `Views/Shared/RecordOverlayWindow.xaml` | ✅ converted — HUD state in `ViewModels/Shared/RecordOverlayViewModel.cs`; only the drag keep remains (`e…`) |
 | 4 | `Views/JobOrder/…/JobOrderProformaPickerDialog.xaml` | search, show-all toggle, confirm |
 | 4 | `Views/Login/LoginPanel.xaml` | sign-in/forgot/exit + preview-keydown |
 | 4 | `Views/Splash/SplashView.xaml` | terms accept/decline + continue |

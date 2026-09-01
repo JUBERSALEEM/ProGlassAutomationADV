@@ -1,8 +1,7 @@
 using ProGlassAutomation.Agent.Demo.Recording;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.ViewModels.Shared;
 using System;
-using System.Diagnostics;
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -22,14 +21,19 @@ namespace ProGlassAutomation.Views.Shared
     ///     version moved it on every 200ms tick, which added jank).
     ///   • Time uses RecordingTime.Format — a plain MM:SS / H:MM:SS that no
     ///     longer overflows past 99 minutes.
+    ///
+    /// 2026-09-02 (Phase 3.7): all HUD state + actions live in
+    /// RecordOverlayViewModel (bound: time, badge, dot, pause glyph, stage,
+    /// button visibilities, stop enablement; commands for pause/stop/
+    /// open-folder/close). This file keeps only window-chrome concerns:
+    /// the 250 ms DispatcherTimer (drives _vm.Tick() + Place()), auto-
+    /// placement, the drag gesture, and the public API forwarders so
+    /// DemoRecordingChrome is untouched.
     /// </summary>
     public partial class RecordOverlayWindow : Window
     {
         private readonly DispatcherTimer _timer;
-        private WindowScreenRecorder? _recorder;
-        private Action? _onStop;
-        private Action? _onPause;
-        private DateTime _started;
+        private readonly RecordOverlayViewModel _vm = new();
         private double _lastLeft = double.NaN;
         private double _lastTop = double.NaN;
 
@@ -44,24 +48,16 @@ namespace ProGlassAutomation.Views.Shared
         // Tick()/Place() must not reposition the window mid-drag.
         private bool _isDragging;
 
-        // Frozen brushes reused by every Tick — the old code allocated two
-        // new SolidColorBrushes every 250 ms for the whole recording.
-        private static readonly SolidColorBrush BadgePausedBrush = Frozen(Color.FromRgb(251, 191, 36));
-        private static readonly SolidColorBrush BadgeRecBrush = Frozen(Color.FromRgb(252, 165, 165));
-        private static readonly SolidColorBrush DotFailBrush = Frozen(Color.FromRgb(239, 68, 68));
-        private static readonly SolidColorBrush DotOkBrush = Frozen(Color.FromRgb(34, 197, 94));
-        private static readonly SolidColorBrush DotStopBrush = Frozen(Color.FromRgb(251, 191, 36));
-
-        private static SolidColorBrush Frozen(Color c)
-        {
-            var b = new SolidColorBrush(c);
-            b.Freeze();
-            return b;
-        }
-
         public RecordOverlayWindow()
         {
             InitializeComponent();
+            DataContext = _vm;
+
+            _vm.RequestHide = () =>
+            {
+                try { Hide(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            };
+            _vm.Finalized += () => _timer.Stop();
 
             // 2026-08-25 senior fix — the HUD clock stayed at 0:00 during
             // recordings. The timer ran at DispatcherPriority.Background,
@@ -74,74 +70,30 @@ namespace ProGlassAutomation.Views.Shared
             {
                 Interval = TimeSpan.FromMilliseconds(250)
             };
-            _timer.Tick += (_, _) => Tick();
+            _timer.Tick += (_, _) =>
+            {
+                _vm.Tick();
+                Place();
+            };
             Loaded += (_, _) => { _lastLeft = double.NaN; _lastTop = double.NaN; Place(); };
         }
 
+        // ── Public API (DemoRecordingChrome contract) — forwarded ───────
         public void Bind(
             string module,
             WindowScreenRecorder recorder,
             Action? onStop,
             Action? onPause)
         {
-            _recorder = recorder;
-            _onStop = onStop;
-            _onPause = onPause;
-            _started = DateTime.UtcNow;
-
-            HudPause.Visibility = onPause == null ? Visibility.Collapsed : Visibility.Visible;
-            HudStage.Text = "";
-            HudStage.Visibility = Visibility.Collapsed;
-            HudClose.Visibility = Visibility.Collapsed;
-            HudStop.Visibility = Visibility.Visible;
-            HudStop.IsEnabled = true;   // re-arm after a previous stop/cancel
-
+            _vm.Bind(recorder, onStop, onPause);
             _timer.Start();
-            Tick();
             Place();
         }
 
-        public void SetStage(string message)
-        {
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                HudStage.Visibility = Visibility.Collapsed;
-                return;
-            }
-
-            HudStage.Text = message;
-            HudStage.Visibility = Visibility.Visible;
-        }
+        public void SetStage(string message) => _vm.SetStage(message);
 
         public void SetFinal(string badge, string stats, string stage, bool failed, Color? dotColor = null)
-        {
-            _timer.Stop();
-            _recorder = null;
-
-            HudBadge.Text = badge;
-            HudDot.Fill = dotColor != null
-                ? Frozen(dotColor.Value)
-                : (failed ? DotFailBrush : DotOkBrush);
-
-            // Final state is a single status line + a close button; the
-            // full detail (path, frames, audio) is shown in the saved dialog.
-            string summary = stats ?? "";
-            if (!string.IsNullOrWhiteSpace(stage) &&
-                !string.Equals(stage, summary, StringComparison.Ordinal))
-            {
-                summary = string.IsNullOrWhiteSpace(summary)
-                    ? stage
-                    : summary + "\n" + stage;
-            }
-            HudStage.Text = summary ?? "";
-            HudStage.Visibility = string.IsNullOrWhiteSpace(summary)
-                ? Visibility.Collapsed
-                : Visibility.Visible;
-
-            HudPause.Visibility = Visibility.Collapsed;
-            HudStop.Visibility = Visibility.Collapsed;
-            HudClose.Visibility = Visibility.Visible;
-        }
+            => _vm.SetFinal(badge, stats, stage, failed, dotColor);
 
         /// <summary>
         /// Wires the "open folder" HUD button to point at the just-saved
@@ -149,43 +101,7 @@ namespace ProGlassAutomation.Views.Shared
         /// has a one-click affordance to reach the MP4 without the
         /// blocking MessageBox that used to fire.
         /// </summary>
-        public void EnableOpenFolder(string? savedPath)
-        {
-            _savedPathForOpenFolder = savedPath;
-            HudOpenFolder.Visibility = string.IsNullOrEmpty(savedPath)
-                ? Visibility.Collapsed
-                : Visibility.Visible;
-        }
-
-        private string? _savedPathForOpenFolder;
-
-        private void OpenFolder_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                var p = _savedPathForOpenFolder;
-                if (string.IsNullOrEmpty(p)) return;
-                if (File.Exists(p))
-                {
-                    // /select highlights the file in Explorer.
-                    var psi = new ProcessStartInfo("explorer.exe",
-                        "/select,\"" + p + "\"") { UseShellExecute = true };
-                    Process.Start(psi);
-                }
-                else
-                {
-                    var dir = Path.GetDirectoryName(p);
-                    if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
-                        Process.Start(new ProcessStartInfo(dir) { UseShellExecute = true });
-                }
-            }
-            catch (Exception ex) { AppLogService.Warning("Suppressed exception: " + ex.Message); }
-        }
-
-        private void Close_Click(object sender, RoutedEventArgs e)
-        {
-            try { Hide(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
-        }
+        public void EnableOpenFolder(string? savedPath) => _vm.EnableOpenFolder(savedPath);
 
         private void Place()
         {
@@ -226,53 +142,6 @@ namespace ProGlassAutomation.Views.Shared
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[RecordOverlayWindow.xaml] Place: last position is fine: " + ex.Message); }
         }
 
-        private void Tick()
-        {
-            var rec = _recorder;
-            var elapsed = rec != null ? rec.Elapsed : DateTime.UtcNow - _started;
-            HudTime.Text = RecordingTime.Format(elapsed);
-
-            bool paused = rec?.IsPaused == true;
-            HudBadge.Text = rec == null ? "IDLE" : paused ? "PAUSED" : "REC";
-            HudBadge.Foreground = paused ? BadgePausedBrush : BadgeRecBrush;
-            HudDot.Opacity = paused ? 0.4 : 1.0;
-
-            // Pause button flips between pause (⏸) and resume (▶) glyphs.
-            if (HudPause.Visibility == Visibility.Visible)
-            {
-                if (HudPause.Content is System.Windows.Controls.TextBlock pauseGlyph)
-                    pauseGlyph.Text = paused ? "\uE768" : "\uE769";
-            }
-
-            // Only surface the encoder stage while it is meaningful; the
-            // idle HUD stays a single quiet card.
-            if (rec != null && !string.IsNullOrWhiteSpace(rec.EncodeStage))
-                SetStage(rec.EncodeStage +
-                    (rec.EncodePercent > 0 ? $"  {rec.EncodePercent}%" : ""));
-            else if (rec == null)
-                SetStage(HudStage.Text);
-
-            // Follow the main window without the per-tick move cost.
-            Place();
-        }
-
-        private void Pause_Click(object sender, RoutedEventArgs e)
-        {
-            try { _onPause?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
-            Tick();
-        }
-
-        private void Stop_Click(object sender, RoutedEventArgs e)
-        {
-            // 2026-08-25 senior fix: immediate feedback. The teardown
-            // (final encodes, audio close, MP4 pack) legitimately takes a
-            // few seconds; without this the HUD looked dead after STOP.
-            HudStop.IsEnabled = false;
-            SetStage("Stopping…");
-
-            try { _onStop?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
-        }
-
         // ══════════════════════════════════════════════════════════════
         //  DRAG — move the recorder HUD anywhere on the screen
         //
@@ -303,9 +172,11 @@ namespace ProGlassAutomation.Views.Shared
             {
                 DragMove();
             }
-            catch
+            catch (Exception ex)
             {
-                // DragMove throws if the button was already released.
+                // DragMove throws if the button was already released —
+                // expected, not an error (logged so the audit can see it).
+                AppLogService.Debug("[RecordOverlayWindow.xaml] DragMove: " + ex.Message);
             }
             finally
             {

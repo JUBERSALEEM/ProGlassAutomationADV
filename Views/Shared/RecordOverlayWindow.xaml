@@ -74,7 +74,7 @@
       - A single status line appears only while the recording is finalizing
         or after it finishes.
     -->
-    <Border x:Name="HudRoot"
+    <Border
             CornerRadius="{DynamicResource CardCornerRadius}"
             Padding="10,6"
             BorderThickness="1"
@@ -88,38 +88,41 @@
 
         <StackPanel>
             <DockPanel LastChildFill="False">
-                <Ellipse x:Name="HudDot" DockPanel.Dock="Left"
+                <Ellipse DockPanel.Dock="Left"
                          Width="8" Height="8" Margin="0,0,8,0"
-                         VerticalAlignment="Center" Fill="{DynamicResource DangerBrush}"/>
+                         VerticalAlignment="Center" Fill="{Binding DotBrush}"/>
 
-                <TextBlock x:Name="HudBadge" DockPanel.Dock="Left"
-                           Text="{DynamicResource Shared.REC}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                           Foreground="{DynamicResource DangerLightBrush}" VerticalAlignment="Center"
+                <TextBlock DockPanel.Dock="Left"
+                           Text="{Binding BadgeText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                           Foreground="{Binding BadgeBrush}" VerticalAlignment="Center"
                            Margin="0,0,8,0"/>
 
-                <TextBlock x:Name="HudTime" DockPanel.Dock="Left"
-                           Text="00:00" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                <TextBlock DockPanel.Dock="Left"
+                           Text="{Binding TimeText}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                            Foreground="White" VerticalAlignment="Center"
                            MinWidth="52" TextAlignment="Right"/>
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
                             VerticalAlignment="Center" Margin="10,0,0,0">
                     <!-- Pause / Resume — ⏸ ▶ (Segoe MDL2) -->
-                    <Button x:Name="HudPause"
+                    <Button
                             Style="{StaticResource HudButtonStyle}"
-                            Click="Pause_Click"
+                            Command="{Binding PauseCommand}"
                             Margin="0,0,4,0"
+                            Visibility="{Binding PauseVisibility}"
                             Background="{DynamicResource GlassSurfaceElevated}"
                             AutomationProperties.Name="Pause or resume recording">
-                        <TextBlock Text="&#xE769;" FontFamily="Segoe MDL2 Assets"
+                        <TextBlock Text="{Binding PauseGlyph}" FontFamily="Segoe MDL2 Assets"
                                    FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Stop — ⏹ (Segoe MDL2) -->
-                    <Button x:Name="HudStop"
+                    <Button
                             Style="{StaticResource HudButtonStyle}"
-                            Click="Stop_Click"
+                            Command="{Binding StopCommand}"
                             Margin="0,0,4,0"
+                            Visibility="{Binding StopVisibility}"
+                            IsEnabled="{Binding IsStopEnabled}"
                             Background="{DynamicResource DangerBrush}"
                             AutomationProperties.Name="Stop and save recording">
                         <TextBlock Text="&#xE71A;" FontFamily="Segoe MDL2 Assets"
@@ -127,12 +130,12 @@
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Open folder — visible after SAVED (Aug 2026 fix) -->
-                    <Button x:Name="HudOpenFolder"
+                    <Button
                             Style="{StaticResource HudButtonStyle}"
-                            Click="OpenFolder_Click"
+                            Command="{Binding OpenFolderCommand}"
                             Margin="0,0,4,0"
                             Background="{DynamicResource AccentBrush}"
-                            Visibility="Collapsed"
+                            Visibility="{Binding OpenFolderVisibility}"
                             ToolTip="{DynamicResource Shared.OpenFolderWhereVideoSaved}"
                             AutomationProperties.Name="Open recording folder">
                         <TextBlock Text="&#xE8DA;" FontFamily="Segoe MDL2 Assets"
@@ -140,11 +143,11 @@
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Dismiss after SAVED / FAILED -->
-                    <Button x:Name="HudClose"
+                    <Button
                             Style="{StaticResource HudButtonStyle}"
-                            Click="Close_Click"
+                            Command="{Binding CloseCommand}"
                             Background="{DynamicResource GlassSurfaceBrush}"
-                            Visibility="Collapsed"
+                            Visibility="{Binding CloseVisibility}"
                             AutomationProperties.Name="Close">
                         <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets"
                                    FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
@@ -154,12 +157,12 @@
             </DockPanel>
 
             <!-- Only visible while finalizing / finished -->
-            <TextBlock x:Name="HudStage"
-                       Text=""
+            <TextBlock
+                       Text="{Binding StageText}"
                        FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"
                        Margin="16,4,0,0" TextWrapping="Wrap"
                        MaxWidth="260"
-                       Visibility="Collapsed"/>
+                       Visibility="{Binding StageVisibility}"/>
         </StackPanel>
     </Border>
 </Window>

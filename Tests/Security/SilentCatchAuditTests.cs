@@ -226,9 +226,10 @@ namespace ProGlassAutomation.Tests.Security
             ("AboutView.xaml.cs",                   "*",                   "Best-effort clipboard / env probe"),
 
             // RecordOverlayWindow — teardown of the recording
-            // overlay must never throw on window close.
-            ("RecordOverlayWindow.xaml.cs",         "Frozen",             "Overlay teardown must never throw"),
-
+            // overlay must never throw on window close. (2026-09-02:
+            // entry retired — Phase 3.7 moved the HUD state to
+            // RecordOverlayViewModel and the DragMove catch now logs,
+            // so the window has no silent catches left.)
             // LicenseGenerator developer tool: its own logging
             // stub must never throw, and source-file probing is
             // best-effort (falls back to manual paste). Tools/
