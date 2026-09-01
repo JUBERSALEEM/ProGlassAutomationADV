@@ -35,7 +35,7 @@ Series used one consistent regex (Click/Checked/Unchecked/SelectionChanged/KeyDo
 | Attrs | File | Notes |
 |------:|------|-------|
 | ~~5~~ 1 | `Views/Shared/RecordOverlayWindow.xaml` | ✅ converted — HUD state in `ViewModels/Shared/RecordOverlayViewModel.cs`; only the drag keep remains (`317f016`) |
-| ~~4~~ 0 | `Views/JobOrder/…/JobOrderProformaPickerDialog.xaml` | ✅ converted (`e…`) — VM-backed; only PiList card-construction remains in the view |
+| ~~4~~ 0 | `Views/JobOrder/…/JobOrderProformaPickerDialog.xaml` | ✅ converted (`8652ccf`) — VM-backed; only PiList card-construction remains in the view |
 | 4 | `Views/Login/LoginPanel.xaml` | sign-in/forgot/exit + preview-keydown |
 | 4 | `Views/Splash/SplashView.xaml` | terms accept/decline + continue |
 | 4 | `Views/CrashReports/CrashReportDialog.xaml` | restart/copy/open-folder/close |
