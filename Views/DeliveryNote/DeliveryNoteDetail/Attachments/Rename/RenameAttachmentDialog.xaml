@@ -151,7 +151,7 @@
                         Style="{StaticResource DialogCloseButtonStyle}"
                         Margin="0,4,4,0"
                         VerticalAlignment="Top"
-                        Click="OnCancelClick"
+                        Command="{Binding CancelCommand}"
                         ToolTip="{DynamicResource DeliveryNote.CloseEsc}"/>
             </Grid>
 
@@ -199,7 +199,7 @@
                 <TextBox Grid.Column="0"
                          x:Name="FileNameTextBox"
                          Style="{StaticResource FileNameTextBoxStyle}"
-                         KeyDown="OnFileNameKeyDown"/>
+                         Text="{Binding FileName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
                 <!-- Extension pill — right-attached to textbox -->
                 <Border Grid.Column="1"
@@ -209,7 +209,7 @@
                         CornerRadius="0,10,10,0"
                         Padding="16,10"
                         VerticalAlignment="Stretch">
-                    <TextBlock x:Name="ExtensionLabel"
+                    <TextBlock Text="{Binding Extension}"
                                FontSize="{StaticResource TextSection}"
                                FontWeight="Bold"
                                VerticalAlignment="Center"
@@ -221,15 +221,14 @@
                  Visibility toggles Hidden/Visible only, so the window and
                  footer never move when an error appears ─────────────── -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="3"
-                    x:Name="ValidationBorder"
                     Height="36"
                     Margin="28,14,28,0"
                     Padding="14,8"
                     CornerRadius="{DynamicResource ControlCornerRadius}"
                     Background="{DynamicResource TintRedBrush}"
                     VerticalAlignment="Top"
-                    Visibility="Hidden">
-                <TextBlock x:Name="ValidationText"
+                    Visibility="{Binding ValidationVisibility}">
+                <TextBlock Text="{Binding ValidationMessage}"
                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource DangerBrush}"/>
@@ -252,7 +251,7 @@
                     <Button Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
                             ToolTip="{DynamicResource DeliveryNote.SaveNewFileName}"
-                            Click="OnSaveClick"
+                            Command="{Binding SaveCommand}"
                             IsDefault="True"/>
                 </StackPanel>
             </Border>

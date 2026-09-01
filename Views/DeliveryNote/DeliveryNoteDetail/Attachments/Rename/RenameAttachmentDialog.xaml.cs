@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Linq;
+using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail;
 using System.Windows;
 using System.Windows.Input;
 
@@ -17,41 +16,45 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.R
     ///   - Gradient Save button + soft Cancel — footer strip with tint
     ///
     /// Interaction:
-    ///   - Enter = Save (IsDefault)
-    ///   - Escape = Cancel (IsCancel + KeyDown fallback)
+    ///   - Enter = Save (IsDefault → SaveCommand)
+    ///   - Escape = Cancel (IsCancel)
     ///   - Click header = drag window (WindowStyle=None + AllowsTransparency)
     ///
+    /// 2026-09-02 (Phase 3.7): editing + validation moved to
+    /// ViewModels/DeliveryNote/DeliveryNoteDetail/RenameAttachmentViewModel.cs
+    /// (WorkflowProgressDialog pattern — the view wires RequestClose to
+    /// DialogResult). Remaining here are the by-design window keeps:
+    /// frameless drag + focus/select-all on load.
+    ///
     /// Usage:
-    ///   var dlg = new RenameAttachmentDialog("IMG_1234.jpg")
-    ///   {
-    ///       Owner = Application.Current.MainWindow
-    ///   };
+    ///   var dlg = _dialogs.Create<RenameAttachmentDialog>("IMG_1234.jpg");
     ///   if (dlg.ShowDialog() == true)
-    ///   {
     ///       var newName = dlg.ResultFileName;  // e.g. "front-view.jpg"
-    ///   }
     /// </summary>
     public partial class RenameAttachmentDialog : Window
     {
+        private readonly RenameAttachmentViewModel _vm;
+
         /// <summary>
         /// Final filename including extension after user clicks Save.
         /// Only valid if ShowDialog() returned true.
         /// </summary>
-        public string ResultFileName { get; private set; } = "";
-
-        private readonly string _extension;
+        public string ResultFileName => _vm.ResultFileName;
 
         public RenameAttachmentDialog(string originalFileName)
         {
             InitializeComponent();
 
-            _extension = Path.GetExtension(originalFileName);
-            var nameOnly = Path.GetFileNameWithoutExtension(originalFileName);
+            _vm = new RenameAttachmentViewModel(originalFileName);
+            _vm.RequestClose = result =>
+            {
+                DialogResult = result;
+                Close();
+            };
+            DataContext = _vm;
 
-            ExtensionLabel.Text = _extension;
-            FileNameTextBox.Text = nameOnly;
-
-            // Select the whole name on load so user can start typing to replace it
+            // Select the whole name on load so user can start typing to
+            // replace it (window-lifecycle keep).
             FileNameTextBox.Loaded += (_, __) =>
             {
                 FileNameTextBox.Focus();
@@ -59,61 +62,11 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.R
             };
         }
 
-        // ── Frameless window drag support ────────────────────────────────
+        // ── Frameless window drag support (window-chrome keep) ────────────
         private void OnHeaderMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
                 DragMove();
-        }
-
-        // ── Escape fallback (in case IsCancel doesn't intercept early) ───
-        private void OnFileNameKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-            {
-                DialogResult = false;
-                Close();
-            }
-        }
-
-        private void OnCancelClick(object sender, RoutedEventArgs e)
-        {
-            DialogResult = false;
-            Close();
-        }
-
-        private void OnSaveClick(object sender, RoutedEventArgs e)
-        {
-            var name = FileNameTextBox.Text?.Trim() ?? "";
-
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                ShowError("Filename cannot be empty.");
-                return;
-            }
-
-            var invalid = Path.GetInvalidFileNameChars();
-            if (name.Any(c => invalid.Contains(c)))
-            {
-                ShowError("Filename contains invalid characters: \\ / : * ? \" < > |");
-                return;
-            }
-
-            if (name.Length > 200)
-            {
-                ShowError("Filename is too long (max 200 characters).");
-                return;
-            }
-
-            ResultFileName = name + _extension;
-            DialogResult = true;
-            Close();
-        }
-
-        private void ShowError(string msg)
-        {
-            ValidationText.Text = "⚠  " + msg;
-            ValidationBorder.Visibility = Visibility.Visible;
         }
     }
 }
