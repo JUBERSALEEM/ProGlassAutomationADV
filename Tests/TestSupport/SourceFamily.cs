@@ -12,6 +12,11 @@ namespace ProGlassAutomation.Tests.TestSupport
     /// WHOLE family — the member body being asserted may live in a
     /// part. This helper concatenates X.cs with every X.PartN.cs
     /// sibling in the same directory, in ordinal order.
+    ///
+    /// The App family uses a second convention: App.xaml.cs +
+    /// App.StartupCore.cs / App.AuthHandlers.cs / ... — those parts
+    /// carry the startup theme chain, so "App.xaml.cs" reads include
+    /// every App.*.cs sibling.
     /// </summary>
     public static class SourceFamily
     {
@@ -24,6 +29,17 @@ namespace ProGlassAutomation.Tests.TestSupport
             foreach (var part in Directory.EnumerateFiles(dir, name + ".Part*.cs")
                          .OrderBy(f => f, StringComparer.Ordinal))
                 sb.Append(File.ReadAllText(part));
+
+            string stem = name.Contains('.')
+                ? name.Substring(0, name.IndexOf('.'))
+                : name;
+            if (stem == "App")
+            {
+                foreach (var part in Directory.EnumerateFiles(dir, "App.*.cs")
+                             .Where(p => !p.EndsWith("App.xaml.cs", StringComparison.Ordinal))
+                             .OrderBy(f => f, StringComparer.Ordinal))
+                    sb.Append(File.ReadAllText(part));
+            }
             return sb.ToString();
         }
     }

@@ -127,6 +127,12 @@ namespace ProGlassAutomation.Services
             resources["DensityCardPadding"] = cardPad;
             resources["DensityStripPadding"] = stripPad;
             resources["DensityPageMargin"] = pageMargin;
+
+            // Theme Studio: the Card Padding slider scales the density
+            // token, so a density change must re-snapshot and re-apply
+            // the studio layer on top (otherwise the studio's padding
+            // silently vanishes after the user picks a new density).
+            Theme.ThemeStudioService.OnFamilyApplied();
         }
 
         public static void ReapplyDisplayDensity()

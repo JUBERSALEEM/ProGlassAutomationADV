@@ -723,6 +723,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             try { ThemeManager.UiScaleChanged -= _uiScaleChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UiScaleChanged detach failed: " + ex.Message); }
             try { Services.Updates.UpdateService.StateChanged -= OnUpdateServiceStateChanged; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UpdateService detach failed: " + ex.Message); }
             try { TeardownAppearanceSection(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: appearance-section detach failed: " + ex.Message); }
+            try { DisposeThemeStudio(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: theme-studio teardown failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
 

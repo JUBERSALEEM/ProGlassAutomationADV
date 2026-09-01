@@ -2392,5 +2392,31 @@
     <sys:String x:Key="UserCenter.SelectUserCardProveCurrentPasswordThenSetNew">اختر بطاقة مستخدم، أثبت كلمة مروره الحالية، ثم حدد كلمة مرور جديدة. هذه هي الطريقة الوحيدة لتدوير كلمة المرور، بما فيها حساب المسؤول المبدئي.</sys:String>
     <sys:String x:Key="UserCenter.Signed">تم تسجيل الدخول</sys:String>
     <sys:String x:Key="UserCenter.Username">اسم المستخدم *</sys:String>
+    <sys:String x:Key="Msg.ThemeStudioResetAll">إعادة تعيين جميع تخصيصات استوديو المظهر؟&#x0a;&#x0a;سيعود كل مظهر إلى شكله الأصلي — سيتم مسح أشرطة التمرير والأنماط المحفوظة لجميع العائلات المرئية الست.</sys:String>
+    <sys:String x:Key="Settings.ThemeStudio">استوديو المظهر</sys:String>
+    <sys:String x:Key="Settings.ThemeStudioCaption">اضبط المظهر المرئي النشط مباشرة. كل تغيير يُطبَّق فورًا ويُحفظ تلقائيًا ويبقى بعد إعادة التشغيل — وتحافظ عائلات المظاهر الست على هويتها الخاصة.</sys:String>
+    <sys:String x:Key="Settings.StudioBasic">أساسي</sys:String>
+    <sys:String x:Key="Settings.StudioAdvanced">متقدم</sys:String>
+    <sys:String x:Key="Settings.StudioPreset">نمط</sys:String>
+    <sys:String x:Key="Settings.StudioResetCurrent">إعادة تعيين المظهر الحالي</sys:String>
+    <sys:String x:Key="Settings.StudioResetAll">إعادة تعيين جميع المظاهر</sys:String>
+    <sys:String x:Key="Settings.StudioCustomized">مخصص</sys:String>
+    <sys:String x:Key="Settings.StudioDefaults">إعدادات العائلة الافتراضية</sys:String>
+    <sys:String x:Key="Settings.StudioFrostness">الضبابية</sys:String>
+    <sys:String x:Key="Settings.StudioTransparency">الشفافية</sys:String>
+    <sys:String x:Key="Settings.StudioBlur">التمويه</sys:String>
+    <sys:String x:Key="Settings.StudioTint">الصبغة</sys:String>
+    <sys:String x:Key="Settings.StudioCorners">استدارة الزوايا</sys:String>
+    <sys:String x:Key="Settings.StudioPadding">حشوة البطاقات</sys:String>
+    <sys:String x:Key="Settings.StudioShadow">شدة الظل</sys:String>
+    <sys:String x:Key="Settings.StudioSoftness">نعومة الظل</sys:String>
+    <sys:String x:Key="Settings.StudioDepth">عمق الظل</sys:String>
+    <sys:String x:Key="Settings.StudioBorder">وضوح الحدود</sys:String>
+    <sys:String x:Key="Settings.StudioBorderOpacity">عتامة الحدود</sys:String>
+    <sys:String x:Key="Settings.StudioBorderWidth">سماكة الحدود</sys:String>
+    <sys:String x:Key="Settings.StudioBackground">وضوح الخلفية</sys:String>
+    <sys:String x:Key="Settings.StudioGlow">توهج الخلفية</sys:String>
+    <sys:String x:Key="Settings.StudioHighlight">الإبراز</sys:String>
+    <sys:String x:Key="Settings.StudioAnimation">شدة الحركة</sys:String>
 
 </ResourceDictionary>

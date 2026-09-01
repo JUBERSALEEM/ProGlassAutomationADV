@@ -465,8 +465,13 @@
                                                                 <Binding/>
                                                             </MultiBinding>
                                                         </DataTrigger.Binding>
-                                                        <Setter Property="Background" Value="{StaticResource LiquidSelectionBrush}"/>
-                                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                                        <!-- DynamicResource: LiquidSelectionBrush/AccentBrush are
+                                                             repainted live by the theme engine + accent manager; a
+                                                             StaticResource here would freeze the selected tile's
+                                                             colour at load time and ignore theme/family/accent
+                                                             switches (the "not accepting theme" defect class). -->
+                                                        <Setter Property="Background" Value="{DynamicResource LiquidSelectionBrush}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>

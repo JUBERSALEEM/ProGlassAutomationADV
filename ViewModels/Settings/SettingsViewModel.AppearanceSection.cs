@@ -118,6 +118,9 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// listeners (detach-first, so repeated loads never stack).</summary>
         public void InitializeAppearanceSection()
         {
+            // Theme Studio — draft profile + debounced save timer + commands.
+            InitializeThemeStudio();
+
             // Sync pickers from service state — direct field writes so a
             // plain re-sync never re-applies (avoids redundant saves).
             var lang = LocalizationService.Instance.CurrentLanguage;

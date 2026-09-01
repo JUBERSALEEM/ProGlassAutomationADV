@@ -239,6 +239,14 @@ namespace ProGlassAutomation.Services.Performance
             resources["MotionDurationSlow"] =
                 new Duration(TimeSpan.FromMilliseconds(380 * ratio));
 
+            // Theme Studio: the Animation Intensity slider scales the
+            // same tokens, so re-snapshot and re-apply the studio layer
+            // on top after a refresh-rate re-profile (startup runs
+            // PublishResources BEFORE the studio restore, so startup
+            // order stays intact; OnFamilyApplied is a no-op when the
+            // studio layer is inactive).
+            Theme.ThemeStudioService.OnFamilyApplied();
+
             // NOTE: an earlier revision globally overrode
             // Timeline.DesiredFrameRateProperty metadata here. That
             // touched WPF's internal animation plumbing for EVERY

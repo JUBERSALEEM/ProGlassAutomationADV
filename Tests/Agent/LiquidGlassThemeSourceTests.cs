@@ -35,6 +35,21 @@ namespace ProGlassAutomation.Tests.Agent
             foreach (var part in Directory.EnumerateFiles(dir, name + ".Part*.cs")
                          .OrderBy(f => f, StringComparer.Ordinal))
                 sb.Append(File.ReadAllText(part));
+
+            // App family convention: App.xaml.cs + App.StartupCore.cs /
+            // App.AuthHandlers.cs / ... — the App.*.cs parts carry the
+            // startup theme chain, so assertions about App startup must
+            // read them too.
+            string stem = name.Contains('.')
+                ? name.Substring(0, name.IndexOf('.'))   // "App" from "App.xaml"
+                : name;
+            if (stem == "App")
+            {
+                foreach (var part in Directory.EnumerateFiles(dir, "App.*.cs")
+                             .Where(p => !p.EndsWith("App.xaml.cs", StringComparison.Ordinal))
+                             .OrderBy(f => f, StringComparer.Ordinal))
+                    sb.Append(File.ReadAllText(part));
+            }
             return sb.ToString();
         }
 

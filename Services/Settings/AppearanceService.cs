@@ -38,6 +38,12 @@ namespace ProGlassAutomation.Services.Settings
                     VisualThemeEngine.LastRequestedModule,
                     App.Config?.Appearance);
 
+                // Theme Studio: re-snapshot the family's freshly painted
+                // brushes and re-apply the user's 0–100 profile on top.
+                // A Light/Dark toggle or family switch must never drop
+                // the user's customization (master prompt §live apply).
+                ThemeStudioService.OnFamilyApplied();
+
                 // Persist the base colour mode so it survives restarts
                 // (the AI-agent path changes theme too, not only the
                 // Settings toggle).

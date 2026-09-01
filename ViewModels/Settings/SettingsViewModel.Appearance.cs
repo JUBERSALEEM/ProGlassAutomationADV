@@ -91,6 +91,16 @@ namespace ProGlassAutomation.ViewModels.Settings
                     $"{v:0.#} DIP");
 
                 OnPropertyChanged();
+
+                // Theme Studio sync — when the studio layer is active,
+                // mirror the classic slider into the studio profile so
+                // the two controls can never disagree about thickness.
+                if (_studioDraft?.IsCustomized == true)
+                {
+                    _studioDraft.BorderThickness =
+                        Math.Round(v / 4.0 * 100.0);
+                    OnPropertyChanged(nameof(StudioBorderThickness));
+                }
             }
         }
 
@@ -208,6 +218,15 @@ namespace ProGlassAutomation.ViewModels.Settings
                     $"{v:0} px");
 
                 OnPropertyChanged();
+
+                // Theme Studio sync — mirror the classic slider into the
+                // studio profile when the studio layer is active.
+                if (_studioDraft?.IsCustomized == true)
+                {
+                    _studioDraft.CornerRoundness =
+                        Math.Round(v / 28.0 * 100.0);
+                    OnPropertyChanged(nameof(StudioCornerRoundness));
+                }
             }
         }
 

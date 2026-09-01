@@ -1,0 +1,262 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Services/Theme/ThemeStudioSettings.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Theme Studio — centralized appearance customization model
+//
+// 2026-09-02 — Theme Studio (master prompt). Every property is 0–100
+// with an explicit UI meaning; ThemeStudioService maps each range to
+// concrete WPF resource values. Persisted as AppearanceSettings.Studio
+// inside the existing config.json — no second settings database.
+//
+// UI meaning of each slider (0 = left, 100 = right):
+//   Frostness          0 = crystal/clear ... 100 = dense frosted
+//   Transparency       0 = solid ... 100 = maximum transparency
+//   BlurIntensity      0 = crisp edges ... 100 = heavy glass blur
+//   GlassTint          0 = neutral ... 100 = accent-tinted glass
+//   CornerRoundness    0 = square ... 50 = balanced ... 100 = pill
+//   CardPadding        0 = tight ... 100 = generous
+//   ShadowIntensity    0 = no shadow ... 100 = strong dramatic
+//   ShadowSoftness     0 = hard edge ... 100 = very soft
+//   ShadowDepth        0 = flat ... 100 = deep lift
+//   BorderVisibility   0 = borderless ... 100 = strong keyline
+//   BorderOpacity      0 = invisible border ... 100 = opaque border
+//   BorderThickness    0 = hairline ... 100 = heavy frame
+//   BackgroundVisibility 0 = hidden background ... 100 = solid
+//   BackgroundGlow     0 = none ... 100 = strong ambient glow
+//   HighlightStrength  0 = none ... 100 = strong top highlight
+//   AnimationIntensity 0 = minimal ... 100 = lively
+// ═══════════════════════════════════════════════════════════════════════
+
+namespace ProGlassAutomation.Services.Theme
+{
+    /// <summary>
+    /// 0–100 appearance profile for one visual family. Each existing
+    /// family (Normal, Monet, Professional, iOS Liquid Glass, Ultra
+    /// Transparent, Ocean) has its own <see cref="DefaultsFor"/> profile
+    /// so "Reset Current Theme" restores exactly that family's look.
+    /// </summary>
+    public sealed class ThemeStudioSettings
+    {
+        public double Frostness { get; set; } = 50;
+        public double Transparency { get; set; } = 35;
+        public double BlurIntensity { get; set; } = 50;
+        public double GlassTint { get; set; } = 40;
+
+        public double CornerRoundness { get; set; } = 50;
+        public double CardPadding { get; set; } = 50;
+
+        public double ShadowIntensity { get; set; } = 50;
+        public double ShadowSoftness { get; set; } = 50;
+        public double ShadowDepth { get; set; } = 50;
+
+        public double BorderVisibility { get; set; } = 50;
+        public double BorderOpacity { get; set; } = 60;
+        public double BorderThickness { get; set; } = 35;
+
+        public double BackgroundVisibility { get; set; } = 70;
+        public double BackgroundGlow { get; set; } = 30;
+        public double HighlightStrength { get; set; } = 40;
+
+        public double AnimationIntensity { get; set; } = 50;
+
+        /// <summary>
+        /// True once the user customizes anything (or applies a preset).
+        /// False = the family's own defaults rule (no studio layer).
+        /// </summary>
+        public bool IsCustomized { get; set; }
+
+        /// <summary>Clones the profile (independent copy for edit/reset).</summary>
+        public ThemeStudioSettings Clone() =>
+            (ThemeStudioSettings)MemberwiseClone();
+
+        /// <summary>True when every property matches another profile.</summary>
+        public bool Matches(ThemeStudioSettings other)
+        {
+            if (other == null) return false;
+            return Frostness == other.Frostness
+                && Transparency == other.Transparency
+                && BlurIntensity == other.BlurIntensity
+                && GlassTint == other.GlassTint
+                && CornerRoundness == other.CornerRoundness
+                && CardPadding == other.CardPadding
+                && ShadowIntensity == other.ShadowIntensity
+                && ShadowSoftness == other.ShadowSoftness
+                && ShadowDepth == other.ShadowDepth
+                && BorderVisibility == other.BorderVisibility
+                && BorderOpacity == other.BorderOpacity
+                && BorderThickness == other.BorderThickness
+                && BackgroundVisibility == other.BackgroundVisibility
+                && BackgroundGlow == other.BackgroundGlow
+                && HighlightStrength == other.HighlightStrength
+                && AnimationIntensity == other.AnimationIntensity;
+        }
+
+        // ── Per-family defaults ──────────────────────────────────────
+        // Glass families start transparent/frosted; solid families
+        // start opaque with stronger borders. Values are the family's
+        // "as designed" appearance expressed in studio space.
+
+        public static ThemeStudioSettings DefaultsFor(string family)
+        {
+            var s = new ThemeStudioSettings();
+            switch (family)
+            {
+                case VisualThemeEngine.LiquidGlass:
+                    s.Frostness = 55; s.Transparency = 45;
+                    s.BlurIntensity = 60; s.GlassTint = 45;
+                    s.CornerRoundness = 50; s.CardPadding = 45;
+                    s.ShadowIntensity = 55; s.ShadowSoftness = 70;
+                    s.ShadowDepth = 35;
+                    s.BorderVisibility = 55; s.BorderOpacity = 60;
+                    s.BorderThickness = 30;
+                    s.BackgroundVisibility = 60; s.BackgroundGlow = 50;
+                    s.HighlightStrength = 55;
+                    s.AnimationIntensity = 55;
+                    break;
+
+                case VisualThemeEngine.UltraTransparent:
+                    s.Frostness = 25; s.Transparency = 85;
+                    s.BlurIntensity = 40; s.GlassTint = 25;
+                    s.CornerRoundness = 40; s.CardPadding = 40;
+                    s.ShadowIntensity = 35; s.ShadowSoftness = 55;
+                    s.ShadowDepth = 20;
+                    s.BorderVisibility = 70; s.BorderOpacity = 50;
+                    s.BorderThickness = 25;
+                    s.BackgroundVisibility = 30; s.BackgroundGlow = 60;
+                    s.HighlightStrength = 60;
+                    s.AnimationIntensity = 50;
+                    break;
+
+                case VisualThemeEngine.Ocean:
+                    s.Frostness = 60; s.Transparency = 40;
+                    s.BlurIntensity = 55; s.GlassTint = 70;
+                    s.CornerRoundness = 55; s.CardPadding = 45;
+                    s.ShadowIntensity = 50; s.ShadowSoftness = 65;
+                    s.ShadowDepth = 35;
+                    s.BorderVisibility = 60; s.BorderOpacity = 55;
+                    s.BorderThickness = 30;
+                    s.BackgroundVisibility = 55; s.BackgroundGlow = 55;
+                    s.HighlightStrength = 50;
+                    s.AnimationIntensity = 50;
+                    break;
+
+                case VisualThemeEngine.Monet:
+                    s.Frostness = 40; s.Transparency = 50;
+                    s.BlurIntensity = 45; s.GlassTint = 55;
+                    s.CornerRoundness = 45; s.CardPadding = 45;
+                    s.ShadowIntensity = 45; s.ShadowSoftness = 60;
+                    s.ShadowDepth = 30;
+                    s.BorderVisibility = 45; s.BorderOpacity = 45;
+                    s.BorderThickness = 25;
+                    s.BackgroundVisibility = 55; s.BackgroundGlow = 45;
+                    s.HighlightStrength = 45;
+                    s.AnimationIntensity = 50;
+                    break;
+
+                case VisualThemeEngine.Professional:
+                    s.Frostness = 15; s.Transparency = 15;
+                    s.BlurIntensity = 15; s.GlassTint = 10;
+                    s.CornerRoundness = 30; s.CardPadding = 55;
+                    s.ShadowIntensity = 40; s.ShadowSoftness = 45;
+                    s.ShadowDepth = 30;
+                    s.BorderVisibility = 60; s.BorderOpacity = 70;
+                    s.BorderThickness = 45;
+                    s.BackgroundVisibility = 85; s.BackgroundGlow = 15;
+                    s.HighlightStrength = 25;
+                    s.AnimationIntensity = 30;
+                    break;
+
+                default: // Normal
+                    s.Frostness = 30; s.Transparency = 25;
+                    s.BlurIntensity = 35; s.GlassTint = 25;
+                    s.CornerRoundness = 40; s.CardPadding = 50;
+                    s.ShadowIntensity = 45; s.ShadowSoftness = 55;
+                    s.ShadowDepth = 35;
+                    s.BorderVisibility = 55; s.BorderOpacity = 55;
+                    s.BorderThickness = 35;
+                    s.BackgroundVisibility = 75; s.BackgroundGlow = 25;
+                    s.HighlightStrength = 35;
+                    s.AnimationIntensity = 45;
+                    break;
+            }
+            s.IsCustomized = false;
+            return s;
+        }
+
+        // ── Presets (centralized profiles, applied on top of ANY family) ──
+
+        public static ThemeStudioSettings Preset(string name)
+        {
+            var s = new ThemeStudioSettings();
+            switch (name)
+            {
+                case "Crystal":           // 💎 clear, highly transparent
+                    s.Frostness = 15; s.Transparency = 75;
+                    s.BlurIntensity = 30; s.GlassTint = 20;
+                    s.CornerRoundness = 35; s.CardPadding = 45;
+                    s.ShadowIntensity = 25; s.ShadowSoftness = 50;
+                    s.ShadowDepth = 15;
+                    s.BorderVisibility = 65; s.BorderOpacity = 40;
+                    s.BorderThickness = 20;
+                    s.BackgroundVisibility = 35; s.BackgroundGlow = 55;
+                    s.HighlightStrength = 60;
+                    s.AnimationIntensity = 50;
+                    break;
+
+                case "LightGlass":        // 🫧 airy, bright glass
+                    s.Frostness = 35; s.Transparency = 60;
+                    s.BlurIntensity = 45; s.GlassTint = 35;
+                    s.CornerRoundness = 45; s.CardPadding = 45;
+                    s.ShadowIntensity = 35; s.ShadowSoftness = 60;
+                    s.ShadowDepth = 25;
+                    s.BorderVisibility = 60; s.BorderOpacity = 50;
+                    s.BorderThickness = 25;
+                    s.BackgroundVisibility = 45; s.BackgroundGlow = 50;
+                    s.HighlightStrength = 55;
+                    s.AnimationIntensity = 55;
+                    break;
+
+                case "Balanced":          // ❄️ modern default
+                    s.Frostness = 50; s.Transparency = 40;
+                    s.BlurIntensity = 55; s.GlassTint = 40;
+                    s.CornerRoundness = 50; s.CardPadding = 50;
+                    s.ShadowIntensity = 50; s.ShadowSoftness = 60;
+                    s.ShadowDepth = 35;
+                    s.BorderVisibility = 55; s.BorderOpacity = 55;
+                    s.BorderThickness = 30;
+                    s.BackgroundVisibility = 60; s.BackgroundGlow = 40;
+                    s.HighlightStrength = 45;
+                    s.AnimationIntensity = 50;
+                    break;
+
+                case "Frosted":           // 🌫️ dense readable frost
+                    s.Frostness = 80; s.Transparency = 30;
+                    s.BlurIntensity = 75; s.GlassTint = 45;
+                    s.CornerRoundness = 55; s.CardPadding = 50;
+                    s.ShadowIntensity = 55; s.ShadowSoftness = 65;
+                    s.ShadowDepth = 35;
+                    s.BorderVisibility = 50; s.BorderOpacity = 50;
+                    s.BorderThickness = 30;
+                    s.BackgroundVisibility = 70; s.BackgroundGlow = 35;
+                    s.HighlightStrength = 45;
+                    s.AnimationIntensity = 45;
+                    break;
+
+                default:                  // 🧊 Dense Glass — max readability
+                    s.Frostness = 90; s.Transparency = 15;
+                    s.BlurIntensity = 70; s.GlassTint = 40;
+                    s.CornerRoundness = 50; s.CardPadding = 50;
+                    s.ShadowIntensity = 60; s.ShadowSoftness = 60;
+                    s.ShadowDepth = 40;
+                    s.BorderVisibility = 55; s.BorderOpacity = 65;
+                    s.BorderThickness = 35;
+                    s.BackgroundVisibility = 85; s.BackgroundGlow = 25;
+                    s.HighlightStrength = 40;
+                    s.AnimationIntensity = 40;
+                    break;
+            }
+            s.IsCustomized = true;
+            return s;
+        }
+    }
+}

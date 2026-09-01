@@ -455,6 +455,13 @@ namespace ProGlassAutomation
             ProGlassAutomation.Services.ThemeManager.ApplyUiScale(
                 Config.Appearance?.UiScale ?? 1.0);
 
+            // 9j) Theme Studio restore: snapshot the freshly painted
+            //     family brushes and re-apply the user's saved 0–100
+            //     profile on top (runs LAST so the studio's border,
+            //     corner and surface values win). No profile saved =
+            //     the family's own defaults rule, exactly as before.
+            ProGlassAutomation.Services.Theme.ThemeStudioService.Restore();
+
             ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Apply(
                 Config.Appearance?.PdfLayoutId);
 

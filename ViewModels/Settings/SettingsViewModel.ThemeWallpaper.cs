@@ -68,6 +68,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 SaveConfig();
                 ApplyVisualTheme();
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(StudioFamilyName));
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
@@ -137,6 +138,13 @@ namespace ProGlassAutomation.ViewModels.Settings
                 raiseEvent: false);
             ProGlassAutomation.Services.ThemeManager
                 .ReapplyOutlinePreference();
+
+            // Theme Studio: re-snapshot the family's fresh brushes and
+            // re-apply the user's 0–100 profile on top so switching
+            // families keeps their customization (master prompt §live
+            // apply).
+            ProGlassAutomation.Services.Theme.ThemeStudioService
+                .OnFamilyApplied();
         }
 
     }
