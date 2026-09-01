@@ -32,6 +32,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:features="clr-namespace:ProGlassAutomation.Services.Features"
+             xmlns:shared="clr-namespace:ProGlassAutomation.Views.Shared"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
@@ -124,8 +125,10 @@
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource JobOrder.SITEDeliveryPhone}" Style="{StaticResource JoCompactLabelStyle}"/>
-                    <TextBox Text="{Binding SiteDeliveryPhone, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource JoCompactInputStyle}"/>
+                    <shared:CountryPhoneControl
+                             PhoneText="{Binding SiteDeliveryPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AutomationProperties.AutomationId="JobOrder.SiteDeliveryPhone"
+                             AutomationProperties.Name="Site delivery phone"/>
                 </StackPanel>
             </Border>
 

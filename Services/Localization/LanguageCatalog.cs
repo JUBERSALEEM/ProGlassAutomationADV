@@ -132,11 +132,12 @@ namespace ProGlassAutomation.Services.Localization
             return Primary;
         }
 
-        /// <summary>Human-readable "English (United States)" picker text.</summary>
+        /// <summary>Human-readable "English (en-US)" picker text with the
+        /// BCP-47 code so the code is always visible in the picker.</summary>
         public static string Display(LanguageInfo lang) =>
             string.Equals(lang.EnglishName, lang.NativeName, System.StringComparison.Ordinal)
-                ? lang.EnglishName
-                : $"{lang.EnglishName} — {lang.NativeName}";
+                ? $"{lang.EnglishName} ({lang.Code})"
+                : $"{lang.EnglishName} — {lang.NativeName} ({lang.Code})";
 
         /// <summary>FlowDirection string for the shell root.</summary>
         public static string FlowDirection(bool isRtl) => isRtl ? "RightToLeft" : "LeftToRight";
