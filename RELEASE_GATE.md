@@ -37,7 +37,7 @@ green for a customer.
 |---|:---:|---|
 | Activation UI exists (replaces the old modal `WelcomeView`, removed in the secure offline redesign) | ✅ | `Views/Licensing/LicenseActivationView.xaml.cs` — code-constructed `UserControl` (no XAML; deliberate, see header) in 3 partial files (3.8 split); hosted in `Views/Settings/Sections/SettingsLicenseSection.xaml.cs` and triggered as an overlay from the main window. |
 | Activation is driven by license state on startup | ✅ | `App.StartupCore.cs:527–570` — best-effort `LicenseService.Initialize()` (guarded), status logged, `LicenseStatusViewModel.Refresh()` forced before the shell loads; gating via `CanRun`/`CanRunFullUi` (`ViewModels/Licensing/LicenseStatusViewModel.cs:397`) + `LicenseVerifier.cs:96` (`NotActivated => false`). |
-| Continue-read-only / trial land the user in a usable shell (no data write paths gated only behind a license) | ⚠️ | Trial path: `AutoTrialManager` + `TrialLedger` + `TrialKeyVault` (`Services/Licensing/`); read-only path: `ReadOnlyGate.IsReadOnly` (`Services/Licensing/ReadOnlyGate.cs:125`). Data-path gating behind `LicenseGate.CanNavigate` (`Services/Licensing/LicenseGate.cs:112`) is **started** but not every write entry point is audited. To do: walk every `INSERT`/`UPDATE` in `Services/*` and confirm `LicenseGate` is checked. |
+| Continue-read-only / trial land the user in a usable shell (no data write paths gated only behind a license) | ✅ | **2026-09-02 sweep closed the gap** (`662206e`): every repository/service with a business write path now calls `ReadOnlyGate.Demand("...")` as the first statement of each public write method — 52 Demand sites total across PI, TI, Inquiry, JobOrder, Statement, SheetStore, MasterData (9 ops), Specifications, AI memory, SampleData. By-design exclusions documented in `ReadOnlyGateCoverageSourceTests` (journal/audit semantics, transitively-gated links, infra wrapper). Regression gate: 8 new source tests. |
 | First-run user-creation → backup-location → preferences flow | ✗ | Only the license-activation slice of the original first-run spec is built. The rest is still on the roadmap. |
 
 ## 2. Licensing system
@@ -102,7 +102,7 @@ green for a customer.
 | S-2 — SQL injection in `FromSqlRaw` | ✅ | Same audit — every interpolated value is a hardcoded developer constant. |
 | S-3 — TLS / certificate validation | ✅ | No `ServerCertificateCustomValidationCallback`, no `http://` endpoints. |
 | S-4 — DPAPI for at-rest API keys | ✅ | `Services/Security/SecretVault.cs` — DPAPI `CurrentUser` + app-specific entropy. |
-| S-5 — 22 silent `catch { }` blocks | ✅ | The MainViewModel.cs:195 inner `try { detail = ...; } catch { detail = ""; }` candidate was fixed at HEAD `09ce9c3`'s follow-up: the catch now calls `AppLogService.Debug` with a `LogContext`, so a third-party VM that throws on `AgentContextDetail` is non-fatal but diagnosable. The catch is no longer silent, so it no longer appears in the audit. All other empty-catch clauses are on the allow list of `Tests/Security/SilentCatchAuditTests.cs` with one-line reasons. The test is a Roslyn-based regression gate; new silent catches outside the allow list fail the build. **S-5 is now fully closed.** |
+| S-5 — 22 silent `catch { }` blocks | ✅ | The MainViewModel.cs:195 inner `try { detail = ...; } catch { detail = ""; }` candidate was fixed at HEAD `09ce9c3`'s follow-up: the catch now calls `AppLogService.Debug` with a `LogContext`, so a third-party VM that throws on `AgentContextDetail` is non-fatal but diagnosable. The catch is no longer silent, so it no longer appears in the audit. All other empty-catch clauses are on the allow list of `Tests/Security/SilentCatchAuditTests.cs` with one-line reasons. The test is a Roslyn-based regression gate; new silent catches outside the allow list fail the build. **S-5 is now fully closed.** 2026-09-02 (`642b9ac`): the gate is now family-aware — `.PartN.cs` files normalize to their family name before allowlist matching (the 3.8 split had orphaned 9 empty catches into parts); `LicenseActivatedDialog.cs` (defensive remaining-days arithmetic on untrusted payload timestamps) added to the allowlist with justification. |
 
 ## 7. Memory / leak discipline (re-checked from §5 of `Docs/SecurityAudit.md`)
 
@@ -121,7 +121,7 @@ green for a customer.
 | `VelopackUpdateService` is active only when `Manager.IsInstalled` | ✅ | `Services/Updates/VelopackUpdateService.cs:30` — `IsInstalled => Manager.IsInstalled`; the `Check`/`Download`/`Apply` methods early-return in dev mode. |
 | Manual-update path (download a Setup.exe to `Downloads`) | ✅ | `Services/Updates/UpdateService.cs` (existing). Authenticode signature verified before any `Process.Start` (C-1 fix). |
 | Background daily check (does not delay startup) | ✅ | `App.xaml.cs:994` — `_ = Services.Updates.UpdateService.StartupCheckAsync();` is fire-and-forget, after `MainWindow` is shown. |
-| `UpdateService.StartupCheckAsync` writes an audit entry on every state transition | ⚠️ | Implementation in `Services/Updates/UpdateService.cs`. To do: confirm by reading the `AuditService.Log(...)` call sites inside the state machine that no path swallows the audit line. |
+| `UpdateService.StartupCheckAsync` writes an audit entry on every state transition | ✅ | **2026-09-02 audit completed** (`f2fe96a`): every terminal transition pairs `SetState` with an `AuditService.Log` entry. Three early-return gaps found and closed (UPDATE_CHECK_OFFLINE, UPDATE_DOWNLOAD_NO_ASSET, UPDATE_INSTALL_SKIPPED). Transient in-progress states (Checking/Downloading/Installing) intentionally un-audited. |
 
 ## 9. UI correctness (re-checked against the most recent crash report)
 
@@ -156,8 +156,8 @@ green for a customer.
 
 ## Summary
 
-- **Green (✅):** 35 items.
-- **Amber (⚠️):** 8 items — all of them "code is in place, runtime step still required on a Windows box" or "operator/secret configuration step".
+- **Green (✅):** 37 items (2026-09-02: read-only write-gating sweep `662206e` + update-transition audit `f2fe96a` promoted two ambers).
+- **Amber (⚠️):** 6 items — all of them "code is in place, runtime step still required on a Windows box" or "operator/secret configuration step".
 - **Red (✗):** 4 items — out of scope for this session, explicitly listed in `RELEASE_AUDIT.md`.
 
 **Single most important next action** (out of the amber set): grant the

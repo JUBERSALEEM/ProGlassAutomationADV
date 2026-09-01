@@ -28,7 +28,7 @@ _Short status file. Last updated: 2026-09-02. Detailed audit: `INDUSTRIAL_CODE_A
 
 Series used one consistent regex (Click/Checked/Unchecked/SelectionChanged/KeyDown/Closed/Loaded/MouseLeftButtonDown): **174 → 157 → 128 → 113 → 107 → 95 → 86 → 76 → 70 → 64 → 61 → 57** (27 files).
 
-**2026-09-02 cross-check correction:** a wider 36-event scan shows the series under-counts events outside that family (`Opened`, `PasswordChanged`, `PreviewKeyDown`, `TextChanged`, `MouseMove`, `SizeChanged`, `Drop`, …). True current surface: **75 attrs / 37 files** — 67 attrs / 36 files in the app + **8 in `Tools/LicenseGenerator`** (separate tool project). Per-file targets below use the true counts.
+**2026-09-02 cross-check corrections:** a wider 36-event scan shows the series under-counts events outside that family (`Opened`, `PasswordChanged`, `PreviewKeyDown`, `TextChanged`, `MouseMove`, `SizeChanged`, `Drop`, …). After `cd90c33` (LoginPanel) the true surface was **75 attrs / 37 files**; after `40643c3` (3.7 final wave) it is **64 attrs / 34 files app-side + 8 in `Tools/LicenseGenerator`** (separate tool project). 3.8 moved code only (zero XAML diffs), so the count is unchanged at HEAD. Per-file targets below use the true counts.
 
 ## Remaining 3.7 targets (true counts)
 
