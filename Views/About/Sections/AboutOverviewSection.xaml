@@ -125,7 +125,7 @@
                                 <TextBlock Text="{DynamicResource About.FinancialCompliance}" Style="{StaticResource AboutPanelKickerStyle}"/>
                                 <TextBlock Style="{StaticResource AboutPanelTextStyle}">
                                     <Run Text="{DynamicResource About.MonetaryValuesStoredDisplayed}"/>
-                                    <Run Text="AED (UAE Dirham)" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
+                                    <Run Text="{DynamicResource About.CurrencyUAE}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
                                     <Run Text="{DynamicResource About.FullPrecisionUAE5VATZeroRatedExportSupport}"/>
                                 </TextBlock>
                             </StackPanel>

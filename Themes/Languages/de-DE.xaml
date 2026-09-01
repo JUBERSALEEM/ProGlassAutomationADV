@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">GEMACHT FÜR GLAS-ERP</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">Handwerkskunst, Workflow-Engineering und Produktrichtung hinter ProGlass Automation</sys:String>
     <sys:String x:Key="About.Crash">Letzte Absturzberichte</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">VAE-Dirham (AED)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">Die aktuelle Version enthält</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">DATEN-EIGENTUM &amp; EINSATZ</sys:String>
     <sys:String x:Key="About.DAYSRemaining">VERBLEIBENDE TAGE</sys:String>

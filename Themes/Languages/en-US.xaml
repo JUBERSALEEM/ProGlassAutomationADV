@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">CRAFTED FOR GLASS ERP</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">Craftsmanship, workflow engineering, and product direction behind ProGlass Automation</sys:String>
     <sys:String x:Key="About.Crash">Recent crash reports</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">AED (UAE Dirham)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">The current release ships with</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">DATA OWNERSHIP &amp; DEPLOYMENT</sys:String>
     <sys:String x:Key="About.DAYSRemaining">DAYS REMAINING</sys:String>

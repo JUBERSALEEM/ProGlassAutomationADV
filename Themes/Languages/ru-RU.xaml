@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">СОЗДАНО ДЛЯ ERP СТЕКОЛЬНОЙ ОТРАСЛИ</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">Мастерство, инженерия процессов и продуктовое направление ProGlass Automation</sys:String>
     <sys:String x:Key="About.Crash">Последние отчёты о сбоях</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">Дирхам ОАЭ (AED)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">Текущий выпуск поставляется с</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">ВЛАДЕНИЕ ДАННЫМИ И РАЗВЁРТЫВАНИЕ</sys:String>
     <sys:String x:Key="About.DAYSRemaining">ДНЕЙ ОСТАЛОСЬ</sys:String>

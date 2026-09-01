@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">为玻璃 ERP 精心打造</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">ProGlass Automation 背后的工艺、工作流工程和产品方向</sys:String>
     <sys:String x:Key="About.Crash">最近的崩溃报告</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">阿联酋迪拉姆 (AED)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">当前版本附带</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">数据所有权和部署</sys:String>
     <sys:String x:Key="About.DAYSRemaining">剩余天数</sys:String>

@@ -37,6 +37,7 @@ STRINGS = {
     "About.CraftedGlassERP": "ガラスERPのために設計",
     "About.CraftsmanshipWorkflowEngineeringProduct": "ProGlass Automationの背後にある職人技、ワークフロー工学、製品方向性",
     "About.Crash": "最近のクラッシュレポート",
+    "About.CurrencyUAE": "UAEディルハム (AED)",
     "About.CurrentReleaseShips": "現在のリリースには以下が含まれます",
     "About.DATAOwnershipDeployment": "データ所有権と展開",
     "About.DAYSRemaining": "残り日数",

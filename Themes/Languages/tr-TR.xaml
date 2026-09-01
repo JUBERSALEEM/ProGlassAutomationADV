@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">CAM ERP&#x27;Sİ İÇİN ÜRETİLDİ</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">ProGlass Automation&#x27;ın arkasındaki ustalık, iş akışı mühendisliği ve ürün yönü</sys:String>
     <sys:String x:Key="About.Crash">Son çökme raporları</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">BAE Dirhemi (AED)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">Mevcut sürüm şunlarla gelir:</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">VERİ SAHİPLİĞİ VE DAĞITIM</sys:String>
     <sys:String x:Key="About.DAYSRemaining">KALAN GÜN</sys:String>

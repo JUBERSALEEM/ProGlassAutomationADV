@@ -37,6 +37,7 @@ STRINGS = {
     "About.CraftedGlassERP": "为玻璃 ERP 精心打造",
     "About.CraftsmanshipWorkflowEngineeringProduct": "ProGlass Automation 背后的工艺、工作流工程和产品方向",
     "About.Crash": "最近的崩溃报告",
+    "About.CurrencyUAE": "阿联酋迪拉姆 (AED)",
     "About.CurrentReleaseShips": "当前版本附带",
     "About.DATAOwnershipDeployment": "数据所有权和部署",
     "About.DAYSRemaining": "剩余天数",

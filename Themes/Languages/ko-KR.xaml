@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">유리 ERP를 위해 제작</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">ProGlass Automation의 배후에 있는 장인 정신, 워크플로 엔지니어링, 제품 방향</sys:String>
     <sys:String x:Key="About.Crash">최근 충돌 보고서</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">UAE 디르함 (AED)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">현재 릴리스에는 다음이 포함됩니다</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">데이터 소유권 및 배포</sys:String>
     <sys:String x:Key="About.DAYSRemaining">남은 일수</sys:String>

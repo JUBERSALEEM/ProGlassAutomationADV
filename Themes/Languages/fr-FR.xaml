@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">CONÇU POUR L&#x27;ERP DU VERRE</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">Le savoir-faire, l&#x27;ingénierie des flux et la direction produit derrière ProGlass Automation</sys:String>
     <sys:String x:Key="About.Crash">Rapports de plantage récents</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">Dirham des Émirats (AED)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">La version actuelle est livrée avec</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">PROPRIÉTÉ DES DONNÉES ET DÉPLOIEMENT</sys:String>
     <sys:String x:Key="About.DAYSRemaining">JOURS RESTANTS</sys:String>

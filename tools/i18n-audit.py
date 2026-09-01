@@ -55,6 +55,44 @@ LITERAL = re.compile(
     r'(?P<attr>Text|Content|Header|Title|ToolTip|Watermark|PlaceholderText)'
     r'="(?P<val>[^"{}]*)"')
 
+# ── String classification (master-prompt §20) ─────────────────────────────
+# Hard-coded attribute values that are NOT user-facing copy to translate:
+# icons, separators, numbers, currency codes, units, all-caps acronyms,
+# dimension tokens (W1/H2), and the product/brand name.  Everything else
+# that survives this filter is genuine UI text that must use a dictionary
+# key — so P2/P4 reports list only real translatable strings.
+CURRENCY_CODES = {
+    "AED", "USD", "EUR", "GBP", "INR", "SAR", "QAR", "KWD", "BHD", "OMR",
+    "CNY", "JPY", "AUD", "CAD", "CHF", "SGD", "MYR", "PKR", "TRY", "ZAR",
+    "KRW", "EGP", "RUB", "BRL", "BDT", "IDR", "PHP", "THB", "VND", "LKR",
+    "NPR", "ILS", "HKD", "NZD", "MXN", "PLN", "SEK", "NOK", "DKK", "HUF",
+    "CZK", "RON", "BGN", "HRK", "UAH", "KZT", "NGN", "KES", "GHS", "MAD",
+}
+UNITS = {"pcs", "pc", "m²", "m2", "m³", "m3", "kg", "g", "mm", "cm", "km",
+         "ml", "l", "sqm", "sqft", "ft", "in", "yd", "hrs", "h", "min", "s",
+         "AED", "W", "kW", "V", "A", "%"}
+BRAND_NAMES = {"ProGlass", "ProGlass Automation", "Microsoft Print to PDF",
+               "Microsoft"}
+ACRONYM = re.compile(r"^[A-Z][A-Z0-9]{0,4}$")      # TRN, PI, JO, VAT, W1, H2
+
+
+def is_translatable_literal(val: str) -> bool:
+    """True when the literal is genuine UI copy that should be localized."""
+    if not val:
+        return False
+    if val.startswith("&#x"):              # Segoe MDL2 / icon glyphs
+        return False
+    if val in CURRENCY_CODES or val in UNITS or val in BRAND_NAMES:
+        return False
+    if ACRONYM.fullmatch(val):
+        return False
+    if re.fullmatch(r"[\d\s:.,/+-]+", val):
+        return False                      # step numbers 01–09, 00:00, counts
+    if not any(c.isalpha() for c in val):
+        return False                      # separators: · / → — ✓ ✕ ● ≡ ⌕ ↻ ⤴ ×
+    # anything left contains letters in a word → translatable
+    return True
+
 
 def is_god(path: Path) -> bool:
     rel = path.relative_to(ROOT).as_posix()
@@ -127,7 +165,7 @@ def main() -> int:
             val = m.group("val").strip()
             if not val:
                 continue
-            if val.startswith("&#x"):
+            if not is_translatable_literal(val):
                 continue
             file_literals.append((m.group("attr"), val))
         rel_snips = [f"({a}) {v[:60]}" for a, v in file_literals]

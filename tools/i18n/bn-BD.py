@@ -37,6 +37,7 @@ STRINGS = {
     "About.CraftedGlassERP": "গ্লাস ERP-এর জন্য তৈরি",
     "About.CraftsmanshipWorkflowEngineeringProduct": "ProGlass Automation-এর পেছনের কারিগরি, ওয়ার্কফ্লো ইঞ্জিনিয়ারিং ও পণ্যের দিকনির্দেশনা",
     "About.Crash": "সাম্প্রতিক ক্র্যাশ রিপোর্ট",
+    "About.CurrencyUAE": "ইউএই দিরহাম (AED)",
     "About.CurrentReleaseShips": "বর্তমান রিলিজের সাথে আসে",
     "About.DATAOwnershipDeployment": "ডেটার মালিকানা ও স্থাপনা",
     "About.DAYSRemaining": "অবশিষ্ট দিন",

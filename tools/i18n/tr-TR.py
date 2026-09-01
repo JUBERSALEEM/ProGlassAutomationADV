@@ -37,6 +37,7 @@ STRINGS = {
     "About.CraftedGlassERP": "CAM ERP'Sİ İÇİN ÜRETİLDİ",
     "About.CraftsmanshipWorkflowEngineeringProduct": "ProGlass Automation'ın arkasındaki ustalık, iş akışı mühendisliği ve ürün yönü",
     "About.Crash": "Son çökme raporları",
+    "About.CurrencyUAE": "BAE Dirhemi (AED)",
     "About.CurrentReleaseShips": "Mevcut sürüm şunlarla gelir:",
     "About.DATAOwnershipDeployment": "VERİ SAHİPLİĞİ VE DAĞITIM",
     "About.DAYSRemaining": "KALAN GÜN",

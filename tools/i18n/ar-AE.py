@@ -37,6 +37,7 @@ STRINGS = {
     "About.CraftedGlassERP": "مصمم خصيصًا لتخطيط موارد الزجاج",
     "About.CraftsmanshipWorkflowEngineeringProduct": "الحِرفية وهندسة سير العمل والتوجيه المنتجي وراء ProGlass Automation",
     "About.Crash": "أحدث تقارير الأعطال",
+    "About.CurrencyUAE": "درهم إماراتي (AED)",
     "About.CurrentReleaseShips": "الإصدار الحالي يشمل",
     "About.DATAOwnershipDeployment": "ملكية البيانات والنشر",
     "About.DAYSRemaining": "الأيام المتبقية",

@@ -37,6 +37,7 @@ STRINGS = {
     "About.CraftedGlassERP": "유리 ERP를 위해 제작",
     "About.CraftsmanshipWorkflowEngineeringProduct": "ProGlass Automation의 배후에 있는 장인 정신, 워크플로 엔지니어링, 제품 방향",
     "About.Crash": "최근 충돌 보고서",
+    "About.CurrencyUAE": "UAE 디르함 (AED)",
     "About.CurrentReleaseShips": "현재 릴리스에는 다음이 포함됩니다",
     "About.DATAOwnershipDeployment": "데이터 소유권 및 배포",
     "About.DAYSRemaining": "남은 일수",

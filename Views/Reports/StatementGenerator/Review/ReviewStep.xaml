@@ -591,7 +591,7 @@
                             <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,8" Margin="0,6,0,0">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="TOTAL" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Qty" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Common.Qty}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding IncludedTotalQty, Mode=OneWay}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                     <TextBlock Text="pcs" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,20,0" VerticalAlignment="Center"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.SQM}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
@@ -672,7 +672,7 @@
                             <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,8" Margin="0,6,0,0">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="TOTAL" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,0,16,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Qty" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Common.Qty}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                                     <TextBlock Text="{Binding DueTotalQty, Mode=OneWay}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                     <TextBlock Text="pcs" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,20,0" VerticalAlignment="Center"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.SQM}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>

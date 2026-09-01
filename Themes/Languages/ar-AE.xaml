@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">مصمم خصيصًا لتخطيط موارد الزجاج</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">الحِرفية وهندسة سير العمل والتوجيه المنتجي وراء ProGlass Automation</sys:String>
     <sys:String x:Key="About.Crash">أحدث تقارير الأعطال</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">درهم إماراتي (AED)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">الإصدار الحالي يشمل</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">ملكية البيانات والنشر</sys:String>
     <sys:String x:Key="About.DAYSRemaining">الأيام المتبقية</sys:String>

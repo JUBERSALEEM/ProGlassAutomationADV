@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">HECHO PARA ERP DE VIDRIO</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">Artesanía, ingeniería de flujos de trabajo y dirección de producto detrás de ProGlass Automation</sys:String>
     <sys:String x:Key="About.Crash">Informes de fallos recientes</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">Dírham de los EAU (AED)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">La versión actual incluye</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">PROPIEDAD DE DATOS Y DESPLIEGUE</sys:String>
     <sys:String x:Key="About.DAYSRemaining">DÍAS RESTANTES</sys:String>

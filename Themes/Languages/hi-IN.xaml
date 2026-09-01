@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">ग्लास ERP के लिए तैयार</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">ProGlass Automation के पीछे कारीगरी, वर्कफ़्लो इंजीनियरिंग और उत्पाद दिशा</sys:String>
     <sys:String x:Key="About.Crash">हाल की क्रैश रिपोर्ट</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">यूएई दिरहम (AED)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">वर्तमान रिलीज़ के साथ आता है</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">डेटा स्वामित्व और तैनाती</sys:String>
     <sys:String x:Key="About.DAYSRemaining">शेष दिन</sys:String>

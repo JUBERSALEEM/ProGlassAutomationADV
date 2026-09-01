@@ -37,6 +37,7 @@
     <sys:String x:Key="About.CraftedGlassERP">DIRANCANG UNTUK ERP KACA</sys:String>
     <sys:String x:Key="About.CraftsmanshipWorkflowEngineeringProduct">Keahlian, rekayasa alur kerja, dan arah produk di balik ProGlass Automation</sys:String>
     <sys:String x:Key="About.Crash">Laporan kerusakan terbaru</sys:String>
+    <sys:String x:Key="About.CurrencyUAE">Dirham UEA (AED)</sys:String>
     <sys:String x:Key="About.CurrentReleaseShips">Rilis saat ini hadir dengan</sys:String>
     <sys:String x:Key="About.DATAOwnershipDeployment">KEPEMILIKAN &amp; PENYEBARAN DATA</sys:String>
     <sys:String x:Key="About.DAYSRemaining">HARI TERSISA</sys:String>
