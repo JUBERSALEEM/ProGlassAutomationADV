@@ -38,11 +38,13 @@ namespace ProGlassAutomation.Tests.Agent
             // cards vanished on the pale stage. The single iOS Liquid
             // Glass family keeps an intentional ramp per mode: white
             // water glass in Light, deep frost in Dark.
-            Assert.Contains("0.84, 0.54", Engine, StringComparison.Ordinal);
-            Assert.Contains("0.94, 0.72", Engine, StringComparison.Ordinal);
-            Assert.Contains("0.88, 0.58", Engine, StringComparison.Ordinal);
-            Assert.Contains("0.20, 0.06", Engine, StringComparison.Ordinal); // dark
-            Assert.Contains("0.32, 0.11", Engine, StringComparison.Ordinal); // dark
+            // 2026-09-01 richness pass: both ramps got denser (richer
+            // frost) so cards read as real glass instead of pale sheets.
+            Assert.Contains("0.88, 0.60", Engine, StringComparison.Ordinal);
+            Assert.Contains("0.96, 0.76", Engine, StringComparison.Ordinal);
+            Assert.Contains("0.91, 0.63", Engine, StringComparison.Ordinal);
+            Assert.Contains("0.26, 0.10", Engine, StringComparison.Ordinal); // dark
+            Assert.Contains("0.38, 0.15", Engine, StringComparison.Ordinal); // dark
 
             // 2026-08-29 watery upgrade: the light curve has a dip
             // under the top edge and a meniscus band — the droplet's
@@ -112,11 +114,13 @@ namespace ProGlassAutomation.Tests.Agent
         public void Light_glass_card_is_translucent_white_not_opaque()
         {
             // The second original defect: the light card was #FFFFFFFF
-            // (opaque white) — a solid slab, not glass.
-            Assert.Contains("#DBFFFFFF", LightTheme, StringComparison.Ordinal);
-            Assert.Contains("#BDFFFFFF", LightTheme, StringComparison.Ordinal);
-            Assert.Contains("#9EFFFFFF", LightTheme, StringComparison.Ordinal);
-            Assert.Contains("#8CFFFFFF", LightTheme, StringComparison.Ordinal); // specular sheen
+            // (opaque white) — a solid slab, not glass. The LiquidGlass
+            // meniscus ramp is denser after the 2026-09-01 richness
+            // pass but never reaches full opacity.
+            Assert.Contains("#E4FFFFFF", LightTheme, StringComparison.Ordinal);
+            Assert.Contains("#CEFFFFFF", LightTheme, StringComparison.Ordinal);
+            Assert.Contains("#F6FFFFFF", LightTheme, StringComparison.Ordinal);
+            Assert.Contains("#96FFFFFF", LightTheme, StringComparison.Ordinal); // specular sheen
         }
 
         [Fact]
@@ -464,19 +468,34 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("LiquidGlassDesign.xaml", app, StringComparison.Ordinal);
 
             string design = Read("Themes/Styles/LiquidGlassDesign.xaml");
+            // 2026-09-01 stale-pin fix: LiquidGlassDesign.xaml is a
+            // TEMPLATE dictionary (it declares in its own header that
+            // every colour/brush token is defined in the theme files).
+            // The control styles live here…
+            foreach (string key in new[]
+                     {
+                         "LiquidGlassPanel", "LiquidGlassCard",
+                         "LiquidGlassButton", "LiquidGlassButtonPrimary",
+                         "LiquidGlassSwitch", "LiquidGlassTextBox"
+                     })
+            {
+                Assert.Contains("x:Key=\"" + key + "\"", design, StringComparison.Ordinal);
+            }
+
+            // …while the colour/brush tokens must exist in BOTH theme
+            // dictionaries (per-mode values, resolved via DynamicResource).
+            string lightTokens = LightTheme;
+            string darkTokens = Read("Themes/DarkTheme.xaml");
             foreach (string key in new[]
                      {
                          "GlassSurfaceUltra", "GlassSurfaceStandard",
                          "GlassSurfaceElevated", "GlassTopReflection",
-                         "GlassGradientIdle", "GlassGradientActive",
-                         "AppBackgroundBrush", "TextPrimaryBrush",
-                         "TextSecondaryBrush", "LiquidGlassPanel",
-                         "LiquidGlassCard", "LiquidGlassButton",
-                         "LiquidGlassButtonPrimary", "LiquidGlassSwitch",
-                         "LiquidGlassTextBox"
+                         "GlassGradientIdle", "AppBackgroundBrush",
+                         "TextPrimaryBrush", "TextSecondaryBrush"
                      })
             {
-                Assert.Contains("x:Key=\"" + key + "\"", design, StringComparison.Ordinal);
+                Assert.Contains("x:Key=\"" + key + "\"", lightTokens, StringComparison.Ordinal);
+                Assert.Contains("x:Key=\"" + key + "\"", darkTokens, StringComparison.Ordinal);
             }
 
             string buttons = Read("Styles/ButtonStyles.xaml");
@@ -492,7 +511,11 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("resources[\"GlassGradientActive\"]", tm, StringComparison.Ordinal);
 
             string window = Read("MainWindow.xaml");
-            Assert.Contains("{DynamicResource AppBackgroundBrush}", window, StringComparison.Ordinal);
+            // 2026-09-01 stale-pin fix: the main window rides the
+            // WINDOW background brush (the family's opaque aurora stage /
+            // Normal's canvas), not AppBackgroundBrush — the reference
+            // dictionary still carries AppBackgroundBrush for adoption.
+            Assert.Contains("{DynamicResource WindowBackgroundBrush}", window, StringComparison.Ordinal);
             Assert.Contains("Style=\"{StaticResource LiquidGlassWindow}\"", window, StringComparison.Ordinal);
         }
 
@@ -515,6 +538,81 @@ namespace ProGlassAutomation.Tests.Agent
                         xaml, "(Background|BorderBrush|Foreground|Color|Fill)=\"#[0-9A-Fa-f]{6,8}\""),
                     rel + " contains a hardcoded colour");
             }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  2026-09-01 RICHNESS PASS — the theme system must stay vivid
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void Light_normal_canvas_is_pure_cream_white()
+        {
+            // "Normal" family = base LightTheme values (the engine does
+            // not override the window for Normal). The light canvas must
+            // be the creamy SaaS neutral, not the old icy blue-white.
+            Assert.Contains("#F6F1E6", LightTheme, StringComparison.Ordinal);
+            Assert.Contains("#FBF8F1", LightTheme, StringComparison.Ordinal);
+            Assert.Contains("#FEFDFA", LightTheme, StringComparison.Ordinal);
+
+            // ThemeManager re-publishes the reference light background at
+            // runtime (every theme swap) — it must match the cream canvas
+            // or Normal would snap back to ice blue on Light→Dark→Light.
+            string tm = Read("Services/ThemeManager.cs");
+            Assert.Contains("Color.FromRgb(0xF8, 0xF4, 0xEB)", tm, StringComparison.Ordinal);
+            Assert.Contains("Color.FromRgb(0xFE, 0xFC, 0xF8)", tm, StringComparison.Ordinal);
+            Assert.DoesNotContain("0xD7, 0xED, 0xF9", tm, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Status_tint_green_is_actually_green_in_both_themes()
+        {
+            // BUG FIX: TintGreenColor was a BLUE tint (#EFF6FF light,
+            // #1E2B44 dark) — success chips/cards rendered blue.
+            string light = LightTheme;
+            Assert.Contains("#E8F6EC", light, StringComparison.Ordinal);
+            Assert.DoesNotContain("<Color x:Key=\"TintGreenColor\">#EFF6FF", light, StringComparison.Ordinal);
+
+            string dark = Read("Themes/DarkTheme.xaml");
+            Assert.Contains("#14301F", dark, StringComparison.Ordinal);
+            Assert.DoesNotContain("<Color x:Key=\"TintGreenColor\">#1E2B44", dark, StringComparison.Ordinal);
+            // The dark blue tint is now a real BLUE, not the same navy
+            // the green placeholder used.
+            Assert.Contains("#16324C", dark, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Frosted_glass_is_more_saturated_after_the_richness_pass()
+        {
+            // The Liquid Glass family's frost carries a visible accent
+            // kiss (light 0.16, dark 0.32) instead of a whisper — the
+            // whole frosted system reads saturated, not flat white.
+            string engine = Engine;
+            Assert.Contains("dark ? 0.32 : 0.16", engine, StringComparison.Ordinal);
+            Assert.Contains("HueFrost(\"TintBlueBrush\", 0.36, 0.18)", engine, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Ultra_transparent_keeps_card_text_readable()
+        {
+            // Ultra Transparent shows the wallpaper behind everything but
+            // must never lose the text on cards: a whisper of card frost
+            // plus a stronger crystal edge (36% white, was 24%).
+            string engine = Engine;
+            Assert.Contains("Color.FromArgb(0x5C, 0xFF, 0xFF, 0xFF)", engine, StringComparison.Ordinal);
+            Assert.Contains("CARD FROST", engine, StringComparison.Ordinal);
+            Assert.Contains("FrostFill(accent, dark ? 0.14 : 0.12, dark ? 0.07 : 0.06)", engine, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Industrial_family_carries_more_contrast_and_saturation()
+        {
+            // Professional is the industrial steel look: the cool slate
+            // window/surfaces were near-white. The 2026-09-01 pass makes
+            // the steel visibly saturated and higher contrast.
+            string engine = Engine;
+            Assert.Contains("Color.FromRgb(0xEC, 0xF2, 0xF9)", engine, StringComparison.Ordinal);
+            Assert.Contains("Color.FromRgb(0xD9, 0xE5, 0xF2)", engine, StringComparison.Ordinal);
+            Assert.Contains("Color.FromRgb(0xE2, 0xEA, 0xF4)", engine, StringComparison.Ordinal);
         }
 
         private static string[] ResourceKeys(string xaml) =>

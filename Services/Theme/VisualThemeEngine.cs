@@ -659,11 +659,11 @@ namespace ProGlassAutomation.Services.Theme
                 // 2026-08-25: saturation caps eased up a touch so the
                 // background visibly belongs to the chosen accent.
                 Color from = dark
-                    ? ColorMath.FromHsl(h, Math.Min(s, 0.42), 0.14)
-                    : ColorMath.FromHsl(h, Math.Min(s, 0.70), 0.94);
+                    ? ColorMath.FromHsl(h, Math.Min(s, 0.46), 0.14)
+                    : ColorMath.FromHsl(h, Math.Min(s, 0.78), 0.94);
                 Color to = dark
-                    ? ColorMath.FromHsl(h + 26, Math.Min(s, 0.38), 0.10)
-                    : ColorMath.FromHsl(h + 26, Math.Min(s, 0.62), 0.88);
+                    ? ColorMath.FromHsl(h + 26, Math.Min(s, 0.44), 0.10)
+                    : ColorMath.FromHsl(h + 26, Math.Min(s, 0.70), 0.88);
 
                 if (ThemeManager.UseGradients)
                 {
@@ -777,9 +777,9 @@ namespace ProGlassAutomation.Services.Theme
         /// 2026-08-25 (richness fix): the tint ratios were raised from
         /// 0.12/0.18 to 0.18/0.26 — at the old values the glass barely
         /// carried the chosen colour and Monet read as "too light".
-        /// 2026-08-29: the LIGHT-mode ratio was nudged 0.18 → 0.22 so
-        /// Monet's colour adaptation is clearly visible on the pale
-        /// light surfaces too (dark stays 0.26).
+        /// 2026-09-01: the LIGHT-mode ratio is 0.16 (dark 0.26) so
+        /// Monet's colour adaptation stays clearly visible on the pale
+        /// light surfaces without flattening them.
         /// When gradient surfaces are enabled (the Appearance toggle)
         /// the surface is a diagonal gradient from the tint to a lifted
         /// tint, which gives Material-You style depth without any
@@ -800,7 +800,7 @@ namespace ProGlassAutomation.Services.Theme
             
             // Tint the opaque base with the accent color
             Color tinted = ColorMath.Tint(accent, baseColor,
-                dark ? 0.26 : 0.10);
+                dark ? 0.26 : 0.16);
 
             if (ThemeManager.UseGradients)
             {
@@ -828,10 +828,10 @@ namespace ProGlassAutomation.Services.Theme
             // Cool slate window gradient — immediately distinguishes
             // Professional from Normal.
             var window = new LinearGradientBrush(
-                dark ? Color.FromRgb(0x0B, 0x12, 0x20)
-                     : Color.FromRgb(0xF8, 0xFA, 0xFC),
-                dark ? Color.FromRgb(0x10, 0x18, 0x27)
-                     : Color.FromRgb(0xEC, 0xF1, 0xF7),
+                dark ? Color.FromRgb(0x0A, 0x13, 0x26)
+                     : Color.FromRgb(0xEC, 0xF2, 0xF9),
+                dark ? Color.FromRgb(0x16, 0x23, 0x3E)
+                     : Color.FromRgb(0xD9, 0xE5, 0xF2),
                 new Point(0, 0), new Point(1, 1));
             window.Freeze();
             resources["WindowBackgroundBrush"] = window;
@@ -841,27 +841,27 @@ namespace ProGlassAutomation.Services.Theme
             // ratios are strong enough to be seen at a glance — this
             // is what separates Professional from Normal.
             Color cool = dark
-                ? Color.FromRgb(0x13, 0x1B, 0x2A)
-                : Color.FromRgb(0xEA, 0xF0, 0xF7);
+                ? Color.FromRgb(0x18, 0x25, 0x3D)
+                : Color.FromRgb(0xE2, 0xEA, 0xF4);
 
             Color moduleBg = ThemeManager.GetThemeColor(
                 "ModuleBackgroundBrush", Colors.White);
             var moduleBrush = new SolidColorBrush(
-                ColorMath.Mix(moduleBg, cool, 0.55));
+                ColorMath.Mix(moduleBg, cool, 0.62));
             moduleBrush.Freeze();
             resources["ModuleBackgroundBrush"] = moduleBrush;
 
             Color elevated = ThemeManager.GetThemeColor(
                 "ElevatedSurfaceBrush", Colors.White);
             var elevatedBrush = new SolidColorBrush(
-                ColorMath.Mix(elevated, cool, 0.45));
+                ColorMath.Mix(elevated, cool, 0.52));
             elevatedBrush.Freeze();
             resources["ElevatedSurfaceBrush"] = elevatedBrush;
 
             Color sideMenu = ThemeManager.GetThemeColor(
                 "SideMenuBackgroundBrush", Colors.White);
             var sideMenuBrush = new SolidColorBrush(
-                ColorMath.Mix(sideMenu, cool, 0.40));
+                ColorMath.Mix(sideMenu, cool, 0.46));
             sideMenuBrush.Freeze();
             resources["SideMenuBackgroundBrush"] = sideMenuBrush;
 
@@ -871,8 +871,8 @@ namespace ProGlassAutomation.Services.Theme
             resources["ControlCornerRadius"] = new CornerRadius(8);
 
             var hover = new SolidColorBrush(dark
-                ? Color.FromRgb(0x2B, 0x3A, 0x52)
-                : Color.FromRgb(0xF1, 0xF5, 0xF9));
+                ? Color.FromRgb(0x2E, 0x40, 0x5E)
+                : Color.FromRgb(0xE4, 0xEC, 0xF6));
             hover.Freeze();
             resources["MenuHoverBrush"] = hover;
 
@@ -921,13 +921,13 @@ namespace ProGlassAutomation.Services.Theme
             // ── 2) CARD SURFACES — one material ramp per mode ───────
             if (dark)
             {
-                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.20, 0.06);
-                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.26, 0.09);
-                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.32, 0.11);
-                resources["MenuHoverBrush"] = FrostFill(accent, 0.22, 0.11);
-                resources["SidebarCardBrush"] = FrostFill(accent, 0.24, 0.09);
-                resources["ShellLiquidBrush"] = FrostFill(accent, 0.28, 0.09);
-                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.22, 0.09);
+                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.26, 0.10);
+                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.32, 0.13);
+                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.38, 0.15);
+                resources["MenuHoverBrush"] = FrostFill(accent, 0.28, 0.16);
+                resources["SidebarCardBrush"] = FrostFill(accent, 0.30, 0.13);
+                resources["ShellLiquidBrush"] = FrostFill(accent, 0.34, 0.13);
+                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.28, 0.13);
 
                 // ── 3) DASHBOARD AMBIENT — soft glow under the frost ─
                 resources["DashAmbientBrush"] = FrostFill(accent, 0.14, 0.06);
@@ -939,13 +939,13 @@ namespace ProGlassAutomation.Services.Theme
                 // White water glass: translucent white panes, densest
                 // at the top (iOS light materials catch the light),
                 // see-through toward the lower edge.
-                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.84, 0.54);
-                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.90, 0.62);
-                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.94, 0.72);
-                resources["MenuHoverBrush"] = FrostFill(accent, 0.50, 0.30);
-                resources["SidebarCardBrush"] = FrostFill(accent, 0.82, 0.52);
-                resources["ShellLiquidBrush"] = FrostFill(accent, 0.88, 0.58);
-                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.84, 0.56);
+                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.88, 0.60);
+                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.93, 0.68);
+                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.96, 0.76);
+                resources["MenuHoverBrush"] = FrostFill(accent, 0.56, 0.36);
+                resources["SidebarCardBrush"] = FrostFill(accent, 0.86, 0.58);
+                resources["ShellLiquidBrush"] = FrostFill(accent, 0.91, 0.63);
+                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.87, 0.60);
 
                 // ── 3) DASHBOARD AMBIENT — blue glow under the panes ─
                 resources["DashAmbientBrush"] = FrostFill(accent, 0.20, 0.08);
@@ -954,13 +954,13 @@ namespace ProGlassAutomation.Services.Theme
             }
 
             // ── 4) STATUS TINTS — hue kept, fill made glass ─────────
-            resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.30, 0.14);
-            resources["TintBlueBrush"] = HueFrost("TintBlueBrush", 0.30, 0.14);
-            resources["TintGreenBrush"] = HueFrost("TintGreenBrush", 0.30, 0.14);
-            resources["TintRedBrush"] = HueFrost("TintRedBrush", 0.30, 0.14);
-            resources["TintAmberBrush"] = HueFrost("TintAmberBrush", 0.30, 0.14);
-            resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.30, 0.14);
-            resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.30, 0.14);
+            resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.36, 0.18);
+            resources["TintBlueBrush"] = HueFrost("TintBlueBrush", 0.36, 0.18);
+            resources["TintGreenBrush"] = HueFrost("TintGreenBrush", 0.36, 0.18);
+            resources["TintRedBrush"] = HueFrost("TintRedBrush", 0.36, 0.18);
+            resources["TintAmberBrush"] = HueFrost("TintAmberBrush", 0.36, 0.18);
+            resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.36, 0.18);
+            resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.36, 0.18);
 
             // ── 5) TYPOGRAPHY — per-mode text palette ───────────────
             SetLiquidTextPalette(resources, dark);
@@ -1121,11 +1121,11 @@ namespace ProGlassAutomation.Services.Theme
 
             // Interaction states — white glass at state alphas.
             resources["LiquidControlHoverBrush"] =
-                SolidFrost(accent, dark ? 0.30 : 0.60);
+                SolidFrost(accent, dark ? 0.36 : 0.66);
             resources["LiquidControlPressedBrush"] =
-                SolidFrost(accent, dark ? 0.22 : 0.70);
+                SolidFrost(accent, dark ? 0.28 : 0.76);
             resources["LiquidControlDisabledBrush"] =
-                SolidFrost(accent, dark ? 0.14 : 0.35);
+                SolidFrost(accent, dark ? 0.18 : 0.42);
 
             // Focus / selection / primary — accent-tinted crystal.
             resources["LiquidFocusBrush"] = FrozenSolid(Color.FromArgb(
@@ -1561,11 +1561,13 @@ namespace ProGlassAutomation.Services.Theme
             Color accent, Color baseColor, bool dark,
             double topAlpha, double bottomAlpha)
         {
-            // Light: a WHISPER of accent over clean white (0.06) — the
-            // white water-glass material stays white. Dark: the
-            // original 0.22 keeps the deep-frost hue.
+            // Light: an ACCENT KISS over warm white (0.16) — the white
+            // water-glass material keeps its identity but visibly
+            // belongs to the chosen colour, so the frost reads
+            // saturated instead of flat white. Dark: 0.32 keeps the
+            // deep-frost hue rich against the navy stage.
             Color tinted = ColorMath.Tint(accent, baseColor,
-                dark ? 0.22 : 0.06);
+                dark ? 0.32 : 0.16);
 
             byte topA = (byte)Math.Round(topAlpha * 255);
             byte bottomA = (byte)Math.Round(bottomAlpha * 255);
@@ -1666,9 +1668,11 @@ namespace ProGlassAutomation.Services.Theme
             // (Deep, spread shadows that simulate water weight inside glass.
             //  Defined in theme XAML, flow through via ClearOverrides.)
 
-            // ── 3) CRYSTAL BORDER — 24% white ──────────────────────
+            // ── 3) CRYSTAL BORDER — 36% white (was 24%): with the
+            // wallpaper showing through, a stronger crystal edge is
+            // what keeps every card's shape readable. ────────────────
             var crystalBorder = new SolidColorBrush(
-                Color.FromArgb(0x3D, 0xFF, 0xFF, 0xFF));
+                Color.FromArgb(0x5C, 0xFF, 0xFF, 0xFF));
             crystalBorder.Freeze();
 
             var crystalBorderGradient = new LinearGradientBrush
@@ -1677,9 +1681,9 @@ namespace ProGlassAutomation.Services.Theme
                 EndPoint = new Point(1, 1),
                 GradientStops =
                 {
-                    new GradientStop(Color.FromArgb(0x50, 0xFF, 0xFF, 0xFF), 0.0),
-                    new GradientStop(Color.FromArgb(0x3D, 0xFF, 0xFF, 0xFF), 0.5),
-                    new GradientStop(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF), 1.0)
+                    new GradientStop(Color.FromArgb(0x6E, 0xFF, 0xFF, 0xFF), 0.0),
+                    new GradientStop(Color.FromArgb(0x5C, 0xFF, 0xFF, 0xFF), 0.5),
+                    new GradientStop(Color.FromArgb(0x4A, 0xFF, 0xFF, 0xFF), 1.0)
                 }
             };
             crystalBorderGradient.Freeze();
@@ -1689,7 +1693,7 @@ namespace ProGlassAutomation.Services.Theme
             resources["OutlineDefaultBrush"] = crystalBorder;
             resources["BorderBrush"] = crystalBorder;
             resources["DividerBrush"] = new SolidColorBrush(
-                Color.FromArgb(0x20, 0xFF, 0xFF, 0xFF));
+                Color.FromArgb(0x2C, 0xFF, 0xFF, 0xFF));
             resources["GlassBorderSoft"] = crystalBorder;
 
             // ── 4) TYPOGRAPHY ──────────────────────────────────────
@@ -1720,9 +1724,16 @@ namespace ProGlassAutomation.Services.Theme
             resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.10, 0.05);
             resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.10, 0.05);
 
-            // ── 7) HOVER — 10% white ───────────────────────────────
+            // ── 6b) CARD FROST — a whisper of white over the stage so
+            // text on every card stays readable against a bright or
+            // busy wallpaper (the family stays see-through: the
+            // frost is 6–12% alpha, the crystal edge does the shape).
+            resources["ModuleBackgroundBrush"] =
+                FrostFill(accent, dark ? 0.14 : 0.12, dark ? 0.07 : 0.06);
+
+            // ── 7) HOVER — 14% white ───────────────────────────────
             var hoverFill = new SolidColorBrush(
-                Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF));
+                Color.FromArgb(0x24, 0xFF, 0xFF, 0xFF));
             hoverFill.Freeze();
             resources["MenuHoverBrush"] = hoverFill;
 
@@ -1735,12 +1746,12 @@ namespace ProGlassAutomation.Services.Theme
             resources["LiquidControlHoverBrush"] = hoverFill;
 
             var pressed = new SolidColorBrush(
-                Color.FromArgb(0x26, 0xFF, 0xFF, 0xFF));
+                Color.FromArgb(0x2E, 0xFF, 0xFF, 0xFF));
             pressed.Freeze();
             resources["LiquidControlPressedBrush"] = pressed;
 
             var disabled = new SolidColorBrush(
-                Color.FromArgb(0x08, 0xFF, 0xFF, 0xFF));
+                Color.FromArgb(0x0C, 0xFF, 0xFF, 0xFF));
             disabled.Freeze();
             resources["LiquidControlDisabledBrush"] = disabled;
 
@@ -1766,36 +1777,36 @@ namespace ProGlassAutomation.Services.Theme
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
 
             var window = new LinearGradientBrush(
-                dark ? Color.FromRgb(0x07, 0x1A, 0x24)
-                     : Color.FromRgb(0xEC, 0xF7, 0xF9),
-                dark ? Color.FromRgb(0x0A, 0x24, 0x33)
-                     : Color.FromRgb(0xDD, 0xF0, 0xF4),
+                dark ? Color.FromRgb(0x06, 0x23, 0x30)
+                     : Color.FromRgb(0xE4, 0xF4, 0xF1),
+                dark ? Color.FromRgb(0x09, 0x2E, 0x40)
+                     : Color.FromRgb(0xCB, 0xE9, 0xE2),
                 new Point(0, 0), new Point(1, 1));
             window.Freeze();
             resources["WindowBackgroundBrush"] = window;
 
             Color teal = dark
-                ? Color.FromRgb(0x0E, 0x2A, 0x38)
-                : Color.FromRgb(0xD6, 0xEC, 0xF1);
+                ? Color.FromRgb(0x10, 0x34, 0x43)
+                : Color.FromRgb(0xC6, 0xE5, 0xDD);
 
             Color moduleBg = ThemeManager.GetThemeColor(
                 "ModuleBackgroundBrush", Colors.White);
             var moduleBrush = new SolidColorBrush(
-                ColorMath.Mix(moduleBg, teal, 0.55));
+                ColorMath.Mix(moduleBg, teal, 0.60));
             moduleBrush.Freeze();
             resources["ModuleBackgroundBrush"] = moduleBrush;
 
             Color elevated = ThemeManager.GetThemeColor(
                 "ElevatedSurfaceBrush", Colors.White);
             var elevatedBrush = new SolidColorBrush(
-                ColorMath.Mix(elevated, teal, 0.45));
+                ColorMath.Mix(elevated, teal, 0.50));
             elevatedBrush.Freeze();
             resources["ElevatedSurfaceBrush"] = elevatedBrush;
 
             Color sideMenu = ThemeManager.GetThemeColor(
                 "SideMenuBackgroundBrush", Colors.White);
             var sideMenuBrush = new SolidColorBrush(
-                ColorMath.Mix(sideMenu, teal, 0.40));
+                ColorMath.Mix(sideMenu, teal, 0.45));
             sideMenuBrush.Freeze();
             resources["SideMenuBackgroundBrush"] = sideMenuBrush;
 

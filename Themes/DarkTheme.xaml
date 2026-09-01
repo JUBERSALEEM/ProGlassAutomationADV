@@ -20,9 +20,9 @@
          SECTION 1 — RAW COLORS
     ═══════════════════════════════════════════════════════════════ -->
     <Color x:Key="PrimaryForegroundColor">#F1F5F9</Color>
-    <Color x:Key="SecondaryForegroundColor">#94A3B8</Color>
-    <Color x:Key="MutedForegroundColor">#64748B</Color>
-    <Color x:Key="BorderColor">#334155</Color>
+    <Color x:Key="SecondaryForegroundColor">#A9B8CC</Color>
+    <Color x:Key="MutedForegroundColor">#7C8CA3</Color>
+    <Color x:Key="BorderColor">#3B4A63</Color>
     <Color x:Key="ModuleBackgroundColor">#0F172A</Color>
     <Color x:Key="SideMenuBackgroundColor">#0F172A</Color>
     <Color x:Key="TextPrimaryColor">#F5F5F7</Color>
@@ -45,7 +45,7 @@
     <!-- Tint palette (dark) -->
     <Color x:Key="TintIndigoColor">#252B48</Color>
     <Color x:Key="TintRedColor">#3B1F22</Color>
-    <Color x:Key="TintGreenColor">#1E2B44</Color>
+    <Color x:Key="TintGreenColor">#14301F</Color>
     <Color x:Key="TintAmberColor">#3B2F1E</Color>
     <Color x:Key="TintPurpleColor">#2A2540</Color>
     <Color x:Key="TintGrayColor">#242B3A</Color>
@@ -69,26 +69,26 @@
     <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#00000000" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleWallpaperBrush" Color="Transparent" po:Freeze="True"/>
     <LinearGradientBrush x:Key="ElevatedSurfaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#68FFFFFF" Offset="0.00"/>
-        <GradientStop Color="#30FFFFFF" Offset="0.01"/>
-        <GradientStop Color="#4AFFFFFF" Offset="0.04"/>
-        <GradientStop Color="#3CFFFFFF" Offset="0.08"/>
-        <GradientStop Color="#32FFFFFF" Offset="0.20"/>
-        <GradientStop Color="#28FFFFFF" Offset="0.50"/>
-        <GradientStop Color="#24FFFFFF" Offset="0.75"/>
-        <GradientStop Color="#2AFFFFFF" Offset="0.92"/>
-        <GradientStop Color="#36FFFFFF" Offset="1.00"/>
+        <GradientStop Color="#74FFFFFF" Offset="0.00"/>
+        <GradientStop Color="#3AFFFFFF" Offset="0.01"/>
+        <GradientStop Color="#54FFFFFF" Offset="0.04"/>
+        <GradientStop Color="#46FFFFFF" Offset="0.08"/>
+        <GradientStop Color="#3CFFFFFF" Offset="0.20"/>
+        <GradientStop Color="#32FFFFFF" Offset="0.50"/>
+        <GradientStop Color="#2EFFFFFF" Offset="0.75"/>
+        <GradientStop Color="#34FFFFFF" Offset="0.92"/>
+        <GradientStop Color="#40FFFFFF" Offset="1.00"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="SideMenuBackgroundBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#50FFFFFF" Offset="0.00"/>
-        <GradientStop Color="#28FFFFFF" Offset="0.02"/>
-        <GradientStop Color="#38FFFFFF" Offset="0.06"/>
-        <GradientStop Color="#2AFFFFFF" Offset="0.12"/>
-        <GradientStop Color="#22FFFFFF" Offset="0.30"/>
-        <GradientStop Color="#1CFFFFFF" Offset="0.60"/>
-        <GradientStop Color="#18FFFFFF" Offset="0.85"/>
-        <GradientStop Color="#1EFFFFFF" Offset="0.95"/>
-        <GradientStop Color="#28FFFFFF" Offset="1.00"/>
+        <GradientStop Color="#5CFFFFFF" Offset="0.00"/>
+        <GradientStop Color="#32FFFFFF" Offset="0.02"/>
+        <GradientStop Color="#44FFFFFF" Offset="0.06"/>
+        <GradientStop Color="#36FFFFFF" Offset="0.12"/>
+        <GradientStop Color="#2CFFFFFF" Offset="0.30"/>
+        <GradientStop Color="#26FFFFFF" Offset="0.60"/>
+        <GradientStop Color="#22FFFFFF" Offset="0.85"/>
+        <GradientStop Color="#28FFFFFF" Offset="0.95"/>
+        <GradientStop Color="#32FFFFFF" Offset="1.00"/>
     </LinearGradientBrush>
     <SolidColorBrush x:Key="SidebarCardBrush" Color="#141E3A5F" po:Freeze="True"/>
     <SolidColorBrush x:Key="MenuHoverBrush" Color="#183B82F6" po:Freeze="True"/>
@@ -101,48 +101,48 @@
     <!-- ═══════════════════════════════════════════════════════════════
          SECTION 5 — LIQUID GLASS SURFACE BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
-    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#081E293B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#0E1E293B" po:Freeze="True"/>
     <LinearGradientBrush x:Key="GlassSurfaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#58FFFFFF" Offset="0.00"/>
-        <GradientStop Color="#28FFFFFF" Offset="0.01"/>
-        <GradientStop Color="#40FFFFFF" Offset="0.04"/>
-        <GradientStop Color="#35FFFFFF" Offset="0.08"/>
-        <GradientStop Color="#2AFFFFFF" Offset="0.20"/>
-        <GradientStop Color="#22FFFFFF" Offset="0.50"/>
-        <GradientStop Color="#1EFFFFFF" Offset="0.75"/>
-        <GradientStop Color="#25FFFFFF" Offset="0.92"/>
-        <GradientStop Color="#30FFFFFF" Offset="1.00"/>
+        <GradientStop Color="#66FFFFFF" Offset="0.00"/>
+        <GradientStop Color="#32FFFFFF" Offset="0.01"/>
+        <GradientStop Color="#4AFFFFFF" Offset="0.04"/>
+        <GradientStop Color="#3EFFFFFF" Offset="0.08"/>
+        <GradientStop Color="#34FFFFFF" Offset="0.20"/>
+        <GradientStop Color="#2AFFFFFF" Offset="0.50"/>
+        <GradientStop Color="#26FFFFFF" Offset="0.75"/>
+        <GradientStop Color="#2DFFFFFF" Offset="0.92"/>
+        <GradientStop Color="#38FFFFFF" Offset="1.00"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#0C1E293B" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#142D3B4F" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#121E293B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1E2D3B4F" po:Freeze="True"/>
 
     <!-- Layered glass fill — dark watery meniscus -->
     <LinearGradientBrush x:Key="LiquidGlassBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#20FFFFFF" Offset="0.07"/>
-        <GradientStop Color="#30FFFFFF" Offset="0.16"/>
-        <GradientStop Color="#1CFFFFFF" Offset="0.45"/>
-        <GradientStop Color="#12FFFFFF" Offset="0.80"/>
-        <GradientStop Color="#0DFFFFFF" Offset="0.93"/>
-        <GradientStop Color="#11FFFFFF" Offset="1.0"/>
+        <GradientStop Color="#34FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#2CFFFFFF" Offset="0.07"/>
+        <GradientStop Color="#40FFFFFF" Offset="0.16"/>
+        <GradientStop Color="#28FFFFFF" Offset="0.45"/>
+        <GradientStop Color="#1CFFFFFF" Offset="0.80"/>
+        <GradientStop Color="#16FFFFFF" Offset="0.93"/>
+        <GradientStop Color="#1CFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="LiquidGlassSubtleBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#40FFFFFF" Offset="0.00"/>
-        <GradientStop Color="#1AFFFFFF" Offset="0.01"/>
-        <GradientStop Color="#2AFFFFFF" Offset="0.04"/>
-        <GradientStop Color="#20FFFFFF" Offset="0.10"/>
-        <GradientStop Color="#18FFFFFF" Offset="0.30"/>
-        <GradientStop Color="#12FFFFFF" Offset="0.70"/>
-        <GradientStop Color="#18FFFFFF" Offset="0.95"/>
+        <GradientStop Color="#4CFFFFFF" Offset="0.00"/>
+        <GradientStop Color="#24FFFFFF" Offset="0.01"/>
+        <GradientStop Color="#34FFFFFF" Offset="0.04"/>
+        <GradientStop Color="#2AFFFFFF" Offset="0.10"/>
+        <GradientStop Color="#22FFFFFF" Offset="0.30"/>
+        <GradientStop Color="#1AFFFFFF" Offset="0.70"/>
+        <GradientStop Color="#22FFFFFF" Offset="0.95"/>
         <GradientStop Color="#22FFFFFF" Offset="1.00"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="LiquidGlassStrongBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#3DFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#38FFFFFF" Offset="0.07"/>
-        <GradientStop Color="#47FFFFFF" Offset="0.16"/>
-        <GradientStop Color="#1FFFFFFF" Offset="0.55"/>
-        <GradientStop Color="#18FFFFFF" Offset="0.92"/>
-        <GradientStop Color="#1BFFFFFF" Offset="1.0"/>
+        <GradientStop Color="#4CFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#46FFFFFF" Offset="0.07"/>
+        <GradientStop Color="#56FFFFFF" Offset="0.16"/>
+        <GradientStop Color="#2AFFFFFF" Offset="0.55"/>
+        <GradientStop Color="#22FFFFFF" Offset="0.92"/>
+        <GradientStop Color="#26FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
 
 
@@ -152,38 +152,38 @@
 
     <!-- UltraClear: Almost invisible glass (dark) -->
     <LinearGradientBrush x:Key="LiquidGlassUltraClearBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#0A1E293B" Offset="0.0"/>
-        <GradientStop Color="#081E293B" Offset="0.5"/>
-        <GradientStop Color="#0D1E293B" Offset="1.0"/>
+        <GradientStop Color="#0E1E293B" Offset="0.0"/>
+        <GradientStop Color="#0C1E293B" Offset="0.5"/>
+        <GradientStop Color="#121E293B" Offset="1.0"/>
     </LinearGradientBrush>
 
     <!-- Crystal: Higher reflection, stronger edge (dark) -->
     <LinearGradientBrush x:Key="LiquidGlassCrystalBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#30FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#22FFFFFF" Offset="0.08"/>
-        <GradientStop Color="#38FFFFFF" Offset="0.15"/>
-        <GradientStop Color="#18FFFFFF" Offset="0.50"/>
-        <GradientStop Color="#0DFFFFFF" Offset="0.85"/>
-        <GradientStop Color="#11FFFFFF" Offset="1.0"/>
+        <GradientStop Color="#3EFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#2CFFFFFF" Offset="0.08"/>
+        <GradientStop Color="#46FFFFFF" Offset="0.15"/>
+        <GradientStop Color="#22FFFFFF" Offset="0.50"/>
+        <GradientStop Color="#16FFFFFF" Offset="0.85"/>
+        <GradientStop Color="#1CFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
 
     <!-- WaterGlass: Subtle liquid blue refraction (dark) -->
     <LinearGradientBrush x:Key="LiquidGlassWaterBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#1A1E3A5F" Offset="0.0"/>
-        <GradientStop Color="#0D1E293B" Offset="0.15"/>
-        <GradientStop Color="#141E3A5F" Offset="0.50"/>
-        <GradientStop Color="#0A1E293B" Offset="0.85"/>
-        <GradientStop Color="#1A164E63" Offset="1.0"/>
+        <GradientStop Color="#221E3A5F" Offset="0.0"/>
+        <GradientStop Color="#121E293B" Offset="0.15"/>
+        <GradientStop Color="#1A1E3A5F" Offset="0.50"/>
+        <GradientStop Color="#0E1E293B" Offset="0.85"/>
+        <GradientStop Color="#22164E63" Offset="1.0"/>
     </LinearGradientBrush>
 
     <!-- Frosted: Higher opacity for readability (dark) -->
     <LinearGradientBrush x:Key="LiquidGlassFrostedBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#3DFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#30FFFFFF" Offset="0.10"/>
-        <GradientStop Color="#40FFFFFF" Offset="0.20"/>
-        <GradientStop Color="#26FFFFFF" Offset="0.55"/>
-        <GradientStop Color="#1AFFFFFF" Offset="0.90"/>
-        <GradientStop Color="#1FFFFFFF" Offset="1.0"/>
+        <GradientStop Color="#4EFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#3EFFFFFF" Offset="0.10"/>
+        <GradientStop Color="#50FFFFFF" Offset="0.20"/>
+        <GradientStop Color="#32FFFFFF" Offset="0.55"/>
+        <GradientStop Color="#24FFFFFF" Offset="0.90"/>
+        <GradientStop Color="#2AFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
 
 
@@ -192,15 +192,15 @@
     ═══════════════════════════════════════════════════════════════ -->
 
     <!-- Flat glass borders (existing) -->
-    <SolidColorBrush x:Key="GlassBorderPrimary" Color="#1FFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassBorderBright" Color="#2BFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassBorderSoft" Color="#14FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderPrimary" Color="#2EFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderBright" Color="#3CFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderSoft" Color="#22FFFFFF" po:Freeze="True"/>
 
     <!-- Crystal edge (dark: subtle white highlights) -->
     <LinearGradientBrush x:Key="LiquidEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#8CFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#26FFFFFF" Offset="0.5"/>
-        <GradientStop Color="#33FFFFFF" Offset="1.0"/>
+        <GradientStop Color="#A0FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#30FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#3EFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
 
     <!-- Top crystal edge (dark: softer than light) -->
@@ -255,13 +255,13 @@
     <!-- Inner highlight (dark) -->
     <LinearGradientBrush x:Key="LiquidInnerHighlightBrush" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
         <GradientStop Color="#00FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#59FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#66FFFFFF" Offset="0.5"/>
         <GradientStop Color="#00FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
 
     <!-- Top reflection (dark: reduced opacity) -->
     <LinearGradientBrush x:Key="GlassTopReflection" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#4DFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#66FFFFFF" Offset="0.0"/>
         <GradientStop Color="#00FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
 
@@ -276,15 +276,15 @@
          SECTION 9 — LIQUID COMPOSITION BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
     <LinearGradientBrush x:Key="LiquidCard" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#58FFFFFF" Offset="0.00"/>
-        <GradientStop Color="#28FFFFFF" Offset="0.01"/>
-        <GradientStop Color="#40FFFFFF" Offset="0.04"/>
-        <GradientStop Color="#35FFFFFF" Offset="0.08"/>
-        <GradientStop Color="#2AFFFFFF" Offset="0.20"/>
-        <GradientStop Color="#22FFFFFF" Offset="0.50"/>
-        <GradientStop Color="#1EFFFFFF" Offset="0.75"/>
-        <GradientStop Color="#25FFFFFF" Offset="0.92"/>
-        <GradientStop Color="#30FFFFFF" Offset="1.00"/>
+        <GradientStop Color="#66FFFFFF" Offset="0.00"/>
+        <GradientStop Color="#32FFFFFF" Offset="0.01"/>
+        <GradientStop Color="#4AFFFFFF" Offset="0.04"/>
+        <GradientStop Color="#3EFFFFFF" Offset="0.08"/>
+        <GradientStop Color="#34FFFFFF" Offset="0.20"/>
+        <GradientStop Color="#2AFFFFFF" Offset="0.50"/>
+        <GradientStop Color="#26FFFFFF" Offset="0.75"/>
+        <GradientStop Color="#2DFFFFFF" Offset="0.92"/>
+        <GradientStop Color="#38FFFFFF" Offset="1.00"/>
     </LinearGradientBrush>
     <RadialGradientBrush x:Key="LiquidOrbA" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
         <GradientStop Color="#3038BDF8" Offset="0.0"/>
@@ -296,9 +296,9 @@
         <GradientStop Color="#1838BDF8" Offset="0.55"/>
         <GradientStop Color="#0038BDF8" Offset="1.0"/>
     </RadialGradientBrush>
-    <SolidColorBrush x:Key="LiquidControlHoverBrush" Color="#33FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidControlPressedBrush" Color="#1CFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidControlDisabledBrush" Color="#14FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidControlHoverBrush" Color="#40FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidControlPressedBrush" Color="#26FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidControlDisabledBrush" Color="#1EFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidFocusBrush" Color="#6638BDF8" po:Freeze="True"/>
     <LinearGradientBrush x:Key="LiquidSelectionBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#4D3B82F6" Offset="0.0"/>
@@ -322,10 +322,10 @@
          SECTION 10 — BORDER & OUTLINE BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" po:Freeze="True"/>
-    <SolidColorBrush x:Key="DividerBrush" Color="#334155" po:Freeze="True"/>
-    <SolidColorBrush x:Key="OutlineBrush" Color="#475569" po:Freeze="True"/>
-    <SolidColorBrush x:Key="OutlineDefaultBrush" Color="#475569" po:Freeze="True"/>
-    <SolidColorBrush x:Key="OutlineStrongBrush" Color="#64748B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DividerBrush" Color="#3E4D66" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OutlineBrush" Color="#526383" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OutlineDefaultBrush" Color="#526383" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OutlineStrongBrush" Color="#708098" po:Freeze="True"/>
 
     <!-- Semantic status brushes (dark-lifted) -->
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" po:Freeze="True"/>
@@ -355,7 +355,7 @@
     <SolidColorBrush x:Key="TintAmberBrush" Color="{StaticResource TintAmberColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="TintPurpleBrush" Color="{StaticResource TintPurpleColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="TintGrayBrush" Color="{StaticResource TintGrayColor}" po:Freeze="True"/>
-    <SolidColorBrush x:Key="TintBlueBrush" Color="#1E2B44" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TintBlueBrush" Color="#16324C" po:Freeze="True"/>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -383,11 +383,11 @@
          SECTION 12 — GRADIENT BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
     <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="0.8,1">
-        <GradientStop Color="#0A1628" Offset="0.0"/>
-        <GradientStop Color="#0F2847" Offset="0.3"/>
-        <GradientStop Color="#0D2040" Offset="0.55"/>
-        <GradientStop Color="#0B1A35" Offset="0.8"/>
-        <GradientStop Color="#0A1628" Offset="1.0"/>
+        <GradientStop Color="#0A1226" Offset="0.0"/>
+        <GradientStop Color="#12294E" Offset="0.3"/>
+        <GradientStop Color="#102244" Offset="0.55"/>
+        <GradientStop Color="#0D1C3A" Offset="0.8"/>
+        <GradientStop Color="#0A1226" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="GlassBackdropBrush" StartPoint="0.2,0" EndPoint="0.8,1">
         <GradientStop Color="#1E1B4B" Offset="0.0"/>
@@ -396,9 +396,9 @@
         <GradientStop Color="#1E1B4B" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#0A1628" Offset="0.0"/>
-        <GradientStop Color="#0F2847" Offset="0.5"/>
-        <GradientStop Color="#0A1628" Offset="1.0"/>
+        <GradientStop Color="#0A1226" Offset="0.0"/>
+        <GradientStop Color="#12294E" Offset="0.5"/>
+        <GradientStop Color="#0A1226" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="GlassGradientIdle" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
         <GradientStop Color="#1E2D3B4F" Offset="0.0"/>

@@ -211,18 +211,18 @@ namespace ProGlassAutomation.Services
             else
             {
                 // Light mode — the reference values verbatim.
-                FreezeAndSet(resources, "TextPrimaryBrush", Color.FromRgb(0x1D, 0x1D, 0x1F));
-                FreezeAndSet(resources, "TextSecondaryBrush", Color.FromArgb(0x8C, 0x1E, 0x28, 0x32));
-                FreezeAndSet(resources, "GlassSurfaceUltra", Color.FromArgb(0x06, 0xFF, 0xFF, 0xFF));
-                FreezeAndSet(resources, "GlassSurfaceStandard", Color.FromArgb(0x0D, 0xFF, 0xFF, 0xFF));
-                FreezeAndSet(resources, "GlassSurfaceElevated", Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF));
-                FreezeAndSet(resources, "GlassBorderPrimary", Color.FromArgb(0xD9, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "TextPrimaryBrush", Color.FromRgb(0x1C, 0x19, 0x17));
+                FreezeAndSet(resources, "TextSecondaryBrush", Color.FromArgb(0x99, 0x1E, 0x28, 0x32));
+                FreezeAndSet(resources, "GlassSurfaceUltra", Color.FromArgb(0x0E, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassSurfaceStandard", Color.FromArgb(0x17, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassSurfaceElevated", Color.FromArgb(0x22, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassBorderPrimary", Color.FromArgb(0xE0, 0xFF, 0xFF, 0xFF));
                 FreezeAndSet(resources, "GlassBorderBright", Color.FromArgb(0xF2, 0xFF, 0xFF, 0xFF));
-                FreezeAndSet(resources, "GlassBorderSoft", Color.FromArgb(0xB8, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassBorderSoft", Color.FromArgb(0xC0, 0xFF, 0xFF, 0xFF));
 
                 var idle = new LinearGradientBrush(
-                    Color.FromArgb(0x28, 0xFF, 0xFF, 0xFF),
-                    Color.FromArgb(0x05, 0xFF, 0xFF, 0xFF),
+                    Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF),
+                    Color.FromArgb(0x08, 0xFF, 0xFF, 0xFF),
                     new Point(0, 0), new Point(1, 1));
                 idle.Freeze();
                 resources["GlassGradientIdle"] = idle;
@@ -235,11 +235,11 @@ namespace ProGlassAutomation.Services
                 resources["GlassTopReflection"] = topRef;
 
                 var bg = new LinearGradientBrush(
-                    Color.FromRgb(0xD7, 0xED, 0xF9),
-                    Color.FromRgb(0xD5, 0xEA, 0xF7),
+                    Color.FromRgb(0xF8, 0xF4, 0xEB),
+                    Color.FromRgb(0xF2, 0xEC, 0xDF),
                     new Point(0, 0), new Point(1, 1));
                 bg.GradientStops.Insert(1, new GradientStop(
-                    Color.FromRgb(0xFF, 0xFF, 0xFF), 0.5));
+                    Color.FromRgb(0xFE, 0xFC, 0xF8), 0.5));
                 bg.Freeze();
                 resources["AppBackgroundBrush"] = bg;
             }
