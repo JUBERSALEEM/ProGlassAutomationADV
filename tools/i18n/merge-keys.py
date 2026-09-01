@@ -90,6 +90,10 @@ def main() -> int:
             auth = json.loads(tf.read_text(encoding="utf-8"))
             for k, v in auth.items():
                 if k in table and isinstance(v, str) and v.strip():
+                    # A later file restating the English value must never
+                    # clobber a real translation from an earlier file.
+                    if v == merged_en.get(k) and table[k] != merged_en[k]:
+                        continue
                     table[k] = v
         if code != "en-US":
             diff = sum(1 for k in merged_en if table[k] != merged_en[k])
