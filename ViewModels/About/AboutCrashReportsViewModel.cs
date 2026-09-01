@@ -95,6 +95,7 @@ namespace ProGlassAutomation.ViewModels.About
         public ICommand RefreshCommand { get; }
         public ICommand ClearAllCommand { get; }
         public ICommand OpenFolderCommand { get; }
+        public ICommand OpenFileCommand { get; }
 
         /// <summary>
         /// 2026-08-25 "not updating dynamically" fix: tracks the scan
@@ -111,6 +112,7 @@ namespace ProGlassAutomation.ViewModels.About
             ClearAllCommand = new RelayCommand(_ => ClearAll(),
                 _ => !IsEmpty);
             OpenFolderCommand = new RelayCommand(_ => OpenFolder());
+            OpenFileCommand = new RelayCommand(p => OpenFile(p as string));
 
             // 2026-08-25 senior fix: the crash-folder scan used to run
             // synchronously in this constructor — on the UI thread, the
@@ -200,6 +202,40 @@ namespace ProGlassAutomation.ViewModels.About
             {
                 AppLogService.Debug(
                     "[AboutCrashReports] Open folder failed: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Open a single report file after the same security validation the
+        /// old code-behind performed: only files inside the app's standard
+        /// data folders may be launched.
+        /// </summary>
+        private void OpenFile(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path)) return;
+
+            try
+            {
+                if (!ProcessStartGuard.IsPathInsideAllowedRoot(path))
+                {
+                    MessageBox.Show(
+                        "This crash report is in a location that " +
+                        "is not part of the ProGlass data folder. " +
+                        "It will not be opened automatically. Please " +
+                        "open it manually from the crash folder.",
+                        "Crash report location",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = path,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[AboutCrashReports] OpenFile failed: " + ex.Message);
             }
         }
     }

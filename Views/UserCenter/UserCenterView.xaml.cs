@@ -24,16 +24,6 @@ namespace ProGlassAutomation.Views.UserCenter
 
         private UserCenterViewModel? Vm => DataContext as UserCenterViewModel;
 
-        private void UserCard_Click(object sender, MouseButtonEventArgs e)
-        {
-            if (Vm == null) return;
-            if (sender is FrameworkElement el &&
-                el.Tag is UserCard card)
-            {
-                Vm.SelectUserCommand.Execute(card);
-            }
-        }
-
         private async void CreateUser_Click(object sender, RoutedEventArgs e)
         {
             if (Vm == null) return;

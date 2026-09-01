@@ -185,7 +185,7 @@
     <Grid>
 
         <Rectangle Fill="Black" Opacity="0.3"
-                   MouseLeftButtonDown="DimOverlay_MouseLeftButtonDown">
+                   behaviors:ClickToCommandBehavior.Command="{Binding CloseChatCommand}">
             <Rectangle.Style>
                 <Style TargetType="Rectangle">
                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -248,9 +248,9 @@
                         Background="{StaticResource ChatBrand}"
                         Cursor="SizeAll"
                         SnapsToDevicePixels="True"
-                        MouseLeftButtonDown="ChatHeader_MouseLeftButtonDown"
-                        MouseMove="ChatHeader_MouseMove"
-                        MouseLeftButtonUp="ChatHeader_MouseLeftButtonUp">
+                        behaviors:CanvasDragBehavior.Panel="{Binding ElementName=ChatPanelRef}"
+                        behaviors:CanvasDragBehavior.Canvas="{Binding ElementName=ChatCanvasRef}"
+                        behaviors:CanvasDragBehavior.ShadowResourceKey="PanelShadow">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -360,7 +360,8 @@
                                 <DataTemplate>
                                     <Border Style="{StaticResource SuggChip}"
                                             Tag="{Binding}"
-                                            MouseLeftButtonDown="Suggestion_MouseLeftButtonDown">
+                                            behaviors:ClickToCommandBehavior.Command="{Binding SuggestionCommand}"
+                                            behaviors:ClickToCommandBehavior.CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}">
                                         <TextBlock Text="{Binding}"
                                                    FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -915,8 +916,11 @@
                                      Background="Transparent"
                                      FontSize="{StaticResource TextBodyLarge}"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                     VerticalAlignment="Center"
-                                     KeyDown="InputBox_KeyDown"/>
+                                     VerticalAlignment="Center">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding SendCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
                         </Border>
 
                         <Button Grid.Column="3"

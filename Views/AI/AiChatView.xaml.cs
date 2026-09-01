@@ -99,40 +99,11 @@ namespace ProGlassAutomation.Views.AI
         }
 
         /// <summary>Enter key sends message.</summary>
-        private void InputBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter && DataContext is AiChatViewModel vm)
-            {
-                if (vm.SendCommand.CanExecute(null))
-                    vm.SendCommand.Execute(null);
-                e.Handled = true;
-            }
-        }
-
         /// <summary>Click dim overlay closes chat.</summary>
-        private void DimOverlay_MouseLeftButtonDown(
-            object sender, MouseButtonEventArgs e)
-        {
-            if (DataContext is AiChatViewModel vm)
-                vm.IsOpen = false;
-        }
-
         /// <summary>
         /// Click suggestion chip → auto-sends as message.
         /// The chip's Tag holds the suggestion text string.
         /// </summary>
-        private void Suggestion_MouseLeftButtonDown(
-            object sender, MouseButtonEventArgs e)
-        {
-            if (sender is FrameworkElement element &&
-                element.Tag is string suggestionText &&
-                DataContext is AiChatViewModel vm)
-            {
-                if (vm.SuggestionCommand.CanExecute(suggestionText))
-                    vm.SuggestionCommand.Execute(suggestionText);
-            }
-        }
-
         // ══════════════════════════════════════════════════════════════
         //  v3 — DRAGGABLE AI SERVICE WINDOW
         // ══════════════════════════════════════════════════════════════
@@ -140,13 +111,7 @@ namespace ProGlassAutomation.Views.AI
         private const double ChatPanelRightMargin = 25;
         private const double ChatPanelBottomMargin = 95;
 
-        private bool _panelDragging;
         private bool _panelPositioned;
-        private Point _panelDragStartMouse;
-        private Point _panelDragStartOffset;
-        private Point _panelLastApplied;
-
-        private const string PanelShadowResourceKey = "PanelShadow";
 
         private void HookPanelPositioning()
         {
@@ -166,7 +131,6 @@ namespace ProGlassAutomation.Views.AI
                 if (_panelPositioned) KeepPanelVisible();
             };
 
-            header.LostMouseCapture += (_, _) => EndPanelDrag();
         }
 
         private void PositionChatPanel()
@@ -204,96 +168,5 @@ namespace ProGlassAutomation.Views.AI
             Canvas.SetTop(panel, Math.Clamp(top, minTop, maxTop));
         }
 
-        private void ChatHeader_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (IsInsideButton(e.OriginalSource as DependencyObject)) return;
-            var panel = ChatPanelRef;
-            var canvas = ChatCanvasRef;
-            var header = ChatHeaderRef;
-            if (panel == null || canvas == null || header == null) return;
-
-            _panelDragging = true;
-            _panelDragStartMouse = e.GetPosition(canvas);
-
-            double left = Canvas.GetLeft(panel);
-            double top = Canvas.GetTop(panel);
-            if (double.IsNaN(left)) left = 0;
-            if (double.IsNaN(top)) top = 0;
-            _panelDragStartOffset = new Point(left, top);
-            _panelLastApplied = _panelDragStartOffset;
-
-            panel.ClearValue(UIElement.EffectProperty);
-            header.CaptureMouse();
-            e.Handled = true;
         }
-
-        private void ChatHeader_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (!_panelDragging) return;
-            var panel = ChatPanelRef;
-            var canvas = ChatCanvasRef;
-            var header = ChatHeaderRef;
-            if (panel == null || canvas == null || header == null) return;
-            if (!header.IsMouseCaptured) return;
-
-            var mouse = e.GetPosition(canvas);
-            double left = _panelDragStartOffset.X + (mouse.X - _panelDragStartMouse.X);
-            double top = _panelDragStartOffset.Y + (mouse.Y - _panelDragStartMouse.Y);
-
-            double maxLeft = Math.Max(0, canvas.ActualWidth - 120);
-            double maxTop = Math.Max(0, canvas.ActualHeight - 48);
-            double minLeft = -(panel.ActualWidth - 120);
-            double minTop = 0;
-
-            left = Math.Clamp(left, minLeft, maxLeft);
-            top = Math.Clamp(top, minTop, maxTop);
-
-            if (Math.Abs(left - _panelLastApplied.X) < 1 &&
-                Math.Abs(top - _panelLastApplied.Y) < 1) return;
-
-            _panelLastApplied = new Point(left, top);
-            Canvas.SetLeft(panel, left);
-            Canvas.SetTop(panel, top);
-        }
-
-        private void ChatHeader_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            if (!_panelDragging) return;
-            EndPanelDrag();
-            e.Handled = true;
-        }
-
-        private void EndPanelDrag()
-        {
-            if (!_panelDragging) return;
-            _panelDragging = false;
-
-            var header = ChatHeaderRef;
-            if (header != null && header.IsMouseCaptured)
-                header.ReleaseMouseCapture();
-
-            var panel = ChatPanelRef;
-            if (panel != null)
-            {
-                panel.SetResourceReference(
-                    UIElement.EffectProperty, PanelShadowResourceKey);
-            }
-        }
-
-        private static bool IsInsideButton(DependencyObject? d)
-        {
-            while (d != null)
-            {
-                if (d is System.Windows.Controls.Primitives.ButtonBase) return true;
-
-                DependencyObject? parent = null;
-                try { parent = System.Windows.Media.VisualTreeHelper.GetParent(d); }
-                catch (Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[AiChatView.xaml] IsInsideButton: template boundary: " + ex.Message); }
-                if (parent == null && d is FrameworkElement fe && fe.TemplatedParent != null)
-                    parent = fe.TemplatedParent;
-                d = parent;
-            }
-            return false;
-        }
-    }
 }

@@ -89,16 +89,16 @@
                         <Button Style="{StaticResource AboutPillButtonStyle}"
                                 Content="{DynamicResource Action.Refresh}"
                                 Margin="0,0,8,0"
-                                Click="RefreshButton_Click"/>
+                                Command="{Binding RefreshCommand}"/>
                         <Button Style="{StaticResource AboutPillButtonStyle}"
                                 Content="{DynamicResource About.OPENFolder}"
                                 Margin="0,0,8,0"
-                                Click="OpenFolderButton_Click"/>
+                                Command="{Binding OpenFolderCommand}"/>
                         <Button x:Name="ClearAllButton"
                                 Style="{StaticResource AboutPillButtonStyle}"
                                 Content="{DynamicResource About.Clear}"
                                 Foreground="{DynamicResource LiquidMuted}"
-                                Click="ClearAllButton_Click"/>
+                                Command="{Binding ClearAllCommand}"/>
                     </WrapPanel>
                 </StackPanel>
             </Grid>
@@ -194,8 +194,8 @@
                                                     VerticalAlignment="Center">
                                             <Button Style="{StaticResource AboutPillButtonStyle}"
                                                     Content="{DynamicResource Action.Open}"
-                                                    Click="OpenFileButton_Click"
-                                                    Tag="{Binding FilePath}"
+                                                    Command="{Binding OpenFileCommand}"
+                                                    CommandParameter="{Binding FilePath}"
                                                     VerticalAlignment="Center"/>
                                             <TextBlock Text="{DynamicResource About.TEXTFILE}"
                                                        Style="{StaticResource CrashMetaLabelStyle}"
