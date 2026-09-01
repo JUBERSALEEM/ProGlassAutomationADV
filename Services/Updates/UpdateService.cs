@@ -166,6 +166,9 @@ namespace ProGlassAutomation.Services.Updates
         {
             if (IsOffline)
             {
+                AuditService.Log(AuditSections.Updates,
+                    "UPDATE_CHECK_OFFLINE",
+                    "No internet connection. Update check unavailable.");
                 SetState(UpdateState.Offline,
                     "No internet connection. Update check unavailable.");
                 return Fail("Offline — no internet connection.");
@@ -223,6 +226,9 @@ namespace ProGlassAutomation.Services.Updates
 
             if (string.IsNullOrWhiteSpace(update.DownloadUrl))
             {
+                AuditService.Log(AuditSections.Updates,
+                    "UPDATE_DOWNLOAD_NO_ASSET",
+                    $"v{update.LatestVersion} has no downloadable asset.");
                 SetState(UpdateState.Failed,
                     "This release has no downloadable asset.");
                 return (false, "", "This release has no downloadable asset.");
@@ -288,6 +294,9 @@ namespace ProGlassAutomation.Services.Updates
         {
             if (!CanInstall)
             {
+                AuditService.Log(AuditSections.Updates,
+                    "UPDATE_INSTALL_SKIPPED",
+                    "No downloaded update to install.");
                 SetState(UpdateState.Failed, "No downloaded update to install.");
                 return;
             }
