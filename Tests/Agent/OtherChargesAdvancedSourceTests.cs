@@ -161,8 +161,8 @@ namespace ProGlassAutomation.Tests.Agent
                 "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs"));
             var custom = File.ReadAllText(Path.Combine(root,
                 "ViewModels/ProformaInvoice/Step6OtherCharges/CustomCharges/CustomChargesSectionViewModel.cs"));
-            var mapper = File.ReadAllText(Path.Combine(root,
-                "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs"));
+            var mapper = ReadFamily(root,
+                "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs");
 
             Assert.Contains("public void ClearWastageRows()", wastage);
             Assert.Contains("DetachRow(row);", wastage);
@@ -232,8 +232,8 @@ namespace ProGlassAutomation.Tests.Agent
             var root = LocateProjectRoot();
             var model = File.ReadAllText(Path.Combine(root,
                 "Models/ProformaInvoice/SavedInvoice/ProformaInvoiceSnapshot.cs"));
-            var mapper = File.ReadAllText(Path.Combine(root,
-                "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs"));
+            var mapper = ReadFamily(root,
+                "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs");
 
             Assert.Contains("public int SheetQuantity", model);
             Assert.Contains("SheetQuantity = wastage.SheetQuantity", mapper);

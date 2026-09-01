@@ -26,8 +26,8 @@ namespace ProGlassAutomation.Tests.Agent
             string root = LocateProjectRoot();
             string snapshot = File.ReadAllText(Path.Combine(root,
                 "Models/ProformaInvoice/SavedInvoice/ProformaInvoiceSnapshot.cs"));
-            string mapper = File.ReadAllText(Path.Combine(root,
-                "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs"));
+            string mapper = ReadFamily(root,
+                "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs");
 
             Assert.Contains("Step4PricingSnapshot", snapshot);
             Assert.Contains("Step4PricingSections", snapshot);
@@ -76,8 +76,8 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("CaptureSectionSnapshots", vm);
             Assert.Contains("GeneratedSpecName", vm);
             Assert.Contains("SyncStep5SelectionsFromStep4", shell);
-            Assert.Contains("LastSyncedStep4SpecName", File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs")));
+            Assert.Contains("LastSyncedStep4SpecName", ReadFamily(root,
+                "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs"));
             Assert.Contains("EnsureSpecGroupCount", shell);
             Assert.Contains("EnsureSpecGroupCount", step5);
         }
@@ -86,8 +86,8 @@ namespace ProGlassAutomation.Tests.Agent
         public void Step5_preserves_saved_spec_text_and_displays_sheet_selection_summary()
         {
             string root = LocateProjectRoot();
-            string specGroup = File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs"));
+            string specGroup = ReadFamily(root,
+                "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs");
             string step5View = File.ReadAllText(Path.Combine(root,
                 "Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml"));
 
