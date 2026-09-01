@@ -894,41 +894,13 @@
 
                     </Grid>
 
-                    <!-- STORAGE FOOTER (neutral card — the accent gradient
-                         now lives only in the thin bar, not the whole card) -->
-                    <Border Grid.Row="1"
-                            Margin="12,0,12,14"
-                            Padding="14,12"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Background="{DynamicResource SidebarCardBrush}"
-                            BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="1"
-                            SnapsToDevicePixels="True">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,6">
-                                <TextBlock Text="{DynamicResource Nav.GroupStorage}"
-                                           FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                <TextBlock Text="{Binding StorageDisplay, FallbackValue=&apos;--&apos;}"
-                                           HorizontalAlignment="Right"
-                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            </Grid>
-                            <Border Height="6"
-                                    Background="{DynamicResource BorderBrush}"
-                                    CornerRadius="3">
-                                <Border Width="180"
-                                        HorizontalAlignment="Left"
-                                        CornerRadius="3"
-                                        Background="{StaticResource StorageBarGradient}"/>
-                            </Border>
-                            <TextBlock Text="{Binding StorageSubtitle, FallbackValue=&apos;Storage unavailable&apos;}"
-                                       FontSize="{StaticResource TextCaption}"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="0,6,0,0"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
+                    <!-- STORAGE FOOTER — extracted to
+                         Views/Shared/StorageSidebarCard.xaml (clickable:
+                         opens the storage breakdown popup). The accent
+                         gradient lives only in the thin bar, not the
+                         whole card. -->
+                    <viewsShared:StorageSidebarCard x:Name="StorageCard"
+                                                    Grid.Row="1"/>
                 </Grid>
                 </Grid>
             </Border>
@@ -1167,6 +1139,22 @@
                IsOpen="{Binding IsScreenRecordOpen, Mode=TwoWay}">
             <viewsShared:ScreenRecordPanel x:Name="ScreenRecordPanelHost"
                                            />
+        </Popup>
+
+        <!-- Storage breakdown popup — anchored to the sidebar storage
+             card. Shows exactly which thing holds the storage fill
+             (icon · module · covered storage). Click-outside guarded
+             in MainWindow.xaml.cs, like the top-bar popups. -->
+        <Popup x:Name="StoragePopup"
+               PlacementTarget="{Binding ElementName=StorageCard}"
+               Placement="Top"
+               VerticalOffset="-8"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade"
+               IsOpen="{Binding IsStorageOpen, Mode=TwoWay}">
+            <viewsShared:StorageDetailsPanel x:Name="StoragePanelHost"
+                                             Width="380"/>
         </Popup>
 
         <!-- Liquid Glass catch-light removed — the top bar and sidebar

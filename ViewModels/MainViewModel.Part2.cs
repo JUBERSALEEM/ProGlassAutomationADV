@@ -88,6 +88,7 @@ namespace ProGlassAutomation.ViewModels
             IsScreenshotOpen = false;
             IsUserSwitchOpen = false;
             IsScreenRecordOpen = false;
+            IsStorageOpen = false;
         }
 
         private T ResolveOrNew<T>() where T : class

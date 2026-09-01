@@ -1,0 +1,178 @@
+<UserControl x:Class="ProGlassAutomation.Views.Shared.StorageDetailsPanel"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <Style x:Key="StorageRowGlyph" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
+            <Setter Property="Width" Value="26"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+        <Style x:Key="StorageRowName" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+        <Style x:Key="StorageRowSize" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="10,8,10,16">
+        <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="3"
+                                  Opacity="0.18" Color="#000000" Direction="270"/>
+            </Border.Effect>
+            <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                    Background="{DynamicResource ShellLiquidBrush}"
+                    BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
+                    BorderThickness="1"
+                    ClipToBounds="True">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource AccentBrush}"
+                            CornerRadius="16,16,0,0"
+                            Padding="18,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="&#xE8B7;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource TextTitle}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Storage.Title}"
+                                           FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                <TextBlock Text="{DynamicResource Storage.Subtitle}"
+                                           FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                           Opacity="0.85" Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <Button Grid.Column="2"
+                                    Command="{Binding RefreshStorageCommand}"
+                                    ToolTip="{DynamicResource Storage.Refresh}"
+                                    Cursor="Hand"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="8,4"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="&#xE72D;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="{StaticResource TextSubhead}"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            </Button>
+                        </Grid>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1"
+                                  MaxHeight="440"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  Padding="12,10,12,4">
+
+                        <!-- Total line + scanning state -->
+                        <StackPanel>
+                            <Grid Margin="0,0,0,8">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{DynamicResource Storage.Total}"
+                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    <TextBlock Text="{Binding StorageCountDisplay, FallbackValue='0'}"
+                                               FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               Margin="6,1,0,0"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding StorageTotalDisplay, FallbackValue='—'}"
+                                           HorizontalAlignment="Right"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </Grid>
+
+                            <TextBlock Text="{DynamicResource Storage.Refreshing}"
+                                       Visibility="{Binding IsStorageRefreshing,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"
+                                       FontSize="{StaticResource TextCaption}"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       Margin="0,0,0,6"/>
+
+                            <!-- Per-category rows: icon · module · size · bar -->
+                            <ItemsControl ItemsSource="{Binding StorageItems}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,12">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Style="{StaticResource StorageRowGlyph}"
+                                                           Text="{Binding Icon}"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Style="{StaticResource StorageRowName}"
+                                                           Text="{Binding DisplayName}"/>
+                                                <TextBlock Grid.Column="2"
+                                                           Style="{StaticResource StorageRowSize}"
+                                                           Text="{Binding SizeDisplay}"/>
+                                            </Grid>
+                                            <Border Height="5"
+                                                    Margin="34,6,0,0"
+                                                    CornerRadius="2.5"
+                                                    Background="{DynamicResource BorderBrush}">
+                                                <Border HorizontalAlignment="Left"
+                                                        Width="{Binding BarWidth}"
+                                                        CornerRadius="2.5"
+                                                        Background="{DynamicResource AccentBrush}"
+                                                        Opacity="0.85"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Local-only reassurance -->
+                            <TextBlock Text="{DynamicResource Storage.LocalOnly}"
+                                       FontSize="{StaticResource TextCaption}"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,4,0,4"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Border>
+    </Grid>
+</UserControl>

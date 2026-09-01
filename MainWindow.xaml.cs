@@ -61,6 +61,7 @@ namespace ProGlassAutomation
                     vm.IsUserSwitchOpen = false;
                     vm.IsScreenshotOpen = false;
                     vm.IsScreenRecordOpen = false;
+                    vm.IsStorageOpen = false;
                 }
             };
 
@@ -85,6 +86,11 @@ namespace ProGlassAutomation
 
                 if (vm.IsScreenshotOpen && !In(ScreenshotButton) && !In(ScreenshotPanelHost))
                     vm.IsScreenshotOpen = false;
+
+                // Storage popup — anchored to the sidebar card; clicking
+                // anywhere else (including the drawer) dismisses it.
+                if (vm.IsStorageOpen && !In(StorageCard) && !In(StoragePanelHost))
+                    vm.IsStorageOpen = false;
 
                 // Screen Recording Popup: check if click originated inside button, host panel, or popup
                 // IMPORTANT: ComboBox dropdown items live in a separate Popup visual tree.

@@ -2418,5 +2418,25 @@
     <sys:String x:Key="Settings.StudioGlow">Background glow</sys:String>
     <sys:String x:Key="Settings.StudioHighlight">Highlight</sys:String>
     <sys:String x:Key="Settings.StudioAnimation">Animation intensity</sys:String>
+    <sys:String x:Key="Storage.Title">Storage usage</sys:String>
+    <sys:String x:Key="Storage.Subtitle">What&apos;s using your local storage</sys:String>
+    <sys:String x:Key="Storage.Total">Total</sys:String>
+    <sys:String x:Key="Storage.Refresh">Refresh</sys:String>
+    <sys:String x:Key="Storage.Refreshing">Scanning…</sys:String>
+    <sys:String x:Key="Storage.LocalOnly">Everything here stays on this PC — nothing is uploaded.</sys:String>
+    <sys:String x:Key="Storage.TapForDetails">Tap to see what&apos;s using this storage</sys:String>
+    <sys:String x:Key="Storage.StoredLocally">Stored locally · {0} on disk</sys:String>
+    <sys:String x:Key="Storage.Unavailable">Storage unavailable</sys:String>
+    <sys:String x:Key="Storage.Database">Main database</sys:String>
+    <sys:String x:Key="Storage.AuditLog">Audit log</sys:String>
+    <sys:String x:Key="Storage.AiMemory">AI memory</sys:String>
+    <sys:String x:Key="Storage.Settings">Settings &amp; config</sys:String>
+    <sys:String x:Key="Storage.Backups">Database backups</sys:String>
+    <sys:String x:Key="Storage.DnAttachments">Delivery note attachments</sys:String>
+    <sys:String x:Key="Storage.PiAttachments">Proforma attachments</sys:String>
+    <sys:String x:Key="Storage.Logs">Logs &amp; crash reports</sys:String>
+    <sys:String x:Key="Storage.VoiceModels">Voice models</sys:String>
+    <sys:String x:Key="Storage.Fonts">Fonts</sys:String>
+    <sys:String x:Key="Storage.Other">Other files</sys:String>
 
 </ResourceDictionary>

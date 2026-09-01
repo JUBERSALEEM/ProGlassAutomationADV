@@ -2418,5 +2418,25 @@
     <sys:String x:Key="Settings.StudioGlow">توهج الخلفية</sys:String>
     <sys:String x:Key="Settings.StudioHighlight">الإبراز</sys:String>
     <sys:String x:Key="Settings.StudioAnimation">شدة الحركة</sys:String>
+    <sys:String x:Key="Storage.Title">استخدام التخزين</sys:String>
+    <sys:String x:Key="Storage.Subtitle">ما الذي يملأ مساحة التخزين المحلية</sys:String>
+    <sys:String x:Key="Storage.Total">الإجمالي</sys:String>
+    <sys:String x:Key="Storage.Refresh">تحديث</sys:String>
+    <sys:String x:Key="Storage.Refreshing">جارٍ الفحص…</sys:String>
+    <sys:String x:Key="Storage.LocalOnly">كل شيء هنا يبقى على هذا الجهاز — لا يتم رفع أي شيء.</sys:String>
+    <sys:String x:Key="Storage.TapForDetails">اضغط لمعرفة ما يستخدم هذا التخزين</sys:String>
+    <sys:String x:Key="Storage.StoredLocally">مخزَّن محليًا · {0} على القرص</sys:String>
+    <sys:String x:Key="Storage.Unavailable">التخزين غير متاح</sys:String>
+    <sys:String x:Key="Storage.Database">قاعدة البيانات الرئيسية</sys:String>
+    <sys:String x:Key="Storage.AuditLog">سجل التدقيق</sys:String>
+    <sys:String x:Key="Storage.AiMemory">ذاكرة الذكاء الاصطناعي</sys:String>
+    <sys:String x:Key="Storage.Settings">الإعدادات والتهيئة</sys:String>
+    <sys:String x:Key="Storage.Backups">النسخ الاحتياطية لقاعدة البيانات</sys:String>
+    <sys:String x:Key="Storage.DnAttachments">مرفقات إشعارات التسليم</sys:String>
+    <sys:String x:Key="Storage.PiAttachments">مرفقات العروض</sys:String>
+    <sys:String x:Key="Storage.Logs">السجلات وتقارير الأعطال</sys:String>
+    <sys:String x:Key="Storage.VoiceModels">نماذج الصوت</sys:String>
+    <sys:String x:Key="Storage.Fonts">الخطوط</sys:String>
+    <sys:String x:Key="Storage.Other">ملفات أخرى</sys:String>
 
 </ResourceDictionary>

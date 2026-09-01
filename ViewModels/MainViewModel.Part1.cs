@@ -367,28 +367,118 @@ namespace ProGlassAutomation.ViewModels
             _ => string.IsNullOrWhiteSpace(role) ? "User" : role
         };
 
-        private void RefreshStorage()
+        private System.Collections.ObjectModel.ObservableCollection<ProGlassAutomation.Services.Storage.StorageBreakdownItem>? _storageItems;
+        /// <summary>Per-category storage rows for the storage popup.</summary>
+        public System.Collections.ObjectModel.ObservableCollection<ProGlassAutomation.Services.Storage.StorageBreakdownItem> StorageItems =>
+            _storageItems ??= new System.Collections.ObjectModel.ObservableCollection<ProGlassAutomation.Services.Storage.StorageBreakdownItem>();
+
+        private bool _isStorageOpen;
+        /// <summary>Storage details popup (click-outside guarded, like the top-bar popups).</summary>
+        public bool IsStorageOpen
         {
-            try
+            get => _isStorageOpen;
+            set { if (_isStorageOpen == value) return; _isStorageOpen = value; OnPropertyChanged(); }
+        }
+
+        private bool _isStorageRefreshing;
+        public bool IsStorageRefreshing
+        {
+            get => _isStorageRefreshing;
+            private set { if (_isStorageRefreshing == value) return; _isStorageRefreshing = value; OnPropertyChanged(); }
+        }
+
+        private string _storageTotalDisplay = "";
+        public string StorageTotalDisplay
+        {
+            get => _storageTotalDisplay;
+            private set { if (_storageTotalDisplay == value) return; _storageTotalDisplay = value; OnPropertyChanged(); }
+        }
+
+        private string _storageCountDisplay = "";
+        public string StorageCountDisplay
+        {
+            get => _storageCountDisplay;
+            private set { if (_storageCountDisplay == value) return; _storageCountDisplay = value; OnPropertyChanged(); }
+        }
+
+        public ICommand? StorageCardCommand { get; private set; }
+        public ICommand? RefreshStorageCommand { get; private set; }
+
+        /// <summary>
+        /// Toggles the storage popup and refreshes the breakdown whenever
+        /// it opens (async — the folder walk runs on a background thread).
+        /// </summary>
+        private void ToggleStoragePopup()
+        {
+            IsStorageOpen = !IsStorageOpen;
+            if (IsStorageOpen)
+                RefreshStorage();
+        }
+
+        /// <summary>
+        /// Rebuilds the storage breakdown on a background thread and
+        /// publishes results on the UI thread. Never blocks the UI —
+        /// the previous implementation walked the whole app-data folder
+        /// synchronously on the UI thread (a startup freeze on machines
+        /// with large databases/backups).
+        /// </summary>
+        public void RefreshStorage()
+        {
+            if (IsStorageRefreshing) return;
+            IsStorageRefreshing = true;
+
+            System.Threading.Tasks.Task.Run(() =>
             {
-                string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ProGlassAutomation");
-                long bytes = 0;
-                if (Directory.Exists(folder))
+                try
                 {
-                    foreach (var f in Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories))
+                    var items = ProGlassAutomation.Services.Storage.StorageBreakdownService.ComputeBreakdown();
+                    long total = 0;
+                    foreach (var i in items) total += i.Bytes;
+
+                    var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                    if (dispatcher == null) return;
+
+                    dispatcher.Invoke(() =>
                     {
-                        try { bytes += new FileInfo(f).Length; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Storage walk skipped a file: " + ex.Message); }
-                    }
+                        StorageItems.Clear();
+                        var loc = Services.Localization.LocalizationService.Instance;
+                        foreach (var item in items)
+                        {
+                            item.DisplayName = loc.T(item.DisplayNameKey);
+                            StorageItems.Add(item);
+                        }
+
+                        StorageDisplay = ProGlassAutomation.Services.Storage.StorageBreakdownService.FormatSize(total);
+                        StorageTotalDisplay = StorageDisplay;
+                        StorageCountDisplay = items.Count.ToString();
+                        StorageSubtitle = Services.Localization.LocalizationService.Instance.T("Storage.StoredLocally",
+                            Services.Localization.LocalizationService.Instance.CurrentLanguage.Code)
+                            .Replace("{0}", StorageDisplay);
+                        IsStorageRefreshing = false;
+                    });
                 }
-                double mb = bytes / (1024d * 1024d);
-                StorageDisplay = mb >= 1024 ? $"{mb / 1024:N2} GB" : $"{mb:N0} MB";
-                StorageSubtitle = $"Stored locally · {StorageDisplay} on disk";
-            }
-            catch
-            {
-                StorageDisplay = "—";
-                StorageSubtitle = "Storage unavailable";
-            }
+                catch (System.Exception ex)
+                {
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                        "[MainViewModel] Storage breakdown failed: " + ex.Message);
+                    DispatchToUi(() =>
+                    {
+                        IsStorageRefreshing = false;
+                        StorageDisplay = "—";
+                        StorageSubtitle = Services.Localization.LocalizationService.Instance
+                            .T("Storage.Unavailable");
+                        StorageTotalDisplay = "—";
+                    });
+                }
+            });
+        }
+
+        private static void DispatchToUi(Action action)
+        {
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            if (dispatcher == null) return;
+            if (dispatcher.CheckAccess()) action();
+            else dispatcher.Invoke(action);
         }
 
         private bool _isDarkTheme;
@@ -525,6 +615,8 @@ namespace ProGlassAutomation.ViewModels
             };
             ToggleThemeCommand = new RelayCommand(_ => SettingsVM.IsDarkTheme = !SettingsVM.IsDarkTheme);
             TogglePopupCommand = new RelayCommand(p => TogglePopup(p as string));
+            StorageCardCommand = new RelayCommand(_ => ToggleStoragePopup());
+            RefreshStorageCommand = new RelayCommand(_ => RefreshStorage());
             LogoClickCommand = new RelayCommand(_ => { CloseAllPopups(); NavigateFromAgent("About"); });
             CloseAllPopupsCommand = new RelayCommand(_ => { IsMenuOpen = false; CloseAllPopups(); });
             OpenSettingsPageCommand = new RelayCommand(p => OpenSettingsPage(p as string ?? ""));
@@ -796,7 +888,13 @@ namespace ProGlassAutomation.ViewModels
                     JobOrderVM.DetailVM.CreateDeliveryNoteCommand.Execute(null);
             };
 
-            ToggleMenuCommand = new RelayCommand(_ => IsMenuOpen = !IsMenuOpen);
+            ToggleMenuCommand = new RelayCommand(_ =>
+            {
+                IsMenuOpen = !IsMenuOpen;
+                // The storage popup anchors to the sidebar card — it must
+                // never stay open once the drawer is closed.
+                if (!IsMenuOpen) IsStorageOpen = false;
+            });
             NavigateCommand = new RelayCommand(Navigate);
             NewProformaInvoiceCommand = new RelayCommand(_ =>
             {
