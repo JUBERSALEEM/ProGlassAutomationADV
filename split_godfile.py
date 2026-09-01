@@ -84,7 +84,7 @@ def find_class(lines, name_hint):
                 j += 1
             decl_text = ''.join(lines[i:j + 1]).rstrip('\n')
             return decl_start, j, decl_text, None
-    raise SystemExit(f'class {name_hint} not found in {path}')
+    raise SystemExit(f'class {name_hint} not found (no match in file)')
 
 
 def find_class_close(lines, class_open_idx):
@@ -130,9 +130,11 @@ def main():
     lines = lines_of(path)
     name = Path(path).stem
 
-    # class = last segment of filename pattern (e.g. DeliveryNoteDetailViewModel)
-    m = re.match(r'(.+)\.(?:.*)$', name)
+    # class = filename stem; for code-behind (X.xaml.cs) strip the .xaml part
     cls = name
+    for suffix in ('.xaml', '.g.cs', '.g.i.cs'):
+        if cls.endswith(suffix):
+            cls = cls[: -len(suffix)]
 
     decl_start, class_open_idx, decl_text, _ = find_class(lines, cls)
     class_close_idx = find_class_close(lines, class_open_idx)
