@@ -40,6 +40,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Database;
 
+using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 namespace ProGlassAutomation.Services.SampleData
 {
     /// <summary>Seeds a single comprehensive demo workflow across all modules.</summary>
@@ -92,6 +93,7 @@ namespace ProGlassAutomation.Services.SampleData
         /// <summary>Seeds a single comprehensive workflow. Returns a human summary.</summary>
         public static async Task<string> SeedAsync()
         {
+            ReadOnlyGate.Demand("seed sample data");
             if (await HasExistingDataAsync())
                 return "Sample data was NOT loaded — the database already " +
                        "contains real records. Sample seeding only runs on " +
@@ -213,6 +215,7 @@ namespace ProGlassAutomation.Services.SampleData
         /// </summary>
         public static async Task<string> ClearAllDataAsync()
         {
+            ReadOnlyGate.Demand("clear all data");
             int ti = 0, dn = 0, jo = 0, pi = 0, sh = 0, inq = 0;
 
             try
@@ -315,6 +318,7 @@ namespace ProGlassAutomation.Services.SampleData
         /// </summary>
         public static async Task SeedMasterProfilesAsync()
         {
+            ReadOnlyGate.Demand("seed master profiles");
             using var db = new MasterDataDbContext();
             await db.Database.EnsureCreatedAsync();
 

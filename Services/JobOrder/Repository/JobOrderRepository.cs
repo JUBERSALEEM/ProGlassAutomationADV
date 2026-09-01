@@ -10,6 +10,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.ProformaInvoice;
 
+using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 namespace ProGlassAutomation.Services.JobOrder.Repository
 {
     /// <summary>
@@ -81,6 +82,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
         public async Task<SavedJobOrder> InsertAsync(SavedJobOrder jobOrder)
         {
+            ReadOnlyGate.Demand("create a job order");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -97,6 +99,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
         public async Task UpdateAsync(SavedJobOrder jobOrder)
         {
+            ReadOnlyGate.Demand("update a job order");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -111,6 +114,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
         public async Task DeleteAsync(int id)
         {
+            ReadOnlyGate.Demand("delete a job order");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(

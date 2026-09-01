@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
 
+using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 namespace ProGlassAutomation.Services.SheetStore
 {
     /// <summary>
@@ -109,6 +110,7 @@ namespace ProGlassAutomation.Services.SheetStore
 
         public async Task UpdateAsync(GlassSheet sheet)
         {
+            ReadOnlyGate.Demand("update a glass sheet");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -122,6 +124,7 @@ namespace ProGlassAutomation.Services.SheetStore
 
         public async Task DeleteAsync(int id)
         {
+            ReadOnlyGate.Demand("delete a glass sheet");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -138,6 +141,7 @@ namespace ProGlassAutomation.Services.SheetStore
 
         public async Task BuyStockAsync(int sheetId, int quantity, decimal? newPurchasePrice = null)
         {
+            ReadOnlyGate.Demand("record a stock purchase");
             if (quantity <= 0) return;
 
             using var db = new AppDbContext();
@@ -156,6 +160,7 @@ namespace ProGlassAutomation.Services.SheetStore
 
         public async Task UseStockAsync(int sheetId, int quantity)
         {
+            ReadOnlyGate.Demand("record stock usage");
             if (quantity <= 0) return;
 
             using var db = new AppDbContext();

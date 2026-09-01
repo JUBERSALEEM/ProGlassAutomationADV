@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Database;
 
+using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 {
     /// <summary>
@@ -47,6 +48,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
         public async Task<SavedSpecification> SaveOrUpdateAsync(string glassType, string specName, decimal pricePerSqm)
         {
+            ReadOnlyGate.Demand("save a specification");
             // A-1: service-layer authorization. A saved spec sets the rate
             // that Step 5 and the P&L then price against, so writing one is
             // a pricing decision, not a preference. ProformaEdit matches the
@@ -94,6 +96,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
         public async Task MarkAsUsedAsync(int specId)
         {
+            ReadOnlyGate.Demand("mark a specification as used");
             using var db = new SpecificationsDbContext();
             var spec = await db.Specifications.FindAsync(specId);
             if (spec != null)
@@ -106,6 +109,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
         public async Task DeleteAsync(int specId)
         {
+            ReadOnlyGate.Demand("delete a specification");
             // A-1: no caller today, but this is public repository API and
             // guarding it now stops it becoming an unguarded entry point.
             OperationGuard.Demand(

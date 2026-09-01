@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 namespace ProGlassAutomation.Services.Inquiry
 {
     public sealed class InquiryRepository : IInquiryRepository
@@ -118,6 +119,7 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<InquiryRecord> CreateAsync(InquiryRecord inquiry, CancellationToken ct = default)
         {
+            ReadOnlyGate.Demand("create an inquiry");
             if (inquiry == null) throw new ArgumentNullException(nameof(inquiry));
 
             // Senior audit (Aug 2026): the prior implementation reused ONE
@@ -227,6 +229,7 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default)
         {
+            ReadOnlyGate.Demand("update an inquiry");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -255,6 +258,7 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<bool> ChangeStatusAsync(int id, string status, string actor, CancellationToken ct = default)
         {
+            ReadOnlyGate.Demand("change an inquiry status");
             await using var db = new InquiryDbContext();
             var row = await db.Inquiries.SingleOrDefaultAsync(x => x.Id == id, ct).ConfigureAwait(false);
             if (row == null) return false;
@@ -294,6 +298,7 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<InquiryAttachment> AddAttachmentAsync(InquiryAttachment attachment, CancellationToken ct = default)
         {
+            ReadOnlyGate.Demand("add an inquiry attachment");
             await using var db = new InquiryDbContext();
             db.Attachments.Add(attachment);
             await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
@@ -302,6 +307,7 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<bool> DeleteAttachmentAsync(long attachmentId, CancellationToken ct = default)
         {
+            ReadOnlyGate.Demand("delete an inquiry attachment");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -324,6 +330,7 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<DeleteInquiryResult> DeleteAsync(int id, CancellationToken ct = default)
         {
+            ReadOnlyGate.Demand("delete an inquiry");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(

@@ -43,6 +43,7 @@ using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 
+using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 namespace ProGlassAutomation.Services.Statement.Repository
 {
     public class StatementRepository : IStatementRepository
@@ -220,6 +221,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
 
         public async Task<SavedStatement> InsertAsync(SavedStatement entity)
         {
+            ReadOnlyGate.Demand("create a statement");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -240,6 +242,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
 
         public async Task UpdateAsync(SavedStatement entity)
         {
+            ReadOnlyGate.Demand("update a statement");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -268,6 +271,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
 
         public async Task DeleteAsync(int id)
         {
+            ReadOnlyGate.Demand("delete a statement");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -304,6 +308,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
             string pdfPath,
             bool hasAttachments)
         {
+            ReadOnlyGate.Demand("update a statement PDF path");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(

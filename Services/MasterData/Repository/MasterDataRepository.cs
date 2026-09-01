@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 
+using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 namespace ProGlassAutomation.Services.MasterData.Repository
 {
     /// <summary>
@@ -114,6 +115,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task<SavedCompany> SaveOrUpdateCompanyAsync(SavedCompany company)
         {
+            ReadOnlyGate.Demand("save a company");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -177,6 +179,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task DeleteCompanyAsync(int id)
         {
+            ReadOnlyGate.Demand("delete a company");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -196,6 +199,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task<SavedClient> SaveOrUpdateClientAsync(SavedClient client)
         {
+            ReadOnlyGate.Demand("save a client");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -264,6 +268,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task DeleteClientAsync(int id)
         {
+            ReadOnlyGate.Demand("delete a client");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -283,6 +288,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task<SavedProject> SaveOrUpdateProjectAsync(SavedProject project)
         {
+            ReadOnlyGate.Demand("save a project");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -365,6 +371,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task DeleteProjectAsync(int id)
         {
+            ReadOnlyGate.Demand("delete a project");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -385,6 +392,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         public async Task<SavedSalesman> SaveOrUpdateSalesmanAsync(
             SavedSalesman salesman)
         {
+            ReadOnlyGate.Demand("save a salesman");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -449,6 +457,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task DeleteSalesmanAsync(int id)
         {
+            ReadOnlyGate.Demand("delete a salesman");
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
@@ -504,6 +513,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             string siteDeliveryLocation,
             string lpoNumber)
         {
+            ReadOnlyGate.Demand("auto-save master data from an invoice");
             // ── Company ──────────────────────────────────────────────────
             if (!string.IsNullOrWhiteSpace(companyName))
             {

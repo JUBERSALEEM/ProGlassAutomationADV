@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Database;
 
+using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 namespace ProGlassAutomation.Services.AI.AIMemory
 {
     /// <summary>AI long-term memory facade. Never throws.</summary>
@@ -68,6 +69,7 @@ namespace ProGlassAutomation.Services.AI.AIMemory
         public static async Task RememberAsync(
             string question, string answer, string relatedEntityId = "")
         {
+            ReadOnlyGate.Demand("write AI memory");
             try
             {
                 if (string.IsNullOrWhiteSpace(question)) return;
@@ -141,6 +143,7 @@ namespace ProGlassAutomation.Services.AI.AIMemory
         /// <summary>Clears all memory (Settings → privacy).</summary>
         public static async Task ClearAsync()
         {
+            ReadOnlyGate.Demand("clear AI memory");
             try
             {
                 using var db = new AiMemoryDbContext();
