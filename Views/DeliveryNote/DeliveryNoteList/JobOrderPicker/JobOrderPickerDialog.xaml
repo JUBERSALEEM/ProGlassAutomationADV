@@ -6,7 +6,7 @@
              UseLayoutRounding="True"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Select Job Order"
+        Title="{DynamicResource DeliveryNote.SelectJobOrder}"
         Width="780" Height="620"
         WindowStartupLocation="CenterOwner"
         WindowStyle="None"
@@ -45,10 +45,10 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Select Job Order"
+                        <TextBlock Text="{DynamicResource DeliveryNote.SelectJobOrder}"
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Text="Choose a Job Order to create a Delivery Note from"
+                        <TextBlock Text="{DynamicResource DeliveryNote.ChooseJobOrderCreateDeliveryNote}"
                                    FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Opacity="0.85" Margin="0,3,0,0"/>
                     </StackPanel>
@@ -56,7 +56,7 @@
                     <Button Grid.Column="1" Style="{StaticResource RowOutlinedButton}"
                             Tag="&#xE711;" MinWidth="40"
                             Click="OnCancelClick"
-                            ToolTip="Close (Esc)"/>
+                            ToolTip="{DynamicResource DeliveryNote.CloseEsc}"/>
                 </Grid>
             </Border>
 
@@ -72,7 +72,7 @@
                              Background="{DynamicResource ElevatedSurfaceBrush}"
                              Foreground="{DynamicResource PrimaryForegroundBrush}"
                              TextChanged="OnSearchChanged"/>
-                    <TextBlock Text="Search job order, customer, project, PI or delivery note…"
+                    <TextBlock Text="{DynamicResource DeliveryNote.SearchJobOrderCustomerProjectPIDeliveryNote}"
                                FontSize="{StaticResource TextBody}"
                                Margin="14,0,0,0"
                                VerticalAlignment="Center"
@@ -113,21 +113,21 @@
 
                     <TextBlock Grid.Column="0"
                                x:Name="SelectedLabel"
-                               Text="No job order selected"
+                               Text="{DynamicResource DeliveryNote.NoJobOrderSelected}"
                                FontSize="{StaticResource TextBody}"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                     <Button Grid.Column="1" Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE711;" Content="CANCEL"
-                            ToolTip="Close without creating"
+                            Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
+                            ToolTip="{DynamicResource DeliveryNote.CloseWithoutCreating}"
                             Click="OnCancelClick"/>
 
                     <Button Grid.Column="2"
                             x:Name="ConfirmButton"
                             Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE73E;" Content="CREATE DELIVERY NOTE"
-                            ToolTip="Create the delivery note from this job order"
+                            Tag="&#xE73E;" Content="{DynamicResource DeliveryNote.CreateDeliveryNOTE}"
+                            ToolTip="{DynamicResource DeliveryNote.CreateDeliveryNoteJobOrder}"
                             Click="OnConfirmClick"
                             IsEnabled="False"/>
                 </Grid>

@@ -136,10 +136,10 @@
 
                 <Button Grid.Column="0"
                         Style="{StaticResource OutlinedPillButton}"
-                        Tag="&#xE72B;" Content="BACK"
+                        Tag="&#xE72B;" Content="{DynamicResource Action.Back}"
                         Command="{Binding BackCommand}"
                         Margin="0,0,12,0"
-                        ToolTip="Back to list (Esc)"/>
+                        ToolTip="{DynamicResource DeliveryNote.BackListEsc}"/>
 
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
@@ -168,7 +168,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <TextBlock Text="TRN INVALID"
+                        <TextBlock Text="{DynamicResource TaxInvoice.TRNInvalid}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
@@ -178,7 +178,7 @@
                             Background="{DynamicResource TintAmberBrush}"
                             Visibility="{Binding IsSaving,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="Saving…"
+                        <TextBlock Text="{DynamicResource TaxInvoice.Saving}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
                     </Border>
@@ -190,8 +190,8 @@
 
                     <Button x:Name="ActionsMenuButton"
                             Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE712;" Content="ACTIONS"
-                            ToolTip="Save, issue, mark paid, export and more"
+                            Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
+                            ToolTip="{DynamicResource TaxInvoice.SaveIssueMarkPaidExportMore}"
                             Click="ActionsMenuButton_Click"/>
 
                     <Popup x:Name="ActionsMenuPopup"
@@ -216,37 +216,37 @@
                             </Border.Effect>
                             <StackPanel>
                                 <Button Style="{StaticResource TiMenuActionItem}"
-                                        Tag="&#xE74E;" Content="Save  (Ctrl+S)"
+                                        Tag="&#xE74E;" Content="{DynamicResource TaxInvoice.SaveCtrlS}"
                                         Command="{Binding SaveCommand}"
                                         Click="MenuActionClicked"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
-                                        Tag="&#xE72D;" Content="Issue invoice"
+                                        Tag="&#xE72D;" Content="{DynamicResource TaxInvoice.IssueInvoice}"
                                         Command="{Binding IssueCommand}"
                                         Click="MenuActionClicked"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
-                                        Tag="&#xE8FB;" Content="Issue all drafts"
+                                        Tag="&#xE8FB;" Content="{DynamicResource TaxInvoice.IssueDrafts}"
                                         Command="{Binding IssueAllCommand}"
                                         Click="MenuActionClicked"
                                         Visibility="{Binding CanIssueAllDrafts,
                                             Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
-                                        Tag="&#xE73E;" Content="Mark as paid"
+                                        Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.MarkPaid}"
                                         Command="{Binding MarkPaidCommand}"
                                         Click="MenuActionClicked"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
-                                        Tag="&#xE81C;" Content="Version history"
+                                        Tag="&#xE81C;" Content="{DynamicResource Common.VersionHistory}"
                                         Command="{Binding ShowVersionsCommand}"
                                         Click="MenuActionClicked"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
-                                        Tag="&#xE8A5;" Content="Export PDF"
+                                        Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportPDF}"
                                         Command="{Binding ExportPdfCommand}"
                                         Click="MenuActionClicked"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
-                                        Tag="&#xE74D;" Content="Delete invoice"
+                                        Tag="&#xE74D;" Content="{DynamicResource TaxInvoice.DeleteInvoice}"
                                         Command="{Binding DeleteCommand}"
                                         Click="MenuActionClicked"/>
                             </StackPanel>
@@ -277,8 +277,8 @@
         <!-- ══ ROW 2 — FINANCIAL STATS + ATTACHMENTS ═════════════════ -->
         <!-- ══ DETAIL TABS — Overview / Attachments / Family ═════════ -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,4,0,14">
-            <Button Content="OVERVIEW" Tag="&#xE8A5;" Margin="0,0,8,0"
-                    ToolTip="Invoice content and financials"
+            <Button Content="{DynamicResource Nav.Overview}" Tag="&#xE8A5;" Margin="0,0,8,0"
+                    ToolTip="{DynamicResource TaxInvoice.InvoiceContentFinancials}"
                     Command="{Binding SwitchDetailTabCommand}" CommandParameter="Overview">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
@@ -291,8 +291,8 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <Button Content="ATTACHMENTS" Tag="&#xE723;" Margin="0,0,8,0"
-                    ToolTip="Attached images and PDFs"
+            <Button Content="{DynamicResource DeliveryNote.Attachments}" Tag="&#xE723;" Margin="0,0,8,0"
+                    ToolTip="{DynamicResource TaxInvoice.AttachedImagesPdfs}"
                     Command="{Binding SwitchDetailTabCommand}" CommandParameter="Attachments">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
@@ -305,8 +305,8 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <Button Content="FAMILY" Tag="&#xE716;"
-                    ToolTip="Invoice family members"
+            <Button Content="{DynamicResource TaxInvoice.Family}" Tag="&#xE716;"
+                    ToolTip="{DynamicResource TaxInvoice.InvoiceFamilyMembers}"
                     Command="{Binding SwitchDetailTabCommand}" CommandParameter="Family">
                 <Button.Style>
                     <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">

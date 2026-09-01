@@ -31,10 +31,10 @@
                     CornerRadius="16,16,0,0"
                     Padding="16,12">
                 <StackPanel>
-                    <TextBlock Text="Screen recording"
+                    <TextBlock Text="{DynamicResource Shared.ScreenRecording}"
                                FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    <TextBlock Text="This app window only — not the desktop"
+                    <TextBlock Text="{DynamicResource Shared.AppWindowDesktop}"
                                FontSize="{StaticResource TextCaption}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Opacity="0.85" Margin="0,2,0,0"/>
@@ -42,7 +42,7 @@
             </Border>
 
             <StackPanel Grid.Row="1" Margin="14,12,14,14">
-                <TextBlock Text="Quality"
+                <TextBlock Text="{DynamicResource Settings.Quality}"
                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="0,0,0,4"/>
@@ -54,7 +54,7 @@
                           Padding="10,7"
                           FontSize="{StaticResource TextBodyLarge}"/>
 
-                <TextBlock Text="Frame rate"
+                <TextBlock Text="{DynamicResource Settings.FrameRate}"
                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="0,12,0,4"/>
@@ -67,7 +67,7 @@
                           FontSize="{StaticResource TextBodyLarge}"/>
 
                 <DockPanel Margin="0,14,0,0">
-                    <TextBlock Text="Internal audio"
+                    <TextBlock Text="{DynamicResource Settings.InternalAudio}"
                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                VerticalAlignment="Center"/>
@@ -77,7 +77,7 @@
                               VerticalAlignment="Center"/>
                 </DockPanel>
                 <DockPanel Margin="0,10,0,0">
-                    <TextBlock Text="Microphone"
+                    <TextBlock Text="{DynamicResource Settings.Microphone}"
                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                VerticalAlignment="Center"/>
@@ -94,7 +94,7 @@
                            Margin="0,12,0,0"/>
 
                 <WrapPanel Margin="0,14,0,0">
-                    <Button Content="START"
+                    <Button Content="{DynamicResource Shared.Start}"
                             Command="{Binding StartCommand}"
                             AutomationProperties.AutomationId="ScreenRecord.Start"
                             MinWidth="96" Height="32" Padding="14,0"
@@ -105,7 +105,7 @@
                             BorderThickness="0"
                             Visibility="{Binding IsIdle,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <Button Content="PAUSE / RESUME"
+                    <Button Content="{DynamicResource Shared.PauseResume}"
                             Command="{Binding PauseCommand}"
                             MinWidth="120" Height="32" Padding="14,0"
                             Margin="0,0,8,8" Cursor="Hand"
@@ -116,7 +116,7 @@
                             BorderThickness="1"
                             Visibility="{Binding IsRecording,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <Button Content="STOP &amp; SAVE"
+                    <Button Content="{DynamicResource Shared.STOPSAVE}"
                             Command="{Binding StopCommand}"
                             AutomationProperties.AutomationId="ScreenRecord.Stop"
                             MinWidth="120" Height="32" Padding="14,0"
@@ -127,7 +127,7 @@
                             BorderThickness="0"
                             Visibility="{Binding IsRecording,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <Button Content="OPEN FOLDER"
+                    <Button Content="{DynamicResource About.OPENFolder}"
                             Command="{Binding OpenOutputCommand}"
                             MinWidth="110" Height="32" Padding="14,0"
                             Margin="0,0,0,8" Cursor="Hand"

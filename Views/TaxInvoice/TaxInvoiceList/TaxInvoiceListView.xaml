@@ -79,7 +79,7 @@
                         <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,3,0,0"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    TextTrimming="CharacterEllipsis">
-                            <Run Text="Latest: "/><Run Text="{Binding LatestIssueDateDisplay, Mode=OneWay}"/>
+                            <Run Text="{DynamicResource DeliveryNote.Latest}"/><Run Text="{Binding LatestIssueDateDisplay, Mode=OneWay}"/>
                             <Run Text="  ·  "/><Run Text="{Binding LatestInvoiceNumber, Mode=OneWay}"/>
                             <Run Text="  "/><Run Text="{Binding LatestInvoiceStatus, Mode=OneWay}"/>
                         </TextBlock>
@@ -107,7 +107,7 @@
                         <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}">
                             <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
-                            <Run Text=" inv"/>
+                            <Run Text="{DynamicResource Reports.Inv}"/>
                         </TextBlock>
                     </Border>
 
@@ -176,7 +176,7 @@
                                 HorizontalAlignment="Center"
                                 Visibility="{Binding AnyOverdue,
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="OVERDUE" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource DangerBrush}"/>
                         </Border>
                     </StackPanel>
@@ -187,15 +187,15 @@
                                 VerticalAlignment="Center"
                                 Margin="6,0,10,0">
                         <Button Style="{StaticResource RowPrimaryButton}"
-                                Tag="&#xE8B7;" Content="OPEN"
-                                ToolTip="Open this invoice family"
+                                Tag="&#xE8B7;" Content="{DynamicResource Action.Open}"
+                                ToolTip="{DynamicResource TaxInvoice.OpenInvoiceFamily}"
                                 Command="{Binding DataContext.OpenFamilyCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"/>
                         <Button Style="{StaticResource RowDangerButton}"
-                                Tag="&#xE74D;" Content="DEL"
+                                Tag="&#xE74D;" Content="{DynamicResource TaxInvoice.DEL}"
                                 Margin="6,0,0,0"
-                                ToolTip="Delete this invoice family (asks for confirmation)"
+                                ToolTip="{DynamicResource TaxInvoice.DeleteInvoiceFamilyAsksConfirmation}"
                                 Command="{Binding DataContext.DeleteFamilyCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"/>
@@ -219,17 +219,17 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Tax Invoices" Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="One family per proforma — open to see every partial invoice"
+                    <TextBlock Text="{DynamicResource Dashboard.TaxInvoices}" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Text="{DynamicResource TaxInvoice.OneFamilyProformaOpenSeePartialInvoice}"
                                Style="{StaticResource ModulePageSubtitleStyle}"/>
                 </StackPanel>
                 <Button Grid.Column="1"
                         Style="{StaticResource PrimaryPillButton}"
                         Tag="&#xE710;"
-                        Content="NEW INVOICE"
+                        Content="{DynamicResource Dashboard.NewInvoice}"
                         Command="{Binding CreateInvoiceCommand}"
                         VerticalAlignment="Center"
-                        ToolTip="Create a new tax invoice"/>
+                        ToolTip="{DynamicResource TaxInvoice.CreateNewTaxInvoice}"/>
             </Grid>
 
             <loading:LoadingStateControl
@@ -351,7 +351,7 @@
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    VerticalAlignment="Center" Margin="0,0,10,0"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   Text="Selected"/>
+                                   Text="{DynamicResource TaxInvoice.Selected}"/>
                         <TextBlock Grid.Column="1"
                                    Text="{Binding SelectedFamilyMetaLine}"
                                    FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
@@ -359,8 +359,8 @@
                                    TextTrimming="CharacterEllipsis"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
-                                Tag="&#xE711;" Content="CLEAR"
-                                ToolTip="Clear selection"
+                                Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
+                                ToolTip="{DynamicResource TaxInvoice.ClearSelection}"
                                 Command="{Binding ClearSelectionCommand}"/>
                     </Grid>
                 </Border>
@@ -377,20 +377,20 @@
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModuleListFilterInputStyle}"
                                  Margin="0,0,8,0"
-                                 ToolTip="Search PI, customer, invoice no"/>
+                                 ToolTip="{DynamicResource TaxInvoice.SearchPICustomerInvoiceNo}"/>
                         <ComboBox Grid.Column="1"
                                   ItemsSource="{Binding StatusFilterOptions}"
                                   SelectedItem="{Binding SelectedStatusFilter}"
                                   Style="{StaticResource ModuleListFilterComboStyle}"
                                   Margin="0,0,8,0"/>
                         <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                                Tag="&#xE711;" Content="CLEAR"
+                                Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
                                 Margin="0,0,8,0"
-                                ToolTip="Clear search and filters"
+                                ToolTip="{DynamicResource TaxInvoice.ClearSearchFilters}"
                                 Command="{Binding ClearFiltersCommand}"/>
                         <Button Grid.Column="3" Style="{StaticResource PrimaryPillButton}"
-                                Tag="&#xE72C;" Content="REFRESH"
-                                ToolTip="Refresh list"
+                                Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
+                                ToolTip="{DynamicResource JobOrder.RefreshList}"
                                 Command="{Binding RefreshCommand}"/>
                     </Grid>
                 </Border>
@@ -402,19 +402,19 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Tag="&#xE8A5;" Content="ALL FAMILIES"
+                    <Button Grid.Column="0" Tag="&#xE8A5;" Content="{DynamicResource TaxInvoice.Families}"
                             CommandParameter="{Binding AllCount}"
                             Click="OnTabClick" x:Name="TabAll"
                             Style="{StaticResource InvTabActiveStyle}"/>
-                    <Button Grid.Column="1" Tag="&#xE70F;" Content="HAS DRAFT"
+                    <Button Grid.Column="1" Tag="&#xE70F;" Content="{DynamicResource TaxInvoice.Draft}"
                             CommandParameter="{Binding DraftCount}"
                             Click="OnTabClick" x:Name="TabDraft"
                             Style="{StaticResource InvTabInactiveStyle}"/>
-                    <Button Grid.Column="2" Tag="&#xE72D;" Content="HAS ISSUED"
+                    <Button Grid.Column="2" Tag="&#xE72D;" Content="{DynamicResource TaxInvoice.Issued}"
                             CommandParameter="{Binding IssuedCount}"
                             Click="OnTabClick" x:Name="TabIssued"
                             Style="{StaticResource InvTabInactiveStyle}"/>
-                    <Button Grid.Column="3" Tag="&#xE73E;" Content="FULLY PAID"
+                    <Button Grid.Column="3" Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.FullyPAID}"
                             CommandParameter="{Binding PaidCount}"
                             Click="OnTabClick" x:Name="TabPaid"
                             Style="{StaticResource InvTabInactiveStyle}"/>
@@ -433,16 +433,16 @@
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="130"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="INVOICE FAMILY (PI)" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="CUSTOMER · PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="3" Text="INVOICES" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="1" Text="{DynamicResource TaxInvoice.InvoiceFamilyPI}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource JobProfitability.CustomerProject}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource Common.Invoices}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="4" Text="% INVOICED" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="5" Text="INVOICED" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="4" Text="{DynamicResource TaxInvoice.Invoiced}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="{DynamicResource Common.Invoiced}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Right" Margin="0,0,12,0"/>
-                        <TextBlock Grid.Column="6" Text="BALANCE" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="6" Text="{DynamicResource Common.Balance}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Right" Margin="0,0,12,0"/>
-                        <TextBlock Grid.Column="7" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="7" Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
                     </Grid>
                 </Border>
@@ -499,7 +499,7 @@
                             </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE8A5;"
-                                Title="No invoice families yet"
+                                Title="{DynamicResource TaxInvoice.NoInvoiceFamiliesYet}"
                                 Message="A family groups every tax invoice belonging to one proforma invoice. Create a tax invoice ('New Invoice' above) and its family appears here with totals, balance and status."/>
                         </StackPanel>
                     </Grid>
@@ -551,7 +551,7 @@
                             </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE70F;"
-                                Title="No families with draft invoices"
+                                Title="{DynamicResource TaxInvoice.NoFamiliesDraftInvoices}"
                                 Message="Families appear here while any of their invoices is still a draft — not yet issued to the customer."/>
                         </StackPanel>
                     </Grid>
@@ -603,7 +603,7 @@
                             </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE72D;"
-                                Title="No families with issued invoices"
+                                Title="{DynamicResource TaxInvoice.NoFamiliesIssuedInvoices}"
                                 Message="Once an invoice is issued to the customer, its family moves into this tab."/>
                         </StackPanel>
                     </Grid>
@@ -655,7 +655,7 @@
                             </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE73E;"
-                                Title="No fully paid families yet"
+                                Title="{DynamicResource TaxInvoice.NoFullyPaidFamiliesYet}"
                                 Message="Families appear here when every invoice in the family has been fully paid."/>
                         </StackPanel>
                     </Grid>

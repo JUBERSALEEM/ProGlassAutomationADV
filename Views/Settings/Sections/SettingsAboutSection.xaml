@@ -40,8 +40,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="About &amp; Help" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="How ProGlass works under the hood."
+            <TextBlock Text="{DynamicResource Settings.SecAbout}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.HowProglassWorksHood}"
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -56,9 +56,9 @@
             <StackPanel Margin="32,0,32,32">
 
                 <!-- ═══════ GROUP: APPLICATION ═══════ -->
-                <TextBlock Text="APPLICATION"
+                <TextBlock Text="{DynamicResource Settings.Application}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="The product and the version running on this machine."
+                <TextBlock Text="{DynamicResource Settings.ProductVersionRunningMachine}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -73,9 +73,9 @@
                                            Style="{StaticResource SettingsTileTitleStyle}"/>
                                 <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                            Margin="0,2,0,0">
-                                    <Run Text="Installed version"/><Run Text=" "/>
+                                    <Run Text="{DynamicResource Settings.InstalledVersion}"/><Run Text=" "/>
                                     <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}" FontWeight="Bold"/>
-                                    <Run Text=" — built for UAE glass fabricators."/>
+                                    <Run Text="{DynamicResource Settings.BuiltUAEGlassFabricators}"/>
                                 </TextBlock>
                             </StackPanel>
                         </DockPanel>
@@ -85,9 +85,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: LEARN MORE ═══════ -->
-                <TextBlock Text="LEARN MORE"
+                <TextBlock Text="{DynamicResource Settings.LearnMORE}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Short explainers on the theme system, the AI assistant, your privacy and the voice models."
+                <TextBlock Text="{DynamicResource Settings.ShortExplainersThemeSystemAIAssistantPrivacy}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
@@ -99,12 +99,12 @@
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE790;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
-                                <TextBlock Text="About the Theme System"
+                                <TextBlock Text="{DynamicResource Settings.AboutThemeSystem}"
                                            Style="{StaticResource SettingsTileTitleStyle}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
-                                <Run Text="ProGlass Automation ships with"/><Run Text=" two hand-crafted themes" FontWeight="Bold"/><Run Text=" — Light (default) and Dark."/>
+                                <Run Text="{DynamicResource Settings.ProglassAutomationShips}"/><Run Text="{DynamicResource Settings.TwoHandCraftedThemes}" FontWeight="Bold"/><Run Text="{DynamicResource Settings.LightDefaultDark}"/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Light theme — optimized for daylight factory floor use.</TextBlock>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Dark theme — easier on the eyes during late-night shifts.</TextBlock>
@@ -119,12 +119,12 @@
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE8F2;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
-                                <TextBlock Text="About the AI Assistant"
+                                <TextBlock Text="{DynamicResource Settings.AboutAIAssistant}"
                                            Style="{StaticResource SettingsTileTitleStyle}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
-                                <Run Text="The optional AI Assistant supports"/><Run Text=" Google Gemini, Groq, and Cohere" FontWeight="Bold"/><Run Text=" — all free tiers. Tailored for UAE glass manufacturing."/>
+                                <Run Text="{DynamicResource Settings.OptionalAIAssistantSupports}"/><Run Text="{DynamicResource Settings.GoogleGeminiGroqCohere}" FontWeight="Bold"/><Run Text="{DynamicResource Settings.FreeTiersTailoredUAEGlassManufacturing}"/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• 100% opt-in — uses your own API key.</TextBlock>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Context-aware — knows glass types, VAT rules, app modules.</TextBlock>
@@ -139,12 +139,12 @@
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE72E;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
-                                <TextBlock Text="About Your API Key &amp; Privacy"
+                                <TextBlock Text="{DynamicResource Settings.AboutAPIKeyPrivacy}"
                                            Style="{StaticResource SettingsTileTitleStyle}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
-                                <Run Text="Your API key is stored"/><Run Text=" only on your local machine" FontWeight="Bold"/><Run Text=" in AppData. It never leaves your PC except for direct HTTPS requests to the AI provider."/>
+                                <Run Text="{DynamicResource Settings.APIKeyStored}"/><Run Text="{DynamicResource Settings.LocalMachine}" FontWeight="Bold"/><Run Text="{DynamicResource Settings.AppdataNeverLeavesPCExceptDirectHttps}"/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Stored at %AppData%\ProGlassAutomation\config.json.</TextBlock>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• No telemetry — zero analytics sent anywhere.</TextBlock>
@@ -158,12 +158,12 @@
                                 <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE720;" Style="{StaticResource InfoGlyphTextStyle}"/>
                                 </Border>
-                                <TextBlock Text="About Voice Models"
+                                <TextBlock Text="{DynamicResource Settings.AboutVoiceModels}"
                                            Style="{StaticResource SettingsTileTitleStyle}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
-                                <Run Text="Three Whisper model sizes are available."/><Run Text=" Base is recommended" FontWeight="Bold"/><Run Text=" for most users — fast, accurate, only 142 MB."/>
+                                <Run Text="{DynamicResource Settings.ThreeWhisperModelSizesAvailable}"/><Run Text="{DynamicResource Settings.BaseRecommended}" FontWeight="Bold"/><Run Text="{DynamicResource Settings.MostUsersFastAccurate142MB}"/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Base (142 MB) — 95%+ accuracy. Best for daily use.</TextBlock>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Medium (1.5 GB) — 97%+ accuracy. Noisy environments.</TextBlock>

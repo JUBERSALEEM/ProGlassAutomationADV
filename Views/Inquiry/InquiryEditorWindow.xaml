@@ -16,7 +16,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
         xmlns:features="clr-namespace:ProGlassAutomation.Services.Features"
-        Title="Inquiry workspace"
+        Title="{DynamicResource Inquiry.InquiryWorkspace}"
         Width="1180" Height="790" MinWidth="980" MinHeight="640"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource WindowBackgroundBrush}"
@@ -45,32 +45,32 @@
                  "Clear customer field" to "Clear all customer info" to
                  make that unambiguous. -->
             <ContextMenu x:Key="EditorFieldContextMenu" Style="{DynamicResource ModernContextMenuStyle}">
-                <MenuItem Header="Cut"
+                <MenuItem Header="{DynamicResource Inquiry.Cut}"
                           Style="{DynamicResource ModernMenuItemStyle}"
                           Command="ApplicationCommands.Cut"/>
-                <MenuItem Header="Copy"
+                <MenuItem Header="{DynamicResource Inquiry.Copy}"
                           Style="{DynamicResource ModernMenuItemStyle}"
                           Command="ApplicationCommands.Copy"/>
-                <MenuItem Header="Paste"
+                <MenuItem Header="{DynamicResource Inquiry.Paste}"
                           Style="{DynamicResource ModernMenuItemStyle}"
                           Command="ApplicationCommands.Paste"/>
                 <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                <MenuItem Header="Select all"
+                <MenuItem Header="{DynamicResource Inquiry.Select}"
                           Style="{DynamicResource ModernMenuItemStyle}"
                           Command="ApplicationCommands.SelectAll"/>
                 <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                <MenuItem Header="Customer actions"
+                <MenuItem Header="{DynamicResource Inquiry.CustomerActions}"
                           IsEnabled="False"
                           FontWeight="Bold"
                           Style="{DynamicResource ModernMenuItemStyle}"/>
-                <MenuItem Header="Clear all customer info"
+                <MenuItem Header="{DynamicResource Inquiry.ClearCustomerInfo}"
                           Style="{DynamicResource ModernMenuItemStyle}"
                           Command="{Binding ClearCustomerCommand}"/>
-                <MenuItem Header="Open customer in master data"
+                <MenuItem Header="{DynamicResource Inquiry.OpenCustomerMasterData}"
                           Style="{DynamicResource ModernMenuItemStyle}"
                           Command="{Binding OpenCustomerInMasterDataCommand}"
                           IsEnabled="{Binding CanOpenCustomerInMasterData}"/>
-                <MenuItem Header="View customer history"
+                <MenuItem Header="{DynamicResource Inquiry.ViewCustomerHistory}"
                           Style="{DynamicResource ModernMenuItemStyle}"
                           Command="{Binding ViewCustomerHistoryCommand}"
                           IsEnabled="{Binding CanViewCustomerHistory}"/>
@@ -191,7 +191,7 @@
                                        Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="●" FontSize="{StaticResource TextBody}" Margin="8,0,0,0" VerticalAlignment="Center"
                                        Foreground="{DynamicResource WarningBrush}"
-                                       ToolTip="Unsaved changes"
+                                       ToolTip="{DynamicResource Inquiry.UnsavedChanges}"
                                        Visibility="{Binding IsDirty, Converter={StaticResource BoolToVis}}"/>
                             <Border Margin="11,0,0,0" Padding="9,3" CornerRadius="12"
                                     Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
@@ -203,7 +203,7 @@
                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
                     </StackPanel>
                 </StackPanel>
-                <TextBlock Grid.Column="1" Text="Ctrl+S save · Esc close" FontSize="{StaticResource TextCaption}" VerticalAlignment="Center"
+                <TextBlock Grid.Column="1" Text="{DynamicResource Inquiry.CtrlSSaveEscClose}" FontSize="{StaticResource TextCaption}" VerticalAlignment="Center"
                            Foreground="{DynamicResource MutedForegroundBrush}"/>
             </Grid>
         </Border>
@@ -219,7 +219,7 @@
             <!-- LEFT · workflow rail -->
             <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,14">
                 <StackPanel>
-                    <TextBlock Text="WORKFLOW" Style="{StaticResource ModuleColumnHeaderStyle}" Margin="2,0,0,10"/>
+                    <TextBlock Text="{DynamicResource Inquiry.Workflow}" Style="{StaticResource ModuleColumnHeaderStyle}" Margin="2,0,0,10"/>
 
                     <!-- Step 1 · Received (always active) -->
                     <StackPanel Orientation="Horizontal">
@@ -230,8 +230,8 @@
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Received" Style="{StaticResource StepTitleStyle}"/>
-                            <TextBlock Text="Captured from the customer" Style="{StaticResource InqHintStyle}"/>
+                            <TextBlock Text="{DynamicResource Inquiry.Received}" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Inquiry.CapturedCustomer}" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
                     </StackPanel>
                     <Border Style="{StaticResource InqTimelineLineStyle}" Height="14"/>
@@ -260,7 +260,7 @@
                             <TextBlock Text="2" Style="{StaticResource StepNumberStyle}"/>
                         </Border>
                         <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Prepared" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Inquiry.Prepared}" Style="{StaticResource StepTitleStyle}"/>
                             <TextBlock Text="{Binding PreparedDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
                     </StackPanel>
@@ -286,7 +286,7 @@
                             <TextBlock Text="3" Style="{StaticResource StepNumberStyle}"/>
                         </Border>
                         <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Sent to customer" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Inquiry.SentCustomer}" Style="{StaticResource StepTitleStyle}"/>
                             <TextBlock Text="{Binding SentDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
                     </StackPanel>
@@ -308,30 +308,30 @@
                             <TextBlock Text="4" Style="{StaticResource StepNumberStyle}"/>
                         </Border>
                         <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Confirmed" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Inquiry.Confirmed}" Style="{StaticResource StepTitleStyle}"/>
                             <TextBlock Text="{Binding ConfirmedDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
                     </StackPanel>
 
-                    <TextBlock Text="TRANSITIONS" Style="{StaticResource ModuleColumnHeaderStyle}" Margin="2,18,0,9"/>
+                    <TextBlock Text="{DynamicResource Inquiry.Transitions}" Style="{StaticResource ModuleColumnHeaderStyle}" Margin="2,18,0,9"/>
                     <WrapPanel>
-                        <Button Content="Prepare" Command="{Binding ChangeStatusCommand}" CommandParameter="Prepared"
+                        <Button Content="{DynamicResource Inquiry.Prepare}" Command="{Binding ChangeStatusCommand}" CommandParameter="Prepared"
                                 Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
                                 IsEnabled="{Binding CanPrepare}"/>
-                        <Button Content="Send" Command="{Binding ChangeStatusCommand}" CommandParameter="Sent"
+                        <Button Content="{DynamicResource Inquiry.Send}" Command="{Binding ChangeStatusCommand}" CommandParameter="Sent"
                                 Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
                                 IsEnabled="{Binding CanSend}"/>
-                        <Button Content="Confirm" Command="{Binding ChangeStatusCommand}" CommandParameter="Confirmed"
+                        <Button Content="{DynamicResource Action.Confirm}" Command="{Binding ChangeStatusCommand}" CommandParameter="Confirmed"
                                 Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
                                 IsEnabled="{Binding CanConfirm}"/>
-                        <Button Content="Hold" Command="{Binding ChangeStatusCommand}" CommandParameter="Hold"
+                        <Button Content="{DynamicResource Inquiry.Hold}" Command="{Binding ChangeStatusCommand}" CommandParameter="Hold"
                                 Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
                                 IsEnabled="{Binding CanHold}"/>
-                        <Button Content="Cancel inquiry" Command="{Binding ChangeStatusCommand}" CommandParameter="Cancelled"
+                        <Button Content="{DynamicResource Inquiry.CancelInquiry}" Command="{Binding ChangeStatusCommand}" CommandParameter="Cancelled"
                                 Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Padding="12,6"
                                 IsEnabled="{Binding CanCancel}"/>
                     </WrapPanel>
-                    <TextBlock Text="Transitions need a saved record and no unsaved edits."
+                    <TextBlock Text="{DynamicResource Inquiry.TransitionsNeedSavedRecordNoUnsavedEdits}"
                                Style="{StaticResource InqHintStyle}" Margin="2,6,0,0"/>
                 </StackPanel>
             </Border>
@@ -344,7 +344,7 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="CUSTOMER" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                             </StackPanel>
@@ -355,18 +355,18 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="Customer *" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Inquiry.Customer}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <ComboBox x:Name="CustomerInput" ItemsSource="{Binding Customers}"
                                               Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
                                               Style="{StaticResource ModernEditableComboBoxStyle}" StaysOpenOnEdit="True"
                                               ContextMenu="{StaticResource EditorFieldContextMenu}"
-                                              ToolTip="Type a new customer or pick a saved client"/>
+                                              ToolTip="{DynamicResource Inquiry.TypeNewCustomerPickSavedClient}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2"
                                             Visibility="{Binding Path=ShowCustomerLocation,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
                                                 Converter={StaticResource BoolToVis}}">
-                                    <TextBlock Text="Location" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource CompanyCenter.Location}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <!-- Editable ComboBox: shows the saved addresses for
                                          the currently-typed customer, but the user can still
                                          type a brand-new one. The dropdown is empty when
@@ -376,7 +376,7 @@
                                               Style="{StaticResource ModernEditableComboBoxStyle}"
                                               IsTextSearchEnabled="True"
                                               ContextMenu="{StaticResource EditorFieldContextMenu}"
-                                              ToolTip="Saved addresses for this customer — type a new one if needed"/>
+                                              ToolTip="{DynamicResource Inquiry.SavedAddressesCustomerTypeNewOneIfNeeded}"/>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
@@ -386,7 +386,7 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="PROJECT" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                             </StackPanel>
@@ -397,7 +397,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="Project *" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Inquiry.Project}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource ModernTextBoxStyle}"/>
                                 </StackPanel>
@@ -405,7 +405,7 @@
                                             Visibility="{Binding Path=ShowInquiryReference,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
                                                 Converter={StaticResource BoolToVis}}">
-                                    <TextBlock Text="Inquiry reference" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Inquiry.InquiryReference}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <TextBox Text="{Binding Reference, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource ModernTextBoxStyle}"/>
                                 </StackPanel>
@@ -414,7 +414,7 @@
                                         Visibility="{Binding Path=ShowProjectDescription,
                                             Source={x:Static features:InquiryFieldVisibility.Instance},
                                             Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Description / subject" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Inquiry.DescriptionSubject}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <TextBox Text="{Binding ProjectDescription, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ModernTextBoxStyle}" Height="66" AcceptsReturn="True"
                                          TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="11,9"/>
@@ -426,7 +426,7 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="COMMERCIAL" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                                <TextBlock Text="{DynamicResource Inquiry.Commercial}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                             </StackPanel>
@@ -439,7 +439,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="Received date" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Inquiry.ReceivedDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <DatePicker SelectedDate="{Binding ReceivedDate}" Height="34" FontSize="{StaticResource TextBodyLarge}"
                                                 VerticalContentAlignment="Center"/>
                                     <TextBlock Text="{Binding ReceivedHint, Mode=OneWay}"
@@ -449,19 +449,19 @@
                                             Visibility="{Binding Path=ShowSalesman,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
                                                 Converter={StaticResource BoolToVis}}">
-                                    <TextBlock Text="Salesman" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <ComboBox ItemsSource="{Binding Salesmen}"
                                               Text="{Binding SalesmanName, UpdateSourceTrigger=PropertyChanged}"
                                               Style="{StaticResource ModernEditableComboBoxStyle}"
                                               IsTextSearchEnabled="True"
                                               ContextMenu="{StaticResource EditorFieldContextMenu}"
-                                              ToolTip="Pick a saved salesman or type a new name — it will be saved to master data"/>
+                                              ToolTip="{DynamicResource Inquiry.PickSavedSalesmanTypeNewNameSavedMasterData}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="4"
                                             Visibility="{Binding Path=ShowPriority,
                                                 Source={x:Static features:InquiryFieldVisibility.Instance},
                                                 Converter={StaticResource BoolToVis}}">
-                                    <TextBlock Text="Priority" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Common.Priority}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}"
                                               Style="{StaticResource ModernComboBoxStyle}"/>
                                 </StackPanel>
@@ -470,13 +470,13 @@
                                         Visibility="{Binding Path=ShowInquiryValue,
                                             Source={x:Static features:InquiryFieldVisibility.Instance},
                                             Converter={StaticResource BoolToVis}}">
-                                <TextBlock Text="Inquiry value (AED)" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Inquiry.InquiryValueAED}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <TextBox x:Name="ValueInput"
                                          Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ModernTextBoxStyle}" TextAlignment="Right"
                                          PreviewTextInput="OnValuePreviewTextInput"
                                          DataObject.Pasting="OnValuePaste"
-                                         ToolTip="Numbers only — thousands separators allowed"/>
+                                         ToolTip="{DynamicResource Inquiry.NumbersThousandsSeparatorsAllowed}"/>
                                 <TextBlock Text="{Binding ValueHint, Mode=OneWay}" Margin="2,5,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource InqHintStyle}">
@@ -500,14 +500,14 @@
                                 Converter={StaticResource BoolToVis}}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="NOTES" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Notes}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                             </StackPanel>
                             <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource ModernTextBoxStyle}" Height="108" AcceptsReturn="True"
                                      TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="11,9"
-                                     ToolTip="Internal notes — visible in the register drawer"/>
+                                     ToolTip="{DynamicResource Inquiry.InternalNotesVisibleRegisterDrawer}"/>
                         </StackPanel>
                     </Border>
 
@@ -515,10 +515,10 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                <TextBlock Text="SOURCE DOCUMENTS" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                                <TextBlock Text="{DynamicResource Inquiry.SourceDocuments}" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
-                                <TextBlock Text="manifest-backed · works on any database" Margin="9,0,0,0"
+                                <TextBlock Text="{DynamicResource Inquiry.ManifestBackedWorksDatabase}" Margin="9,0,0,0"
                                            FontSize="{StaticResource TextXSmall}" VerticalAlignment="Center"
                                            Foreground="{DynamicResource MutedForegroundBrush}"/>
                             </StackPanel>
@@ -549,10 +549,10 @@
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="Drop files here — or click to browse" FontSize="{StaticResource TextBodyLarge}"
+                                                <TextBlock Text="{DynamicResource Inquiry.DropFilesHereClickBrowse}" FontSize="{StaticResource TextBodyLarge}"
                                                            FontWeight="SemiBold" Margin="0,9,0,0" HorizontalAlignment="Center"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                <TextBlock Text="A new inquiry is saved automatically before the first file. Images and PDFs preview in-app."
+                                                <TextBlock Text="{DynamicResource Inquiry.NewInquirySavedAutomaticallyBeforeFirstFile}"
                                                            Style="{StaticResource InqHintStyle}" Margin="0,4,0,0"
                                                            HorizontalAlignment="Center" TextAlignment="Center"/>
                                             </StackPanel>
@@ -597,11 +597,11 @@
                                                     </StackPanel>
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <Button Content="Preview"
+                                                    <Button Content="{DynamicResource Phone.Preview}"
                                                             Command="{Binding DataContext.PreviewAttachmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
                                                             Style="{StaticResource InqGhostActionStyle}" Margin="0,0,4,0"/>
-                                                    <Button Content="Delete"
+                                                    <Button Content="{DynamicResource Action.Delete}"
                                                             Command="{Binding DataContext.DeleteAttachmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                             CommandParameter="{Binding}"
                                                             Style="{StaticResource InqGhostActionStyle}"/>
@@ -611,7 +611,7 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock Text="No files attached yet." Margin="2,3,0,0">
+                            <TextBlock Text="{DynamicResource Inquiry.NoFilesAttachedYet}" Margin="2,3,0,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource InqHintStyle}">
                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -645,7 +645,7 @@
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="Discard" Command="{Binding CancelCommand}"
+                    <Button Content="{DynamicResource Inquiry.Discard}" Command="{Binding CancelCommand}"
                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Margin="0,0,8,0"/>
                     <Button Content="{Binding SaveCommandText}" Command="{Binding SaveCommand}"
                             Style="{StaticResource ModuleToolbarPrimaryButtonStyle}" MinWidth="150"/>

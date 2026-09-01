@@ -233,16 +233,16 @@
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Inquiries" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Text="{DynamicResource Inquiry.Inquiries}" Style="{StaticResource ModulePageTitleStyle}"/>
                     <Border Margin="14,4,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource AccentBrush}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="10,3" SnapsToDevicePixels="True">
-                        <TextBlock Text="REGISTER" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                        <TextBlock Text="{DynamicResource Inquiry.Register}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     </Border>
                 </StackPanel>
-                <TextBlock Text="Commercial intake — capture, prepare, send, confirm, convert, deliver, bill, collect."
+                <TextBlock Text="{DynamicResource Inquiry.CommercialIntakeCapturePrepareSendConfirm}"
                            Style="{StaticResource ModulePageSubtitleStyle}"/>
             </StackPanel>
 
@@ -250,19 +250,19 @@
                 <Button Margin="0,0,8,0" MinWidth="100"
                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                         Command="{Binding RefreshCommand}"
-                        Content="REFRESH" Tag="↻"/>
+                        Content="{DynamicResource Action.Refresh}" Tag="↻"/>
                 <Button Margin="0,0,8,0" MinWidth="92"
                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                         Command="{Binding ImportCommand}"
-                        Content="IMPORT" Tag="↧"/>
+                        Content="{DynamicResource Inquiry.Import}" Tag="↧"/>
                 <Button Margin="0,0,8,0" MinWidth="92"
                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                         Command="{Binding ExportCommand}"
-                        Content="EXPORT" Tag="↥"/>
+                        Content="{DynamicResource Action.Export}" Tag="↥"/>
                 <Button MinWidth="140"
                         Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
                         Command="{Binding NewInquiryCommand}"
-                        Content="＋ NEW INQUIRY" Tag="＋"/>
+                        Content="{DynamicResource Inquiry.NEWInquiry}" Tag="＋"/>
             </StackPanel>
         </Grid>
 
@@ -290,7 +290,7 @@
                 <TextBlock Grid.Column="1" Text="{Binding AwaitingNewPiBannerText}"
                            FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}"
                            TextWrapping="Wrap" VerticalAlignment="Center"/>
-                <Button Grid.Column="2" Content="Cancel"
+                <Button Grid.Column="2" Content="{DynamicResource Action.Cancel}"
                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                         Command="{Binding CancelNewPiFromInquiryCommand}"
                         Margin="10,0,0,0" VerticalAlignment="Center"/>
@@ -318,9 +318,9 @@
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Pipeline value" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Inquiry.PipelineValue}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                         <TextBlock Text="{Binding PipelineValueText}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                        <TextBlock Text="Cancelled excluded" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                        <TextBlock Text="{DynamicResource Inquiry.CancelledExcluded}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                     </StackPanel>
                 </StackPanel>
                 <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
@@ -333,9 +333,9 @@
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Open" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Action.Open}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                         <TextBlock Text="{Binding OpenCount, Mode=OneWay}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                        <TextBlock Text="Received + prepared" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                        <TextBlock Text="{DynamicResource Inquiry.ReceivedPrepared}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                     </StackPanel>
                 </StackPanel>
                 <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
@@ -348,9 +348,9 @@
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Awaiting customer" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Inquiry.AwaitingCustomer}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                         <TextBlock Text="{Binding AwaitingCount, Mode=OneWay}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                        <TextBlock Text="Sent, waiting confirmation" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                        <TextBlock Text="{DynamicResource Inquiry.SentWaitingConfirmation}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                     </StackPanel>
                 </StackPanel>
                 <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
@@ -363,9 +363,9 @@
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Confirmed" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Inquiry.Confirmed}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                         <TextBlock Text="{Binding ConfirmedCount, Mode=OneWay}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                        <TextBlock Text="Ready to convert to PI" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                        <TextBlock Text="{DynamicResource Inquiry.ReadyConvertPI}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -481,35 +481,35 @@
                     <TextBox Grid.Column="0"
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource ModuleListFilterInputStyle}"
-                             ToolTip="Search inquiry number, customer, project, salesman or prepared by"/>
+                             ToolTip="{DynamicResource Inquiry.SearchInquiryNumberCustomerProjectSalesman}"/>
                     <ComboBox Grid.Column="2" ItemsSource="{Binding DateRanges}"
                               SelectedItem="{Binding SelectedDateRange}"
                               Style="{StaticResource ModuleListFilterComboStyle}"
-                              ToolTip="Received date range"/>
+                              ToolTip="{DynamicResource Inquiry.ReceivedDateRange}"/>
                     <ComboBox Grid.Column="4" ItemsSource="{Binding Salesmen}"
                               SelectedItem="{Binding SelectedSalesman}"
                               Style="{StaticResource ModuleListFilterComboStyle}"
-                              ToolTip="Salesman"/>
+                              ToolTip="{DynamicResource Common.Salesman}"/>
                     <ComboBox Grid.Column="6" ItemsSource="{Binding PreparedByUsers}"
                               SelectedItem="{Binding SelectedPreparedBy}"
                               Style="{StaticResource ModuleListFilterComboStyle}"
-                              ToolTip="Prepared by"/>
+                              ToolTip="{DynamicResource Inquiry.Prepared2}"/>
                     <ComboBox Grid.Column="8" ItemsSource="{Binding Priorities}"
                               SelectedItem="{Binding SelectedPriority}"
                               Style="{StaticResource ModuleListFilterComboStyle}"
-                              ToolTip="Priority"/>
+                              ToolTip="{DynamicResource Common.Priority}"/>
                     <ComboBox Grid.Column="10" ItemsSource="{Binding SortOptions}"
                               SelectedItem="{Binding SelectedSort}"
                               Style="{StaticResource ModuleListFilterComboStyle}"
-                              ToolTip="Sort order"/>
-                    <CheckBox Grid.Column="12" Content="Has attachments"
+                              ToolTip="{DynamicResource Inquiry.SortOrder}"/>
+                    <CheckBox Grid.Column="12" Content="{DynamicResource Dashboard.Attachments}"
                               VerticalAlignment="Center" Margin="4,0,0,0"
                               IsChecked="{Binding HasAttachmentsOnly}"
-                              ToolTip="Show only inquiries that have at least one attachment"/>
+                              ToolTip="{DynamicResource Inquiry.ShowInquiriesLeastOneAttachment}"/>
                     <Button Grid.Column="14" MinWidth="92" Margin="8,0,0,0"
                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                             Command="{Binding ResetFiltersCommand}"
-                            Content="RESET" Tag="↺"/>
+                            Content="{DynamicResource Action.Reset}" Tag="↺"/>
                 </Grid>
             </Border>
         </Grid>
@@ -545,26 +545,26 @@
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="60"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="INQ#"
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Inquiry.INQ2}"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="1" Text="STATUS"
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Common.Status}"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="2" Text="CUSTOMER"
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Common.Customer}"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="3" Text="PROJECT"
+                        <TextBlock Grid.Column="3" Text="{DynamicResource Common.Project}"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="4" Text="VALUE" Margin="0,0,8,0"
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Inquiry.Value}" Margin="0,0,8,0"
                                    HorizontalAlignment="Right"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="5" Text="RECEIVED"
+                        <TextBlock Grid.Column="5" Text="{DynamicResource Inquiry.Received}"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="6" Text="OWNER"
+                        <TextBlock Grid.Column="6" Text="{DynamicResource Inquiry.Owner}"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     </Grid>
@@ -618,58 +618,58 @@
                                                  hands off to the Proforma Invoice
                                                  module; Change status is a submenu
                                                  gated by the workflow state machine. -->
-                                            <MenuItem Header="Edit inquiry…"
+                                            <MenuItem Header="{DynamicResource Inquiry.EditInquiry}"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
                                                       Command="{Binding PlacementTarget.Tag.EditInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                       CommandParameter="{Binding}"/>
-                                            <MenuItem Header="Convert to Proforma Invoice"
+                                            <MenuItem Header="{DynamicResource Inquiry.ConvertProformaInvoice}"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
                                                       Command="{Binding PlacementTarget.Tag.ConvertToPiRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                       CommandParameter="{Binding}"
                                                       IsEnabled="{Binding CanConvert}"/>
-                                            <MenuItem Header="Change status"
+                                            <MenuItem Header="{DynamicResource Inquiry.ChangeStatus}"
                                                       Style="{DynamicResource ModernMenuItemStyle}">
-                                                <MenuItem Header="Prepare"
+                                                <MenuItem Header="{DynamicResource Inquiry.Prepare}"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           IsEnabled="{Binding CanPrepareWorkflow}"
                                                           Command="{Binding PlacementTarget.Tag.PrepareRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Send"
+                                                <MenuItem Header="{DynamicResource Inquiry.Send}"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           IsEnabled="{Binding CanSendWorkflow}"
                                                           Command="{Binding PlacementTarget.Tag.SendRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Confirm"
+                                                <MenuItem Header="{DynamicResource Action.Confirm}"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           IsEnabled="{Binding CanConfirmWorkflow}"
                                                           Command="{Binding PlacementTarget.Tag.ConfirmRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Hold"
+                                                <MenuItem Header="{DynamicResource Inquiry.Hold}"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           IsEnabled="{Binding CanHoldWorkflow}"
                                                           Command="{Binding PlacementTarget.Tag.HoldRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Cancel inquiry"
+                                                <MenuItem Header="{DynamicResource Inquiry.CancelInquiry}"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           IsEnabled="{Binding CanCancelWorkflow}"
                                                           Command="{Binding PlacementTarget.Tag.CancelRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                             </MenuItem>
-                                            <MenuItem Header="Change priority"
+                                            <MenuItem Header="{DynamicResource Inquiry.ChangePriority}"
                                                       Style="{DynamicResource ModernMenuItemStyle}">
-                                                <MenuItem Header="Urgent"
+                                                <MenuItem Header="{DynamicResource Inquiry.Urgent}"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           Command="{Binding PlacementTarget.Tag.SetUrgentPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="High"
+                                                <MenuItem Header="{DynamicResource Inquiry.High}"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           Command="{Binding PlacementTarget.Tag.SetHighPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Normal"
+                                                <MenuItem Header="{DynamicResource Inquiry.Normal}"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           Command="{Binding PlacementTarget.Tag.SetNormalPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Low"
+                                                <MenuItem Header="{DynamicResource Inquiry.Low}"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           Command="{Binding PlacementTarget.Tag.SetLowPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
@@ -681,25 +681,25 @@
                                                  with a confirmation dialog wired by
                                                  the view plus the workflow service
                                                  permission check. -->
-                                            <MenuItem Header="Duplicate inquiry"
+                                            <MenuItem Header="{DynamicResource Inquiry.DuplicateInquiry}"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
                                                       Command="{Binding PlacementTarget.Tag.DuplicateInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                       CommandParameter="{Binding}"/>
-                                            <MenuItem Header="Delete inquiry"
+                                            <MenuItem Header="{DynamicResource Inquiry.DeleteInquiry}"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
                                                       Foreground="{DynamicResource DangerBrush}"
                                                       Command="{Binding PlacementTarget.Tag.DeleteInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                       CommandParameter="{Binding}"/>
                                             <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                                            <MenuItem Header="Copy inquiry number"
+                                            <MenuItem Header="{DynamicResource Inquiry.CopyInquiryNumber}"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
                                                       Command="{Binding PlacementTarget.Tag.CopyInquiryNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                            <MenuItem Header="Copy summary"
+                                            <MenuItem Header="{DynamicResource Inquiry.CopySummary}"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
                                                       Command="{Binding PlacementTarget.Tag.CopySummaryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                            <MenuItem Header="Open attachments folder"
+                                            <MenuItem Header="{DynamicResource Inquiry.OpenAttachmentsFolder}"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
                                                       IsEnabled="{Binding HasAttachments}"
                                                       Command="{Binding PlacementTarget.Tag.OpenAttachmentsFolderCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
@@ -814,14 +814,14 @@
                                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                         Background="{DynamicResource AccentBrush}"
                                         Grid.Column="0">
-                                    <TextBlock Text="INQ"
+                                    <TextBlock Text="{DynamicResource Inquiry.INQ}"
                                                FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center">
-                                    <TextBlock Text="LIFECYCLE"
+                                    <TextBlock Text="{DynamicResource Inquiry.Lifecycle}"
                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                Foreground="{DynamicResource AccentBrush}"/>
                                     <TextBlock Text="{Binding SelectedInquiry.InquiryNumber}"
@@ -851,7 +851,7 @@
 
                             <!-- PIPELINE — the killer section: 6 stages, each with
                                  a state dot, name, document number, status, action. -->
-                            <TextBlock Text="PIPELINE"
+                            <TextBlock Text="{DynamicResource Inquiry.Pipeline}"
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="0,18,0,8"/>
@@ -868,13 +868,13 @@
                                             Background="{DynamicResource AccentBrush}"
                                             Margin="0,0,10,0"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="INQUIRY" Style="{StaticResource PipelineStageNameStyle}"/>
+                                        <TextBlock Text="{DynamicResource Module.Inquiry}" Style="{StaticResource PipelineStageNameStyle}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.InquiryNumber}"
                                                    Style="{StaticResource PipelineStageValueStyle}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.Status}"
                                                    Style="{StaticResource PipelineStageMetaStyle}"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="2" Text="active"
+                                    <TextBlock Grid.Column="2" Text="{DynamicResource About.Active}"
                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                Foreground="{DynamicResource AccentBrush}"
                                                VerticalAlignment="Center"/>
@@ -924,13 +924,13 @@
                                         </Border.Style>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="PROFORMA INVOICE"
+                                        <TextBlock Text="{DynamicResource Module.ProformaInvoice}"
                                                    Style="{StaticResource PipelineStageNameStyle}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.ProformaCellText}"
                                                    Style="{StaticResource PipelineStageValueStyle}"/>
                                     </StackPanel>
                                     <Button Grid.Column="2"
-                                            Content="Open"
+                                            Content="{DynamicResource Action.Open}"
                                             FontSize="{StaticResource TextCaption}" Padding="9,3"
                                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                             IsEnabled="{Binding SelectedInquiry.Lifecycle.HasProforma}"
@@ -941,18 +941,18 @@
                                 <Border.ContextMenu>
                                     <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
                                                  DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open Proforma Invoice"
+                                        <MenuItem Header="{DynamicResource Inquiry.OpenProformaInvoice}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasProforma}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenProformaForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Copy PI number"
+                                        <MenuItem Header="{DynamicResource Inquiry.CopyPINumber}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasProforma}"
                                                   Command="{Binding PlacementTarget.DataContext.CopyProformaNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                                        <MenuItem Header="View inquiry workspace"
+                                        <MenuItem Header="{DynamicResource Inquiry.ViewInquiryWorkspace}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
@@ -1003,13 +1003,13 @@
                                         </Border.Style>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="JOB ORDER"
+                                        <TextBlock Text="{DynamicResource Common.JobOrder}"
                                                    Style="{StaticResource PipelineStageNameStyle}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.JobOrderCellText}"
                                                    Style="{StaticResource PipelineStageValueStyle}"/>
                                     </StackPanel>
                                     <Button Grid.Column="2"
-                                            Content="Open"
+                                            Content="{DynamicResource Action.Open}"
                                             FontSize="{StaticResource TextCaption}" Padding="9,3"
                                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                             IsEnabled="{Binding SelectedInquiry.Lifecycle.HasJobOrder}"
@@ -1019,18 +1019,18 @@
                                 <Border.ContextMenu>
                                     <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
                                                  DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open Job Order"
+                                        <MenuItem Header="{DynamicResource Inquiry.OpenJobOrder}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasJobOrder}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenJobOrderForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Copy JO number"
+                                        <MenuItem Header="{DynamicResource Inquiry.CopyJONumber}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasJobOrder}"
                                                   Command="{Binding PlacementTarget.DataContext.CopyJobOrderNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                                        <MenuItem Header="View inquiry workspace"
+                                        <MenuItem Header="{DynamicResource Inquiry.ViewInquiryWorkspace}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
@@ -1081,13 +1081,13 @@
                                         </Border.Style>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="DELIVERY NOTE"
+                                        <TextBlock Text="{DynamicResource Module.DeliveryNote}"
                                                    Style="{StaticResource PipelineStageNameStyle}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.DeliveryNoteCellText}"
                                                    Style="{StaticResource PipelineStageValueStyle}"/>
                                     </StackPanel>
                                     <Button Grid.Column="2"
-                                            Content="Open"
+                                            Content="{DynamicResource Action.Open}"
                                             FontSize="{StaticResource TextCaption}" Padding="9,3"
                                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                             IsEnabled="{Binding SelectedInquiry.Lifecycle.HasDeliveryNote}"
@@ -1097,18 +1097,18 @@
                                 <Border.ContextMenu>
                                     <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
                                                  DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open Delivery Note"
+                                        <MenuItem Header="{DynamicResource Inquiry.OpenDeliveryNote}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasDeliveryNote}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenDeliveryNoteForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Copy DN number"
+                                        <MenuItem Header="{DynamicResource Inquiry.CopyDNNumber}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasDeliveryNote}"
                                                   Command="{Binding PlacementTarget.DataContext.CopyDeliveryNoteNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                                        <MenuItem Header="View inquiry workspace"
+                                        <MenuItem Header="{DynamicResource Inquiry.ViewInquiryWorkspace}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
@@ -1159,13 +1159,13 @@
                                         </Border.Style>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="TAX INVOICE"
+                                        <TextBlock Text="{DynamicResource Module.TaxInvoice}"
                                                    Style="{StaticResource PipelineStageNameStyle}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.TaxInvoiceCellText}"
                                                    Style="{StaticResource PipelineStageValueStyle}"/>
                                     </StackPanel>
                                     <Button Grid.Column="2"
-                                            Content="Open"
+                                            Content="{DynamicResource Action.Open}"
                                             FontSize="{StaticResource TextCaption}" Padding="9,3"
                                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                             IsEnabled="{Binding SelectedInquiry.Lifecycle.HasTaxInvoice}"
@@ -1175,18 +1175,18 @@
                                 <Border.ContextMenu>
                                     <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
                                                  DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open Tax Invoice"
+                                        <MenuItem Header="{DynamicResource Inquiry.OpenTaxInvoice}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasTaxInvoice}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenTaxInvoiceForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Copy TI number"
+                                        <MenuItem Header="{DynamicResource Inquiry.CopyTINumber}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasTaxInvoice}"
                                                   Command="{Binding PlacementTarget.DataContext.CopyTaxInvoiceNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                                        <MenuItem Header="View inquiry workspace"
+                                        <MenuItem Header="{DynamicResource Inquiry.ViewInquiryWorkspace}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
@@ -1225,13 +1225,13 @@
                                         </Border.Style>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="STATEMENT"
+                                        <TextBlock Text="{DynamicResource Module.Statement}"
                                                    Style="{StaticResource PipelineStageNameStyle}"/>
-                                        <TextBlock Text="Generated from Tax Invoices"
+                                        <TextBlock Text="{DynamicResource Inquiry.GeneratedTaxInvoices}"
                                                    Style="{StaticResource PipelineStageMetaStyle}"/>
                                     </StackPanel>
                                     <Button Grid.Column="2"
-                                            Content="Open"
+                                            Content="{DynamicResource Action.Open}"
                                             FontSize="{StaticResource TextCaption}" Padding="9,3"
                                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                             IsEnabled="{Binding SelectedInquiry.Lifecycle.HasStatement}"
@@ -1241,17 +1241,17 @@
                                 <Border.ContextMenu>
                                     <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
                                                  DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open Statement"
+                                        <MenuItem Header="{DynamicResource Inquiry.OpenStatement}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasStatement}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenStatementForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Open statement module"
+                                        <MenuItem Header="{DynamicResource Inquiry.OpenStatementModule}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenStatementForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                                        <MenuItem Header="View inquiry workspace"
+                                        <MenuItem Header="{DynamicResource Inquiry.ViewInquiryWorkspace}"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
@@ -1260,7 +1260,7 @@
                             </Border>
 
                             <!-- MONEY — total billed + outstanding -->
-                            <TextBlock Text="MONEY"
+                            <TextBlock Text="{DynamicResource Inquiry.Money}"
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="0,16,0,8"/>
@@ -1275,7 +1275,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="TOTAL BILLED"
+                                        <TextBlock Text="{DynamicResource Inquiry.TotalBilled}"
                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                    Foreground="{DynamicResource AccentBrush}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.TotalBilledText}"
@@ -1296,7 +1296,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="OUTSTANDING"
+                                        <TextBlock Text="{DynamicResource Common.Outstanding}"
                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                    Foreground="{DynamicResource DangerBrush}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.TotalOutstandingText}"
@@ -1308,7 +1308,7 @@
                             </Border>
 
                             <!-- ACTIVITY — last 5 communications -->
-                            <TextBlock Text="ACTIVITY"
+                            <TextBlock Text="{DynamicResource Common.Activity}"
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="0,16,0,8"/>
@@ -1342,42 +1342,42 @@
                             </ItemsControl>
 
                             <!-- ACTIONS -->
-                            <TextBlock Text="ACTIONS"
+                            <TextBlock Text="{DynamicResource Common.Actions}"
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="0,16,0,8"/>
                             <Button Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
-                                    Content="OPEN WORKSPACE"
+                                    Content="{DynamicResource Inquiry.OPENWorkspace}"
                                     Margin="0,0,0,8"
                                     HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Center"
                                     Command="{Binding OpenWorkspaceCommand}"/>
                             <WrapPanel>
-                                <Button Content="Prepare" Margin="0,0,6,6"
+                                <Button Content="{DynamicResource Inquiry.Prepare}" Margin="0,0,6,6"
                                         FontSize="{StaticResource TextBody}" Padding="11,5"
                                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                         Command="{Binding ChangeStatusCommand}"
                                         CommandParameter="Prepared"
                                         IsEnabled="{Binding SelectedInquiry.CanPrepareWorkflow}"/>
-                                <Button Content="Send" Margin="0,0,6,6"
+                                <Button Content="{DynamicResource Inquiry.Send}" Margin="0,0,6,6"
                                         FontSize="{StaticResource TextBody}" Padding="11,5"
                                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                         Command="{Binding ChangeStatusCommand}"
                                         CommandParameter="Sent"
                                         IsEnabled="{Binding SelectedInquiry.CanSendWorkflow}"/>
-                                <Button Content="Confirm" Margin="0,0,6,6"
+                                <Button Content="{DynamicResource Action.Confirm}" Margin="0,0,6,6"
                                         FontSize="{StaticResource TextBody}" Padding="11,5"
                                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                         Command="{Binding ChangeStatusCommand}"
                                         CommandParameter="Confirmed"
                                         IsEnabled="{Binding SelectedInquiry.CanConfirmWorkflow}"/>
-                                <Button Content="Hold" Margin="0,0,6,6"
+                                <Button Content="{DynamicResource Inquiry.Hold}" Margin="0,0,6,6"
                                         FontSize="{StaticResource TextBody}" Padding="11,5"
                                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                         Command="{Binding ChangeStatusCommand}"
                                         CommandParameter="Hold"
                                         IsEnabled="{Binding SelectedInquiry.CanHoldWorkflow}"/>
-                                <Button Content="Cancel" Margin="0,0,0,6"
+                                <Button Content="{DynamicResource Action.Cancel}" Margin="0,0,0,6"
                                         FontSize="{StaticResource TextBody}" Padding="11,5"
                                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                         Command="{Binding ChangeStatusCommand}"
@@ -1385,7 +1385,7 @@
                                         IsEnabled="{Binding SelectedInquiry.CanCancelWorkflow}"/>
                             </WrapPanel>
                             <Button Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                    Content="CONVERT TO PROFORMA INVOICE"
+                                    Content="{DynamicResource Inquiry.ConvertProformaInvoice}"
                                     Margin="0,6,0,0"
                                     HorizontalAlignment="Stretch"
                                     HorizontalContentAlignment="Center"
@@ -1411,18 +1411,18 @@
                 <Button MinWidth="80" Margin="0,0,8,0"
                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                         Command="{Binding PreviousPageCommand}"
-                        Content="◀ PREV"/>
+                        Content="{DynamicResource Inquiry.PREV}"/>
                 <TextBlock VerticalAlignment="Center" Margin="0,0,8,0" FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}">
-                    <Run Text="Page "/>
+                    <Run Text="{DynamicResource Inquiry.Page}"/>
                     <Run Text="{Binding CurrentPage, Mode=OneWay}"/>
-                    <Run Text=" of "/>
+                    <Run Text="{DynamicResource Inquiry.Of}"/>
                     <Run Text="{Binding TotalPages, Mode=OneWay}"/>
                 </TextBlock>
                 <Button MinWidth="80"
                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                         Command="{Binding NextPageCommand}"
-                        Content="NEXT ▶"/>
+                        Content="{DynamicResource Inquiry.NEXT}"/>
             </StackPanel>
         </Grid>
     </Grid>

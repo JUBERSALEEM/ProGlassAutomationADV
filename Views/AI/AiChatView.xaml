@@ -276,7 +276,7 @@
                         <StackPanel Grid.Column="1"
                                     Margin="12,0,0,0"
                                     VerticalAlignment="Center">
-                            <TextBlock Text="ProGlass AI"
+                            <TextBlock Text="{DynamicResource AI.ProglassAI}"
                                        FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                        Foreground="White"
                                        IsHitTestVisible="False"/>
@@ -290,13 +290,13 @@
                         <Button Grid.Column="2"
                                 Style="{StaticResource ChatIconBtn}"
                                 Content="&#xE74D;"
-                                ToolTip="Clear chat"
+                                ToolTip="{DynamicResource AI.ClearChat}"
                                 Command="{Binding ClearChatCommand}"/>
 
                         <Button Grid.Column="3"
                                 Style="{StaticResource ChatIconBtn}"
                                 Content="&#xE711;"
-                                ToolTip="Close"
+                                ToolTip="{DynamicResource Action.Close}"
                                 Margin="6,0,0,0"
                                 Command="{Binding CloseChatCommand}"/>
                     </Grid>
@@ -334,14 +334,14 @@
                                        IsHitTestVisible="False"/>
                         </Border>
 
-                        <TextBlock Text="Hello! I'm ProGlass AI"
+                        <TextBlock Text="{DynamicResource AI.HelloIMProglassAI}"
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    HorizontalAlignment="Center"
                                    Margin="0,16,0,4"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    IsHitTestVisible="False"/>
 
-                        <TextBlock Text="Ask me about glass production, invoices, job orders, or your business data."
+                        <TextBlock Text="{DynamicResource AI.AskAboutGlassProductionInvoicesJobOrders}"
                                    FontSize="{StaticResource TextBody}"
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"
@@ -349,7 +349,7 @@
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    IsHitTestVisible="False"/>
 
-                        <TextBlock Text="TRY ASKING"
+                        <TextBlock Text="{DynamicResource AI.TRYAsking}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    HorizontalAlignment="Center"
                                    Margin="0,20,0,8"
@@ -426,7 +426,7 @@
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                IsHitTestVisible="False">
                                                         <Run Text="{Binding ProviderIcon, Mode=OneWay}"/>
-                                                        <Run Text=" via "/>
+                                                        <Run Text="{DynamicResource AI.Via}"/>
                                                         <Run Text="{Binding ProviderName, Mode=OneWay}"/>
                                                         <Run Text=" · "/>
                                                         <Run Text="{Binding TimeLabel, Mode=OneWay}"/>
@@ -600,7 +600,7 @@
                                     Background="Transparent"
                                     BorderThickness="0" Cursor="Hand"
                                     Foreground="{DynamicResource MutedForegroundBrush}"
-                                    ToolTip="Stop generating"
+                                    ToolTip="{DynamicResource AI.StopGenerating}"
                                     VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -700,7 +700,7 @@
                         <!-- Speaker toggle -->
                         <Button Grid.Column="0"
                                 Command="{Binding ToggleSpeakerCommand}"
-                                ToolTip="Toggle voice responses"
+                                ToolTip="{DynamicResource AI.ToggleVoiceResponses}"
                                 Width="36" Height="36"
                                 Cursor="Hand"
                                 BorderThickness="0"
@@ -834,7 +834,7 @@
                             </Ellipse>
 
                             <Button Command="{Binding VoiceInputCommand}"
-                                    ToolTip="Voice input (click to speak, click again to stop)"
+                                    ToolTip="{DynamicResource AI.VoiceInputClickSpeakClickAgainStop}"
                                     Width="36" Height="36"
                                     Cursor="Hand"
                                     BorderThickness="0"
@@ -924,7 +924,7 @@
                         <Button Grid.Column="3"
                                 Style="{StaticResource SendBtn}"
                                 Command="{Binding SendCommand}"
-                                ToolTip="Send (Enter)"/>
+                                ToolTip="{DynamicResource AI.SendEnter}"/>
                     </Grid>
                 </Border>
 

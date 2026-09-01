@@ -49,8 +49,8 @@
                 <Border Style="{StaticResource PiStationIdentityStyle}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="09" Style="{StaticResource PiStationCodeStyle}"/>
-                        <TextBlock Text="PROFIT &amp; LOSS" Style="{StaticResource PiStationTitleStyle}"/>
-                        <TextBlock Text="Wastage, sheet cost and quoted rate check"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.ProfitLOSS}" Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.WastageSheetCostQuotedRateCheck}"
                                    Style="{StaticResource PiStationHintStyle}"/>
                     </StackPanel>
                 </Border>
@@ -65,25 +65,25 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="WASTAGE %" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.Wastage2}" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding WastagePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource PlInputStyle}"
-                                 ToolTip="Cutting allowance added to the required area before sheets are rounded up"/>
+                                 ToolTip="{DynamicResource ProformaInvoice.CuttingAllowanceAddedRequiredAreaBefore}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2" Orientation="Horizontal"
                                 VerticalAlignment="Bottom" Margin="0,0,0,8">
                         <ToggleButton Style="{StaticResource PiToggleSwitch}"
                                       IsChecked="{Binding CostAtSellingPrice}"
-                                      ToolTip="Off = Sheet Store purchase price. On = selling price matching Step 4 base rates."
+                                      ToolTip="{DynamicResource ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching}"
                                       AutomationProperties.Name="Cost glass at selling price"/>
-                        <TextBlock Text="Cost glass at SELLING price"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.CostGlassSellingPrice}"
                                    FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    VerticalAlignment="Center"
                                    Margin="10,0,0,0"/>
                     </StackPanel>
                     <Button Grid.Column="4"
-                            Content="RECALCULATE"
+                            Content="{DynamicResource ProformaInvoice.Recalculate}"
                             Command="{Binding RecalculateCommand}"
                             Style="{StaticResource PiFooterPrimaryButton}"
                             VerticalAlignment="Bottom"/>
@@ -109,37 +109,37 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="GROSS VAT INCL" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.GrossVATINCL}" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding GrossDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="NET ÷ 1.05" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.NET105}" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="GLASS COST" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.GlassCOST}" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding GlassCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="PRODUCTION · ASP · EXTRAS" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.ProductionASPExtras}" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding ProductionCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="COST-BASED PROFIT MARGIN" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.COSTBasedProfitMargin}" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding CostBasedMarginDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="5" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="PRICE-BASED PROFIT MARGIN" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.PriceBasedProfitMargin}" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding PriceBasedMarginDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
@@ -217,12 +217,12 @@
                                             <ColumnDefinition Width="110"/>
                                             <ColumnDefinition Width="110"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="KIND" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="1" Text="DESCRIPTION" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="2" Text="SHEET SIZE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.KIND}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="1" Text="{DynamicResource Common.Description}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.SheetSIZE}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
                                         <TextBlock Grid.Column="3" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                                        <TextBlock Grid.Column="4" Text="PRICE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                        <TextBlock Grid.Column="5" Text="AMOUNT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Price}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="5" Text="{DynamicResource Common.Amount}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
                                     </Grid>
                                 </Border>
 
@@ -274,7 +274,7 @@
                                         <ColumnDefinition Width="110"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Text="CHECK RATE / SQM"
+                                    <TextBlock Text="{DynamicResource ProformaInvoice.CheckRATESQM}"
                                                Style="{StaticResource PiFieldLabelStyle}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"/>
@@ -284,7 +284,7 @@
                                                     UpdateSourceTrigger=PropertyChanged}"
                                              behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                              Style="{StaticResource PlInputStyle}"
-                                             ToolTip="Type the rate you intend to quote. Mark-up is shown beside it."/>
+                                             ToolTip="{DynamicResource ProformaInvoice.TypeRateIntendQuoteMarkShownBeside}"/>
                                     <TextBlock Grid.Column="2"
                                                Text="{Binding RateCheckDisplay}"
                                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
@@ -312,7 +312,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <TextBlock Text="No costed lines yet. Press RECALCULATE once Step 5 has glass items."
+                <TextBlock Text="{DynamicResource ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5}"
                            FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="0,12,0,0"

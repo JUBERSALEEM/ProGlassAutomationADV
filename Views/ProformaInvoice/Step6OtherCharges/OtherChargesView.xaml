@@ -135,8 +135,8 @@
                 <Border Style="{StaticResource PiStationIdentityStyle}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="06" Style="{StaticResource PiStationCodeStyle}"/>
-                        <TextBlock Text="CHARGES" Style="{StaticResource PiStationTitleStyle}"/>
-                        <TextBlock Text="Predefined · wastage · custom — toggle ON to include"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.Charges}" Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Text="{DynamicResource ProformaInvoice.PredefinedWastageCustomToggleInclude}"
                                    Style="{StaticResource PiStationHintStyle}"/>
                     </StackPanel>
                 </Border>
@@ -150,7 +150,7 @@
                         <ToggleButton Style="{StaticResource PiToggleSwitch}"
                                       IsChecked="{Binding UseAdvancedAutomation, Mode=TwoWay}"
                                       AutomationProperties.Name="Advanced other-charge automation"/>
-                        <TextBlock Text="Advanced auto-charge mode"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.AdvancedAutoChargeMode}"
                                    FontSize="{StaticResource TextBody}"
                                    FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -165,7 +165,7 @@
                                VerticalAlignment="Center"
                                Margin="18,0,0,0"/>
                 </Grid>
-                <TextBlock Text="IMPORTED FROM DATA GRID"
+                <TextBlock Text="{DynamicResource ProformaInvoice.ImportedDATAGRID}"
                            Style="{StaticResource PiSectionLabelStyle}"
                            Margin="0,0,0,4"/>
 
@@ -181,14 +181,14 @@
                             <ColumnDefinition Width="0.6*"/>
                             <ColumnDefinition Width="1.2*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Text="SPEC" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="1" Text="LM1" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="LM2" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="3" Text="SQM1" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="SQM2" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Text="{DynamicResource DeliveryNote.SPEC}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.LM1}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.LM2}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource ProformaInvoice.SQM1}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource ProformaInvoice.SQM2}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
                         <TextBlock Grid.Column="5" Text="PCS" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="6" Text="PANES" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="7" Text="POLISH" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="6" Text="{DynamicResource ProformaInvoice.Panes}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="7" Text="{DynamicResource Nav.Polish}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
                     </Grid>
                 </Border>
 
@@ -265,7 +265,7 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <TextBlock Text="PREDEFINED CHARGES" Style="{StaticResource PiBandTitleStyle}" Margin="0,4,0,6"/>
+                <TextBlock Text="{DynamicResource ProformaInvoice.PredefinedCharges}" Style="{StaticResource PiBandTitleStyle}" Margin="0,4,0,6"/>
 
                 <Border Style="{StaticResource PiTableHeaderStyle}">
                     <Grid>
@@ -277,12 +277,12 @@
                             <ColumnDefinition Width="0.9*"/>
                             <ColumnDefinition Width="1.8*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="ON" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="1" Text="CHARGE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="2" Text="BASIS" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.Charge}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.Basis}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
                         <TextBlock Grid.Column="3" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="RATE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="5" Text="RESULT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="{DynamicResource ProformaInvoice.Result}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -332,7 +332,7 @@
                                         </StackPanel>
 
                                         <Grid Grid.Column="2" Margin="0,0,8,0">
-                                            <TextBlock Text="1 TRIP × Rate"
+                                            <TextBlock Text="{DynamicResource ProformaInvoice.1TRIPRate}"
                                                        FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        VerticalAlignment="Center">
@@ -405,7 +405,7 @@
                                                         <ScrollViewer VerticalScrollBarVisibility="Auto"
                                                                       HorizontalScrollBarVisibility="Disabled">
                                                             <StackPanel DataContext="{Binding TargetSelection}">
-                                                                <TextBlock Text="SELECT SPECS"
+                                                                <TextBlock Text="{DynamicResource ProformaInvoice.SelectSpecs}"
                                                                            Style="{StaticResource PiSectionLabelStyle}"/>
                                                                 <ItemsControl ItemsSource="{Binding AvailableSpecs}" Margin="0,0,0,12">
                                                                     <ItemsControl.ItemTemplate>
@@ -425,7 +425,7 @@
                                                                     </ItemsControl.ItemTemplate>
                                                                 </ItemsControl>
                                                                 <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,10"/>
-                                                                <TextBlock Text="SELECT METRIC"
+                                                                <TextBlock Text="{DynamicResource ProformaInvoice.SelectMetric}"
                                                                            Style="{StaticResource PiSectionLabelStyle}"/>
                                                                 <ListBox ItemsSource="{Binding AvailableMetrics}"
                                                                          SelectedItem="{Binding SelectedMetric, Mode=TwoWay}"
@@ -475,7 +475,7 @@
                                                                 <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                                            Foreground="{DynamicResource AccentBrush}"
                                                                            TextWrapping="Wrap">
-                                                                    <Run Text="RESULT: "/>
+                                                                    <Run Text="{DynamicResource ProformaInvoice.Result}"/>
                                                                     <Run Text="{Binding SummaryText, Mode=OneWay}"/>
                                                                 </TextBlock>
                                                             </StackPanel>
@@ -543,7 +543,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="90"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Text="CUSTOM"
+                                        <TextBlock Text="{DynamicResource ProformaInvoice.Custom}"
                                                    Style="{StaticResource PiFieldLabelStyle}"
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,8,0"/>
@@ -551,7 +551,7 @@
                                                  Text="{Binding CustomPolishDescription, UpdateSourceTrigger=PropertyChanged}"
                                                  Style="{StaticResource CustomInputStyle}"
                                                  Margin="0,0,12,0"/>
-                                        <TextBlock Grid.Column="2" Text="QTY (lm)"
+                                        <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.QTYLm}"
                                                    Style="{StaticResource PiFieldLabelStyle}"
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,8,0"/>
@@ -573,11 +573,11 @@
                     <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                HorizontalAlignment="Right">
-                        <Run Text="Wastage AED "/>
+                        <Run Text="{DynamicResource ProformaInvoice.WastageAED}"/>
                         <Run Text="{Binding WastagesSection.TotalWastageValue, Converter={StaticResource CurrencyConverter}, Mode=OneWay}"/>
-                        <Run Text="  ·  Custom AED "/>
+                        <Run Text="{DynamicResource ProformaInvoice.CustomAED}"/>
                         <Run Text="{Binding CustomChargesSection.TotalCustomChargesValue, Converter={StaticResource CurrencyConverter}, Mode=OneWay}"/>
-                        <Run Text="  ·  Combined "/>
+                        <Run Text="{DynamicResource ProformaInvoice.Combined}"/>
                         <Run Text="{Binding TotalOtherCharges, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix, Mode=OneWay}"
                              FontWeight="Bold"
                              Foreground="{DynamicResource SuccessBrush}"/>

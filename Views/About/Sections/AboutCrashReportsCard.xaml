@@ -68,9 +68,9 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Recent crash reports"
+                    <TextBlock Text="{DynamicResource About.Crash}"
                                Style="{StaticResource SectionTitleStyle}"/>
-                    <TextBlock Text="The last 10 locally stored crash files. Share the error ID with support."
+                    <TextBlock Text="{DynamicResource About.Last10LocallyStoredCrashFilesShareErrorID}"
                                Style="{StaticResource SectionSubtitleStyle}"
                                Margin="0,0,0,0"/>
                 </StackPanel>
@@ -81,22 +81,22 @@
                             HorizontalAlignment="Right"
                             Margin="0,0,0,10">
                         <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
-                            <Run Text="REPORTS  "/>
+                            <Run Text="{DynamicResource Module.Reports}"/>
                             <Run Text="{Binding Reports.Count, Mode=OneWay}"/>
                         </TextBlock>
                     </Border>
                     <WrapPanel HorizontalAlignment="Right">
                         <Button Style="{StaticResource AboutPillButtonStyle}"
-                                Content="REFRESH"
+                                Content="{DynamicResource Action.Refresh}"
                                 Margin="0,0,8,0"
                                 Click="RefreshButton_Click"/>
                         <Button Style="{StaticResource AboutPillButtonStyle}"
-                                Content="OPEN FOLDER"
+                                Content="{DynamicResource About.OPENFolder}"
                                 Margin="0,0,8,0"
                                 Click="OpenFolderButton_Click"/>
                         <Button x:Name="ClearAllButton"
                                 Style="{StaticResource AboutPillButtonStyle}"
-                                Content="CLEAR ALL"
+                                Content="{DynamicResource About.Clear}"
                                 Foreground="{DynamicResource LiquidMuted}"
                                 Click="ClearAllButton_Click"/>
                     </WrapPanel>
@@ -112,9 +112,9 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="WHAT THIS CARD SHOWS"
+                        <TextBlock Text="{DynamicResource About.WHATCARDShows}"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
-                        <TextBlock Text="Only the most recent crash files are surfaced here. Open any report to inspect the full exception text and stack details stored on disk."
+                        <TextBlock Text="{DynamicResource About.MostRecentCrashFilesSurfacedHereOpenReport}"
                                    Style="{StaticResource AboutPanelTextStyle}"/>
                     </StackPanel>
 
@@ -122,9 +122,9 @@
                             Style="{StaticResource AboutCodeStripStyle}"
                             Margin="0,0,0,0">
                         <StackPanel>
-                            <TextBlock Text="SUPPORT ACTION"
+                            <TextBlock Text="{DynamicResource About.SupportAction}"
                                        Style="{StaticResource InfoLabelStyle}"/>
-                            <TextBlock Text="Share the error ID first, then send the report file when support asks for the full trace."
+                            <TextBlock Text="{DynamicResource About.ShareErrorIDFirstThenSendReportFileWhen}"
                                        Style="{StaticResource InfoValueStyle}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"/>
@@ -153,11 +153,11 @@
                                         </Grid.RowDefinitions>
 
                                         <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="0">
-                                            <TextBlock Text="RECORDED"
+                                            <TextBlock Text="{DynamicResource About.Recorded}"
                                                        Style="{StaticResource CrashMetaLabelStyle}"/>
                                             <TextBlock Text="{Binding TimestampDisplay}"
                                                        Style="{StaticResource CrashMetaValueStyle}"/>
-                                            <TextBlock Text="FILE SIZE"
+                                            <TextBlock Text="{DynamicResource About.FILESIZE}"
                                                        Style="{StaticResource CrashMetaLabelStyle}"
                                                        Margin="0,14,0,0"/>
                                             <TextBlock Text="{Binding SizeDisplay}"
@@ -193,11 +193,11 @@
                                         <StackPanel Grid.Row="0" Grid.RowSpan="2" Grid.Column="4"
                                                     VerticalAlignment="Center">
                                             <Button Style="{StaticResource AboutPillButtonStyle}"
-                                                    Content="OPEN"
+                                                    Content="{DynamicResource Action.Open}"
                                                     Click="OpenFileButton_Click"
                                                     Tag="{Binding FilePath}"
                                                     VerticalAlignment="Center"/>
-                                            <TextBlock Text="TEXT FILE"
+                                            <TextBlock Text="{DynamicResource About.TEXTFILE}"
                                                        Style="{StaticResource CrashMetaLabelStyle}"
                                                        HorizontalAlignment="Center"
                                                        Margin="0,8,0,0"/>
@@ -212,10 +212,10 @@
                             Margin="0,2,0,0"
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="NO CRASH REPORTS ON DISK"
+                            <TextBlock Text="{DynamicResource About.NOCrashReportsDISK}"
                                        Style="{StaticResource InfoLabelStyle}"
                                        HorizontalAlignment="Center"/>
-                            <TextBlock Text="The support log area is currently clean. New crash files will appear here automatically if the app records another failure."
+                            <TextBlock Text="{DynamicResource About.SupportLogAreaCurrentlyCleanNewCrashFiles}"
                                        Style="{StaticResource InfoValueStyle}"
                                        TextAlignment="Center"
                                        TextWrapping="Wrap"

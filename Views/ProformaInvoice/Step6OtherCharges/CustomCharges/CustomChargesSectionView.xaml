@@ -32,7 +32,7 @@
     </UserControl.Resources>
 
     <StackPanel>
-        <TextBlock Text="CUSTOM CHARGES" Style="{StaticResource PiBandTitleStyle}"/>
+        <TextBlock Text="{DynamicResource ProformaInvoice.CustomCharges}" Style="{StaticResource PiBandTitleStyle}"/>
 
         <Border Style="{StaticResource PiTableHeaderStyle}">
             <Grid>
@@ -45,12 +45,12 @@
                     <ColumnDefinition Width="180"/>
                     <ColumnDefinition Width="36"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="ON" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="1" Text="CHARGE NAME" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.ON}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.ChargeNAME}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
                 <TextBlock Grid.Column="2" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="3" Text="UNIT" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="4" Text="RATE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="5" Text="AMOUNT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="3" Text="{DynamicResource Common.Unit}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="4" Text="{DynamicResource Common.Rate}" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="5" Text="{DynamicResource Common.Amount}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
             </Grid>
         </Border>
 
@@ -111,7 +111,7 @@
                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     CommandParameter="{Binding}"
                                     Style="{StaticResource PiIconButtonStyle}"
-                                    ToolTip="Remove charge">
+                                    ToolTip="{DynamicResource ProformaInvoice.RemoveCharge}">
                                 <TextBlock Text="&#xE711;"
                                            FontFamily="Segoe MDL2 Assets"
                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
@@ -136,7 +136,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel>
-                <TextBlock Text="CHARGE NAME" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource ProformaInvoice.ChargeNAME}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <TextBox Text="{Binding InputName, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource FormInputStyle}"/>
             </StackPanel>
@@ -152,14 +152,14 @@
                 </TextBox>
             </StackPanel>
             <StackPanel Grid.Column="4">
-                <TextBlock Text="UNIT" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Common.Unit}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <ComboBox ItemsSource="{Binding UnitOptions}"
                           SelectedItem="{Binding InputUnit}"
                           Style="{StaticResource PiComboBoxStyle}"
                           Height="28"/>
             </StackPanel>
             <StackPanel Grid.Column="6">
-                <TextBlock Text="RATE" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
+                <TextBlock Text="{DynamicResource Common.Rate}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
                 <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
                          Style="{StaticResource FormNumericInputStyle}">
                     <TextBox.Text>
@@ -175,7 +175,7 @@
                     Height="28"
                     MinWidth="72"
                     VerticalAlignment="Bottom"
-                    Content="ADD"/>
+                    Content="{DynamicResource Action.Add}"/>
         </Grid>
     </StackPanel>
 </UserControl>

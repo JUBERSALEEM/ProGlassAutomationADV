@@ -3,7 +3,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Save Attachment As"
+        Title="{DynamicResource DeliveryNote.SaveAttachment}"
         Width="560"
         Height="400"
         WindowStartupLocation="CenterOwner"
@@ -152,7 +152,7 @@
                         Margin="0,4,4,0"
                         VerticalAlignment="Top"
                         Click="OnCancelClick"
-                        ToolTip="Close (Esc)"/>
+                        ToolTip="{DynamicResource DeliveryNote.CloseEsc}"/>
             </Grid>
 
             <!-- ── HEADER (icon + title + subtitle) ───────────────────── -->
@@ -177,10 +177,10 @@
                     </Border>
 
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Save Attachment As"
+                        <TextBlock Text="{DynamicResource DeliveryNote.SaveAttachment}"
                                    FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="Give it a meaningful name — extension stays the same."
+                        <TextBlock Text="{DynamicResource DeliveryNote.GiveMeaningfulNameExtensionStays}"
                                    FontSize="{StaticResource TextBody}"
                                    Margin="0,2,0,0"
                                    TextTrimming="CharacterEllipsis"
@@ -244,14 +244,14 @@
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right">
                     <Button Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE711;" Content="CANCEL"
+                            Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
                             Margin="0,0,10,0"
-                            ToolTip="Close without saving"
+                            ToolTip="{DynamicResource DeliveryNote.CloseWithoutSaving}"
                             Click="OnCancelClick"
                             IsCancel="True"/>
                     <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE74E;" Content="SAVE"
-                            ToolTip="Save the new file name"
+                            Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
+                            ToolTip="{DynamicResource DeliveryNote.SaveNewFileName}"
                             Click="OnSaveClick"
                             IsDefault="True"/>
                 </StackPanel>

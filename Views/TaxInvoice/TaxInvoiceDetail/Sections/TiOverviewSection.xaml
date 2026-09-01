@@ -37,7 +37,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="TAX INVOICE"
+                        <TextBlock Text="{DynamicResource Module.TaxInvoice}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock Text="{Binding CustomerName}"
@@ -76,7 +76,7 @@
                      always shows (it anchors the invoice). -->
                 <WrapPanel Margin="0,0,0,14">
                     <StackPanel MinWidth="180" MaxWidth="260" Margin="0,0,12,12">
-                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="ISSUE DATE"/>
+                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="{DynamicResource ProformaInvoice.IssueDATE}"/>
                         <DatePicker SelectedDate="{Binding IssueDate}"
                                     FontSize="{StaticResource TextBody}" Height="{DynamicResource DensityInputHeight}"/>
                     </StackPanel>
@@ -84,7 +84,7 @@
                                 Visibility="{Binding Path=ShowDueDate,
                                     Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="DUE DATE"/>
+                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="{DynamicResource Reports.TaxInvoiceReport.DUEDATE}"/>
                         <DatePicker SelectedDate="{Binding DueDate}"
                                     FontSize="{StaticResource TextBody}" Height="{DynamicResource DensityInputHeight}"/>
                     </StackPanel>
@@ -92,7 +92,7 @@
                                 Visibility="{Binding Path=ShowPaymentTerms,
                                     Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="PAYMENT TERMS"/>
+                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="{DynamicResource Settings.PaymentTerms}"/>
                         <ComboBox ItemsSource="{Binding PaymentTermsOptions}"
                                   SelectedItem="{Binding PaymentTerms}"
                                   FontSize="{StaticResource TextBody}" Height="{DynamicResource DensityInputHeight}"/>
@@ -101,7 +101,7 @@
                                 Visibility="{Binding Path=ShowDiscountPercent,
                                     Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="DISCOUNT %"/>
+                        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="{DynamicResource Settings.Discount}"/>
                         <TextBox Text="{Binding DiscountPercent,
                                        UpdateSourceTrigger=PropertyChanged,
                                        StringFormat={}{0:0.##}}"
@@ -122,7 +122,7 @@
                             MinHeight="0" Padding="14,12">
                         <StackPanel>
                             <TextBlock Style="{StaticResource InvoicePartyLabelStyle}"
-                                       Text="FROM  ·  SUPPLIER"/>
+                                       Text="{DynamicResource TaxInvoice.Supplier}"/>
                             <TextBlock Text="{Binding CompanyName}"
                                        Style="{StaticResource InvoicePartyValueStyle}"/>
                             <TextBlock Margin="0,6,0,0" FontSize="{StaticResource TextBody}"
@@ -142,7 +142,7 @@
                             MinHeight="0" Padding="14,12">
                         <StackPanel>
                             <TextBlock Style="{StaticResource InvoicePartyLabelStyle}"
-                                       Text="BILL TO  ·  CUSTOMER"/>
+                                       Text="{DynamicResource TaxInvoice.BILLCustomer}"/>
                             <TextBlock Text="{Binding CustomerName}"
                                        Style="{StaticResource InvoicePartyValueStyle}"/>
                             <Grid Margin="0,6,0,0">
@@ -156,7 +156,7 @@
                                 <TextBox Grid.Column="1"
                                          Text="{Binding CustomerTrn, UpdateSourceTrigger=PropertyChanged}"
                                          FontSize="{StaticResource TextBody}"
-                                         ToolTip="Required on a full UAE tax invoice when the buyer is VAT-registered"/>
+                                         ToolTip="{DynamicResource TaxInvoice.RequiredFullUAETaxInvoiceWhenBuyerVAT}"/>
                             </Grid>
                             <TextBlock Text="{Binding CustomerAddress}"
                                        FontSize="{StaticResource TextBody}"
@@ -211,7 +211,7 @@
                     </Border>
                     <Border Style="{StaticResource InvoiceMetaChipStyle}">
                         <TextBlock FontSize="{StaticResource TextBody}">
-                            <Run Text="SITE  " FontWeight="Bold"
+                            <Run Text="{DynamicResource ProformaInvoice.SITE}" FontWeight="Bold"
                                  Foreground="{DynamicResource MutedForegroundBrush}"/>
                             <Run Text="{Binding SiteDeliveryLocation, Mode=OneWay}"
                                  FontWeight="SemiBold"
@@ -232,14 +232,14 @@
                          turned OFF in Settings ► Features ► Tax Invoice. -->
                     <WrapPanel>
                         <StackPanel MinWidth="180" MaxWidth="280" Margin="0,0,12,12">
-                            <TextBlock Style="{StaticResource FieldLabelStyle}" Text="BANK"/>
+                            <TextBlock Style="{StaticResource FieldLabelStyle}" Text="{DynamicResource ProformaInvoice.BANK}"/>
                             <TextBlock Text="{Binding BankName}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                         <StackPanel MinWidth="180" MaxWidth="280" Margin="0,0,12,12">
-                            <TextBlock Style="{StaticResource FieldLabelStyle}" Text="ACCOUNT NO"/>
+                            <TextBlock Style="{StaticResource FieldLabelStyle}" Text="{DynamicResource TaxInvoice.AccountNO}"/>
                             <TextBlock Text="{Binding BankAccountNumber}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -249,7 +249,7 @@
                                     Visibility="{Binding Path=ShowIban,
                                         Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
                                         Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Style="{StaticResource FieldLabelStyle}" Text="IBAN"/>
+                            <TextBlock Style="{StaticResource FieldLabelStyle}" Text="{DynamicResource Settings.IBAN}"/>
                             <TextBox Text="{Binding Iban, UpdateSourceTrigger=PropertyChanged}"
                                      FontSize="{StaticResource TextBody}"/>
                         </StackPanel>
@@ -257,7 +257,7 @@
                                     Visibility="{Binding Path=ShowSwiftCode,
                                         Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
                                         Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Style="{StaticResource FieldLabelStyle}" Text="SWIFT"/>
+                            <TextBlock Style="{StaticResource FieldLabelStyle}" Text="{DynamicResource Settings.Swift}"/>
                             <TextBox Text="{Binding SwiftCode, UpdateSourceTrigger=PropertyChanged}"
                                      FontSize="{StaticResource TextBody}"/>
                         </StackPanel>
@@ -280,7 +280,7 @@
                             <TextBlock Text="{Binding SubtotalDisplay}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="SUBTOTAL" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Text="{DynamicResource TaxInvoice.Subtotal}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        HorizontalAlignment="Center" Margin="0,2,0,0"
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
@@ -290,7 +290,7 @@
                             <TextBlock Text="{Binding VatDisplay}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="VAT 5%" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Text="{DynamicResource TaxInvoice.VAT5}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        HorizontalAlignment="Center" Margin="0,2,0,0"
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
@@ -301,7 +301,7 @@
                             <TextBlock Text="{Binding DiscountAmountDisplay}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Foreground="{DynamicResource WarningBrush}"/>
-                            <TextBlock Text="DISCOUNT" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Text="{DynamicResource ProformaInvoice.Discount}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        HorizontalAlignment="Center" Margin="0,2,0,0"
                                        Foreground="{DynamicResource WarningBrush}"/>
                         </StackPanel>
@@ -312,7 +312,7 @@
                             <TextBlock Text="{Binding GrandTotalDisplay}" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Foreground="{DynamicResource SuccessBrush}"/>
-                            <TextBlock Text="GRAND TOTAL" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                            <TextBlock Text="{DynamicResource ProformaInvoice.GrandTotal}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        HorizontalAlignment="Center" Margin="0,2,0,0"
                                        Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
@@ -334,15 +334,15 @@
                         <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}">
                             <Run Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets"/>
-                            <Run Text="  GLASS ITEMS"/>
+                            <Run Text="{DynamicResource TaxInvoice.GlassItems}"/>
                         </TextBlock>
-                        <TextBlock Text="Qty and rate from the delivery. SQM and value follow the PI grid."
+                        <TextBlock Text="{DynamicResource TaxInvoice.QtyRateDeliverySQMValueFollowPIGrid}"
                                    FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
                     <Button Grid.Column="1"
                             Style="{StaticResource RowOutlinedButton}"
-                            Tag="&#xE710;" Content="ADD SPEC GROUP"
+                            Tag="&#xE710;" Content="{DynamicResource TaxInvoice.ADDSPECGroup}"
                             Command="{Binding AddSpecGroupCommand}"
                             VerticalAlignment="Center"/>
                 </Grid>
@@ -361,11 +361,11 @@
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="36"
                                    HorizontalAlignment="Center" Opacity="0.3"/>
-                        <TextBlock Text="No glass items yet"
+                        <TextBlock Text="{DynamicResource TaxInvoice.NoGlassItemsYet}"
                                    FontSize="{StaticResource TextSubhead}" FontWeight="SemiBold"
                                    HorizontalAlignment="Center" Margin="0,10,0,4"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="Items import from the Proforma when you create the invoice from a DN."
+                        <TextBlock Text="{DynamicResource TaxInvoice.ItemsImportProformaWhenCreateInvoiceDN}"
                                    FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
@@ -410,7 +410,7 @@
                                                          VerticalContentAlignment="Center"/>
                                                 <StackPanel Grid.Column="2" Orientation="Horizontal"
                                                             VerticalAlignment="Center" Margin="12,0,0,0">
-                                                    <TextBlock Text="Rate/SQM  "
+                                                    <TextBlock Text="{DynamicResource TaxInvoice.RateSQM}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                VerticalAlignment="Center"/>
@@ -423,12 +423,12 @@
                                                 </StackPanel>
                                                 <Button Grid.Column="3"
                                                         Style="{StaticResource RowOutlinedButton}"
-                                                        Tag="&#xE710;" Content="ROW"
+                                                        Tag="&#xE710;" Content="{DynamicResource TaxInvoice.ROW}"
                                                         Command="{Binding AddRowCommand}"
                                                         Margin="12,0,6,0"/>
                                                 <Button Grid.Column="4"
                                                         Style="{StaticResource RowDangerButton}"
-                                                        Tag="&#xE74D;" Content="GROUP"
+                                                        Tag="&#xE74D;" Content="{DynamicResource TaxInvoice.Group}"
                                                         Command="{Binding DataContext.RemoveSpecGroupCommand,
                                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
@@ -459,7 +459,7 @@
                                                 <TextBlock Grid.Column="0" Text="#"
                                                            Style="{StaticResource GridHeaderCell}"
                                                            HorizontalAlignment="Center" TextAlignment="Center"/>
-                                                <TextBlock Grid.Column="1" Text="GLASS REF"
+                                                <TextBlock Grid.Column="1" Text="{DynamicResource DeliveryNote.GlassRef}"
                                                            Style="{StaticResource GridHeaderCell}"/>
                                                 <TextBlock Grid.Column="2" Text="W1"
                                                            Style="{StaticResource GridHeaderCell}"
@@ -479,13 +479,13 @@
                                                 <TextBlock Grid.Column="7" Text="SQM"
                                                            Style="{StaticResource GridHeaderCell}"
                                                            HorizontalAlignment="Center" TextAlignment="Center"/>
-                                                <TextBlock Grid.Column="8" Text="TOTAL SQM"
+                                                <TextBlock Grid.Column="8" Text="{DynamicResource DeliveryNote.TotalSQM}"
                                                            Style="{StaticResource GridHeaderCell}"
                                                            HorizontalAlignment="Center" TextAlignment="Center"/>
-                                                <TextBlock Grid.Column="9" Text="RATE"
+                                                <TextBlock Grid.Column="9" Text="{DynamicResource Common.Rate}"
                                                            Style="{StaticResource GridHeaderCell}"
                                                            HorizontalAlignment="Center" TextAlignment="Center"/>
-                                                <TextBlock Grid.Column="10" Text="VALUE"
+                                                <TextBlock Grid.Column="10" Text="{DynamicResource Inquiry.Value}"
                                                            Style="{StaticResource GridHeaderCell}"
                                                            HorizontalAlignment="Right" TextAlignment="Right"/>
                                             </Grid>
@@ -564,7 +564,7 @@
                                                             <Button Grid.Column="11"
                                                                     Style="{StaticResource RowDangerButton}"
                                                                     Tag="&#xE74D;" MinWidth="28"
-                                                                    ToolTip="Remove row"
+                                                                    ToolTip="{DynamicResource TaxInvoice.RemoveRow}"
                                                                     Command="{Binding DataContext.RemoveRowCommand,
                                                                               RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                     CommandParameter="{Binding}"
@@ -595,7 +595,7 @@
                                                     <ColumnDefinition Width="1.15*"/>
                                                     <ColumnDefinition Width="32"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="1" Text="GROUP TOTAL"
+                                                <TextBlock Grid.Column="1" Text="{DynamicResource TaxInvoice.GroupTotal}"
                                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                            VerticalAlignment="Center"
                                                            Foreground="{DynamicResource AccentBrush}"/>

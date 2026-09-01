@@ -169,17 +169,17 @@
                                 CornerRadius="3"
                                 VerticalAlignment="Center"
                                 Margin="0,0,12,0"/>
-                        <TextBlock Text="STEP 3 OF 4"
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.STEP34}"
                                    FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource IndigoPrimary}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
-                    <TextBlock Text="Execute Pipeline"
+                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.ExecutePipeline}"
                                FontSize="{StaticResource TextDisplayLarge}"
                                FontWeight="Bold"
                                Foreground="{StaticResource TextPrimary}"/>
-                    <TextBlock Text="8-step workflow processing your data in real-time. Watch each step complete and review the live output below."
+                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.8StepWorkflowProcessingDataRealTimeWatchStep}"
                                FontSize="{StaticResource TextSection}"
                                Foreground="{StaticResource TextSecondary}"
                                TextWrapping="Wrap"
@@ -270,7 +270,7 @@
                                        FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{StaticResource MetricOrdered}"
                                        HorizontalAlignment="Center"/>
-                            <TextBlock Text="Ordered"
+                            <TextBlock Text="{DynamicResource Common.Ordered}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextSecondary}"
                                        HorizontalAlignment="Center"
@@ -284,7 +284,7 @@
                                        FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{StaticResource MetricDelivered}"
                                        HorizontalAlignment="Center"/>
-                            <TextBlock Text="Delivered"
+                            <TextBlock Text="{DynamicResource Common.Delivered}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextSecondary}"
                                        HorizontalAlignment="Center"
@@ -298,7 +298,7 @@
                                        FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{StaticResource MetricBalance}"
                                        HorizontalAlignment="Center"/>
-                            <TextBlock Text="Balance"
+                            <TextBlock Text="{DynamicResource Common.Balance}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextSecondary}"
                                        HorizontalAlignment="Center"
@@ -312,7 +312,7 @@
                                        FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{StaticResource MetricRate}"
                                        HorizontalAlignment="Center"/>
-                            <TextBlock Text="Rate"
+                            <TextBlock Text="{DynamicResource Common.Rate}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextSecondary}"
                                        HorizontalAlignment="Center"
@@ -341,7 +341,7 @@
                                     VerticalAlignment="Center"
                                     Margin="0,0,12,0"
                                     Background="{StaticResource IndigoPrimary}"/>
-                            <TextBlock Text="PIPELINE STEPS"
+                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.PipelineSteps}"
                                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{StaticResource IndigoPrimary}"
                                        VerticalAlignment="Center"/>
@@ -369,7 +369,7 @@
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                 <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                            Foreground="{StaticResource TextPrimary}">
-                                                    <Run Text="Step "/>
+                                                    <Run Text="{DynamicResource Reports.StatementGenerator.Step}"/>
                                                     <Run Text="{Binding Order, Mode=OneWay}"/>
                                                     <Run Text=" · "/>
                                                     <Run Text="{Binding Title, Mode=OneWay}"/>
@@ -410,7 +410,7 @@
                                          VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <Ellipse Width="9" Height="9" Fill="{DynamicResource SuccessBrush}"
                                          VerticalAlignment="Center" Margin="0,0,14,0"/>
-                                <TextBlock Text="PROCESSING LOG"
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.ProcessingLOG}"
                                            FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{StaticResource TerminalTitle}"
                                            VerticalAlignment="Center"/>
@@ -469,7 +469,7 @@
                                     Margin="0,0,12,0"
                                     Background="{StaticResource AmberAccent}"/>
                             <TextBlock Grid.Column="1"
-                                       Text="WARNINGS &amp; ALERTS"
+                                       Text="{DynamicResource Reports.StatementGenerator.WarningsAlerts}"
                                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{StaticResource AmberAccent}"
                                        VerticalAlignment="Center"/>
@@ -537,7 +537,7 @@
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="8,3" Margin="0,0,8,0">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="Ordered " FontSize="{StaticResource TextCaption}"
+                                                            <TextBlock Text="{DynamicResource Common.Ordered}" FontSize="{StaticResource TextCaption}"
                                                                        Foreground="{StaticResource TextMuted}"/>
                                                             <TextBlock Text="{Binding OrderedText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                        Foreground="{StaticResource TextPrimary}"/>
@@ -547,7 +547,7 @@
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="8,3" Margin="0,0,8,0">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="Delivered " FontSize="{StaticResource TextCaption}"
+                                                            <TextBlock Text="{DynamicResource Common.Delivered}" FontSize="{StaticResource TextCaption}"
                                                                        Foreground="{StaticResource TextMuted}"/>
                                                             <TextBlock Text="{Binding DeliveredText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                        Foreground="{DynamicResource SuccessBrush}"/>
@@ -557,7 +557,7 @@
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="8,3">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="Diff " FontSize="{StaticResource TextCaption}"
+                                                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.Diff}" FontSize="{StaticResource TextCaption}"
                                                                        Foreground="{StaticResource TextMuted}"/>
                                                             <TextBlock Text="{Binding DifferenceText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                        Foreground="{DynamicResource DangerBrush}"/>

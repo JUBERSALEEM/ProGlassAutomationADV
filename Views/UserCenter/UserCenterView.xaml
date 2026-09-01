@@ -68,10 +68,10 @@
                                Margin="0,0,12,0"
                                Foreground="{DynamicResource WarningBrush}"/>
                     <StackPanel>
-                        <TextBlock Text="Default administrator password is still in use"
+                        <TextBlock Text="{DynamicResource UserCenter.DefaultAdministratorPasswordStillUse}"
                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
-                        <TextBlock Text="The seeded 'admin' account still uses its default password. Anyone who opens this app has full administrator rights. Change it below."
+                        <TextBlock Text="{DynamicResource UserCenter.SeededAdminAccountStillUsesDefaultPassword}"
                                    FontSize="{StaticResource TextBody}" Margin="0,3,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -82,18 +82,18 @@
             <!-- HEADER -->
             <DockPanel Margin="0,0,0,18">
                 <StackPanel>
-                    <TextBlock Text="User Center"
+                    <TextBlock Text="{DynamicResource Module.UserCenter}"
                                FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}">
-                        <Run Text="Signed in as"/>
+                        <Run Text="{DynamicResource Shell.UserHint}"/>
                         <Run Text="{Binding CurrentUserName, Mode=OneWay}" FontWeight="Bold"/>
-                        <Run Text=" — the active user signs audit entries and fills 'Document Prepared By'."/>
+                        <Run Text="{DynamicResource UserCenter.ActiveUserSignsAuditEntriesFillsDocument}"/>
                     </TextBlock>
                 </StackPanel>
                 <Button Style="{StaticResource OutlinedPillButton}"
-                        Tag="&#xE72C;" Content="REFRESH"
+                        Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
                         Command="{Binding RefreshCommand}"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"/>
@@ -175,13 +175,13 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="SIGNED IN" FontSize="{StaticResource TextCaption}"
+                                            <TextBlock Text="{DynamicResource UserCenter.Signed}" FontSize="{StaticResource TextCaption}"
                                                        FontWeight="Bold"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>
                                         <Button Style="{StaticResource RowOutlinedButton}"
                                                 Tag="&#xE716;" Content=""
-                                                ToolTip="Activate / deactivate"
+                                                ToolTip="{DynamicResource UserCenter.ActivateDeactivate}"
                                                 Command="{Binding DataContext.ToggleActiveCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
@@ -201,7 +201,7 @@
                         Padding="24,20">
                     <StackPanel>
 
-                        <TextBlock Text="CREATE USER"
+                        <TextBlock Text="{DynamicResource SystemCenter.CreateUSER}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,14"/>
@@ -226,48 +226,48 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.Column="0">
-                                <TextBlock Text="USERNAME *" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource UserCenter.Username}" Style="{StaticResource UcFieldLabel}"/>
                                 <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource UcTextBox}"/>
                             </StackPanel>
                             <StackPanel Grid.Row="0" Grid.Column="2">
-                                <TextBlock Text="DISPLAY NAME *" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource UserCenter.DisplayNAME}" Style="{StaticResource UcFieldLabel}"/>
                                 <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource UcTextBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="2" Grid.Column="0">
-                                <TextBlock Text="ROLE" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource SystemCenter.ROLE}" Style="{StaticResource UcFieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding RoleOptions}"
                                           SelectedItem="{Binding SelectedRole}"
                                           Height="38" FontSize="{StaticResource TextBodyLarge}"
                                           VerticalContentAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Row="2" Grid.Column="2">
-                                <TextBlock Text="PASSWORD *" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource UserCenter.Password}" Style="{StaticResource UcFieldLabel}"/>
                                 <PasswordBox x:Name="NewPasswordBox"
                                              Style="{StaticResource UcPasswordBox}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="4" Grid.ColumnSpan="3">
-                                <TextBlock Text="CONFIRM PASSWORD *" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBlock Text="{DynamicResource UserCenter.ConfirmPassword}" Style="{StaticResource UcFieldLabel}"/>
                                 <PasswordBox x:Name="ConfirmPasswordBox"
                                              Style="{StaticResource UcPasswordBox}"/>
                             </StackPanel>
 
                             <!-- PHASE D — WHY note recorded with the audit entry -->
                             <StackPanel Grid.Row="6" Grid.ColumnSpan="3">
-                                <TextBlock Text="WHY / NOTE (OPTIONAL — RECORDED IN THE AUDIT TRAIL)"
+                                <TextBlock Text="{DynamicResource CompanyCenter.WHYNOTEOptionalRecordedAuditTrail}"
                                            Style="{StaticResource UcFieldLabel}"/>
                                 <TextBox Text="{Binding ReasonNote, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource UcTextBox}"
-                                         ToolTip="Reason for creating this user, e.g. 'new estimator joined the Dubai branch'"/>
+                                         ToolTip="{DynamicResource UserCenter.ReasonCreatingUserEGNewEstimatorJoinedDubai}"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="8" Grid.ColumnSpan="3"
                                         Orientation="Horizontal" Margin="0,4,0,0">
                                 <Button Style="{StaticResource SuccessPillButton}"
-                                        Tag="&#xE710;" Content="CREATE USER"
+                                        Tag="&#xE710;" Content="{DynamicResource SystemCenter.CreateUSER}"
                                         Click="CreateUser_Click"/>
                             </StackPanel>
                         </Grid>
@@ -275,11 +275,11 @@
                         <Border Height="1" Margin="0,20,0,20"
                                 Background="{DynamicResource DividerBrush}"/>
 
-                        <TextBlock Text="SWITCH ACTIVE USER"
+                        <TextBlock Text="{DynamicResource SystemCenter.SwitchActiveUser}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,6"/>
-                        <TextBlock Text="Select a user card, enter their password, and sign in as them. Prepared-by fields and the audit trail follow."
+                        <TextBlock Text="{DynamicResource UserCenter.SelectUserCardEnterPasswordSignPrepared}"
                                    Style="{StaticResource UcFieldLabel}"
                                    TextWrapping="Wrap" Margin="0,0,0,10"/>
                         <StackPanel Orientation="Horizontal">
@@ -287,7 +287,7 @@
                                          Width="240"
                                          Style="{StaticResource UcPasswordBox}"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE895;" Content="SIGN IN AS SELECTED"
+                                    Tag="&#xE895;" Content="{DynamicResource UserCenter.SIGNSelected}"
                                     Click="SwitchUser_Click"
                                     Margin="12,0,0,0"/>
                         </StackPanel>
@@ -296,38 +296,38 @@
                                 Background="{DynamicResource DividerBrush}"/>
 
                         <!-- A-3 — CHANGE PASSWORD -->
-                        <TextBlock Text="CHANGE PASSWORD"
+                        <TextBlock Text="{DynamicResource UserCenter.ChangePassword}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,6"/>
-                        <TextBlock Text="Select a user card, prove their current password, then set a new one. This is the only way to rotate a password, including the seeded admin account."
+                        <TextBlock Text="{DynamicResource UserCenter.SelectUserCardProveCurrentPasswordThenSetNew}"
                                    Style="{StaticResource UcFieldLabel}"
                                    TextWrapping="Wrap" Margin="0,0,0,10"/>
 
                         <StackPanel Orientation="Horizontal">
                             <StackPanel Margin="0,0,12,0">
-                                <TextBlock Text="CURRENT PASSWORD"
+                                <TextBlock Text="{DynamicResource Login.CurrentPassword}"
                                            Style="{StaticResource UcFieldLabel}"/>
                                 <PasswordBox x:Name="CurrentPasswordBox"
                                              Width="200"
                                              Style="{StaticResource UcPasswordBox}"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,12,0">
-                                <TextBlock Text="NEW PASSWORD"
+                                <TextBlock Text="{DynamicResource Login.NEWPassword}"
                                            Style="{StaticResource UcFieldLabel}"/>
                                 <PasswordBox x:Name="ChangeNewPasswordBox"
                                              Width="200"
                                              Style="{StaticResource UcPasswordBox}"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,12,0">
-                                <TextBlock Text="CONFIRM NEW"
+                                <TextBlock Text="{DynamicResource UserCenter.ConfirmNEW}"
                                            Style="{StaticResource UcFieldLabel}"/>
                                 <PasswordBox x:Name="ChangeConfirmPasswordBox"
                                              Width="200"
                                              Style="{StaticResource UcPasswordBox}"/>
                             </StackPanel>
                             <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE72E;" Content="CHANGE PASSWORD"
+                                    Tag="&#xE72E;" Content="{DynamicResource UserCenter.ChangePassword}"
                                     Click="ChangePassword_Click"
                                     VerticalAlignment="Bottom"/>
                         </StackPanel>

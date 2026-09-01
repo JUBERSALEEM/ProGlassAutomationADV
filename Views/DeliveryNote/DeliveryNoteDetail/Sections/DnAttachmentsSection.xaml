@@ -46,21 +46,21 @@
                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text="Photos + signed copies"
+                                <TextBlock Text="{DynamicResource DeliveryNote.PhotosSignedCopies}"
                                            FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"/>
                             </StackPanel>
                             <Button Grid.Column="1"
                                     Style="{StaticResource RowOutlinedButton}"
-                                    Tag="&#xE728;" Content="IMAGE"
+                                    Tag="&#xE728;" Content="{DynamicResource DeliveryNote.Image}"
                                     Command="{Binding UploadImageCommand}"
-                                    ToolTip="Attach a photo"
+                                    ToolTip="{DynamicResource DeliveryNote.AttachPhoto}"
                                     Margin="0,0,6,0"/>
                             <Button Grid.Column="2"
                                     Style="{StaticResource RowOutlinedButton}"
                                     Tag="&#xE8A5;" Content="PDF"
                                     Command="{Binding UploadPdfCommand}"
-                                    ToolTip="Attach a signed PDF"/>
+                                    ToolTip="{DynamicResource DeliveryNote.AttachSignedPDF}"/>
                         </Grid>
                     </Border>
 
@@ -69,7 +69,7 @@
                         <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    TextWrapping="Wrap">
-                            <Run Text="Viewing attachments for a different DN."/>
+                            <Run Text="{DynamicResource DeliveryNote.ViewingAttachmentsDifferentDN}"/>
                         </TextBlock>
                     </Border>
 
@@ -88,12 +88,12 @@
                                     <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="32"
                                                HorizontalAlignment="Center"
                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                    <TextBlock Text="No attachments yet"
+                                    <TextBlock Text="{DynamicResource DeliveryNote.NoAttachmentsYet}"
                                                FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"
                                                Margin="0,8,0,4"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Upload photos or signed delivery copies."
+                                    <TextBlock Text="{DynamicResource DeliveryNote.UploadPhotosSignedDeliveryCopies}"
                                                FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
                                                TextAlignment="Center" TextWrapping="Wrap"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -150,8 +150,8 @@
                                                 </StackPanel>
                                                 <Button Grid.Column="2"
                                                         Style="{StaticResource RowPrimaryButton}"
-                                                        Tag="&#xE8B7;" Content="OPEN"
-                                                        ToolTip="Open the attachment"
+                                                        Tag="&#xE8B7;" Content="{DynamicResource Action.Open}"
+                                                        ToolTip="{DynamicResource DeliveryNote.OpenAttachment}"
                                                         Command="{Binding DataContext.OpenAttachmentCommand,
                                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
@@ -159,7 +159,7 @@
                                                 <Button Grid.Column="3"
                                                         Style="{StaticResource RowDangerButton}"
                                                         Tag="&#xE74D;" MinWidth="40"
-                                                        ToolTip="Delete the attachment"
+                                                        ToolTip="{DynamicResource DeliveryNote.DeleteAttachment}"
                                                         Command="{Binding DataContext.DeleteAttachmentCommand,
                                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"/>

@@ -67,7 +67,7 @@
                         <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,3,0,0"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    TextTrimming="CharacterEllipsis">
-                            <Run Text="Latest: "/><Run Text="{Binding LatestDeliveryDateDisplay, Mode=OneWay}"/>
+                            <Run Text="{DynamicResource DeliveryNote.Latest}"/><Run Text="{Binding LatestDeliveryDateDisplay, Mode=OneWay}"/>
                             <Run Text="  ·  "/><Run Text="{Binding LatestDriverName, Mode=OneWay}"/>
                             <Run Text="  ·  "/><Run Text="{Binding LatestDnId, Mode=OneWay}"/>
                         </TextBlock>
@@ -150,7 +150,7 @@
                                     Padding="7,2">
                                 <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}">
-                                    <Run Text="{Binding DnCount, Mode=OneWay}"/><Run Text=" DNs"/>
+                                    <Run Text="{Binding DnCount, Mode=OneWay}"/><Run Text="{DynamicResource DeliveryNote.Dns}"/>
                                 </TextBlock>
                             </Border>
                         </StackPanel>
@@ -696,7 +696,7 @@
                                                 <TextBlock FontSize="{StaticResource TextBody}" Margin="0,5,0,0"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                     <Run Text="{Binding ProgressDisplay, Mode=OneWay}" FontWeight="SemiBold"/>
-                                                    <Run Text="  ·  Balance: "/>
+                                                    <Run Text="{DynamicResource DeliveryNote.Balance}"/>
                                                     <Run Text="{Binding TotalBalance, Mode=OneWay}" FontWeight="Bold"/>
                                                     <Run Text=" pcs"/>
                                                 </TextBlock>

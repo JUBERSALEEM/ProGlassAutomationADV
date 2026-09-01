@@ -9,7 +9,7 @@
 <Window x:Class="ProGlassAutomation.Views.Inquiry.InquiryAttachmentPreviewWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Attachment preview"
+        Title="{DynamicResource Inquiry.AttachmentPreview}"
         Width="1000" Height="760" MinWidth="560" MinHeight="420"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource WindowBackgroundBrush}"
@@ -51,7 +51,7 @@
                     <TextBlock x:Name="MetaText" FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                 </StackPanel>
-                <Button Grid.Column="2" Content="Open with system app" Click="OpenExternal_Click" Cursor="Hand"
+                <Button Grid.Column="2" Content="{DynamicResource Inquiry.OpenSystemApp}" Click="OpenExternal_Click" Cursor="Hand"
                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" VerticalAlignment="Center"/>
             </Grid>
         </Border>
@@ -72,13 +72,13 @@
                                    Foreground="{DynamicResource DangerBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="File not found on disk" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Margin="0,16,0,0"
+                    <TextBlock Text="{DynamicResource Inquiry.FileFoundDisk}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Margin="0,16,0,0"
                                HorizontalAlignment="Center" TextAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock x:Name="MissingDetail" FontSize="{StaticResource TextBody}" Margin="0,8,0,0" HorizontalAlignment="Center"
                                TextAlignment="Center" TextWrapping="Wrap"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Text="The attachment metadata exists, but the stored file cannot be found. It may have been moved or deleted outside ProGlass."/>
+                               Text="{DynamicResource Inquiry.AttachmentMetadataExistsStoredFileCannot}"/>
                 </StackPanel>
             </Border>
 
@@ -90,12 +90,12 @@
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="In-app preview is not available for this file type" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                    <TextBlock Text="{DynamicResource Inquiry.AppPreviewAvailableFileType}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                Margin="0,16,0,0" HorizontalAlignment="Center" TextAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock FontSize="{StaticResource TextBody}" Margin="0,8,0,0" HorizontalAlignment="Center" TextAlignment="Center"
                                TextWrapping="Wrap" Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Text="Drawings and spreadsheets open with their system application."/>
+                               Text="{DynamicResource Inquiry.DrawingsSpreadsheetsOpenSystemApplication}"/>
                 </StackPanel>
             </Border>
         </Grid>

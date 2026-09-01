@@ -41,8 +41,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="AI Assistant" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Providers, API keys, model tuning and data access."
+            <TextBlock Text="{DynamicResource Settings.SecAi}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.ProvidersAPIKeysModelTuningDataAccess}"
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -57,9 +57,9 @@
             <StackPanel Margin="32,0,32,32">
 
                 <!-- ═════════ GROUP: SWITCHES & MODEL ═════════ -->
-                <TextBlock Text="ASSISTANT"
+                <TextBlock Text="{DynamicResource Settings.Assistant}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Master switches and the tuning values used on every request."
+                <TextBlock Text="{DynamicResource Settings.MasterSwitchesTuningValuesUsedRequest}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
@@ -75,11 +75,11 @@
                             </Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8F2;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Enable AI Assistant"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1"
                                        Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Master switch. When off, the chat button is hidden and no API calls are made."/>
+                                       Text="{DynamicResource Settings.MasterSwitchWhenChatButtonHiddenNoAPICalls}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
                                           IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
@@ -98,11 +98,11 @@
                             </Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE9F9;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Use Real Business Data"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1"
                                        Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="When on, live invoice / job / delivery / balance data is sent to your chosen provider over the internet."/>
+                                       Text="{DynamicResource Settings.WhenLiveInvoiceJobDeliveryBalanceDataSent}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
                                           IsChecked="{Binding UseRealData, Mode=TwoWay}"
@@ -115,13 +115,13 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE9F5;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Active Model"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ActiveModel}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiModel}"
                                        Style="{StaticResource SettingsTileHeroStyle}"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       Text="Model identifier of the currently selected provider — from config.json."/>
+                                       Text="{DynamicResource Settings.ModelIdentifierCurrentlySelectedProvider}"/>
                         </StackPanel>
                     </Border>
 
@@ -130,12 +130,12 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE762;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Max Tokens"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.MaxTokens}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiMaxTokens}"
                                        Style="{StaticResource SettingsTileHeroStyle}"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       Text="Response length ceiling per call. Adjust in config.json for now."/>
+                                       Text="{DynamicResource Settings.ResponseLengthCeilingCallAdjustConfigJsonNow}"/>
                         </StackPanel>
                     </Border>
 
@@ -144,12 +144,12 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE706;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Temperature"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.Temperature}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiTemperature}"
                                        Style="{StaticResource SettingsTileHeroStyle}"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       Text="Higher = more creative, lower = more deterministic. Read from config.json."/>
+                                       Text="{DynamicResource Settings.HigherMoreCreativeLowerMoreDeterministicRead}"/>
                         </StackPanel>
                     </Border>
 
@@ -158,9 +158,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═════════ GROUP: PROVIDERS ═════════ -->
-                <TextBlock Text="PROVIDERS"
+                <TextBlock Text="{DynamicResource Settings.Providers}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Only the ACTIVE provider processes your requests. Keys are encrypted at rest with DPAPI."
+                <TextBlock Text="{DynamicResource Settings.ActiveProviderProcessesRequestsKeysEncrypted}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -187,9 +187,9 @@
                                              Margin="0,0,10,0"
                                              IsHitTestVisible="False"/>
                                     <StackPanel>
-                                        <TextBlock Text="Google Gemini"
+                                        <TextBlock Text="{DynamicResource Settings.GoogleGemini}"
                                                    Style="{StaticResource SettingsTileTitleStyle}"/>
-                                        <TextBlock Text="15 req/min · 1,500/day · best quality"
+                                        <TextBlock Text="{DynamicResource Settings.15ReqMin1500DayBestQuality}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
@@ -211,17 +211,17 @@
                                 </Button>
                             </DockPanel>
 
-                            <TextBlock Text="API KEY"
+                            <TextBlock Text="{DynamicResource Settings.APIKEY}"
                                        Style="{StaticResource LabelStyle}"
                                        Margin="0,14,0,4"/>
                             <PasswordBox x:Name="GeminiKeyBox"
                                          Style="{StaticResource RoundedPasswordBoxStyle}"
                                          PasswordChanged="GeminiKeyBox_PasswordChanged"/>
-                            <TextBlock Text="Get key at aistudio.google.com"
+                            <TextBlock Text="{DynamicResource Settings.GetKeyAistudioGoogleCom}"
                                        Style="{StaticResource HintTextStyle}"
                                        Margin="0,4,0,10"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE74E;" Content="SAVE &amp; TEST"
+                                    Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                     Command="{Binding TestGeminiCommand}"
                                     HorizontalAlignment="Stretch"
                                     Height="32"
@@ -257,9 +257,9 @@
                                              Margin="0,0,10,0"
                                              IsHitTestVisible="False"/>
                                     <StackPanel>
-                                        <TextBlock Text="Groq"
+                                        <TextBlock Text="{DynamicResource Settings.Groq}"
                                                    Style="{StaticResource SettingsTileTitleStyle}"/>
-                                        <TextBlock Text="Fast Llama · Very generous free tier"
+                                        <TextBlock Text="{DynamicResource Settings.FastLlamaGenerousFreeTier}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
@@ -281,17 +281,17 @@
                                 </Button>
                             </DockPanel>
 
-                            <TextBlock Text="API KEY"
+                            <TextBlock Text="{DynamicResource Settings.APIKEY}"
                                        Style="{StaticResource LabelStyle}"
                                        Margin="0,14,0,4"/>
                             <PasswordBox x:Name="GroqKeyBox"
                                          Style="{StaticResource RoundedPasswordBoxStyle}"
                                          PasswordChanged="GroqKeyBox_PasswordChanged"/>
-                            <TextBlock Text="Get key at console.groq.com"
+                            <TextBlock Text="{DynamicResource Settings.GetKeyConsoleGroqCom}"
                                        Style="{StaticResource HintTextStyle}"
                                        Margin="0,4,0,10"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE74E;" Content="SAVE &amp; TEST"
+                                    Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                     Command="{Binding TestGroqCommand}"
                                     HorizontalAlignment="Stretch"
                                     Height="32"
@@ -327,9 +327,9 @@
                                              Margin="0,0,10,0"
                                              IsHitTestVisible="False"/>
                                     <StackPanel>
-                                        <TextBlock Text="Cohere"
+                                        <TextBlock Text="{DynamicResource Settings.Cohere}"
                                                    Style="{StaticResource SettingsTileTitleStyle}"/>
-                                        <TextBlock Text="Enterprise-grade · Command family"
+                                        <TextBlock Text="{DynamicResource Settings.EnterpriseGradeCommandFamily}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
@@ -351,17 +351,17 @@
                                 </Button>
                             </DockPanel>
 
-                            <TextBlock Text="API KEY"
+                            <TextBlock Text="{DynamicResource Settings.APIKEY}"
                                        Style="{StaticResource LabelStyle}"
                                        Margin="0,14,0,4"/>
                             <PasswordBox x:Name="CohereKeyBox"
                                          Style="{StaticResource RoundedPasswordBoxStyle}"
                                          PasswordChanged="CohereKeyBox_PasswordChanged"/>
-                            <TextBlock Text="Get key at dashboard.cohere.com"
+                            <TextBlock Text="{DynamicResource Settings.GetKeyDashboardCohereCom}"
                                        Style="{StaticResource HintTextStyle}"
                                        Margin="0,4,0,10"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE74E;" Content="SAVE &amp; TEST"
+                                    Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                     Command="{Binding TestCohereCommand}"
                                     HorizontalAlignment="Stretch"
                                     Height="32"
@@ -380,9 +380,9 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Keys File"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.KeysFile}"/>
                             </StackPanel>
-                            <TextBlock Text="All provider keys are encrypted at rest with Windows DPAPI and stored at:"
+                            <TextBlock Text="{DynamicResource Settings.ProviderKeysEncryptedRestWindowsDpapiStored}"
                                        Style="{StaticResource SettingsTileCaptionStyle}"/>
                             <TextBlock Text="{Binding ConfigFilePath}"
                                        FontSize="{StaticResource TextBody}"
@@ -398,9 +398,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═════════ GROUP: SECURITY ═════════ -->
-                <TextBlock Text="SECURITY"
+                <TextBlock Text="{DynamicResource Settings.Security}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Control key persistence and wipe stored conversation memory."
+                <TextBlock Text="{DynamicResource Settings.ControlKeyPersistenceWipeStoredConversation}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
@@ -416,11 +416,11 @@
                             </Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE72E;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Keep Keys Saved"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.KeepKeysSaved}"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1"
                                        Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Off = keys held only for this session. Keys are always encrypted with Windows DPAPI — never plain text."/>
+                                       Text="{DynamicResource Settings.KeysHeldSessionKeysAlwaysEncryptedWindows}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
                                           IsChecked="{Binding KeepApiKeysSaved, Mode=TwoWay}"
@@ -433,12 +433,12 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE74D;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Remove Saved Keys"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.RemoveSavedKeys}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Delete every provider key from disk. The assistant will ask you to re-enter them next time."/>
+                                       Text="{DynamicResource Settings.DeleteProviderKeyDiskAssistantAskReEnterNext}"/>
                             <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE74D;" Content="REMOVE KEYS"
+                                    Tag="&#xE74D;" Content="{DynamicResource Settings.RemoveKEYS}"
                                     Command="{Binding RemoveSavedKeysCommand}"
                                     HorizontalAlignment="Stretch"/>
                         </StackPanel>
@@ -449,12 +449,12 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE81C;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Clear AI Memory"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ClearAIMemory}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Wipe stored conversation history that the assistant uses to remember context between chats."/>
+                                       Text="{DynamicResource Settings.WipeStoredConversationHistoryAssistantUses}"/>
                             <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE74D;" Content="CLEAR MEMORY"
+                                    Tag="&#xE74D;" Content="{DynamicResource Settings.ClearMemory}"
                                     Command="{Binding ClearAiMemoryCommand}"
                                     HorizontalAlignment="Stretch"/>
                         </StackPanel>

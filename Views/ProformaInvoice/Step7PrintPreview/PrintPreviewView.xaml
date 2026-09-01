@@ -35,23 +35,23 @@
                 <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
                     <Button Command="{Binding PrintableInvoice.SaveInvoiceCommand}"
                             Style="{StaticResource PiFooterPrimaryButton}"
-                            Content="SAVE ONLY"
-                            ToolTip="Save invoice only. Confirmation happens through Step 8 attachments."
+                            Content="{DynamicResource ProformaInvoice.SAVE}"
+                            ToolTip="{DynamicResource ProformaInvoice.SaveInvoiceConfirmationHappensStep8}"
                             Margin="0,0,8,0"/>
                     <Button Command="{Binding PrintableInvoice.ExportPdfCommand}"
                             Style="{StaticResource PiFooterGhostButton}"
-                            Content="EXPORT PDF"
-                            ToolTip="Export invoice as branded PDF"
+                            Content="{DynamicResource DeliveryNote.ExportPDF}"
+                            ToolTip="{DynamicResource ProformaInvoice.ExportInvoiceBrandedPDF}"
                             Margin="0,0,8,0"/>
                     <Button Command="{Binding PrintableInvoice.ExportExcelCommand}"
                             Style="{StaticResource PiFooterGhostButton}"
-                            Content="EXPORT EXCEL"
-                            ToolTip="Export invoice data as Excel"
+                            Content="{DynamicResource DeliveryNote.ExportExcel}"
+                            ToolTip="{DynamicResource ProformaInvoice.ExportInvoiceDataExcel}"
                             Margin="0,0,8,0"/>
                     <Button x:Name="ActionsMenuButton"
                             Style="{StaticResource PiFooterGhostButton}"
-                            Content="MORE"
-                            ToolTip="Print and more export options"
+                            Content="{DynamicResource ProformaInvoice.MORE}"
+                            ToolTip="{DynamicResource ProformaInvoice.PrintMoreExportOptions}"
                             Click="ActionsMenuButton_Click"/>
                     <Popup x:Name="ActionsMenuPopup"
                            PlacementTarget="{Binding ElementName=ActionsMenuButton}"
@@ -69,19 +69,19 @@
                                 MinWidth="200">
                             <StackPanel>
                                 <Button Style="{StaticResource PiInvoiceMenuActionItem}"
-                                        Tag="&#xE749;" Content="Print"
+                                        Tag="&#xE749;" Content="{DynamicResource Action.Print}"
                                         Command="{Binding PrintableInvoice.PrintCommand}"
-                                        ToolTip="Print the invoice preview"
+                                        ToolTip="{DynamicResource ProformaInvoice.PrintInvoicePreview}"
                                         Click="MenuActionClicked"/>
                                 <Button Style="{StaticResource PiInvoiceMenuActionItem}"
-                                        Tag="&#xE8A5;" Content="Export CSV"
+                                        Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportCSV}"
                                         Command="{Binding PrintableInvoice.ExportCsvCommand}"
-                                        ToolTip="Export glass panel data as CSV"
+                                        ToolTip="{DynamicResource ProformaInvoice.ExportGlassPanelDataCSV}"
                                         Click="MenuActionClicked"/>
                                 <Button Style="{StaticResource PiInvoiceMenuActionItem}"
-                                        Tag="&#xE715;" Content="Email (soon)"
+                                        Tag="&#xE715;" Content="{DynamicResource ProformaInvoice.EmailSoon}"
                                         Command="{Binding PrintableInvoice.SendEmailCommand}"
-                                        ToolTip="Coming in Phase 7.20"
+                                        ToolTip="{DynamicResource ProformaInvoice.ComingPhase720}"
                                         IsEnabled="False"
                                         Click="MenuActionClicked"/>
                             </StackPanel>
@@ -96,8 +96,8 @@
                         <Border Style="{StaticResource PiStationIdentityStyle}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="07" Style="{StaticResource PiStationCodeStyle}"/>
-                                <TextBlock Text="PREVIEW" Style="{StaticResource PiStationTitleStyle}"/>
-                                <TextBlock Text="Totals and terms on the left · A4 on the right"
+                                <TextBlock Text="{DynamicResource Phone.Preview}" Style="{StaticResource PiStationTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.TotalsTermsLeftA4Right}"
                                            Style="{StaticResource PiStationHintStyle}"/>
                             </StackPanel>
                         </Border>

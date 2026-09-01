@@ -37,16 +37,16 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Developer"
+                        <TextBlock Text="{DynamicResource About.Developer}"
                                    Style="{StaticResource SectionTitleStyle}"/>
-                        <TextBlock Text="Craftsmanship, workflow engineering, and product direction behind ProGlass Automation"
+                        <TextBlock Text="{DynamicResource About.CraftsmanshipWorkflowEngineeringProduct}"
                                    Style="{StaticResource SectionSubtitleStyle}"
                                    Margin="0,0,0,0"/>
                     </StackPanel>
 
                     <Border Grid.Column="1"
                             Style="{StaticResource AboutHeaderBadgeStyle}">
-                        <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="CRAFTED FOR GLASS ERP"/>
+                        <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="{DynamicResource About.CraftedGlassERP}"/>
                     </Border>
                 </Grid>
 
@@ -90,7 +90,7 @@
                                                Foreground="{DynamicResource LiquidSnow}"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
-                                    <TextBlock Text="Principal developer · product design · workflow engineering"
+                                    <TextBlock Text="{DynamicResource About.PrincipalDeveloperProductDesignWorkflow}"
                                                FontSize="{StaticResource TextBody}"
                                                Foreground="{DynamicResource LiquidMuted}"
                                                Margin="0,6,0,0"
@@ -136,13 +136,13 @@
                             Margin="0,0,0,0"
                             Padding="24,22">
                         <StackPanel>
-                            <TextBlock Text="PRODUCT FACTS"
+                            <TextBlock Text="{DynamicResource About.ProductFacts}"
                                        Style="{StaticResource AboutPanelKickerStyle}"/>
 
                             <UniformGrid Columns="2" Rows="2" Margin="-6,6,-6,0">
                                 <Border Style="{StaticResource AboutCodeStripStyle}" Margin="6">
                                     <StackPanel>
-                                        <TextBlock Text="VERSION"
+                                        <TextBlock Text="{DynamicResource About.Version}"
                                                    Style="{StaticResource InfoLabelStyle}"/>
                                         <TextBlock Text="{Binding Version}"
                                                    Style="{StaticResource InfoValueStyle}"
@@ -152,7 +152,7 @@
 
                                 <Border Style="{StaticResource AboutCodeStripStyle}" Margin="6">
                                     <StackPanel>
-                                        <TextBlock Text="BUILD"
+                                        <TextBlock Text="{DynamicResource About.Build}"
                                                    Style="{StaticResource InfoLabelStyle}"/>
                                         <TextBlock Text="{Binding Build}"
                                                    Style="{StaticResource InfoValueStyle}"
@@ -162,7 +162,7 @@
 
                                 <Border Style="{StaticResource AboutCodeStripStyle}" Margin="6">
                                     <StackPanel>
-                                        <TextBlock Text="EDITION"
+                                        <TextBlock Text="{DynamicResource About.Edition}"
                                                    Style="{StaticResource InfoLabelStyle}"/>
                                         <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
                                                    Style="{StaticResource InfoValueStyle}"
@@ -173,7 +173,7 @@
 
                                 <Border Style="{StaticResource AboutCodeStripStyle}" Margin="6">
                                     <StackPanel>
-                                        <TextBlock Text="STATUS"
+                                        <TextBlock Text="{DynamicResource Common.Status}"
                                                    Style="{StaticResource InfoLabelStyle}"/>
                                         <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
                                                    Style="{StaticResource InfoValueStyle}"
@@ -197,9 +197,9 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Technology Stack"
+                        <TextBlock Text="{DynamicResource About.TechnologyStack}"
                                    Style="{StaticResource SectionTitleStyle}"/>
-                        <TextBlock Text="Battle-tested Microsoft and open-source foundation"
+                        <TextBlock Text="{DynamicResource About.BattleTestedMicrosoftOpenSourceFoundation}"
                                    Style="{StaticResource SectionSubtitleStyle}"
                                    Margin="0,0,0,0"/>
                     </StackPanel>
@@ -207,7 +207,7 @@
                     <Border Grid.Column="1"
                             Style="{StaticResource AboutHeaderBadgeStyle}">
                         <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
-                            <Run Text="STACK ITEMS  "/>
+                            <Run Text="{DynamicResource About.StackItems}"/>
                             <Run Text="{Binding TechStack.Count, Mode=OneWay}"/>
                         </TextBlock>
                     </Border>
@@ -230,7 +230,7 @@
 
         <Border Style="{StaticResource AboutCardStyle}">
             <StackPanel HorizontalAlignment="Center">
-                <TextBlock Text="ProGlass Automation — Enterprise ERP for UAE glass manufacturing"
+                <TextBlock Text="{DynamicResource About.ProglassAutomationEnterpriseERPUAEGlass}"
                            FontSize="{StaticResource TextBodyLarge}"
                            FontWeight="Bold"
                            HorizontalAlignment="Center"

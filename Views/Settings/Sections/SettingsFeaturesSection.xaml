@@ -50,8 +50,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="Features" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Turn individual fields on or off without touching code. Hiding a field only affects the UI — the value stays on disk and reappears when you re-enable it."
+            <TextBlock Text="{DynamicResource Settings.SecFeatures}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.TurnIndividualFieldsWithoutTouchingCode}"
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -62,7 +62,7 @@
              their own DataContext, so a plain {Binding} here would break).
              This mirrors the Settings shell navigation pattern. -->
         <WrapPanel Grid.Row="0" Margin="32,4,32,0">
-            <Button Content="Proforma Invoice" Margin="0,0,8,8" MinWidth="130"
+            <Button Content="{DynamicResource Module.ProformaInvoice}" Margin="0,0,8,8" MinWidth="130"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
                     CommandParameter="Proforma">
@@ -79,7 +79,7 @@
                 </Button.Style>
             </Button>
 
-            <Button Content="Inquiry" Margin="0,0,8,8" MinWidth="110"
+            <Button Content="{DynamicResource Module.Inquiry}" Margin="0,0,8,8" MinWidth="110"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
                     CommandParameter="Inquiry">
@@ -96,7 +96,7 @@
                 </Button.Style>
             </Button>
 
-            <Button Content="Job Order" Margin="0,0,8,8" MinWidth="120"
+            <Button Content="{DynamicResource Common.JobOrder}" Margin="0,0,8,8" MinWidth="120"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
                     CommandParameter="JobOrder">
@@ -113,7 +113,7 @@
                 </Button.Style>
             </Button>
 
-            <Button Content="Delivery Note" Margin="0,0,8,8" MinWidth="130"
+            <Button Content="{DynamicResource Module.DeliveryNote}" Margin="0,0,8,8" MinWidth="130"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
                     CommandParameter="DeliveryNote">
@@ -130,7 +130,7 @@
                 </Button.Style>
             </Button>
 
-            <Button Content="Tax Invoice" Margin="0,0,8,8" MinWidth="120"
+            <Button Content="{DynamicResource Module.TaxInvoice}" Margin="0,0,8,8" MinWidth="120"
                     Command="{Binding DataContext.SwitchFeaturesModuleCommand,
                                 ElementName=SettingsFeaturesRoot}"
                     CommandParameter="TaxInvoice">
@@ -163,9 +163,9 @@
                      ElementName since the descendant toggles below
                      re-scope their DataContext. Sits above everything
                      so a shift-change operator sees it first. -->
-                <TextBlock Text="SESSION"
+                <TextBlock Text="{DynamicResource Settings.Session}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Sign out for a shift handover, or forget the auto-sign-in credentials on this device without ending your session."
+                <TextBlock Text="{DynamicResource Settings.SignShiftHandoverForgetAutoSignCredentials}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -173,22 +173,22 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE77B;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Session Security"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.SessionSecurity}"/>
                             </StackPanel>
                             <!-- Full-width action row: buttons stretch evenly
                                  across the whole card (no left-cramped gap). -->
                             <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}">
-                                <Button Content="Forget this device"
+                                <Button Content="{DynamicResource Settings.ForgetDevice}"
                                         Command="{Binding DataContext.ForgetThisDeviceCommand,
                                             ElementName=SettingsFeaturesRoot}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
-                                        ToolTip="Clear the Skip-login vault entry on this machine without signing out. Next launch will show the login form."/>
-                                <Button Content="Sign out"
+                                        ToolTip="{DynamicResource Settings.ClearSkipLoginVaultEntryMachineWithout}"/>
+                                <Button Content="{DynamicResource Login.SignOut}"
                                         Command="{Binding DataContext.SignOutCommand,
                                             ElementName=SettingsFeaturesRoot}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
                                         Margin="0"
-                                        ToolTip="End your session, clear the Skip-login vault entry, and return to the login screen."/>
+                                        ToolTip="{DynamicResource Settings.EndSessionClearSkipLoginVaultEntryReturn}"/>
                             </UniformGrid>
                         </StackPanel>
                     </Border>
@@ -204,9 +204,9 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}" Margin="0,0,0,10"/>
-                <TextBlock Text="PROFORMA INVOICE"
+                <TextBlock Text="{DynamicResource Module.ProformaInvoice}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Show or hide optional fields in Steps 1 – 3 of the invoice wizard. Company Name, Customer Name and Proforma ID cannot be hidden — the database needs them."
+                <TextBlock Text="{DynamicResource Settings.ShowHideOptionalFieldsSteps13InvoiceWizard}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -214,36 +214,36 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8A5;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Bulk Actions"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BulkActions}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Flip every optional field at once, or restore the out-of-the-box layout."/>
+                                       Text="{DynamicResource Settings.FlipOptionalFieldOnceRestoreBoxLayout}"/>
                             <!-- Full-width action row: buttons stretch evenly
                                  across the whole card (no left-cramped gap). -->
                             <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
-                                <Button Content="Enable all"
+                                <Button Content="{DynamicResource Settings.Enable}"
                                         Command="{Binding EnableAllCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
-                                        ToolTip="Show every optional field in the wizard."/>
-                                <Button Content="Hide all optional"
+                                        ToolTip="{DynamicResource Settings.ShowOptionalFieldWizard}"/>
+                                <Button Content="{DynamicResource Settings.HideOptional}"
                                         Command="{Binding DisableAllOptionalCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
-                                        ToolTip="Collapse every optional field. The three DB-required fields stay visible."/>
-                                <Button Content="Reset defaults"
+                                        ToolTip="{DynamicResource Settings.CollapseOptionalFieldThreeDBRequiredFields}"/>
+                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
                                         Command="{Binding ResetToDefaultsCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
                                         Margin="0"
-                                        ToolTip="Restore the out-of-the-box layout (every field visible)."/>
+                                        ToolTip="{DynamicResource Settings.RestoreBoxLayoutFieldVisible}"/>
                             </UniformGrid>
                         </StackPanel>
                     </Border>
                 </StackPanel>
 
                 <!-- ── STEP 1 · COMPANY ─────────────────────── -->
-                <TextBlock Text="STEP 1 · COMPANY"
+                <TextBlock Text="{DynamicResource Settings.STEP1Company}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
-                <TextBlock Text="Company Name and Proforma ID stay visible (required by the database)."
+                <TextBlock Text="{DynamicResource Settings.CompanyNameProformaIDStayVisibleRequired}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <UniformGrid Columns="4" Margin="0,0,0,6">
@@ -252,9 +252,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Federal TRN"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.FederalTRN}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="15-digit UAE Tax Registration Number."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.15DigitUAETaxRegistrationNumber}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyTrn}"/>
                         </Grid>
                     </Border>
@@ -264,9 +264,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Headquarters"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.Headquarters}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Short city / emirate line printed on the letterhead."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.ShortCityEmirateLinePrintedLetterhead}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyLocation}"/>
                         </Grid>
                     </Border>
@@ -276,9 +276,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Representative"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource CompanyCenter.Representative}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Name of the person signing on behalf of the company."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.NamePersonSigningBehalfCompany}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowRepresentative}"/>
                         </Grid>
                     </Border>
@@ -288,9 +288,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Representative Mobile"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.RepresentativeMobile}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Direct number of the signing representative."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.DirectNumberSigningRepresentative}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowRepresentativeMobile}"/>
                         </Grid>
                     </Border>
@@ -300,9 +300,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Company E-mail"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource CompanyCenter.CompanyEMAIL}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Contact e-mail printed under the header."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.ContactEMailPrintedHeader}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCompanyEmail}"/>
                         </Grid>
                     </Border>
@@ -312,9 +312,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Bank Name"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource CompanyCenter.BANKNAME}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Payee bank name on the invoice footer."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.PayeeBankNameInvoiceFooter}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowBankName}"/>
                         </Grid>
                     </Border>
@@ -324,9 +324,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Account / IBAN"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.AccountIBAN}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Account number or IBAN paired with the bank name."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.AccountNumberIBANPairedBankName}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAccountNumber}"/>
                         </Grid>
                     </Border>
@@ -336,9 +336,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Issue Date"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.IssueDATE}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Date the proforma is issued. Defaults to today when hidden."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.DateProformaIssuedDefaultsTodayWhenHidden}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIssueDate}"/>
                         </Grid>
                     </Border>
@@ -348,9 +348,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Valid Until"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.ValidUntil}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Quotation expiry date."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.QuotationExpiryDate}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowValidUntil}"/>
                         </Grid>
                     </Border>
@@ -360,19 +360,19 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Status"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Common.Status}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Draft / Sent / Approved workflow picker."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.DraftSentApprovedWorkflowPicker}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProformaStatus}"/>
                         </Grid>
                     </Border>
                 </UniformGrid>
 
                 <!-- ── STEP 2 · CLIENT ─────────────────────── -->
-                <TextBlock Text="STEP 2 · CLIENT"
+                <TextBlock Text="{DynamicResource Settings.STEP2Client}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
-                <TextBlock Text="Customer Name stays visible (required by the database)."
+                <TextBlock Text="{DynamicResource Settings.CustomerNameStaysVisibleRequiredDatabase}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <UniformGrid Columns="4" Margin="0,0,0,6">
@@ -381,9 +381,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE716;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Customer TRN"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.CustomerTRN}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Client's Tax Registration Number."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.ClientSTaxRegistrationNumber}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerTrn}"/>
                         </Grid>
                     </Border>
@@ -393,9 +393,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE716;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Reference Code"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.ReferenceCODE}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Internal customer code (CRM key, ledger code, etc.)."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.InternalCustomerCodeCRMKeyLedgerCodeEtc}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerReferenceCode}"/>
                         </Grid>
                     </Border>
@@ -405,9 +405,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE716;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Sales Representative"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.SalesRepresentative}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Salesperson who owns the deal."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.SalespersonWhoOwnsDeal}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSalesRepresentative}"/>
                         </Grid>
                     </Border>
@@ -417,9 +417,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE716;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Prepared By"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Inquiry.Prepared2}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Operator who typed up the quotation."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.OperatorWhoTypedQuotation}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDocumentPreparedBy}"/>
                         </Grid>
                     </Border>
@@ -429,9 +429,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE716;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Attention (Kind Attn.)"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.AttentionKindAttn}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Person the invoice should be addressed to."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.PersonInvoiceShouldAddressed}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAttentionExecutive}"/>
                         </Grid>
                     </Border>
@@ -441,9 +441,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE716;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Client Phone"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ClientPhone}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Bill-to contact phone number."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.BillContactPhoneNumber}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowClientContactPhone}"/>
                         </Grid>
                     </Border>
@@ -453,16 +453,16 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE716;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Billing Address"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.BillingAddress}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Multi-line postal address for the invoice header."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.MultiLinePostalAddressInvoiceHeader}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowBillingAddress}"/>
                         </Grid>
                     </Border>
                 </UniformGrid>
 
                 <!-- ── STEP 3 · PROJECT ─────────────────────── -->
-                <TextBlock Text="STEP 3 · PROJECT"
+                <TextBlock Text="{DynamicResource Settings.STEP3Project}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
 
@@ -472,9 +472,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Project Name"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.ProjectNAME}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Short project handle used across lists and invoices."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.ShortProjectHandleUsedListsInvoices}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectName}"/>
                         </Grid>
                     </Border>
@@ -484,9 +484,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Project Reference"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.ProjectReference}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Full descriptive reference (e.g. 'HOUSE FOR IMAD HABIB')."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.FullDescriptiveReferenceEGHouseIMADHabib}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectReference}"/>
                         </Grid>
                     </Border>
@@ -496,9 +496,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Contract Number"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ContractNumber}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Internal contract identifier (e.g. '428 IMAD HABIB')."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.InternalContractIdentifierEG428IMADHabib}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowContractNo}"/>
                         </Grid>
                     </Border>
@@ -508,9 +508,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="LPO / PO Number"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.LPOPONumber}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Client-supplied purchase order number."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.ClientSuppliedPurchaseOrderNumber}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowLpoNumber}"/>
                         </Grid>
                     </Border>
@@ -520,9 +520,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Site / Delivery Location"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource ProformaInvoice.SITEDeliveryLocation}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Emirate or specific site where glass will be delivered."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.EmirateSpecificSiteWhereGlassDelivered}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryLocation}"/>
                         </Grid>
                     </Border>
@@ -541,9 +541,9 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}" Margin="0,0,0,10"/>
-                <TextBlock Text="INQUIRY"
+                <TextBlock Text="{DynamicResource Module.Inquiry}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Turn optional fields on the Inquiry editor on or off. Customer Name and Project Name cannot be hidden — the database needs them."
+                <TextBlock Text="{DynamicResource Settings.TurnOptionalFieldsInquiryEditorCustomerName}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -551,18 +551,18 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE9D2;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Bulk Actions"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BulkActions}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Flip every Inquiry field at once."/>
+                                       Text="{DynamicResource Settings.FlipInquiryFieldOnce}"/>
                             <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
-                                <Button Content="Enable all"
+                                <Button Content="{DynamicResource Settings.Enable}"
                                         Command="{Binding EnableAllCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
-                                <Button Content="Hide all optional"
+                                <Button Content="{DynamicResource Settings.HideOptional}"
                                         Command="{Binding DisableAllOptionalCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
-                                <Button Content="Reset defaults"
+                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
                                         Command="{Binding ResetToDefaultsCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
                                         Margin="0"/>
@@ -571,7 +571,7 @@
                     </Border>
                 </StackPanel>
 
-                <TextBlock Text="INQUIRY EDITOR"
+                <TextBlock Text="{DynamicResource Settings.InquiryEditor}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
 
@@ -581,9 +581,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Inquiry Reference"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Inquiry.InquiryReference}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Short customer-facing reference line for the inquiry."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.ShortCustomerFacingReferenceLineInquiry}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryReference}"/>
                         </Grid>
                     </Border>
@@ -593,9 +593,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Customer Location"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.CustomerLocation}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Emirate / city — carried over to the Proforma billing address."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.EmirateCityCarriedProformaBillingAddress}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerLocation}"/>
                         </Grid>
                     </Border>
@@ -605,9 +605,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Project Description"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ProjectDescription}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Longer free-text description of the project scope."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.LongerFreeTextDescriptionProjectScope}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectDescription}"/>
                         </Grid>
                     </Border>
@@ -617,9 +617,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Salesman"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Common.Salesman}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Sales representative who owns the inquiry."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.SalesRepresentativeWhoOwnsInquiry}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSalesman}"/>
                         </Grid>
                     </Border>
@@ -629,9 +629,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Prepared By"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Inquiry.Prepared2}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Operator who first typed up the inquiry."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.OperatorWhoFirstTypedInquiry}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPreparedBy}"/>
                         </Grid>
                     </Border>
@@ -641,9 +641,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Priority"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Common.Priority}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Urgent / High / Normal / Low triage bucket."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.UrgentHighNormalLowTriageBucket}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPriority}"/>
                         </Grid>
                     </Border>
@@ -653,9 +653,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Estimated Value"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.EstimatedValue}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Rough AED estimate of the potential order."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.RoughAEDEstimatePotentialOrder}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryValue}"/>
                         </Grid>
                     </Border>
@@ -665,9 +665,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Notes"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Common.Notes}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Freeform notes stored with the inquiry record."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.FreeformNotesStoredInquiryRecord}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"/>
                         </Grid>
                     </Border>
@@ -686,9 +686,9 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}" Margin="0,0,0,10"/>
-                <TextBlock Text="JOB ORDER"
+                <TextBlock Text="{DynamicResource Common.JobOrder}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Turn optional production fields on or off. Status, Priority and Delivery Date cannot be hidden — the workflow needs them."
+                <TextBlock Text="{DynamicResource Settings.TurnOptionalProductionFieldsStatusPriority}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -696,18 +696,18 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE713;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Bulk Actions"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BulkActions}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Flip every Job Order field at once."/>
+                                       Text="{DynamicResource Settings.FlipJobOrderFieldOnce}"/>
                             <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
-                                <Button Content="Enable all"
+                                <Button Content="{DynamicResource Settings.Enable}"
                                         Command="{Binding EnableAllCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
-                                <Button Content="Hide all optional"
+                                <Button Content="{DynamicResource Settings.HideOptional}"
                                         Command="{Binding DisableAllOptionalCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
-                                <Button Content="Reset defaults"
+                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
                                         Command="{Binding ResetToDefaultsCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
                                         Margin="0"/>
@@ -716,7 +716,7 @@
                     </Border>
                 </StackPanel>
 
-                <TextBlock Text="PRODUCTION PANEL"
+                <TextBlock Text="{DynamicResource Settings.ProductionPanel}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
 
@@ -726,9 +726,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Assigned To"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource JobOrder.Assigned}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Operator running this job on the shop floor."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.OperatorRunningJobShopFloor}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAssignedTo}"/>
                         </Grid>
                     </Border>
@@ -738,9 +738,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Site Contact"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.SiteContact}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="On-site engineer the driver can reach."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.SiteEngineerDriverReach}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryContact}"/>
                         </Grid>
                     </Border>
@@ -750,9 +750,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Site Phone"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.SitePhone}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Direct line for delivery coordination."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.DirectLineDeliveryCoordination}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryPhone}"/>
                         </Grid>
                     </Border>
@@ -762,9 +762,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Site Address"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.SiteAddress}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Full delivery location for the driver."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.FullDeliveryLocationDriver}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryAddress}"/>
                         </Grid>
                     </Border>
@@ -774,9 +774,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Drawing Reference"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource JobOrder.DrawingReference}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Links the physical shop drawing to this job."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.LinksPhysicalShopDrawingJob}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDrawingReference}"/>
                         </Grid>
                     </Border>
@@ -786,9 +786,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Cutting Instructions"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource JobOrder.CuttingInstructions}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Operator cheat-sheet for the cutting bay."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.OperatorCheatSheetCuttingBay}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCuttingInstructions}"/>
                         </Grid>
                     </Border>
@@ -798,9 +798,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Internal Notes"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource JobOrder.InternalNotes}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Freeform notes for the production team."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.FreeformNotesProductionTeam}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInternalNotes}"/>
                         </Grid>
                     </Border>
@@ -818,9 +818,9 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}" Margin="0,0,0,10"/>
-                <TextBlock Text="DELIVERY NOTE"
+                <TextBlock Text="{DynamicResource Module.DeliveryNote}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Turn optional dispatch fields on or off. Status cannot be hidden — it drives the delivery workflow."
+                <TextBlock Text="{DynamicResource Settings.TurnOptionalDispatchFieldsStatusCannotHidden}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -828,18 +828,18 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE718;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Bulk Actions"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BulkActions}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Flip every Delivery Note field at once."/>
+                                       Text="{DynamicResource Settings.FlipDeliveryNoteFieldOnce}"/>
                             <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
-                                <Button Content="Enable all"
+                                <Button Content="{DynamicResource Settings.Enable}"
                                         Command="{Binding EnableAllCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
-                                <Button Content="Hide all optional"
+                                <Button Content="{DynamicResource Settings.HideOptional}"
                                         Command="{Binding DisableAllOptionalCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
-                                <Button Content="Reset defaults"
+                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
                                         Command="{Binding ResetToDefaultsCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
                                         Margin="0"/>
@@ -848,7 +848,7 @@
                     </Border>
                 </StackPanel>
 
-                <TextBlock Text="DELIVERY DETAILS"
+                <TextBlock Text="{DynamicResource Settings.DeliveryDetails}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
 
@@ -858,9 +858,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Driver Name"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource DeliveryNote.DriverNAME}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Who delivered the load."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.WhoDeliveredLoad}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDriverName}"/>
                         </Grid>
                     </Border>
@@ -870,9 +870,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Vehicle Number"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource DeliveryNote.VehicleNumber}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Truck or van plate."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.TruckVanPlate}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowVehicleNumber}"/>
                         </Grid>
                     </Border>
@@ -882,9 +882,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="FOC (Free of Cost)"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.FOCFreeCost}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Mark the delivery as free / complimentary."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.MarkDeliveryFreeComplimentary}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIsFoc}"/>
                         </Grid>
                     </Border>
@@ -894,9 +894,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Receiver Name"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource DeliveryNote.ReceiverNAME}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Who signed for the goods."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.WhoSignedGoods}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowReceiverName}"/>
                         </Grid>
                     </Border>
@@ -906,9 +906,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Notes"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Common.Notes}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Freeform dispatch notes."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.FreeformDispatchNotes}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"/>
                         </Grid>
                     </Border>
@@ -926,9 +926,9 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}" Margin="0,0,0,10"/>
-                <TextBlock Text="TAX INVOICE"
+                <TextBlock Text="{DynamicResource Module.TaxInvoice}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Turn optional accounting fields on or off. Issue Date cannot be hidden — it anchors the invoice."
+                <TextBlock Text="{DynamicResource Settings.TurnOptionalAccountingFieldsIssueDateCannot}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -936,18 +936,18 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7B8;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Bulk Actions"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BulkActions}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Flip every Tax Invoice field at once."/>
+                                       Text="{DynamicResource Settings.FlipTaxInvoiceFieldOnce}"/>
                             <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
-                                <Button Content="Enable all"
+                                <Button Content="{DynamicResource Settings.Enable}"
                                         Command="{Binding EnableAllCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
-                                <Button Content="Hide all optional"
+                                <Button Content="{DynamicResource Settings.HideOptional}"
                                         Command="{Binding DisableAllOptionalCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"/>
-                                <Button Content="Reset defaults"
+                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
                                         Command="{Binding ResetToDefaultsCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
                                         Margin="0"/>
@@ -956,7 +956,7 @@
                     </Border>
                 </StackPanel>
 
-                <TextBlock Text="INVOICE DETAILS"
+                <TextBlock Text="{DynamicResource Settings.InvoiceDetails}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
 
@@ -966,9 +966,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Due Date"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Reports.TaxInvoiceReport.DUEDATE}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Payment due date printed on the invoice."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.PaymentDueDatePrintedInvoice}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDueDate}"/>
                         </Grid>
                     </Border>
@@ -978,9 +978,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Payment Terms"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.PaymentTerms}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Net / credit terms the client agreed."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.NetCreditTermsClientAgreed}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPaymentTerms}"/>
                         </Grid>
                     </Border>
@@ -990,9 +990,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Discount %"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.Discount}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Percentage discount on the invoice."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.PercentageDiscountInvoice}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDiscountPercent}"/>
                         </Grid>
                     </Border>
@@ -1002,9 +1002,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="IBAN"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.IBAN}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Bank account number for settlement."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.BankAccountNumberSettlement}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIban}"/>
                         </Grid>
                     </Border>
@@ -1014,9 +1014,9 @@
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="SWIFT"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.Swift}"/>
                             </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Bank routing code for international transfers."/>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="{DynamicResource Settings.BankRoutingCodeInternationalTransfers}"/>
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSwiftCode}"/>
                         </Grid>
                     </Border>

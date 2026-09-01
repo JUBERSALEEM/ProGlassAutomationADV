@@ -41,9 +41,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Factory pulse"
+                        <TextBlock Text="{DynamicResource Dashboard.FactoryPulse}"
                                    Style="{StaticResource SoftHeroTitleStyle}"/>
-                        <TextBlock Text="Operational analytics — invoices, jobs, delivery, stock"
+                        <TextBlock Text="{DynamicResource Dashboard.OperationalAnalyticsInvoicesJobsDelivery}"
                                    Style="{StaticResource SoftHeroSubtitleStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
@@ -53,7 +53,7 @@
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="Live" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Common.Live}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -61,15 +61,15 @@
                                    Style="{StaticResource SoftMetaStyle}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,12,0"/>
-                        <Button Content="New Invoice" Tag="&#xE710;"
+                        <Button Content="{DynamicResource Dashboard.NewInvoice}" Tag="&#xE710;"
                                 Style="{StaticResource SoftPillAccentStyle}"
-                                Command="{Binding NewInvoiceCommand}" ToolTip="Create new tax invoice"/>
-                        <Button Content="Jobs" Tag="&#xE9F9;"
+                                Command="{Binding NewInvoiceCommand}" ToolTip="{DynamicResource Dashboard.CreateNewTaxInvoice}"/>
+                        <Button Content="{DynamicResource Dashboard.Jobs}" Tag="&#xE9F9;"
                                 Style="{StaticResource SoftPillButtonStyle}"
-                                Command="{Binding ViewJobsCommand}" ToolTip="View all job orders"/>
-                        <Button Content="Deliveries" Tag="&#xE806;" Margin="0"
+                                Command="{Binding ViewJobsCommand}" ToolTip="{DynamicResource Dashboard.ViewJobOrders}"/>
+                        <Button Content="{DynamicResource Dashboard.Deliveries}" Tag="&#xE806;" Margin="0"
                                 Style="{StaticResource SoftPillButtonStyle}"
-                                Command="{Binding ViewDeliveriesCommand}" ToolTip="View all delivery notes"/>
+                                Command="{Binding ViewDeliveriesCommand}" ToolTip="{DynamicResource Dashboard.ViewDeliveryNotes}"/>
                     </StackPanel>
                 </Grid>
 
@@ -77,7 +77,7 @@
                         Padding="16,12"
                         Visibility="{Binding IsLoading,
                             Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="Loading live business data…"
+                    <TextBlock Text="{DynamicResource Dashboard.LoadingLiveBusinessData}"
                                Style="{StaticResource SoftKpiFootStyle}"/>
                 </Border>
                 <Border Grid.Row="1" Style="{StaticResource SoftSectionStyle}"
@@ -139,7 +139,7 @@
                                     <ColumnDefinition Width="130"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="FACTORY PULSE"
+                                    <TextBlock Text="{DynamicResource Dashboard.FactoryPulse}"
                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"
                                                IsHitTestVisible="False"/>
@@ -168,9 +168,9 @@
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
-                            <TextBlock Text="Delivery mix"
+                            <TextBlock Text="{DynamicResource Dashboard.DeliveryMix}"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Notes and remaining pcs"
+                            <TextBlock Text="{DynamicResource Dashboard.NotesRemainingPcs}"
                                        Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding DeliveryMixSlices}"
@@ -183,7 +183,7 @@
                     <StackPanel Grid.Column="2">
                         <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
-                                <TextBlock Text="IN PRODUCTION"
+                                <TextBlock Text="{DynamicResource Dashboard.Production}"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding InProductionDisplay}"
                                            Style="{StaticResource SoftKpiValueStyle}"
@@ -192,7 +192,7 @@
                         </Border>
                         <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
-                                <TextBlock Text="OVERDUE"
+                                <TextBlock Text="{DynamicResource Common.Overdue}"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding OverdueDisplay}">
                                     <TextBlock.Style>
@@ -209,7 +209,7 @@
                         </Border>
                         <Border Style="{StaticResource SoftCardStyle}" Padding="16,12">
                             <StackPanel>
-                                <TextBlock Text="PENDING PCS"
+                                <TextBlock Text="{DynamicResource Dashboard.PendingPCS}"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding PendingPcsDisplay}"
                                            Style="{StaticResource SoftKpiValueStyle}"
@@ -230,7 +230,7 @@
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Revenue trend"
+                                <TextBlock Text="{DynamicResource Dashboard.RevenueTrend}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
                                 <TextBlock Text="{Binding ChartTitle}"
                                            Style="{StaticResource SoftMetaStyle}"
@@ -252,7 +252,7 @@
 
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
                         <DockPanel>
-                            <TextBlock DockPanel.Dock="Top" Text="Recent documents"
+                            <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Dashboard.RecentDocuments}"
                                        Style="{StaticResource SoftSectionTitleStyle}"
                                        Margin="0,0,0,8"/>
                             <!-- Mouse-wheel scroller. The page ScrollViewer above
@@ -287,7 +287,7 @@
                     </Grid.ColumnDefinitions>
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
                         <StackPanel>
-                            <TextBlock Text="Sales" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Nav.GroupSales}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
                             <ItemsControl ItemsSource="{Binding SalesTiles}"
                                           ItemTemplate="{StaticResource SoftKpiTileTemplate}"
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
@@ -295,7 +295,7 @@
                     </Border>
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="Production" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Module.Production}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
                             <ItemsControl ItemsSource="{Binding ProductionTiles}"
                                           ItemTemplate="{StaticResource SoftKpiTileTemplate}"
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
@@ -303,7 +303,7 @@
                     </Border>
                     <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}" Margin="18,0,0,0">
                         <StackPanel>
-                            <TextBlock Text="Sheet store" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <TextBlock Text="{DynamicResource Module.SheetStore}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
                             <ItemsControl ItemsSource="{Binding InventoryTiles}"
                                           ItemTemplate="{StaticResource SoftKpiTileTemplate}"
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>

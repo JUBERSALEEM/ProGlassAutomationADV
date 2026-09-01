@@ -74,8 +74,8 @@
                 <!-- TAB WORKSPACE — STEP D two-button visibility pattern -->
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Workspace"
-                        Tag="&#xE8B7;" Content="WORKSPACE"
-                        ToolTip="Open the document workspace" Margin="0,0,10,0">
+                        Tag="&#xE8B7;" Content="{DynamicResource Common.Workspace}"
+                        ToolTip="{DynamicResource DeliveryNote.OpenDocumentWorkspace}" Margin="0,0,10,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
@@ -88,8 +88,8 @@
                 </Button>
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Workspace"
-                        Tag="&#xE8B7;" Content="WORKSPACE"
-                        ToolTip="Open the document workspace" Margin="0,0,10,0">
+                        Tag="&#xE8B7;" Content="{DynamicResource Common.Workspace}"
+                        ToolTip="{DynamicResource DeliveryNote.OpenDocumentWorkspace}" Margin="0,0,10,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
@@ -104,8 +104,8 @@
                 <!-- TAB GOD VIEW — STEP D two-button visibility pattern -->
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="GodView"
-                        Tag="&#xE774;" Content="GOD VIEW"
-                        ToolTip="Cross-document overview" Margin="0,0,10,0">
+                        Tag="&#xE774;" Content="{DynamicResource DeliveryNote.GODVIEW}"
+                        ToolTip="{DynamicResource DeliveryNote.CrossDocumentOverview}" Margin="0,0,10,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
@@ -118,8 +118,8 @@
                 </Button>
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="GodView"
-                        Tag="&#xE774;" Content="GOD VIEW"
-                        ToolTip="Cross-document overview" Margin="0,0,10,0">
+                        Tag="&#xE774;" Content="{DynamicResource DeliveryNote.GODVIEW}"
+                        ToolTip="{DynamicResource DeliveryNote.CrossDocumentOverview}" Margin="0,0,10,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>
@@ -134,8 +134,8 @@
                 <!-- TAB ACTIVITY — STEP D two-button visibility pattern -->
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Activity"
-                        Tag="&#xE81C;" Content="ACTIVITY"
-                        ToolTip="Activity trail for this module" Margin="0,0,10,0">
+                        Tag="&#xE81C;" Content="{DynamicResource Common.Activity}"
+                        ToolTip="{DynamicResource DeliveryNote.ActivityTrailModule}" Margin="0,0,10,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
@@ -148,8 +148,8 @@
                 </Button>
                 <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Activity"
-                        Tag="&#xE81C;" Content="ACTIVITY"
-                        ToolTip="Activity trail for this module" Margin="0,0,10,0">
+                        Tag="&#xE81C;" Content="{DynamicResource Common.Activity}"
+                        ToolTip="{DynamicResource DeliveryNote.ActivityTrailModule}" Margin="0,0,10,0">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                             <Style.Triggers>

@@ -66,7 +66,7 @@
                     SnapsToDevicePixels="True"
                     Background="{Binding TintColor,
                                  Converter={StaticResource BrushKeyConverter}}"
-                    ToolTip="Open this invoice">
+                    ToolTip="{DynamicResource Dashboard.OpenInvoice}">
                 <Border.InputBindings>
                     <MouseBinding MouseAction="LeftClick"
                                   Command="{Binding DataContext.OpenInvoiceCommand,
@@ -346,9 +346,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Tax Invoices"
+                        <TextBlock Text="{DynamicResource Dashboard.TaxInvoices}"
                                    Style="{StaticResource SoftHeroTitleStyle}"/>
-                        <TextBlock Text="Revenue, ageing and collection health"
+                        <TextBlock Text="{DynamicResource Dashboard.RevenueAgeingCollectionHealth}"
                                    Style="{StaticResource SoftHeroSubtitleStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
@@ -358,16 +358,16 @@
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="Live" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Common.Live}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Button Content="New Invoice" Tag="&#xE710;"
+                        <Button Content="{DynamicResource Dashboard.NewInvoice}" Tag="&#xE710;"
                                 Style="{StaticResource SoftPillAccentStyle}"
-                                Command="{Binding CreateTaxInvoiceCommand}" ToolTip="New Invoice"/>
-                        <Button Content="View All" Tag="&#xE8FD;" Margin="0"
+                                Command="{Binding CreateTaxInvoiceCommand}" ToolTip="{DynamicResource Dashboard.NewInvoice}"/>
+                        <Button Content="{DynamicResource Dashboard.View}" Tag="&#xE8FD;" Margin="0"
                                 Style="{StaticResource SoftPillButtonStyle}"
-                                Command="{Binding ViewAllInvoicesCommand}" ToolTip="View All"/>
+                                Command="{Binding ViewAllInvoicesCommand}" ToolTip="{DynamicResource Dashboard.View}"/>
                     </StackPanel>
                 </Grid>
 
@@ -376,7 +376,7 @@
                             Padding="16,12"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="Loading tax invoice data…"
+                        <TextBlock Text="{DynamicResource Dashboard.LoadingTaxInvoiceData}"
                                    Style="{StaticResource SoftKpiFootStyle}"/>
                     </Border>
                     <Border Style="{StaticResource SoftSectionStyle}"
@@ -404,11 +404,11 @@
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource DangerBrush}">
                                 <Run Text="{Binding OverdueCount, Mode=OneWay}"/>
-                                <Run Text=" invoice(s) overdue — "/>
+                                <Run Text="{DynamicResource Dashboard.InvoiceSOverdue}"/>
                                 <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
                             </TextBlock>
                             <Button Grid.Column="1"
-                                    Content="View Overdue"
+                                    Content="{DynamicResource Dashboard.ViewOverdue}"
                                     Tag="&#xE7BA;"
                                     Style="{StaticResource SoftPillButtonStyle}"
                                     Background="{DynamicResource DangerBrush}"
@@ -429,9 +429,9 @@
                             Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Collections pulse"
+                                <TextBlock Text="{DynamicResource Dashboard.CollectionsPulse}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Invoiced, VAT, paid and pending"
+                                <TextBlock Text="{DynamicResource Dashboard.InvoicedVATPaidPending}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <ItemsControl ItemsSource="{Binding KpiTiles}"
@@ -448,9 +448,9 @@
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
-                            <TextBlock Text="Ageing mix"
+                            <TextBlock Text="{DynamicResource Dashboard.AgeingMix}"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Overdue amounts by bracket"
+                            <TextBlock Text="{DynamicResource Dashboard.OverdueAmountsBracket}"
                                        Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding AgingMixSlices}"
@@ -463,7 +463,7 @@
                     <StackPanel Grid.Column="2">
                         <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
-                                <TextBlock Text="OVERDUE"
+                                <TextBlock Text="{DynamicResource Common.Overdue}"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding OverdueCount}">
                                     <TextBlock.Style>
@@ -476,13 +476,13 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <TextBlock Text="Invoices past terms"
+                                <TextBlock Text="{DynamicResource Dashboard.InvoicesPastTerms}"
                                            Style="{StaticResource SoftKpiFootStyle}"/>
                             </StackPanel>
                         </Border>
                         <Border Style="{StaticResource SoftCardStyle}" Padding="16,12">
                             <StackPanel>
-                                <TextBlock Text="OVERDUE AED"
+                                <TextBlock Text="{DynamicResource Dashboard.OverdueAED}"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
                                 <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
                                          StretchDirection="DownOnly" Margin="0,8,0,4">
@@ -507,7 +507,7 @@
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Revenue trend"
+                                <TextBlock Text="{DynamicResource Dashboard.RevenueTrend}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
                                 <TextBlock Text="{Binding RevenueChartTitle}"
                                            Style="{StaticResource SoftMetaStyle}"
@@ -533,7 +533,7 @@
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock Text="&#xE9D9;"
                                                    Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                        <TextBlock Text="No revenue data yet"
+                                        <TextBlock Text="{DynamicResource Dashboard.NoRevenueDataYet}"
                                                    Style="{StaticResource DashEmptyStateTextStyle}"/>
                                     </StackPanel>
                                 </Border>
@@ -544,9 +544,9 @@
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Recent invoices"
+                                <TextBlock Text="{DynamicResource Dashboard.RecentInvoices}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Latest activity"
+                                <TextBlock Text="{DynamicResource Dashboard.LatestActivity}"
                                            Style="{StaticResource SoftMetaStyle}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
@@ -565,7 +565,7 @@
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE8EF;"
                                                Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="No invoices yet"
+                                    <TextBlock Text="{DynamicResource Dashboard.NoInvoicesYet}"
                                                Style="{StaticResource DashEmptyStateTextStyle}"/>
                                 </StackPanel>
                             </Border>
@@ -583,9 +583,9 @@
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Top customers"
+                                <TextBlock Text="{DynamicResource Dashboard.TopCustomers}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="By invoiced amount, last 12 months"
+                                <TextBlock Text="{DynamicResource Dashboard.InvoicedAmountLast12Months}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -603,7 +603,7 @@
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE735;"
                                                Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="No customer data"
+                                    <TextBlock Text="{DynamicResource Dashboard.NoCustomerData}"
                                                Style="{StaticResource DashEmptyStateTextStyle}"/>
                                 </StackPanel>
                             </Border>
@@ -613,9 +613,9 @@
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}" Margin="18,0,0,0">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Ageing brackets"
+                                <TextBlock Text="{DynamicResource Dashboard.AgeingBrackets}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Overdue amounts grouped by age"
+                                <TextBlock Text="{DynamicResource Dashboard.OverdueAmountsGroupedAge}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -634,7 +634,7 @@
                                     <TextBlock Text="&#xE73E;"
                                                Style="{StaticResource DashEmptyStateGlyphStyle}"
                                                Foreground="{DynamicResource SuccessBrush}"/>
-                                    <TextBlock Text="No overdue invoices"
+                                    <TextBlock Text="{DynamicResource Dashboard.NoOverdueInvoices}"
                                                Style="{StaticResource DashEmptyStateTextStyle}"/>
                                 </StackPanel>
                             </Border>

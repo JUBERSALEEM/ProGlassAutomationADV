@@ -63,7 +63,7 @@
                 <StackPanel>
 
                     <!-- ══════════ 2. IDENTITY STRIP ══════════ -->
-                    <TextBlock Text="SOURCE INVOICE"
+                    <TextBlock Text="{DynamicResource JobOrder.SourceInvoice}"
                                Style="{StaticResource CardLabelStyle}"
                                Margin="0,0,0,8"/>
                     <Border Style="{StaticResource ModuleListKpiStripStyle}"
@@ -83,7 +83,7 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="COMPANY" Style="{StaticResource CardLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource CardLabelStyle}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyName, FallbackValue=—}"
                                            FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -98,7 +98,7 @@
                             <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                <TextBlock Text="CLIENT" Style="{StaticResource CardLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource JobOrder.Client}" Style="{StaticResource CardLabelStyle}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Client.CustomerName, FallbackValue=—}"
                                            FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -113,7 +113,7 @@
                             <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                             <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                                <TextBlock Text="PROJECT" Style="{StaticResource CardLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource CardLabelStyle}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectIdentifierName, FallbackValue=—}"
                                            FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -127,7 +127,7 @@
                             <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                             <StackPanel Grid.Column="6" VerticalAlignment="Center" MinWidth="120">
-                                <TextBlock Text="INVOICE VALUE" Style="{StaticResource CardLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}" Style="{StaticResource CardLabelStyle}"/>
                                 <TextBlock Text="{Binding GrandTotalDisplay}"
                                            FontSize="{DynamicResource DensityKpiValueFontSize}"
                                            FontWeight="Bold"
@@ -137,10 +137,10 @@
                     </Border>
 
                     <!-- ══════════ 3. GLASS PANELS TABLE ══════════ -->
-                    <TextBlock Text="GLASS PANELS"
+                    <TextBlock Text="{DynamicResource JobOrder.GlassPanels}"
                                Style="{StaticResource CardLabelStyle}"
                                Margin="0,0,0,4"/>
-                    <TextBlock Text="Production ticket — sizes, qty, SQM and TOTAL SQM"
+                    <TextBlock Text="{DynamicResource JobOrder.ProductionTicketSizesQtySQMTotalSQM}"
                                FontSize="{StaticResource TextCaption}"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                Margin="0,0,0,8"/>
@@ -187,7 +187,7 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="#"
                                                            Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                                <TextBlock Grid.Column="1" Text="GLASS REF"
+                                                <TextBlock Grid.Column="1" Text="{DynamicResource DeliveryNote.GlassRef}"
                                                            Style="{StaticResource LineItemsHeaderTextStyle}"
                                                            HorizontalAlignment="Left"/>
                                                 <TextBlock Grid.Column="2" Text="W1"
@@ -258,7 +258,7 @@
                                         <Border Style="{StaticResource LineItemsFooterStyle}">
                                             <TextBlock FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                <Run Text="Glass type  " FontWeight="SemiBold"/>
+                                                <Run Text="{DynamicResource JobOrder.GlassType}" FontWeight="SemiBold"/>
                                                 <Run Text="{Binding SelectedGlassType, FallbackValue=SGU, Mode=OneWay}"
                                                      FontWeight="Bold"
                                                      Foreground="{DynamicResource AccentBrush}"/>

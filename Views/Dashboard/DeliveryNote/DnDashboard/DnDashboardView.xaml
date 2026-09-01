@@ -39,9 +39,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Deliveries"
+                        <TextBlock Text="{DynamicResource Dashboard.Deliveries}"
                                    Style="{StaticResource SoftHeroTitleStyle}"/>
-                        <TextBlock Text="Dispatch flow, delivery balance and recent movements"
+                        <TextBlock Text="{DynamicResource Dashboard.DispatchFlowDeliveryBalanceRecentMovements}"
                                    Style="{StaticResource SoftHeroSubtitleStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
@@ -51,7 +51,7 @@
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="Live" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Common.Live}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -66,7 +66,7 @@
                             Padding="16,12"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="Loading delivery note data…"
+                        <TextBlock Text="{DynamicResource Dashboard.LoadingDeliveryNoteData}"
                                    Style="{StaticResource SoftKpiFootStyle}"/>
                     </Border>
                     <Border Style="{StaticResource SoftSectionStyle}"
@@ -92,9 +92,9 @@
                             Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Dispatch pulse"
+                                <TextBlock Text="{DynamicResource Dashboard.DispatchPulse}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Notes, pending pcs and returns"
+                                <TextBlock Text="{DynamicResource Dashboard.NotesPendingPcsReturns}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <ItemsControl ItemsSource="{Binding KpiCards}"
@@ -111,9 +111,9 @@
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
-                            <TextBlock Text="Delivery mix"
+                            <TextBlock Text="{DynamicResource Dashboard.DeliveryMix}"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Notes grouped by current status"
+                            <TextBlock Text="{DynamicResource Dashboard.NotesGroupedCurrentStatus}"
                                        Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding StatusMixSlices}"
@@ -126,9 +126,9 @@
                     <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="By type"
+                                <TextBlock Text="{DynamicResource Dashboard.Type}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Dummy / split / master"
+                                <TextBlock Text="{DynamicResource Dashboard.DummySplitMaster}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <Border Style="{StaticResource SoftChartWellStyle}">
@@ -156,9 +156,9 @@
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Status distribution"
+                                <TextBlock Text="{DynamicResource Dashboard.StatusDistribution}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Delivery note count"
+                                <TextBlock Text="{DynamicResource Dashboard.DeliveryNoteCount}"
                                            Style="{StaticResource SoftMetaStyle}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
@@ -181,7 +181,7 @@
                                     <StackPanel HorizontalAlignment="Center">
                                         <TextBlock Text="&#xE806;"
                                                    Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                        <TextBlock Text="No delivery notes yet"
+                                        <TextBlock Text="{DynamicResource Dashboard.NoDeliveryNotesYet}"
                                                    Style="{StaticResource DashEmptyStateTextStyle}"/>
                                     </StackPanel>
                                 </Border>
@@ -192,9 +192,9 @@
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Recent deliveries"
+                                <TextBlock Text="{DynamicResource Dashboard.RecentDeliveries}"
                                            Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="Latest activity"
+                                <TextBlock Text="{DynamicResource Dashboard.LatestActivity}"
                                            Style="{StaticResource SoftMetaStyle}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
@@ -213,9 +213,9 @@
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE806;"
                                                Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="No delivery notes yet"
+                                    <TextBlock Text="{DynamicResource Dashboard.NoDeliveryNotesYet}"
                                                Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                    <TextBlock Text="Create a delivery note from a Job Order."
+                                    <TextBlock Text="{DynamicResource Dashboard.CreateDeliveryNoteJobOrder}"
                                                Style="{StaticResource SoftMetaStyle}"
                                                HorizontalAlignment="Center"
                                                TextAlignment="Center"

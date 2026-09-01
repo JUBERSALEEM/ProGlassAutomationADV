@@ -2,7 +2,7 @@
              TextOptions.TextHintingMode="Fixed"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Upload Confirmation"
+        Title="{DynamicResource ProformaInvoice.UploadConfirmation}"
         Width="560"
         Height="440"
         WindowStartupLocation="CenterOwner"
@@ -59,10 +59,10 @@
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Approve — Upload the Confirmation"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.ApproveUploadConfirmation}"
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="Choose the document type to attach for this invoice"
+                        <TextBlock Text="{DynamicResource ProformaInvoice.ChooseDocumentTypeAttachInvoice}"
                                    FontSize="{StaticResource TextBody}"
                                    Margin="0,2,0,0"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -86,16 +86,16 @@
                         Height="52"
                         Style="{StaticResource PrimaryPillButton}"
                         Tag="&#xE91B;"
-                        Content="Upload JPG / Image  (signed PI or LPO photo)"
-                        ToolTip="Open the Step 8 image uploader"
+                        Content="{DynamicResource ProformaInvoice.UploadJPGImageSignedPILPOPhoto}"
+                        ToolTip="{DynamicResource ProformaInvoice.OpenStep8ImageUploader}"
                         Click="OnImageClick"/>
                 <Button x:Name="PdfButton"
                         Height="52"
                         Margin="0,12,0,0"
                         Style="{StaticResource OutlinedPillButton}"
                         Tag="&#xE8A5;"
-                        Content="Upload PDF  (signed PI or LPO document)"
-                        ToolTip="Open the Step 8 PDF uploader"
+                        Content="{DynamicResource ProformaInvoice.UploadPDFSignedPILPODocument}"
+                        ToolTip="{DynamicResource ProformaInvoice.OpenStep8PDFUploader}"
                         Click="OnPdfClick"/>
             </StackPanel>
 
@@ -109,8 +109,8 @@
                     Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE711;" Content="CANCEL"
-                            ToolTip="Close without uploading"
+                            Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
+                            ToolTip="{DynamicResource ProformaInvoice.CloseWithoutUploading}"
                             Click="OnCancelClick"
                             IsCancel="True"/>
                 </StackPanel>

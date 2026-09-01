@@ -93,10 +93,10 @@
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Total" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Total}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding TotalCount}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="All saved PIs"
+                                <TextBlock Text="{DynamicResource ProformaInvoice.SavedPis}"
                                            Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -114,10 +114,10 @@
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Showing" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.Showing}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding FilteredCount}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="After filters"
+                                <TextBlock Text="{DynamicResource ProformaInvoice.AfterFilters}"
                                            Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -135,11 +135,11 @@
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Value" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Inquiry.Value}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding TotalValueSum, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"
                                            FontSize="{StaticResource TextTitleLarge}"/>
-                                <TextBlock Text="Filtered sum"
+                                <TextBlock Text="{DynamicResource ProformaInvoice.FilteredSum}"
                                            Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -166,7 +166,7 @@
                         <TextBox Grid.Column="0"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource ModuleListFilterInputStyle}"
-                                 ToolTip="Search ref, company, customer, project"/>
+                                 ToolTip="{DynamicResource ProformaInvoice.SearchRefCompanyCustomerProject}"/>
 
                         <ComboBox Grid.Column="2"
                                   ItemsSource="{Binding StatusFilterOptions}"
@@ -177,13 +177,13 @@
                                     SelectedDate="{Binding FromDate}"
                                     Width="128"
                                     Style="{StaticResource ModuleListFilterDatePickerStyle}"
-                                    ToolTip="From date"/>
+                                    ToolTip="{DynamicResource Common.FromDate}"/>
 
                         <DatePicker Grid.Column="6"
                                     SelectedDate="{Binding ToDate}"
                                     Width="128"
                                     Style="{StaticResource ModuleListFilterDatePickerStyle}"
-                                    ToolTip="To date"/>
+                                    ToolTip="{DynamicResource Common.ToDate}"/>
 
                         <ComboBox Grid.Column="8"
                                   ItemsSource="{Binding SortPresetOptions}"
@@ -195,25 +195,25 @@
                                     Command="{Binding ClearFiltersCommand}"
                                     Margin="0,0,8,0"
                                     MinWidth="92"
-                                    Tag="&#xE711;" Content="CLEAR"
-                                    ToolTip="Clear all search filters"/>
+                                    Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
+                                    ToolTip="{DynamicResource ProformaInvoice.ClearSearchFilters}"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Command="{Binding RefreshCommand}"
                                     Margin="0,0,8,0"
                                     MinWidth="108"
-                                    Tag="&#xE72C;" Content="REFRESH"
-                                    ToolTip="Reload the invoice list"/>
+                                    Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
+                                    ToolTip="{DynamicResource ProformaInvoice.ReloadInvoiceList}"/>
                             <Button Style="{StaticResource OutlinedPillButton}"
                                     Command="{Binding SetTodayFilterCommand}"
                                     Margin="0,0,8,0"
                                     MinWidth="92"
-                                    Tag="&#xE787;" Content="TODAY"
-                                    ToolTip="Filter invoices prepared today"/>
+                                    Tag="&#xE787;" Content="{DynamicResource Shell.Today}"
+                                    ToolTip="{DynamicResource ProformaInvoice.FilterInvoicesPreparedToday}"/>
                             <Button Style="{StaticResource SuccessPillButton}"
                                     Command="{Binding ExportFilteredExcelCommand}"
                                     MinWidth="130"
-                                    Tag="&#xE72D;" Content="SHARE EXCEL"
-                                    ToolTip="Export the filtered invoices as one Excel table"/>
+                                    Tag="&#xE72D;" Content="{DynamicResource ProformaInvoice.ShareExcel}"
+                                    ToolTip="{DynamicResource ProformaInvoice.ExportFilteredInvoicesOneExcelTable}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -232,15 +232,15 @@
                             <ColumnDefinition Width="120"/>
                             <ColumnDefinition Width="160"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="REF #" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="COMPANY" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="3" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="5" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.REF}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="6" Text="GRAND TOTAL" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="6" Text="{DynamicResource ProformaInvoice.GrandTotal}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Right" Margin="0,0,12,0"/>
-                        <TextBlock Grid.Column="7" Text="DATE" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="7" Text="{DynamicResource Common.Date}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                         <TextBlock Grid.Column="8" Text="" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                     </Grid>
                 </Border>
@@ -259,7 +259,7 @@
                                 Style="{StaticResource EmptyStateStyle}">
                         <emptyState:EmptyStateControl
                             Icon="&#xE7C3;"
-                            Title="No saved invoices found"
+                            Title="{DynamicResource ProformaInvoice.NoSavedInvoicesFound}"
                             Message="Add your first invoice from the toolbar above."/>
                     </StackPanel>
 
@@ -409,17 +409,17 @@
                                                     Command="{Binding DataContext.LoadInvoiceCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}"
-                                                    ToolTip="Open &amp; Edit (right-click for more options)"
+                                                    ToolTip="{DynamicResource ProformaInvoice.OpenEditRightClickMoreOptions}"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Margin="6,0"
                                                     MinWidth="72"
-                                                    Tag="&#xE8E5;" Content="OPEN"/>
+                                                    Tag="&#xE8E5;" Content="{DynamicResource Action.Open}"/>
                                             <Button Style="{StaticResource RowOutlinedButton}"
                                                     Command="{Binding DataContext.ShowVersionsCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}"
-                                                    ToolTip="Version history"
+                                                    ToolTip="{DynamicResource Common.VersionHistory}"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Margin="4,0,8,0"

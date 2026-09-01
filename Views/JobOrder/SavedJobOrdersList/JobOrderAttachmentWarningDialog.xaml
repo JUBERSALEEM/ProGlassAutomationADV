@@ -2,7 +2,7 @@
              TextOptions.TextHintingMode="Fixed"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Job Order Has Related Attachments"
+        Title="{DynamicResource JobOrder.JobOrderRelatedAttachments}"
         Width="560"
         Height="380"
         WindowStartupLocation="CenterOwner"
@@ -71,12 +71,12 @@
                                    VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="Job Order Has Related Attachments"
+                        <TextBlock Text="{DynamicResource JobOrder.JobOrderRelatedAttachments}"
                                    FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    TextWrapping="Wrap"
                                    MaxWidth="400"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="The source proforma invoice still has Step 8 attachments."
+                        <TextBlock Text="{DynamicResource JobOrder.SourceProformaInvoiceStillStep8Attachments}"
                                    FontSize="{StaticResource TextBody}"
                                    Margin="0,2,0,0"
                                    TextWrapping="Wrap"
@@ -104,14 +104,14 @@
                     Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE8E5;" Content="KEEP ATTACHMENTS"
+                            Tag="&#xE8E5;" Content="{DynamicResource JobOrder.KEEPAttachments}"
                             Margin="0,0,10,0"
-                            ToolTip="Delete the job order but keep the invoice's attachments"
+                            ToolTip="{DynamicResource JobOrder.DeleteJobOrderKeepInvoiceSAttachments}"
                             Click="OnKeepClick"
                             IsCancel="True"/>
                     <Button Style="{StaticResource DangerButton}"
-                            Tag="&#xE74D;" Content="DELETE ATTACHMENTS"
-                            ToolTip="Delete the job order and the invoice's attachments"
+                            Tag="&#xE74D;" Content="{DynamicResource JobOrder.DeleteAttachments}"
+                            ToolTip="{DynamicResource JobOrder.DeleteJobOrderInvoiceSAttachments}"
                             Click="OnDeleteClick"/>
                 </StackPanel>
             </Border>

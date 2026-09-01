@@ -23,8 +23,8 @@
 
         <!-- Page Title & Scope Subtitle -->
         <StackPanel Grid.Row="0" Margin="16,14,16,12">
-            <TextBlock Text="VAT Submission Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"/>
-            <TextBlock Text="5% UAE FTA VAT breakdown by salesman, company, and project · Export for tax filing compliance." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+            <TextBlock Text="{DynamicResource Reports.VatSubmission.VATSubmissionReport}" Style="{StaticResource ModulePageTitleStyle}" FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"/>
+            <TextBlock Text="{DynamicResource Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject}" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
         </StackPanel>
 
         <!-- Main Shell Card -->
@@ -51,26 +51,26 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Card 1: Total PI (Invoice Count) -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total finalized Proforma Invoice count in the selected period">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.VatSubmission.TotalFinalizedProformaInvoiceCountSelected}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="TOTAL PI" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.PiReport.TotalPI}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalInvoices}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Finalized invoices" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.VatSubmission.FinalizedInvoices}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <!-- Card 2: Salesmen -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Active salesmen contributing to VAT in this period">
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.VatSubmission.ActiveSalesmenContributingVATPeriod}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="SALESMEN" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.VatSubmission.Salesmen}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.BySalesman.Count}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="{Binding Summary.ByCompany.Count, Mode=OneWay, StringFormat={}{0} companies}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
@@ -79,42 +79,42 @@
                         <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <!-- Card 3: Total Revenue (inc. VAT) -->
-                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total revenue including VAT — what customers paid">
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.VatSubmission.TotalRevenueIncludingVATWhatCustomersPaid}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="TOTAL REVENUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.VatSubmission.TotalRevenue}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalGrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Inc. VAT" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.VatSubmission.IncVAT}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <!-- Card 4: Net Revenue (ex. VAT) -->
-                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Net revenue excluding VAT — what the business retains">
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.VatSubmission.NetRevenueExcludingVATWhatBusinessRetains}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE838;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="NET REVENUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.VatSubmission.NETRevenue}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Ex. VAT" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.VatSubmission.ExVAT}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="7" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                         <!-- Card 5: VAT Collected (5% FTA) -->
-                        <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total 5% VAT collected — payable to UAE FTA">
+                        <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="{DynamicResource Reports.VatSubmission.Total5VATCollectedPayableUAEFTA}">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintRedBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE7C1;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="VAT COLLECTED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.VatSubmission.VATCollected}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalVatCollected, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="5% FTA rate" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.VatSubmission.5FTARate}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -133,46 +133,46 @@
                         <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <!-- Date From -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="FROM DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateFrom}" ToolTip="Filter by start date"/>
+                                <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateFrom}" ToolTip="{DynamicResource Reports.PiReport.FilterStartDate}"/>
                             </StackPanel>
 
                             <!-- Date To -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="TO DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="Filter by end date"/>
+                                <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="{DynamicResource Reports.PiReport.FilterEndDate}"/>
                             </StackPanel>
 
                             <!-- Company -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="COMPANY" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding CompanyFilter}" ToolTip="Filter by company"/>
+                                <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding CompanyFilter}" ToolTip="{DynamicResource Reports.PiReport.FilterCompany}"/>
                             </StackPanel>
 
                             <!-- Salesman -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="SALESMAN" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding SalesmanOptions}" SelectedItem="{Binding SalesmanFilter}" ToolTip="Filter by salesman"/>
+                                <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding SalesmanOptions}" SelectedItem="{Binding SalesmanFilter}" ToolTip="{DynamicResource Reports.VatSubmission.FilterSalesman}"/>
                             </StackPanel>
 
                             <!-- Project -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="PROJECT" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="150" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding ProjectOptions}" SelectedItem="{Binding ProjectFilter}" ToolTip="Filter by project"/>
+                                <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="150" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding ProjectOptions}" SelectedItem="{Binding ProjectFilter}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterProject}"/>
                             </StackPanel>
 
                             <!-- Action Buttons -->
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,6,6">
-                                <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Reset all filters"/>
+                                <Button Content="{DynamicResource Action.Clear}" Command="{Binding ClearFilterCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="{DynamicResource Reports.VatSubmission.ResetFilters}"/>
                             </StackPanel>
                         </WrapPanel>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="8,0,0,6">
-                            <TextBlock Text="EXPORT" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="{DynamicResource Action.Export}" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export filtered records to CSV"/>
-                                <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export filtered records to Excel (.xlsx)"/>
-                                <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ReportExportPrimaryButton}" ToolTip="Export professional PDF report"/>
+                                <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Reports.PiReport.ExportFilteredRecordsCSV}"/>
+                                <Button Content="{DynamicResource JobOrder.Excel}" Command="{Binding ExportExcelCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="{DynamicResource Reports.PiReport.ExportFilteredRecordsExcelXlsx}"/>
+                                <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ReportExportPrimaryButton}" ToolTip="{DynamicResource Reports.DeliveryReport.ExportProfessionalPDFReport}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -204,7 +204,7 @@
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
-                                                <TextBlock x:Name="TabText" Text="Detail View" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.DetailView}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
                                                 <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="1"/>
                                             </Grid>
@@ -233,7 +233,7 @@
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
-                                                <TextBlock x:Name="TabText" Text="By Salesman" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.Salesman}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
                                                 <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="1"/>
                                             </Grid>
@@ -262,7 +262,7 @@
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
-                                                <TextBlock x:Name="TabText" Text="By Company" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.Company}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
                                                 <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="1"/>
                                             </Grid>
@@ -291,7 +291,7 @@
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
-                                                <TextBlock x:Name="TabText" Text="By Project" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.Project}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
                                                 <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="1"/>
                                             </Grid>
@@ -339,15 +339,15 @@
                                     <ColumnDefinition Width="1.0*"/>
                                     <ColumnDefinition Width="0.9*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="PI NUMBER" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="1" Text="DATE / TIME" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" Text="COMPANY" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="3" Text="CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="4" Text="PROJECT" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="5" Text="SALESMAN" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="6" Text="STATUS" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="7" Text="NET AMOUNT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="8" Text="VAT (5%)" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="0" Text="{DynamicResource Reports.DeliveryReport.PINumber}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Reports.VatSubmission.DATETIME}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="5" Text="{DynamicResource Common.Salesman}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="6" Text="{DynamicResource Common.Status}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="7" Text="{DynamicResource Reports.VatSubmission.NETAmount}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="8" Text="{DynamicResource Reports.VatSubmission.VAT5}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Border>
 
@@ -355,7 +355,7 @@
                         <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading VAT submission data…"/>
 
                         <!-- Empty State -->
-                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No VAT records found" Message="Try adjusting your filters or date range. The report queries Proforma Invoice records." Icon="&#xE913;"/>
+                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="{DynamicResource Reports.VatSubmission.NoVATRecordsFound}" Message="Try adjusting your filters or date range. The report queries Proforma Invoice records." Icon="&#xE913;"/>
 
                         <!-- Error State -->
                         <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
@@ -363,9 +363,9 @@
                                 CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
-                                <TextBlock Text="Unable to load records" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                                <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
                                 <TextBlock Text="{Binding ErrorMessage}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
-                                <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
+                                <Button Content="{DynamicResource Action.Retry}" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="{DynamicResource Reports.DeliveryReport.RetryLoadingRecords}"/>
                             </StackPanel>
                         </Border>
 
@@ -463,16 +463,16 @@
                                     <ColumnDefinition Width="1.0*"/>
                                     <ColumnDefinition Width="1.0*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="SALESMAN" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="1" Text="INVOICES" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" Text="TOTAL VAT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="3" Text="TOTAL REVENUE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="0" Text="{DynamicResource Common.Salesman}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Common.Invoices}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{DynamicResource Reports.VatSubmission.TotalVAT}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Reports.VatSubmission.TotalRevenue}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Border>
 
                         <!-- Loading / Empty / Error -->
                         <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading VAT data…"/>
-                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No salesman data" Message="No VAT records found for the selected filters." Icon="&#xE77B;"/>
+                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="{DynamicResource Reports.VatSubmission.NoSalesmanData}" Message="No VAT records found for the selected filters." Icon="&#xE77B;"/>
 
                         <!-- Data rows -->
                         <ListBox Grid.Row="1" ItemsSource="{Binding SalesmanSummary}"
@@ -525,16 +525,16 @@
                                     <ColumnDefinition Width="1.0*"/>
                                     <ColumnDefinition Width="1.0*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="COMPANY" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="1" Text="INVOICES" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="2" Text="TOTAL VAT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="3" Text="TOTAL REVENUE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="0" Text="{DynamicResource Common.Company}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Common.Invoices}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="{DynamicResource Reports.VatSubmission.TotalVAT}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Reports.VatSubmission.TotalRevenue}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Border>
 
                         <!-- Loading / Empty / Error -->
                         <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading VAT data…"/>
-                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No company data" Message="No VAT records found for the selected filters." Icon="&#xE82F;"/>
+                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="{DynamicResource Reports.VatSubmission.NoCompanyData}" Message="No VAT records found for the selected filters." Icon="&#xE82F;"/>
 
                         <!-- Data rows -->
                         <ListBox Grid.Row="1" ItemsSource="{Binding CompanySummary}"
@@ -588,17 +588,17 @@
                                     <ColumnDefinition Width="1.0*"/>
                                     <ColumnDefinition Width="1.0*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="PROJECT" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="1" Text="COMPANY" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="2" Text="INVOICES" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="3" Text="TOTAL VAT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="4" Text="TOTAL REVENUE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="0" Text="{DynamicResource Common.Project}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Common.Company}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="2" Text="{DynamicResource Common.Invoices}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="3" Text="{DynamicResource Reports.VatSubmission.TotalVAT}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="4" Text="{DynamicResource Reports.VatSubmission.TotalRevenue}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Border>
 
                         <!-- Loading / Empty / Error -->
                         <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading VAT data…"/>
-                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No project data" Message="No VAT records found for the selected filters." Icon="&#xE82F;"/>
+                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="{DynamicResource Reports.VatSubmission.NoProjectData}" Message="No VAT records found for the selected filters." Icon="&#xE82F;"/>
 
                         <!-- Data rows -->
                         <ListBox Grid.Row="1" ItemsSource="{Binding ProjectSummary}"
@@ -648,9 +648,9 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to previous page"/>
-                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to next page"/>
-                            <Button Content="↻" Command="{Binding RefreshCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Refresh report data"/>
+                            <Button Content="{DynamicResource Reports.DeliveryReport.Prev}" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoPreviousPage}"/>
+                            <Button Content="{DynamicResource Reports.DeliveryReport.Next}" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.GoNextPage}"/>
+                            <Button Content="↻" Command="{Binding RefreshCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="{DynamicResource Reports.DeliveryReport.RefreshReportData}"/>
                         </StackPanel>
                     </Grid>
                 </Border>

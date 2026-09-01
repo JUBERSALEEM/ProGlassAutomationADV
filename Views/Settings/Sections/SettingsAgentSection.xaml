@@ -58,8 +58,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="AI &amp; Agent" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Privacy posture, provider credentials, taught phrases and agent memory."
+            <TextBlock Text="{DynamicResource Settings.SecAgent}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.PrivacyPostureProviderCredentialsTaught}"
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -72,9 +72,9 @@
             <StackPanel Margin="32,0,32,32">
 
                 <!-- ═══════ GROUP: PRIVACY ═══════ -->
-                <TextBlock Text="PRIVACY"
+                <TextBlock Text="{DynamicResource About.Privacy}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Control whether the agent talks to the internet, and what it is allowed to say."
+                <TextBlock Text="{DynamicResource Settings.ControlWhetherAgentTalksInternetWhatAllowed}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <UniformGrid Columns="2" Margin="0,0,0,6">
@@ -86,11 +86,11 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{Binding LocalOnlyLabel}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="When on, the agent never contacts the internet. This is the default."/>
+                                       Text="{DynamicResource Settings.WhenAgentNeverContactsInternetDefault}"/>
                             <Button Command="{Binding ToggleLocalOnlyCommand}"
                                     Style="{StaticResource SettingsActionButtonStyle}"
                                     Tag="&#xE72E;"
-                                    Content="TOGGLE"/>
+                                    Content="{DynamicResource Settings.Toggle}"/>
                         </StackPanel>
                     </Border>
 
@@ -102,11 +102,11 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{Binding CloudConsentLabel}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="A separate, explicit agreement to send questions to an online provider. Turning Local-Only back on clears it."/>
+                                       Text="{DynamicResource Settings.SeparateExplicitAgreementSendQuestionsOnline}"/>
                             <Button Command="{Binding ToggleCloudConsentCommand}"
                                     Style="{StaticResource SettingsActionButtonStyle}"
                                     Tag="&#xE72E;"
-                                    Content="TOGGLE"/>
+                                    Content="{DynamicResource Settings.Toggle}"/>
                         </StackPanel>
                     </Border>
                 </UniformGrid>
@@ -116,12 +116,12 @@
                     <StackPanel>
                         <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                             <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE946;"/>
-                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="What This Means"/>
+                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.WhatMeans}"/>
                         </StackPanel>
                         <TextBlock Text="{Binding PrivacySummary}"
                                    Style="{StaticResource SettingsTileCaptionStyle}"/>
                         <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">
-                            <Run Text="Allowed hosts: " FontWeight="SemiBold"/>
+                            <Run Text="{DynamicResource Settings.AllowedHosts}" FontWeight="SemiBold"/>
                             <Run Text="{Binding AllowedHostsDisplay, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
@@ -132,7 +132,7 @@
                     <StackPanel>
                         <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                             <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE90F;"/>
-                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Local Model Advice"/>
+                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.LocalModelAdvice}"/>
                         </StackPanel>
                         <TextBlock Text="{Binding HardwareAdvice}"
                                    Style="{StaticResource SettingsTileCaptionStyle}"/>
@@ -142,9 +142,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: PROVIDER CREDENTIALS ═══════ -->
-                <TextBlock Text="PROVIDER CREDENTIALS"
+                <TextBlock Text="{DynamicResource Settings.ProviderCredentials}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Keys are encrypted with Windows DPAPI for your user account and are never written to a settings file."
+                <TextBlock Text="{DynamicResource Settings.KeysEncryptedWindowsDpapiUserAccountNever}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -152,7 +152,7 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8B7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Store an API Key"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.StoreAPIKey}"/>
                             </StackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -161,7 +161,7 @@
                                     <ColumnDefinition Width="*" MinWidth="160"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="PROVIDER" Style="{StaticResource LabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Settings.Provider}" Style="{StaticResource LabelStyle}"/>
                                     <ComboBox ItemsSource="{Binding ProviderOptions}"
                                               SelectedItem="{Binding SelectedProvider}"
                                               Height="38"
@@ -169,7 +169,7 @@
                                               VerticalContentAlignment="Center"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="API KEY" Style="{StaticResource LabelStyle}"/>
+                                    <TextBlock Text="{DynamicResource Settings.APIKEY}" Style="{StaticResource LabelStyle}"/>
                                     <PasswordBox x:Name="AgentKeyBox"
                                                  Style="{StaticResource RoundedPasswordBoxStyle}"/>
                                 </StackPanel>
@@ -181,12 +181,12 @@
                             <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}" Margin="0,10,0,0">
                                 <Button Style="{StaticResource SuccessPillButton}"
                                         Tag="&#xE74E;"
-                                        Content="STORE KEY"
+                                        Content="{DynamicResource Settings.StoreKEY}"
                                         HorizontalAlignment="Stretch"
                                         Click="StoreKey_Click"/>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE74D;"
-                                        Content="REMOVE KEY"
+                                        Content="{DynamicResource Settings.RemoveKEY}"
                                         Margin="0"
                                         Command="{Binding RemoveKeyCommand}"/>
                             </UniformGrid>
@@ -197,9 +197,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: TAUGHT PHRASES ═══════ -->
-                <TextBlock Text="TAUGHT PHRASES"
+                <TextBlock Text="{DynamicResource Settings.TaughtPhrases}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="A taught phrase does nothing until you approve it here."
+                <TextBlock Text="{DynamicResource Settings.TaughtPhraseNothingUntilApproveHere}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -210,7 +210,7 @@
                                         Command="{Binding RefreshRulesCommand}"
                                         Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE72C;"
-                                        Content="REFRESH"
+                                        Content="{DynamicResource Action.Refresh}"
                                         VerticalAlignment="Center"/>
                             </DockPanel>
 
@@ -256,13 +256,13 @@
                                                             VerticalAlignment="Center">
                                                     <Button Style="{StaticResource RowSuccessButton}"
                                                             Tag="&#xE73E;"
-                                                            Content="APPROVE"
+                                                            Content="{DynamicResource Settings.Approve}"
                                                             Command="{Binding DataContext.ApproveRuleCommand,
                                                                 RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                             CommandParameter="{Binding}"/>
                                                     <Button Style="{StaticResource RowDangerButton}"
                                                             Tag="&#xE74D;"
-                                                            Content="REVOKE"
+                                                            Content="{DynamicResource Settings.Revoke}"
                                                             Margin="8,0,0,0"
                                                             Command="{Binding DataContext.RevokeRuleCommand,
                                                                 RelativeSource={RelativeSource AncestorType=ItemsControl}}"
@@ -274,7 +274,7 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
 
-                            <TextBlock Text="Nothing has been taught yet."
+                            <TextBlock Text="{DynamicResource Settings.NothingTaughtYet}"
                                        Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Margin="0,12,0,0"
                                        Visibility="{Binding HasRules,
@@ -282,7 +282,7 @@
 
                             <Button Style="{StaticResource SettingsActionButtonStyle}"
                                     Tag="&#xE74D;"
-                                    Content="CLEAR ALL TAUGHT PHRASES"
+                                    Content="{DynamicResource Settings.ClearTaughtPhrases}"
                                     Margin="0,14,0,0"
                                     Command="{Binding ClearTeachingCommand}"/>
                         </StackPanel>
@@ -292,9 +292,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: MEMORY & KNOWLEDGE ═══════ -->
-                <TextBlock Text="MEMORY &amp; KNOWLEDGE"
+                <TextBlock Text="{DynamicResource Settings.MemoryKnowledge}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Saved memory and the knowledge base live in the agent's own database, separate from your business data."
+                <TextBlock Text="{DynamicResource Settings.SavedMemoryKnowledgeBaseLiveAgentSDatabase}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -302,17 +302,17 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8F7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Agent Data"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.AgentData}"/>
                             </StackPanel>
                             <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}">
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE78C;"
-                                        Content="EXPORT KNOWLEDGE"
+                                        Content="{DynamicResource Settings.ExportKnowledge}"
                                         HorizontalAlignment="Stretch"
                                         Command="{Binding ExportKnowledgeCommand}"/>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE896;"
-                                        Content="IMPORT KNOWLEDGE"
+                                        Content="{DynamicResource Settings.ImportKnowledge}"
                                         HorizontalAlignment="Stretch"
                                         Margin="0"
                                         Command="{Binding ImportKnowledgeCommand}"/>
@@ -320,12 +320,12 @@
                             <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}" Margin="0,4,0,0">
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE74D;"
-                                        Content="CLEAR MEMORY"
+                                        Content="{DynamicResource Settings.ClearMemory}"
                                         HorizontalAlignment="Stretch"
                                         Command="{Binding ClearMemoryCommand}"/>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE74D;"
-                                        Content="CLEAR KNOWLEDGE"
+                                        Content="{DynamicResource Settings.ClearKnowledge}"
                                         HorizontalAlignment="Stretch"
                                         Margin="0"
                                         Command="{Binding ClearKnowledgeCommand}"/>
@@ -335,14 +335,14 @@
                                        Margin="0,12,0,0"
                                        TextTrimming="CharacterEllipsis"
                                        ToolTip="{Binding AgentDatabasePath, Mode=OneWay}">
-                                <Run Text="Agent database: "/>
+                                <Run Text="{DynamicResource Settings.AgentDatabase}"/>
                                 <Run Text="{Binding AgentDatabasePath, Mode=OneWay}"/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Margin="0,3,0,0"
                                        TextTrimming="CharacterEllipsis"
                                        ToolTip="{Binding SettingsFilePath, Mode=OneWay}">
-                                <Run Text="Agent settings: "/>
+                                <Run Text="{DynamicResource Settings.AgentSettings}"/>
                                 <Run Text="{Binding SettingsFilePath, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>

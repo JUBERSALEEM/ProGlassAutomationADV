@@ -44,8 +44,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="Updates" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Keep ProGlass on the latest release — safely."
+            <TextBlock Text="{DynamicResource Settings.SecUpdates}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.KeepProglassLatestReleaseSafely}"
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -60,9 +60,9 @@
             <StackPanel Margin="32,0,32,32">
 
                 <!-- ═══════ GROUP: OVERVIEW ═══════ -->
-                <TextBlock Text="OVERVIEW"
+                <TextBlock Text="{DynamicResource Nav.Overview}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Your running version against the latest published release."
+                <TextBlock Text="{DynamicResource Settings.RunningVersionAgainstLatestPublishedRelease}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -79,13 +79,13 @@
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="14,10" Margin="0,0,6,0">
                                     <StackPanel>
-                                        <TextBlock Text="CURRENT VERSION"
+                                        <TextBlock Text="{DynamicResource Settings.CurrentVersion}"
                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
                                         <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                                    Margin="0,3,0,0"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                            <Run Text="v"/>
+                                            <Run Text="{DynamicResource Settings.V}"/>
                                             <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}"/>
                                         </TextBlock>
                                     </StackPanel>
@@ -95,7 +95,7 @@
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="14,10" Margin="6,0,0,0">
                                     <StackPanel>
-                                        <TextBlock Text="LATEST RELEASE"
+                                        <TextBlock Text="{DynamicResource Settings.LatestRelease}"
                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
                                         <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
@@ -123,11 +123,11 @@
                                 </Grid.ColumnDefinitions>
                                 <Button Grid.Column="0"
                                         Style="{StaticResource PrimaryPillButton}"
-                                        Tag="&#xE72C;" Content="CHECK FOR UPDATES"
+                                        Tag="&#xE72C;" Content="{DynamicResource About.Update}"
                                         Command="{Binding CheckForUpdatesCommand}"
                                         HorizontalAlignment="Stretch"/>
                                 <Button Grid.Column="1"
-                                        Tag="&#xE896;" Content="DOWNLOAD UPDATE"
+                                        Tag="&#xE896;" Content="{DynamicResource Settings.DownloadUpdate}"
                                         Command="{Binding DownloadUpdateCommand}"
                                         Margin="10,0,0,0"
                                         HorizontalAlignment="Stretch">
@@ -162,9 +162,9 @@
                                     </Style>
                                 </StackPanel.Style>
                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                        Tag="&#xE74E;" Content="INSTALL &amp; RESTART"
+                                        Tag="&#xE74E;" Content="{DynamicResource Settings.InstallRestart}"
                                         Command="{Binding InstallUpdateCommand}"/>
-                                <TextBlock Text="…or install later — the file stays in your Downloads folder."
+                                <TextBlock Text="{DynamicResource Settings.InstallLaterFileStaysDownloadsFolder}"
                                            FontSize="{StaticResource TextCaption}"
                                            Margin="12,0,0,0"
                                            VerticalAlignment="Center"
@@ -197,9 +197,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: RELEASE NOTES ═══════ -->
-                <TextBlock Text="RELEASE NOTES"
+                <TextBlock Text="{DynamicResource Settings.ReleaseNotes}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="What this release changes, straight from the publisher."
+                <TextBlock Text="{DynamicResource Settings.WhatReleaseChangesStraightPublisher}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -232,7 +232,7 @@
                                            Margin="10,0,0,0"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource MutedForegroundBrush}">
-                                    <Run Text="published"/>
+                                    <Run Text="{DynamicResource Settings.Published}"/>
                                     <Run Text="{Binding ReleasePublishedDisplay, Mode=OneWay}"/>
                                 </TextBlock>
                             </StackPanel>
@@ -249,9 +249,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: UPDATE HISTORY ═══════ -->
-                <TextBlock Text="UPDATE HISTORY"
+                <TextBlock Text="{DynamicResource Settings.UpdateHistory}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Every check, download and failure recorded on this machine."
+                <TextBlock Text="{DynamicResource Settings.CheckDownloadFailureRecordedMachine}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -320,7 +320,7 @@
                                                                TextTrimming="CharacterEllipsis"
                                                                ToolTip="{Binding Detail}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                        <Run Text="v"/>
+                                                        <Run Text="{DynamicResource Settings.V}"/>
                                                         <Run Text="{Binding Version, Mode=OneWay}"/>
                                                         <Run Text=" "/>
                                                         <Run Text="{Binding ReleaseName, Mode=OneWay}"/>
@@ -332,7 +332,7 @@
                                 </ItemsControl>
                             </StackPanel>
 
-                            <TextBlock Text="No update history yet. Check for updates to record the first entry."
+                            <TextBlock Text="{DynamicResource Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst}"
                                        Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Visibility="{Binding HasUpdateHistory,
                                            Converter={StaticResource InverseBoolToVisibilityConverter},
@@ -341,7 +341,7 @@
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Margin="0,10,0,0"
                                        TextWrapping="Wrap"
-                                       Text="Installed builds update in place via Velopack and restart automatically. Portable builds download the installer to your Downloads folder — you decide when to install."/>
+                                       Text="{DynamicResource Settings.InstalledBuildsUpdatePlaceVelopackRestart}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

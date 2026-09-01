@@ -46,8 +46,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="License" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Choose a plan and request a key, or paste your vendor-signed key to activate. The 30-day trial starts automatically."
+            <TextBlock Text="{DynamicResource About.License}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.ChoosePlanRequestKeyPasteVendorSignedKey}"
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -63,9 +63,9 @@
                         DataContext="{x:Static vmLicensing:LicenseStatusViewModel.Instance}">
 
                 <!-- ═══════ GROUP: LICENSE STATUS ═══════ -->
-                <TextBlock Text="LICENSE STATUS"
+                <TextBlock Text="{DynamicResource Settings.LicenseStatus}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Auto-updates on LicenseService.StatusChanged."
+                <TextBlock Text="{DynamicResource Settings.AutoUpdatesLicenseserviceStatuschanged}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <StackPanel Margin="0,0,0,6">
@@ -107,7 +107,7 @@
                                            FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Right"/>
-                                <TextBlock Text="remaining"
+                                <TextBlock Text="{DynamicResource Settings.Remaining}"
                                            FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource MutedForegroundBrush}"
                                            HorizontalAlignment="Right"/>
@@ -119,9 +119,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: ACTIVATION ═══════ -->
-                <TextBlock Text="ACTIVATION"
+                <TextBlock Text="{DynamicResource Settings.Activation}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Pick a plan and press GET LICENSE KEY, or paste a vendor key. The trial starts automatically; the PC ID is only needed for machine-bound keys."
+                <TextBlock Text="{DynamicResource Settings.PickPlanPressGETLicenseKEYPasteVendorKey}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <!-- Reuses the same UserControl the main window used to show

@@ -51,23 +51,23 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel>
-                    <TextBlock Text="Proforma Invoices" Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="Saved quotations ready to convert into job orders"
+                    <TextBlock Text="{DynamicResource ProformaInvoice.ProformaInvoices}" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Text="{DynamicResource ProformaInvoice.SavedQuotationsReadyConvertJobOrders}"
                                Style="{StaticResource ModulePageSubtitleStyle}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Command="{Binding NewFromInquiryCommand}"
                             Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE710;"
-                            Content="NEW FROM INQUIRY"
-                            ToolTip="Create a new proforma invoice from a confirmed inquiry — the recommended path. The inquiry list opens so you can pick or create one."
+                            Content="{DynamicResource ProformaInvoice.NEWInquiry}"
+                            ToolTip="{DynamicResource ProformaInvoice.CreateNewProformaInvoiceConfirmedInquiry}"
                             AutomationProperties.AutomationId="ProformaInvoice.NewFromInquiryButton"
                             AutomationProperties.Name="New From Inquiry"/>
                     <Button Margin="8,0,0,0"
                             Command="{Binding NewInvoiceCommand}"
                             Style="{StaticResource OutlinedPillButton}"
-                            Content="BLANK (NOT RECOMMENDED)"
-                            ToolTip="Create a blank proforma invoice without an inquiry. Use only when no inquiry exists yet; the audit trail will be incomplete."
+                            Content="{DynamicResource ProformaInvoice.BlankRecommended}"
+                            ToolTip="{DynamicResource ProformaInvoice.CreateBlankProformaInvoiceWithoutInquiryUse}"
                             AutomationProperties.AutomationId="ProformaInvoice.NewInvoiceButton"
                             AutomationProperties.Name="New Invoice Blank"/>
                 </StackPanel>
@@ -115,10 +115,10 @@
 
                     <Button Command="{Binding BackToListCommand}"
                             Style="{StaticResource OutlinedPillButton}"
-                            Content="ALL INVOICES"
+                            Content="{DynamicResource ProformaInvoice.Invoices}"
                             Tag="&#xE72B;"
                             VerticalAlignment="Center"
-                            ToolTip="Back to the invoice list"/>
+                            ToolTip="{DynamicResource ProformaInvoice.BackInvoiceList}"/>
 
                     <ItemsControl Grid.Column="2"
                                   ItemsSource="{Binding WizardSteps}"
@@ -354,7 +354,7 @@
                     </Grid.ColumnDefinitions>
                     <Button Command="{Binding PreviousStepCommand}"
                             Style="{StaticResource OutlinedPillButton}"
-                            Content="BACK"
+                            Content="{DynamicResource Action.Back}"
                             AutomationProperties.AutomationId="ProformaInvoice.BackButton"
                             AutomationProperties.Name="Back"/>
                     <ProgressBar Grid.Column="1"
@@ -367,7 +367,7 @@
                     <Button Grid.Column="2"
                             Command="{Binding NextStepCommand}"
                             Style="{StaticResource PrimaryPillButton}"
-                            Content="CONTINUE"
+                            Content="{DynamicResource ProformaInvoice.Continue}"
                             AutomationProperties.AutomationId="ProformaInvoice.ContinueButton"
                             AutomationProperties.Name="Continue"/>
                 </Grid>

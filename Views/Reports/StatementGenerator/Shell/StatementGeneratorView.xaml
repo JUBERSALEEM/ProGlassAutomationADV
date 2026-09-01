@@ -142,7 +142,7 @@
                             Command="{Binding GoToStepCommand}"
                             CommandParameter="1"
                             IsEnabled="{Binding CanNavigateToStep1}"
-                            ToolTip="Step 1 — Configure Filters">
+                            ToolTip="{DynamicResource Reports.StatementGenerator.Step1ConfigureFilters}">
                         <StackPanel HorizontalAlignment="Center">
                             <Border CacheMode="BitmapCache">
                                 <Border.Style>
@@ -187,7 +187,7 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                             </Border>
-                            <TextBlock Text="Filters">
+                            <TextBlock Text="{DynamicResource Action.Filters}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
                                         <Style.Triggers>
@@ -224,7 +224,7 @@
                             Command="{Binding GoToStepCommand}"
                             CommandParameter="2"
                             IsEnabled="{Binding CanNavigateToStep2}"
-                            ToolTip="Step 2 — Preview Invoices">
+                            ToolTip="{DynamicResource Reports.StatementGenerator.Step2PreviewInvoices}">
                         <StackPanel HorizontalAlignment="Center">
                             <Border CacheMode="BitmapCache">
                                 <Border.Style>
@@ -269,7 +269,7 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                             </Border>
-                            <TextBlock Text="Preview">
+                            <TextBlock Text="{DynamicResource Phone.Preview}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
                                         <Style.Triggers>
@@ -306,7 +306,7 @@
                             Command="{Binding GoToStepCommand}"
                             CommandParameter="3"
                             IsEnabled="{Binding CanNavigateToStep3}"
-                            ToolTip="Step 3 — Execute Pipeline">
+                            ToolTip="{DynamicResource Reports.StatementGenerator.Step3ExecutePipeline}">
                         <StackPanel HorizontalAlignment="Center">
                             <Border CacheMode="BitmapCache">
                                 <Border.Style>
@@ -351,7 +351,7 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                             </Border>
-                            <TextBlock Text="Execute">
+                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.Execute}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
                                         <Style.Triggers>
@@ -388,7 +388,7 @@
                             Command="{Binding GoToStepCommand}"
                             CommandParameter="4"
                             IsEnabled="{Binding CanNavigateToStep4}"
-                            ToolTip="Step 4 — Review Results">
+                            ToolTip="{DynamicResource Reports.StatementGenerator.Step4ReviewResults}">
                         <StackPanel HorizontalAlignment="Center">
                             <Border CacheMode="BitmapCache">
                                 <Border.Style>
@@ -433,7 +433,7 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                             </Border>
-                            <TextBlock Text="Review">
+                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.Review}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
                                         <Style.Triggers>
@@ -461,7 +461,7 @@
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
                         FocusVisualStyle="{x:Null}"
-                        ToolTip="Cancel and return to statement list">
+                        ToolTip="{DynamicResource Reports.StatementGenerator.CancelReturnStatementList}">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd"
@@ -569,7 +569,7 @@
                 <Button Grid.Column="0"
                         Command="{Binding CancelCommand}"
                         Style="{StaticResource NavButtonDangerStyle}"
-                        Content="Cancel"
+                        Content="{DynamicResource Action.Cancel}"
                         VerticalAlignment="Center"/>
 
                 <StackPanel Grid.Column="2"
@@ -578,26 +578,26 @@
 
                     <Button Command="{Binding PreviousStepCommand}"
                             Style="{StaticResource NavButtonSecondaryStyle}"
-                            Content="← Previous"
+                            Content="{DynamicResource Reports.StatementGenerator.Previous}"
                             Margin="0,0,10,0"
                             Visibility="{Binding CanGoPrevious,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                     <Button Command="{Binding NextStepCommand}"
                             Style="{StaticResource NavButtonPrimaryStyle}"
-                            Content="Next Step  →"
+                            Content="{DynamicResource Reports.StatementGenerator.NextStep}"
                             Visibility="{Binding ShowNextButton,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                     <Button Command="{Binding NextStepCommand}"
                             Style="{StaticResource NavButtonPrimaryStyle}"
-                            Tag="&#xE7E8;" Content="GENERATE STATEMENT"
+                            Tag="&#xE7E8;" Content="{DynamicResource Reports.StatementGenerator.GenerateStatement}"
                             Visibility="{Binding ShowGenerateButton,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                     <Button Command="{Binding NextStepCommand}"
                             Style="{StaticResource NavButtonSuccessStyle}"
-                            Tag="&#xE73E;" Content="FINISH"
+                            Tag="&#xE73E;" Content="{DynamicResource Reports.StatementGenerator.Finish}"
                             Visibility="{Binding ShowFinishButton,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
                 </StackPanel>

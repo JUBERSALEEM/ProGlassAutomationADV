@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-    Title="Missing Invoice Warning"
+    Title="{DynamicResource Reports.MissingInvoiceWarning}"
     Width="720" Height="580"
     MinWidth="560" MinHeight="440"
     WindowStartupLocation="CenterOwner"
@@ -53,15 +53,15 @@
                                    FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
                                    Margin="0,0,6,0"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Text="WARNING"
+                        <TextBlock Text="{DynamicResource Reports.Warning}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     </StackPanel>
-                    <TextBlock Text="Missing Invoice Detected"
+                    <TextBlock Text="{DynamicResource Reports.MissingInvoiceDetected}"
                                FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
                                Foreground="White"
                                Margin="0,4,0,0"/>
-                    <TextBlock Text="Some delivered items have no matching tax invoice."
+                    <TextBlock Text="{DynamicResource Reports.SomeDeliveredItemsNoMatchingTaxInvoice}"
                                FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Margin="0,2,0,0"/>
@@ -84,7 +84,7 @@
                         CornerRadius="{DynamicResource ControlCornerRadius}"
                         Padding="12,10">
                     <StackPanel>
-                        <TextBlock Text="DELIVERED"
+                        <TextBlock Text="{DynamicResource Common.Delivered}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
@@ -102,7 +102,7 @@
                         CornerRadius="{DynamicResource ControlCornerRadius}"
                         Padding="12,10">
                     <StackPanel>
-                        <TextBlock Text="INVOICED"
+                        <TextBlock Text="{DynamicResource Common.Invoiced}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
@@ -120,7 +120,7 @@
                         CornerRadius="{DynamicResource ControlCornerRadius}"
                         Padding="12,10">
                     <StackPanel>
-                        <TextBlock Text="MISSING"
+                        <TextBlock Text="{DynamicResource Reports.Missing}"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
@@ -142,7 +142,7 @@
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
-                    <TextBlock Text="UNINVOICED DELIVERY NOTES"
+                    <TextBlock Text="{DynamicResource Reports.UninvoicedDeliveryNotes}"
                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                Margin="0,0,0,8"/>
@@ -185,7 +185,7 @@
                                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                                     <TextBlock FontSize="{StaticResource TextCaption}"
                                                                Foreground="{DynamicResource MutedForegroundBrush}">
-                                                        <Run Text="Delivered "/>
+                                                        <Run Text="{DynamicResource Common.Delivered}"/>
                                                         <Run Text="{Binding DeliveryDate,
                                                                 StringFormat=dd MMM yyyy, Mode=OneWay}"/>
                                                     </TextBlock>
@@ -217,7 +217,7 @@
 
             <!-- ══ QUESTION ══ -->
             <TextBlock Grid.Row="3"
-                       Text="What would you like to do?"
+                       Text="{DynamicResource Reports.WhatWouldLike}"
                        FontSize="{StaticResource TextSection}"
                        FontWeight="SemiBold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -256,9 +256,9 @@
                                         <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center">
-                                            <Run Text="&#xE70F; " FontFamily="Segoe MDL2 Assets"/><Run Text="CREATE INVOICE"/>
+                                            <Run Text="&#xE70F; " FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource Reports.CreateInvoice}"/>
                                         </TextBlock>
-                                        <TextBlock Text="Fix missing invoice now"
+                                        <TextBlock Text="{DynamicResource Reports.FixMissingInvoiceNow}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
@@ -288,12 +288,12 @@
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="12,10">
                                     <StackPanel>
-                                        <TextBlock Text="→  SKIP &amp; CONTINUE"
+                                        <TextBlock Text="{DynamicResource Reports.SKIPContinue}"
                                                    FontSize="{StaticResource TextBody}"
                                                    FontWeight="Bold"
                                                    Foreground="White"
                                                    HorizontalAlignment="Center"/>
-                                        <TextBlock Text="Generate with warning"
+                                        <TextBlock Text="{DynamicResource Reports.GenerateWarning}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
@@ -326,9 +326,9 @@
                                         <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="White"
                                                    HorizontalAlignment="Center">
-                                            <Run Text="&#xE711; " FontFamily="Segoe MDL2 Assets"/><Run Text="ABORT"/>
+                                            <Run Text="&#xE711; " FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource Reports.Abort}"/>
                                         </TextBlock>
-                                        <TextBlock Text="Cancel generation"
+                                        <TextBlock Text="{DynamicResource Reports.CancelGeneration}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"

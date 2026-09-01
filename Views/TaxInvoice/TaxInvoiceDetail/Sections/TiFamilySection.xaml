@@ -46,20 +46,20 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets"/><Run Text="  INVOICE FAMILY"/></TextBlock>
-                                <TextBlock Text="Click any invoice to load it · Green = editing"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource TaxInvoice.InvoiceFamily}"/></TextBlock>
+                                <TextBlock Text="{DynamicResource TaxInvoice.ClickInvoiceLoadGreenEditing}"
                                            FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" Orientation="Horizontal"
                                         VerticalAlignment="Center">
-                                <Button Content="ISSUE ALL"
+                                <Button Content="{DynamicResource TaxInvoice.Issue}"
                                         Command="{Binding IssueAllCommand}"
                                         Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE8FB;"
                                         Margin="0,0,8,0"
-                                        ToolTip="Issue every draft in this family, or pick with the pills"
+                                        ToolTip="{DynamicResource TaxInvoice.IssueDraftFamilyPickPills}"
                                         Visibility="{Binding CanIssueAllDrafts,
                                             Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
@@ -67,7 +67,7 @@
                                         VerticalAlignment="Center">
                                     <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}">
                                         <Run Text="{Binding FamilyMemberCount, Mode=OneWay}"/>
-                                        <Run Text=" invoice(s)"/>
+                                        <Run Text="{DynamicResource TaxInvoice.InvoiceS}"/>
                                     </TextBlock>
                                 </Border>
                             </StackPanel>
@@ -116,7 +116,7 @@
                                                                 Visibility="{Binding IsCurrentInvoice,
                                                                     Converter={StaticResource BoolToVisibilityConverter}}">
                                                             <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                       Foreground="White"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="  EDITING"/></TextBlock>
+                                                                       Foreground="White"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource DeliveryNote.Editing}"/></TextBlock>
                                                         </Border>
 
                                                         <!-- Attachment count badge -->
@@ -177,7 +177,7 @@
 
                                                     <StackPanel Grid.Column="0"
                                                                 Orientation="Horizontal">
-                                                        <TextBlock Text="Due: "
+                                                        <TextBlock Text="{DynamicResource TaxInvoice.Due}"
                                                                    FontSize="{StaticResource TextCaption}"
                                                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
                                                         <TextBlock Text="{Binding DueDateDisplay}"
@@ -217,13 +217,13 @@
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{DynamicResource TintIndigoBrush}">
                         <StackPanel>
-                            <TextBlock Text="FAMILY TOTALS"
+                            <TextBlock Text="{DynamicResource TaxInvoice.FamilyTotals}"
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        Margin="0,0,0,8"/>
 
                             <Grid Margin="0,0,0,6">
-                                <TextBlock Text="PI Total"
+                                <TextBlock Text="{DynamicResource TaxInvoice.PITotal}"
                                            FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBlock Text="{Binding FamilyProformaTotalDisplay}"
@@ -233,7 +233,7 @@
                             </Grid>
 
                             <Grid Margin="0,0,0,6">
-                                <TextBlock Text="Invoiced"
+                                <TextBlock Text="{DynamicResource Common.Invoiced}"
                                            FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBlock Text="{Binding FamilyInvoicedTotalDisplay}"
@@ -246,7 +246,7 @@
                                     BorderThickness="0,1,0,0"
                                     Padding="0,6,0,0">
                                 <Grid>
-                                    <TextBlock Text="Balance"
+                                    <TextBlock Text="{DynamicResource Common.Balance}"
                                                FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     <TextBlock Text="{Binding FamilyBalanceTotalDisplay}"

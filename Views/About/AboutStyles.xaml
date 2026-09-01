@@ -253,7 +253,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="LIVE MODULE"
+                    <TextBlock Text="{DynamicResource About.LIVEModule}"
                                FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource LiquidMuted}"
@@ -268,7 +268,7 @@
                             Padding="8,3"
                             VerticalAlignment="Center"
                             SnapsToDevicePixels="True">
-                        <TextBlock Text="ACTIVE"
+                        <TextBlock Text="{DynamicResource About.Active}"
                                    FontSize="{StaticResource TextCaption}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource LiquidAccent}"
@@ -411,7 +411,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0"
-                           Text="WORKFLOW STAGE"
+                           Text="{DynamicResource About.WorkflowStage}"
                            FontSize="{StaticResource TextCaption}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource LiquidMuted}"

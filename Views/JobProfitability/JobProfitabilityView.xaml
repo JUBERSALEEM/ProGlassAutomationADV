@@ -140,21 +140,21 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="SEARCH — PROFORMA · CUSTOMER · PROJECT"
+                        <TextBlock Text="{DynamicResource JobProfitability.SearchProformaCustomerProject}"
                                    Style="{StaticResource JpLabelStyle}"/>
                         <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                                  Style="{StaticResource JpInputStyle}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="COMPANY" Style="{StaticResource JpLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource JpLabelStyle}"/>
                         <ComboBox ItemsSource="{Binding CompanyFilterOptions}"
                                   SelectedItem="{Binding CompanyFilter}"
                                   Style="{StaticResource JpComboStyle}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="4">
-                        <TextBlock Text="CUSTOMER" Style="{StaticResource JpLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource JpLabelStyle}"/>
                         <ComboBox ItemsSource="{Binding CustomerFilterOptions}"
                                   SelectedItem="{Binding CustomerFilter}"
                                   Style="{StaticResource JpComboStyle}"/>
@@ -172,21 +172,21 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="SALESMAN" Style="{StaticResource JpLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource JpLabelStyle}"/>
                         <ComboBox ItemsSource="{Binding SalesmanFilterOptions}"
                                   SelectedItem="{Binding SalesmanFilter}"
                                   Style="{StaticResource JpComboStyle}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
-                        <TextBlock Text="DATE RANGE" Style="{StaticResource JpLabelStyle}"/>
+                        <TextBlock Text="{DynamicResource JobProfitability.DATERange}" Style="{StaticResource JpLabelStyle}"/>
                         <ComboBox ItemsSource="{Binding DateRangeOptions}"
                                   SelectedItem="{Binding DateRangeFilter}"
                                   Style="{StaticResource JpComboStyle}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="4" VerticalAlignment="Bottom">
-                        <Button Content="REFRESH"
+                        <Button Content="{DynamicResource Action.Refresh}"
                                 Tag="&#xE72C;"
                                 Command="{Binding RefreshCommand}"
                                 Style="{StaticResource PrimaryPillButton}"/>
@@ -216,14 +216,14 @@
 
             <Border Grid.Column="0" Style="{StaticResource JpTileStyle}">
                 <StackPanel>
-                    <TextBlock Text="TOTAL NET EX-VAT" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{DynamicResource JobProfitability.TotalNETEXVAT}" Style="{StaticResource JpTileCaptionStyle}"/>
                     <TextBlock Text="{Binding TotalNetDisplay}" Style="{StaticResource JpTileValueStyle}"/>
                 </StackPanel>
             </Border>
 
             <Border Grid.Column="2" Style="{StaticResource JpTileStyle}">
                 <StackPanel>
-                    <TextBlock Text="TOTAL COST" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{DynamicResource JobProfitability.TotalCOST}" Style="{StaticResource JpTileCaptionStyle}"/>
                     <TextBlock Text="{Binding TotalCostDisplay}" Style="{StaticResource JpTileValueStyle}"/>
                 </StackPanel>
             </Border>
@@ -261,7 +261,7 @@
 
             <!-- Overall Profit Margin % -->
             <Border Grid.Column="6"
-                    ToolTip="Overall portfolio margin for PI-confirmed jobs: (Total Profit ÷ Total Net) × 100.&#x0a;Same formula Step 9 uses for one PI, applied to the portfolio totals.&#x0a;Calculated from totals, not averaged from individual margins.&#x0a;Can exceed ±100% when costs greatly exceed revenue.">
+                    ToolTip="{DynamicResource JobProfitability.OverallPortfolioMarginPIConfirmedJobsTotal}">
                 <Border.Style>
                     <Style TargetType="Border" BasedOn="{StaticResource JpTileStyle}">
                         <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
@@ -274,7 +274,7 @@
                     </Style>
                 </Border.Style>
                 <StackPanel>
-                    <TextBlock Text="OVERALL PROFIT MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{DynamicResource JobProfitability.OverallProfitMargin}" Style="{StaticResource JpTileCaptionStyle}"/>
                     <!-- No green: margin is reported neutrally; only a
                          loss-making portfolio carries colour (red). -->
                     <TextBlock Text="{Binding OverallMarginDisplay}">
@@ -297,7 +297,7 @@
                  average itself, not the portfolio total: a net-loss
                  portfolio can still show a positive average. -->
             <Border Grid.Column="8"
-                    ToolTip="Average of the Margin % shown on the displayed costed jobs: Σ (job margin ÷ 100) ÷ number of jobs.&#x0a;Every job counts equally — a small high-margin job moves this as much as a large one.&#x0a;Use Overall Profit Margin (Total Profit ÷ Total Net) for the amount-weighted answer.">
+                    ToolTip="{DynamicResource JobProfitability.AverageMarginShownDisplayedCostedJobsJob}">
                 <Border.Style>
                     <Style TargetType="Border" BasedOn="{StaticResource JpTileStyle}">
                         <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
@@ -310,7 +310,7 @@
                     </Style>
                 </Border.Style>
                 <StackPanel>
-                    <TextBlock Text="AVERAGE MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{DynamicResource JobProfitability.AverageMargin}" Style="{StaticResource JpTileCaptionStyle}"/>
                     <TextBlock Text="{Binding AverageMarginDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
@@ -328,7 +328,7 @@
             <!-- Loss-making job count -->
             <Border Grid.Column="10" Style="{StaticResource JpTileStyle}">
                 <StackPanel>
-                    <TextBlock Text="LOSS-MAKING JOBS" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{DynamicResource JobProfitability.LOSSMakingJOBS}" Style="{StaticResource JpTileCaptionStyle}"/>
                     <TextBlock Text="{Binding LossCountDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
@@ -376,17 +376,17 @@
                             <ColumnDefinition Width="90"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="PROFORMA"        Style="{StaticResource JpHeaderCellStyle}"/>
-                        <TextBlock Grid.Column="1" Text="CUSTOMER · PROJECT" Style="{StaticResource JpHeaderCellStyle}"/>
-                        <TextBlock Grid.Column="2" Text="SALESMAN"        Style="{StaticResource JpHeaderCellStyle}"/>
-                        <TextBlock Grid.Column="3" Text="ISSUED"          Style="{StaticResource JpHeaderCellStyle}"/>
-                        <TextBlock Grid.Column="4" Text="NET EX-VAT"      Style="{StaticResource JpHeaderCellStyle}"
+                        <TextBlock Grid.Column="0" Text="{DynamicResource JobProfitability.Proforma}"        Style="{StaticResource JpHeaderCellStyle}"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource JobProfitability.CustomerProject}" Style="{StaticResource JpHeaderCellStyle}"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource Common.Salesman}"        Style="{StaticResource JpHeaderCellStyle}"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource About.Issued}"          Style="{StaticResource JpHeaderCellStyle}"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource JobProfitability.NETEXVAT}"      Style="{StaticResource JpHeaderCellStyle}"
                                    HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="COST"            Style="{StaticResource JpHeaderCellStyle}"
+                        <TextBlock Grid.Column="5" Text="{DynamicResource JobProfitability.COST}"            Style="{StaticResource JpHeaderCellStyle}"
                                    HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="6" Text="PROFIT"          Style="{StaticResource JpHeaderCellStyle}"
+                        <TextBlock Grid.Column="6" Text="{DynamicResource JobProfitability.Profit}"          Style="{StaticResource JpHeaderCellStyle}"
                                    HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="7" Text="MARGIN"          Style="{StaticResource JpHeaderCellStyle}"
+                        <TextBlock Grid.Column="7" Text="{DynamicResource JobProfitability.Margin}"          Style="{StaticResource JpHeaderCellStyle}"
                                    HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
@@ -520,12 +520,12 @@
                                    HorizontalAlignment="Center"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    Margin="0,0,0,12"/>
-                        <TextBlock Text="No jobs to show"
+                        <TextBlock Text="{DynamicResource JobProfitability.NoJobsShow}"
                                    FontSize="{StaticResource TextSection}"
                                    FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="No saved proforma has been marked PI confirmed yet — confirm one first, or clear the filters above."
+                        <TextBlock Text="{DynamicResource JobProfitability.NoSavedProformaMarkedPIConfirmedYetConfirm}"
                                    FontSize="{StaticResource TextBody}"
                                    HorizontalAlignment="Center"
                                    Margin="0,4,0,0"

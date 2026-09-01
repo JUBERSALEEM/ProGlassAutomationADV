@@ -31,9 +31,9 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="Active Modules"
+                        <TextBlock Text="{DynamicResource About.ActiveModules}"
                                    Style="{StaticResource SectionTitleStyle}"/>
-                        <TextBlock Text="Operational surfaces already deployed in this build, expanded across commercial, control, and configuration workflows"
+                        <TextBlock Text="{DynamicResource About.OperationalSurfacesAlreadyDeployedBuild}"
                                    Style="{StaticResource SectionSubtitleStyle}"
                                    Margin="0,0,0,0"/>
                     </StackPanel>
@@ -41,7 +41,7 @@
                     <Border Grid.Column="1"
                             Style="{StaticResource AboutHeaderBadgeStyle}">
                         <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
-                            <Run Text="MODULE COUNT  "/>
+                            <Run Text="{DynamicResource About.ModuleCount}"/>
                             <Run Text="{Binding Modules.Count, Mode=OneWay}"/>
                         </TextBlock>
                     </Border>
@@ -71,16 +71,16 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="End-to-End Production Workflow"
+                        <TextBlock Text="{DynamicResource About.EndEndProductionWorkflow}"
                                    Style="{StaticResource SectionTitleStyle}"/>
-                        <TextBlock Text="Commercial intake, production preparation, and dispatch closeout mapped in clean stage-by-stage blocks"
+                        <TextBlock Text="{DynamicResource About.CommercialIntakeProductionPreparation}"
                                    Style="{StaticResource SectionSubtitleStyle}"
                                    Margin="0,0,0,0"/>
                     </StackPanel>
 
                     <Border Grid.Column="1"
                             Style="{StaticResource AboutHeaderBadgeStyle}">
-                        <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="14 STAGES"/>
+                        <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="{DynamicResource About.14Stages}"/>
                     </Border>
                 </Grid>
 
@@ -93,9 +93,9 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="SALES CYCLE"
+                                <TextBlock Text="{DynamicResource About.SalesCycle}"
                                            Style="{StaticResource WorkflowGroupLabelStyle}"/>
-                                <TextBlock Text="From sheet availability to released production paperwork"
+                                <TextBlock Text="{DynamicResource About.SheetAvailabilityReleasedProductionPaperwork}"
                                            FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource LiquidFrost}"
                                            TextWrapping="Wrap"/>
@@ -103,7 +103,7 @@
 
                             <Border Grid.Column="1"
                                     Style="{StaticResource AboutHeaderBadgeStyle}">
-                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="3 STAGES"/>
+                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="{DynamicResource About.3Stages}"/>
                             </Border>
                         </Grid>
 
@@ -127,9 +127,9 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="PRODUCTION STAGES (UPCOMING)"
+                                <TextBlock Text="{DynamicResource About.ProductionStagesUpcoming}"
                                            Style="{StaticResource WorkflowGroupLabelStyle}"/>
-                                <TextBlock Text="Planned factory execution stages that will slot into the same controlled workflow shell"
+                                <TextBlock Text="{DynamicResource About.PlannedFactoryExecutionStagesSlotControlled}"
                                            FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource LiquidFrost}"
                                            TextWrapping="Wrap"/>
@@ -137,7 +137,7 @@
 
                             <Border Grid.Column="1"
                                     Style="{StaticResource AboutHeaderBadgeStyle}">
-                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="8 STAGES"/>
+                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="{DynamicResource About.8Stages}"/>
                             </Border>
                         </Grid>
 
@@ -161,9 +161,9 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="DISPATCH &amp; BILLING"
+                                <TextBlock Text="{DynamicResource About.DispatchBilling}"
                                            Style="{StaticResource WorkflowGroupLabelStyle}"/>
-                                <TextBlock Text="Delivery evidence, invoicing, and reporting closed out under one financial trail"
+                                <TextBlock Text="{DynamicResource About.DeliveryEvidenceInvoicingReportingClosedOne}"
                                            FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource LiquidFrost}"
                                            TextWrapping="Wrap"/>
@@ -171,7 +171,7 @@
 
                             <Border Grid.Column="1"
                                     Style="{StaticResource AboutHeaderBadgeStyle}">
-                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="3 STAGES"/>
+                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="{DynamicResource About.3Stages}"/>
                             </Border>
                         </Grid>
 

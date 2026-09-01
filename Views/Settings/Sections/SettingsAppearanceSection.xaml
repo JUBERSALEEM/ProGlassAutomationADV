@@ -42,8 +42,8 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
-            <TextBlock Text="Appearance" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Theme, colours, wallpapers, motion and per-module backgrounds."
+            <TextBlock Text="{DynamicResource Settings.SecAppearance}" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="{DynamicResource Settings.ThemeColoursWallpapersMotionModule}"
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -58,9 +58,9 @@
             <StackPanel Margin="32,0,32,32">
 
                 <!-- ═════════ GROUP: THEME & LAYOUT ═════════ -->
-                <TextBlock Text="THEME &amp; LAYOUT"
+                <TextBlock Text="{DynamicResource Settings.ThemeLayout}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Overall look, card weight and density."
+                <TextBlock Text="{DynamicResource Settings.OverallLookCardWeightDensity}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <!-- 2026-08-25: one-tap factory reset for everything the
@@ -68,7 +68,7 @@
                      shape, density, zoom, font, wallpapers, PDF layout). -->
                 <Button AutomationProperties.AutomationId="Appearance.ResetDefaults"
                         Command="{Binding ResetAppearanceCommand}"
-                        ToolTip="Restore theme, accent, card shape, density, zoom, font and wallpapers to factory defaults"
+                        ToolTip="{DynamicResource Settings.RestoreThemeAccentCardShapeDensityZoomFont}"
                         HorizontalAlignment="Left"
                         Padding="0"
                         Margin="0,2,0,10">
@@ -82,7 +82,7 @@
                                                    FontSize="16"
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,8,0"/>
-                                        <TextBlock Text="RESET APPEARANCE TO DEFAULTS"
+                                        <TextBlock Text="{DynamicResource Settings.ResetAppearanceDefaults}"
                                                    VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Setter.Value>
@@ -98,7 +98,7 @@
                                                              Height="16"
                                                              VerticalAlignment="Center"
                                                              Margin="0,0,8,0"/>
-                                                <TextBlock Text="RESETTING..."
+                                                <TextBlock Text="{DynamicResource Settings.Resetting}"
                                                            VerticalAlignment="Center"
                                                            FontWeight="SemiBold"/>
                                             </StackPanel>
@@ -145,7 +145,7 @@
                                          VerticalAlignment="Center"
                                          Margin="0,0,12,0"
                                          Foreground="White"/>
-                            <TextBlock Text="Resetting Appearance"
+                            <TextBlock Text="{DynamicResource Settings.ResettingAppearance}"
                                        Foreground="White"
                                        FontWeight="Bold"
                                        FontSize="14"
@@ -167,10 +167,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE790;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Visual Theme"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.LblThemeFamily}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Normal, Monet, Professional, iOS Liquid Glass or Ocean — restyles the whole app instantly. iOS Liquid Glass is the default: a complete crystal design system that adapts to Light and Dark — translucent frosted panes, crystal edges, reflections and soft shadows over a rich aurora stage. Renders identically on every Windows 10/11 machine."/>
+                                       Text="{DynamicResource Settings.NormalMonetProfessionalIosLiquidGlassOcean}"/>
                             <ComboBox ItemsSource="{Binding VisualThemeOptions}"
                                       SelectedItem="{Binding SelectedVisualTheme}"
                                       HorizontalAlignment="Stretch"
@@ -183,10 +183,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE2B1;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Font Color"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.FontColor}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="One global text colour for every view. Auto follows the theme — iOS Liquid Glass uses the About palette. Pick a colour so text always stays visible over frosted surfaces."/>
+                                       Text="{DynamicResource Settings.OneGlobalTextColourViewAutoFollowsThemeIos}"/>
                             <!-- Chips generated from SettingsViewModel.FontColorPalette
                                  (Auto + FontColorPresets.All) — the swatch shown IS
                                  the exact primary colour that gets applied. -->
@@ -229,7 +229,7 @@
                                              VerticalAlignment="Center"/>
                                     <Button Command="{Binding ApplyCustomFontColorCommand}"
                                             Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0">
-                                        <TextBlock Text="APPLY"/>
+                                        <TextBlock Text="{DynamicResource Action.Apply}"/>
                                     </Button>
                                 </StackPanel>
                             </Border>
@@ -249,11 +249,11 @@
                             </Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE71B;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Defined Card Edges"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.DefinedCardEdges}"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1"
                                        Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Adds a strong dark outline on rounded cards and pill buttons so they stay visually separate."/>
+                                       Text="{DynamicResource Settings.AddsStrongDarkOutlineRoundedCardsPillButtons}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
                                           IsChecked="{Binding UseDefinedOutline, Mode=TwoWay}"
@@ -272,11 +272,11 @@
                             </Grid.RowDefinitions>
                             <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7F4;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Gradient Surfaces"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.GradientSurfaces}"/>
                             </StackPanel>
                             <TextBlock Grid.Row="1"
                                        Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Renders Monet glass, cards and the window background as accent-derived gradients for a richer adaptive look. Off = the same palette, flat."/>
+                                       Text="{DynamicResource Settings.RendersMonetGlassCardsWindowBackgroundAccent}"/>
                             <ToggleButton Grid.Row="3"
                                           HorizontalAlignment="Left"
                                           IsChecked="{Binding UseGradientSurfaces, Mode=TwoWay}"
@@ -289,16 +289,16 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE72D;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Card Border Thickness"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.CardBorderThickness}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}">
                                     <Run Text="{Binding CardBorderThickness, Mode=OneWay, StringFormat={}{0:0.#}}"/>
-                                    <Run Text=" DIP"/>
+                                    <Run Text="{DynamicResource Settings.DIP}"/>
                                 </TextBlock>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Edge weight of every card and panel across the app. 0 = no border."/>
+                                       Text="{DynamicResource Settings.EdgeWeightCardPanelApp0NoBorder}"/>
                             <Slider Style="{StaticResource ModernSliderStyle}"
                                     Minimum="0" Maximum="4"
                                     Value="{Binding CardBorderThickness, Mode=TwoWay}"
@@ -311,16 +311,16 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7B3;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Card Corner Radius"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.CardCornerRadius}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}">
                                     <Run Text="{Binding CardCornerRadius, Mode=OneWay, StringFormat={}{0:0}}"/>
-                                    <Run Text=" px"/>
+                                    <Run Text="{DynamicResource Settings.Px}"/>
                                 </TextBlock>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="How round every card and button is. Default 12 px, 0 is sharp rectangles."/>
+                                       Text="{DynamicResource Settings.HowRoundCardButtonDefault12Px0Sharp}"/>
                             <Slider Style="{StaticResource ModernSliderStyle}"
                                     Minimum="0" Maximum="24"
                                     TickFrequency="2"
@@ -335,10 +335,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE740;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Display Density"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.GrpDensity}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Compact fits more on a laptop; Comfortable gives larger touch targets."/>
+                                       Text="{DynamicResource Settings.CompactFitsMoreLaptopComfortableGivesLarger}"/>
                             <ComboBox ItemsSource="{Binding DisplayDensityOptions}"
                                       SelectedItem="{Binding DisplayDensity}"
                                       HorizontalAlignment="Stretch"
@@ -351,14 +351,14 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8A3;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="UI Scale"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.UIScale}"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
                                            FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}">
                                     <Run Text="{Binding UiScalePercent, Mode=OneWay}"/>
                                     <Run Text="%"/>
                                 </TextBlock>
-                                <Button Content="RESET"
+                                <Button Content="{DynamicResource Action.Reset}"
                                         Style="{StaticResource OutlinedPillButton}"
                                         Command="{Binding ResetUiScaleCommand}"
                                         Margin="12,0,0,0"
@@ -366,7 +366,7 @@
                                         FontSize="{StaticResource TextCaption}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Ctrl + mouse wheel zooms the app. Ctrl + 0 resets to 100 %."/>
+                                       Text="{DynamicResource Settings.CtrlMouseWheelZoomsAppCtrl0Resets100}"/>
                             <Slider Style="{StaticResource ModernSliderStyle}"
                                     Minimum="0.8" Maximum="1.25"
                                     TickFrequency="0.05"
@@ -381,7 +381,7 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8A5;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="PDF Layout"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.PDFLayout}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{Binding PdfLayoutHint}"/>
@@ -390,7 +390,7 @@
                                       HorizontalAlignment="Stretch"
                                       Padding="10,7" FontSize="{StaticResource TextBodyLarge}"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       Text="Applies to PI, JO, DN, Tax Invoice, Statement and Sheet Store on the next export."/>
+                                       Text="{DynamicResource Settings.AppliesPIJODNTaxInvoiceStatementSheetStore}"/>
                         </StackPanel>
                     </Border>
 
@@ -399,12 +399,12 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE9F5;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Motion &amp; Performance"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.MotionPerformance}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{Binding PerformanceTierDisplay}"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       Text="Animations adapt to your display refresh rate (60 / 90 / 120 / 144 / 165 Hz)."/>
+                                       Text="{DynamicResource Settings.AnimationsAdaptDisplayRefreshRate6090120144}"/>
                         </StackPanel>
                     </Border>
 
@@ -413,9 +413,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═════════ GROUP: ACCENT & FONT ═════════ -->
-                <TextBlock Text="ACCENT &amp; FONT"
+                <TextBlock Text="{DynamicResource Settings.AccentFONT}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Colour identity and typography — applied across every screen."
+                <TextBlock Text="{DynamicResource Settings.ColourIdentityTypographyAppliedScreen}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
@@ -425,10 +425,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE790;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Accent Colour"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.LblAccent}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Buttons, tints, hover states and Monet glass surfaces are all derived from this. Your choice is saved and restored on every start."/>
+                                       Text="{DynamicResource Settings.ButtonsTintsHoverStatesMonetGlassSurfaces}"/>
                             <!-- Palette chips generated from SettingsViewModel.AccentPalette
                                  (single source of truth: AccentPresets.All) — the swatch
                                  shown IS the exact colour that gets applied. -->
@@ -469,7 +469,7 @@
                                              VerticalAlignment="Center"/>
                                     <Button Command="{Binding ApplyCustomAccentCommand}"
                                             Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0">
-                                        <TextBlock Text="APPLY CUSTOM COLOUR"/>
+                                        <TextBlock Text="{DynamicResource Settings.ApplyCustomColour}"/>
                                     </Button>
                                 </StackPanel>
                             </Border>
@@ -483,10 +483,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE185;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Font Family"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.FontFamily}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Used on every screen, dialog and table (icons stay on Segoe MDL2)."/>
+                                       Text="{DynamicResource Settings.UsedScreenDialogTableIconsStaySegoeMDL2}"/>
                             <ComboBox ItemsSource="{Binding FontOptions}"
                                       SelectedItem="{Binding SelectedFont, Mode=TwoWay}"
                                       DisplayMemberPath="Name"
@@ -503,10 +503,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D2;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Font Weight &amp; Style"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.FontWeightStyle}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Tune the weight and style within the selected family."/>
+                                       Text="{DynamicResource Settings.TuneWeightStyleWithinSelectedFamily}"/>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -528,7 +528,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"
                                                    FontSize="{StaticResource TextBody}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="IMPORT FONT…" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Settings.ImportFONT}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <Button Command="{Binding ResetFontCommand}"
@@ -536,7 +536,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="&#xE777;" FontFamily="Segoe MDL2 Assets"
                                                    FontSize="{StaticResource TextBody}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="RESET" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{DynamicResource Action.Reset}" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                             </WrapPanel>
@@ -548,9 +548,9 @@
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═════════ GROUP: WALLPAPERS ═════════ -->
-                <TextBlock Text="WALLPAPERS"
+                <TextBlock Text="{DynamicResource Settings.Wallpapers}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="One image behind every module, plus per-module overrides for individual screens."
+                <TextBlock Text="{DynamicResource Settings.OneImageBehindModulePlusModuleOverrides}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <!-- One card per row (Columns=1): Global Wallpaper fills the
@@ -563,10 +563,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xEB9F;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Global Wallpaper"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.GlobalWallpaper}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Applied system-wide behind every module. Per-module overrides win where set."/>
+                                       Text="{DynamicResource Settings.AppliedSystemWideBehindModuleModuleOverrides}"/>
                             <!-- Single line: SET / CLEAR on the left, visibility
                                  slider on the right, so global wallpaper + its
                                  visibility no longer take two separate tiles. -->
@@ -580,17 +580,17 @@
                                 </Grid.ColumnDefinitions>
                                 <Button Grid.Column="0"
                                         Style="{StaticResource OutlinedPillButton}"
-                                        Tag="&#xE728;" Content="SET…"
+                                        Tag="&#xE728;" Content="{DynamicResource Settings.SET}"
                                         Command="{Binding SetWallpaperCommand}"
                                         VerticalAlignment="Center"/>
                                 <Button Grid.Column="1"
                                         Style="{StaticResource RowOutlinedButton}"
-                                        Tag="&#xE711;" Content="CLEAR"
+                                        Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
                                         Command="{Binding ClearWallpaperCommand}"
                                         Margin="10,0,0,0"
                                         VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="3"
-                                           Text="Visibility"
+                                           Text="{DynamicResource Settings.Visibility}"
                                            Style="{StaticResource LabelStyle}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
@@ -611,10 +611,10 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8B9;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Per-Module Wallpapers"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ModuleWallpapers}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Give any module its own background image. The list is split into three columns; per-module visibility uses the small slider, everything else follows the global value above."/>
+                                       Text="{DynamicResource Settings.GiveModuleBackgroundImageListSplitThree}"/>
 
                             <ItemsControl ItemsSource="{Binding ModuleWallpaperRows}">
                                 <ItemsControl.ItemsPanel>
@@ -644,7 +644,7 @@
                                                               Style="{StaticResource ModernToggleSwitch}"
                                                               IsChecked="{Binding Enabled, Mode=TwoWay}"
                                                               VerticalAlignment="Center"
-                                                              ToolTip="Enable this module's wallpaper"
+                                                              ToolTip="{DynamicResource Settings.EnableModuleSWallpaper}"
                                                               Margin="0,0,8,0"/>
 
                                                 <TextBlock Grid.Column="1"
@@ -668,12 +668,12 @@
                                                         Style="{StaticResource ModernSliderStyle}"
                                                         Minimum="0.3" Maximum="1"
                                                         Width="76"
-                                                        ToolTip="Visibility"
+                                                        ToolTip="{DynamicResource Settings.Visibility}"
                                                         VerticalAlignment="Center"/>
 
                                                 <Button Grid.Column="3"
                                                         Style="{StaticResource RowOutlinedButton}"
-                                                        Tag="&#xE728;" Content="SET"
+                                                        Tag="&#xE728;" Content="{DynamicResource Settings.SET}"
                                                         Command="{Binding DataContext.SetModuleWallpaperCommand,
                                                                             RelativeSource={RelativeSource
                                                                                 AncestorType=UserControl}}"
@@ -690,7 +690,7 @@
                                                                         AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
                                                         Margin="6,0,0,0"
-                                                        ToolTip="Remove this module's wallpaper"/>
+                                                        ToolTip="{DynamicResource Settings.RemoveModuleSWallpaper}"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

@@ -25,20 +25,20 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button Style="{StaticResource PiGhostChipButton}"
-                                Content="+ IMAGE"
-                                ToolTip="Attach an image file"
+                                Content="{DynamicResource ProformaInvoice.Image}"
+                                ToolTip="{DynamicResource ProformaInvoice.AttachImageFile}"
                                 Command="{Binding AddImageCommand}"
                                 IsEnabled="{Binding HasProformaId}"/>
                         <Button Style="{StaticResource PiGhostChipButton}"
-                                Content="+ PDF"
+                                Content="{DynamicResource ProformaInvoice.PDF}"
                                 Margin="8,0,0,0"
-                                ToolTip="Attach a PDF file"
+                                ToolTip="{DynamicResource ProformaInvoice.AttachPDFFile}"
                                 Command="{Binding AddPdfCommand}"
                                 IsEnabled="{Binding HasProformaId}"/>
                         <Button Style="{StaticResource PiIconButtonStyle}"
                                 Margin="8,0,0,0"
                                 Command="{Binding RefreshCommand}"
-                                ToolTip="Reload attachments from disk">
+                                ToolTip="{DynamicResource ProformaInvoice.ReloadAttachmentsDisk}">
                             <TextBlock Text="&#xE72C;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="{StaticResource TextBodyLarge}"
@@ -55,7 +55,7 @@
                        TextWrapping="Wrap"/>
 
             <TextBlock DockPanel.Dock="Top"
-                       Text="No attachments. Add site photos, drawings or signed approvals — max 10 MB each."
+                       Text="{DynamicResource ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned}"
                        FontSize="{StaticResource TextBody}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        Margin="16,12,16,8"
@@ -93,11 +93,11 @@
                             <ColumnDefinition Width="140"/>
                             <ColumnDefinition Width="220"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="TYPE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="1" Text="NAME" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="2" Text="SIZE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="3" Text="ADDED" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="4" Text="ACTIONS" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Common.Type}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="1" Text="{DynamicResource Common.Name}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource ProformaInvoice.SIZE}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="3" Text="{DynamicResource ProformaInvoice.Added}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Actions}" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -142,17 +142,17 @@
                                                     HorizontalAlignment="Right"
                                                     VerticalAlignment="Center">
                                             <Button Style="{StaticResource RowPrimaryButton}"
-                                                    Tag="&#xE8B7;" Content="OPEN"
+                                                    Tag="&#xE8B7;" Content="{DynamicResource Action.Open}"
                                                     Command="{Binding DataContext.OpenAttachmentCommand,
                                                                 RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding}"/>
                                             <Button Style="{StaticResource RowOutlinedButton}"
-                                                    Tag="&#xE8E5;" Content="RENAME"
+                                                    Tag="&#xE8E5;" Content="{DynamicResource ProformaInvoice.Rename}"
                                                     Command="{Binding DataContext.RenameAttachmentCommand,
                                                                 RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding}"/>
                                             <Button Style="{StaticResource RowDangerButton}"
-                                                    Tag="&#xE74D;" Content="DELETE"
+                                                    Tag="&#xE74D;" Content="{DynamicResource Action.Delete}"
                                                     Command="{Binding DataContext.DeleteAttachmentCommand,
                                                                 RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                     CommandParameter="{Binding}"/>
