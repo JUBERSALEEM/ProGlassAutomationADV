@@ -19,10 +19,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.MasterData.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
 {
     public class ProjectSpecsViewModel : ViewModelBase
     {
+        private readonly IMasterDataRepository _masterData = null!;
+
+        public ProjectSpecsViewModel(IMasterDataRepository? masterData)
+        {
+            _masterData = masterData!;
+        }
+
         // ── Guard while populating from card ──────────────────────────
         private bool _isLoadingProfile;
 
@@ -198,7 +207,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
         // ═══════════════════════════════════════════════════════════════
 
         public ProjectSpecsViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IMasterDataRepository>()!){
             LoadProjectCommand = new RelayCommand(param =>
             {
                 if (param is ProjectProfileCard card)
@@ -233,7 +243,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
         /// </summary>
         public async Task LoadCardsAsync()
         {
-            if (App.MasterData == null) return;
+            if (_masterData == null) return;
 
             IsLoadingCards = true;
             CardsErrorMessage = "";
@@ -241,7 +251,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
 
             try
             {
-                var projects = await App.MasterData.GetAllProjectsAsync();
+                var projects = await _masterData.GetAllProjectsAsync();
 
                 var hasFilter = !string.IsNullOrWhiteSpace(_activeClientFilter);
 

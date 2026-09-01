@@ -20,15 +20,18 @@ namespace ProGlassAutomation.ViewModels.Settings
         public string Key { get; }
         public string Label { get; }
 
-        public ModuleWallpaperRow(string key, string label)
+                private readonly AppConfig _config = null!;
+
+public ModuleWallpaperRow(string key, string label, AppConfig? config)
         {
+            _config = config!;
             Key = key;
             Label = label;
         }
 
         private ModuleWallpaperSettings Settings()
         {
-            var appearance = App.Config!.Appearance;
+            var appearance = _config!.Appearance;
             if (!appearance.ModuleWallpapers.TryGetValue(Key, out var s)
                 || s == null)
             {
@@ -98,8 +101,8 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private static void Save()
         {
-            if (App.Config != null)
-                ConfigService.Save(App.Config);
+            if (_config != null)
+                ConfigService.Save(_config);
         }
 
         /// <summary>
@@ -109,6 +112,6 @@ namespace ProGlassAutomation.ViewModels.Settings
         private static void Refresh() =>
             VisualThemeEngine.ApplyModule(
                 VisualThemeEngine.LastRequestedModule,
-                App.Config?.Appearance);
+                _config?.Appearance);
     }
 }

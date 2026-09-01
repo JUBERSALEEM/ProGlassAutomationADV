@@ -25,6 +25,9 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.JobOrder.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 {
     /// <summary>
@@ -40,6 +43,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
     /// </summary>
     public class SavedInvoicesListViewModel : ViewModelBase, IDisposable
     {
+        private readonly IDialogService _dialogs = null!;
+        private readonly IProformaInvoiceRepository _invoices = null!;
+        private readonly IJobOrderRepository _jobs = null!;
+        private readonly IStatusService _status = null!;
+
+        public SavedInvoicesListViewModel(IDialogService? dialogs, IProformaInvoiceRepository? invoices, IJobOrderRepository? jobs, IStatusService? status)
+        {
+            _dialogs = dialogs!;
+            _invoices = invoices!;
+            _jobs = jobs!;
+            _status = status!;
+        }
+
         // Phase 4: Named handler for static event — detachable
         private Func<Task>? _dataSeededHandler;
         private bool _disposed;
@@ -188,7 +204,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public Action<string>? OnSnapshotRestoreRequested { get; set; }
 
         public SavedInvoicesListViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!,
+            App.ServiceProvider?.GetService<IStatusService>()!){
             RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
 
             // Phase 4: Named handler — detachable, no lambda leak
@@ -312,7 +332,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
                 if (items.Count == 0)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         LocalizationService.Instance.T("Msg.NothingToExportTheCurrent"),
                         LocalizationService.Instance.T("DeliveryNote.ExportExcel"),
                         MessageBoxButton.OK,
@@ -351,7 +371,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 LastExportStatus = $"✗ Excel export failed: {ex.Message}";
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
@@ -393,7 +413,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         private async Task LoadInvoicesCoreAsync()
         {
-            if (App.Invoices == null) return;
+            if (_invoices == null) return;
             IsLoading = true;
 
             try
@@ -402,7 +422,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 // FullSnapshotJson blob (whole invoice) into memory just to
                 // render one row per invoice. GetListRowsAsync() reads only
                 // the scalar columns this page binds.
-                var entities = await App.Invoices.GetListRowsAsync();
+                var entities = await _invoices.GetListRowsAsync();
 
                 var progress = await DocumentProgressSnapshot.LoadAsync();
                 var confirmedWithAttachments = await LoadApprovalProofStateAsync(entities);
@@ -437,7 +457,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToLoadSavedInvoices"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapLoadError"),
                     MessageBoxButton.OK,
@@ -598,9 +618,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     AppPermissions.ProformaCreate, "duplicate a proforma invoice"))
                 return;
 
-            if (item == null || App.Invoices == null) return;
+            if (item == null || _invoices == null) return;
 
-            var confirm = App.Dialogs.Show(
+            var confirm = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DuplicateInvoiceXANew"), item.ProformaId),
                 LocalizationService.Instance.T("Msg.CapConfirmDuplicate"),
                 MessageBoxButton.YesNo,
@@ -609,10 +629,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             try
             {
-                var original = await App.Invoices.GetByIdAsync(item.Id);
+                var original = await _invoices.GetByIdAsync(item.Id);
                 if (original == null) return;
 
-                string newId = await App.Invoices.SuggestNextIdAsync(
+                string newId = await _invoices.SuggestNextIdAsync(
                     original.ProformaId);
 
                 // Senior audit fix (Aug 2026): scrub Inquiry / PI id
@@ -646,10 +666,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     FullSnapshotJson = sanitizedSnapshot
                 };
 
-                await App.Invoices.InsertAsync(copy);
+                await _invoices.InsertAsync(copy);
                 await LoadInvoicesAsync();
 
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DuplicatedAsX"), newId),
                     LocalizationService.Instance.T("Msg.CapDuplicateSuccessful"),
                     MessageBoxButton.OK,
@@ -657,7 +677,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToDuplicateX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapDuplicateFailed"),
                     MessageBoxButton.OK,
@@ -671,7 +691,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 ProGlassAutomation.Services.Audit.AppPermissions.ProformaDelete, "delete an invoice"))
                 return;
 
-            if (item == null || App.Invoices == null) return;
+            if (item == null || _invoices == null) return;
 
             // Phase 14: orphan protection — refuse to delete a PI that has
             // dependent Job Orders / Tax Invoices.
@@ -682,12 +702,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     item.ProformaId ?? "");
             if (guard.HasDependents)
             {
-                App.Dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
+                _dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var confirm = App.Dialogs.Show(
+            var confirm = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DeleteInvoiceXPermanentlyThis"), item.ProformaId),
                 LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,
@@ -696,7 +716,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             try
             {
-                await App.Invoices.DeleteAsync(item.Id);
+                await _invoices.DeleteAsync(item.Id);
 
                 AuditService.Log(
                     AuditSections.Proforma, "Invoice deleted",
@@ -706,7 +726,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX2"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
@@ -719,11 +739,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         {
             if (item == null
                 || string.IsNullOrWhiteSpace(newStatus)
-                || App.Invoices == null) return;
+                || _invoices == null) return;
 
             try
             {
-                var entity = await App.Invoices.GetByIdAsync(item.Id);
+                var entity = await _invoices.GetByIdAsync(item.Id);
                 if (entity == null) return;
 
                 // Already approved — nothing to do (approval also converts once).
@@ -751,7 +771,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         entity.Status, newStatus);
                 if (!transition.IsValid)
                 {
-                    App.Dialogs.Show(transition.Reason ?? "Invalid status change.",
+                    _dialogs.Show(transition.Reason ?? "Invalid status change.",
                         LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -761,7 +781,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 bool wasCancelled = IsCancelledStatus(entity.Status);
 
                 entity.Status = newStatus;
-                await App.Invoices.UpdateAsync(entity);
+                await _invoices.UpdateAsync(entity);
 
                 // Cancelling / rejecting a PI clears its Step 8 attachments
                 // so a later re-approval starts clean — but ONLY when this
@@ -777,7 +797,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX2"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapStatusChangeFailed"),
                     MessageBoxButton.OK,
@@ -858,9 +878,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// </summary>
         public async Task CompleteApprovalAsync(int invoiceId)
         {
-            if (App.Invoices == null) return;
+            if (_invoices == null) return;
 
-            var entity = await App.Invoices.GetByIdAsync(invoiceId);
+            var entity = await _invoices.GetByIdAsync(invoiceId);
             if (entity == null) return;
 
             var attachments = await new ProformaAttachmentService()
@@ -889,14 +909,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             // Approve + persist — validated against the workflow table so
             // e.g. a Cancelled PI cannot silently become Approved.
-            if (!App.Status.Validate(
+            if (!_status.Validate(
                     StatusTransitions.Kind.ProformaInvoice,
                     entity.Status, ProformaInvoiceStatus.Approved).IsValid)
                 return;
 
             entity.Status = ProformaInvoiceStatus.Approved;
             entity.UpdatedAt = DateTime.Now;
-            await App.Invoices.UpdateAsync(entity);
+            await _invoices.UpdateAsync(entity);
 
             AuditService.Log(
                 AuditSections.Proforma, "Invoice approved",
@@ -909,7 +929,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             await LoadInvoicesAsync();
 
-            App.Dialogs.Show(
+            _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.InvoiceXApprovedAndConverted"), entity.ProformaId),
                 LocalizationService.Instance.T("Msg.CapApproved"),
                 MessageBoxButton.OK,
@@ -924,24 +944,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// </summary>
         private async Task ConvertToJobOrderAsync(SavedProformaInvoice piEntity)
         {
-            if (piEntity == null || App.Jobs == null) return;
+            if (piEntity == null || _jobs == null) return;
 
             try
             {
-                var existing = await App.Jobs.GetBySourceProformaIdAsync(
+                var existing = await _jobs.GetBySourceProformaIdAsync(
                     piEntity.ProformaId ?? "");
                 if (existing != null && existing.Count > 0) return;   // already converted
 
                 var jobSnapshot = JobOrderMapper.BuildFromProformaInvoice(piEntity);
-                if (await App.Jobs.ExistsByJobOrderIdAsync(jobSnapshot.JobOrderId))
+                if (await _jobs.ExistsByJobOrderIdAsync(jobSnapshot.JobOrderId))
                 {
-                    jobSnapshot.JobOrderId = await App.Jobs.SuggestNextIdAsync(
+                    jobSnapshot.JobOrderId = await _jobs.SuggestNextIdAsync(
                         jobSnapshot.JobOrderId);
                 }
 
                 var jobEntity = JobOrderMapper.BuildEntityFromSnapshot(
                     jobSnapshot, piEntity.GrandTotalVatInclusive);
-                await App.Jobs.InsertAsync(jobEntity);
+                await _jobs.InsertAsync(jobEntity);
 
                 try
                 {
@@ -992,11 +1012,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 ProGlassAutomation.Services.Audit.AppPermissions.ProformaExport, "export an invoice PDF"))
                 return;
 
-            if (item == null || App.Invoices == null) return;
+            if (item == null || _invoices == null) return;
 
             try
             {
-                var entity = await App.Invoices.GetByIdAsync(item.Id);
+                var entity = await _invoices.GetByIdAsync(item.Id);
                 if (entity == null) return;
 
                 var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
@@ -1016,7 +1036,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     : result.Cancelled ? "" : $"✗ PDF export failed";
 
                 if (!result.Success && !result.Cancelled)
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.PDFExportFailedX"), result.ErrorMessage),
                         LocalizationService.Instance.T("Msg.CapExportFailed"),
                         MessageBoxButton.OK,
@@ -1025,7 +1045,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 LastExportStatus = $"✗ PDF export failed: {ex.Message}";
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.PDFExportFailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
@@ -1039,11 +1059,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 ProGlassAutomation.Services.Audit.AppPermissions.ProformaExport, "export an invoice to Excel"))
                 return;
 
-            if (item == null || App.Invoices == null) return;
+            if (item == null || _invoices == null) return;
 
             try
             {
-                var entity = await App.Invoices.GetByIdAsync(item.Id);
+                var entity = await _invoices.GetByIdAsync(item.Id);
                 if (entity == null) return;
 
                 var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
@@ -1062,7 +1082,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     : result.Cancelled ? "" : $"✗ Excel export failed";
 
                 if (!result.Success && !result.Cancelled)
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), result.ErrorMessage),
                         LocalizationService.Instance.T("Msg.CapExportFailed"),
                         MessageBoxButton.OK,
@@ -1071,7 +1091,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 LastExportStatus = $"✗ Excel export failed: {ex.Message}";
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
@@ -1089,11 +1109,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 ProGlassAutomation.Services.Audit.AppPermissions.ProformaExport, "export an invoice CSV"))
                 return;
 
-            if (item == null || App.Invoices == null) return;
+            if (item == null || _invoices == null) return;
 
             try
             {
-                var entity = await App.Invoices.GetByIdAsync(item.Id);
+                var entity = await _invoices.GetByIdAsync(item.Id);
                 if (entity == null) return;
 
                 var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
@@ -1112,7 +1132,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     : result.Cancelled ? "" : $"✗ CSV export failed";
 
                 if (!result.Success && !result.Cancelled)
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.CSVExportFailedX"), result.ErrorMessage),
                         LocalizationService.Instance.T("Msg.CapExportFailed"),
                         MessageBoxButton.OK,
@@ -1121,7 +1141,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 LastExportStatus = $"✗ CSV export failed: {ex.Message}";
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.CSVExportFailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,

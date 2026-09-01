@@ -13,7 +13,7 @@
 // PRESERVED (zero regression):
 //   • LoadCoreAsync signature (base class contract)
 //   • All KPI backing fields + display properties
-//   • App.Statements null guard
+//   • _statements null guard
 //   • Task.Run background load pattern
 //   • Dispatcher.Invoke UI thread updates
 //   • OnPropertyChanged(string.Empty) batch notify
@@ -34,10 +34,19 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.Statement.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Dashboard.Statement
 {
     public class StDashboardViewModel : DashboardPageBase
     {
+        private readonly IStatementRepository _statements = null!;
+
+        public StDashboardViewModel(IStatementRepository? statements)
+        {
+            _statements = statements!;
+        }
+
         // ── Tab identity ──────────────────────────────────────────────────
         public override string TabTitle => "Statements";
         public override string TabSubtitle => "Customer balances";
@@ -95,7 +104,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
 
         // ═════════════════════════════════════════════════════════════════
         public StDashboardViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IStatementRepository>()!){
             GoToStatementsCommand = new RelayCommand(_ =>
                 NavigateTo?.Invoke("StatementGenerator"));
 
@@ -118,17 +128,17 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
 
         protected override async Task LoadCoreAsync()
         {
-            // Guard: App.Statements may be null if called before startup
-            if (App.Statements == null)
+            // Guard: _statements may be null if called before startup
+            if (_statements == null)
             {
                 AppLogService.Debug(
-                    "[StDashboard] App.Statements not yet initialized.");
+                    "[StDashboard] _statements not yet initialized.");
                 return;
             }
 
             // Load on background thread
             var items = await Task.Run(
-                () => App.Statements.GetAllAsync());
+                () => _statements.GetAllAsync());
 
             if (items == null || items.Count == 0)
             {

@@ -35,6 +35,12 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Threading;
 
+using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.JobOrder.Repository;
+using ProGlassAutomation.Services.MasterData.Repository;
+using ProGlassAutomation.Services.TaxInvoice.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Shared
 {
     public class GlobalSearchViewModel : ViewModelBase
@@ -194,8 +200,34 @@ namespace ProGlassAutomation.ViewModels.Shared
         /// <summary>Clears the query and closes the popup.</summary>
         public ICommand ClearCommand { get; }
 
-        public GlobalSearchViewModel(Action<string>? navigate = null)
+                private readonly IDeliveryNoteRepository _deliveryNotes = null!;
+        private readonly IProformaInvoiceRepository _invoices = null!;
+        private readonly IJobOrderRepository _jobs = null!;
+        private readonly IMasterDataRepository _masterData = null!;
+        private readonly ITaxInvoiceRepository _taxInvoices = null!;
+
+public GlobalSearchViewModel() : this(
+            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!,
+            App.ServiceProvider?.GetService<IMasterDataRepository>()!,
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!)
         {
+        }
+
+        public GlobalSearchViewModel(
+            IDeliveryNoteRepository? deliveryNotes,
+            IProformaInvoiceRepository? invoices,
+            IJobOrderRepository? jobs,
+            IMasterDataRepository? masterData,
+            ITaxInvoiceRepository? taxInvoices,
+            Action<string>? navigate = null)
+        {
+            _deliveryNotes = deliveryNotes!;
+            _invoices = invoices!;
+            _jobs = jobs!;
+            _masterData = masterData!;
+            _taxInvoices = taxInvoices!;
             _navigate = navigate;
 
             _debounceTimer = new DispatcherTimer
@@ -406,11 +438,11 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             try
             {
-                if (App.Invoices == null) return;
+                if (_invoices == null) return;
 
                 // PERF: bounded, DB-side search - only the top matches are
                 // returned, so the FullSnapshotJson blobs are never loaded.
-                var rows = await App.Invoices
+                var rows = await _invoices
                     .SearchAsync(term, MaxResults).ConfigureAwait(true);
 
                 foreach (var pi in rows)
@@ -433,11 +465,11 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             try
             {
-                if (App.Jobs == null) return;
+                if (_jobs == null) return;
 
                 // PERF: bounded, DB-side search - only the top matches are
                 // returned, so the FullSnapshotJson blobs are never loaded.
-                var rows = await App.Jobs
+                var rows = await _jobs
                     .SearchAsync(term, MaxResults).ConfigureAwait(true);
 
                 foreach (var jo in rows)
@@ -460,8 +492,8 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             try
             {
-                if (App.DeliveryNotes == null) return;
-                var list = await App.DeliveryNotes.GetAllAsync().ConfigureAwait(true);
+                if (_deliveryNotes == null) return;
+                var list = await _deliveryNotes.GetAllAsync().ConfigureAwait(true);
 
                 foreach (var dn in list.Where(d =>
                              Hit(d.DeliveryNoteId, term) ||
@@ -488,8 +520,8 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             try
             {
-                if (App.TaxInvoices == null) return;
-                var list = await App.TaxInvoices.GetAllAsync().ConfigureAwait(true);
+                if (_taxInvoices == null) return;
+                var list = await _taxInvoices.GetAllAsync().ConfigureAwait(true);
 
                 foreach (var ti in list.Where(t =>
                              Hit(t.InvoiceNumber, term) ||
@@ -516,8 +548,8 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             try
             {
-                if (App.MasterData == null) return;
-                var list = await App.MasterData.GetAllCompaniesAsync()
+                if (_masterData == null) return;
+                var list = await _masterData.GetAllCompaniesAsync()
                     .ConfigureAwait(true);
 
                 foreach (var c in list.Where(c =>
@@ -544,8 +576,8 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             try
             {
-                if (App.MasterData == null) return;
-                var list = await App.MasterData.GetAllClientsAsync()
+                if (_masterData == null) return;
+                var list = await _masterData.GetAllClientsAsync()
                     .ConfigureAwait(true);
 
                 foreach (var c in list.Where(c =>

@@ -18,6 +18,9 @@ using System.Windows.Input;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.JobOrder.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 {
     /// <summary>
@@ -36,6 +39,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     /// </summary>
     public class DeliveryNoteListViewModel : ViewModelBase, System.IDisposable
     {
+        private readonly IDeliveryNoteRepository _deliveryNotes = null!;
+        private readonly IDialogService _dialogs = null!;
+        private readonly IJobOrderRepository _jobs = null!;
+
+        public DeliveryNoteListViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IJobOrderRepository? jobs)
+        {
+            _deliveryNotes = deliveryNotes!;
+            _dialogs = dialogs!;
+            _jobs = jobs!;
+        }
+
         private int _loadingFlag = 0;
         private int _reloadQueued = 0;
         private bool _disposed;
@@ -473,7 +487,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         // ══════════════════════════════════════════════════════════════════
 
         public DeliveryNoteListViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!){
             RefreshCommand = new RelayCommand(async _ =>
             {
                 SelectedRow = null;
@@ -562,18 +579,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 execute: async param =>
                 {
                     string? jobOrderId = param as string;
-                    if (string.IsNullOrWhiteSpace(jobOrderId) || App.Jobs == null) return;
+                    if (string.IsNullOrWhiteSpace(jobOrderId) || _jobs == null) return;
 
                     try
                     {
-                        var allJobs = await App.Jobs.GetAllAsync();
+                        var allJobs = await _jobs.GetAllAsync();
                         var job = allJobs.FirstOrDefault(j => j.JobOrderId == jobOrderId);
                         if (job != null)
                             OnCreateDnFromJobOrder?.Invoke(job);
                     }
                     catch (Exception ex)
                     {
-                        App.Dialogs.Show(
+                        _dialogs.Show(
                             string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrder"), ex.Message),
                             LocalizationService.Instance.T("Msg.CapError"), System.Windows.MessageBoxButton.OK,
                             System.Windows.MessageBoxImage.Error);
@@ -635,7 +652,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         {
             if (string.IsNullOrWhiteSpace(proformaId))
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.CannotCreateTaxInvoiceNo"), sourceRef),
                     LocalizationService.Instance.T("Msg.CapPIReference"),
                     MessageBoxButton.OK,
@@ -645,7 +662,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
             if (OnRequestOpenTaxInvoiceForProforma == null)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.TaxInvoiceNavigationIsNot2"),
                     LocalizationService.Instance.T("Msg.CapWired"),
                     MessageBoxButton.OK,
@@ -653,7 +670,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 return;
             }
 
-            var confirm = App.Dialogs.Show(
+            var confirm = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.CreateTaxInvoiceSourceX"), sourceRef, proformaId),
                 LocalizationService.Instance.T("TaxInvoice.CreateTAXInvoice"),
                 MessageBoxButton.OKCancel,
@@ -667,7 +684,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToOpenTaxInvoice"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapNavigationFailed"),
                     MessageBoxButton.OK,
@@ -681,9 +698,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         private async Task OpenJobOrderPickerAsync()
         {
-            if (App.Jobs == null)
+            if (_jobs == null)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.JobOrdersDatabaseNotInitialized"),
                     LocalizationService.Instance.T("Msg.CapError"),
                     MessageBoxButton.OK,
@@ -692,10 +709,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
 
             List<SavedJobOrder> allJobOrders;
-            try { allJobOrders = await App.Jobs.GetAllAsync(); }
+            try { allJobOrders = await _jobs.GetAllAsync(); }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrders"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapLoadFailed"),
                     MessageBoxButton.OK,
@@ -705,7 +722,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
             if (allJobOrders.Count == 0)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.JobOrdersFoundCreateA"),
                     LocalizationService.Instance.T("Msg.CapJobOrders"),
                     MessageBoxButton.OK,
@@ -719,13 +736,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             {
                 try
                 {
-                    if (App.DeliveryNotes == null)
+                    if (_deliveryNotes == null)
                     {
                         jobOrdersWithBalance.Add(jo);
                         continue;
                     }
 
-                    var masterDn = await App.DeliveryNotes
+                    var masterDn = await _deliveryNotes
                         .GetMasterDnForJobOrderAsync(jo.JobOrderId);
 
                     if (masterDn == null)
@@ -742,7 +759,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                         continue;
                     }
 
-                    var siblings = await App.DeliveryNotes
+                    var siblings = await _deliveryNotes
                         .GetByJobOrderIdAsync(jo.JobOrderId);
                     if (siblings.Any(d =>
                             DeliveryNoteWorkflow.IsOpenForDispatch(d.Status)))
@@ -758,7 +775,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
             if (jobOrdersWithBalance.Count == 0)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.JobOrdersHaveBeenFully"),
                     LocalizationService.Instance.T("Msg.CapDelivered"),
                     MessageBoxButton.OK,
@@ -769,8 +786,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             List<ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteListItem> dns = new();
             try
             {
-                if (App.DeliveryNotes != null)
-                    dns = await App.DeliveryNotes.GetAllAsync();
+                if (_deliveryNotes != null)
+                    dns = await _deliveryNotes.GetAllAsync();
             }
             catch { /* picker still searches JO fields */ }
 
@@ -803,7 +820,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 HasError = false;
                 ErrorMessage = "";
 
-                if (App.DeliveryNotes == null)
+                if (_deliveryNotes == null)
                 {
                     HasError = true;
                     ErrorMessage = "Delivery Notes database not initialized.";
@@ -811,12 +828,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 }
 
                 // 6 tabs only — no Master DN tab
-                var allTask = App.DeliveryNotes.GetAllAsync();
-                var prepTask = App.DeliveryNotes.GetPreparedAsync();
-                var delTask = App.DeliveryNotes.GetDeliveredAsync();
-                var pendingTask = App.DeliveryNotes.GetPendingQtyJobsAsync();
-                var reworkTask = App.DeliveryNotes.GetReworkAsync();
-                var returnedTask = App.DeliveryNotes.GetReturnedAsync();
+                var allTask = _deliveryNotes.GetAllAsync();
+                var prepTask = _deliveryNotes.GetPreparedAsync();
+                var delTask = _deliveryNotes.GetDeliveredAsync();
+                var pendingTask = _deliveryNotes.GetPendingQtyJobsAsync();
+                var reworkTask = _deliveryNotes.GetReworkAsync();
+                var returnedTask = _deliveryNotes.GetReturnedAsync();
 
                 await Task.WhenAll(
                     allTask, prepTask, delTask,
@@ -848,7 +865,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
 
-                _sqmCache = await App.DeliveryNotes
+                _sqmCache = await _deliveryNotes
                     .GetSqmSummariesByJobOrderAsync(allJobOrderIds);
 
                 _progress = await DocumentProgressSnapshot.LoadAsync(
@@ -895,14 +912,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         private async Task LoadTabAsync(int tabIndex)
         {
-            if (App.DeliveryNotes == null) return;
+            if (_deliveryNotes == null) return;
 
             try
             {
                 switch (tabIndex)
                 {
                     case 1:
-                        var prep = await App.DeliveryNotes.GetPreparedAsync();
+                        var prep = await _deliveryNotes.GetPreparedAsync();
                         _rawPrepared = prep
                             .Select(x => new DeliveryNoteRowViewModel(x))
                             .ToList();
@@ -913,7 +930,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                         break;
 
                     case 2:
-                        var del = await App.DeliveryNotes.GetDeliveredAsync();
+                        var del = await _deliveryNotes.GetDeliveredAsync();
                         _rawDelivered = del
                             .Select(x => new DeliveryNoteRowViewModel(x))
                             .ToList();
@@ -925,7 +942,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
                     case 3:
                         var pending =
-                            await App.DeliveryNotes.GetPendingQtyJobsAsync();
+                            await _deliveryNotes.GetPendingQtyJobsAsync();
                         PendingItems =
                             new ObservableCollection<PendingQtyRowViewModel>(
                                 pending.Select(x => new PendingQtyRowViewModel(x)));
@@ -933,7 +950,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                         break;
 
                     case 4:
-                        var rework = await App.DeliveryNotes.GetReworkAsync();
+                        var rework = await _deliveryNotes.GetReworkAsync();
                         _rawRework = rework
                             .Select(x => new DeliveryNoteRowViewModel(x))
                             .ToList();
@@ -945,7 +962,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                         break;
 
                     case 5:
-                        var returned = await App.DeliveryNotes.GetReturnedAsync();
+                        var returned = await _deliveryNotes.GetReturnedAsync();
                         _rawReturned = returned
                             .Select(x => new DeliveryNoteRowViewModel(x))
                             .ToList();
@@ -961,7 +978,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToReloadTabX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapLoadError"),
                     MessageBoxButton.OK,
@@ -972,7 +989,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         private async Task RefreshSqmCacheAsync(
             List<DeliveryNoteRowViewModel> rows)
         {
-            if (App.DeliveryNotes == null) return;
+            if (_deliveryNotes == null) return;
 
             var joIds = rows
                 .Select(x => x.JobOrderId)
@@ -982,7 +999,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
             if (joIds.Count == 0) return;
 
-            var fresh = await App.DeliveryNotes
+            var fresh = await _deliveryNotes
                 .GetSqmSummariesByJobOrderAsync(joIds);
 
             foreach (var kvp in fresh)
@@ -1065,7 +1082,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             // Safety guard — Master DNs must never be deleted from list
             if (row.IsMasterDn)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.MasterDNsCannotBeDeleted"),
                     LocalizationService.Instance.T("Msg.CapCannotDeleteMasterDN"),
                     MessageBoxButton.OK,
@@ -1082,12 +1099,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     row.DeliveryNoteId);
             if (guard.HasDependents)
             {
-                App.Dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
+                _dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var result = App.Dialogs.Show(
+            var result = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DeleteDeliveryNoteXCustomer2"), row.DeliveryNoteId, row.CustomerName),
                 LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,
@@ -1098,12 +1115,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             try
             {
                 if (SelectedRow == row) SelectedRow = null;
-                await App.DeliveryNotes!.DeleteAsync(row.Id);
+                await _deliveryNotes!.DeleteAsync(row.Id);
                 await LoadAsync();
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
@@ -1116,7 +1133,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         {
             try
             {
-                var entity = await App.DeliveryNotes!.GetByIdAsync(row.Id);
+                var entity = await _deliveryNotes!.GetByIdAsync(row.Id);
                 if (entity == null) return;
 
                 // Phase 3: enforce centralized status-transition rules at the
@@ -1127,7 +1144,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                         entity.Status, newStatus);
                 if (!transition.IsValid)
                 {
-                    App.Dialogs.Show(transition.Reason ?? "Invalid status change.",
+                    _dialogs.Show(transition.Reason ?? "Invalid status change.",
                         LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -1135,12 +1152,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
                 entity.Status = newStatus;
                 entity.UpdatedAt = DateTime.Now;
-                await App.DeliveryNotes.UpdateAsync(entity);
+                await _deliveryNotes.UpdateAsync(entity);
                 await LoadAsync();
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapUpdateFailed"),
                     MessageBoxButton.OK,

@@ -18,6 +18,8 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMai
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.PrintableInvoice;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview
 {
     /// <summary>
@@ -49,13 +51,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview
         /// Now: (company, ClientProfileViewModel, ProjectSpecsViewModel, ...)
         /// ProformaInvoiceViewModel passes Step2VM=Client, Step3VM=Project.
         /// </summary>
-        public PrintPreviewViewModel(
+                private readonly IDialogService _dialogs = null!;
+        private readonly IProformaInvoiceRepository _invoices = null!;
+
+public PrintPreviewViewModel(
+            IDialogService? dialogs,
+            IProformaInvoiceRepository? invoices,
             CompanySetupViewModel companyVM,
             ClientProfileViewModel clientVM,      // FIXED: was ProjectSpecsViewModel
             ProjectSpecsViewModel projectVM,     // FIXED: was ClientProfileViewModel
             DataGridViewModel dataGridVM,
             OtherChargesViewModel otherChargesVM)
         {
+            _dialogs = dialogs!;
+            _invoices = invoices!;
             InvoiceMainSummary = new InvoiceMainSummaryViewModel(
                 dataGridVM,
                 otherChargesVM);
@@ -64,6 +73,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview
 
             // FIXED: pass clientVM and projectVM in correct order
             PrintableInvoice = new PrintableInvoiceViewModel(
+                _dialogs,
+                _invoices,
                 companyVM,
                 clientVM,       // ClientProfileViewModel — Step 2
                 projectVM,      // ProjectSpecsViewModel  — Step 3

@@ -220,7 +220,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             // singleton that's already initialised at app startup. The
             // dropdowns work either way — auto-fill is silently skipped when
             // master data is unavailable.
-            _masterData = masterData ?? App.MasterData;
+            _masterData = masterData!;
             Record = source ?? new InquiryRecord
             {
                 InquiryReference = "Customer Inquiry", Status = InquiryStatuses.Received,

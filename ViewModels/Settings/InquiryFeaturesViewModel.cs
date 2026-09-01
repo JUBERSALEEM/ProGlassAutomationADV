@@ -19,12 +19,21 @@ using ProGlassAutomation.Services.Logging;
 using System;
 using System.Windows.Input;
 
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Settings
 {
     public sealed class InquiryFeaturesViewModel : ViewModelBase
     {
-        public InquiryFeaturesViewModel()
+        private readonly AppConfig _config = null!;
+
+        public InquiryFeaturesViewModel(AppConfig? config)
         {
+            _config = config!;
+        }
+
+        public InquiryFeaturesViewModel()
+         : this(
+            App.ServiceProvider?.GetService<AppConfig>()?? App.Config){
             ResetToDefaultsCommand      = new RelayCommand(_ => SetAll(true));
             EnableAllCommand            = new RelayCommand(_ => SetAll(true));
             DisableAllOptionalCommand   = new RelayCommand(_ => SetAll(false));
@@ -38,9 +47,9 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             get
             {
-                if (App.Config == null) return new InquiryFeatureFlags();
-                App.Config.InquiryFields ??= new InquiryFeatureFlags();
-                return App.Config.InquiryFields;
+                if (_config == null) return new InquiryFeatureFlags();
+                _config.InquiryFields ??= new InquiryFeatureFlags();
+                return _config.InquiryFields;
             }
         }
 
@@ -48,7 +57,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             try
             {
-                if (App.Config != null) ConfigService.Save(App.Config);
+                if (_config != null) ConfigService.Save(_config);
             }
             catch (Exception ex)
             {
@@ -90,7 +99,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             try
             {
-                if (App.Config != null) ConfigService.Save(App.Config);
+                if (_config != null) ConfigService.Save(_config);
             }
             catch (Exception ex)
             {

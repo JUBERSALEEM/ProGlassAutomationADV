@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Reports.StatementReport
 {
     /// <summary>
@@ -23,6 +25,18 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
     /// </summary>
     public class StatementReportViewModel : ReportBaseViewModel
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public StatementReportViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+        {
+        }
+
+        public StatementReportViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         public StatementReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
         {
             InitCommands();
@@ -97,7 +111,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
                 if (format == ExportFormat.Csv) res = await ReportingExportService.ExportCsvAsync(Rows.ToList(), "Statement Ledger", ReportingExportService.StatementLineHeaders, ReportingExportService.StatementLineMap, req);
                 else if (format == ExportFormat.Excel) res = await ReportingExportService.ExportExcelAsync(Rows.ToList(), "Statement Ledger", ReportingExportService.StatementLineHeaders, ReportingExportService.StatementLineMapExcel, req);
                 else res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Statement Ledger", ReportingExportService.StatementLineHeaders, ReportingExportService.StatementLineMap, req);
-                if (!res.Success && !res.Cancelled) App.Dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                if (!res.Success && !res.Cancelled) _dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
         }

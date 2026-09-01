@@ -20,11 +20,20 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.TaxInvoice.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
 {
     /// <summary>All-records overview for the Tax Invoice module.</summary>
     public class TaxInvoiceGodViewViewModel : ViewModelBase
     {
+        private readonly ITaxInvoiceRepository _taxInvoices = null!;
+
+        public TaxInvoiceGodViewViewModel(ITaxInvoiceRepository? taxInvoices)
+        {
+            _taxInvoices = taxInvoices!;
+        }
+
         private ObservableCollection<TaxInvoiceListItem> _allRows = new();
 
         public ObservableCollection<TaxInvoiceListItem> Rows { get; } = new();
@@ -57,7 +66,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
         }
 
         public TaxInvoiceGodViewViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
 
             OpenCommand = new RelayCommand(param =>
@@ -70,13 +80,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
         /// <summary>Loads every tax invoice and recomputes KPIs.</summary>
         public async Task LoadAsync()
         {
-            if (App.TaxInvoices == null) return;
+            if (_taxInvoices == null) return;
 
             try
             {
                 UiDispatch.Run(() => IsLoading = true);
 
-                var items = await App.TaxInvoices.GetAllAsync();
+                var items = await _taxInvoices.GetAllAsync();
 
                 UiDispatch.Run(() =>
                 {

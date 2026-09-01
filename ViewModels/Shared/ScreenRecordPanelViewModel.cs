@@ -8,6 +8,8 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Shared
 {
     /// <summary>
@@ -16,12 +18,20 @@ namespace ProGlassAutomation.ViewModels.Shared
     /// </summary>
     public sealed class ScreenRecordPanelViewModel : ViewModelBase
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public ScreenRecordPanelViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         public static ScreenRecordPanelViewModel Shared { get; } = new();
 
         private readonly UserScreenRecordService _svc = UserScreenRecordService.Shared;
 
         public ScreenRecordPanelViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService()){
             SelectedQuality = ScreenRecordSettings.Qualities
                 .FirstOrDefault(q => q.Quality == _svc.Settings.Quality)
                 ?? ScreenRecordSettings.Qualities[1];
@@ -160,7 +170,7 @@ namespace ProGlassAutomation.ViewModels.Shared
             {
                 try
                 {
-                    App.Dialogs.Show(why, LocalizationService.Instance.T("Shared.ScreenRecording"),
+                    _dialogs.Show(why, LocalizationService.Instance.T("Shared.ScreenRecording"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 catch { /* status still updated */ }

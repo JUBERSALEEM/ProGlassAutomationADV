@@ -46,7 +46,7 @@ namespace ProGlassAutomation.Views.Reports.Workflow
             InitializeComponent();
 
             _vm = new WorkflowProgressViewModel(
-                filter, statementNumber, customerName);
+                App.Dialogs, filter, statementNumber, customerName);
 
             // Wire callback: when engine detects missing invoices,
             // show the warning resolution dialog

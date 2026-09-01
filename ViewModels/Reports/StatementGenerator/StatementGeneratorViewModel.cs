@@ -68,6 +68,8 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.MasterData.Repository;
 namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 {
     public class StatementGeneratorViewModel : ViewModelBase
@@ -836,8 +838,15 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
 
-        public StatementGeneratorViewModel(IStatementRepository repo)
+                private readonly IDialogService _dialogs = null!;
+                private readonly IMasterDataRepository _masterData = null!;
+
+public StatementGeneratorViewModel(IDialogService? dialogs,
+            IMasterDataRepository? masterData,
+            IStatementRepository repo)
         {
+            _dialogs = dialogs!;
+            _masterData = masterData!;
             _repo = repo;
             _aggregator = new StatementAggregator();
 
@@ -1269,10 +1278,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         {
             try
             {
-                var companies = await Task.Run(() => App.MasterData.GetAllCompaniesAsync());
-                var clients = await Task.Run(() => App.MasterData.GetAllClientsAsync());
-                var projects = await Task.Run(() => App.MasterData.GetAllProjectsAsync());
-                var salesmen = await Task.Run(() => App.MasterData.GetAllSalesmenAsync());
+                var companies = await Task.Run(() => _masterData.GetAllCompaniesAsync());
+                var clients = await Task.Run(() => _masterData.GetAllClientsAsync());
+                var projects = await Task.Run(() => _masterData.GetAllProjectsAsync());
+                var salesmen = await Task.Run(() => _masterData.GetAllSalesmenAsync());
 
                 Application.Current?.Dispatcher.Invoke(() =>
                 {
@@ -1539,7 +1548,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     LastWorkflowStatusText = "Duplicate detected";
                     LiveAddLogEntry(LogSeverity.Warning,
                         $"› ⚠ A statement with these filters already exists: {duplicate.StatementNumber}");
-                    var confirm = App.Dialogs.Show(
+                    var confirm = _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.StatementWithTheSameFilters"), duplicate.StatementNumber, duplicate.SubTitle),
                         LocalizationService.Instance.T("Msg.CapDuplicateStatement"),
                         System.Windows.MessageBoxButton.YesNo,
@@ -1846,7 +1855,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     "  3. Return to Statement Generator and run the pipeline again.\n\n" +
                     "Continue generating without these signed attachments?";
 
-                var result = App.Dialogs.Show(
+                var result = _dialogs.Show(
                     "The following required signed attachments are missing:\n\n" +
                     string.Join("\n", missing) + guide,
                     LocalizationService.Instance.T("Msg.CapMissingSignedAttachments"),

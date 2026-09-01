@@ -23,10 +23,25 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.JobOrder.Repository;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 {
     public class SavedJobOrdersListViewModel : ViewModelBase, IDisposable
     {
+        private readonly IDialogService _dialogs = null!;
+        private readonly IProformaInvoiceRepository _invoices = null!;
+        private readonly IJobOrderRepository _jobs = null!;
+
+        public SavedJobOrdersListViewModel(IDialogService? dialogs, IProformaInvoiceRepository? invoices, IJobOrderRepository? jobs)
+        {
+            _dialogs = dialogs!;
+            _invoices = invoices!;
+            _jobs = jobs!;
+        }
+
         // Phase 4: Named handler for static event — detachable
         private Func<Task>? _dataSeededHandler;
         private bool _disposed;
@@ -217,7 +232,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         // ═════════════════════════════════════════════════════════════════
 
         public SavedJobOrdersListViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!){
             OpenJobOrderCommand = new RelayCommand(param =>
             {
                 if (param is JobOrderRowViewModel row)
@@ -304,7 +322,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 HasError = false;
                 ErrorMessage = string.Empty;
 
-                if (App.Jobs == null)
+                if (_jobs == null)
                 {
                     HasError = true;
                     ErrorMessage = "Job Order database not initialised.";
@@ -314,7 +332,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 // PERF (Aug 2026): use the narrow list projection so we never
                 // transfer each row's FullSnapshotJson blob just to build the
                 // list columns. JobOrderRowViewModel takes JobOrderListRow.
-                var rows = await App.Jobs.GetListRowsAsync();
+                var rows = await _jobs.GetListRowsAsync();
 
                 // Master ordered + confirmed delivered (includes fully
                 // delivered jobs — pending-qty map used to drop those).
@@ -468,12 +486,12 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     row.JobOrderId);
             if (guard.HasDependents)
             {
-                App.Dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
+                _dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var result = App.Dialogs.Show(
+            var result = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DeleteJobOrderXCustomer"), row.JobOrderId, row.CustomerName),
                 LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,
@@ -532,7 +550,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             try
             {
-                await App.Jobs.DeleteAsync(row.Id);
+                await _jobs.DeleteAsync(row.Id);
 
                 // Honor the user's choice only AFTER the job order is gone,
                 // so a failed delete never destroys attachments.
@@ -547,7 +565,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteJobOrder"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
@@ -606,9 +624,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 "create a job order"))
                 return;
 
-            if (App.Invoices == null || App.Jobs == null)
+            if (_invoices == null || _jobs == null)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.DatabasesAreStillInitialisingTry"),
                     LocalizationService.Instance.T("Msg.CapReady"),
                     MessageBoxButton.OK,
@@ -627,14 +645,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             try
             {
-                var saved = (await App.Invoices.GetAllAsync())
+                var saved = (await _invoices.GetAllAsync())
                     .FirstOrDefault(p => string.Equals(
                         p.ProformaId, proformaId,
                         StringComparison.OrdinalIgnoreCase));
 
                 if (saved == null)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.ProformaInvoiceXCouldNot"), proformaId),
                         LocalizationService.Instance.T("Msg.CapCreateFailed"),
                         MessageBoxButton.OK,
@@ -646,7 +664,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 // a split delivery), so this warns rather than blocks - but
                 // it has to warn, or a double-click silently duplicates a
                 // production job.
-                var existing = await App.Jobs
+                var existing = await _jobs
                     .GetBySourceProformaIdAsync(proformaId);
 
                 if (existing != null && existing.Count > 0)
@@ -654,7 +672,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     string ids = string.Join(", ",
                         existing.Select(j => j.JobOrderId));
 
-                    var again = App.Dialogs.Show(
+                    var again = _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.XAlreadyHasYJob"), proformaId, existing.Count, ids),
                         LocalizationService.Instance.T("Msg.CapAlreadyConverted"),
                         MessageBoxButton.YesNo,
@@ -670,13 +688,13 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 // The mapper derives JOB-YYYY-NNN from the PI number, which
                 // collides as soon as a quote is converted twice. Ask the
                 // repository for the next free id in that series.
-                snapshot.JobOrderId = await App.Jobs
+                snapshot.JobOrderId = await _jobs
                     .SuggestNextIdAsync(snapshot.JobOrderId);
 
                 var entity = JobOrderMapper.BuildEntityFromSnapshot(
                     snapshot, saved.GrandTotalVatInclusive);
 
-                var inserted = await App.Jobs.InsertAsync(entity);
+                var inserted = await _jobs.InsertAsync(entity);
 
                 try
                 {
@@ -700,7 +718,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToCreateJobOrder"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
@@ -712,7 +730,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         {
             try
             {
-                var entity = await App.Jobs.GetByIdAsync(row.Id);
+                var entity = await _jobs.GetByIdAsync(row.Id);
                 if (entity == null) return;
 
                 // Phase 3: enforce the centralized status-transition rules at
@@ -723,7 +741,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                         entity.Status, newStatus);
                 if (!transition.IsValid)
                 {
-                    App.Dialogs.Show(transition.Reason ?? "Invalid status change.",
+                    _dialogs.Show(transition.Reason ?? "Invalid status change.",
                         LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -746,7 +764,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     entity.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(snapshot);
                 }
 
-                await App.Jobs.UpdateAsync(entity);
+                await _jobs.UpdateAsync(entity);
 
                 AuditService.Log(
                     AuditSections.JobOrder, "Job order status changed",
@@ -756,7 +774,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapUpdateFailed"),
                     MessageBoxButton.OK,
@@ -768,7 +786,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         {
             try
             {
-                var entity = await App.Jobs.GetByIdAsync(row.Id);
+                var entity = await _jobs.GetByIdAsync(row.Id);
                 if (entity == null) return;
 
                 entity.Priority = newPriority;
@@ -785,7 +803,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     entity.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(snapshot);
                 }
 
-                await App.Jobs.UpdateAsync(entity);
+                await _jobs.UpdateAsync(entity);
 
                 AuditService.Log(
                     AuditSections.JobOrder, "Job order priority changed",
@@ -795,7 +813,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToChangePriorityX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapUpdateFailed"),
                     MessageBoxButton.OK,
@@ -857,10 +875,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             try
             {
-                var entity = await App.Jobs.GetByIdAsync(row.Id);
+                var entity = await _jobs.GetByIdAsync(row.Id);
                 if (entity == null)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.JobOrderXNoLonger"), row.JobOrderId),
                         LocalizationService.Instance.T("Msg.CapFound"),
                         MessageBoxButton.OK,
@@ -871,7 +889,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 var snapshot = JobOrderMapper.DeserializeSnapshot(entity);
                 if (snapshot == null)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.JobOrderXHasCorrupt"), row.JobOrderId),
                         LocalizationService.Instance.T("Msg.CapCorruptData"),
                         MessageBoxButton.OK,
@@ -883,7 +901,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrder"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapLoadFailed"),
                     MessageBoxButton.OK,
@@ -909,7 +927,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             if (result.Success || result.Cancelled)
                 return;
 
-            App.Dialogs.Show(
+            _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.XExportFailedY"), formatLabel, result.ErrorMessage),
                 LocalizationService.Instance.T("Msg.CapExportFailed"),
                 MessageBoxButton.OK,

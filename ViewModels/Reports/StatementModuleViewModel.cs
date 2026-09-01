@@ -20,6 +20,8 @@ using ProGlassAutomation.ViewModels.Reports.StatementList;
 using System;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Reports
 {
     /// <summary>
@@ -76,11 +78,19 @@ namespace ProGlassAutomation.ViewModels.Reports
             set => GeneratorVM.OnPrepareDeliveryNote = value;
         }
 
-        public StatementModuleViewModel()
+                private readonly IDialogService _dialogs = null!;
+
+
+        public StatementModuleViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+public StatementModuleViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService())
         {
             var repo = new StatementRepository();
-            ListVM = new StatementListViewModel(repo);
-            GeneratorVM = new StatementGeneratorViewModel(repo);
+            ListVM = new StatementListViewModel(_dialogs, repo);
+            GeneratorVM = new StatementGeneratorViewModel(_dialogs, App.ServiceProvider?.GetService<IMasterDataRepository>() ?? App.MasterData, repo);
 
             ListVM.OnRequestNewStatement = () =>
             {

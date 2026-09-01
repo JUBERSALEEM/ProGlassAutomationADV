@@ -14,10 +14,21 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 {
     public class PricingEstimatorViewModel : ViewModelBase
     {
+        private readonly IDialogService _dialogs = null!;
+        private readonly ISpecificationsRepository _specs = null!;
+
+        public PricingEstimatorViewModel(IDialogService? dialogs, ISpecificationsRepository? specs)
+        {
+            _dialogs = dialogs!;
+            _specs = specs!;
+        }
+
         // === Panel ViewModels (one per glass type) ===
         public SguParameters.SguParametersViewModel SguVM { get; }
         public DguParameters.DguParametersViewModel DguVM { get; }
@@ -172,7 +183,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         public ICommand ApplyRateCommand { get; }
 
         public PricingEstimatorViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<ISpecificationsRepository>()!){
             // Initialize panel VMs
             SguVM = new SguParameters.SguParametersViewModel();
             DguVM = new DguParameters.DguParametersViewModel();
@@ -913,7 +926,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
             try
             {
-                var savedSpec = await App.Specs.SaveOrUpdateAsync(
+                var savedSpec = await _specs.SaveOrUpdateAsync(
                     glassType, specName, rate);
 
                 // PHASE G: remember WHICH stock sheet this spec was priced
@@ -937,7 +950,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 // catch below and be reported as a "Database Error", which
                 // is wrong and would send the user chasing a fault that
                 // does not exist.
-                App.Dialogs.Show(
+                _dialogs.Show(
                     denied.UserMessage, LocalizationService.Instance.T("Msg.CapPermissionDenied"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
@@ -947,7 +960,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             catch (Exception ex)
             {
                 // Errors still use MessageBox — must interrupt the user
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToSaveSpecX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapDatabaseError"),
                     MessageBoxButton.OK,

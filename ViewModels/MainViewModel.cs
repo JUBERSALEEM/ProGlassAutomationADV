@@ -49,10 +49,32 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.AI.AIConfig;
+using ProGlassAutomation.Services.AI.AIService;
+using ProGlassAutomation.Services.AI.AIConnectivity;
+using ProGlassAutomation.Services.AI.AIVoice;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.JobOrder.Repository;
+using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Services.TaxInvoice.Repository;
+using ProGlassAutomation.Services.MasterData.Repository;
+using ProGlassAutomation.Services.Dialogs;
 namespace ProGlassAutomation.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
+        private readonly AppConfig _config = null!;
+        private readonly IAiService _ai = null!;
+        private readonly IConnectivityService _connectivity = null!;
+        private readonly ISpeechToTextService _speechToText = null!;
+        private readonly ITextToSpeechService _textToSpeech = null!;
+        private readonly IProformaInvoiceRepository _invoices = null!;
+        private readonly IJobOrderRepository _jobs = null!;
+        private readonly IDeliveryNoteRepository _deliveryNotes = null!;
+        private readonly ITaxInvoiceRepository _taxInvoices = null!;
+        private readonly IMasterDataRepository _masterData = null!;
+        private readonly IDialogService _dialogs = null!;
+
         private ViewModelBase _currentViewModel;
         private bool _isMenuOpen;
 
@@ -437,6 +459,17 @@ namespace ProGlassAutomation.ViewModels
         public MainViewModel(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            _config = serviceProvider.GetService<AppConfig>() ?? App.Config;
+            _ai = serviceProvider.GetService<IAiService>() ?? App.Ai;
+            _connectivity = serviceProvider.GetService<IConnectivityService>() ?? App.Connectivity;
+            _speechToText = serviceProvider.GetService<ISpeechToTextService>() ?? App.SpeechToText;
+            _textToSpeech = serviceProvider.GetService<ITextToSpeechService>() ?? App.TextToSpeech;
+            _invoices = serviceProvider.GetService<IProformaInvoiceRepository>() ?? App.Invoices;
+            _jobs = serviceProvider.GetService<IJobOrderRepository>() ?? App.Jobs;
+            _deliveryNotes = serviceProvider.GetService<IDeliveryNoteRepository>() ?? App.DeliveryNotes;
+            _taxInvoices = serviceProvider.GetService<ITaxInvoiceRepository>() ?? App.TaxInvoices;
+            _masterData = serviceProvider.GetService<IMasterDataRepository>() ?? App.MasterData;
+            _dialogs = serviceProvider.GetService<IDialogService>() ?? App.Dialogs;
 
             // Try resolve reporting services via DI, fallback to App statics
             try { _reportingService = serviceProvider.GetService<IReportingDataService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IReportingDataService; using App statics: " + ex.Message); }
@@ -476,11 +509,11 @@ namespace ProGlassAutomation.ViewModels
             try
             {
                 AiChatVM = serviceProvider.GetService<ViewModels.AI.AiChatViewModel>()
-                    ?? new ViewModels.AI.AiChatViewModel(App.Ai, App.SpeechToText, App.TextToSpeech);
+                    ?? new ViewModels.AI.AiChatViewModel(_ai, _speechToText, _textToSpeech);
             }
             catch
             {
-                AiChatVM = new ViewModels.AI.AiChatViewModel(App.Ai, App.SpeechToText, App.TextToSpeech);
+                AiChatVM = new ViewModels.AI.AiChatViewModel(_ai, _speechToText, _textToSpeech);
             }
 
             try
@@ -503,7 +536,7 @@ namespace ProGlassAutomation.ViewModels
             };
             ToggleThemeCommand = new RelayCommand(_ => SettingsVM.IsDarkTheme = !SettingsVM.IsDarkTheme);
 
-            GlobalSearchVM = new GlobalSearchViewModel(target => Navigate(target));
+            GlobalSearchVM = new GlobalSearchViewModel(_deliveryNotes, _invoices, _jobs, _masterData, _taxInvoices, target => Navigate(target));
 
             DashboardVM.NavigateTo = target => Navigate(target);
             DashboardVM.TriggerNewInvoice = () => ProformaInvoiceVM.TriggerNewInvoice();
@@ -712,16 +745,16 @@ namespace ProGlassAutomation.ViewModels
             };
             SalesReportVM.OnOpenJobOrderByNumber = async jobOrderId =>
             {
-                if (string.IsNullOrWhiteSpace(jobOrderId) || App.Jobs == null) return;
-                var jo = await App.Jobs.GetByJobOrderIdAsync(jobOrderId);
+                if (string.IsNullOrWhiteSpace(jobOrderId) || _jobs == null) return;
+                var jo = await _jobs.GetByJobOrderIdAsync(jobOrderId);
                 if (jo == null) return;
                 Navigate("JobOrder");
                 await JobOrderVM.OpenJobOrderAsync(jo.Id);
             };
             SalesReportVM.OnOpenTaxInvoiceByNumber = async invoiceNumber =>
             {
-                if (string.IsNullOrWhiteSpace(invoiceNumber) || App.TaxInvoices == null) return;
-                var inv = await App.TaxInvoices.GetByInvoiceNumberAsync(invoiceNumber);
+                if (string.IsNullOrWhiteSpace(invoiceNumber) || _taxInvoices == null) return;
+                var inv = await _taxInvoices.GetByInvoiceNumberAsync(invoiceNumber);
                 if (inv == null) return;
                 Navigate("TaxInvoice");
                 await TaxInvoiceVM.OpenInvoiceAsync(inv.Id);
@@ -731,8 +764,8 @@ namespace ProGlassAutomation.ViewModels
             // related document instead of leaving dead "→ open" labels.
             StatementModuleVM.OnOpenTaxInvoiceByNumber = async invoiceNumber =>
             {
-                if (string.IsNullOrWhiteSpace(invoiceNumber) || App.TaxInvoices == null) return;
-                var inv = await App.TaxInvoices.GetByInvoiceNumberAsync(invoiceNumber);
+                if (string.IsNullOrWhiteSpace(invoiceNumber) || _taxInvoices == null) return;
+                var inv = await _taxInvoices.GetByInvoiceNumberAsync(invoiceNumber);
                 if (inv == null) return;
                 Navigate("TaxInvoice");
                 await TaxInvoiceVM.OpenInvoiceAsync(inv.Id);
@@ -744,24 +777,24 @@ namespace ProGlassAutomation.ViewModels
             };
             StatementModuleVM.OnOpenProformaByNumber = async proformaId =>
             {
-                if (string.IsNullOrWhiteSpace(proformaId) || App.Invoices == null) return;
-                var pi = await App.Invoices.GetByProformaIdAsync(proformaId);
+                if (string.IsNullOrWhiteSpace(proformaId) || _invoices == null) return;
+                var pi = await _invoices.GetByProformaIdAsync(proformaId);
                 if (pi == null) return;
                 Navigate("ProformaInvoice");
                 await ProformaInvoiceVM.OpenSavedInvoiceAsync(pi.Id);
             };
             StatementModuleVM.OnOpenJobOrderByNumber = async jobOrderId =>
             {
-                if (string.IsNullOrWhiteSpace(jobOrderId) || App.Jobs == null) return;
-                var jo = await App.Jobs.GetByJobOrderIdAsync(jobOrderId);
+                if (string.IsNullOrWhiteSpace(jobOrderId) || _jobs == null) return;
+                var jo = await _jobs.GetByJobOrderIdAsync(jobOrderId);
                 if (jo == null) return;
                 Navigate("JobOrder");
                 await JobOrderVM.OpenJobOrderAsync(jo.Id);
             };
             StatementModuleVM.OnPrepareDeliveryNote = async jobOrderId =>
             {
-                if (string.IsNullOrWhiteSpace(jobOrderId) || App.Jobs == null) return;
-                var jo = await App.Jobs.GetByJobOrderIdAsync(jobOrderId);
+                if (string.IsNullOrWhiteSpace(jobOrderId) || _jobs == null) return;
+                var jo = await _jobs.GetByJobOrderIdAsync(jobOrderId);
                 if (jo == null) return;
                 Navigate("JobOrder");
                 await JobOrderVM.OpenJobOrderAsync(jo.Id);
@@ -803,9 +836,9 @@ namespace ProGlassAutomation.ViewModels
             ToggleSettingsCommand = new RelayCommand(_ => IsSettingsOpen = !IsSettingsOpen);
             ToggleNotificationsCommand = new RelayCommand(_ => IsNotificationsOpen = !IsNotificationsOpen);
 
-            if (App.Connectivity != null)
+            if (_connectivity != null)
             {
-                _isOnline = App.Connectivity.IsOnline;
+                _isOnline = _connectivity.IsOnline;
                 _connectivityHandler = (_, online) =>
                 {
                     var dispatcher = System.Windows.Application.Current?.Dispatcher;
@@ -813,7 +846,7 @@ namespace ProGlassAutomation.ViewModels
                     if (dispatcher.CheckAccess()) IsOnline = online;
                     else dispatcher.InvokeAsync(() => IsOnline = online);
                 };
-                App.Connectivity.ConnectivityChanged += _connectivityHandler;
+                _connectivity.ConnectivityChanged += _connectivityHandler;
             }
 
             CurrentViewModel = DashboardVM;
@@ -861,7 +894,7 @@ namespace ProGlassAutomation.ViewModels
                 if (dispatcher == null) return System.Threading.Tasks.Task.FromResult(false);
                 bool Ask()
                 {
-                    var result = App.Dialogs.Show(message,
+                    var result = _dialogs.Show(message,
                         string.IsNullOrWhiteSpace(title) ? "ProGlass Agent" : title,
                         System.Windows.MessageBoxButton.YesNo,
                         destructive ? System.Windows.MessageBoxImage.Warning : System.Windows.MessageBoxImage.Question,
@@ -900,7 +933,7 @@ namespace ProGlassAutomation.ViewModels
                 "• Yes — open the Inquiry list (recommended)\n" +
                 "• No — create a blank Proforma Invoice without an inquiry\n" +
                 "• Cancel — do not start a new Proforma Invoice";
-            var result = App.Dialogs.Show(message,
+            var result = _dialogs.Show(message,
                 LocalizationService.Instance.T("Msg.CapStartProformaInvoiceFromInquiry"),
                 System.Windows.MessageBoxButton.YesNoCancel,
                 System.Windows.MessageBoxImage.Question,
@@ -936,7 +969,7 @@ namespace ProGlassAutomation.ViewModels
                 .CanNavigate(targetKey ?? "");
             if (!gate.Allowed)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     gate.Reason,
                     LocalizationService.Instance.T("Msg.CapUpgradeRequired"),
                     System.Windows.MessageBoxButton.OK,
@@ -1018,7 +1051,7 @@ namespace ProGlassAutomation.ViewModels
                 "VatSubmission" => ProGlassAutomation.Services.Theme.WallpaperModules.TaxInvoice,
                 _ => ""
             };
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.ApplyModule(moduleKey, App.Config?.Appearance);
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.ApplyModule(moduleKey, _config?.Appearance);
         }
 
         private async Task LoadVatSubmissionAsync()
@@ -1040,7 +1073,7 @@ namespace ProGlassAutomation.ViewModels
         {
             if (_disposed) return;
             _disposed = true;
-            try { if (_connectivityHandler != null && App.Connectivity != null) App.Connectivity.ConnectivityChanged -= _connectivityHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: connectivity detach failed: " + ex.Message); }
+            try { if (_connectivityHandler != null && _connectivity != null) _connectivity.ConnectivityChanged -= _connectivityHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: connectivity detach failed: " + ex.Message); }
             try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: user-changed detach failed: " + ex.Message); }
             try { _clockTimer?.Stop(); _clockTimer = null; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: clock timer stop failed: " + ex.Message); }
             // Work-A-2: dispose the shell VMs so their child module VMs (ListVM,

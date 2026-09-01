@@ -34,12 +34,21 @@ using ProGlassAutomation.Services.Logging;
 using System;
 using System.Windows.Input;
 
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Settings
 {
     public sealed class ProformaInvoiceFeaturesViewModel : ViewModelBase
     {
-        public ProformaInvoiceFeaturesViewModel()
+        private readonly AppConfig _config = null!;
+
+        public ProformaInvoiceFeaturesViewModel(AppConfig? config)
         {
+            _config = config!;
+        }
+
+        public ProformaInvoiceFeaturesViewModel()
+         : this(
+            App.ServiceProvider?.GetService<AppConfig>()?? App.Config){
             ResetToDefaultsCommand = new RelayCommand(_ => ResetToDefaults());
             EnableAllCommand = new RelayCommand(_ => SetAll(true));
             DisableAllOptionalCommand = new RelayCommand(_ => SetAll(false));
@@ -62,7 +71,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             get
             {
-                if (App.Config == null)
+                if (_config == null)
                 {
                     // Defensive: should never happen because Settings
                     // opens after startup, but a fallback beats an NRE
@@ -70,8 +79,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                     // real config.
                     return new ProformaInvoiceFeatureFlags();
                 }
-                App.Config.ProformaInvoiceFields ??= new ProformaInvoiceFeatureFlags();
-                return App.Config.ProformaInvoiceFields;
+                _config.ProformaInvoiceFields ??= new ProformaInvoiceFeatureFlags();
+                return _config.ProformaInvoiceFields;
             }
         }
 
@@ -79,8 +88,8 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             try
             {
-                if (App.Config != null)
-                    ConfigService.Save(App.Config);
+                if (_config != null)
+                    ConfigService.Save(_config);
             }
             catch (Exception ex)
             {
@@ -142,8 +151,8 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             try
             {
-                if (App.Config != null)
-                    ConfigService.Save(App.Config);
+                if (_config != null)
+                    ConfigService.Save(_config);
             }
             catch (Exception ex)
             {

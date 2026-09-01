@@ -20,12 +20,21 @@ using ProGlassAutomation.Services.Logging;
 using System;
 using System.Windows.Input;
 
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Settings
 {
     public sealed class DeliveryNoteFeaturesViewModel : ViewModelBase
     {
-        public DeliveryNoteFeaturesViewModel()
+        private readonly AppConfig _config = null!;
+
+        public DeliveryNoteFeaturesViewModel(AppConfig? config)
         {
+            _config = config!;
+        }
+
+        public DeliveryNoteFeaturesViewModel()
+         : this(
+            App.ServiceProvider?.GetService<AppConfig>()?? App.Config){
             ResetToDefaultsCommand      = new RelayCommand(_ => SetAll(true));
             EnableAllCommand            = new RelayCommand(_ => SetAll(true));
             DisableAllOptionalCommand   = new RelayCommand(_ => SetAll(false));
@@ -39,9 +48,9 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             get
             {
-                if (App.Config == null) return new DeliveryNoteFeatureFlags();
-                App.Config.DeliveryNoteFields ??= new DeliveryNoteFeatureFlags();
-                return App.Config.DeliveryNoteFields;
+                if (_config == null) return new DeliveryNoteFeatureFlags();
+                _config.DeliveryNoteFields ??= new DeliveryNoteFeatureFlags();
+                return _config.DeliveryNoteFields;
             }
         }
 
@@ -49,7 +58,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             try
             {
-                if (App.Config != null) ConfigService.Save(App.Config);
+                if (_config != null) ConfigService.Save(_config);
             }
             catch (Exception ex)
             {
@@ -88,7 +97,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             try
             {
-                if (App.Config != null) ConfigService.Save(App.Config);
+                if (_config != null) ConfigService.Save(_config);
             }
             catch (Exception ex)
             {

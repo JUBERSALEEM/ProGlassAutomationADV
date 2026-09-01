@@ -10,10 +10,24 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Reports.JoReport
 {
     public class JoReportViewModel : ReportBaseViewModel
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public JoReportViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+        {
+        }
+
+        public JoReportViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         public JoReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
         {
             InitCommands();
@@ -147,7 +161,7 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
                 if (format == ExportFormat.Csv) res = await ReportingExportService.ExportCsvAsync(Rows.ToList(), "Job Order Report", ReportingExportService.JoHeaders, ReportingExportService.JoMap, req);
                 else if (format == ExportFormat.Excel) res = await ReportingExportService.ExportExcelAsync(Rows.ToList(), "Job Order Report", ReportingExportService.JoHeaders, ReportingExportService.JoMapExcel, req);
                 else res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Job Order Report", ReportingExportService.JoHeaders, ReportingExportService.JoMap, req);
-                if (!res.Success && !res.Cancelled) App.Dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                if (!res.Success && !res.Cancelled) _dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
         }

@@ -32,6 +32,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ProGlassAutomation.Services.DeliveryNote.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
 {
     /// <summary>
@@ -43,7 +45,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
     ///   - Type distribution bar chart (Original / Dummy / Rework / Return)
     ///   - Top 10 recent DNs feed (color-tinted by status)
     ///
-    /// Data source: App.DeliveryNotes.GetAllAsync() + GetPendingQtyJobsAsync()
+    /// Data source: _deliveryNotes.GetAllAsync() + GetPendingQtyJobsAsync()
     ///
     /// GOTCHA #40 (CRITICAL): Never sum TotalBalanceQty across DNs!
     /// Each DN stores a point-in-time snapshot — summing double-counts.
@@ -54,6 +56,18 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
     /// </summary>
     public class DnDashboardViewModel : DashboardPageBase
     {
+        private readonly IDeliveryNoteRepository _deliveryNotes = null!;
+
+        public DnDashboardViewModel() : this(
+            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!)
+        {
+        }
+
+        public DnDashboardViewModel(IDeliveryNoteRepository? deliveryNotes)
+        {
+            _deliveryNotes = deliveryNotes!;
+        }
+
         // ── Tab identity ─────────────────────────────────────────────
         public override string TabTitle => "Deliveries";
         public override string TabSubtitle => "Dispatch and balance";
@@ -182,7 +196,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
         // ── Core load ────────────────────────────────────────────────
         protected override async Task LoadCoreAsync()
         {
-            if (App.DeliveryNotes == null)
+            if (_deliveryNotes == null)
             {
                 _kpiCards = new List<KpiCardModel>();
                 _statusBars = new List<ChartBarModel>();
@@ -201,8 +215,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
             }
 
             // ── Parallel loads for speed — Phase 3: no .Result, use await
-            var allTask = App.DeliveryNotes.GetAllAsync();
-            var pendingTask = App.DeliveryNotes.GetPendingQtyJobsAsync();
+            var allTask = _deliveryNotes.GetAllAsync();
+            var pendingTask = _deliveryNotes.GetPendingQtyJobsAsync();
 
             await Task.WhenAll(allTask, pendingTask);
 

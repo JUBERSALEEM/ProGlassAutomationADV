@@ -34,6 +34,7 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
 namespace ProGlassAutomation.ViewModels.Reports.Workflow
 {
     /// <summary>
@@ -192,11 +193,14 @@ namespace ProGlassAutomation.ViewModels.Reports.Workflow
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
 
-        public WorkflowProgressViewModel(
+                private readonly IDialogService _dialogs = null!;
+
+public WorkflowProgressViewModel(IDialogService? dialogs,
             StatementFilter filter,
             string statementNumber,
             string customerName)
         {
+            _dialogs = dialogs!;
             _filter = filter;
             _statementNumber = statementNumber;
             _customerName = customerName;
@@ -315,7 +319,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Workflow
                              string.Join("\n\n", _result.AllWarnings
                                  .Select((w, i) => $"{i + 1}. {w}"));
 
-            App.Dialogs.Show(
+            _dialogs.Show(
                 message,
                 LocalizationService.Instance.T("Msg.CapWorkflowWarningsX"),
                 MessageBoxButton.OK,

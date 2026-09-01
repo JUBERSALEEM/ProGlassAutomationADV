@@ -42,10 +42,24 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.Dashboard.Core;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Dashboard
 {
     public class OverviewDashboardViewModel : DashboardPageBase
     {
+        private readonly IDashboardFilterService _dashboardFilter = null!;
+        private readonly IDashboardMetricsService _dashboardMetrics = null!;
+        private readonly IProformaInvoiceRepository _invoices = null!;
+
+        public OverviewDashboardViewModel(IDashboardFilterService? dashboardFilter, IDashboardMetricsService? dashboardMetrics, IProformaInvoiceRepository? invoices)
+        {
+            _dashboardFilter = dashboardFilter!;
+            _dashboardMetrics = dashboardMetrics!;
+            _invoices = invoices!;
+        }
+
         public override string TabTitle => "Overview";
         public override string TabSubtitle => "Business at a glance";
         public override string TabIcon => "\uE80F";
@@ -205,7 +219,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         // ═════════════════════════════════════════════════════════════════
 
         public OverviewDashboardViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDashboardFilterService>()!,
+            App.ServiceProvider?.GetService<IDashboardMetricsService>()!,
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){
             NewInvoiceCommand = new RelayCommand(_ =>
             {
                 NavigateTo?.Invoke("ProformaInvoice");
@@ -232,7 +249,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             // ── KPI figures: one projected service call ────────────────
             //
             // These four collections used to be loaded here in full --
-            // App.Invoices.GetAllAsync() and friends -- purely to compute
+            // _invoices.GetAllAsync() and friends -- purely to compute
             // counts and sums. That read every column of four tables,
             // including the FullSnapshotJson blob on every proforma row.
             //
@@ -240,8 +257,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             // only the columns each figure needs, and it owns the
             // double-count-safe pending-pieces rule that used to live in
             // this method.
-            var exec = await App.DashboardMetrics.GetExecutiveMetricsAsync(
-                App.DashboardFilter.CurrentRange);
+            var exec = await _dashboardMetrics.GetExecutiveMetricsAsync(
+                _dashboardFilter.CurrentRange);
 
             // ── Map aggregates onto the existing local names ───────────
             //    (kept verbatim so the tile-building code below is
@@ -508,7 +525,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             // full-table loads whose rows were then discarded.
             const int FeedFetch = 20;
 
-            var recent   = await App.DashboardMetrics.GetRecentRowsAsync(FeedFetch);
+            var recent   = await _dashboardMetrics.GetRecentRowsAsync(FeedFetch);
             var invoices = recent.Invoices;
             var jobs     = recent.Jobs;
             var allDns   = recent.DeliveryNotes;

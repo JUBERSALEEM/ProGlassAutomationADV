@@ -45,10 +45,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.JobProfitability
 {
     public class JobProfitabilityViewModel : ViewModelBase
     {
+        private readonly IProformaInvoiceRepository _invoices = null!;
+
+        public JobProfitabilityViewModel(IProformaInvoiceRepository? invoices)
+        {
+            _invoices = invoices!;
+        }
+
         public string Title { get; } = "JOB PROFITABILITY";
 
         public string Subtitle { get; } =
@@ -325,7 +333,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public ICommand RefreshCommand { get; }
 
         public JobProfitabilityViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh"));
 
             Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));
@@ -417,7 +426,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
             try
             {
-                var repo = App.Invoices;
+                var repo = _invoices;
                 if (repo == null)
                 {
                     StatusMessage = "Invoice repository is not available.";

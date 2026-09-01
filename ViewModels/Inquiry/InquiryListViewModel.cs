@@ -10,6 +10,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.MasterData.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Inquiry
 {
     /// <summary>
@@ -259,16 +262,25 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             "Pick (or create) a Confirmed inquiry to start a new Proforma Invoice. " +
             "Use 'Convert to Proforma Invoice' on the right-click menu, or Cancel to go back.";
 
+        private readonly IDialogService _dialogs = null!;
+        private readonly IMasterDataRepository _masterData = null!;
+
         public InquiryListViewModel() : this(
-            App.Inquiries ?? new InquiryRepository(),
-            new InquiryWorkflowService(App.Inquiries ?? new InquiryRepository()),
-            new InquiryAttachmentService(App.Inquiries ?? new InquiryRepository()),
+            App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService(),
+            App.ServiceProvider?.GetService<IMasterDataRepository>(),
+            App.ServiceProvider?.GetService<IInquiryRepository>() ?? new InquiryRepository(),
+            new InquiryWorkflowService(App.ServiceProvider?.GetService<IInquiryRepository>() ?? new InquiryRepository()),
+            new InquiryAttachmentService(App.ServiceProvider?.GetService<IInquiryRepository>() ?? new InquiryRepository()),
             new InquiryImportExportService()) { }
 
-        public InquiryListViewModel(IInquiryRepository repository,
+        public InquiryListViewModel(IDialogService? dialogs,
+            IMasterDataRepository? masterData,
+            IInquiryRepository repository,
             IInquiryWorkflowService workflow, InquiryAttachmentService attachments,
             InquiryImportExportService io)
         {
+            _dialogs = dialogs!;
+            _masterData = masterData!;
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _workflow = workflow ?? throw new ArgumentNullException(nameof(workflow));
             _attachments = attachments ?? throw new ArgumentNullException(nameof(attachments));
@@ -644,8 +656,8 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         {
             try
             {
-                if (App.MasterData != null)
-                    foreach (var x in await App.MasterData.GetAllSalesmenAsync())
+                if (_masterData != null)
+                    foreach (var x in await _masterData.GetAllSalesmenAsync())
                         if (!Salesmen.Contains(x.Name)) Salesmen.Add(x.Name);
                 foreach (var user in await Services.Audit.AuditService.GetUsersAsync())
                 {

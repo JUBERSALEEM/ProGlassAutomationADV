@@ -10,6 +10,8 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions
 {
     /// <summary>
@@ -27,6 +29,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
     /// </summary>
     public class TermsAndConditionsViewModel : ViewModelBase
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public TermsAndConditionsViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         // BUG-71: extracted for future localization
         private const string NEW_SUBLINE_PLACEHOLDER = "New payment condition...";
 
@@ -51,7 +60,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
         public ICommand RemovePaymentSubLineCommand { get; }
 
         public TermsAndConditionsViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService()){
             LoadDefaults();
 
             AddCustomClauseCommand = new RelayCommand(_ => AddCustomClause());
@@ -62,7 +72,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
             {
                 if (Clauses.Count > 0)
                 {
-                    var result = App.Dialogs.Show(
+                    var result = _dialogs.Show(
                         LocalizationService.Instance.T("Msg.ResetAllTermsToDefaults"),
                         LocalizationService.Instance.T("Msg.CapResetToDefaults"),
                         MessageBoxButton.YesNo,

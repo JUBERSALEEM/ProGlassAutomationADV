@@ -4,11 +4,11 @@
 // MODULE: Settings (Chat 25 v1.1 — CS0272 fix)
 //
 // CHANGES vs Chat 25 v1.0:
-//   ✓ FIX CS0272: App.SpeechToText setter is now public (fixed in
+//   ✓ FIX CS0272: _speechToText setter is now public (fixed in
 //     App.xaml.cs). All three assignment sites now compile correctly:
-//       App.SpeechToText = new WhisperSpeechService()  ← line 151
-//       App.SpeechToText?.Dispose()                    ← line 196
-//       App.SpeechToText = new SpeechToTextService()   ← line 197
+//       _speechToText = new WhisperSpeechService()  ← line 151
+//       _speechToText?.Dispose()                    ← line 196
+//       _speechToText = new SpeechToTextService()   ← line 197
 //   ✓ FIX CS0428: WhisperModelManager.IsModelDownloaded now resolves
 //     as bool property — line 498 compiles correctly.
 //   ✓ All other code preserved exactly from Chat 25 v1.0.
@@ -38,10 +38,25 @@ using System.Windows.Media;
 using Microsoft.Win32;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Settings
 {
     public sealed class SettingsViewModel : ViewModelBase, IDisposable
     {
+        private readonly IAiService _ai = null!;
+        private readonly AppConfig _config = null!;
+        private readonly IDialogService _dialogs = null!;
+        private readonly ISpeechToTextService _speechToText = null!;
+
+        public SettingsViewModel(IAiService? ai, AppConfig? config, IDialogService? dialogs, ISpeechToTextService? speechToText)
+        {
+            _ai = ai!;
+            _config = config!;
+            _dialogs = dialogs!;
+            _speechToText = speechToText!;
+        }
+
         // Phase 4: Named handlers for static events — detachable
         private EventHandler? _themeChangedHandler;
         private EventHandler? _uiScaleChangedHandler;
@@ -233,7 +248,11 @@ namespace ProGlassAutomation.ViewModels.Settings
             Services.Security.AuthSessionService.ClearSavedCredentials());
 
         public SettingsViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IAiService>()!,
+            App.ServiceProvider?.GetService<AppConfig>()?? App.Config,
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<ISpeechToTextService>()!){
             // v2 shell: navigation between the settings pages.
             SwitchSettingsPageCommand = new RelayCommand(
                 p => SettingsPage = p as string ?? "Appearance");
@@ -256,7 +275,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 GeminiTestStatus = "Testing…";
                 var svc = AiProviderFactory.CreateForProvider(
-                    AiProvider.Gemini, App.Config.Ai);
+                    AiProvider.Gemini, _config.Ai);
                 var result = await svc.TestConnectionAsync();
                 GeminiTestStatus = result.Success
                     ? "✓ " + result.Message
@@ -267,7 +286,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 GroqTestStatus = "Testing…";
                 var svc = AiProviderFactory.CreateForProvider(
-                    AiProvider.Groq, App.Config.Ai);
+                    AiProvider.Groq, _config.Ai);
                 var result = await svc.TestConnectionAsync();
                 GroqTestStatus = result.Success
                     ? "✓ " + result.Message
@@ -278,7 +297,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 CohereTestStatus = "Testing…";
                 var svc = AiProviderFactory.CreateForProvider(
-                    AiProvider.Cohere, App.Config.Ai);
+                    AiProvider.Cohere, _config.Ai);
                 var result = await svc.TestConnectionAsync();
                 CohereTestStatus = result.Success
                     ? "✓ " + result.Message
@@ -349,7 +368,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     OnPropertyChanged(nameof(SelectedModelInfo));
 
                     // Refresh or swap STT service so mic button appears without restart
-                    if (App.SpeechToText is WhisperSpeechService whisper)
+                    if (_speechToText is WhisperSpeechService whisper)
                     {
                         // Already using Whisper — just refresh availability
                         whisper.RefreshAvailability();
@@ -357,11 +376,11 @@ namespace ProGlassAutomation.ViewModels.Settings
                     else
                     {
                         // Was using System.Speech fallback — swap to Whisper
-                        // FIX CS0272: App.SpeechToText now has public set
+                        // FIX CS0272: _speechToText now has public set
                         try
                         {
-                            App.SpeechToText?.Dispose();
-                            App.SpeechToText = new WhisperSpeechService();
+                            _speechToText?.Dispose();
+                            _speechToText = new WhisperSpeechService();
                             AppLogService.Debug(
                                 "[Settings] Switched STT → Whisper after download.");
                         }
@@ -401,12 +420,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                     OnPropertyChanged(nameof(ModelFileSizeMB));
 
                     // Swap back to System.Speech fallback
-                    // FIX CS0272: App.SpeechToText now has public set
-                    if (App.SpeechToText is WhisperSpeechService w)
+                    // FIX CS0272: _speechToText now has public set
+                    if (_speechToText is WhisperSpeechService w)
                     {
                         w.Dispose();
-                        try { App.SpeechToText = new SpeechToTextService(); }
-                        catch { App.SpeechToText = null; }
+                        try { _speechToText = new SpeechToTextService(); }
+                        catch { _speechToText = null; }
                     }
                 }
                 else
@@ -471,15 +490,15 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// </summary>
         public bool UseDefinedOutline
         {
-            get => App.Config?.Appearance?.UseDefinedOutline ?? false;
+            get => _config?.Appearance?.UseDefinedOutline ?? false;
             set
             {
-                if (App.Config?.Appearance == null) return;
-                if (App.Config.Appearance.UseDefinedOutline == value) return;
+                if (_config?.Appearance == null) return;
+                if (_config.Appearance.UseDefinedOutline == value) return;
 
-                App.Config.Appearance.UseDefinedOutline = value;
+                _config.Appearance.UseDefinedOutline = value;
                 ThemeManager.ApplyOutline(value);
-                Services.AI.AIConfig.ConfigService.Save(App.Config);
+                Services.AI.AIConfig.ConfigService.Save(_config);
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
@@ -497,16 +516,16 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// </summary>
         public double CardBorderThickness
         {
-            get => App.Config?.Appearance?.CardBorderThickness ?? 1.5;
+            get => _config?.Appearance?.CardBorderThickness ?? 1.5;
             set
             {
-                if (App.Config?.Appearance == null) return;
+                if (_config?.Appearance == null) return;
                 double v = value < 0 ? 0 : value;
-                if (Math.Abs(App.Config.Appearance.CardBorderThickness - v) < 0.01) return;
+                if (Math.Abs(_config.Appearance.CardBorderThickness - v) < 0.01) return;
 
-                App.Config.Appearance.CardBorderThickness = v;
+                _config.Appearance.CardBorderThickness = v;
                 ThemeManager.ApplyCardBorderThickness(v);
-                Services.AI.AIConfig.ConfigService.Save(App.Config);
+                Services.AI.AIConfig.ConfigService.Save(_config);
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
@@ -537,20 +556,20 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             get
             {
-                var id = App.Config?.Appearance?.PdfLayoutId ?? "ClassicNavy";
+                var id = _config?.Appearance?.PdfLayoutId ?? "ClassicNavy";
                 return ProGlassAutomation.Services.Export.Pdf.PdfThemeCatalog
                     .Resolve(id).DisplayName;
             }
             set
             {
-                if (App.Config?.Appearance == null) return;
+                if (_config?.Appearance == null) return;
                 var theme = ProGlassAutomation.Services.Export.Pdf.PdfThemeCatalog
                     .Resolve(value);
-                if (App.Config.Appearance.PdfLayoutId == theme.Id) return;
+                if (_config.Appearance.PdfLayoutId == theme.Id) return;
 
-                App.Config.Appearance.PdfLayoutId = theme.Id;
+                _config.Appearance.PdfLayoutId = theme.Id;
                 ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Apply(theme);
-                Services.AI.AIConfig.ConfigService.Save(App.Config);
+                Services.AI.AIConfig.ConfigService.Save(_config);
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
@@ -563,7 +582,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public string PdfLayoutHint =>
             ProGlassAutomation.Services.Export.Pdf.PdfThemeCatalog
-                .Resolve(App.Config?.Appearance?.PdfLayoutId).Description;
+                .Resolve(_config?.Appearance?.PdfLayoutId).Description;
 
         /// <summary>
         /// Compact / Normal / Comfortable. One setting shrinks shared
@@ -571,16 +590,16 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// </summary>
         public string DisplayDensity
         {
-            get => App.Config?.Appearance?.DisplayDensity ?? "Compact";
+            get => _config?.Appearance?.DisplayDensity ?? "Compact";
             set
             {
-                if (App.Config?.Appearance == null) return;
+                if (_config?.Appearance == null) return;
                 string v = string.IsNullOrWhiteSpace(value) ? "Compact" : value.Trim();
-                if (App.Config.Appearance.DisplayDensity == v) return;
+                if (_config.Appearance.DisplayDensity == v) return;
 
-                App.Config.Appearance.DisplayDensity = v;
+                _config.Appearance.DisplayDensity = v;
                 ThemeManager.ApplyDisplayDensity(v);
-                Services.AI.AIConfig.ConfigService.Save(App.Config);
+                Services.AI.AIConfig.ConfigService.Save(_config);
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
@@ -593,16 +612,16 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// <summary>Global UI zoom 80–125%. Ctrl+Wheel also drives this.</summary>
         public double UiScale
         {
-            get => App.Config?.Appearance?.UiScale ?? 1.0;
+            get => _config?.Appearance?.UiScale ?? 1.0;
             set
             {
-                if (App.Config?.Appearance == null) return;
+                if (_config?.Appearance == null) return;
                 double v = Services.Viewport.ViewportService.ClampUiScale(value);
-                if (Math.Abs(App.Config.Appearance.UiScale - v) < 0.001) return;
+                if (Math.Abs(_config.Appearance.UiScale - v) < 0.001) return;
 
-                App.Config.Appearance.UiScale = v;
+                _config.Appearance.UiScale = v;
                 ThemeManager.ApplyUiScale(v);
-                Services.AI.AIConfig.ConfigService.Save(App.Config);
+                Services.AI.AIConfig.ConfigService.Save(_config);
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(UiScalePercent));
             }
@@ -614,16 +633,16 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public double CardCornerRadius
         {
-            get => App.Config?.Appearance?.CardCornerRadius ?? 12;
+            get => _config?.Appearance?.CardCornerRadius ?? 12;
             set
             {
-                if (App.Config?.Appearance == null) return;
+                if (_config?.Appearance == null) return;
                 double v = value < 0 ? 0 : value;
-                if (Math.Abs(App.Config.Appearance.CardCornerRadius - v) < 0.05) return;
+                if (Math.Abs(_config.Appearance.CardCornerRadius - v) < 0.05) return;
 
-                App.Config.Appearance.CardCornerRadius = v;
+                _config.Appearance.CardCornerRadius = v;
                 ThemeManager.ApplyCardCornerRadius(v);
-                Services.AI.AIConfig.ConfigService.Save(App.Config);
+                Services.AI.AIConfig.ConfigService.Save(_config);
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
@@ -643,9 +662,9 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 // Persist the base colour mode so it restores on the
                 // next launch.
-                if (App.Config?.Appearance != null)
+                if (_config?.Appearance != null)
                 {
-                    App.Config.Appearance.Theme = value ? "Dark" : "Light";
+                    _config.Appearance.Theme = value ? "Dark" : "Light";
                     SaveConfig();
                 }
 
@@ -728,7 +747,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ProGlassAutomation.Services.Theme.AccentPresets.SwatchFor(key)));
             }
 
-            _customAccentHex = App.Config?.Appearance?.CustomAccentHex ?? "";
+            _customAccentHex = _config?.Appearance?.CustomAccentHex ?? "";
             OnPropertyChanged(nameof(CustomAccentHex));
             OnPropertyChanged(nameof(CustomAccentSwatch));
         }
@@ -790,20 +809,20 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             ThemeManager.ApplyAccent(color.Value);
 
-            if (App.Config?.Appearance != null)
+            if (_config?.Appearance != null)
             {
-                App.Config.Appearance.AccentPreset =
+                _config.Appearance.AccentPreset =
                     ProGlassAutomation.Services.Theme.AccentPresets.Custom;
-                App.Config.Appearance.CustomAccentHex =
+                _config.Appearance.CustomAccentHex =
                     $"#{color.Value.R:X2}{color.Value.G:X2}{color.Value.B:X2}";
-                _customAccentHex = App.Config.Appearance.CustomAccentHex;
+                _customAccentHex = _config.Appearance.CustomAccentHex;
                 SaveConfig();
             }
 
             ProGlassAutomation.Services.Audit.AuditService.Log(
                 ProGlassAutomation.Services.Audit.AuditSections.Settings,
                 "Accent changed",
-                "Custom colour " + App.Config?.Appearance?.CustomAccentHex);
+                "Custom colour " + _config?.Appearance?.CustomAccentHex);
 
             OnPropertyChanged(nameof(CustomAccentHex));
             OnPropertyChanged(nameof(CustomAccentSwatch));
@@ -873,12 +892,12 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// </summary>
         public string SelectedFontColor
         {
-            get => App.Config?.Appearance?.FontColor ?? "";
+            get => _config?.Appearance?.FontColor ?? "";
             set
             {
-                if (App.Config == null) return;
+                if (_config == null) return;
 
-                App.Config.Appearance.FontColor = value ?? "";
+                _config.Appearance.FontColor = value ?? "";
                 SaveConfig();
                 ApplyVisualTheme();
                 OnPropertyChanged();
@@ -994,7 +1013,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // Run the heavy work on a background thread to avoid UI freeze
                 await Task.Run(() =>
                 {
-                    var ap = App.Config?.Appearance;
+                    var ap = _config?.Appearance;
                     if (ap == null) return;
 
                     // 1) Reset the persisted values to factory defaults.
@@ -1125,13 +1144,13 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// </summary>
         public bool UseGradientSurfaces
         {
-            get => App.Config?.Appearance?.UseGradientSurfaces ?? true;
+            get => _config?.Appearance?.UseGradientSurfaces ?? true;
             set
             {
-                if (App.Config?.Appearance == null) return;
-                if (App.Config.Appearance.UseGradientSurfaces == value) return;
+                if (_config?.Appearance == null) return;
+                if (_config.Appearance.UseGradientSurfaces == value) return;
 
-                App.Config.Appearance.UseGradientSurfaces = value;
+                _config.Appearance.UseGradientSurfaces = value;
                 ThemeManager.ApplyGradientPreference(value);
 
                 // Rebuild the active visual family so surfaces restyle now.
@@ -1163,9 +1182,9 @@ namespace ProGlassAutomation.ViewModels.Settings
             ThemeManager.ApplyAccent(color);
 
             // Persist so the chosen colour survives app restarts.
-            if (App.Config?.Appearance != null)
+            if (_config?.Appearance != null)
             {
-                App.Config.Appearance.AccentPreset =
+                _config.Appearance.AccentPreset =
                     string.IsNullOrEmpty(presetKey) ? "GlassBlue" : presetKey;
                 SaveConfig();
             }
@@ -1246,7 +1265,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             ReloadFontOptions();
 
-            var current = App.Config?.Appearance;
+            var current = _config?.Appearance;
             _selectedFontWeight = string.Equals(current?.FontWeightName, "Bold", StringComparison.OrdinalIgnoreCase)
                 ? "Bold" : "Regular";
             _selectedFontStyle = string.Equals(current?.FontStyleName, "Italic", StringComparison.OrdinalIgnoreCase)
@@ -1308,7 +1327,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 try
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         result.Error, LocalizationService.Instance.T("Msg.CapImportFont"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
@@ -1328,7 +1347,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             try
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     "Font imported: " + result.Value + "\nIt is now applied app-wide.",
                     LocalizationService.Instance.T("Msg.CapImportFont"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -1348,12 +1367,12 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public bool IsAiEnabled
         {
-            get => App.Config?.Ai?.Enabled ?? false;
+            get => _config?.Ai?.Enabled ?? false;
             set
             {
-                if (App.Config?.Ai != null)
+                if (_config?.Ai != null)
                 {
-                    App.Config.Ai.Enabled = value;
+                    _config.Ai.Enabled = value;
                     SaveConfig();
                     OnPropertyChanged();
                 }
@@ -1366,15 +1385,15 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public AiProvider ActiveProvider
         {
-            get => App.Config?.Ai?.ActiveProvider ?? AiProvider.Gemini;
+            get => _config?.Ai?.ActiveProvider ?? AiProvider.Gemini;
             set
             {
-                if (App.Config?.Ai != null &&
-                    App.Config.Ai.ActiveProvider != value)
+                if (_config?.Ai != null &&
+                    _config.Ai.ActiveProvider != value)
                 {
-                    App.Config.Ai.ActiveProvider = value;
+                    _config.Ai.ActiveProvider = value;
                     SaveConfig();
-                    App.Ai = AiProviderFactory.CreateActive(App.Config.Ai);
+                    _ai = AiProviderFactory.CreateActive(_config.Ai);
                     App.RaiseAiProviderChanged();
 
                     OnPropertyChanged();
@@ -1405,13 +1424,13 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public string GeminiApiKey
         {
-            get => App.Config?.Ai?.GeminiApiKey ?? string.Empty;
+            get => _config?.Ai?.GeminiApiKey ?? string.Empty;
             set
             {
-                if (App.Config?.Ai != null &&
-                    App.Config.Ai.GeminiApiKey != value)
+                if (_config?.Ai != null &&
+                    _config.Ai.GeminiApiKey != value)
                 {
-                    App.Config.Ai.GeminiApiKey = value;
+                    _config.Ai.GeminiApiKey = value;
                     SaveConfig();
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsGeminiConfigured));
@@ -1422,13 +1441,13 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public string GroqApiKey
         {
-            get => App.Config?.Ai?.GroqApiKey ?? string.Empty;
+            get => _config?.Ai?.GroqApiKey ?? string.Empty;
             set
             {
-                if (App.Config?.Ai != null &&
-                    App.Config.Ai.GroqApiKey != value)
+                if (_config?.Ai != null &&
+                    _config.Ai.GroqApiKey != value)
                 {
-                    App.Config.Ai.GroqApiKey = value;
+                    _config.Ai.GroqApiKey = value;
                     SaveConfig();
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsGroqConfigured));
@@ -1439,13 +1458,13 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public string CohereApiKey
         {
-            get => App.Config?.Ai?.CohereApiKey ?? string.Empty;
+            get => _config?.Ai?.CohereApiKey ?? string.Empty;
             set
             {
-                if (App.Config?.Ai != null &&
-                    App.Config.Ai.CohereApiKey != value)
+                if (_config?.Ai != null &&
+                    _config.Ai.CohereApiKey != value)
                 {
-                    App.Config.Ai.CohereApiKey = value;
+                    _config.Ai.CohereApiKey = value;
                     SaveConfig();
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(IsCohereConfigured));
@@ -1456,12 +1475,12 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public string AiApiKey
         {
-            get => App.Config?.Ai?.ApiKey ?? string.Empty;
+            get => _config?.Ai?.ApiKey ?? string.Empty;
             set
             {
-                if (App.Config?.Ai != null)
+                if (_config?.Ai != null)
                 {
-                    App.Config.Ai.ApiKey = value;
+                    _config.Ai.ApiKey = value;
                     SaveConfig();
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(HasSavedApiKey));
@@ -1471,13 +1490,13 @@ namespace ProGlassAutomation.ViewModels.Settings
         }
 
         public bool IsGeminiConfigured =>
-            !string.IsNullOrWhiteSpace(App.Config?.Ai?.GeminiApiKey);
+            !string.IsNullOrWhiteSpace(_config?.Ai?.GeminiApiKey);
         public bool IsGroqConfigured =>
-            !string.IsNullOrWhiteSpace(App.Config?.Ai?.GroqApiKey);
+            !string.IsNullOrWhiteSpace(_config?.Ai?.GroqApiKey);
         public bool IsCohereConfigured =>
-            !string.IsNullOrWhiteSpace(App.Config?.Ai?.CohereApiKey);
+            !string.IsNullOrWhiteSpace(_config?.Ai?.CohereApiKey);
         public bool HasSavedApiKey =>
-            !string.IsNullOrWhiteSpace(App.Config?.Ai?.ApiKey);
+            !string.IsNullOrWhiteSpace(_config?.Ai?.ApiKey);
 
         public bool ApiKeyJustSaved
         {
@@ -1553,10 +1572,10 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public bool UseRealData
         {
-            get => App.Config?.Ai?.UseRealData ?? false;
+            get => _config?.Ai?.UseRealData ?? false;
             set
             {
-                if (App.Config?.Ai == null) return;
+                if (_config?.Ai == null) return;
 
                 // Consent gate — P-1. Enabling real-data access is a privacy
                 // decision: a real-time summary containing real customer names,
@@ -1564,9 +1583,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // configured AI provider (Gemini / Groq / Cohere). It is opt-in,
                 // so turning it ON must require an explicit confirmation. The
                 // toggle stays off unless the user confirms.
-                if (value && !App.Config.Ai.UseRealData)
+                if (value && !_config.Ai.UseRealData)
                 {
-                    var confirm = App.Dialogs.Show(
+                    var confirm = _dialogs.Show(
                         "Turning on \"Use Real Business Data\" sends a live summary " +
                         "of your invoices, job orders, deliveries, tax invoices and " +
                         "balances — including real customer names, project names and " +
@@ -1588,7 +1607,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     }
                 }
 
-                App.Config.Ai.UseRealData = value;
+                _config.Ai.UseRealData = value;
                 SaveConfig();
                 OnPropertyChanged();
             }
@@ -1598,9 +1617,9 @@ namespace ProGlassAutomation.ViewModels.Settings
         //  MODEL & TUNING
         // ══════════════════════════════════════════════════════════════
 
-        public string AiModel => App.Config?.Ai?.GetModelForProvider(ActiveProvider) ?? "—";
-        public int AiMaxTokens => App.Config?.Ai?.MaxTokens ?? 1024;
-        public double AiTemperature => App.Config?.Ai?.Temperature ?? 0.7;
+        public string AiModel => _config?.Ai?.GetModelForProvider(ActiveProvider) ?? "—";
+        public int AiMaxTokens => _config?.Ai?.MaxTokens ?? 1024;
+        public double AiTemperature => _config?.Ai?.Temperature ?? 0.7;
 
         // ══════════════════════════════════════════════════════════════
         //  COMMANDS
@@ -1631,13 +1650,13 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public string SelectedWhisperModel
         {
-            get => App.Config?.Ai?.SelectedWhisperModel ?? "base";
+            get => _config?.Ai?.SelectedWhisperModel ?? "base";
             set
             {
-                if (App.Config?.Ai != null &&
-                    App.Config.Ai.SelectedWhisperModel != value)
+                if (_config?.Ai != null &&
+                    _config.Ai.SelectedWhisperModel != value)
                 {
-                    App.Config.Ai.SelectedWhisperModel = value;
+                    _config.Ai.SelectedWhisperModel = value;
                     SaveConfig();
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(SelectedModelInfo));
@@ -1645,7 +1664,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     OnPropertyChanged(nameof(ModelFileSizeMB));
                     OnPropertyChanged(nameof(ModelFilePath));
 
-                    if (App.SpeechToText is WhisperSpeechService whisper)
+                    if (_speechToText is WhisperSpeechService whisper)
                         whisper.RefreshAvailability();
                 }
             }
@@ -1745,14 +1764,14 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public bool KeepApiKeysSaved
         {
-            get => App.Config?.Ai?.RememberApiKeys ?? true;
+            get => _config?.Ai?.RememberApiKeys ?? true;
             set
             {
-                if (App.Config == null ||
-                    App.Config.Ai.RememberApiKeys == value)
+                if (_config == null ||
+                    _config.Ai.RememberApiKeys == value)
                     return;
 
-                App.Config.Ai.RememberApiKeys = value;
+                _config.Ai.RememberApiKeys = value;
                 SaveConfig();   // wipes the vault when value is false
                 OnPropertyChanged();
             }
@@ -1846,14 +1865,14 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public string SelectedVisualTheme
         {
-            get => App.Config?.Appearance?.VisualTheme
+            get => _config?.Appearance?.VisualTheme
                 ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass;
             set
             {
-                if (App.Config == null || string.IsNullOrEmpty(value))
+                if (_config == null || string.IsNullOrEmpty(value))
                     return;
 
-                App.Config.Appearance.VisualTheme = value;
+                _config.Appearance.VisualTheme = value;
                 SaveConfig();
                 ApplyVisualTheme();
                 OnPropertyChanged();
@@ -1866,12 +1885,12 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public double WallpaperOpacity
         {
-            get => App.Config?.Appearance?.WallpaperOpacity ?? 0.85;
+            get => _config?.Appearance?.WallpaperOpacity ?? 0.85;
             set
             {
-                if (App.Config == null) return;
+                if (_config == null) return;
 
-                App.Config.Appearance.WallpaperOpacity = value;
+                _config.Appearance.WallpaperOpacity = value;
                 SaveConfig();
                 ApplyVisualTheme();
                 OnPropertyChanged();
@@ -1882,7 +1901,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             get
             {
-                var path = App.Config?.Appearance?.WallpaperPath ?? "";
+                var path = _config?.Appearance?.WallpaperPath ?? "";
                 return string.IsNullOrEmpty(path)
                     ? "No wallpaper set"
                     : $"Wallpaper: {System.IO.Path.GetFileName(path)}";
@@ -1902,7 +1921,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private void ApplyVisualTheme()
         {
-            var appearance = App.Config?.Appearance;
+            var appearance = _config?.Appearance;
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Apply(
                 appearance?.VisualTheme ?? "Normal",
                 appearance?.WallpaperPath ?? "",
@@ -2188,8 +2207,8 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private static void SaveConfig()
         {
-            if (App.Config != null)
-                ConfigService.Save(App.Config);
+            if (_config != null)
+                ConfigService.Save(_config);
         }
 
         private void InitializeV2Sections()
@@ -2197,7 +2216,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             // ── Security commands ─────────────────────────────────────
             RemoveSavedKeysCommand = new RelayCommand(_ =>
             {
-                var confirm = App.Dialogs.Show(
+                var confirm = _dialogs.Show(
                     LocalizationService.Instance.T("Msg.RemoveAllSavedAPIKeys"),
                     LocalizationService.Instance.T("Settings.RemoveSavedKeys"),
                     System.Windows.MessageBoxButton.YesNo,
@@ -2207,11 +2226,11 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 Services.Security.SecretVault.RemoveAll();
 
-                if (App.Config?.Ai != null)
+                if (_config?.Ai != null)
                 {
-                    App.Config.Ai.GeminiApiKey = "";
-                    App.Config.Ai.GroqApiKey = "";
-                    App.Config.Ai.CohereApiKey = "";
+                    _config.Ai.GeminiApiKey = "";
+                    _config.Ai.GroqApiKey = "";
+                    _config.Ai.CohereApiKey = "";
                     SaveConfig();
                 }
 
@@ -2231,14 +2250,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     var summary = await ProGlassAutomation.Services
                         .SampleData.SampleDataService.SeedAsync();
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         summary, LocalizationService.Instance.T("Settings.SampleDATA"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         "Could not load sample data: " + ex.Message,
                         LocalizationService.Instance.T("Settings.SampleDATA"), System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
@@ -2254,7 +2273,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ? "the isolated DEMO folder (production files stay closed)"
                     : "the PRODUCTION folder";
 
-                var confirm = App.Dialogs.Show(
+                var confirm = _dialogs.Show(
                     "This will PERMANENTLY DELETE every record in " +
                     which + ":\n\n" +
                     folder + "\n\n" +
@@ -2275,14 +2294,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     var summary = await ProGlassAutomation.Services
                         .SampleData.SampleDataService.ClearAllDataAsync();
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         summary, LocalizationService.Instance.T("Settings.ClearDATA"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Information);
                 }
                 catch (Exception ex)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         "Could not clear data: " + ex.Message,
                         LocalizationService.Instance.T("Settings.ClearDATA"), System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
@@ -2309,8 +2328,8 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 if (dialog.ShowDialog() != true) return;
 
-                if (App.Config == null) return;
-                App.Config.Appearance.WallpaperPath = dialog.FileName;
+                if (_config == null) return;
+                _config.Appearance.WallpaperPath = dialog.FileName;
                 SaveConfig();
                 ApplyVisualTheme();
 
@@ -2320,7 +2339,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     .ApplyModule(
                         ProGlassAutomation.Services.Theme.VisualThemeEngine
                             .LastRequestedModule,
-                        App.Config.Appearance);
+                        _config.Appearance);
 
                 OnPropertyChanged(nameof(WallpaperStatus));
                 OnPropertyChanged(nameof(WallpaperOpacity));
@@ -2333,8 +2352,8 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             ClearWallpaperCommand = new RelayCommand(_ =>
             {
-                if (App.Config == null) return;
-                App.Config.Appearance.WallpaperPath = "";
+                if (_config == null) return;
+                _config.Appearance.WallpaperPath = "";
                 SaveConfig();
                 ApplyVisualTheme();
 
@@ -2344,7 +2363,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     .ApplyModule(
                         ProGlassAutomation.Services.Theme.VisualThemeEngine
                             .LastRequestedModule,
-                        App.Config.Appearance);
+                        _config.Appearance);
 
                 OnPropertyChanged(nameof(WallpaperStatus));
             });
@@ -2359,7 +2378,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             foreach (var (key, label) in
                 ProGlassAutomation.Services.Theme.WallpaperModules.All)
             {
-                ModuleWallpaperRows.Add(new ModuleWallpaperRow(key, label));
+                ModuleWallpaperRows.Add(new ModuleWallpaperRow(key, label, _config));
             }
 
             SetModuleWallpaperCommand = new RelayCommand(param =>
@@ -2590,7 +2609,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         .ManualWarnWindow)
                 {
                     var mins = (int)sinceLast.Value.TotalMinutes;
-                    var confirm = App.Dialogs.Show(
+                    var confirm = _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.BackupWasCreatedXMinute"), mins),
                         LocalizationService.Instance.T("Msg.CapBackupAlreadyRecent"),
                         System.Windows.MessageBoxButton.YesNo,
@@ -2616,7 +2635,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     BackupStatus =
                         "Restore is blocked in Demo Mode. Exit Demo Mode first — " +
                         "restore writes the production folder.";
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         LocalizationService.Instance.T("Msg.DemoModeIsOnRestore"),
                         LocalizationService.Instance.T("Msg.CapRestoreBlocked"),
                         System.Windows.MessageBoxButton.OK,
@@ -2633,7 +2652,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     return;
                 }
 
-                var confirm = App.Dialogs.Show(
+                var confirm = _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.RestoreBackupFromXThis"), selected.CreatedAt),
                     LocalizationService.Instance.T("Msg.CapRestoreBackup"),
                     System.Windows.MessageBoxButton.YesNo,
@@ -2653,7 +2672,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 // The restored database only loads after a restart —
                 // surface that explicitly instead of a tiny status line.
-                var restart = App.Dialogs.Show(
+                var restart = _dialogs.Show(
                     LocalizationService.Instance.T("Msg.BackupRestoredSuccessfullyProGlassMust"),
                     LocalizationService.Instance.T("Msg.CapRestartRequired"),
                     System.Windows.MessageBoxButton.YesNo,
@@ -2751,7 +2770,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase);
             if (!isManagerOrAbove)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     "Rebuilding all databases is restricted to Managers " +
                     "and Administrators. Your role: " +
                     (string.IsNullOrEmpty(role) ? "none" : role) + ".",
@@ -2762,7 +2781,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
 
             // Gate 2: confirm the user knows what they're doing.
-            var proceed = App.Dialogs.Show(
+            var proceed = _dialogs.Show(
                 "EMERGENCY DATABASE REBUILD\n\n" +
                 "This will:\n" +
                 "  1. Move every .db file to MigrationBackups/_rebuild_<timestamp>/\n" +
@@ -2809,7 +2828,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // want to copy files out of MigrationBackups first) but
                 // the app's pooled connections still point at the
                 // moved files until restart.
-                var restart = App.Dialogs.Show(
+                var restart = _dialogs.Show(
                     "✓ All databases were rebuilt at the current schema.\n\n" +
                     "The originals are saved in:\n" +
                     AppDataRoot.CurrentFolder + "\\MigrationBackups\\\n\n" +
@@ -2835,7 +2854,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         Operation = "RebuildAllDatabases"
                     });
 
-                App.Dialogs.Show(
+                _dialogs.Show(
                     "Rebuild failed: " + ex.Message +
                     "\n\nThe original databases are still in " +
                     "MigrationBackups and have NOT been deleted.",
@@ -2908,7 +2927,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     ProGlassAutomation.Services.Logging.AppLogService.Warning(
                         "[SettingsViewModel] Restart aborted: could not resolve the running executable.");
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         LocalizationService.Instance.T("Msg.RestartCouldNotFindThe"),
                         LocalizationService.Instance.T("Msg.CapRestartUnavailable"),
                         System.Windows.MessageBoxButton.OK,
@@ -2929,7 +2948,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     ProGlassAutomation.Services.Logging.AppLogService.Warning(
                         "[SettingsViewModel] Restart blocked by security check: " + exe);
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         LocalizationService.Instance.T("Msg.RestartWasBlockedByThe"),
                         LocalizationService.Instance.T("Msg.CapRestartBlocked"),
                         System.Windows.MessageBoxButton.OK,
@@ -2948,7 +2967,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 if (started == null)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         LocalizationService.Instance.T("Msg.RestartFailedToStartA"),
                         LocalizationService.Instance.T("Msg.CapRestartFailed"),
                         System.Windows.MessageBoxButton.OK,
@@ -2970,7 +2989,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "[SettingsViewModel] Restart failed: " + ex.Message);
                 try
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         "Restart failed (" + ex.Message + ").\n" +
                         "Save your work and start the app manually.",
                         LocalizationService.Instance.T("Msg.CapRestartFailed"),

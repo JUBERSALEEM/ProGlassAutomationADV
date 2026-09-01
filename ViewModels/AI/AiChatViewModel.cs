@@ -6,7 +6,7 @@
 // CHANGES vs Chat 25 v4.0:
 //   ✓ NEW: whisper.ModelLoadFailed subscription — when Whisper model
 //     fails to load (corrupted file, missing DLL, permission error),
-//     VM auto-swaps App.SpeechToText to SpeechToTextService fallback.
+//     VM auto-swaps stt to SpeechToTextService fallback.
 //     Voice input continues to work with reduced accuracy.
 //   ✓ ALL v4.0 fixes preserved: thread marshaling, no auto-send,
 //     duplicate handler prevention, IsProcessingVoice reset.
@@ -25,6 +25,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.AI.AIConfig;
+using ProGlassAutomation.Services.AI.AIConnectivity;
 namespace ProGlassAutomation.ViewModels.AI
 {
     /// <summary>
@@ -173,10 +175,10 @@ namespace ProGlassAutomation.ViewModels.AI
 
         public bool HasActiveStream => _activeStream != null;
 
-        public string ActiveProviderName => App.Ai?.ProviderName ?? "AI";
-        public string ActiveProviderIcon => App.Ai?.ProviderIcon ?? "🤖";
-        public string ActiveProviderSubtitle => App.Ai != null
-            ? $"Powered by {App.Ai.ProviderName}"
+        public string ActiveProviderName => ai?.ProviderName ?? "AI";
+        public string ActiveProviderIcon => ai?.ProviderIcon ?? "🤖";
+        public string ActiveProviderSubtitle => ai != null
+            ? $"Powered by {ai.ProviderName}"
             : "Configure provider in Settings";
 
         // ══════════════════════════════════════════════════════════════
@@ -199,11 +201,18 @@ namespace ProGlassAutomation.ViewModels.AI
         //  CONSTRUCTOR
         // ══════════════════════════════════════════════════════════════
 
-        public AiChatViewModel(
+                private readonly AppConfig _config = null!;
+        private readonly IConnectivityService _connectivity = null!;
+
+public AiChatViewModel(
+            AppConfig? config,
+            IConnectivityService? connectivity,
             IAiService ai,
             ISpeechToTextService stt = null,
             ITextToSpeechService tts = null)
         {
+            _config = config!;
+            _connectivity = connectivity!;
             _stt = stt;
             _tts = tts;
 
@@ -243,11 +252,11 @@ namespace ProGlassAutomation.ViewModels.AI
 
                 // ── Auto-fallback on Whisper model failure ────────────
                 // If Whisper model fails to load (corrupted, missing DLL,
-                // permission error), swap BOTH App.SpeechToText and this
+                // permission error), swap BOTH stt and this
                 // VM's own _stt reference to the SpeechToTextService
                 // fallback so voice keeps working.
                 //
-                // VOICE-FIX: previous versions only swapped App.SpeechToText;
+                // VOICE-FIX: previous versions only swapped stt;
                 // this VM kept using the disposed Whisper through _stt, so
                 // IsVoiceAvailable flipped to false and the mic button +
                 // voice assistant UI vanished.
@@ -267,7 +276,7 @@ namespace ProGlassAutomation.ViewModels.AI
 
                             // Re-point this VM AND the global service.
                             _stt = fallback;
-                            App.SpeechToText = fallback;
+                            stt = fallback;
 
                             // Re-wire listening-state updates from the
                             // new service (old handler died with Whisper).
@@ -420,7 +429,7 @@ namespace ProGlassAutomation.ViewModels.AI
                             // speech is sent immediately unless the
                             // user disabled AutoSendVoice in settings
                             // (some prefer to edit the text first).
-                            if (App.Config?.Ai?.AutoSendVoice != false)
+                            if (_config?.Ai?.AutoSendVoice != false)
                             {
                                 StatusMessage = "🎤 Voice captured — sending…";
                                 _ = SendAsync();
@@ -487,9 +496,9 @@ namespace ProGlassAutomation.ViewModels.AI
 
             _tts?.Stop();
 
-            var ai = App.Ai;
+            var currentAi = ai;
 
-            if (ai == null)
+            if (currentAi == null)
             {
                 AddError(
                     "⚠ No AI provider configured.\n\n" +
@@ -498,7 +507,7 @@ namespace ProGlassAutomation.ViewModels.AI
                 return;
             }
 
-            if (!ai.IsEnabled)
+            if (!currentAi.IsEnabled)
             {
                 AddError(
                     "⚠ AI Assistant is disabled.\n\n" +
@@ -506,20 +515,20 @@ namespace ProGlassAutomation.ViewModels.AI
                 return;
             }
 
-            if (!ai.IsConfigured)
+            if (!currentAi.IsConfigured)
             {
                 AddError(
-                    $"⚠ {ai.ProviderName} API key is missing.\n\n" +
+                    $"⚠ {currentAi.ProviderName} API key is missing.\n\n" +
                     $"Go to ⚙ Settings → AI Providers, enter your " +
-                    $"{ai.ProviderName} API key, and click 💾 SAVE & TEST.");
+                    $"{currentAi.ProviderName} API key, and click 💾 SAVE & TEST.");
                 return;
             }
 
-            if (App.Connectivity != null && !App.Connectivity.IsOnline)
+            if (_connectivity != null && !_connectivity.IsOnline)
             {
                 AddError(
                     "⚠ You appear to be offline.\n\n" +
-                    $"AI requires internet to reach {ai.ProviderName}. " +
+                    $"AI requires internet to reach {currentAi.ProviderName}. " +
                     "Please check your network connection.");
                 return;
             }
@@ -547,7 +556,7 @@ namespace ProGlassAutomation.ViewModels.AI
                 string dataContext = string.Empty;
                 string learningContext = string.Empty;
 
-                if (App.Config?.Ai?.UseRealData == true)
+                if (_config?.Ai?.UseRealData == true)
                 {
                     try
                     {
@@ -580,7 +589,7 @@ namespace ProGlassAutomation.ViewModels.AI
                 // memory below can record it after the response).
                 EntityReference? entityRef = null;
 
-                if (App.Config?.Ai?.UseRealData == true)
+                if (_config?.Ai?.UseRealData == true)
                 {
                     entityRef = DetectEntityReference(userMsg);
                     if (entityRef.HasValue)
@@ -601,20 +610,20 @@ namespace ProGlassAutomation.ViewModels.AI
                 }
 
                 // ── Phase 2: generation ────────────────────────────────
-                StatusMessage = $"🤔 {ai.ProviderName} is thinking…";
+                StatusMessage = $"🤔 {currentAi.ProviderName} is thinking…";
 
                 bool handled = false;
 
                 // v3 STREAMING: providers implementing IAiStreamingService
                 // (Gemini) deliver the answer token-by-token — the user
                 // sees words within ~1-2s instead of a silent 10-30s wait.
-                if (App.Config?.Ai?.StreamingEnabled != false &&
-                    ai is IAiStreamingService streaming)
+                if (_config?.Ai?.StreamingEnabled != false &&
+                    currentAi is IAiStreamingService streaming)
                 {
                     var sm = new StreamingChatMessage
                     {
-                        ProviderName = ai.ProviderName,
-                        ProviderIcon = ai.ProviderIcon
+                        ProviderName = currentAi.ProviderName,
+                        ProviderIcon = currentAi.ProviderIcon
                     };
                     ActiveStream = sm;
                     bool firstTokenSeen = false;
@@ -637,13 +646,13 @@ namespace ProGlassAutomation.ViewModels.AI
                         handled = true;
                         FinishResponse(res.Success, res.Text,
                             res.ErrorMessage,
-                            res.ProviderName ?? ai.ProviderName,
+                            res.ProviderName ?? currentAi.ProviderName,
                             res.WasCancelled, userMsg, entityRef);
                     }
                     catch (Exception ex)
                     {
                         handled = true;
-                        AddError($"⚠ {ai.ProviderName} error: {ex.Message}");
+                        AddError($"⚠ {currentAi.ProviderName} error: {ex.Message}");
                     }
                 }
 
@@ -651,11 +660,11 @@ namespace ProGlassAutomation.ViewModels.AI
                 if (!handled)
                 {
                     var response =
-                        await ai.AskAsync(fullSystemPrompt, userMsg);
+                        await currentAi.AskAsync(fullSystemPrompt, userMsg);
 
                     FinishResponse(response.Success, response.Text,
                         response.ErrorMessage,
-                        response.ProviderName ?? ai.ProviderName,
+                        response.ProviderName ?? currentAi.ProviderName,
                         false, userMsg, entityRef);
                 }
             }
@@ -689,7 +698,7 @@ namespace ProGlassAutomation.ViewModels.AI
                         Text = text.Trim() + "\n\n⏹ Generation stopped.",
                         IsUser = false,
                         ProviderName = providerName,
-                        ProviderIcon = App.Ai?.ProviderIcon ?? "🤖"
+                        ProviderIcon = ai?.ProviderIcon ?? "🤖"
                     });
                     RememberExchange(userMsg, text, entityRef);
                 }
@@ -709,7 +718,7 @@ namespace ProGlassAutomation.ViewModels.AI
                     Text = aiText,
                     IsUser = false,
                     ProviderName = providerName,
-                    ProviderIcon = App.Ai?.ProviderIcon ?? "🤖"
+                    ProviderIcon = ai?.ProviderIcon ?? "🤖"
                 });
 
                 OnPropertyChanged(nameof(ActiveProviderName));

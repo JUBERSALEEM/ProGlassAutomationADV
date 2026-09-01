@@ -10,10 +10,19 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
 {
     public class HistoryViewModel : ViewModelBase
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public HistoryViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         private readonly ISheetHistoryRepository _repo = new SheetHistoryRepository();
         private bool _isLoading;
 
@@ -99,7 +108,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
         public Action? CloseAction { get; set; }
 
         public HistoryViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService()){
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             CloseCommand = new RelayCommand(_ => CloseAction?.Invoke());
             ClearDatesCommand = new RelayCommand(_ =>
@@ -158,7 +168,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     "Failed to load history:\n\n" + ex.Message,
                     LocalizationService.Instance.T("Msg.CapError"), MessageBoxButton.OK, MessageBoxImage.Error);
             }

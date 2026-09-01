@@ -28,10 +28,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.MasterData.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
 {
     public class ClientProfileViewModel : ViewModelBase
     {
+        private readonly IMasterDataRepository _masterData = null!;
+
+        public ClientProfileViewModel(IMasterDataRepository? masterData)
+        {
+            _masterData = masterData!;
+        }
+
         // ── Guard while populating from card ──────────────────────────
         private bool _isLoadingProfile;
 
@@ -313,7 +322,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
         // ═══════════════════════════════════════════════════════════════
 
         public ClientProfileViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IMasterDataRepository>()!){
             LoadClientCommand = new RelayCommand(param =>
             {
                 if (param is ClientProfileCard card)
@@ -344,7 +354,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
         /// </summary>
         public async Task LoadCardsAsync()
         {
-            if (App.MasterData == null) return;
+            if (_masterData == null) return;
 
             IsLoadingCards = true;
             CardsErrorMessage = "";
@@ -352,7 +362,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
 
             try
             {
-                var clients = await App.MasterData.GetAllClientsAsync();
+                var clients = await _masterData.GetAllClientsAsync();
 
                 _allClientCards = clients
                     .Select(c => new ClientProfileCard
@@ -400,13 +410,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
         /// </summary>
         public async Task LoadSalesmanOptionsAsync()
         {
-            if (App.MasterData == null) return;
+            if (_masterData == null) return;
 
             IsLoadingSalesmanOptions = true;
 
             try
             {
-                var salesmen = await App.MasterData.GetAllSalesmenAsync();
+                var salesmen = await _masterData.GetAllSalesmenAsync();
 
                 SalesmanOptions.Clear();
                 foreach (var s in salesmen)

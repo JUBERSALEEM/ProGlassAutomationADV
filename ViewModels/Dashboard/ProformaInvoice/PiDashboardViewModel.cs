@@ -37,6 +37,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Dashboard
 {
     /// <summary>
@@ -53,6 +55,18 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// </summary>
     public class PiDashboardViewModel : DashboardPageBase
     {
+        private readonly IProformaInvoiceRepository _invoices = null!;
+
+        public PiDashboardViewModel() : this(
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!)
+        {
+        }
+
+        public PiDashboardViewModel(IProformaInvoiceRepository? invoices)
+        {
+            _invoices = invoices!;
+        }
+
         public override string TabTitle => "Proforma Invoice";
         public override string TabSubtitle => "Quotes and conversion";
         public override string TabIcon => "\uE8A5";
@@ -108,7 +122,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             // to count rows and sum totals. GetAnalyticsRowsAsync projects
             // only the 5 scalar columns used below, AsNoTracking. Property
             // names are identical, so the aggregation code is unchanged.
-            var invoices = await App.Invoices.GetAnalyticsRowsAsync();
+            var invoices = await _invoices.GetAnalyticsRowsAsync();
 
             int total = invoices.Count;
             decimal totalVal = invoices.Sum(i => i.GrandTotalVatInclusive);

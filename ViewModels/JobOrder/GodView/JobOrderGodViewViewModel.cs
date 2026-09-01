@@ -20,11 +20,20 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.JobOrder.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.JobOrder.GodView
 {
     /// <summary>All-records overview for the Job Order module.</summary>
     public class JobOrderGodViewViewModel : ViewModelBase
     {
+        private readonly IJobOrderRepository _jobs = null!;
+
+        public JobOrderGodViewViewModel(IJobOrderRepository? jobs)
+        {
+            _jobs = jobs!;
+        }
+
         private ObservableCollection<JobOrderListRow> _allRows = new();
 
         public ObservableCollection<JobOrderListRow> Rows { get; } = new();
@@ -57,7 +66,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
         }
 
         public JobOrderGodViewViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!){
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
 
             OpenCommand = new RelayCommand(param =>
@@ -70,13 +80,13 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
         /// <summary>Loads every job order and recomputes KPIs.</summary>
         public async Task LoadAsync()
         {
-            if (App.Jobs == null) return;
+            if (_jobs == null) return;
 
             try
             {
                 UiDispatch.Run(() => IsLoading = true);
 
-                var items = await App.Jobs.GetListRowsAsync();
+                var items = await _jobs.GetListRowsAsync();
 
                 UiDispatch.Run(() =>
                 {

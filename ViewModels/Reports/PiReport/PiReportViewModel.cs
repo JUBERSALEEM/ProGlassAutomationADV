@@ -22,10 +22,24 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Reports.PiReport
 {
     public class PiReportViewModel : ReportBaseViewModel
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public PiReportViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+        {
+        }
+
+        public PiReportViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         public PiReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
         {
             InitCommands();
@@ -155,7 +169,7 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
                 else
                     res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Proforma Invoice Report", ReportingExportService.PiHeaders, ReportingExportService.PiMap, req);
                 if (!res.Success && !res.Cancelled)
-                    App.Dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    _dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
         }

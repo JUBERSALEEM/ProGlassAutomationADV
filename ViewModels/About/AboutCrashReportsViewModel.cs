@@ -37,10 +37,19 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.About
 {
     public sealed class AboutCrashReportsViewModel : ViewModelBase
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public AboutCrashReportsViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         /// <summary>
         /// Per-row view of a crash report. Wraps
         /// <see cref="CrashReportService.ReportListing"/>
@@ -96,7 +105,8 @@ namespace ProGlassAutomation.ViewModels.About
         private int _scanGeneration;
 
         public AboutCrashReportsViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService()){
             RefreshCommand = new RelayCommand(_ => Refresh());
             ClearAllCommand = new RelayCommand(_ => ClearAll(),
                 _ => !IsEmpty);
@@ -160,7 +170,7 @@ namespace ProGlassAutomation.ViewModels.About
 
         private void ClearAll()
         {
-            var answer = App.Dialogs.Show(
+            var answer = _dialogs.Show(
                 LocalizationService.Instance.T("Msg.DeleteEveryCrashReportOn"),
                 LocalizationService.Instance.T("Msg.CapClearCrashReports"),
                 MessageBoxButton.YesNo,

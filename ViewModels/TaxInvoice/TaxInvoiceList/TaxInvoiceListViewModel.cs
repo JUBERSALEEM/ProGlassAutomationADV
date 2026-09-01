@@ -13,6 +13,9 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.TaxInvoice.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
 {
     /// <summary>
@@ -33,6 +36,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
     /// </summary>
     public class TaxInvoiceListViewModel : ViewModelBase
     {
+        private readonly IDialogService _dialogs = null!;
+        private readonly ITaxInvoiceRepository _taxInvoices = null!;
+
+        public TaxInvoiceListViewModel(IDialogService? dialogs, ITaxInvoiceRepository? taxInvoices)
+        {
+            _dialogs = dialogs!;
+            _taxInvoices = taxInvoices!;
+        }
+
         private int _loadingFlag = 0;
         private int _reloadQueued = 0;
 
@@ -362,7 +374,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         // ══════════════════════════════════════════════════════════════════
 
         public TaxInvoiceListViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
             RefreshCommand = new RelayCommand(async _ =>
             {
                 SelectedFamily = null;
@@ -392,10 +406,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             DeleteFamilyCommand = new RelayCommand(async param =>
             {
                 if (param is not InvoiceFamilyRowViewModel fam) return;
-                if (App.TaxInvoices == null) return;
+                if (_taxInvoices == null) return;
 
                 // NEVER delete directly — explicit confirmation first.
-                var result = App.Dialogs.Show(
+                var result = _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DeleteTaxInvoiceFamilyX"), fam.ProformaId, fam.InvoiceCount),
                     LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                     System.Windows.MessageBoxButton.YesNo,
@@ -406,7 +420,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 try
                 {
                     foreach (var m in fam.Members)
-                        await App.TaxInvoices.DeleteAsync(m.Id);
+                        await _taxInvoices.DeleteAsync(m.Id);
 
                     ProGlassAutomation.Services.Audit.AuditService.Log(
                         ProGlassAutomation.Services.Audit.AuditSections.TaxInvoice,
@@ -417,7 +431,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 }
                 catch (Exception ex)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
                         LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                         System.Windows.MessageBoxButton.OK,
@@ -446,7 +460,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 HasError = false;
                 ErrorMessage = "";
 
-                if (App.TaxInvoices == null)
+                if (_taxInvoices == null)
                 {
                     HasError = true;
                     ErrorMessage = "Tax Invoices database not initialized.";
@@ -456,7 +470,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 // Heavy work on background thread
                 var familyVms = await Task.Run(async () =>
                 {
-                    var families = await App.TaxInvoices.GetAllFamiliesAsync();
+                    var families = await _taxInvoices.GetAllFamiliesAsync();
                     return InvoiceFamilyRowViewModel
                         .FromFamilies(families)
                         .ToList();

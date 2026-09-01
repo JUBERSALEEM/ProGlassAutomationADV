@@ -26,6 +26,7 @@ using System.Windows.Input;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
 namespace ProGlassAutomation.ViewModels.Reports.StatementList
 {
     public class StatementListViewModel : ViewModelBase
@@ -156,8 +157,12 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
-        public StatementListViewModel(IStatementRepository repo)
+                private readonly IDialogService _dialogs = null!;
+
+public StatementListViewModel(IDialogService? dialogs,
+            IStatementRepository repo)
         {
+            _dialogs = dialogs!;
             _repo = repo;
 
             // LIVE DATA: refresh whenever any document changes (statement
@@ -327,7 +332,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
 
             if (row == null) return;
 
-            var result = App.Dialogs.Show(
+            var result = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DeleteStatementXThisWill"), row.StatementNumber),
                 LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,

@@ -20,6 +20,10 @@ using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 using ProGlassAutomation.Services.Workflow;
 
+using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.JobOrder.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 {
     /// <summary>
@@ -33,6 +37,19 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
     /// </summary>
     public class JobOrderDetailViewModel : ViewModelBase
     {
+        private readonly IDeliveryNoteRepository _deliveryNotes = null!;
+        private readonly IDialogService _dialogs = null!;
+        private readonly IJobOrderRepository _jobs = null!;
+        private readonly IStatusService _status = null!;
+
+        public JobOrderDetailViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IJobOrderRepository? jobs, IStatusService? status)
+        {
+            _deliveryNotes = deliveryNotes!;
+            _dialogs = dialogs!;
+            _jobs = jobs!;
+            _status = status!;
+        }
+
         // ── reentrancy guard ──────────────────────────────────────────────
         private int _loadingFlag = 0;
 
@@ -283,7 +300,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             try { await export(); }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ExportFailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapXExportFailed"),
                     System.Windows.MessageBoxButton.OK,
@@ -309,7 +326,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         // ═════════════════════════════════════════════════════════════════
 
         public JobOrderDetailViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!,
+            App.ServiceProvider?.GetService<IStatusService>()!){
             SwitchDetailTabCommand = new RelayCommand(p2 =>
                 DetailTab = p2 as string ?? "Overview");
 
@@ -339,14 +360,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 HasError = false;
                 ErrorMessage = string.Empty;
 
-                if (App.Jobs == null)
+                if (_jobs == null)
                 {
                     HasError = true;
                     ErrorMessage = "Job Order database not initialised.";
                     return;
                 }
 
-                _entity = await App.Jobs.GetByIdAsync(jobOrderId);
+                _entity = await _jobs.GetByIdAsync(jobOrderId);
                 if (_entity == null)
                 {
                     HasError = true;
@@ -396,8 +417,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
                 if (_entity == null)
                 {
-                    if (App.Jobs == null) return false;
-                    _entity = await App.Jobs
+                    if (_jobs == null) return false;
+                    _entity = await _jobs
                         .GetByJobOrderIdAsync(version.EntityId);
                     if (_entity == null) return false;
                 }
@@ -502,7 +523,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
             if (_entity == null || _snapshot == null)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.NothingLoadedToSave"),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"),
                     MessageBoxButton.OK,
@@ -518,12 +539,12 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 // orders (no prior status yet) skip validation — first save.
                 if (!string.IsNullOrWhiteSpace(previousStatus))
                 {
-                    var statusTransition = App.Status.Validate(
+                    var statusTransition = _status.Validate(
                         StatusTransitions.Kind.JobOrder,
                         previousStatus, SelectedStatus);
                     if (!statusTransition.IsValid)
                     {
-                        App.Dialogs.Show(statusTransition.Reason ?? "Invalid status change.",
+                        _dialogs.Show(statusTransition.Reason ?? "Invalid status change.",
                             LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
                             MessageBoxButton.OK, MessageBoxImage.Warning);
                         return;
@@ -548,7 +569,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 // Push snapshot back into entity (updates indexed columns + JSON blob)
                 JobOrderMapper.UpdateEntityFromSnapshot(_entity, _snapshot);
 
-                await App.Jobs.UpdateAsync(_entity);
+                await _jobs.UpdateAsync(_entity);
 
                 HasUnsavedChanges = false;
 
@@ -572,7 +593,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 await RecordMetadataService.StampUpdatedAsync(
                     "JO", _snapshot.JobOrderId);
 
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.JobOrderXSavedSuccessfully"), _snapshot.JobOrderId),
                     LocalizationService.Instance.T("ProformaInvoice.Saved"),
                     MessageBoxButton.OK,
@@ -583,7 +604,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"),
                     MessageBoxButton.OK,
@@ -599,7 +620,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         {
             if (_entity == null || string.IsNullOrWhiteSpace(_entity.JobOrderId))
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.LoadAJobOrderFirst"),
                     LocalizationService.Instance.T("JobOrder.MasterDN"),
                     MessageBoxButton.OK,
@@ -607,9 +628,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 return;
             }
 
-            if (App.DeliveryNotes == null)
+            if (_deliveryNotes == null)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.DeliveryNotesDatabaseNotInitialized"),
                     LocalizationService.Instance.T("JobOrder.MasterDN"),
                     MessageBoxButton.OK,
@@ -619,7 +640,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
             try
             {
-                var master = await App.DeliveryNotes
+                var master = await _deliveryNotes
                     .GetMasterDnForJobOrderAsync(_entity.JobOrderId);
                 if (master == null)
                 {
@@ -631,7 +652,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                     }
                     catch (Exception ex)
                     {
-                        App.Dialogs.Show(
+                        _dialogs.Show(
                             "Could not create Master DN.\n\n" + ex.Message,
                             LocalizationService.Instance.T("JobOrder.MasterDN"),
                             MessageBoxButton.OK,
@@ -642,7 +663,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
                 if (master == null)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         LocalizationService.Instance.T("Msg.MasterDNExistsForThis"),
                         LocalizationService.Instance.T("JobOrder.MasterDN"),
                         MessageBoxButton.OK,
@@ -654,7 +675,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToOpenMasterDN"), ex.Message),
                     LocalizationService.Instance.T("JobOrder.MasterDN"),
                     MessageBoxButton.OK,
@@ -666,7 +687,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         {
             if (_entity == null || _snapshot == null)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.LoadAJobOrderFirst"),
                     LocalizationService.Instance.T("Msg.CapCannotCreateDN"),
                     MessageBoxButton.OK,
@@ -688,7 +709,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                         break;
 
                     case ProGlassAutomation.Services.DeliveryNote.DnCreateResult.Kind.FullyDelivered:
-                        App.Dialogs.Show(
+                        _dialogs.Show(
                             result.Message,
                             LocalizationService.Instance.T("Msg.CapFullyDelivered"),
                             MessageBoxButton.OK,
@@ -696,7 +717,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                         break;
 
                     default:
-                        App.Dialogs.Show(
+                        _dialogs.Show(
                             string.IsNullOrWhiteSpace(result.Message)
                                 ? "Failed to create delivery note."
                                 : result.Message,
@@ -708,7 +729,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToCreateDeliveryNote"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
@@ -772,7 +793,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         {
             if (_entity != null && _snapshot != null) return true;
 
-            App.Dialogs.Show(
+            _dialogs.Show(
                 LocalizationService.Instance.T("Msg.LoadAJobOrderBefore"),
                 LocalizationService.Instance.T("Msg.CapNothingToExport"),
                 MessageBoxButton.OK,
@@ -785,7 +806,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             if (result.Success) return;
             if (result.Cancelled) return;
 
-            App.Dialogs.Show(
+            _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.XExportFailedY"), formatLabel, result.ErrorMessage),
                 LocalizationService.Instance.T("Msg.CapExportFailed"),
                 MessageBoxButton.OK,

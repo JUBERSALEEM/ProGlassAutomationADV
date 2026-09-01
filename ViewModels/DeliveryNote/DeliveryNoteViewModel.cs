@@ -14,6 +14,10 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.JobOrder.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.DeliveryNote
 {
     /// <summary>
@@ -26,6 +30,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
     public class DeliveryNoteViewModel : ViewModelBase,
         ProGlassAutomation.Agent.Context.IAgentContextAware
     {
+        private readonly IDeliveryNoteRepository _deliveryNotes = null!;
+        private readonly IDialogService _dialogs = null!;
+        private readonly IJobOrderRepository _jobs = null!;
+
+        public DeliveryNoteViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IJobOrderRepository? jobs)
+        {
+            _deliveryNotes = deliveryNotes!;
+            _dialogs = dialogs!;
+            _jobs = jobs!;
+        }
+
         private Func<Task>? _dataSeededHandler;
         private bool _disposed;
 
@@ -117,7 +132,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         }
 
         public DeliveryNoteViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!){
             ListVM = new DeliveryNoteListViewModel();
                         _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
@@ -137,7 +155,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 }
                 catch (Exception ex)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.FailedToOpenMasterInvoice"), ex.Message),
                         LocalizationService.Instance.T("Msg.CapNavigationError"),
                         MessageBoxButton.OK,
@@ -178,7 +196,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 }
                 catch (Exception ex)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo"), ex.Message),
                         LocalizationService.Instance.T("Msg.CapNavigationError"),
                         MessageBoxButton.OK,
@@ -219,7 +237,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         {
             if (string.IsNullOrWhiteSpace(proformaId))
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.CannotCreateMasterInvoiceNo"),
                     LocalizationService.Instance.T("Msg.CapPIReference"),
                     MessageBoxButton.OK,
@@ -229,7 +247,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             if (OnRequestOpenTaxInvoiceForMasterFromProforma == null)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.TaxInvoiceNavigationIsNot2"),
                     LocalizationService.Instance.T("Msg.CapWired"),
                     MessageBoxButton.OK,
@@ -244,7 +262,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         {
             if (string.IsNullOrWhiteSpace(deliveryNoteId))
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.CannotConvertToTaxInvoice"),
                     LocalizationService.Instance.T("Msg.CapDNReference"),
                     MessageBoxButton.OK,
@@ -254,7 +272,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             if (OnRequestOpenTaxInvoiceForDeliveryNote == null)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.TaxInvoiceNavigationIsNot2"),
                     LocalizationService.Instance.T("Msg.CapWired"),
                     MessageBoxButton.OK,
@@ -306,15 +324,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         /// </summary>
         public async Task OpenMasterForJobOrderAsync(string jobOrderId)
         {
-            if (App.DeliveryNotes == null || string.IsNullOrWhiteSpace(jobOrderId))
+            if (_deliveryNotes == null || string.IsNullOrWhiteSpace(jobOrderId))
                 return;
 
-            var master = await App.DeliveryNotes
+            var master = await _deliveryNotes
                 .GetMasterDnForJobOrderAsync(jobOrderId);
 
-            if (master == null && App.Jobs != null)
+            if (master == null && _jobs != null)
             {
-                var jo = await App.Jobs.GetByJobOrderIdAsync(jobOrderId);
+                var jo = await _jobs.GetByJobOrderIdAsync(jobOrderId);
                 if (jo != null)
                 {
                     try
@@ -325,7 +343,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     }
                     catch (Exception ex)
                     {
-                        App.Dialogs.Show(
+                        _dialogs.Show(
                             "Could not open Master DN.\n\n" + ex.Message,
                             LocalizationService.Instance.T("JobOrder.MasterDN"),
                             MessageBoxButton.OK,
@@ -337,7 +355,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             if (master == null)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.MasterDNExistsForX"), jobOrderId),
                     LocalizationService.Instance.T("Msg.CapMasterDNNotFound"),
                     MessageBoxButton.OK,
@@ -383,7 +401,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     break;
 
                 case DnCreateResult.Kind.FullyDelivered:
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         result.Message,
                         LocalizationService.Instance.T("Msg.CapFullyDelivered"),
                         MessageBoxButton.OK,
@@ -391,7 +409,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     break;
 
                 default:
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.IsNullOrWhiteSpace(result.Message)
                             ? "Failed to create delivery note."
                             : result.Message,

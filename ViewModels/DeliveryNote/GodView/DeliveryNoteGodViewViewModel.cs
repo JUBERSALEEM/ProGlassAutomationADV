@@ -21,6 +21,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.DeliveryNote.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
 {
     /// <summary>
@@ -28,6 +30,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
     /// </summary>
     public class DeliveryNoteGodViewViewModel : ViewModelBase
     {
+        private readonly IDeliveryNoteRepository _deliveryNotes = null!;
+
+        public DeliveryNoteGodViewViewModel(IDeliveryNoteRepository? deliveryNotes)
+        {
+            _deliveryNotes = deliveryNotes!;
+        }
+
         private ObservableCollection<DeliveryNoteListItem> _allRows = new();
 
         public ObservableCollection<DeliveryNoteListItem> Rows { get; } = new();
@@ -60,7 +69,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
         }
 
         public DeliveryNoteGodViewViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!){
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
 
             OpenCommand = new RelayCommand(param =>
@@ -73,13 +83,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
         /// <summary>Loads every delivery note and recomputes KPIs.</summary>
         public async Task LoadAsync()
         {
-            if (App.DeliveryNotes == null) return;
+            if (_deliveryNotes == null) return;
 
             try
             {
                 UiDispatch.Run(() => IsLoading = true);
 
-                var items = await App.DeliveryNotes.GetAllAsync();
+                var items = await _deliveryNotes.GetAllAsync();
 
                 UiDispatch.Run(() =>
                 {

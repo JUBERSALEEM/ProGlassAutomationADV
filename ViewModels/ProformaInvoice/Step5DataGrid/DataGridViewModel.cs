@@ -42,6 +42,8 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 {
     public static class GridColumnIndex
@@ -61,6 +63,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
     public partial class DataGridViewModel : ViewModelBase
     {
+        public DataGridViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         public string Title { get; } = "SPECIFICATION SUB-GROUPS";
         public string Subtitle { get; } =
             "Specify the number of unique glass specifications in this proforma.";
@@ -96,7 +103,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         public GrandTotalSummaryViewModel SummaryViewModel { get; }
 
-        public DataGridViewModel()
+        private readonly IDialogService _dialogs = null!;
+
+        public DataGridViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService())
         {
             SpecGroups = new ObservableCollection<SpecGroup>();
             SpecGroups.CollectionChanged += (_, e) =>

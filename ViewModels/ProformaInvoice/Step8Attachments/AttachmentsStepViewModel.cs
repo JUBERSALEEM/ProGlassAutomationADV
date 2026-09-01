@@ -33,6 +33,7 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
 {
     /// <summary>
@@ -44,8 +45,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
         private readonly CompanySetupViewModel _company;
         private readonly ProformaAttachmentService _attachments = new();
 
-        public AttachmentsStepViewModel(CompanySetupViewModel company)
+                private readonly IDialogService _dialogs = null!;
+
+public AttachmentsStepViewModel(IDialogService? dialogs,
+            CompanySetupViewModel company)
         {
+            _dialogs = dialogs!;
             _company = company;
 
             AddImageCommand = new RelayCommand(
@@ -193,7 +198,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
         {
             if (!HasProformaId)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.SetAProformaIDIn"),
                     LocalizationService.Instance.T("DeliveryNote.Attachments"),
                     MessageBoxButton.OK,
@@ -318,7 +323,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.CannotOpenFileX"), ex.Message),
                     LocalizationService.Instance.T("DeliveryNote.Attachments"),
                     MessageBoxButton.OK,
@@ -362,7 +367,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
         {
             if (row == null) return;
 
-            var confirm = App.Dialogs.Show(
+            var confirm = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.RemoveAttachmentXTheFile"), row.FileName),
                 LocalizationService.Instance.T("Msg.CapDeleteAttachment"),
                 MessageBoxButton.YesNo,

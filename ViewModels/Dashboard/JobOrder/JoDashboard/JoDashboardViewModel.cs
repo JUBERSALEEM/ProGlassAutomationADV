@@ -44,10 +44,24 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ProGlassAutomation.Services.JobOrder.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
 {
     public class JoDashboardViewModel : DashboardPageBase
     {
+        private readonly IJobOrderRepository _jobs = null!;
+
+        public JoDashboardViewModel() : this(
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!)
+        {
+        }
+
+        public JoDashboardViewModel(IJobOrderRepository? jobs)
+        {
+            _jobs = jobs!;
+        }
+
         // ── Tab identity ─────────────────────────────────────────────
         public override string TabTitle => "Job Orders";
         public override string TabSubtitle => "Production workload";
@@ -174,7 +188,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
         // ── Core load ────────────────────────────────────────────────
         protected override async Task LoadCoreAsync()
         {
-            var all = await App.Jobs.GetAllAsync();
+            var all = await _jobs.GetAllAsync();
             var today = DateTime.Today;
 
             // ── Counts ───────────────────────────────────────────────

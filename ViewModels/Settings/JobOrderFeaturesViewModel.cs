@@ -22,12 +22,21 @@ using ProGlassAutomation.Services.Logging;
 using System;
 using System.Windows.Input;
 
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Settings
 {
     public sealed class JobOrderFeaturesViewModel : ViewModelBase
     {
-        public JobOrderFeaturesViewModel()
+        private readonly AppConfig _config = null!;
+
+        public JobOrderFeaturesViewModel(AppConfig? config)
         {
+            _config = config!;
+        }
+
+        public JobOrderFeaturesViewModel()
+         : this(
+            App.ServiceProvider?.GetService<AppConfig>()?? App.Config){
             ResetToDefaultsCommand      = new RelayCommand(_ => SetAll(true));
             EnableAllCommand            = new RelayCommand(_ => SetAll(true));
             DisableAllOptionalCommand   = new RelayCommand(_ => SetAll(false));
@@ -41,9 +50,9 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             get
             {
-                if (App.Config == null) return new JobOrderFeatureFlags();
-                App.Config.JobOrderFields ??= new JobOrderFeatureFlags();
-                return App.Config.JobOrderFields;
+                if (_config == null) return new JobOrderFeatureFlags();
+                _config.JobOrderFields ??= new JobOrderFeatureFlags();
+                return _config.JobOrderFields;
             }
         }
 
@@ -51,7 +60,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             try
             {
-                if (App.Config != null) ConfigService.Save(App.Config);
+                if (_config != null) ConfigService.Save(_config);
             }
             catch (Exception ex)
             {
@@ -92,7 +101,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             try
             {
-                if (App.Config != null) ConfigService.Save(App.Config);
+                if (_config != null) ConfigService.Save(_config);
             }
             catch (Exception ex)
             {

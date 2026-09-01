@@ -10,10 +10,24 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
 {
     public class TaxInvoiceReportViewModel : ReportBaseViewModel
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public TaxInvoiceReportViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+        {
+        }
+
+        public TaxInvoiceReportViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         public TaxInvoiceReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
         {
             InitCommands();
@@ -142,7 +156,7 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
                 if (format == ExportFormat.Csv) res = await ReportingExportService.ExportCsvAsync(Rows.ToList(), "Tax Invoice Report", ReportingExportService.TiHeaders, ReportingExportService.TiMap, req);
                 else if (format == ExportFormat.Excel) res = await ReportingExportService.ExportExcelAsync(Rows.ToList(), "Tax Invoice Report", ReportingExportService.TiHeaders, ReportingExportService.TiMapExcel, req);
                 else res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Tax Invoice Report", ReportingExportService.TiHeaders, ReportingExportService.TiMap, req);
-                if (!res.Success && !res.Cancelled) App.Dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                if (!res.Success && !res.Cancelled) _dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
         }

@@ -2,7 +2,7 @@
 // FILE: ViewModels/ProformaInvoice/Step1CompanySetup/CompanySetupViewModel.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 15 — ALL FIXES APPLIED
-//   C-01  SavedCompany cards from App.MasterData.GetAllCompaniesAsync()
+//   C-01  SavedCompany cards from _masterData.GetAllCompaniesAsync()
 //   C-02  CompanyProfileCard rebuilt (ProjectName removed)
 //   C-03  IsLoadingCards loading state
 //   C-04  HasNoSavedCompanies empty state
@@ -25,6 +25,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.MasterData.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 {
     public class CompanySetupViewModel : ViewModelBase
@@ -344,10 +347,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>Parameterless — design-time and fallback only.</summary>
-        public CompanySetupViewModel() : this(null) { }
+        private readonly IProformaInvoiceRepository _invoices = null!;
+        private readonly IMasterDataRepository _masterData = null!;
 
-        public CompanySetupViewModel(Action<int>? navigateToStep)
+        public CompanySetupViewModel() : this(
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>(),
+            App.ServiceProvider?.GetService<IMasterDataRepository>(), null) { }
+
+        public CompanySetupViewModel(IProformaInvoiceRepository? invoices,
+            IMasterDataRepository? masterData,
+            Action<int>? navigateToStep)
         {
+            _invoices = invoices!;
+            _masterData = masterData!;
             _navigateToStep = navigateToStep;
 
             // BUG-33: placeholder until async load completes
@@ -397,7 +409,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         /// </summary>
         public async Task LoadCardsAsync()
         {
-            if (App.MasterData == null) return;
+            if (_masterData == null) return;
 
             IsLoadingCards = true;
             CardsErrorMessage = "";
@@ -405,7 +417,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 
             try
             {
-                var companies = await App.MasterData.GetAllCompaniesAsync();
+                var companies = await _masterData.GetAllCompaniesAsync();
 
                 _allCompanyCards = companies
                     .Select(c => new CompanyProfileCard
@@ -472,7 +484,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         {
             try
             {
-                if (App.Invoices == null)
+                if (_invoices == null)
                 {
                     ProformaId =
                         $"PI-{DateTime.Now.Year}-{Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()}";
@@ -480,7 +492,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 }
 
                 string seedId = $"PI-{DateTime.Now.Year}-000";
-                ProformaId = await App.Invoices.SuggestNextIdAsync(seedId);
+                ProformaId = await _invoices.SuggestNextIdAsync(seedId);
             }
             catch
             {

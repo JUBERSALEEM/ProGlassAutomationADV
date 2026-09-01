@@ -25,12 +25,24 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.JobOrder.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.JobOrder
 {
     public class JobOrderViewModel : ViewModelBase,
         ProGlassAutomation.Agent.Context.IAgentContextAware,
         System.IDisposable
     {
+        private readonly IDialogService _dialogs = null!;
+        private readonly IJobOrderRepository _jobs = null!;
+
+        public JobOrderViewModel(IDialogService? dialogs, IJobOrderRepository? jobs)
+        {
+            _dialogs = dialogs!;
+            _jobs = jobs!;
+        }
+
         public string Title { get; } = "Job Orders";
         public string AgentContextDetail
         {
@@ -95,7 +107,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder
         public Action<int>? OnRequestOpenDeliveryNote { get; set; }
 
         public JobOrderViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!){
             ListVM = new SavedJobOrdersListViewModel();
             DetailVM = new JobOrderDetailViewModel();
 
@@ -160,7 +174,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.CouldNotOpenJobOrder"), ex.Message),
                     LocalizationService.Instance.T("Dashboard.JobOrders"),
                     System.Windows.MessageBoxButton.OK,
@@ -199,13 +213,13 @@ namespace ProGlassAutomation.ViewModels.JobOrder
                 var version = await ProGlassAutomation.Services.Audit
                     .VersionHistoryService.GetByIdAsync(versionId);
 
-                if (version == null || App.Jobs == null) return;
+                if (version == null || _jobs == null) return;
 
-                var entity = await App.Jobs.GetByJobOrderIdAsync(version.EntityId);
+                var entity = await _jobs.GetByJobOrderIdAsync(version.EntityId);
 
                 if (entity == null)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.JobOrderXNoLonger"), version.EntityId),
                         LocalizationService.Instance.T("Msg.CapRestoreVersion"),
                         System.Windows.MessageBoxButton.OK,
@@ -221,7 +235,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
 
                 if (!ok)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         LocalizationService.Instance.T("Msg.VersionCouldNotBeApplied"),
                         LocalizationService.Instance.T("Msg.CapRestoreVersion"),
                         System.Windows.MessageBoxButton.OK,

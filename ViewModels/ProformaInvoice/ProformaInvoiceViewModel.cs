@@ -28,6 +28,10 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.MasterData.Repository;
+using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice
 {
     public class ProformaInvoiceViewModel : ViewModelBase,
@@ -170,24 +174,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             FromInquiry = 2
         }
 
-        public ProformaInvoiceViewModel()
+        private readonly IDialogService _dialogs = null!;
+        private readonly IProformaInvoiceRepository _invoices = null!;
+        private readonly IMasterDataRepository _masterData = null!;
+        private readonly ISpecificationsRepository _specs = null!;
+
+        
+        public ProformaInvoiceViewModel(IDialogService? dialogs,
+            IProformaInvoiceRepository? invoices,
+            IMasterDataRepository? masterData,
+            ISpecificationsRepository? specs)
+        {
+            _dialogs = dialogs!;
+            _invoices = invoices!;
+            _masterData = masterData!;
+            _specs = specs!;
+        }
+public ProformaInvoiceViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService(),
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
+            App.ServiceProvider?.GetService<IMasterDataRepository>()!,
+            App.ServiceProvider?.GetService<ISpecificationsRepository>()!)
         {
             Step1VM = new Step1CompanySetup.CompanySetupViewModel(
-                stepNumber => GoToStep(stepNumber));
+                _invoices, _masterData, stepNumber => GoToStep(stepNumber));
 
-            Step2VM = new Step2ClientProfile.ClientProfileViewModel();
-            Step3VM = new Step3ProjectSpecs.ProjectSpecsViewModel();
+            Step2VM = new Step2ClientProfile.ClientProfileViewModel(_masterData);
+            Step3VM = new Step3ProjectSpecs.ProjectSpecsViewModel(_masterData);
 
-            Step4VM = new Step4PricingEstimator.PricingEstimatorViewModel();
-            Step5VM = new Step5DataGrid.DataGridViewModel();
+            Step4VM = new Step4PricingEstimator.PricingEstimatorViewModel(_dialogs, _specs);
+            Step5VM = new Step5DataGrid.DataGridViewModel(_dialogs);
             Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
             Step6VM.BindStep4Pricing(() => Step4VM.CaptureSectionSnapshots());
             Step6VM.BindLaminationEditors(Step4VM.LamVM, Step4VM.DguLamVM);
 
             Step7VM = new Step7PrintPreview.PrintPreviewViewModel(
-                Step1VM, Step2VM, Step3VM, Step5VM, Step6VM);
+                _dialogs, _invoices, Step1VM, Step2VM, Step3VM, Step5VM, Step6VM);
 
-            Step8VM = new Step8Attachments.AttachmentsStepViewModel(Step1VM);
+            Step8VM = new Step8Attachments.AttachmentsStepViewModel(_dialogs, Step1VM);
 
             Step9VM = new Step9ProfitLoss.ProfitLossStepViewModel();
             Step9VM.Bind(
@@ -476,11 +500,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
         private async Task LoadInvoiceIntoWizardAsync(int invoiceId)
         {
-            if (App.Invoices == null) return;
-            var entity = await App.Invoices.GetByIdAsync(invoiceId);
+            if (_invoices == null) return;
+            var entity = await _invoices.GetByIdAsync(invoiceId);
             if (entity == null)
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.SelectedInvoiceCouldNotBe"), LocalizationService.Instance.T("Msg.CapLoadFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                _dialogs.Show(LocalizationService.Instance.T("Msg.SelectedInvoiceCouldNotBe"), LocalizationService.Instance.T("Msg.CapLoadFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
@@ -541,7 +565,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(wrapper);
             if (snapshot == null)
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.VersionCouldNotBeRead"), LocalizationService.Instance.T("Msg.CapRestoreVersion"), MessageBoxButton.OK, MessageBoxImage.Warning);
+                _dialogs.Show(LocalizationService.Instance.T("Msg.VersionCouldNotBeRead"), LocalizationService.Instance.T("Msg.CapRestoreVersion"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             Step7VM.InvoiceMainSummary.BeginBatchUpdate();

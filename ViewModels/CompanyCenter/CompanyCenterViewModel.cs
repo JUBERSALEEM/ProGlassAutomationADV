@@ -25,6 +25,9 @@ using System.Linq;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.MasterData.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.CompanyCenter
 {
     /// <summary>One company card on the Company Center page.</summary>
@@ -49,6 +52,15 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
 
     public sealed class CompanyCenterViewModel : ViewModelBase
     {
+        private readonly IDialogService _dialogs = null!;
+        private readonly IMasterDataRepository _masterData = null!;
+
+        public CompanyCenterViewModel(IDialogService? dialogs, IMasterDataRepository? masterData)
+        {
+            _dialogs = dialogs!;
+            _masterData = masterData!;
+        }
+
         private readonly ObservableCollection<CompanyCard> _companies = new();
         public ObservableCollection<CompanyCard> Companies => _companies;
 
@@ -150,7 +162,9 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         public ICommand RefreshCommand { get; }
 
         public CompanyCenterViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IMasterDataRepository>()!){
             NewCompanyCommand = new RelayCommand(_ => BeginEdit(null));
             SelectCompanyCommand = new RelayCommand(p =>
                 BeginEdit(p as CompanyCard));
@@ -168,7 +182,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
 
                 try
                 {
-                    if (App.MasterData == null)
+                    if (_masterData == null)
                     {
                         Status = "Master data service unavailable.";
                         return;
@@ -195,13 +209,13 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                     // Enforce single default company.
                     if (entity.IsDefault)
                     {
-                        foreach (var c in await App.MasterData
+                        foreach (var c in await _masterData
                             .GetAllCompaniesAsync())
                         {
                             if (c.Id != entity.Id && c.IsDefault)
                             {
                                 c.IsDefault = false;
-                                await App.MasterData.SaveOrUpdateCompanyAsync(c);
+                                await _masterData.SaveOrUpdateCompanyAsync(c);
                             }
                         }
                     }
@@ -214,7 +228,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                     {
                         try
                         {
-                            var previous = (await App.MasterData
+                            var previous = (await _masterData
                                     .GetAllCompaniesAsync())
                                 .FirstOrDefault(c => c.Id == _editingId);
 
@@ -228,7 +242,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         }
                     }
 
-                    await App.MasterData.SaveOrUpdateCompanyAsync(entity);
+                    await _masterData.SaveOrUpdateCompanyAsync(entity);
 
                     string reason = ReasonNote.Trim();
 
@@ -256,7 +270,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             {
                 if (p is not CompanyCard card) return;
 
-                var result = App.Dialogs.Show(
+                var result = _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DeleteCompanyXExistingInvoices"), card.CompanyName),
                     LocalizationService.Instance.T("Msg.CapDeleteCompany"),
                     System.Windows.MessageBoxButton.YesNo,
@@ -266,8 +280,8 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
 
                 try
                 {
-                    if (App.MasterData == null) return;
-                    await App.MasterData.DeleteCompanyAsync(card.Id);
+                    if (_masterData == null) return;
+                    await _masterData.DeleteCompanyAsync(card.Id);
                     AuditService.Log(AuditSections.Settings,
                         "Company deleted", card.CompanyName);
                     Status = "Deleted: " + card.CompanyName;
@@ -326,11 +340,11 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         public async System.Threading.Tasks.Task LoadAsync()
         {
             _companies.Clear();
-            if (App.MasterData == null) return;
+            if (_masterData == null) return;
 
             try
             {
-                foreach (var c in (await App.MasterData.GetAllCompaniesAsync())
+                foreach (var c in (await _masterData.GetAllCompaniesAsync())
                     .OrderByDescending(x => x.IsDefault)
                     .ThenByDescending(x => x.UsageCount))
                 {
@@ -369,7 +383,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             OnPropertyChanged(nameof(EditorTitle));
 
             // When editing, hydrate the remaining profile fields.
-            if (card != null && App.MasterData != null)
+            if (card != null && _masterData != null)
             {
                 _ = HydrateAsync(card.Id);
             }
@@ -382,7 +396,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         {
             try
             {
-                var all = await App.MasterData!.GetAllCompaniesAsync();
+                var all = await _masterData!.GetAllCompaniesAsync();
                 var entity = all.FirstOrDefault(x => x.Id == id);
                 if (entity == null) return;
 

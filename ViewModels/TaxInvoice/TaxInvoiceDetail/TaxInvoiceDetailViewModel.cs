@@ -19,6 +19,11 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.TaxInvoice.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 {
     /// <summary>
@@ -41,6 +46,19 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
     /// </summary>
     public class TaxInvoiceDetailViewModel : ViewModelBase
     {
+        private readonly IDeliveryNoteRepository _deliveryNotes = null!;
+        private readonly IDialogService _dialogs = null!;
+        private readonly IProformaInvoiceRepository _invoices = null!;
+        private readonly ITaxInvoiceRepository _taxInvoices = null!;
+
+        public TaxInvoiceDetailViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IProformaInvoiceRepository? invoices, ITaxInvoiceRepository? taxInvoices)
+        {
+            _deliveryNotes = deliveryNotes!;
+            _dialogs = dialogs!;
+            _invoices = invoices!;
+            _taxInvoices = taxInvoices!;
+        }
+
         public Action? OnRequestBackToList { get; set; }
 
         // ── Navigation guard ─────────────────────────────────────────────
@@ -621,7 +639,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         // ══════════════════════════════════════════════════════════════════
 
         public TaxInvoiceDetailViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
             SaveCommand = new RelayCommand(
                 async _ => await SaveAsync(),
                 _ => !_isSaving && !_isLoading);
@@ -674,7 +696,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             DeleteCommand = new RelayCommand(async _ =>
             {
                 if (IsNewInvoice) return;
-                var result = App.Dialogs.Show(
+                var result = _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DeleteInvoiceXThisCannot"), _editingInvoiceNumber),
                     LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                     MessageBoxButton.YesNo,
@@ -684,12 +706,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 try
                 {
-                    await App.TaxInvoices!.DeleteAsync(_editingId);
+                    await _taxInvoices!.DeleteAsync(_editingId);
                     OnRequestBackToList?.Invoke();
                 }
                 catch (Exception ex)
                 {
-                    App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
+                    _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
                         LocalizationService.Instance.T("Msg.CapDeleteFailed"), MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
@@ -748,7 +770,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         private async Task NavigateToFamilyMemberAsync(
             TaxInvoiceRowViewModel target)
         {
-            if (App.TaxInvoices == null) return;
+            if (_taxInvoices == null) return;
             if (_isNavigatingFamily) return;
             if (target.Id == _editingId) return;
 
@@ -759,7 +781,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 var result = await Task.Run(async () =>
                 {
-                    var ent = await App.TaxInvoices.GetByIdAsync(target.Id);
+                    var ent = await _taxInvoices.GetByIdAsync(target.Id);
                     if (ent == null) return ((SavedTaxInvoice?)null, (TaxInvoiceSnapshot?)null);
                     var snap = TaxInvoiceMapper.DeserializeSnapshot(ent);
                     return (ent, snap);
@@ -815,13 +837,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 IsLoading = true;
                 StatusMessage = "";
 
-                if (App.TaxInvoices == null)
+                if (_taxInvoices == null)
                 {
                     StatusMessage = "Database not initialized.";
                     return;
                 }
 
-                var entity = await App.TaxInvoices.GetByIdAsync(id);
+                var entity = await _taxInvoices.GetByIdAsync(id);
                 if (entity == null)
                 {
                     StatusMessage = $"Invoice #{id} not found.";
@@ -944,10 +966,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 if (version == null ||
                     string.IsNullOrEmpty(version.SnapshotJson) ||
-                    App.TaxInvoices == null)
+                    _taxInvoices == null)
                     return false;
 
-                var entity = await App.TaxInvoices
+                var entity = await _taxInvoices
                     .GetByInvoiceNumberAsync(version.EntityId);
                 if (entity == null) return false;
 
@@ -982,14 +1004,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
         private async Task LoadFamilyAsync(string proformaId)
         {
-            if (App.TaxInvoices == null ||
+            if (_taxInvoices == null ||
                 string.IsNullOrWhiteSpace(proformaId))
                 return;
 
             try
             {
                 // Fetch the family
-                var family = await App.TaxInvoices.GetFamilyAsync(proformaId);
+                var family = await _taxInvoices.GetFamilyAsync(proformaId);
                 if (family == null || family.Members == null)
                 {
                     FamilyMembers = new ObservableCollection<TaxInvoiceRowViewModel>();
@@ -1012,7 +1034,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 // Load attachment counts per member
                 var invoiceNumbers = memberVms
                     .Select(m => m.InvoiceNumber).ToList();
-                var counts = await App.TaxInvoices
+                var counts = await _taxInvoices
                     .GetAttachmentCountsAsync(invoiceNumbers);
 
                 foreach (var vm in memberVms)
@@ -1065,7 +1087,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
         public async Task InitFromDeliveryNoteAsync(string deliveryNoteId)
         {
-            if (App.DeliveryNotes == null
+            if (_deliveryNotes == null
                 || string.IsNullOrWhiteSpace(deliveryNoteId))
             {
                 StatusMessage = "Delivery Note database not initialized.";
@@ -1077,7 +1099,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 IsLoading = true;
                 StatusMessage = $"Loading DN '{deliveryNoteId}'…";
 
-                var dnEntity = await App.DeliveryNotes
+                var dnEntity = await _deliveryNotes
                     .GetByDeliveryNoteIdAsync(deliveryNoteId);
 
                 if (dnEntity == null)
@@ -1120,7 +1142,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (Exception ex)
             {
                 StatusMessage = $"Init from DN failed: {ex.Message}";
-                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToImportDNData"), ex.Message),
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToImportDNData"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapImportFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1132,7 +1154,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
         public async Task InitFromDeliveryNoteFamilyAsync(string proformaId)
         {
-            if (App.DeliveryNotes == null
+            if (_deliveryNotes == null
                 || string.IsNullOrWhiteSpace(proformaId))
             {
                 StatusMessage = "Delivery Note database not initialized.";
@@ -1144,7 +1166,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 IsLoading = true;
                 StatusMessage = $"Loading all deliveries for '{proformaId}'…";
 
-                var allDns = await App.DeliveryNotes.GetAllAsync();
+                var allDns = await _deliveryNotes.GetAllAsync();
                 var siblingDnIds = allDns
                     .Where(d => string.Equals(d.ProformaId, proformaId,
                         StringComparison.OrdinalIgnoreCase))
@@ -1163,7 +1185,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 foreach (var dnId in siblingDnIds)
                 {
-                    var dn = await App.DeliveryNotes
+                    var dn = await _deliveryNotes
                         .GetByDeliveryNoteIdAsync(dnId);
                     if (dn == null) continue;
 
@@ -1209,7 +1231,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (Exception ex)
             {
                 StatusMessage = $"Master import failed: {ex.Message}";
-                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapImportFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1237,20 +1259,20 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             ProformaId = proformaId;
             DeliveryNoteReference = dnReferenceLabel;
 
-            if (App.TaxInvoices != null)
+            if (_taxInvoices != null)
             {
-                var summary = await App.TaxInvoices
+                var summary = await _taxInvoices
                     .GetFamilySummaryAsync(proformaId);
                 PreviouslyInvoicedTotal = summary.TotalInvoiced;
             }
 
-            if (App.Invoices == null)
+            if (_invoices == null)
             {
                 StatusMessage = "";
                 return;
             }
 
-            var piEntity = await App.Invoices.GetByProformaIdAsync(proformaId);
+            var piEntity = await _invoices.GetByProformaIdAsync(proformaId);
 
             if (piEntity == null)
             {
@@ -1451,7 +1473,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 IsSaving = true;
                 StatusMessage = "Saving…";
 
-                if (App.TaxInvoices == null)
+                if (_taxInvoices == null)
                 {
                     StatusMessage = "Database not initialized.";
                     return;
@@ -1463,17 +1485,17 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 if (IsNewInvoice)
                 {
-                    int seq = await App.TaxInvoices
+                    int seq = await _taxInvoices
                         .GetNextSequenceNumberAsync(ProformaId);
-                    bool hasExisting = await App.TaxInvoices
+                    bool hasExisting = await _taxInvoices
                         .HasAnyInvoiceAsync(ProformaId);
                     string letter = hasExisting
-                        ? await App.TaxInvoices
+                        ? await _taxInvoices
                             .GetNextSequenceLetterAsync(ProformaId)
                         : "";
-                    string invoiceNum = await App.TaxInvoices
+                    string invoiceNum = await _taxInvoices
                         .BuildInvoiceNumberAsync(ProformaId, letter);
-                    bool exists = await App.TaxInvoices
+                    bool exists = await _taxInvoices
                         .ExistsByInvoiceNumberAsync(invoiceNum);
 
                     if (exists)
@@ -1485,7 +1507,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     var entity = TaxInvoiceMapper.BuildEntity(
                         state, invoiceNum, seq, letter);
                     savedSnapshotJson = entity.FullSnapshotJson;
-                    var saved = await App.TaxInvoices.InsertAsync(entity);
+                    var saved = await _taxInvoices.InsertAsync(entity);
                     _editingId = saved.Id;
                     _editingInvoiceNumber = saved.InvoiceNumber;
                     savedInvoiceNumber = saved.InvoiceNumber;
@@ -1494,7 +1516,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 }
                 else
                 {
-                    var entity = await App.TaxInvoices.GetByIdAsync(_editingId);
+                    var entity = await _taxInvoices.GetByIdAsync(_editingId);
                     if (entity == null)
                     {
                         StatusMessage = "Invoice not found — cannot update.";
@@ -1508,7 +1530,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     updated.CreatedAt = entity.CreatedAt;
                     savedSnapshotJson = updated.FullSnapshotJson;
 
-                    await App.TaxInvoices.UpdateAsync(updated);
+                    await _taxInvoices.UpdateAsync(updated);
                     savedInvoiceNumber = entity.InvoiceNumber;
                     StatusMessage = $"✅ Updated {entity.InvoiceNumber}";
                 }
@@ -1554,7 +1576,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (Exception ex)
             {
                 StatusMessage = $"Save failed: {ex.Message}";
-                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ex.Message),
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1582,7 +1604,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         /// </summary>
         private async Task MarkDnsAsInvoicedAsync(string taxInvoiceId)
         {
-            if (App.DeliveryNotes == null) return;
+            if (_deliveryNotes == null) return;
             if (string.IsNullOrWhiteSpace(DeliveryNoteReference)) return;
             if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
 
@@ -1597,7 +1619,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 if (dnIds.Count == 0) return;
 
                 // Mark all referenced DNs as invoiced in one DB call
-                await App.DeliveryNotes.MarkMultipleAsInvoicedAsync(
+                await _deliveryNotes.MarkMultipleAsInvoicedAsync(
                     dnIds, taxInvoiceId);
 
                 AppLogService.Debug(
@@ -1664,27 +1686,27 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
         private async Task ExportPdfAsync()
         {
-            if (App.TaxInvoices == null || _editingId == 0) return;
+            if (_taxInvoices == null || _editingId == 0) return;
 
             try
             {
                 IsSaving = true;
                 StatusMessage = "Generating PDF…";
 
-                var entity = await App.TaxInvoices.GetByIdAsync(_editingId);
+                var entity = await _taxInvoices.GetByIdAsync(_editingId);
                 if (entity == null)
                 {
                     StatusMessage = "Invoice not found.";
                     return;
                 }
 
-                var attachments = await App.TaxInvoices
+                var attachments = await _taxInvoices
                     .GetAttachmentsAsync(entity.InvoiceNumber);
 
                 bool includeAttachments = false;
                 if (attachments != null && attachments.Count > 0)
                 {
-                    var choice = App.Dialogs.Show(
+                    var choice = _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.InvoiceHasXAttachmentS"), attachments.Count),
                         LocalizationService.Instance.T("Msg.CapIncludeAttachments"),
                         MessageBoxButton.YesNo,
@@ -1705,7 +1727,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 StatusMessage = $"✅ PDF saved: {System.IO.Path.GetFileName(savedPath)}";
 
-                var open = App.Dialogs.Show(
+                var open = _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.PDFSavedXOpenNow"), savedPath),
                     LocalizationService.Instance.T("Msg.CapPDFReady"), MessageBoxButton.YesNo,
                     MessageBoxImage.Information);
@@ -1722,14 +1744,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (ReadOnlyModeException ex)
             {
                 StatusMessage = ex.UserMessage;
-                App.Dialogs.Show(ex.UserMessage,
+                _dialogs.Show(ex.UserMessage,
                     LocalizationService.Instance.T("Msg.CapReadOnlyMode"), MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 StatusMessage = $"PDF export failed: {ex.Message}";
-                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapPDFExportFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1812,7 +1834,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 if (bytes.Length > 10 * 1024 * 1024)
                 {
-                    App.Dialogs.Show(LocalizationService.Instance.T("Msg.FileIsLargerThan10"),
+                    _dialogs.Show(LocalizationService.Instance.T("Msg.FileIsLargerThan10"),
                         LocalizationService.Instance.T("Msg.CapFileTooLarge"), MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return;
@@ -1847,7 +1869,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 Attachments.Add(vm);
 
-                if (!IsNewInvoice && App.TaxInvoices != null
+                if (!IsNewInvoice && _taxInvoices != null
                     && !string.IsNullOrWhiteSpace(_editingInvoiceNumber))
                 {
                     var attachEntity = new TaxInvoiceAttachment
@@ -1861,7 +1883,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                         Description = vm.Description
                     };
 
-                    var saved = await App.TaxInvoices.AddAttachmentAsync(attachEntity);
+                    var saved = await _taxInvoices.AddAttachmentAsync(attachEntity);
                     vm.Id = saved.Id;
 
                     // Update count directly — no DB round-trip needed
@@ -1872,7 +1894,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapAttachmentError"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1880,7 +1902,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
         private async Task RemoveAttachmentAsync(InvAttachmentViewModel vm)
         {
-            var result = App.Dialogs.Show(
+            var result = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.RemoveX"), vm.FileName),
                 LocalizationService.Instance.T("Msg.CapConfirmRemove"),
                 MessageBoxButton.YesNo,
@@ -1890,8 +1912,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
             try
             {
-                if (vm.Id > 0 && App.TaxInvoices != null)
-                    await App.TaxInvoices.DeleteAttachmentAsync(vm.Id);
+                if (vm.Id > 0 && _taxInvoices != null)
+                    await _taxInvoices.DeleteAttachmentAsync(vm.Id);
 
                 Attachments.Remove(vm);
 
@@ -1902,13 +1924,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (ReadOnlyModeException ex)
             {
-                App.Dialogs.Show(ex.UserMessage,
+                _dialogs.Show(ex.UserMessage,
                     LocalizationService.Instance.T("Msg.CapReadOnlyMode"), MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapRemoveFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1922,49 +1944,49 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         {
             if (string.IsNullOrWhiteSpace(ProformaId))
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.ProformaInvoiceReferenceIsRequired"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.ProformaInvoiceReferenceIsRequired"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(CustomerName))
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.CustomerNameIsRequired"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.CustomerNameIsRequired"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (!IsTrnValid)
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.CompanyTRNMustBeExactly"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.CompanyTRNMustBeExactly"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (DueDate < IssueDate)
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.DueDateCannotBeEarlier"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.DueDateCannotBeEarlier"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (SpecGroups.Count == 0 || SpecGroups.All(g => g.Rows.Count == 0))
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.LeastOneGlassItemRow"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.LeastOneGlassItemRow"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (SpecGroups.SelectMany(g => g.Rows).Any(r => r.Qty <= 0))
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.InvoiceRowsMustHaveQty"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.InvoiceRowsMustHaveQty"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
 
             if (GrandTotal <= 0m)
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.GrandTotalMustBeGreater"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.GrandTotalMustBeGreater"),
                     LocalizationService.Instance.T("Msg.CapValidation"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
@@ -2213,7 +2235,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 Application.Current?.MainWindow, drafts);
             if (selected == null || selected.Count == 0) return;
 
-            if (App.TaxInvoices == null)
+            if (_taxInvoices == null)
             {
                 StatusMessage = "Database not initialized.";
                 return;
@@ -2233,7 +2255,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 foreach (var member in others)
                 {
-                    await App.TaxInvoices.UpdateStatusAsync(
+                    await _taxInvoices.UpdateStatusAsync(
                         member.InvoiceNumber, "Issued");
                     AuditService.Log(
                         AuditSections.TaxInvoice, "Tax invoice issued",
@@ -2269,7 +2291,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (Exception ex)
             {
                 StatusMessage = $"Issue all failed: {ex.Message}";
-                App.Dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.CouldNotIssueInvoicesX"), ex.Message),
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.CouldNotIssueInvoicesX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapIssueAllFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }

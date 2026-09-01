@@ -14,6 +14,11 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.TaxInvoice.Repository;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.TaxInvoice
 {
     /// <summary>
@@ -44,6 +49,19 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
     public class TaxInvoiceViewModel : ViewModelBase, IDisposable,
         ProGlassAutomation.Agent.Context.IAgentContextAware
     {
+        private readonly IDeliveryNoteRepository _deliveryNotes = null!;
+        private readonly IDialogService _dialogs = null!;
+        private readonly IProformaInvoiceRepository _invoices = null!;
+        private readonly ITaxInvoiceRepository _taxInvoices = null!;
+
+        public TaxInvoiceViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IProformaInvoiceRepository? invoices, ITaxInvoiceRepository? taxInvoices)
+        {
+            _deliveryNotes = deliveryNotes!;
+            _dialogs = dialogs!;
+            _invoices = invoices!;
+            _taxInvoices = taxInvoices!;
+        }
+
         // Phase 4: Named handler for static event — detachable
         private Func<Task>? _dataSeededHandler;
         private bool _disposed;
@@ -141,7 +159,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         // ═════════════════════════════════════════════════════════════════
 
         public TaxInvoiceViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
             ListVM = new TaxInvoiceListViewModel();
             // Phase 4: Named handler — detachable, no lambda leak
             _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
@@ -271,9 +293,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                 var existingDraft = await CheckForExistingDraftAsync(proformaId);
                 if (existingDraft.OpenExisting) return;
 
-                if (App.DeliveryNotes != null)
+                if (_deliveryNotes != null)
                 {
-                    var siblings = await App.DeliveryNotes.GetAllAsync();
+                    var siblings = await _deliveryNotes.GetAllAsync();
                     bool hasDelivered = siblings.Any(d =>
                         string.Equals(d.ProformaId, proformaId,
                             StringComparison.OrdinalIgnoreCase)
@@ -284,7 +306,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                             StringComparison.OrdinalIgnoreCase));
                     if (!hasDelivered)
                     {
-                        App.Dialogs.Show(
+                        _dialogs.Show(
                             LocalizationService.Instance.T("Msg.DispatchedDeliveryYetForThis"),
                             LocalizationService.Instance.T("Msg.CapNothingToInvoice"),
                             MessageBoxButton.OK,
@@ -300,7 +322,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToCreateMasterInvoice"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
@@ -326,9 +348,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             string deliveryNoteId)
         {
             if (string.IsNullOrWhiteSpace(deliveryNoteId)) return "";
-            if (App.DeliveryNotes == null) return "";
+            if (_deliveryNotes == null) return "";
 
-            var dn = await App.DeliveryNotes
+            var dn = await _deliveryNotes
                 .GetByDeliveryNoteIdAsync(deliveryNoteId);
             if (dn == null || dn.IsMasterDn) return "";
             if (dn.HasTaxInvoice) return dn.TaxInvoiceId ?? "";
@@ -346,17 +368,17 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         public async Task CreateFromDeliveryNoteAsync(string deliveryNoteId)
         {
             if (string.IsNullOrWhiteSpace(deliveryNoteId)) return;
-            if (App.DeliveryNotes == null) return;
+            if (_deliveryNotes == null) return;
 
             try
             {
                 // Look up the DN's ProformaId first — needed for draft check
-                var dn = await App.DeliveryNotes
+                var dn = await _deliveryNotes
                     .GetByDeliveryNoteIdAsync(deliveryNoteId);
 
                 if (dn == null)
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.DeliveryNoteXNotFound2"), deliveryNoteId),
                         LocalizationService.Instance.T("Msg.CapFound"),
                         MessageBoxButton.OK,
@@ -366,7 +388,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
 
                 if (string.IsNullOrWhiteSpace(dn.ProformaId))
                 {
-                    App.Dialogs.Show(
+                    _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.DNXHasNoLinked"), deliveryNoteId),
                         LocalizationService.Instance.T("Msg.CapPIReference"),
                         MessageBoxButton.OK,
@@ -384,7 +406,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo2"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapConvertFailed"),
                     MessageBoxButton.OK,
@@ -399,9 +421,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
 
         private async Task OpenProformaPickerAsync()
         {
-            if (App.Invoices == null)
+            if (_invoices == null)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.ProformaInvoiceDatabaseNotInitialized"),
                     LocalizationService.Instance.T("Msg.CapError"),
                     MessageBoxButton.OK,
@@ -439,9 +461,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
 
                 // Check if any DN exists for this PI
                 bool hasDeliveries = false;
-                if (App.DeliveryNotes != null)
+                if (_deliveryNotes != null)
                 {
-                    var allDns = await App.DeliveryNotes.GetAllAsync();
+                    var allDns = await _deliveryNotes.GetAllAsync();
                     hasDeliveries = allDns.Any(d =>
                         string.Equals(d.ProformaId, proformaId,
                             StringComparison.OrdinalIgnoreCase)
@@ -456,7 +478,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                 else
                 {
                     // No deliveries yet — full PI import (advance invoice case)
-                    var choice = App.Dialogs.Show(
+                    var choice = _dialogs.Show(
                         string.Format(LocalizationService.Instance.T("Msg.DeliveredItemsFoundForX"), proformaId),
                         LocalizationService.Instance.T("Msg.CapDeliveriesYet"),
                         MessageBoxButton.YesNo,
@@ -472,7 +494,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             }
             catch (Exception ex)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToCreateInvoiceX"), ex.Message),
                     LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
@@ -487,10 +509,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         private async Task<(bool OpenExisting, bool ProceedWithNew)>
             CheckForExistingDraftAsync(string proformaId)
         {
-            if (App.TaxInvoices == null)
+            if (_taxInvoices == null)
                 return (false, true);
 
-            var existing = await App.TaxInvoices
+            var existing = await _taxInvoices
                 .GetByProformaIdAsync(proformaId);
 
             var existingDraft = existing.Count > 0
@@ -502,7 +524,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             if (existingDraft == null)
                 return (false, true);
 
-            var choice = App.Dialogs.Show(
+            var choice = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DraftInvoiceAlreadyExistsFor"), proformaId, existingDraft.InvoiceNumber, existingDraft.IssueDate.ToString("dd MMM yyyy", LocalizationService.Instance.CurrentCulture), existingDraft.GrandTotal.ToString("N2", LocalizationService.Instance.CurrentCulture)),
                 LocalizationService.Instance.T("Msg.CapDraftInvoiceExists"),
                 MessageBoxButton.YesNoCancel,

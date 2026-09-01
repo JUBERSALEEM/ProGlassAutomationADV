@@ -25,10 +25,22 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.Network;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.SystemCenter
 {
     public class SystemCenterViewModel : ViewModelBase, IDisposable
     {
+        private readonly IDialogService _dialogs = null!;
+        private readonly UserPresenceService _presence = null!;
+
+        public SystemCenterViewModel(IDialogService? dialogs, UserPresenceService? presence)
+        {
+            _dialogs = dialogs!;
+            _presence = presence!;
+        }
+
         // Phase 4: Named handlers for static events — detachable
         private EventHandler? _currentUserChangedHandler;
         private bool _disposed;
@@ -47,7 +59,9 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         private DateTime _lastUsersLoadUtc = DateTime.MinValue;
 
         public SystemCenterViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<UserPresenceService>()?? App.Presence){
             // ── Tab state ─────────────────────────────────────────────
             SwitchTabCommand = new RelayCommand(param =>
             {
@@ -92,9 +106,9 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             AuditService.CurrentUserChanged += _currentUserChangedHandler;
 
             // Same-network presence (UDP heartbeats from colleagues).
-            if (App.Presence != null)
+            if (_presence != null)
             {
-                App.Presence.PeersChanged += (_, __) => RefreshPeers();
+                _presence.PeersChanged += (_, __) => RefreshPeers();
                 RefreshPeers();
             }
         }
@@ -120,7 +134,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             void Update()
             {
                 OnlinePeers.Clear();
-                foreach (var peer in App.Presence?.GetPeers() ?? new())
+                foreach (var peer in _presence?.GetPeers() ?? new())
                     OnlinePeers.Add(peer);
                 HasPeers = OnlinePeers.Count > 0;
             }
@@ -263,7 +277,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
 
             if (!ok)
             {
-                App.Dialogs.Show(
+                _dialogs.Show(
                     LocalizationService.Instance.T("Msg.CannotChangeThisUserThe"),
                     LocalizationService.Instance.T("SystemCenter.Users"),
                     MessageBoxButton.OK,

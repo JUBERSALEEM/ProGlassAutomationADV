@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
 {
     /// <summary>
@@ -26,6 +28,18 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
     /// </summary>
     public class DeliveryReportViewModel : ReportBaseViewModel
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public DeliveryReportViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+        {
+        }
+
+        public DeliveryReportViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         /// <summary>Sentinel shown at the top of every filter dropdown.</summary>
         public const string AllFilter = "All";
 
@@ -328,7 +342,7 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
                 if (format == ExportFormat.Csv) res = await ReportingExportService.ExportCsvAsync(Rows.ToList(), "Delivery Report", ReportingExportService.DnHeaders, ReportingExportService.DnMap, req);
                 else if (format == ExportFormat.Excel) res = await ReportingExportService.ExportExcelAsync(Rows.ToList(), "Delivery Report", ReportingExportService.DnHeaders, ReportingExportService.DnMapExcel, req);
                 else res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Delivery Report", ReportingExportService.DnHeaders, ReportingExportService.DnMap, req);
-                if (!res.Success && !res.Cancelled) App.Dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                if (!res.Success && !res.Cancelled) _dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
         }

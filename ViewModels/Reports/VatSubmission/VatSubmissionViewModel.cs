@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
 {
     /// <summary>
@@ -18,6 +20,18 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
     /// </summary>
     public class VatSubmissionViewModel : ReportBaseViewModel
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public VatSubmissionViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService())
+        {
+        }
+
+        public VatSubmissionViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         public VatSubmissionViewModel(IReportingDataService? service = null) 
             : base(service ?? new ReportingDataService())
         {
@@ -245,7 +259,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
                         VatHeaders, VatMap, req);
                 
                 if (!res.Success && !res.Cancelled) 
-                    App.Dialogs.Show(res.ErrorMessage ?? "Export failed.", 
+                    _dialogs.Show(res.ErrorMessage ?? "Export failed.", 
                         LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }

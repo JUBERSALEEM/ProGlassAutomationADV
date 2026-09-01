@@ -27,11 +27,20 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 
+using ProGlassAutomation.Services.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.SheetStore
 {
     public class SheetStoreViewModel : ViewModelBase,
         ProGlassAutomation.Agent.Context.IAgentContextAware
     {
+        private readonly IDialogService _dialogs = null!;
+
+        public SheetStoreViewModel(IDialogService? dialogs)
+        {
+            _dialogs = dialogs!;
+        }
+
         // ══════════════════════════════════════════════════════════════
         //  AGENT CONTEXT (opt-in, read-only)
         //
@@ -241,7 +250,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ICommand ExportPdfCommand { get; }
 
         public SheetStoreViewModel()
-        {
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService()){
             _repo = new SheetStoreRepository();
             _historyRepo = new SheetHistoryRepository();
             _csvService = new SheetStoreCsvService();
@@ -506,7 +516,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         }
 
         private void ShowError(string message) =>
-            App.Dialogs.Show(message, LocalizationService.Instance.T("Msg.CapError"), MessageBoxButton.OK, MessageBoxImage.Error);
+            _dialogs.Show(message, LocalizationService.Instance.T("Msg.CapError"), MessageBoxButton.OK, MessageBoxImage.Error);
 
         // ============ CSV EXPORT ============
 
@@ -514,7 +524,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (!Sheets.Any())
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
                     LocalizationService.Instance.T("DeliveryNote.ExportCSV"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -531,7 +541,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             try
             {
                 await _csvService.ExportAsync(dialog.FileName, Sheets.ToList());
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ExportedXSheetsToY"), Sheets.Count, dialog.FileName),
                     LocalizationService.Instance.T("Msg.CapExportComplete"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -547,7 +557,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (!Sheets.Any())
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
                     LocalizationService.Instance.T("DeliveryNote.ExportExcel"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -564,7 +574,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             try
             {
                 await _excelService.ExportAsync(dialog.FileName, Sheets.ToList(), BuildFilterInfoString());
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ExportedXSheetsToExcel"), Sheets.Count, dialog.FileName),
                     LocalizationService.Instance.T("Msg.CapExportComplete"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -580,7 +590,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (!Sheets.Any())
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
                     LocalizationService.Instance.T("DeliveryNote.ExportPDF"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -597,7 +607,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             try
             {
                 await _pdfService.GenerateReportAsync(dialog.FileName, Sheets.ToList(), BuildFilterInfoString());
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.PDFReportGeneratedXSheets"), Sheets.Count, dialog.FileName),
                     LocalizationService.Instance.T("Msg.CapExportComplete"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -632,7 +642,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             if (imported.Count == 0)
             {
-                App.Dialogs.Show(LocalizationService.Instance.T("Msg.CSVFileHasNoRows"),
+                _dialogs.Show(LocalizationService.Instance.T("Msg.CSVFileHasNoRows"),
                     LocalizationService.Instance.T("Msg.CapImportCSV"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
@@ -719,7 +729,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
                 await LoadAsync();
 
-                App.Dialogs.Show(
+                _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.ImportCompleteXNewSheets"), addedCount, stockAddedCount, updatedCount, skippedCount),
                     LocalizationService.Instance.T("Msg.CapImportSummary"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
@@ -846,7 +856,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 AppPermissions.SheetStoreDelete, "delete a glass sheet"))
                 return;
 
-            var result = App.Dialogs.Show(
+            var result = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.DeleteThisGlassSheetX"), sheet.Category, sheet.ThicknessDisplay, sheet.Color, sheet.SizeDisplay, sheet.Stock, sheet.TotalPurchaseValue),
                 LocalizationService.Instance.T("Msg.CapConfirmDelete"), MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
