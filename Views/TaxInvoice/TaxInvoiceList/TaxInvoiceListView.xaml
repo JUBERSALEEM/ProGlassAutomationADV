@@ -10,18 +10,15 @@
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True"
-             Loaded="OnLoaded">
+             SnapsToDevicePixels="True">>
 
     <UserControl.Resources>
 
         <Style x:Key="InvListBoxItemStyle" TargetType="ListBoxItem"
                BasedOn="{StaticResource ModuleListBoxItemStyle}"/>
 
-        <Style x:Key="InvTabInactiveStyle" TargetType="Button"
+        <Style x:Key="InvTabInactiveStyle" TargetType="RadioButton"
                BasedOn="{StaticResource ModuleListTabInactiveStyle}"/>
-        <Style x:Key="InvTabActiveStyle" TargetType="Button"
-               BasedOn="{StaticResource ModuleListTabActiveStyle}"/>
 
         <DataTemplate x:Key="FamilyRowTemplate">
             <Border Cursor="Hand"
@@ -402,21 +399,21 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Tag="&#xE8A5;" Content="{DynamicResource TaxInvoice.Families}"
+                    <RadioButton Grid.Column="0" GroupName="TiStatusTabs" Tag="&#xE8A5;" Content="{DynamicResource TaxInvoice.Families}"
                             CommandParameter="{Binding AllCount}"
-                            Click="OnTabClick" x:Name="TabAll"
-                            Style="{StaticResource InvTabActiveStyle}"/>
-                    <Button Grid.Column="1" Tag="&#xE70F;" Content="{DynamicResource TaxInvoice.Draft}"
+                            IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
+                            Style="{StaticResource InvTabInactiveStyle}"/>
+                    <RadioButton Grid.Column="1" GroupName="TiStatusTabs" Tag="&#xE70F;" Content="{DynamicResource TaxInvoice.Draft}"
                             CommandParameter="{Binding DraftCount}"
-                            Click="OnTabClick" x:Name="TabDraft"
+                            IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
                             Style="{StaticResource InvTabInactiveStyle}"/>
-                    <Button Grid.Column="2" Tag="&#xE72D;" Content="{DynamicResource TaxInvoice.Issued}"
+                    <RadioButton Grid.Column="2" GroupName="TiStatusTabs" Tag="&#xE72D;" Content="{DynamicResource TaxInvoice.Issued}"
                             CommandParameter="{Binding IssuedCount}"
-                            Click="OnTabClick" x:Name="TabIssued"
+                            IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
                             Style="{StaticResource InvTabInactiveStyle}"/>
-                    <Button Grid.Column="3" Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.FullyPAID}"
+                    <RadioButton Grid.Column="3" GroupName="TiStatusTabs" Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.FullyPAID}"
                             CommandParameter="{Binding PaidCount}"
-                            Click="OnTabClick" x:Name="TabPaid"
+                            IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
                             Style="{StaticResource InvTabInactiveStyle}"/>
                 </Grid>
 

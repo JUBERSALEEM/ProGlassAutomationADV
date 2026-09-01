@@ -22,42 +22,12 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
         private TaxInvoiceListViewModel? Vm =>
             DataContext as TaxInvoiceListViewModel;
 
-        private Button? _activeTab;
-
         public TaxInvoiceListView()
         {
             InitializeComponent();
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            _activeTab = TabAll;
-        }
-
         // ── Tab switching (4 tabs: All / Draft / Issued / Paid) ──────────
-
-        private void OnTabClick(object sender, RoutedEventArgs e)
-        {
-            if (sender is not Button clicked) return;
-
-            if (_activeTab != null)
-                _activeTab.Style = (Style)Resources["InvTabInactiveStyle"];
-
-            clicked.Style = (Style)Resources["InvTabActiveStyle"];
-            _activeTab = clicked;
-
-            int index = clicked.Name switch
-            {
-                "TabAll" => 0,
-                "TabDraft" => 1,
-                "TabIssued" => 2,
-                "TabPaid" => 3,
-                _ => 0
-            };
-
-            if (Vm != null)
-                Vm.SelectedTabIndex = index;
-        }
 
         // ── Family row: left-click selects, second click opens ───────────
 

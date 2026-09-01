@@ -132,6 +132,7 @@
             <conv:DecimalIsPositiveConverter        x:Key="DecimalIsPositiveConverter"/>
             <conv:DecimalTypingConverter            x:Key="DecimalTypingConverter"/>
             <conv:ReferenceEqualityConverter        x:Key="ReferenceEqualityConverter"/>
+            <conv:IndexEqualsConverter             x:Key="IndexEqualsConverter"/>
             <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
             <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>
             <conv:PercentToWidthConverter           x:Key="PercentToWidthConverter"/>

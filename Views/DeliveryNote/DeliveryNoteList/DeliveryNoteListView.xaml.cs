@@ -20,58 +20,14 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
     /// </summary>
     public partial class DeliveryNoteListView : UserControl
     {
-        private Button[] _tabButtons = null!;
-
         public DeliveryNoteListView()
         {
             InitializeComponent();
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            _tabButtons = new[]
-            {
-                TabAll,       // 0
-                TabPrepared,  // 1
-                TabDelivered, // 2
-                TabPending,   // 3
-                TabRework,    // 4
-                TabReturned   // 5
-            };
-        }
-
         // ═════════════════════════════════════════════════════════════════
         //  TAB CARD CLICK
         // ═════════════════════════════════════════════════════════════════
-
-        private void OnTabCardClick(object sender, RoutedEventArgs e)
-        {
-            if (sender is not Button clicked) return;
-            if (DataContext is not DeliveryNoteListViewModel vm) return;
-            if (_tabButtons == null) return;
-
-            int newIndex = -1;
-            for (int i = 0; i < _tabButtons.Length; i++)
-            {
-                if (_tabButtons[i] == clicked)
-                {
-                    newIndex = i;
-                    break;
-                }
-            }
-
-            if (newIndex < 0) return;
-
-            vm.SelectedTabIndex = newIndex;
-
-            var activeStyle = (Style)FindResource("TabCardActiveStyle");
-            var inactiveStyle = (Style)FindResource("TabCardInactiveStyle");
-
-            for (int i = 0; i < _tabButtons.Length; i++)
-                _tabButtons[i].Style = i == newIndex
-                    ? activeStyle
-                    : inactiveStyle;
-        }
 
         // ═════════════════════════════════════════════════════════════════
         //  JO GROUP ROW — LEFT CLICK

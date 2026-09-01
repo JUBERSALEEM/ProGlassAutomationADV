@@ -11,14 +11,12 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Loaded="OnLoaded">
+>
 
     <UserControl.Resources>
 
-        <Style x:Key="TabCardInactiveStyle" TargetType="Button"
+        <Style x:Key="TabCardInactiveStyle" TargetType="RadioButton"
                BasedOn="{StaticResource ModuleListTabInactiveStyle}"/>
-        <Style x:Key="TabCardActiveStyle" TargetType="Button"
-               BasedOn="{StaticResource ModuleListTabActiveStyle}"/>
 
         <Style x:Key="DnListBoxItemStyle" TargetType="ListBoxItem"
                BasedOn="{StaticResource ModuleListBoxItemStyle}"/>
@@ -411,29 +409,29 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Tag="&#xE7B8;" Content="{DynamicResource Dnl.All}"
+                    <RadioButton Grid.Column="0" GroupName="DnStatusTabs" Tag="&#xE7B8;" Content="{DynamicResource Dnl.All}"
                             CommandParameter="{Binding AllGroupedCount}"
-                            Click="OnTabCardClick" x:Name="TabAll"
-                            Style="{StaticResource TabCardActiveStyle}"/>
-                    <Button Grid.Column="1" Tag="&#xE70F;" Content="{DynamicResource Dnl.Prepared}"
+                            IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
+                            Style="{StaticResource TabCardInactiveStyle}"/>
+                    <RadioButton Grid.Column="1" GroupName="DnStatusTabs" Tag="&#xE70F;" Content="{DynamicResource Dnl.Prepared}"
                             CommandParameter="{Binding PreparedGroupedCount}"
-                            Click="OnTabCardClick" x:Name="TabPrepared"
+                            IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
                             Style="{StaticResource TabCardInactiveStyle}"/>
-                    <Button Grid.Column="2" Tag="&#xE73E;" Content="{DynamicResource Dnl.Delivered}"
+                    <RadioButton Grid.Column="2" GroupName="DnStatusTabs" Tag="&#xE73E;" Content="{DynamicResource Dnl.Delivered}"
                             CommandParameter="{Binding DeliveredGroupedCount}"
-                            Click="OnTabCardClick" x:Name="TabDelivered"
+                            IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
                             Style="{StaticResource TabCardInactiveStyle}"/>
-                    <Button Grid.Column="3" Tag="&#xE81C;" Content="{DynamicResource Dnl.Pending}"
+                    <RadioButton Grid.Column="3" GroupName="DnStatusTabs" Tag="&#xE81C;" Content="{DynamicResource Dnl.Pending}"
                             CommandParameter="{Binding PendingItems.Count}"
-                            Click="OnTabCardClick" x:Name="TabPending"
+                            IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
                             Style="{StaticResource TabCardInactiveStyle}"/>
-                    <Button Grid.Column="4" Tag="&#xE713;" Content="{DynamicResource God.Rework}"
+                    <RadioButton Grid.Column="4" GroupName="DnStatusTabs" Tag="&#xE713;" Content="{DynamicResource God.Rework}"
                             CommandParameter="{Binding ReworkGroupedCount}"
-                            Click="OnTabCardClick" x:Name="TabRework"
+                            IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
                             Style="{StaticResource TabCardInactiveStyle}"/>
-                    <Button Grid.Column="5" Tag="&#xE7A7;" Content="{DynamicResource Dnl.Returned}"
+                    <RadioButton Grid.Column="5" GroupName="DnStatusTabs" Tag="&#xE7A7;" Content="{DynamicResource Dnl.Returned}"
                             CommandParameter="{Binding ReturnedGroupedCount}"
-                            Click="OnTabCardClick" x:Name="TabReturned"
+                            IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
                             Style="{StaticResource TabCardInactiveStyle}"/>
                 </Grid>
 
