@@ -91,7 +91,10 @@
     <Style x:Key="InfoCardTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource GlassBorderSoft}"/>
+        <!-- 2026-09-01: was GlassBorderSoft (a BORDER token — white at
+             18-40% alpha) so every info-card heading rendered nearly
+             invisible. TextPrimaryBrush is the real ink token. -->
+        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
@@ -283,7 +286,9 @@
          per-provider DataTrigger (BasedOn in the card). -->
     <Style x:Key="ProviderSelectButtonStyle" TargetType="Button">
         <Setter Property="Content"             Value="SELECT"/>
-        <Setter Property="Foreground"          Value="{DynamicResource GlassBorderSoft}"/>
+        <!-- 2026-09-01: was GlassBorderSoft → SELECT label was white-
+             on-white. Now the real accent ink so the button reads. -->
+        <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Height"              Value="28"/>
         <Setter Property="Padding"             Value="12,0"/>
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
@@ -326,7 +331,9 @@
     <Style x:Key="DownloadProgressBarStyle" TargetType="ProgressBar">
         <Setter Property="Height"              Value="8"/>
         <Setter Property="Maximum"             Value="100"/>
-        <Setter Property="Foreground"          Value="{DynamicResource GlassBorderSoft}"/>
+        <!-- 2026-09-01: was GlassBorderSoft (white 18% alpha) → the
+             download fill was invisible. Accent is the progress colour. -->
+        <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Background"          Value="{DynamicResource GlassSurfaceElevated}"/>
         <Setter Property="BorderThickness"     Value="0"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -408,13 +415,27 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bd" Property="Background"
                                     Value="{DynamicResource GlassSurfaceElevated}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush"
+                                    Value="{DynamicResource GlassBorderGradientSoft}"/>
+                            <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{DynamicResource TintIndigoBrush}"/>
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.95"/>
+                            <Setter TargetName="ActiveBar" Property="Opacity" Value="0.55"/>
                         </Trigger>
                         <Trigger Property="Tag" Value="Active">
+                            <!-- 2026-09-01 touch pass: the active pill used
+                                 GlassSurfaceUltra (~5% alpha) — invisible on
+                                 the frosted rail. Now the real material ramp
+                                 so the current page clearly reads as
+                                 pressed glass, plus the accent bar. -->
                             <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource GlassSurfaceUltra}"/>
+                                    Value="{DynamicResource GlassSurfaceBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush"
+                                    Value="{DynamicResource GlassBorderGradientCrystal}"/>
+                            <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
                             <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -423,7 +444,10 @@
         </Setter>
     </Style>
 
-    <!-- Icon slot in a nav item (Segoe MDL2 Assets glyph). -->
+    <!-- Icon slot in a nav item (Segoe MDL2 Assets glyph).
+         2026-09-01 touch pass: the glyph also lights up accent when its
+         parent nav button is Tag=Active (set by the per-page DataTrigger
+         in SettingsView), so the current page reads at a glance. -->
     <Style x:Key="NavGlyphStyle" TargetType="TextBlock">
         <Setter Property="FontFamily"        Value="Segoe MDL2 Assets"/>
         <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
@@ -432,6 +456,12 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Foreground"        Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}}"
+                         Value="Active">
+                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <!-- Label slot in a nav item. -->
@@ -442,6 +472,13 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}}"
+                         Value="Active">
+                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <!-- Circular glyph badge for info cards. -->
@@ -459,7 +496,9 @@
     <Style x:Key="InfoGlyphTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily"             Value="Segoe MDL2 Assets"/>
         <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
-        <Setter Property="Foreground"             Value="{DynamicResource GlassBorderSoft}"/>
+        <!-- 2026-09-01: was GlassBorderSoft → glyph invisible on the
+             tinted badge. Text ink token instead. -->
+        <Setter Property="Foreground"             Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="HorizontalAlignment"    Value="Center"/>
         <Setter Property="VerticalAlignment"      Value="Center"/>
         <Setter Property="IsHitTestVisible"       Value="False"/>
@@ -512,7 +551,9 @@
     <Style x:Key="SettingsGroupHeaderTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
-        <Setter Property="Foreground"       Value="{DynamicResource GlassBorderSoft}"/>
+        <!-- 2026-09-01: was GlassBorderSoft → group headings rendered
+             white-on-white. Real ink token now. -->
+        <Setter Property="Foreground"       Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Margin"           Value="0,4,0,0"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
@@ -569,7 +610,9 @@
         <Setter Property="TextAlignment"     Value="Center"/>
         <Setter Property="Margin"            Value="0,0,10,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Foreground"        Value="{DynamicResource GlassBorderSoft}"/>
+        <!-- 2026-09-01: was GlassBorderSoft → tile icons were white-on-
+             white. Real ink token now. -->
+        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
@@ -602,7 +645,9 @@
     <Style x:Key="SettingsTileHeroStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextHeadline}"/>
         <Setter Property="FontWeight"          Value="Bold"/>
-        <Setter Property="Foreground"          Value="{DynamicResource GlassBorderSoft}"/>
+        <!-- 2026-09-01: was GlassBorderSoft → hero values (theme mode,
+             version) were white-on-white. Real ink token now. -->
+        <Setter Property="Foreground"          Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="Margin"              Value="0,4,0,0"/>
         <Setter Property="IsHitTestVisible"    Value="False"/>

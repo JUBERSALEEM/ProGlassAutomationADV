@@ -210,9 +210,13 @@ namespace ProGlassAutomation.Services
             }
             else
             {
-                // Light mode — the reference values verbatim.
+                // Light mode — the reference values verbatim, EXCEPT the
+                // secondary ink: 2026-09-01 cream pass replaces the cool
+                // slate (#1E2832) with the same warm stone as the Normal
+                // canvas (#57534E @ 99-alpha) so no blue cast survives in
+                // Light — in any family.
                 FreezeAndSet(resources, "TextPrimaryBrush", Color.FromRgb(0x1C, 0x19, 0x17));
-                FreezeAndSet(resources, "TextSecondaryBrush", Color.FromArgb(0x99, 0x1E, 0x28, 0x32));
+                FreezeAndSet(resources, "TextSecondaryBrush", Color.FromArgb(0x99, 0x57, 0x53, 0x4E));
                 FreezeAndSet(resources, "GlassSurfaceUltra", Color.FromArgb(0x0E, 0xFF, 0xFF, 0xFF));
                 FreezeAndSet(resources, "GlassSurfaceStandard", Color.FromArgb(0x17, 0xFF, 0xFF, 0xFF));
                 FreezeAndSet(resources, "GlassSurfaceElevated", Color.FromArgb(0x22, 0xFF, 0xFF, 0xFF));
@@ -266,6 +270,15 @@ namespace ProGlassAutomation.Services
 
             var (h, s, l) = ColorMath.ToHsl(effective);
             bool dark = _currentTheme == AppTheme.Dark;
+
+            // Normal = pure cream SaaS canvas. Its chrome (hover fills,
+            // tints, card keylines) must stay WARM-NEUTRAL so the
+            // default blue accent can never wash the family blue again.
+            // The accent still drives CTAs (AccentBrush family), and
+            // Monet / Professional / Ocean / iOS Liquid Glass derive
+            // their own tinted surfaces per family below.
+            bool normalFamily =
+                VisualThemeEngine.Current == VisualThemeEngine.Normal;
 
             // ── Core accent family ────────────────────────────────────
             // Light theme: accent as chosen.  Dark theme: lift lightness
@@ -333,12 +346,27 @@ namespace ProGlassAutomation.Services
             // as the dashboard-surface guard below.
             if (VisualThemeEngine.Current != VisualThemeEngine.LiquidGlass)
             {
-                FreezeAndSet(resources, "TintBlueBrush",
-                    ColorMath.Tint(core, surface, dark ? 0.16 : 0.08));
-                FreezeAndSet(resources, "TintIndigoBrush",
-                    ColorMath.Tint(
-                        ColorMath.FromHsl(h + 18, s, l), surface,
-                        dark ? 0.18 : 0.09));
+                if (normalFamily)
+                {
+                    // Warm-neutral SaaS tints (hover chips, info
+                    // badges) — Normal must never read blue. The
+                    // colourful families below keep accent tints.
+                    FreezeAndSet(resources, "TintBlueBrush", dark
+                        ? Color.FromRgb(0x23, 0x2B, 0x34)
+                        : Color.FromRgb(0xF2, 0xED, 0xE3));
+                    FreezeAndSet(resources, "TintIndigoBrush", dark
+                        ? Color.FromRgb(0x27, 0x2F, 0x3A)
+                        : Color.FromRgb(0xED, 0xE7, 0xDA));
+                }
+                else
+                {
+                    FreezeAndSet(resources, "TintBlueBrush",
+                        ColorMath.Tint(core, surface, dark ? 0.16 : 0.08));
+                    FreezeAndSet(resources, "TintIndigoBrush",
+                        ColorMath.Tint(
+                            ColorMath.FromHsl(h + 18, s, l), surface,
+                            dark ? 0.18 : 0.09));
+                }
             }
 
             // ── Card keyline — accent-derived, applied app-wide ───────
@@ -376,6 +404,17 @@ namespace ProGlassAutomation.Services
                 : Math.Min(Math.Max(l, neutralAccent ? 0.26 : 0.42), 0.55);
 
             Color keyline = ColorMath.FromHsl(h, keySat, keyLight);
+
+            if (normalFamily)
+            {
+                // Normal keyline = the theme's own warm-neutral hairline
+                // (cream #D8D0C2 light / warm slate dark), NOT the accent
+                // hue — a pure cream SaaS canvas has neutral card edges;
+                // only the accent families carry a coloured keyline.
+                keyline = ThemeManager.GetThemeColor("OutlineBrush",
+                    dark ? Color.FromRgb(0x5C, 0x57, 0x4C)
+                         : Color.FromRgb(0xD8, 0xD0, 0xC2));
+            }
 
             FreezeAndSet(resources, "OutlineBrush", keyline);
             FreezeAndSet(resources, "OutlineDefaultBrush", keyline);

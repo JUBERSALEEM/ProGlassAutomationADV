@@ -47,8 +47,8 @@
     <Color x:Key="ModuleBackgroundColor">#FFFFFF</Color>
     <Color x:Key="SideMenuBackgroundColor">#FFFFFF</Color>
     <Color x:Key="TextPrimaryColor">#1D1D1F</Color>
-    <Color x:Key="TextSecondaryColor">#991E2832</Color>
-    <Color x:Key="LiquidShadowColor">#4D0B1B2E</Color>
+    <Color x:Key="TextSecondaryColor">#9957534E</Color>
+    <Color x:Key="LiquidShadowColor">#4D231B12</Color>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -114,7 +114,7 @@
         <GradientStop Color="#50FFFCF5" Offset="1.00"/>
     </LinearGradientBrush>
     <SolidColorBrush x:Key="SidebarCardBrush" Color="#10FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="MenuHoverBrush" Color="#185FCDFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="MenuHoverBrush" Color="#1457534E" po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonBackgroundBrush" Color="#0369A1" po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonForegroundBrush" Color="#FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidOverlayBrush" Color="#59061724" po:Freeze="True"/>
@@ -198,11 +198,11 @@
     <!-- WaterGlass: Subtle liquid blue refraction depth.
          Use for: interactive panels, active sections, data cards. -->
     <LinearGradientBrush x:Key="LiquidGlassWaterBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#22E8F4FD" Offset="0.0"/>
+        <GradientStop Color="#22FFFFFF" Offset="0.0"/>
         <GradientStop Color="#12FFFFFF" Offset="0.15"/>
-        <GradientStop Color="#1CD7EEFB" Offset="0.50"/>
+        <GradientStop Color="#1CFFFFFF" Offset="0.50"/>
         <GradientStop Color="#0EFFFFFF" Offset="0.85"/>
-        <GradientStop Color="#22E0F2FE" Offset="1.0"/>
+        <GradientStop Color="#22FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
 
     <!-- Frosted: Higher opacity for readability over busy backgrounds.
@@ -403,24 +403,24 @@
     <!-- Ambient shadows — soft, large, low opacity -->
     
     <!-- ═══ Phase 1 Consolidated Shadow Tokens ═══ -->
-    <DropShadowEffect x:Key="ShadowSoft" Color="#1A3050" Opacity="0.12" BlurRadius="32" ShadowDepth="10" Direction="270" po:Freeze="True"/>
-    <DropShadowEffect x:Key="ShadowElevated" Color="#1A3050" Opacity="0.18" BlurRadius="48" ShadowDepth="16" Direction="270" po:Freeze="True"/>
-    <DropShadowEffect x:Key="ShadowDeep" Color="#1E293B" Opacity="0.12" BlurRadius="24" ShadowDepth="8" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="ShadowSoft" Color="#2A2118" Opacity="0.12" BlurRadius="32" ShadowDepth="10" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="ShadowElevated" Color="#33291B" Opacity="0.18" BlurRadius="48" ShadowDepth="16" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="ShadowDeep" Color="#302619" Opacity="0.12" BlurRadius="24" ShadowDepth="8" Direction="270" po:Freeze="True"/>
 
-    <DropShadowEffect x:Key="GlassShadowSoft" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftBorder" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftButton" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftTextBox" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftToggle" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoft" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftBorder" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftButton" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftTextBox" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftToggle" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
 
     <!-- Panel shadows — medium, for large containers -->
-    <DropShadowEffect x:Key="GlassShadowPanel" Color="#3C78A0" Opacity="0.06" BlurRadius="12" ShadowDepth="4" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowPanelBorder" Color="#3C78A0" Opacity="0.06" BlurRadius="12" ShadowDepth="4" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanel" Color="#5C4A38" Opacity="0.06" BlurRadius="12" ShadowDepth="4" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanelBorder" Color="#5C4A38" Opacity="0.06" BlurRadius="12" ShadowDepth="4" Direction="270"/>
 
     <!-- Active shadows — glow for focused/pressed state -->
-    <DropShadowEffect x:Key="GlassShadowActive" Color="#32B4FF" Opacity="0.08" BlurRadius="10" ShadowDepth="3" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#32B4FF" Opacity="0.08" BlurRadius="10" ShadowDepth="3" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActive" Color="#5C4A30" Opacity="0.08" BlurRadius="10" ShadowDepth="3" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#5C4A30" Opacity="0.08" BlurRadius="10" ShadowDepth="3" Direction="270"/>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -435,9 +435,9 @@
         <GradientStop Color="#F1EBDE" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="GlassBackdropBrush" StartPoint="0,0.2" EndPoint="1,0.8">
-        <GradientStop Color="#085FCDFF" Offset="0"/>
+        <GradientStop Color="#08FFFFFF" Offset="0"/>
         <GradientStop Color="#04FFFFFF" Offset="0.5"/>
-        <GradientStop Color="#065FCDFF" Offset="1"/>
+        <GradientStop Color="#06FFFFFF" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
         <GradientStop Color="#F8F4EB" Offset="0.0"/>
@@ -540,13 +540,13 @@
     </LinearGradientBrush>
     <SolidColorBrush x:Key="DashAccentTextBrush" Color="{StaticResource AccentDarkColor}"/>
     <LinearGradientBrush x:Key="DashHeroBlueBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#305FCDFF" Offset="0.0"/>
-        <GradientStop Color="#203B82F6" Offset="0.5"/>
-        <GradientStop Color="#282563EB" Offset="1.0"/>
+        <GradientStop Color="#30FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#20FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#28FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
-    <DropShadowEffect x:Key="DashCardShadowEffect" Color="#1E3A5F" Opacity="0.06" BlurRadius="12" ShadowDepth="3" Direction="270"/>
-    <DropShadowEffect x:Key="DashInteractiveShadowEffect" Color="#0369A1" Opacity="0.12" BlurRadius="10" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="DashSubtleShadowEffect" Color="#1E293B" Opacity="0.03" BlurRadius="4" ShadowDepth="1" Direction="270"/>
+    <DropShadowEffect x:Key="DashCardShadowEffect" Color="#2A2118" Opacity="0.06" BlurRadius="12" ShadowDepth="3" Direction="270"/>
+    <DropShadowEffect x:Key="DashInteractiveShadowEffect" Color="#5A4634" Opacity="0.12" BlurRadius="10" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="DashSubtleShadowEffect" Color="#302619" Opacity="0.03" BlurRadius="4" ShadowDepth="1" Direction="270"/>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -563,10 +563,15 @@
     <!-- ═══════════════════════════════════════════════════════════════
          SECTION 19 — SHELL TOKENS
     ═══════════════════════════════════════════════════════════════ -->
+    <!-- 2026-09-01 UHD pass: the Normal-family drawer used ~5% alpha
+         (see-through to the point of being invisible), which washed the
+         module buttons out. Now a rich warm-cream frost — still glass
+         (the crystal border + sheen carry the edge), but the nav items
+         stay legible. Liquid/Monet/Ultra override this at runtime. -->
     <LinearGradientBrush x:Key="ShellLiquidBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#14F6F1E6" Offset="0"/>
-        <GradientStop Color="#0EFFFFFF" Offset="0.5"/>
-        <GradientStop Color="#12F1EBDE" Offset="1"/>
+        <GradientStop Color="#E6F6F1E6" Offset="0"/>
+        <GradientStop Color="#D9FFFCF5" Offset="0.5"/>
+        <GradientStop Color="#E0F1EBDE" Offset="1"/>
     </LinearGradientBrush>
     <SolidColorBrush x:Key="ShellLiquidBorderBrush" Color="#24000000" po:Freeze="True"/>
     <SolidColorBrush x:Key="ShellSheenBrush" Color="#B3FFFFFF" po:Freeze="True"/>
@@ -604,7 +609,7 @@
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="GlassRefractionEdge" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
         <GradientStop Color="#00FFFFFF" Offset="0"/>
-        <GradientStop Color="#10E0E8FF" Offset="0.5"/>
+        <GradientStop Color="#1CFFFFFF" Offset="0.5"/>
         <GradientStop Color="#00FFFFFF" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="GlassTopReflectionGradient" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
@@ -636,7 +641,7 @@
         <GradientStop Color="#40FFFFFF" Offset="0.92"/>
         <GradientStop Color="#50FFFFFF" Offset="1.00"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="GlassWaterBrush" Color="#08D7F0FF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassWaterBrush" Color="#0AFFFFFF" po:Freeze="True"/>
     <LinearGradientBrush x:Key="GlassFrostedBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#90FFFFFF" Offset="0.00"/>
         <GradientStop Color="#50FFFFFF" Offset="0.01"/>

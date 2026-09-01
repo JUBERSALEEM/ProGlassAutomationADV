@@ -130,6 +130,15 @@ namespace ProGlassAutomation.Services.Theme
             // transparent.
             "PrimaryForegroundBrush",
 
+            // TextPrimaryBrush / TextSecondaryBrush (2026-09-01): these
+            // app-scope keys are written by ThemeManager.PublishLiquidReference
+            // on EVERY Light/Dark swap. They were NOT managed, so even in
+            // Normal the cool-slate secondary (#991E2832 Light) survived
+            // ClearOverrides and permanently masked the warm theme-file
+            // value — the "by-default bluish system theme". Normal now
+            // restores the theme dictionary's own warm ink.
+            "TextPrimaryBrush", "TextSecondaryBrush",
+
             // The card keyline. Monet and Professional recolour every
             // surface, so a keyline fixed by the base theme stops
             // relating to the surface it outlines and the cards read as
@@ -483,25 +492,33 @@ namespace ProGlassAutomation.Services.Theme
         private static IEnumerable<(string Key, object Value)>
             CriticalFallbacks(bool dark)
         {
+            // 2026-09-01: the injected fallbacks must MATCH the current
+            // theme palettes — they were still the old icy-blue slate
+            // (#D7E5F9 window, #334155 ink, #C7D2E1 outline), so any
+            // machine where a key failed to resolve got a BLUE canvas
+            // injected into the app scope (and it stayed there, winning
+            // over every later family). Cream/warm now.
             Color windowColor = dark
-                ? Color.FromRgb(0x0B, 0x14, 0x2A)
-                : Color.FromRgb(0xD7, 0xE5, 0xF9);
+                ? Color.FromRgb(0x0A, 0x12, 0x26)
+                : Color.FromRgb(0xF6, 0xF1, 0xE6);
             Color moduleColor = dark
-                ? Color.FromRgb(0x1E, 0x29, 0x3B)
-                : Color.FromRgb(0xFF, 0xFF, 0xFF);
+                ? Color.FromRgb(0x10, 0x1A, 0x2E)
+                : Color.FromRgb(0xFE, 0xFC, 0xF8);
             Color elevatedColor = dark
-                ? Color.FromRgb(0x24, 0x31, 0x46)
-                : Color.FromRgb(0xFF, 0xFF, 0xFF);
+                ? Color.FromRgb(0x16, 0x22, 0x38)
+                : Color.FromRgb(0xFE, 0xFD, 0xFA);
             Color outlineColor = dark
-                ? Color.FromRgb(0x3E, 0x4C, 0x63)
-                : Color.FromRgb(0xC7, 0xD2, 0xE1);
+                ? Color.FromRgb(0x5C, 0x57, 0x4C)
+                : Color.FromRgb(0xD8, 0xD0, 0xC2);
             Color primaryColor = dark
-                ? Color.FromRgb(0xF8, 0xFA, 0xFC)
-                : Color.FromRgb(0x33, 0x41, 0x55);
+                ? Color.FromRgb(0xF5, 0xF5, 0xF7)
+                : Color.FromRgb(0x1C, 0x19, 0x17);
             Color secondaryColor = dark
-                ? Color.FromRgb(0x94, 0xA3, 0xB8)
-                : Color.FromRgb(0x47, 0x55, 0x69);
-            Color mutedColor = Color.FromRgb(0x64, 0x74, 0x8B);
+                ? Color.FromRgb(0xA9, 0xB8, 0xCC)
+                : Color.FromRgb(0x57, 0x53, 0x4E);
+            Color mutedColor = dark
+                ? Color.FromRgb(0x7C, 0x8C, 0xA3)
+                : Color.FromRgb(0x78, 0x71, 0x6C);
 
             foreach (var (key, color) in new (string, Color)[]
                      {
@@ -525,26 +542,26 @@ namespace ProGlassAutomation.Services.Theme
                          ("LiquidGlassSubtleBrush", elevatedColor),
                          ("LiquidGlassStrongBrush", elevatedColor),
                          ("TintIndigoBrush", dark
-                             ? Color.FromRgb(0x31, 0x2E, 0x81)
-                             : Color.FromRgb(0xEE, 0xF2, 0xFF)),
+                             ? Color.FromRgb(0x27, 0x2F, 0x3A)
+                             : Color.FromRgb(0xED, 0xE7, 0xDA)),
                          ("TintBlueBrush", dark
-                             ? Color.FromRgb(0x1E, 0x3A, 0x8A)
-                             : Color.FromRgb(0xEF, 0xF6, 0xFF)),
+                             ? Color.FromRgb(0x23, 0x2B, 0x34)
+                             : Color.FromRgb(0xF2, 0xED, 0xE3)),
                          ("TintGreenBrush", dark
-                             ? Color.FromRgb(0x06, 0x4E, 0x3B)
-                             : Color.FromRgb(0xEC, 0xFD, 0xF5)),
+                             ? Color.FromRgb(0x14, 0x30, 0x1F)
+                             : Color.FromRgb(0xE8, 0xF6, 0xEC)),
                          ("TintRedBrush", dark
-                             ? Color.FromRgb(0x7F, 0x1D, 0x1D)
+                             ? Color.FromRgb(0x3B, 0x1F, 0x22)
                              : Color.FromRgb(0xFE, 0xF2, 0xF2)),
                          ("TintAmberBrush", dark
-                             ? Color.FromRgb(0x78, 0x35, 0x0F)
+                             ? Color.FromRgb(0x3B, 0x2F, 0x1E)
                              : Color.FromRgb(0xFF, 0xFB, 0xEB)),
                          ("TintPurpleBrush", dark
-                             ? Color.FromRgb(0x4C, 0x1D, 0x95)
+                             ? Color.FromRgb(0x2A, 0x25, 0x40)
                              : Color.FromRgb(0xF5, 0xF3, 0xFF)),
                          ("TintGrayBrush", dark
-                             ? Color.FromRgb(0x37, 0x41, 0x51)
-                             : Color.FromRgb(0xF9, 0xFA, 0xFB))
+                             ? Color.FromRgb(0x24, 0x2B, 0x3A)
+                             : Color.FromRgb(0xF6, 0xF3, 0xEE))
                      })
             {
                 var brush = new SolidColorBrush(color);
@@ -723,6 +740,10 @@ namespace ProGlassAutomation.Services.Theme
                 resources, "DashAmbientBlob2Brush", accent,
                 Colors.White, 0.10, dark);
 
+            // Sections accept Monet too: every shared glass surface /
+            // border key mirrors the Monet material set.
+            PublishSectionGlass(resources, accent, dark);
+
             // Softer, rounder cards fit the artistic look.
             resources["CardCornerRadius"] = new CornerRadius(18);
             resources["CardCornerRadiusLarge"] = new CornerRadius(24);
@@ -876,6 +897,11 @@ namespace ProGlassAutomation.Services.Theme
             hover.Freeze();
             resources["MenuHoverBrush"] = hover;
 
+            // Sections accept Professional too: the shared glass set
+            // mirrors the steel-blue material (Settings, wizards,
+            // sidebars — everything follows the industrial look).
+            PublishSectionGlass(resources, cool, dark);
+
             // Cool slate keyline to match the cooled surfaces above.
             // Professional is the "premium corporate" family, so the
             // edge is a touch crisper than Monet's.
@@ -921,37 +947,44 @@ namespace ProGlassAutomation.Services.Theme
             // ── 2) CARD SURFACES — one material ramp per mode ───────
             if (dark)
             {
-                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.26, 0.10);
-                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.32, 0.13);
-                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.38, 0.15);
-                resources["MenuHoverBrush"] = FrostFill(accent, 0.28, 0.16);
-                resources["SidebarCardBrush"] = FrostFill(accent, 0.30, 0.13);
-                resources["ShellLiquidBrush"] = FrostFill(accent, 0.34, 0.13);
-                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.28, 0.13);
+                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.30, 0.12);
+                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.36, 0.16);
+                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.44, 0.20);
+                resources["MenuHoverBrush"] = FrostFill(accent, 0.32, 0.18);
+                resources["SidebarCardBrush"] = FrostFill(accent, 0.36, 0.16);
+                resources["ShellLiquidBrush"] = FrostFill(accent, 0.42, 0.20);
+                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.32, 0.15);
 
                 // ── 3) DASHBOARD AMBIENT — soft glow under the frost ─
-                resources["DashAmbientBrush"] = FrostFill(accent, 0.14, 0.06);
-                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.10);
-                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.08);
+                resources["DashAmbientBrush"] = FrostFill(accent, 0.16, 0.08);
+                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.12);
+                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.10);
             }
             else
             {
                 // White water glass: translucent white panes, densest
                 // at the top (iOS light materials catch the light),
                 // see-through toward the lower edge.
-                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.88, 0.60);
-                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.93, 0.68);
-                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.96, 0.76);
-                resources["MenuHoverBrush"] = FrostFill(accent, 0.56, 0.36);
-                resources["SidebarCardBrush"] = FrostFill(accent, 0.86, 0.58);
-                resources["ShellLiquidBrush"] = FrostFill(accent, 0.91, 0.63);
-                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.87, 0.60);
+                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.90, 0.64);
+                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.94, 0.70);
+                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.90, 0.62);
+                resources["MenuHoverBrush"] = FrostFill(accent, 0.62, 0.42);
+                resources["SidebarCardBrush"] = FrostFill(accent, 0.92, 0.70);
+                resources["ShellLiquidBrush"] = FrostFill(accent, 0.95, 0.80);
+                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.88, 0.64);
 
                 // ── 3) DASHBOARD AMBIENT — blue glow under the panes ─
-                resources["DashAmbientBrush"] = FrostFill(accent, 0.20, 0.08);
-                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.16);
-                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.12);
+                resources["DashAmbientBrush"] = FrostFill(accent, 0.24, 0.10);
+                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.18);
+                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.14);
             }
+
+            // ── 2b) SECTION ADOPTION — every shared glass surface /
+            // border key now mirrors this family's material, so
+            // Settings cards, wizard tiles, sidebars and every section
+            // finally render iOS Liquid Glass instead of the base-theme
+            // glass (2026-09-01).
+            PublishSectionGlass(resources, accent, dark);
 
             // ── 4) STATUS TINTS — hue kept, fill made glass ─────────
             resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.36, 0.18);
@@ -1055,24 +1088,28 @@ namespace ProGlassAutomation.Services.Theme
         {
             // Dark mode reads the dark About text palette keys
             // (LiquidSnow / LiquidCerulean / LiquidMuted). LIGHT mode uses
-            // fixed ink/slate constants — decoupled from the Liquid*
+            // fixed WARM ink/stone constants — decoupled from the Liquid*
             // SURFACE keys (2026-08-29) so the white water-glass
             // surfaces can be recoloured freely without ever washing
             // the text out (previously light text read LiquidFrost, a
             // surface-named key, so re-colouring the frost would have
             // made light text white-on-white).
+            // 2026-09-01 cream pass: light glass text was cool slate
+            // (#334155) with a BLUE secondary (#1D4ED8) — captions read
+            // blue across the whole light UI. Now the same warm ink as
+            // the Normal canvas: #1C1917 / #57534E / #78716C.
             resources["PrimaryForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidSnow",
                     Color.FromRgb(0xF8, 0xFA, 0xFC))
-                : FrozenSolid(Color.FromRgb(0x33, 0x41, 0x55));
+                : FrozenSolid(Color.FromRgb(0x1C, 0x19, 0x17));
             resources["SecondaryForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidCerulean",
                     Color.FromRgb(0x93, 0xC5, 0xFD))
-                : FrozenSolid(Color.FromRgb(0x1D, 0x4E, 0xD8));
+                : FrozenSolid(Color.FromRgb(0x57, 0x53, 0x4E));
             resources["MutedForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidMuted",
                     Color.FromRgb(0x8F, 0xB3, 0xE6))
-                : FrozenSolid(Color.FromRgb(0x47, 0x55, 0x69));
+                : FrozenSolid(Color.FromRgb(0x78, 0x71, 0x6C));
         }
 
         /// <summary>Frozen solid brush from a constant colour.</summary>
@@ -1146,14 +1183,60 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         /// <summary>
+        /// PUBLISHES THE SHARED GLASS MATERIAL SET for the active family
+        /// (2026-09-01 — sections must accept the theme).
+        ///
+        /// The view layer (Settings section cards &amp; tiles, wizard tiles,
+        /// sidebars, info cards, forms, stat/canvas cards) consumes the
+        /// canonical shared glass surface and border keys. All of it.
+        /// The engine used to override only Module/Elevated/SideMenu, so
+        /// the Settings sections, wizards and every other screen kept
+        /// showing the BASE THEME glass regardless of the selected
+        /// family — the "sections don't accept the theme" symptom. Every
+        /// family now mirrors its own material into the shared glass
+        /// keys; Normal restores the base-theme values through
+        /// ClearOverrides.
+        /// </summary>
+        private static void PublishSectionGlass(
+            ResourceDictionary resources, Color borderTint, bool dark)
+        {
+            resources["GlassSurfaceBrush"] = resources["ModuleBackgroundBrush"];
+            resources["GlassUltraClearBrush"] = resources["ModuleBackgroundBrush"];
+            resources["GlassCrystalBrush"] = resources["ModuleBackgroundBrush"];
+            resources["GlassFrostedBrush"] = resources["ModuleBackgroundBrush"];
+            resources["GlassSurfaceStandard"] = resources["MenuHoverBrush"];
+            resources["GlassSurfaceUltra"] = resources["SideMenuBackgroundBrush"];
+            resources["GlassSurfaceElevated"] = resources["ElevatedSurfaceBrush"];
+
+            // Crystal keyline edges — white glass mixed toward the
+            // family's own colour so the edge belongs to the material.
+            Color edge = ColorMath.Mix(
+                Color.FromRgb(0xFF, 0xFF, 0xFF), borderTint,
+                dark ? 0.35 : 0.22);
+            byte softA = dark ? (byte)0x40 : (byte)0x66;
+            byte primaryA = dark ? (byte)0x59 : (byte)0x8C;
+            byte brightA = dark ? (byte)0x73 : (byte)0xB3;
+
+            resources["GlassBorderSoft"] = FrozenSolid(
+                ColorMath.WithAlpha(edge, softA));
+            resources["GlassBorderPrimary"] = FrozenSolid(
+                ColorMath.WithAlpha(edge, primaryA));
+            resources["GlassBorderBright"] = FrozenSolid(
+                ColorMath.WithAlpha(edge, brightA));
+        }
+
+        /// <summary>
         /// Crystal edge gradient: bright white top → soft
         /// accent-mixed mid → slightly deeper lower edge. Frozen.
         /// </summary>
         private static Brush CrystalEdge(Color accent, bool dark)
         {
+            // 2026-09-01 UHD pass: mid/edge bands lifted so the droplet
+            // meniscus stays readable at a distance (was 0x59/0x73 light,
+            // 0x26/0x33 dark).
             byte topA = dark ? (byte)0x8C : (byte)0xFF;
-            byte midA = dark ? (byte)0x26 : (byte)0x59;
-            byte botA = dark ? (byte)0x33 : (byte)0x73;
+            byte midA = dark ? (byte)0x2E : (byte)0x66;
+            byte botA = dark ? (byte)0x3C : (byte)0x80;
 
             Color mid = ColorMath.Mix(
                 Color.FromRgb(0xFF, 0xFF, 0xFF), accent,
@@ -1296,14 +1379,18 @@ namespace ProGlassAutomation.Services.Theme
                 Color primary = chosen.Value;
                 bool isDark = ThemeManager.CurrentTheme == AppTheme.Dark;
 
+                // 2026-09-01: Light fallbacks were cool slate
+                // (#475569 / #64748B) — the "industrial blue" that crept
+                // into Normal whenever a theme key was missing. Warm
+                // stone keeps even the fallback path blue-free.
                 Color secNeutral = ThemeManager.GetThemeColor(
                     "SecondaryForegroundColor",
                     isDark ? Color.FromRgb(0x94, 0xA3, 0xB8)
-                           : Color.FromRgb(0x47, 0x55, 0x69));
+                           : Color.FromRgb(0x57, 0x53, 0x4E));
                 Color mutNeutral = ThemeManager.GetThemeColor(
                     "MutedForegroundColor",
                     isDark ? Color.FromRgb(0x64, 0x74, 0x8B)
-                           : Color.FromRgb(0x64, 0x74, 0x8B));
+                           : Color.FromRgb(0x78, 0x71, 0x6C));
 
                 FrozenAndSet(resources, "PrimaryForegroundBrush", primary);
                 FrozenAndSet(resources, "SecondaryForegroundBrush",
@@ -1697,18 +1784,21 @@ namespace ProGlassAutomation.Services.Theme
             resources["GlassBorderSoft"] = crystalBorder;
 
             // ── 4) TYPOGRAPHY ──────────────────────────────────────
+            // 2026-09-01 cream pass: Ultra light text was cool slate
+            // (#1E293B / #334155 / #475569) — now the same warm ink as
+            // the Normal canvas over the crystal.
             resources["PrimaryForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidSnow",
                     Color.FromRgb(0xF8, 0xFA, 0xFC))
-                : FrozenSolid(Color.FromRgb(0x1E, 0x29, 0x3B));
+                : FrozenSolid(Color.FromRgb(0x1C, 0x19, 0x17));
             resources["SecondaryForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidCerulean",
                     Color.FromRgb(0x93, 0xC5, 0xFD))
-                : FrozenSolid(Color.FromRgb(0x33, 0x41, 0x55));
+                : FrozenSolid(Color.FromRgb(0x57, 0x53, 0x4E));
             resources["MutedForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidMuted",
                     Color.FromRgb(0x8F, 0xB3, 0xE6))
-                : FrozenSolid(Color.FromRgb(0x47, 0x55, 0x69));
+                : FrozenSolid(Color.FromRgb(0x78, 0x71, 0x6C));
 
             // ── 5) SHAPE — larger radii ────────────────────────────
             resources["CardCornerRadius"] = new CornerRadius(16);
@@ -1730,6 +1820,19 @@ namespace ProGlassAutomation.Services.Theme
             // frost is 6–12% alpha, the crystal edge does the shape).
             resources["ModuleBackgroundBrush"] =
                 FrostFill(accent, dark ? 0.14 : 0.12, dark ? 0.07 : 0.06);
+
+            // Sidebar / dialogs need their own whisper of frost too —
+            // they used the base-theme fills, which were OPAQUE cream
+            // in Light, so the Ultra family never actually reached the
+            // settings rail and popups (2026-09-01 section adoption).
+            resources["SideMenuBackgroundBrush"] =
+                FrostFill(accent, dark ? 0.18 : 0.16, dark ? 0.10 : 0.08);
+            resources["ElevatedSurfaceBrush"] =
+                FrostFill(accent, dark ? 0.24 : 0.22, dark ? 0.14 : 0.12);
+
+            // Sections accept Ultra Transparent: the shared glass set
+            // mirrors the crystal whisper (pure white crystal edges).
+            PublishSectionGlass(resources, Colors.White, dark);
 
             // ── 7) HOVER — 14% white ───────────────────────────────
             var hoverFill = new SolidColorBrush(
@@ -1819,6 +1922,10 @@ namespace ProGlassAutomation.Services.Theme
                 : Color.FromRgb(0xE4, 0xF2, 0xF6));
             hover.Freeze();
             resources["MenuHoverBrush"] = hover;
+
+            // Sections accept Ocean too — shared glass set mirrors the
+            // deep-teal material.
+            PublishSectionGlass(resources, teal, dark);
 
             ApplyKeyline(resources, dark
                 ? Color.FromRgb(0x2E, 0x5A, 0x6E)

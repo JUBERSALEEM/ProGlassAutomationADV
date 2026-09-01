@@ -329,7 +329,12 @@
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                                 <Setter TargetName="Accent" Property="Opacity" Value="0.5"/>
                             </Trigger>
-                            <!-- Active module -->
+                            <!-- Active module. 2026-09-01 touch pass: the
+                                 active fill was GlassSurfaceElevated (~13%
+                                 white) — the same as hover, so the open
+                                 module never read as selected on the
+                                 frosted drawer. Now the full material
+                                 ramp + crystal edge. -->
                             <DataTrigger Value="True">
                                 <DataTrigger.Binding>
                                     <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
@@ -337,7 +342,7 @@
                                         <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
                                     </MultiBinding>
                                 </DataTrigger.Binding>
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
                                 <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
                                 <Setter TargetName="Bg" Property="BorderThickness" Value="1"/>
                                 <Setter TargetName="Chip" Property="Background" Value="{StaticResource SidebarActiveGradient}"/>
@@ -528,6 +533,10 @@
                                         <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
                                     </MultiBinding>
                                 </DataTrigger.Binding>
+                                <!-- 2026-09-01 touch pass: active sub-item
+                                     gets a material pill (was transparent,
+                                     only the dot/label changed). -->
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
                                 <Setter TargetName="Dot" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
