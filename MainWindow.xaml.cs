@@ -226,83 +226,11 @@ namespace ProGlassAutomation
         // open/close was removed so the popups behave like normal menus.
 
         // Click toggles popup
-        private void DropdownButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is not MainViewModel vm) return;
-
-            bool isOpen = (ReferenceEquals(sender, SettingsButton) && vm.IsSettingsOpen)
-                       || (ReferenceEquals(sender, NotificationButton) && vm.IsNotificationsOpen)
-                       || (ReferenceEquals(sender, UserCardButton) && vm.IsUserSwitchOpen)
-                       || (ReferenceEquals(sender, ScreenshotButton) && vm.IsScreenshotOpen)
-                       || (ReferenceEquals(sender, RecordButton) && vm.IsScreenRecordOpen);
-
-            if (isOpen)
-            {
-                // Close the one popup that was open.
-                if (ReferenceEquals(sender, SettingsButton)) vm.IsSettingsOpen = false;
-                else if (ReferenceEquals(sender, NotificationButton)) vm.IsNotificationsOpen = false;
-                else if (ReferenceEquals(sender, UserCardButton)) vm.IsUserSwitchOpen = false;
-                else if (ReferenceEquals(sender, ScreenshotButton)) vm.IsScreenshotOpen = false;
-                else if (ReferenceEquals(sender, RecordButton)) vm.IsScreenRecordOpen = false;
-            }
-            else
-            {
-                // Open exactly this popup, close all the others.
-                vm.IsSettingsOpen = ReferenceEquals(sender, SettingsButton);
-                vm.IsNotificationsOpen = ReferenceEquals(sender, NotificationButton);
-                vm.IsUserSwitchOpen = ReferenceEquals(sender, UserCardButton);
-                vm.IsScreenshotOpen = ReferenceEquals(sender, ScreenshotButton);
-                vm.IsScreenRecordOpen = ReferenceEquals(sender, RecordButton);
-            }
-        }
-
-        private void Logo_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (DataContext is MainViewModel vm)
-            {
-                vm.IsSettingsOpen = false;
-                vm.IsNotificationsOpen = false;
-                vm.IsScreenshotOpen = false;
-                vm.IsUserSwitchOpen = false;
-                vm.IsScreenRecordOpen = false;
-                vm.NavigateFromAgent("About");
-            }
-        }
 
         // ── sidebar groups (click-only accordion — no hover open/close) ────
         // Clicking a group header toggles its sub-menu. Only one group can
         // be open at a time (accordion). Hover behaviour was fully removed:
         // groups never open on mouse-enter or close on mouse-leave.
-
-        private void SidebarGroup_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is not ToggleButton tb) return;
-            if (tb.Parent is not StackPanel host) return;
-
-            // WPF already toggled IsChecked before the Click event fired.
-            if (tb.IsChecked == true)
-                CloseOtherSidebarGroups(host);
-        }
-
-        private void CloseOtherSidebarGroups(StackPanel keep)
-        {
-            var all = new[]
-            {
-                FindName("SalesGroupHost") as StackPanel,
-                FindName("ProductionGroupHost") as StackPanel,
-                FindName("DispatchGroupHost") as StackPanel,
-                FindName("FinanceGroupHost") as StackPanel,
-                FindName("ReportsGroupHost") as StackPanel,
-                FindName("MasterDataGroupHost") as StackPanel,
-                FindName("SystemGroupHost") as StackPanel
-            };
-            foreach (var host in all)
-            {
-                if (host == null || ReferenceEquals(host, keep)) continue;
-                if (host.Children.Count > 0 && host.Children[0] is ToggleButton tb)
-                    tb.IsChecked = false;
-            }
-        }
 
         // Phase 3: No async void — use central SafeFireAndForget
         private void UserSwitchPopup_Opened(object sender, System.EventArgs e)
@@ -317,28 +245,10 @@ namespace ProGlassAutomation
                 vm.RefreshCurrentUserPublic();
         }
 
-        private void SettingsPopup_Opened(object sender, System.EventArgs e) { }
-        private void SettingsPopup_Closed(object sender, System.EventArgs e) { }
-
         private void NotificationsPopup_Opened(object sender, System.EventArgs e)
         {
             if (ActivityPanelHost != null)
                 AsyncUtility.SafeFireAndForget(() => ActivityPanelHost.LoadAsync(), "MainWindow Activity Load");
-        }
-        private void NotificationsPopup_Closed(object sender, System.EventArgs e) { }
-
-        private void ScreenshotPopup_Opened(object sender, System.EventArgs e) { }
-        private void ScreenshotPopup_Closed(object sender, System.EventArgs e) { }
-
-        private void ScreenRecordPopup_Opened(object sender, System.EventArgs e) { }
-        private void ScreenRecordPopup_Closed(object sender, System.EventArgs e) { }
-
-        private void DimOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (DataContext is MainViewModel vm)
-            {
-                vm.IsMenuOpen = false;
-            }
         }
     }
 }

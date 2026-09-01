@@ -414,6 +414,9 @@ namespace ProGlassAutomation.ViewModels
         }
 
         public ICommand ToggleThemeCommand { get; private set; }
+        public ICommand TogglePopupCommand { get; private set; }
+        public ICommand LogoClickCommand { get; private set; }
+        public ICommand CloseAllPopupsCommand { get; private set; }
         public ICommand ToggleMenuCommand { get; }
         public ICommand NewProformaInvoiceCommand { get; }
         public ICommand NavigateCommand { get; }
@@ -535,6 +538,9 @@ namespace ProGlassAutomation.ViewModels
                     IsDarkTheme = SettingsVM.IsDarkTheme;
             };
             ToggleThemeCommand = new RelayCommand(_ => SettingsVM.IsDarkTheme = !SettingsVM.IsDarkTheme);
+            TogglePopupCommand = new RelayCommand(p => TogglePopup(p as string));
+            LogoClickCommand = new RelayCommand(_ => { CloseAllPopups(); NavigateFromAgent("About"); });
+            CloseAllPopupsCommand = new RelayCommand(_ => { IsMenuOpen = false; CloseAllPopups(); });
 
             GlobalSearchVM = new GlobalSearchViewModel(_deliveryNotes, _invoices, _jobs, _masterData, _taxInvoices, target => Navigate(target));
 
@@ -869,6 +875,48 @@ namespace ProGlassAutomation.ViewModels
                 AppLogService.Warning($"[MainViewModel] agent wiring failed: {ex.Message}",
                     new LogContext { Module = "Main", Operation = "AgentWiring" });
             }
+        }
+
+        private void TogglePopup(string? which)
+        {
+            bool isOpen = which switch
+            {
+                "Settings" => IsSettingsOpen,
+                "Notifications" => IsNotificationsOpen,
+                "UserSwitch" => IsUserSwitchOpen,
+                "Screenshot" => IsScreenshotOpen,
+                "ScreenRecord" => IsScreenRecordOpen,
+                _ => false
+            };
+
+            if (isOpen)
+            {
+                switch (which)
+                {
+                    case "Settings": IsSettingsOpen = false; break;
+                    case "Notifications": IsNotificationsOpen = false; break;
+                    case "UserSwitch": IsUserSwitchOpen = false; break;
+                    case "Screenshot": IsScreenshotOpen = false; break;
+                    case "ScreenRecord": IsScreenRecordOpen = false; break;
+                }
+            }
+            else
+            {
+                IsSettingsOpen = which == "Settings";
+                IsNotificationsOpen = which == "Notifications";
+                IsUserSwitchOpen = which == "UserSwitch";
+                IsScreenshotOpen = which == "Screenshot";
+                IsScreenRecordOpen = which == "ScreenRecord";
+            }
+        }
+
+        private void CloseAllPopups()
+        {
+            IsSettingsOpen = false;
+            IsNotificationsOpen = false;
+            IsScreenshotOpen = false;
+            IsUserSwitchOpen = false;
+            IsScreenRecordOpen = false;
         }
 
         private T ResolveOrNew<T>() where T : class

@@ -239,7 +239,7 @@
                             VerticalAlignment="Center"
                             Margin="0,0,20,0"
                             Cursor="Hand"
-                            MouseLeftButtonDown="Logo_MouseLeftButtonDown"
+                            behaviors:ClickToCommandBehavior.Command="{Binding LogoClickCommand}"
                             ToolTip="{DynamicResource ToolTip.About}">
                     <Border Width="36" Height="36"
                             CornerRadius="{StaticResource TopPillCornerRadius}"
@@ -416,7 +416,7 @@
                         <Button x:Name="NotificationButton"
                                 Style="{StaticResource TopIconButton}"
                                 Content="&#xEA8F;"
-                                Click="DropdownButton_Click"
+                                Command="{Binding TogglePopupCommand}" CommandParameter="Notifications"
                                 ToolTip="{DynamicResource ToolTip.RecentActivity}"/>
                         <Ellipse Width="10" Height="10"
                                  Fill="{DynamicResource DangerBrush}"
@@ -432,7 +432,7 @@
                     <Button x:Name="SettingsButton"
                             Style="{StaticResource TopIconButton}"
                             Content="&#xE713;"
-                            Click="DropdownButton_Click"
+                            Command="{Binding TogglePopupCommand}" CommandParameter="Settings"
                             ToolTip="{DynamicResource ToolTip.Settings}"
                             Margin="0,0,10,0"/>
 
@@ -440,13 +440,13 @@
                     <Button x:Name="ScreenshotButton"
                             Style="{StaticResource TopIconButton}"
                             Content="&#xEB9F;"
-                            Click="DropdownButton_Click"
+                            Command="{Binding TogglePopupCommand}" CommandParameter="Screenshot"
                             ToolTip="{DynamicResource ToolTip.Screenshot}"
                             Margin="0,0,10,0"/>
 
                     <!-- SCREEN RECORD — independent of Demo Center walks -->
                     <Button x:Name="RecordButton"
-                            Click="DropdownButton_Click"
+                            Command="{Binding TogglePopupCommand}" CommandParameter="ScreenRecord"
                             ToolTip="{DynamicResource ToolTip.ScreenRecording}"
                             AutomationProperties.AutomationId="Shell.ScreenRecord"
                             Margin="0,0,10,0">
@@ -472,7 +472,7 @@
                             BorderThickness="0"
                             Cursor="Hand"
                             FocusVisualStyle="{x:Null}"
-                            Click="DropdownButton_Click"
+                            Command="{Binding TogglePopupCommand}" CommandParameter="UserSwitch"
                             ToolTip="{DynamicResource ToolTip.SwitchUser}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -556,7 +556,7 @@
 
             <!-- DIM OVERLAY (only when the drawer is open) -->
             <Rectangle Fill="Black" Opacity="0.35"
-                       MouseLeftButtonDown="DimOverlay_MouseLeftButtonDown">
+                       behaviors:ClickToCommandBehavior.Command="{Binding CloseAllPopupsCommand}">
                 <Rectangle.Style>
                     <Style TargetType="Rectangle">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -661,7 +661,7 @@
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="{DynamicResource Nav.SalesOrders}"
                                               Tag="&#xE8A5;"
-                                              Click="SidebarGroup_Click"/>
+                                              behaviors:AccordionBehavior.Group="Sidebar"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=SalesGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -694,7 +694,7 @@
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="{DynamicResource Nav.ProductionItems}"
                                               Tag="&#xE8C6;"
-                                              Click="SidebarGroup_Click"/>
+                                              behaviors:AccordionBehavior.Group="Sidebar"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=ProductionGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -756,7 +756,7 @@
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="{DynamicResource Nav.Dispatch}"
                                               Tag="&#xE7F4;"
-                                              Click="SidebarGroup_Click"/>
+                                              behaviors:AccordionBehavior.Group="Sidebar"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=DispatchGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -777,7 +777,7 @@
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="{DynamicResource Nav.FinanceAccounting}"
                                               Tag="&#xE90E;"
-                                              Click="SidebarGroup_Click"/>
+                                              behaviors:AccordionBehavior.Group="Sidebar"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=FinanceGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -806,7 +806,7 @@
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="{DynamicResource Nav.Reports}"
                                               Tag="&#xE9F9;"
-                                              Click="SidebarGroup_Click"/>
+                                              behaviors:AccordionBehavior.Group="Sidebar"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=ReportsGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -847,7 +847,7 @@
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="{DynamicResource Nav.MasterDataItems}"
                                               Tag="&#xE822;"
-                                              Click="SidebarGroup_Click"/>
+                                              behaviors:AccordionBehavior.Group="Sidebar"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=MasterDataGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -872,7 +872,7 @@
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="{DynamicResource Nav.System}"
                                               Tag="&#xE713;"
-                                              Click="SidebarGroup_Click"/>
+                                              behaviors:AccordionBehavior.Group="Sidebar"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=SystemGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1121,15 +1121,13 @@
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"
-               IsOpen="{Binding IsSettingsOpen, Mode=TwoWay}"
-               Opened="SettingsPopup_Opened"
-               Closed="SettingsPopup_Closed">
+               IsOpen="{Binding IsSettingsOpen, Mode=TwoWay}">
             <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="360"
                                             />
         </Popup>
 
         <!-- About is NOT a popup: clicking the logo (LogoPanel) opens the full
-             About module (rich AboutView) via Logo_MouseLeftButtonDown. -->
+             About module (rich AboutView) via ClickToCommandBehavior. -->
 
         <!-- Notifications / activity popup (non-blocking) -->
         <Popup x:Name="NotificationsPopup"
@@ -1140,8 +1138,7 @@
                StaysOpen="True"
                PopupAnimation="Fade"
                IsOpen="{Binding IsNotificationsOpen, Mode=TwoWay}"
-               Opened="NotificationsPopup_Opened"
-               Closed="NotificationsPopup_Closed">
+               Opened="NotificationsPopup_Opened">
             <viewsShared:ActivityPanel x:Name="ActivityPanelHost"
                                         />
         </Popup>
@@ -1154,9 +1151,7 @@
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"
-               IsOpen="{Binding IsScreenshotOpen, Mode=TwoWay}"
-               Opened="ScreenshotPopup_Opened"
-               Closed="ScreenshotPopup_Closed">
+               IsOpen="{Binding IsScreenshotOpen, Mode=TwoWay}">
             <viewsShared:ScreenshotPanel x:Name="ScreenshotPanelHost"
                                          />
         </Popup>
@@ -1169,9 +1164,7 @@
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"
-               IsOpen="{Binding IsScreenRecordOpen, Mode=TwoWay}"
-               Opened="ScreenRecordPopup_Opened"
-               Closed="ScreenRecordPopup_Closed">
+               IsOpen="{Binding IsScreenRecordOpen, Mode=TwoWay}">
             <viewsShared:ScreenRecordPanel x:Name="ScreenRecordPanelHost"
                                            />
         </Popup>
