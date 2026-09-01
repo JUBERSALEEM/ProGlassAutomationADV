@@ -229,8 +229,7 @@
          Row 4: Items + History
     -->
     <Grid Margin="{DynamicResource DensityPageMargin}"
-          Background="{DynamicResource ModuleBackgroundBrush}"
-          PreviewMouseLeftButtonDown="Root_PreviewMouseLeftButtonDown">
+          Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -304,7 +303,7 @@
                             Style="{StaticResource OutlinedPillButton}"
                             Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
                             ToolTip="{DynamicResource DeliveryNote.SaveDispatchExportMore}"
-                            Click="ActionsMenuButton_Click"/>
+                            behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
 
                     <Popup x:Name="ActionsMenuPopup"
                            PlacementTarget="{Binding ElementName=ActionsMenuButton}"
@@ -330,31 +329,31 @@
                                 <Button Style="{StaticResource DnMenuRealOnlyItem}"
                                         Tag="&#xE74E;" Content="{DynamicResource DeliveryNote.SaveDispatch}"
                                         Command="{Binding SaveCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
                                         Tag="&#xE81C;" Content="{DynamicResource Common.VersionHistory}"
                                         Command="{Binding ShowVersionsCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
                                         Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportPDF}"
                                         Command="{Binding ExportPdfCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
                                         Tag="&#xE9F9;" Content="{DynamicResource DeliveryNote.ExportExcel}"
                                         Command="{Binding ExportExcelCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
                                         Tag="&#xE72D;" Content="{DynamicResource DeliveryNote.ExportCSV}"
                                         Command="{Binding ExportCsvCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource DnMenuRealOnlyItem}"
                                         Tag="&#xE74D;" Content="{DynamicResource DeliveryNote.DeleteDeliveryNote}"
                                         Command="{Binding DeleteDnCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                             </StackPanel>
                         </Border>
                     </Popup>

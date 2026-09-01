@@ -163,7 +163,7 @@
                             Style="{StaticResource OutlinedPillButton}"
                             Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
                             ToolTip="{DynamicResource TaxInvoice.SaveIssueMarkPaidExportMore}"
-                            Click="ActionsMenuButton_Click"/>
+                            behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
 
                     <Popup x:Name="ActionsMenuPopup"
                            PlacementTarget="{Binding ElementName=ActionsMenuButton}"
@@ -189,37 +189,37 @@
                                 <Button Style="{StaticResource TiMenuActionItem}"
                                         Tag="&#xE74E;" Content="{DynamicResource TaxInvoice.SaveCtrlS}"
                                         Command="{Binding SaveCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
                                         Tag="&#xE72D;" Content="{DynamicResource TaxInvoice.IssueInvoice}"
                                         Command="{Binding IssueCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
                                         Tag="&#xE8FB;" Content="{DynamicResource TaxInvoice.IssueDrafts}"
                                         Command="{Binding IssueAllCommand}"
-                                        Click="MenuActionClicked"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"
                                         Visibility="{Binding CanIssueAllDrafts,
                                             Converter={StaticResource BoolToVisibilityConverter}}"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
                                         Tag="&#xE73E;" Content="{DynamicResource TaxInvoice.MarkPaid}"
                                         Command="{Binding MarkPaidCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
                                         Tag="&#xE81C;" Content="{DynamicResource Common.VersionHistory}"
                                         Command="{Binding ShowVersionsCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
                                         Tag="&#xE8A5;" Content="{DynamicResource DeliveryNote.ExportPDF}"
                                         Command="{Binding ExportPdfCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource TiMenuActionItem}"
                                         Tag="&#xE74D;" Content="{DynamicResource TaxInvoice.DeleteInvoice}"
                                         Command="{Binding DeleteCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                             </StackPanel>
                         </Border>
                     </Popup>
