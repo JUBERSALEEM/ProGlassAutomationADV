@@ -9,6 +9,7 @@ using QuestPDF.Infrastructure;
 using System;
 using System.Linq;
 
+using System.Globalization;
 namespace ProGlassAutomation.Services.DeliveryNote.Export
 {
     /// <summary>
@@ -75,7 +76,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                     DocumentId = DocumentId,
                     SubtitleLine = BuildSubtitle()
                 };
-                info.Meta.Add(("Date", _entity.DeliveryDate.ToString("dd MMM yyyy")));
+                info.Meta.Add(("Date", _entity.DeliveryDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)));
                 info.Meta.Add(("Status", _entity.Status ?? ""));
                 info.Meta.Add(("Job Order", _entity.JobOrderId ?? ""));
                 info.Meta.Add(("This DN", _entity.TotalDeliveredQty.ToString()));
@@ -153,7 +154,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                     PdfChrome.InfoCard(c, "Logistics", col =>
                     {
                         PdfChrome.LabelValue(col, "Date",
-                            _entity.DeliveryDate.ToString("dd MMM yyyy"));
+                            _entity.DeliveryDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture));
                         PdfChrome.LabelValue(col, "Time", _entity.DeliveryTime);
                         PdfChrome.LabelValue(col, "Driver",
                             string.IsNullOrWhiteSpace(_entity.DriverName)
@@ -272,7 +273,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                             alt: alt, center: true, bold: item.BalanceQty > 0,
                             color: item.BalanceQty > 0 ? DocumentStyle.ColorDanger : null,
                             background: ExportColumnPalette.QtyFill);
-                        PdfChrome.DataCell(t.Cell(), sqm.ToString("0.000"),
+                        PdfChrome.DataCell(t.Cell(), sqm.ToString("0.000", CultureInfo.InvariantCulture),
                             alt: alt, center: true,
                             background: ExportColumnPalette.AreaFill);
                         PdfChrome.DataCell(t.Cell(),
@@ -368,7 +369,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                         col.Item().Text("THIS DN SQM")
                             .FontSize(DocumentStyle.FontSizeCaption)
                             .FontColor(DocumentStyle.ColorMuted);
-                        col.Item().Text(totalSqm.ToString("0.000"))
+                        col.Item().Text(totalSqm.ToString("0.000", CultureInfo.InvariantCulture))
                             .FontSize(DocumentStyle.FontSizeH1).Bold()
                             .FontColor(DocumentStyle.ColorAccent);
                     });
@@ -432,7 +433,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             if (!string.IsNullOrWhiteSpace(_entity.JobOrderId))
                 parts.Add($"JO: {_entity.JobOrderId}");
 
-            parts.Add(_entity.DeliveryDate.ToString("dd MMM yyyy"));
+            parts.Add(_entity.DeliveryDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture));
 
             if (!string.IsNullOrWhiteSpace(_entity.Status))
                 parts.Add(_entity.Status.ToUpperInvariant());

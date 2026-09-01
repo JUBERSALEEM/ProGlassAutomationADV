@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using System.Globalization;
 namespace ProGlassAutomation.Services.ProformaInvoice.Export
 {
     /// <summary>
@@ -231,12 +232,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             background: ExportColumnPalette.Pane2Fill);
                         AddCell(table, row.Qty.ToString(), alt, center: true,
                             background: ExportColumnPalette.QtyFill);
-                        AddCell(table, row.UnitArea.ToString("0.000"), alt, right: true,
+                        AddCell(table, row.UnitArea.ToString("0.000", CultureInfo.InvariantCulture), alt, right: true,
                             background: ExportColumnPalette.AreaFill);
-                        AddCell(table, row.TotalArea.ToString("0.000"), alt, right: true,
+                        AddCell(table, row.TotalArea.ToString("0.000", CultureInfo.InvariantCulture), alt, right: true,
                             background: ExportColumnPalette.AreaFill);
-                        AddCell(table, row.Rate.ToString("N2"), alt, right: true);
-                        AddCell(table, row.Total.ToString("N2"), alt, right: true, bold: true);
+                        AddCell(table, row.Rate.ToString("N2", CultureInfo.InvariantCulture), alt, right: true);
+                        AddCell(table, row.Total.ToString("N2", CultureInfo.InvariantCulture), alt, right: true, bold: true);
                         alt = !alt;
                     }
                 });
@@ -451,8 +452,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 CompanyTrn = snapshot.Company?.CompanyTrn ?? "",
                 CompanyLocation = snapshot.Company?.CompanyLocation ?? "",
                 ProformaId = snapshot.Company?.ProformaId ?? entity.ProformaId,
-                IssueDate = snapshot.Company?.IssueDate.ToString("dd MMM yyyy") ?? "",
-                ValidUntil = snapshot.Company?.ValidUntil.ToString("dd MMM yyyy") ?? "",
+                IssueDate = snapshot.Company?.IssueDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) ?? "",
+                ValidUntil = snapshot.Company?.ValidUntil.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) ?? "",
                 ProformaStatus = snapshot.Company?.ProformaStatus ?? entity.Status,
 
                 ProjectName = snapshot.Project?.ProjectIdentifierName

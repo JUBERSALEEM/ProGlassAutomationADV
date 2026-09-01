@@ -6,6 +6,7 @@ using ProGlassAutomation.Utilities;
 using System;
 using System.Linq;
 
+using System.Globalization;
 namespace ProGlassAutomation.Services.ProformaInvoice.Export
 {
     /// <summary>
@@ -101,10 +102,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         writer.WriteField(r.W2);
                         writer.WriteField(r.H2);
                         writer.WriteField(r.Qty);
-                        writer.WriteField(unitArea.ToString("0.000"));
-                        writer.WriteField(totalArea.ToString("0.000"));
-                        writer.WriteField(r.Rate.ToString("N2"));
-                        writer.WriteField(total.ToString("N2"));
+                        writer.WriteField(unitArea.ToString("0.000", CultureInfo.InvariantCulture));
+                        writer.WriteField(totalArea.ToString("0.000", CultureInfo.InvariantCulture));
+                        writer.WriteField(r.Rate.ToString("N2", CultureInfo.InvariantCulture));
+                        writer.WriteField(total.ToString("N2", CultureInfo.InvariantCulture));
                         writer.NextRecord();
                     }
                 }
@@ -116,15 +117,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             // ── Summary rows ─────────────────────────────────────────────
             WriteEmptyThenSummary(writer,
                 "Glass Materials Total",
-                _entity.GlassMaterialsSubtotal.ToString("N2"));
+                _entity.GlassMaterialsSubtotal.ToString("N2", CultureInfo.InvariantCulture));
 
             WriteEmptyThenSummary(writer,
                 "Other Charges Total",
-                _entity.OtherChargesSubtotal.ToString("N2"));
+                _entity.OtherChargesSubtotal.ToString("N2", CultureInfo.InvariantCulture));
 
             WriteEmptyThenSummary(writer,
                 "GRAND TOTAL (VAT INC)",
-                _entity.GrandTotalVatInclusive.ToString("N2"));
+                _entity.GrandTotalVatInclusive.ToString("N2", CultureInfo.InvariantCulture));
         }
 
         // ── Helper ───────────────────────────────────────────────────────────

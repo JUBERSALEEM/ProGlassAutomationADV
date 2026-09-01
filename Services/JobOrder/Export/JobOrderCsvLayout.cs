@@ -7,6 +7,7 @@ using ProGlassAutomation.Services.Export.FileSystem;
 using System;
 using System.Linq;
 
+using System.Globalization;
 namespace ProGlassAutomation.Services.JobOrder.Export
 {
     /// <summary>
@@ -138,8 +139,8 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                     writer.WriteField(row.W2);
                     writer.WriteField(row.H2);
                     writer.WriteField(row.Qty);
-                    writer.WriteField(row.Sqm1.ToString("0.000"));
-                    writer.WriteField(row.TotalSqm.ToString("0.000"));
+                    writer.WriteField(row.Sqm1.ToString("0.000", CultureInfo.InvariantCulture));
+                    writer.WriteField(row.TotalSqm.ToString("0.000", CultureInfo.InvariantCulture));
                     writer.NextRecord();
                 }
             }

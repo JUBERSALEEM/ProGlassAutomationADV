@@ -9,6 +9,7 @@ using QuestPDF.Infrastructure;
 using System;
 using System.Linq;
 
+using System.Globalization;
 namespace ProGlassAutomation.Services.JobOrder.Export
 {
     /// <summary>
@@ -82,7 +83,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                 info.Meta.Add(("Priority", _snapshot.Production?.Priority ?? "Medium"));
                 info.Meta.Add(("Delivery",
                     _snapshot.Production?.DeliveryDate.HasValue == true
-                        ? _snapshot.Production.DeliveryDate.Value.ToString("dd MMM yyyy")
+                        ? _snapshot.Production.DeliveryDate.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)
                         : "Not set"));
                 info.Meta.Add(("Source PI", _snapshot.SourceProformaId ?? "—"));
                 return info;
@@ -144,7 +145,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                     ResolvePriorityColor(_snapshot.Production?.Priority)),
                 ("Delivery",
                     _snapshot.Production?.DeliveryDate.HasValue == true
-                        ? _snapshot.Production.DeliveryDate.Value.ToString("dd MMM yyyy")
+                        ? _snapshot.Production.DeliveryDate.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)
                         : "Not set", null),
                 ("Source PI", _snapshot.SourceProformaId ?? "—", null));
         }
@@ -318,9 +319,9 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                                 background: ExportColumnPalette.Pane2Fill);
                             PdfChrome.DataCell(t.Cell(), r.Qty.ToString(), alt: alt, center: true, bold: true,
                                 background: ExportColumnPalette.QtyFill);
-                            PdfChrome.DataCell(t.Cell(), r.Sqm1.ToString("0.000"), alt: alt, center: true,
+                            PdfChrome.DataCell(t.Cell(), r.Sqm1.ToString("0.000", CultureInfo.InvariantCulture), alt: alt, center: true,
                                 background: ExportColumnPalette.AreaFill);
-                            PdfChrome.DataCell(t.Cell(), r.TotalSqm.ToString("0.000"), alt: alt, center: true, bold: true,
+                            PdfChrome.DataCell(t.Cell(), r.TotalSqm.ToString("0.000", CultureInfo.InvariantCulture), alt: alt, center: true, bold: true,
                                 background: ExportColumnPalette.AreaFill);
                             alt = !alt;
                         }
@@ -353,7 +354,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             PdfChrome.KpiStrip(container,
                 ("Total specs", totalSpecs.ToString(), null),
                 ("Total pieces", totalPieces.ToString(), DocumentStyle.ColorAccent),
-                ("TOTAL SQM", totalSqm.ToString("0.000"), null));
+                ("TOTAL SQM", totalSqm.ToString("0.000", CultureInfo.InvariantCulture), null));
         }
 
         private void RenderSignatureBlock(IContainer container)

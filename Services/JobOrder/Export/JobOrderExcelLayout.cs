@@ -7,6 +7,7 @@ using ProGlassAutomation.Services.Export.FileSystem;
 using System;
 using System.Linq;
 
+using System.Globalization;
 namespace ProGlassAutomation.Services.JobOrder.Export
 {
     /// <summary>
@@ -85,11 +86,11 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             SectionHeader(ws, r, "JOB IDENTITY"); r++;
             LabelValue(ws, r++, "Job Order ID", _entity.JobOrderId ?? "");
             LabelValue(ws, r++, "Source Proforma", _snapshot.SourceProformaId ?? "");
-            LabelValue(ws, r++, "Converted On", _snapshot.ConvertedAt.ToString("dd MMM yyyy"));
+            LabelValue(ws, r++, "Converted On", _snapshot.ConvertedAt.ToString("dd MMM yyyy", CultureInfo.InvariantCulture));
             LabelValue(ws, r++, "Status", FormatStatus(_snapshot.Production?.Status));
             LabelValue(ws, r++, "Priority", _snapshot.Production?.Priority ?? "Medium");
             LabelValue(ws, r++, "Delivery Date",
-                       _snapshot.Production?.DeliveryDate?.ToString("dd MMM yyyy") ?? "Not set");
+                       _snapshot.Production?.DeliveryDate?.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) ?? "Not set");
             r++;
 
             // Company block
@@ -193,7 +194,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             string customer = _invoice.Client?.CustomerName ?? "";
             string jobId = _entity.JobOrderId ?? "";
             string deliveryDisplay = _snapshot.Production?.DeliveryDate.HasValue == true
-                ? _snapshot.Production.DeliveryDate.Value.ToString("dd MMM yyyy")
+                ? _snapshot.Production.DeliveryDate.Value.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)
                 : "Not set";
 
             if (_invoice.SpecGroups != null)
@@ -300,7 +301,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             r += 2;
 
             SectionHeader(ws, r, "AUDIT"); r++;
-            LabelValue(ws, r++, "Last Edited At", prod?.LastEditedAt.ToString("dd MMM yyyy HH:mm") ?? "—");
+            LabelValue(ws, r++, "Last Edited At", prod?.LastEditedAt.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture) ?? "—");
             LabelValue(ws, r++, "Last Edited By", prod?.LastEditedBy ?? "—");
 
             ws.Column(1).Width = 100;

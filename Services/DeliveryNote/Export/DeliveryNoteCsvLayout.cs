@@ -7,6 +7,7 @@ using ProGlassAutomation.Utilities;
 using System;
 using System.Linq;
 
+using System.Globalization;
 namespace ProGlassAutomation.Services.DeliveryNote.Export
 {
     /// <summary>
@@ -133,7 +134,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 writer.WriteField(item.H1);
                 writer.WriteField(item.W2);
                 writer.WriteField(item.H2);
-                writer.WriteField(SqmCalculator.CalculatePanel(item.W1, item.H1).ToString("0.000"));
+                writer.WriteField(SqmCalculator.CalculatePanel(item.W1, item.H1).ToString("0.000", CultureInfo.InvariantCulture));
                 writer.WriteField(item.OrderedQty);
                 writer.WriteField(item.PreviouslyDeliveredQty);
                 writer.WriteField(item.DeliveredQty);

@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using System.Globalization;
 namespace ProGlassAutomation.Services.ProformaInvoice.Export
 {
     /// <summary>Filtered PI list → one Excel worksheet table.</summary>
@@ -100,8 +101,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 bool alt = (row - headerRow) % 2 == 0;
 
                 SetText(ws, row, 1, item.ProformaId, bold: true);
-                SetText(ws, row, 2, item.CreatedAt.ToString("dd MMM yyyy"));
-                SetText(ws, row, 3, item.UpdatedAt.ToString("dd MMM yyyy HH:mm"));
+                SetText(ws, row, 2, item.CreatedAt.ToString("dd MMM yyyy", CultureInfo.InvariantCulture));
+                SetText(ws, row, 3, item.UpdatedAt.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture));
                 SetText(ws, row, 4, item.CustomerName);
                 SetText(ws, row, 5, item.ProjectName);
                 SetText(ws, row, 6, item.CompanyName);

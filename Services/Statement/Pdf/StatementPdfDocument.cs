@@ -156,7 +156,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             };
             info.Meta.Add(("Period", _snap.Header.PeriodDisplay ?? ""));
             info.Meta.Add(("Generated",
-                _snap.Header.GeneratedAt.ToString("dd MMM yyyy  HH:mm")));
+                _snap.Header.GeneratedAt.ToString("dd MMM yyyy  HH:mm", CultureInfo.InvariantCulture)));
             if (!string.IsNullOrWhiteSpace(_snap.Header.FilterSummary))
                 info.Meta.Add(("Filter", _snap.Header.FilterSummary));
 

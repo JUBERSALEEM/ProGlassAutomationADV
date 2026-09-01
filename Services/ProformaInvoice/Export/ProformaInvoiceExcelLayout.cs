@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using System.Globalization;
 namespace ProGlassAutomation.Services.ProformaInvoice.Export
 {
     /// <summary>
@@ -95,8 +96,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             AddField(ws, ref row, "Company TRN", _snapshot.Company?.CompanyTrn ?? "");
             AddField(ws, ref row, "Location", _snapshot.Company?.CompanyLocation ?? "");
             AddField(ws, ref row, "Proforma ID", _snapshot.Company?.ProformaId ?? _entity.ProformaId);
-            AddField(ws, ref row, "Issue Date", _snapshot.Company?.IssueDate.ToString("dd MMM yyyy") ?? "");
-            AddField(ws, ref row, "Valid Until", _snapshot.Company?.ValidUntil.ToString("dd MMM yyyy") ?? "");
+            AddField(ws, ref row, "Issue Date", _snapshot.Company?.IssueDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) ?? "");
+            AddField(ws, ref row, "Valid Until", _snapshot.Company?.ValidUntil.ToString("dd MMM yyyy", CultureInfo.InvariantCulture) ?? "");
             AddField(ws, ref row, "Status", _snapshot.Company?.ProformaStatus ?? _entity.Status);
             row++;
 

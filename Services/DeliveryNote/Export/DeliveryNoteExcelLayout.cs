@@ -7,6 +7,7 @@ using ProGlassAutomation.Utilities;
 using System;
 using System.Linq;
 
+using System.Globalization;
 namespace ProGlassAutomation.Services.DeliveryNote.Export
 {
     /// <summary>
@@ -100,7 +101,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             // Logistics
             SectionHeader(ws, r, "LOGISTICS"); r++;
             LabelValue(ws, r++, "Delivery Date",
-                _entity.DeliveryDate.ToString("dd MMM yyyy"));
+                _entity.DeliveryDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture));
             LabelValue(ws, r++, "Delivery Time", _entity.DeliveryTime);
             LabelValue(ws, r++, "Driver Name", _entity.DriverName);
             LabelValue(ws, r++, "Vehicle No.", _entity.VehicleNumber);
@@ -132,9 +133,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             // Audit
             SectionHeader(ws, r, "AUDIT"); r++;
             LabelValue(ws, r++, "Created At",
-                _entity.CreatedAt.ToString("dd MMM yyyy HH:mm"));
+                _entity.CreatedAt.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture));
             LabelValue(ws, r++, "Updated At",
-                _entity.UpdatedAt.ToString("dd MMM yyyy HH:mm"));
+                _entity.UpdatedAt.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture));
 
             ws.Column(1).Width = 22;
             ws.Column(2).Width = 50;
