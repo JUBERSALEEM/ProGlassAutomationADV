@@ -1,11 +1,25 @@
 using System;
 using System.IO;
 using Xunit;
+using System.Linq;
 
 namespace ProGlassAutomation.Tests.Agent
 {
     public sealed class ProformaStep4PersistenceSourceTests
     {
+        /// <summary>Reads a file plus its .PartN.cs siblings (Phase 3.8 partial families).</summary>
+        private static string ReadFamily(string root, string relative)
+        {
+            var sb = new System.Text.StringBuilder(
+                File.ReadAllText(Path.Combine(root, relative)));
+            string dir = Path.GetDirectoryName(Path.Combine(root, relative))!;
+            string name = Path.GetFileNameWithoutExtension(relative);
+            foreach (var part in Directory.EnumerateFiles(dir, name + ".Part*.cs")
+                         .OrderBy(f => f, StringComparer.Ordinal))
+                sb.Append(File.ReadAllText(part));
+            return sb.ToString();
+        }
+
         [Fact]
         public void Snapshot_and_mapper_include_step4_persistence_surface()
         {
@@ -31,8 +45,8 @@ namespace ProGlassAutomation.Tests.Agent
             string root = LocateProjectRoot();
             string pi = File.ReadAllText(Path.Combine(root,
                 "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs"));
-            string pricing = File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs"));
+            string pricing = ReadFamily(root,
+                "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs");
 
             Assert.Contains("Step4VM.ResetForNewInvoice()", pi);
             Assert.Contains("SpecSheetRegistry.Clear()", pi);
@@ -47,8 +61,8 @@ namespace ProGlassAutomation.Tests.Agent
             string root = LocateProjectRoot();
             string view = File.ReadAllText(Path.Combine(root,
                 "Views/ProformaInvoice/Step4PricingEstimator/PricingEstimatorView.xaml"));
-            string vm = File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs"));
+            string vm = ReadFamily(root,
+                "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs");
             string shell = File.ReadAllText(Path.Combine(root,
                 "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs"));
             string step5 = File.ReadAllText(Path.Combine(root,

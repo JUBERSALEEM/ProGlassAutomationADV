@@ -22,6 +22,7 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using ProGlassAutomation.ViewModels.About;
 using Xunit;
+using System.Linq;
 
 namespace ProGlassAutomation.Tests.About
 {
@@ -107,11 +108,25 @@ namespace ProGlassAutomation.Tests.About
                 "DeveloperSection.xaml regressed to a fixed tech-stack grid.");
         }
 
+        /// <summary>Reads a file plus its .PartN.cs siblings (Phase 3.8
+        /// partial families — source assertions must see all content).</summary>
+        private static string ReadFamily(string root, string relative)
+        {
+            var sb = new System.Text.StringBuilder(
+                File.ReadAllText(Path.Combine(root, relative)));
+            string dir = Path.GetDirectoryName(Path.Combine(root, relative))!;
+            string name = Path.GetFileNameWithoutExtension(relative);
+            foreach (var part in Directory.EnumerateFiles(dir, name + ".Part*.cs")
+                         .OrderBy(f => f, StringComparer.Ordinal))
+                sb.Append(File.ReadAllText(part));
+            return sb.ToString();
+        }
+
         [Fact]
         public void ThemeManager_publishes_the_about_palette_contract()
         {
             var root = LocateProjectRoot();
-            var src = File.ReadAllText(Path.Combine(root, "Services/ThemeManager.cs"));
+            var src = ReadFamily(root, "Services/ThemeManager.cs");
 
             Assert.Contains("PublishAboutPalette", src);
             foreach (var key in new[]

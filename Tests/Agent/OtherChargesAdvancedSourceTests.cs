@@ -10,11 +10,25 @@ using System;
 using System.IO;
 using System.Xml;
 using Xunit;
+using System.Linq;
 
 namespace ProGlassAutomation.Tests.Agent
 {
     public sealed class OtherChargesAdvancedSourceTests
     {
+        /// <summary>Reads a file plus its .PartN.cs siblings (Phase 3.8 partial families).</summary>
+        private static string ReadFamily(string root, string relative)
+        {
+            var sb = new System.Text.StringBuilder(
+                File.ReadAllText(Path.Combine(root, relative)));
+            string dir = Path.GetDirectoryName(Path.Combine(root, relative))!;
+            string name = Path.GetFileNameWithoutExtension(relative);
+            foreach (var part in Directory.EnumerateFiles(dir, name + ".Part*.cs")
+                         .OrderBy(f => f, StringComparer.Ordinal))
+                sb.Append(File.ReadAllText(part));
+            return sb.ToString();
+        }
+
         [Fact]
         public void Step6_xaml_exposes_the_advanced_mode_toggle()
         {
@@ -179,8 +193,8 @@ namespace ProGlassAutomation.Tests.Agent
                 "Services/ProformaInvoice/OtherChargeAutomationRules.cs"));
             var detector = File.ReadAllText(Path.Combine(root,
                 "Utilities/GlassTypeDetector.cs"));
-            var specGroup = File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs"));
+            var specGroup = ReadFamily(root,
+                "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs");
 
             Assert.Contains("ResolveEffectiveGlassType", rules);
             Assert.Contains("PnLSpecParser.Spacer(spec)", rules);
@@ -203,8 +217,8 @@ namespace ProGlassAutomation.Tests.Agent
                 "Views/ProformaInvoice/Step4PricingEstimator/DguParameters/DguParametersView.xaml"));
             var dguVm = File.ReadAllText(Path.Combine(root,
                 "ViewModels/ProformaInvoice/Step4PricingEstimator/DguParameters/DguParametersViewModel.cs"));
-            var pricing = File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs"));
+            var pricing = ReadFamily(root,
+                "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs");
 
             Assert.Contains("HasUInsertExtra", dguView);
             Assert.Contains("U-INSERT / SQM", dguView);

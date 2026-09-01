@@ -23,8 +23,20 @@ namespace ProGlassAutomation.Tests.Agent
 {
     public sealed class LiquidGlassThemeSourceTests
     {
-        private static string Read(string relative) =>
-            File.ReadAllText(Path.Combine(Root(), relative));
+        private static string Read(string relative)
+        {
+            // Phase 3.8: god files are partial families (X.PartN.cs) —
+            // source-level assertions must read the whole family.
+            string root = Root();
+            var sb = new System.Text.StringBuilder(
+                File.ReadAllText(Path.Combine(root, relative)));
+            string dir = Path.GetDirectoryName(Path.Combine(root, relative))!;
+            string name = Path.GetFileNameWithoutExtension(relative);
+            foreach (var part in Directory.EnumerateFiles(dir, name + ".Part*.cs")
+                         .OrderBy(f => f, StringComparer.Ordinal))
+                sb.Append(File.ReadAllText(part));
+            return sb.ToString();
+        }
 
         private static string Engine => Read(
             "Services/Theme/VisualThemeEngine.cs");

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Xunit;
+using System.Linq;
 
 namespace ProGlassAutomation.Tests.Agent;
 
@@ -167,12 +168,23 @@ public sealed class OfflineLicensingHardeningSourceTests
     [Fact]
     public void License_service_exposes_secure_activation_request_api()
     {
-        string src = File.ReadAllText(Path.Combine(Root(),
+        string src = ReadFamily(Path.Combine(Root(),
             "Services", "Licensing", "LicenseService.cs"));
 
         Assert.Contains("CreateActivationRequestJson", src, StringComparison.Ordinal);
         Assert.Contains("ExportActivationRequest", src, StringComparison.Ordinal);
         Assert.Contains("Base64-wrapped whole-license activation is no longer accepted", src, StringComparison.Ordinal);
+    }
+
+    private static string ReadFamily(string path)
+    {
+        var sb = new System.Text.StringBuilder(File.ReadAllText(path));
+        string dir = Path.GetDirectoryName(path)!;
+        string name = Path.GetFileNameWithoutExtension(path);
+        foreach (var part in Directory.EnumerateFiles(dir, name + ".Part*.cs")
+                     .OrderBy(f => f, StringComparer.Ordinal))
+            sb.Append(File.ReadAllText(part));
+        return sb.ToString();
     }
 
     private static string Root()
