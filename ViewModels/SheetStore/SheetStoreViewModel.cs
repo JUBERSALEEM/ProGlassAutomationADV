@@ -25,6 +25,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.SheetStore
 {
@@ -505,7 +506,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         }
 
         private void ShowError(string message) =>
-            MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(message, LocalizationService.Instance.T("Msg.CapError"), MessageBoxButton.OK, MessageBoxImage.Error);
 
         // ============ CSV EXPORT ============
 
@@ -513,8 +514,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (!Sheets.Any())
             {
-                MessageBox.Show("Nothing to export — the current view is empty.",
-                    "Export CSV", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
+                    LocalizationService.Instance.T("DeliveryNote.ExportCSV"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -531,8 +532,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             {
                 await _csvService.ExportAsync(dialog.FileName, Sheets.ToList());
                 MessageBox.Show(
-                    $"Exported {Sheets.Count} sheets to:\n\n{dialog.FileName}",
-                    "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    string.Format(LocalizationService.Instance.T("Msg.ExportedXSheetsToY"), Sheets.Count, dialog.FileName),
+                    LocalizationService.Instance.T("Msg.CapExportComplete"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -546,8 +547,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (!Sheets.Any())
             {
-                MessageBox.Show("Nothing to export — the current view is empty.",
-                    "Export Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
+                    LocalizationService.Instance.T("DeliveryNote.ExportExcel"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -564,8 +565,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             {
                 await _excelService.ExportAsync(dialog.FileName, Sheets.ToList(), BuildFilterInfoString());
                 MessageBox.Show(
-                    $"Exported {Sheets.Count} sheets to Excel:\n\n{dialog.FileName}",
-                    "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    string.Format(LocalizationService.Instance.T("Msg.ExportedXSheetsToExcel"), Sheets.Count, dialog.FileName),
+                    LocalizationService.Instance.T("Msg.CapExportComplete"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -579,8 +580,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (!Sheets.Any())
             {
-                MessageBox.Show("Nothing to export — the current view is empty.",
-                    "Export PDF", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
+                    LocalizationService.Instance.T("DeliveryNote.ExportPDF"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -597,8 +598,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             {
                 await _pdfService.GenerateReportAsync(dialog.FileName, Sheets.ToList(), BuildFilterInfoString());
                 MessageBox.Show(
-                    $"PDF report generated ({Sheets.Count} sheets):\n\n{dialog.FileName}",
-                    "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                    string.Format(LocalizationService.Instance.T("Msg.PDFReportGeneratedXSheets"), Sheets.Count, dialog.FileName),
+                    LocalizationService.Instance.T("Msg.CapExportComplete"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -631,8 +632,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             if (imported.Count == 0)
             {
-                MessageBox.Show("The CSV file has no rows to import.",
-                    "Import CSV", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(LocalizationService.Instance.T("Msg.CSVFileHasNoRows"),
+                    LocalizationService.Instance.T("Msg.CapImportCSV"), MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }
 
@@ -719,12 +720,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 await LoadAsync();
 
                 MessageBox.Show(
-                    $"Import complete!\n\n" +
-                    $"✓ {addedCount} new sheets added\n" +
-                    $"✓ {stockAddedCount} duplicates got stock added\n" +
-                    $"✓ {updatedCount} sheets updated\n" +
-                    $"✕ {skippedCount} duplicates skipped",
-                    "Import Summary", MessageBoxButton.OK, MessageBoxImage.Information);
+                    string.Format(LocalizationService.Instance.T("Msg.ImportCompleteXNewSheets"), addedCount, stockAddedCount, updatedCount, skippedCount),
+                    LocalizationService.Instance.T("Msg.CapImportSummary"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -850,12 +847,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 return;
 
             var result = MessageBox.Show(
-                $"Delete this glass sheet?\n\n" +
-                $"{sheet.Category} • {sheet.ThicknessDisplay} • {sheet.Color}\n" +
-                $"Size: {sheet.SizeDisplay}\n" +
-                $"Stock: {sheet.Stock} sheets ({sheet.TotalPurchaseValue:N0} AED)\n\n" +
-                $"This cannot be undone.",
-                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                string.Format(LocalizationService.Instance.T("Msg.DeleteThisGlassSheetX"), sheet.Category, sheet.ThicknessDisplay, sheet.Color, sheet.SizeDisplay, sheet.Stock, sheet.TotalPurchaseValue),
+                LocalizationService.Instance.T("Msg.CapConfirmDelete"), MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {

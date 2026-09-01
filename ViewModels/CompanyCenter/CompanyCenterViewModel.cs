@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.CompanyCenter
 {
@@ -256,10 +257,8 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 if (p is not CompanyCard card) return;
 
                 var result = System.Windows.MessageBox.Show(
-                    $"Delete company '{card.CompanyName}'?\n\n" +
-                    "Existing invoices keep their own copy of the " +
-                    "company details (snapshots are immutable).",
-                    "Delete Company",
+                    string.Format(LocalizationService.Instance.T("Msg.DeleteCompanyXExistingInvoices"), card.CompanyName),
+                    LocalizationService.Instance.T("Msg.CapDeleteCompany"),
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Warning);
 

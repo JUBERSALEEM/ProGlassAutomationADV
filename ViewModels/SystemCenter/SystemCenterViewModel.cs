@@ -23,6 +23,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.SystemCenter
 {
@@ -263,9 +264,8 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             if (!ok)
             {
                 MessageBox.Show(
-                    "Cannot change this user.\n\n" +
-                    "The last active admin must stay active.",
-                    "Users",
+                    LocalizationService.Instance.T("Msg.CannotChangeThisUserThe"),
+                    LocalizationService.Instance.T("SystemCenter.Users"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }

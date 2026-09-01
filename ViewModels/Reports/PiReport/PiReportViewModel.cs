@@ -20,6 +20,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.Reports.PiReport
 {
@@ -154,7 +155,7 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
                 else
                     res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Proforma Invoice Report", ReportingExportService.PiHeaders, ReportingExportService.PiMap, req);
                 if (!res.Success && !res.Cancelled)
-                    System.Windows.MessageBox.Show(res.ErrorMessage ?? "Export failed.", "Export", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                    System.Windows.MessageBox.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
         }

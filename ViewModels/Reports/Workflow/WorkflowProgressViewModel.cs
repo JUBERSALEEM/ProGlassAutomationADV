@@ -32,6 +32,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.Reports.Workflow
 {
@@ -316,7 +317,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Workflow
 
             MessageBox.Show(
                 message,
-                $"Workflow Warnings ({_result.AllWarnings.Count})",
+                LocalizationService.Instance.T("Msg.CapWorkflowWarningsX"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Warning);
         }

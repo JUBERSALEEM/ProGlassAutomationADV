@@ -35,6 +35,7 @@ using System.Windows.Input;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.About
 {
@@ -160,10 +161,8 @@ namespace ProGlassAutomation.ViewModels.About
         private void ClearAll()
         {
             var answer = MessageBox.Show(
-                "Delete every crash report on disk?\n\n" +
-                "This action cannot be undone. The next crash " +
-                "will start with a fresh report file.",
-                "Clear crash reports",
+                LocalizationService.Instance.T("Msg.DeleteEveryCrashReportOn"),
+                LocalizationService.Instance.T("Msg.CapClearCrashReports"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning,
                 MessageBoxResult.No);

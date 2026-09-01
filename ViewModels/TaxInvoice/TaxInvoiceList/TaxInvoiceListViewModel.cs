@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
 {
@@ -395,10 +396,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
 
                 // NEVER delete directly — explicit confirmation first.
                 var result = System.Windows.MessageBox.Show(
-                    $"Delete tax invoice family '{fam.ProformaId}'?\n\n" +
-                    $"{fam.InvoiceCount} invoice(s) will be permanently " +
-                    "deleted.\nThis cannot be undone.",
-                    "Confirm Delete",
+                    string.Format(LocalizationService.Instance.T("Msg.DeleteTaxInvoiceFamilyX"), fam.ProformaId, fam.InvoiceCount),
+                    LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Warning);
 
@@ -419,8 +418,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 catch (Exception ex)
                 {
                     System.Windows.MessageBox.Show(
-                        $"Delete failed:\n\n{ex.Message}",
-                        "Delete Failed",
+                        string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
+                        LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Error);
                 }

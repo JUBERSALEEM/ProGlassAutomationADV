@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 {
@@ -1017,8 +1018,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (target == null)
                 {
                     MessageBox.Show(
-                        $"Delivery note '{targetDeliveryNoteId}' not found.",
-                        "Not Found",
+                        string.Format(LocalizationService.Instance.T("Msg.DeliveryNoteXNotFound"), targetDeliveryNoteId),
+                        LocalizationService.Instance.T("Msg.CapFound"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return;
@@ -1411,8 +1412,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to save:\n\n{ex.Message}",
-                    "Save Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapSaveFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1436,8 +1437,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (string.IsNullOrWhiteSpace(DeliveryNoteId))
             {
                 MessageBox.Show(
-                    "Save the delivery note first to build its history.",
-                    "Version History",
+                    LocalizationService.Instance.T("Msg.SaveTheDeliveryNoteFirst"),
+                    LocalizationService.Instance.T("Common.VersionHistory"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;
@@ -1458,8 +1459,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (!ok)
             {
                 MessageBox.Show(
-                    "This version could not be applied.",
-                    "Restore Version",
+                    LocalizationService.Instance.T("Msg.VersionCouldNotBeApplied"),
+                    LocalizationService.Instance.T("Msg.CapRestoreVersion"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
             }
@@ -1551,9 +1552,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (!hasDelivery)
             {
                 MessageBox.Show(
-                    "Cannot dispatch — no items have a delivered quantity.\n\n" +
-                    "Enter the quantity delivered for at least one item.",
-                    "Dispatch Failed",
+                    LocalizationService.Instance.T("Msg.CannotDispatchNoItemsHave"),
+                    LocalizationService.Instance.T("Msg.CapDispatchFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
@@ -1638,7 +1638,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 {
                     MessageBox.Show(
                         invoiceNote,
-                        "Dispatched",
+                        LocalizationService.Instance.T("Msg.CapDispatched"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                 }
@@ -1648,8 +1648,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Dispatch failed:\n\n{ex.Message}",
-                    "Dispatch Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.DispatchFailedX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapDispatchFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1673,19 +1673,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 _entity.DeliveryNoteId);
             if (guard.HasDependents)
             {
-                MessageBox.Show(guard.Message, "Cannot Delete",
+                MessageBox.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             var result = MessageBox.Show(
-                $"Delete delivery note '{DeliveryNoteId}'?\n\n" +
-                $"Customer : {CustomerName}\n" +
-                $"Project  : {ProjectName}\n" +
-                $"Status   : {Status}\n\n" +
-                "This will permanently delete the DN and all attached files.\n" +
-                "This cannot be undone.",
-                "Confirm Delete",
+                string.Format(LocalizationService.Instance.T("Msg.DeleteDeliveryNoteXCustomer"), DeliveryNoteId, CustomerName, ProjectName, Status),
+                LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
@@ -1707,8 +1702,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 await App.DeliveryNotes.DeleteAsync(_entity.Id);
 
                 MessageBox.Show(
-                    $"Delivery note '{DeliveryNoteId}' deleted successfully.",
-                    "Deleted",
+                    string.Format(LocalizationService.Instance.T("Msg.DeliveryNoteXDeletedSuccessfully"), DeliveryNoteId),
+                    LocalizationService.Instance.T("SheetStore.Deleted"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
@@ -1717,8 +1712,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to delete:\n\n{ex.Message}",
-                    "Delete Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1757,8 +1752,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (string.IsNullOrWhiteSpace(ProformaId))
             {
                 MessageBox.Show(
-                    "This delivery note has no linked Proforma Invoice.",
-                    "No PI Reference",
+                    LocalizationService.Instance.T("Msg.DeliveryNoteHasNoLinked"),
+                    LocalizationService.Instance.T("Msg.CapPIReference"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
@@ -1767,8 +1762,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (OnRequestOpenTaxInvoiceForDeliveryNote == null)
             {
                 MessageBox.Show(
-                    "Tax Invoice navigation is not wired up.",
-                    "Not Wired",
+                    LocalizationService.Instance.T("Msg.TaxInvoiceNavigationIsNot"),
+                    LocalizationService.Instance.T("Msg.CapWired"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
@@ -1781,8 +1776,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (string.IsNullOrWhiteSpace(targetDnId))
             {
                 MessageBox.Show(
-                    "Cannot determine which DN to invoice.",
-                    "No DN Selected",
+                    LocalizationService.Instance.T("Msg.CannotDetermineWhichDNTo"),
+                    LocalizationService.Instance.T("Msg.CapDNSelected"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
@@ -1791,8 +1786,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (targetQty <= 0)
             {
                 MessageBox.Show(
-                    $"DN '{targetDnId}' has 0 delivered qty.",
-                    "Nothing to Invoice",
+                    string.Format(LocalizationService.Instance.T("Msg.DNXHas0Delivered"), targetDnId),
+                    LocalizationService.Instance.T("Msg.CapNothingToInvoice"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
@@ -1805,8 +1800,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to open Tax Invoice:\n\n{ex.Message}",
-                    "Navigation Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToOpenTaxInvoice"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapNavigationFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1827,8 +1822,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show(
-                    $"Export failed:\n\n{ex.Message}",
-                    $"{kind} Export Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.ExportFailedX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapXExportFailed"),
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
             }
@@ -1885,8 +1880,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 entity = null!;
                 snapshot = null!;
                 MessageBox.Show(
-                    "Load a delivery note before exporting.",
-                    "Nothing to export",
+                    LocalizationService.Instance.T("Msg.LoadADeliveryNoteBefore"),
+                    LocalizationService.Instance.T("Msg.CapNothingToExport"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return false;
@@ -1918,8 +1913,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         {
             if (result.Success || result.Cancelled) return;
             MessageBox.Show(
-                $"{formatLabel} export failed:\n\n{result.ErrorMessage}",
-                "Export Failed",
+                string.Format(LocalizationService.Instance.T("Msg.XExportFailedY"), formatLabel, result.ErrorMessage),
+                LocalizationService.Instance.T("Msg.CapExportFailed"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
@@ -1967,9 +1962,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (!_attachmentService.IsValidImageExtension(dlg.FileName))
                 {
                     MessageBox.Show(
-                        "Unsupported image format.\n\n" +
-                        "Allowed: JPG, PNG, BMP, GIF, WEBP.",
-                        "Invalid File",
+                        LocalizationService.Instance.T("Msg.UnsupportedImageFormatAllowedJPG"),
+                        LocalizationService.Instance.T("Msg.CapInvalidFile"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return;
@@ -1978,9 +1972,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (!_attachmentService.IsUnderSizeLimit(dlg.FileName))
                 {
                     MessageBox.Show(
-                        $"File is too large.\n\n" +
-                        $"Maximum: {AttachmentLimits.MaxFileSizeDisplay}",
-                        "File Too Large",
+                        string.Format(LocalizationService.Instance.T("Msg.FileIsTooLargeMaximum"), AttachmentLimits.MaxFileSizeDisplay),
+                        LocalizationService.Instance.T("Msg.CapFileTooLarge"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return;
@@ -2009,8 +2002,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to upload image:\n\n{ex.Message}",
-                    "Upload Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToUploadImageX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapUploadFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -2035,8 +2028,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (!_attachmentService.IsValidPdfExtension(dlg.FileName))
                 {
                     MessageBox.Show(
-                        "Only PDF files are allowed in this slot.",
-                        "Invalid File",
+                        LocalizationService.Instance.T("Msg.OnlyPDFFilesAreAllowed"),
+                        LocalizationService.Instance.T("Msg.CapInvalidFile"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return;
@@ -2045,9 +2038,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (!_attachmentService.IsUnderSizeLimit(dlg.FileName))
                 {
                     MessageBox.Show(
-                        $"File is too large.\n\n" +
-                        $"Maximum: {AttachmentLimits.MaxFileSizeDisplay}",
-                        "File Too Large",
+                        string.Format(LocalizationService.Instance.T("Msg.FileIsTooLargeMaximum"), AttachmentLimits.MaxFileSizeDisplay),
+                        LocalizationService.Instance.T("Msg.CapFileTooLarge"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return;
@@ -2077,8 +2069,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to upload PDF:\n\n{ex.Message}",
-                    "Upload Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToUploadPDFX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapUploadFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -2091,8 +2083,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Could not open file:\n\n{ex.Message}",
-                    "Open Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.CouldNotOpenFileX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapOpenFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -2103,9 +2095,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (App.DeliveryNotes == null) return;
 
             var result = MessageBox.Show(
-                $"Delete attachment '{row.FileName}'?\n\n" +
-                "This cannot be undone.",
-                "Confirm Delete",
+                string.Format(LocalizationService.Instance.T("Msg.DeleteAttachmentXThisCannot"), row.FileName),
+                LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
@@ -2125,8 +2116,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to delete attachment:\n\n{ex.Message}",
-                    "Delete Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteAttachmentX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }

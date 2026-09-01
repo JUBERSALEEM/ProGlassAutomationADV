@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.Reports.JoReport
 {
@@ -146,7 +147,7 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
                 if (format == ExportFormat.Csv) res = await ReportingExportService.ExportCsvAsync(Rows.ToList(), "Job Order Report", ReportingExportService.JoHeaders, ReportingExportService.JoMap, req);
                 else if (format == ExportFormat.Excel) res = await ReportingExportService.ExportExcelAsync(Rows.ToList(), "Job Order Report", ReportingExportService.JoHeaders, ReportingExportService.JoMapExcel, req);
                 else res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Job Order Report", ReportingExportService.JoHeaders, ReportingExportService.JoMap, req);
-                if (!res.Success && !res.Cancelled) System.Windows.MessageBox.Show(res.ErrorMessage ?? "Export failed.", "Export", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                if (!res.Success && !res.Cancelled) System.Windows.MessageBox.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
         }

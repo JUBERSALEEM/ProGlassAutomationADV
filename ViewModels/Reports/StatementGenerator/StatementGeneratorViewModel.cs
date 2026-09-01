@@ -66,6 +66,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 {
@@ -1539,10 +1540,8 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     LiveAddLogEntry(LogSeverity.Warning,
                         $"› ⚠ A statement with these filters already exists: {duplicate.StatementNumber}");
                     var confirm = System.Windows.MessageBox.Show(
-                        $"A statement with the same filters already exists:\n\n" +
-                        $"  {duplicate.StatementNumber} — {duplicate.SubTitle}\n\n" +
-                        $"Do you want to generate another copy anyway?",
-                        "Duplicate Statement",
+                        string.Format(LocalizationService.Instance.T("Msg.StatementWithTheSameFilters"), duplicate.StatementNumber, duplicate.SubTitle),
+                        LocalizationService.Instance.T("Msg.CapDuplicateStatement"),
                         System.Windows.MessageBoxButton.YesNo,
                         System.Windows.MessageBoxImage.Warning,
                         System.Windows.MessageBoxResult.No);
@@ -1850,7 +1849,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 var result = System.Windows.MessageBox.Show(
                     "The following required signed attachments are missing:\n\n" +
                     string.Join("\n", missing) + guide,
-                    "Missing Signed Attachments",
+                    LocalizationService.Instance.T("Msg.CapMissingSignedAttachments"),
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Warning,
                     System.Windows.MessageBoxResult.No);

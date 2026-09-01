@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 {
@@ -310,8 +311,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 if (items.Count == 0)
                 {
                     MessageBox.Show(
-                        "Nothing to export — the current filter shows no invoices.",
-                        "Export Excel",
+                        LocalizationService.Instance.T("Msg.NothingToExportTheCurrent"),
+                        LocalizationService.Instance.T("DeliveryNote.ExportExcel"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                     return;
@@ -349,8 +350,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             {
                 LastExportStatus = $"✗ Excel export failed: {ex.Message}";
                 MessageBox.Show(
-                    $"Excel export failed: {ex.Message}",
-                    "Export Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -435,8 +436,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to load saved invoices:\n\n{ex.Message}",
-                    "Load Error",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToLoadSavedInvoices"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapLoadError"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -598,9 +599,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             if (item == null || App.Invoices == null) return;
 
             var confirm = MessageBox.Show(
-                $"Duplicate invoice '{item.ProformaId}'?\n\n" +
-                "A new copy will be created with an auto-incremented ID.",
-                "Confirm Duplicate",
+                string.Format(LocalizationService.Instance.T("Msg.DuplicateInvoiceXANew"), item.ProformaId),
+                LocalizationService.Instance.T("Msg.CapConfirmDuplicate"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
             if (confirm != MessageBoxResult.Yes) return;
@@ -648,16 +648,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 await LoadInvoicesAsync();
 
                 MessageBox.Show(
-                    $"Duplicated as '{newId}'.",
-                    "Duplicate Successful",
+                    string.Format(LocalizationService.Instance.T("Msg.DuplicatedAsX"), newId),
+                    LocalizationService.Instance.T("Msg.CapDuplicateSuccessful"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to duplicate: {ex.Message}",
-                    "Duplicate Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDuplicateX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapDuplicateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -680,15 +680,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     item.ProformaId ?? "");
             if (guard.HasDependents)
             {
-                MessageBox.Show(guard.Message, "Cannot Delete",
+                MessageBox.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             var confirm = MessageBox.Show(
-                $"Delete invoice '{item.ProformaId}' permanently?\n\n" +
-                "This cannot be undone.",
-                "Confirm Delete",
+                string.Format(LocalizationService.Instance.T("Msg.DeleteInvoiceXPermanentlyThis"), item.ProformaId),
+                LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
             if (confirm != MessageBoxResult.Yes) return;
@@ -706,8 +705,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to delete: {ex.Message}",
-                    "Delete Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX2"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -751,7 +750,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 if (!transition.IsValid)
                 {
                     MessageBox.Show(transition.Reason ?? "Invalid status change.",
-                        "Status Change Not Allowed",
+                        LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
@@ -777,8 +776,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to change status: {ex.Message}",
-                    "Status Change Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX2"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapStatusChangeFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -903,9 +902,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             await LoadInvoicesAsync();
 
             MessageBox.Show(
-                $"Invoice '{entity.ProformaId}' approved and converted to a " +
-                "Job Order.",
-                "Approved",
+                string.Format(LocalizationService.Instance.T("Msg.InvoiceXApprovedAndConverted"), entity.ProformaId),
+                LocalizationService.Instance.T("Msg.CapApproved"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
         }
@@ -1011,8 +1009,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
                 if (!result.Success && !result.Cancelled)
                     MessageBox.Show(
-                        $"PDF export failed: {result.ErrorMessage}",
-                        "Export Failed",
+                        string.Format(LocalizationService.Instance.T("Msg.PDFExportFailedX"), result.ErrorMessage),
+                        LocalizationService.Instance.T("Msg.CapExportFailed"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
             }
@@ -1020,8 +1018,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             {
                 LastExportStatus = $"✗ PDF export failed: {ex.Message}";
                 MessageBox.Show(
-                    $"PDF export failed: {ex.Message}",
-                    "Export Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.PDFExportFailedX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1057,8 +1055,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
                 if (!result.Success && !result.Cancelled)
                     MessageBox.Show(
-                        $"Excel export failed: {result.ErrorMessage}",
-                        "Export Failed",
+                        string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), result.ErrorMessage),
+                        LocalizationService.Instance.T("Msg.CapExportFailed"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
             }
@@ -1066,8 +1064,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             {
                 LastExportStatus = $"✗ Excel export failed: {ex.Message}";
                 MessageBox.Show(
-                    $"Excel export failed: {ex.Message}",
-                    "Export Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1107,8 +1105,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
                 if (!result.Success && !result.Cancelled)
                     MessageBox.Show(
-                        $"CSV export failed: {result.ErrorMessage}",
-                        "Export Failed",
+                        string.Format(LocalizationService.Instance.T("Msg.CSVExportFailedX"), result.ErrorMessage),
+                        LocalizationService.Instance.T("Msg.CapExportFailed"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
             }
@@ -1116,8 +1114,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             {
                 LastExportStatus = $"✗ CSV export failed: {ex.Message}";
                 MessageBox.Show(
-                    $"CSV export failed: {ex.Message}",
-                    "Export Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.CSVExportFailedX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }

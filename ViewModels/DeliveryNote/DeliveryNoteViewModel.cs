@@ -12,6 +12,7 @@ using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.DeliveryNote
 {
@@ -137,8 +138,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 catch (Exception ex)
                 {
                     MessageBox.Show(
-                        $"Failed to open Master Invoice:\n\n{ex.Message}",
-                        "Navigation Error",
+                        string.Format(LocalizationService.Instance.T("Msg.FailedToOpenMasterInvoice"), ex.Message),
+                        LocalizationService.Instance.T("Msg.CapNavigationError"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
@@ -178,8 +179,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 catch (Exception ex)
                 {
                     MessageBox.Show(
-                        $"Failed to convert DN to Tax Invoice:\n\n{ex.Message}",
-                        "Navigation Error",
+                        string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo"), ex.Message),
+                        LocalizationService.Instance.T("Msg.CapNavigationError"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
@@ -219,8 +220,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             if (string.IsNullOrWhiteSpace(proformaId))
             {
                 MessageBox.Show(
-                    "Cannot create Master Invoice — no PI reference.",
-                    "No PI Reference",
+                    LocalizationService.Instance.T("Msg.CannotCreateMasterInvoiceNo"),
+                    LocalizationService.Instance.T("Msg.CapPIReference"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
@@ -229,9 +230,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             if (OnRequestOpenTaxInvoiceForMasterFromProforma == null)
             {
                 MessageBox.Show(
-                    "Tax Invoice navigation is not wired up.\n\n" +
-                    "Restart the app.",
-                    "Not Wired",
+                    LocalizationService.Instance.T("Msg.TaxInvoiceNavigationIsNot2"),
+                    LocalizationService.Instance.T("Msg.CapWired"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
@@ -245,8 +245,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             if (string.IsNullOrWhiteSpace(deliveryNoteId))
             {
                 MessageBox.Show(
-                    "Cannot convert to Tax Invoice — no DN reference.",
-                    "No DN Reference",
+                    LocalizationService.Instance.T("Msg.CannotConvertToTaxInvoice"),
+                    LocalizationService.Instance.T("Msg.CapDNReference"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
@@ -255,9 +255,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             if (OnRequestOpenTaxInvoiceForDeliveryNote == null)
             {
                 MessageBox.Show(
-                    "Tax Invoice navigation is not wired up.\n\n" +
-                    "Restart the app.",
-                    "Not Wired",
+                    LocalizationService.Instance.T("Msg.TaxInvoiceNavigationIsNot2"),
+                    LocalizationService.Instance.T("Msg.CapWired"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
@@ -328,7 +327,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     {
                         MessageBox.Show(
                             "Could not open Master DN.\n\n" + ex.Message,
-                            "Master DN",
+                            LocalizationService.Instance.T("JobOrder.MasterDN"),
                             MessageBoxButton.OK,
                             MessageBoxImage.Warning);
                         return;
@@ -339,9 +338,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             if (master == null)
             {
                 MessageBox.Show(
-                    $"No Master DN exists for '{jobOrderId}'.\n\n" +
-                    "Approve the Proforma / create the Job Order first.",
-                    "Master DN Not Found",
+                    string.Format(LocalizationService.Instance.T("Msg.MasterDNExistsForX"), jobOrderId),
+                    LocalizationService.Instance.T("Msg.CapMasterDNNotFound"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;
@@ -387,7 +385,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 case DnCreateResult.Kind.FullyDelivered:
                     MessageBox.Show(
                         result.Message,
-                        "Fully Delivered",
+                        LocalizationService.Instance.T("Msg.CapFullyDelivered"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                     break;
@@ -397,7 +395,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                         string.IsNullOrWhiteSpace(result.Message)
                             ? "Failed to create delivery note."
                             : result.Message,
-                        "Create Failed",
+                        LocalizationService.Instance.T("Msg.CapCreateFailed"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
                     break;

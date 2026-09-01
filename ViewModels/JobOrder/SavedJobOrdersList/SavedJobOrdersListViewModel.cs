@@ -21,6 +21,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 {
@@ -467,16 +468,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     row.JobOrderId);
             if (guard.HasDependents)
             {
-                MessageBox.Show(guard.Message, "Cannot Delete",
+                MessageBox.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             var result = MessageBox.Show(
-                $"Delete job order '{row.JobOrderId}'?\n\n" +
-                $"Customer: {row.CustomerName}\n" +
-                $"This action cannot be undone.",
-                "Confirm Delete",
+                string.Format(LocalizationService.Instance.T("Msg.DeleteJobOrderXCustomer"), row.JobOrderId, row.CustomerName),
+                LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
@@ -549,8 +548,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to delete job order:\n\n{ex.Message}",
-                    "Delete Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteJobOrder"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -610,8 +609,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             if (App.Invoices == null || App.Jobs == null)
             {
                 MessageBox.Show(
-                    "Databases are still initialising. Try again in a moment.",
-                    "Not Ready",
+                    LocalizationService.Instance.T("Msg.DatabasesAreStillInitialisingTry"),
+                    LocalizationService.Instance.T("Msg.CapReady"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;
@@ -636,8 +635,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 if (saved == null)
                 {
                     MessageBox.Show(
-                        $"Proforma Invoice '{proformaId}' could not be loaded.",
-                        "Create Failed",
+                        string.Format(LocalizationService.Instance.T("Msg.ProformaInvoiceXCouldNot"), proformaId),
+                        LocalizationService.Instance.T("Msg.CapCreateFailed"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
                     return;
@@ -656,10 +655,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                         existing.Select(j => j.JobOrderId));
 
                     var again = MessageBox.Show(
-                        $"{proformaId} already has {existing.Count} job "
-                        + $"order(s): {ids}.\n\n"
-                        + "Create another one from the same quote?",
-                        "Already Converted",
+                        string.Format(LocalizationService.Instance.T("Msg.XAlreadyHasYJob"), proformaId, existing.Count, ids),
+                        LocalizationService.Instance.T("Msg.CapAlreadyConverted"),
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Warning,
                         MessageBoxResult.No);
@@ -704,8 +701,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to create job order:\n\n{ex.Message}",
-                    "Create Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateJobOrder"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -727,7 +724,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 if (!transition.IsValid)
                 {
                     MessageBox.Show(transition.Reason ?? "Invalid status change.",
-                        "Status Change Not Allowed",
+                        LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
@@ -760,8 +757,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to change status:\n\n{ex.Message}",
-                    "Update Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapUpdateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -799,8 +796,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to change priority:\n\n{ex.Message}",
-                    "Update Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangePriorityX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapUpdateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -864,8 +861,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 if (entity == null)
                 {
                     MessageBox.Show(
-                        $"Job order '{row.JobOrderId}' no longer exists.",
-                        "Not Found",
+                        string.Format(LocalizationService.Instance.T("Msg.JobOrderXNoLonger"), row.JobOrderId),
+                        LocalizationService.Instance.T("Msg.CapFound"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return (null, null);
@@ -875,8 +872,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 if (snapshot == null)
                 {
                     MessageBox.Show(
-                        $"Job order '{row.JobOrderId}' has corrupt snapshot data.",
-                        "Corrupt Data",
+                        string.Format(LocalizationService.Instance.T("Msg.JobOrderXHasCorrupt"), row.JobOrderId),
+                        LocalizationService.Instance.T("Msg.CapCorruptData"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
                     return (entity, null);
@@ -887,8 +884,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to load job order:\n\n{ex.Message}",
-                    "Load Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrder"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapLoadFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return (null, null);
@@ -913,8 +910,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 return;
 
             MessageBox.Show(
-                $"{formatLabel} export failed:\n\n{result.ErrorMessage}",
-                "Export Failed",
+                string.Format(LocalizationService.Instance.T("Msg.XExportFailedY"), formatLabel, result.ErrorMessage),
+                LocalizationService.Instance.T("Msg.CapExportFailed"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }

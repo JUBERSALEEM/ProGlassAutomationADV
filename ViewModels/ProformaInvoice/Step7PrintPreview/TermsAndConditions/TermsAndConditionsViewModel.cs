@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions
 {
@@ -62,11 +63,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
                 if (Clauses.Count > 0)
                 {
                     var result = MessageBox.Show(
-                        "Reset all terms to defaults?\n\n" +
-                        "This will DELETE any custom clauses you have added and " +
-                        "revert edits to the default 6 UAE clauses.\n\n" +
-                        "Are you sure?",
-                        "Reset to Defaults",
+                        LocalizationService.Instance.T("Msg.ResetAllTermsToDefaults"),
+                        LocalizationService.Instance.T("Msg.CapResetToDefaults"),
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Warning);
 

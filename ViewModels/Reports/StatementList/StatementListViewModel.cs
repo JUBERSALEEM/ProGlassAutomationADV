@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.Reports.StatementList
 {
@@ -327,9 +328,8 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
             if (row == null) return;
 
             var result = MessageBox.Show(
-                $"Delete statement {row.StatementNumber}?\n\n" +
-                "This will also delete the PDF file if it exists.",
-                "Confirm Delete",
+                string.Format(LocalizationService.Instance.T("Msg.DeleteStatementXThisWill"), row.StatementNumber),
+                LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 

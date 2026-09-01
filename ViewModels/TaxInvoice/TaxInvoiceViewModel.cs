@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.TaxInvoice
 {
@@ -284,10 +285,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                     if (!hasDelivered)
                     {
                         MessageBox.Show(
-                            "No dispatched delivery yet for this Job Order.\n\n" +
-                            "Create the DN, enter qty, then click Make DN.\n" +
-                            "Master Invoice uses dispatched pcs only.",
-                            "Nothing to Invoice",
+                            LocalizationService.Instance.T("Msg.DispatchedDeliveryYetForThis"),
+                            LocalizationService.Instance.T("Msg.CapNothingToInvoice"),
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
                         return;
@@ -302,8 +301,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to create Master invoice:\n\n{ex.Message}",
-                    "Create Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateMasterInvoice"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -358,8 +357,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                 if (dn == null)
                 {
                     MessageBox.Show(
-                        $"Delivery Note '{deliveryNoteId}' not found.",
-                        "Not Found",
+                        string.Format(LocalizationService.Instance.T("Msg.DeliveryNoteXNotFound2"), deliveryNoteId),
+                        LocalizationService.Instance.T("Msg.CapFound"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return;
@@ -368,9 +367,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                 if (string.IsNullOrWhiteSpace(dn.ProformaId))
                 {
                     MessageBox.Show(
-                        $"DN '{deliveryNoteId}' has no linked Proforma Invoice.\n\n" +
-                        "Tax Invoices require a PI reference.",
-                        "No PI Reference",
+                        string.Format(LocalizationService.Instance.T("Msg.DNXHasNoLinked"), deliveryNoteId),
+                        LocalizationService.Instance.T("Msg.CapPIReference"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return;
@@ -387,8 +385,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to convert DN to invoice:\n\n{ex.Message}",
-                    "Convert Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo2"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapConvertFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -404,8 +402,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             if (App.Invoices == null)
             {
                 MessageBox.Show(
-                    "Proforma Invoice database not initialized.",
-                    "Error",
+                    LocalizationService.Instance.T("Msg.ProformaInvoiceDatabaseNotInitialized"),
+                    LocalizationService.Instance.T("Msg.CapError"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
@@ -459,11 +457,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                 {
                     // No deliveries yet — full PI import (advance invoice case)
                     var choice = MessageBox.Show(
-                        $"No delivered items found for '{proformaId}'.\n\n" +
-                        "Create invoice using FULL Proforma Invoice qty?\n\n" +
-                        "  Yes → Import all PI rows (advance invoicing)\n" +
-                        "  No  → Cancel",
-                        "No Deliveries Yet",
+                        string.Format(LocalizationService.Instance.T("Msg.DeliveredItemsFoundForX"), proformaId),
+                        LocalizationService.Instance.T("Msg.CapDeliveriesYet"),
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question);
 
@@ -478,8 +473,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to create invoice:\n\n{ex.Message}",
-                    "Create Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateInvoiceX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -508,15 +503,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                 return (false, true);
 
             var choice = MessageBox.Show(
-                $"A Draft invoice already exists for '{proformaId}':\n\n" +
-                $"   🧾  {existingDraft.InvoiceNumber}\n" +
-                $"   📅  {existingDraft.IssueDate:dd MMM yyyy}\n" +
-                $"   💰  AED {existingDraft.GrandTotal:N2}\n\n" +
-                "What would you like to do?\n\n" +
-                "  Yes    → Open the existing Draft\n" +
-                "  No     → Create a NEW invoice (will be Partial: A/B/C)\n" +
-                "  Cancel → Go back",
-                "Draft Invoice Exists",
+                string.Format(LocalizationService.Instance.T("Msg.DraftInvoiceAlreadyExistsFor"), proformaId, existingDraft.InvoiceNumber, existingDraft.IssueDate.ToString("dd MMM yyyy", LocalizationService.Instance.CurrentCulture), existingDraft.GrandTotal.ToString("N2", LocalizationService.Instance.CurrentCulture)),
+                LocalizationService.Instance.T("Msg.CapDraftInvoiceExists"),
                 MessageBoxButton.YesNoCancel,
                 MessageBoxImage.Question);
 

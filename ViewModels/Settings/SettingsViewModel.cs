@@ -36,6 +36,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.Settings
 {
@@ -1308,7 +1309,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 try
                 {
                     System.Windows.MessageBox.Show(
-                        result.Error, "Import font",
+                        result.Error, LocalizationService.Instance.T("Msg.CapImportFont"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 catch { /* status still updated */ }
@@ -1329,7 +1330,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 System.Windows.MessageBox.Show(
                     "Font imported: " + result.Value + "\nIt is now applied app-wide.",
-                    "Import font", MessageBoxButton.OK, MessageBoxImage.Information);
+                    LocalizationService.Instance.T("Msg.CapImportFont"), MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch { /* status still updated */ }
         }
@@ -2197,10 +2198,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             RemoveSavedKeysCommand = new RelayCommand(_ =>
             {
                 var confirm = System.Windows.MessageBox.Show(
-                    "Remove all saved API keys from this device?\n\n" +
-                    "They will also be cleared from memory — AI stops " +
-                    "working until keys are entered again.",
-                    "Remove Saved Keys",
+                    LocalizationService.Instance.T("Msg.RemoveAllSavedAPIKeys"),
+                    LocalizationService.Instance.T("Settings.RemoveSavedKeys"),
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Warning);
 
@@ -2233,7 +2232,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     var summary = await ProGlassAutomation.Services
                         .SampleData.SampleDataService.SeedAsync();
                     System.Windows.MessageBox.Show(
-                        summary, "Sample Data",
+                        summary, LocalizationService.Instance.T("Settings.SampleDATA"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Information);
                 }
@@ -2241,7 +2240,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     System.Windows.MessageBox.Show(
                         "Could not load sample data: " + ex.Message,
-                        "Sample Data", System.Windows.MessageBoxButton.OK,
+                        LocalizationService.Instance.T("Settings.SampleDATA"), System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                 }
             });
@@ -2266,7 +2265,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "  • Tax invoices\n\n" +
                     "This cannot be undone (take a backup first if in " +
                     "doubt).\n\nContinue?",
-                    "Clear All Data",
+                    LocalizationService.Instance.T("Settings.ClearDATA"),
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Warning);
 
@@ -2277,7 +2276,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     var summary = await ProGlassAutomation.Services
                         .SampleData.SampleDataService.ClearAllDataAsync();
                     System.Windows.MessageBox.Show(
-                        summary, "Clear All Data",
+                        summary, LocalizationService.Instance.T("Settings.ClearDATA"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Information);
                 }
@@ -2285,7 +2284,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     System.Windows.MessageBox.Show(
                         "Could not clear data: " + ex.Message,
-                        "Clear All Data", System.Windows.MessageBoxButton.OK,
+                        LocalizationService.Instance.T("Settings.ClearDATA"), System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                 }
             });
@@ -2592,9 +2591,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     var mins = (int)sinceLast.Value.TotalMinutes;
                     var confirm = System.Windows.MessageBox.Show(
-                        $"A backup was created {mins} minute(s) ago.\n\n" +
-                        "Create another backup now?",
-                        "Backup Already Recent",
+                        string.Format(LocalizationService.Instance.T("Msg.BackupWasCreatedXMinute"), mins),
+                        LocalizationService.Instance.T("Msg.CapBackupAlreadyRecent"),
                         System.Windows.MessageBoxButton.YesNo,
                         System.Windows.MessageBoxImage.Question);
                     if (confirm != System.Windows.MessageBoxResult.Yes)
@@ -2619,9 +2617,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                         "Restore is blocked in Demo Mode. Exit Demo Mode first — " +
                         "restore writes the production folder.";
                     System.Windows.MessageBox.Show(
-                        "Demo Mode is on. Restore would overwrite production files, " +
-                        "so it is blocked. Exit Demo Mode, then restore.",
-                        "Restore blocked",
+                        LocalizationService.Instance.T("Msg.DemoModeIsOnRestore"),
+                        LocalizationService.Instance.T("Msg.CapRestoreBlocked"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                     return;
@@ -2637,10 +2634,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
 
                 var confirm = System.Windows.MessageBox.Show(
-                    $"Restore backup from {selected.CreatedAt:dd MMM yyyy HH:mm}?\n\n" +
-                    "This OVERWRITES all current data with the backup.\n" +
-                    "A safety snapshot of the current data is taken first.",
-                    "Restore Backup",
+                    string.Format(LocalizationService.Instance.T("Msg.RestoreBackupFromXThis"), selected.CreatedAt),
+                    LocalizationService.Instance.T("Msg.CapRestoreBackup"),
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Warning);
 
@@ -2659,10 +2654,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // The restored database only loads after a restart —
                 // surface that explicitly instead of a tiny status line.
                 var restart = System.Windows.MessageBox.Show(
-                    "Backup restored successfully.\n\n" +
-                    "ProGlass must restart to load the restored data.\n" +
-                    "Restart now?",
-                    "Restart Required",
+                    LocalizationService.Instance.T("Msg.BackupRestoredSuccessfullyProGlassMust"),
+                    LocalizationService.Instance.T("Msg.CapRestartRequired"),
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Question);
 
@@ -2762,7 +2755,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Rebuilding all databases is restricted to Managers " +
                     "and Administrators. Your role: " +
                     (string.IsNullOrEmpty(role) ? "none" : role) + ".",
-                    "Permission Denied",
+                    LocalizationService.Instance.T("Msg.CapPermissionDenied"),
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Warning);
                 return;
@@ -2822,7 +2815,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     AppDataRoot.CurrentFolder + "\\MigrationBackups\\\n\n" +
                     "ProGlass must be restarted to load the new databases.\n\n" +
                     "Restart now?",
-                    "Rebuild complete",
+                    LocalizationService.Instance.T("Msg.CapRebuildComplete"),
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Information,
                     System.Windows.MessageBoxResult.Yes);
@@ -2846,7 +2839,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Rebuild failed: " + ex.Message +
                     "\n\nThe original databases are still in " +
                     "MigrationBackups and have NOT been deleted.",
-                    "Rebuild failed",
+                    LocalizationService.Instance.T("Msg.CapRebuildFailed"),
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
             }
@@ -2916,9 +2909,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ProGlassAutomation.Services.Logging.AppLogService.Warning(
                         "[SettingsViewModel] Restart aborted: could not resolve the running executable.");
                     System.Windows.MessageBox.Show(
-                        "Restart could not find the application executable.\n" +
-                        "Save your work and start the app manually.",
-                        "Restart unavailable",
+                        LocalizationService.Instance.T("Msg.RestartCouldNotFindThe"),
+                        LocalizationService.Instance.T("Msg.CapRestartUnavailable"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                     return; // never close without launching
@@ -2938,9 +2930,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ProGlassAutomation.Services.Logging.AppLogService.Warning(
                         "[SettingsViewModel] Restart blocked by security check: " + exe);
                     System.Windows.MessageBox.Show(
-                        "Restart was blocked by the security guard.\n" +
-                        "Save your work and start the app manually.",
-                        "Restart blocked",
+                        LocalizationService.Instance.T("Msg.RestartWasBlockedByThe"),
+                        LocalizationService.Instance.T("Msg.CapRestartBlocked"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                     return; // never close without launching
@@ -2958,9 +2949,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (started == null)
                 {
                     System.Windows.MessageBox.Show(
-                        "Restart failed to start a new instance.\n" +
-                        "Save your work and start the app manually.",
-                        "Restart failed",
+                        LocalizationService.Instance.T("Msg.RestartFailedToStartA"),
+                        LocalizationService.Instance.T("Msg.CapRestartFailed"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                     return; // never close without launching
@@ -2983,7 +2973,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     System.Windows.MessageBox.Show(
                         "Restart failed (" + ex.Message + ").\n" +
                         "Save your work and start the app manually.",
-                        "Restart failed",
+                        LocalizationService.Instance.T("Msg.CapRestartFailed"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                 }

@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
 {
@@ -141,7 +142,7 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
                 if (format == ExportFormat.Csv) res = await ReportingExportService.ExportCsvAsync(Rows.ToList(), "Tax Invoice Report", ReportingExportService.TiHeaders, ReportingExportService.TiMap, req);
                 else if (format == ExportFormat.Excel) res = await ReportingExportService.ExportExcelAsync(Rows.ToList(), "Tax Invoice Report", ReportingExportService.TiHeaders, ReportingExportService.TiMapExcel, req);
                 else res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Tax Invoice Report", ReportingExportService.TiHeaders, ReportingExportService.TiMap, req);
-                if (!res.Success && !res.Cancelled) System.Windows.MessageBox.Show(res.ErrorMessage ?? "Export failed.", "Export", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                if (!res.Success && !res.Cancelled) System.Windows.MessageBox.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
         }

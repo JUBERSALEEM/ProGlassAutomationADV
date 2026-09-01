@@ -31,6 +31,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
 {
@@ -193,8 +194,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
             if (!HasProformaId)
             {
                 MessageBox.Show(
-                    "Set a Proforma ID in Step 1 before adding attachments.",
-                    "Attachments",
+                    LocalizationService.Instance.T("Msg.SetAProformaIDIn"),
+                    LocalizationService.Instance.T("DeliveryNote.Attachments"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;
@@ -318,8 +319,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Cannot open file:\n\n{ex.Message}",
-                    "Attachments",
+                    string.Format(LocalizationService.Instance.T("Msg.CannotOpenFileX"), ex.Message),
+                    LocalizationService.Instance.T("DeliveryNote.Attachments"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
             }
@@ -362,9 +363,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
             if (row == null) return;
 
             var confirm = MessageBox.Show(
-                $"Remove attachment '{row.FileName}'?\n\n" +
-                "The file will be deleted from disk.",
-                "Delete Attachment",
+                string.Format(LocalizationService.Instance.T("Msg.RemoveAttachmentXTheFile"), row.FileName),
+                LocalizationService.Instance.T("Msg.CapDeleteAttachment"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
 

@@ -26,6 +26,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice
 {
@@ -479,7 +480,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             var entity = await App.Invoices.GetByIdAsync(invoiceId);
             if (entity == null)
             {
-                MessageBox.Show("Selected invoice could not be found.", "Load Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(LocalizationService.Instance.T("Msg.SelectedInvoiceCouldNotBe"), LocalizationService.Instance.T("Msg.CapLoadFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
@@ -540,7 +541,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(wrapper);
             if (snapshot == null)
             {
-                MessageBox.Show("This version could not be read.", "Restore Version", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(LocalizationService.Instance.T("Msg.VersionCouldNotBeRead"), LocalizationService.Instance.T("Msg.CapRestoreVersion"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             Step7VM.InvoiceMainSummary.BeginBatchUpdate();

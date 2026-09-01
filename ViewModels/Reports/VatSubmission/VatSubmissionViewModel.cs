@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
 {
@@ -245,7 +246,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
                 
                 if (!res.Success && !res.Cancelled) 
                     System.Windows.MessageBox.Show(res.ErrorMessage ?? "Export failed.", 
-                        "Export", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                        LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
         }

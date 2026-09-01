@@ -47,6 +47,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels
 {
@@ -900,7 +901,7 @@ namespace ProGlassAutomation.ViewModels
                 "• No — create a blank Proforma Invoice without an inquiry\n" +
                 "• Cancel — do not start a new Proforma Invoice";
             var result = System.Windows.MessageBox.Show(message,
-                "Start Proforma Invoice from Inquiry?",
+                LocalizationService.Instance.T("Msg.CapStartProformaInvoiceFromInquiry"),
                 System.Windows.MessageBoxButton.YesNoCancel,
                 System.Windows.MessageBoxImage.Question,
                 System.Windows.MessageBoxResult.Yes);
@@ -937,7 +938,7 @@ namespace ProGlassAutomation.ViewModels
             {
                 System.Windows.MessageBox.Show(
                     gate.Reason,
-                    "Upgrade required",
+                    LocalizationService.Instance.T("Msg.CapUpgradeRequired"),
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Information);
                 return;

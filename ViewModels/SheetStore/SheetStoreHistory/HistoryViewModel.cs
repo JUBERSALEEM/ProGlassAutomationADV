@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
 {
@@ -159,7 +160,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
             {
                 MessageBox.Show(
                     "Failed to load history:\n\n" + ex.Message,
-                    "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationService.Instance.T("Msg.CapError"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {

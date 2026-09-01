@@ -23,6 +23,7 @@ using ProGlassAutomation.ViewModels.Shared;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.JobOrder
 {
@@ -160,8 +161,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             catch (Exception ex)
             {
                 System.Windows.MessageBox.Show(
-                    $"Could not open job order:\n\n{ex.Message}",
-                    "Job Orders",
+                    string.Format(LocalizationService.Instance.T("Msg.CouldNotOpenJobOrder"), ex.Message),
+                    LocalizationService.Instance.T("Dashboard.JobOrders"),
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Warning);
             }
@@ -205,8 +206,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder
                 if (entity == null)
                 {
                     System.Windows.MessageBox.Show(
-                        $"Job order '{version.EntityId}' no longer exists.",
-                        "Restore Version",
+                        string.Format(LocalizationService.Instance.T("Msg.JobOrderXNoLonger"), version.EntityId),
+                        LocalizationService.Instance.T("Msg.CapRestoreVersion"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                     return;
@@ -221,8 +222,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder
                 if (!ok)
                 {
                     System.Windows.MessageBox.Show(
-                        "This version could not be applied.",
-                        "Restore Version",
+                        LocalizationService.Instance.T("Msg.VersionCouldNotBeApplied"),
+                        LocalizationService.Instance.T("Msg.CapRestoreVersion"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                 }

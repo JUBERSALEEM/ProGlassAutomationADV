@@ -46,6 +46,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Media;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.PrintableInvoice
 {
@@ -363,17 +364,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             if (App.Invoices == null)
             {
                 MessageBox.Show(
-                    "Invoice database is not initialized. Please restart the app.",
-                    "Save Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationService.Instance.T("Msg.InvoiceDatabaseIsNotInitialized"),
+                    LocalizationService.Instance.T("Msg.CapSaveFailed"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(Company.ProformaId))
             {
                 MessageBox.Show(
-                    "Cannot save — Proforma ID is empty.\n\n" +
-                    "Please set a Proforma ID in Step 1 (Company Details) before saving.",
-                    "Save Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationService.Instance.T("Msg.CannotSaveProformaIDIs"),
+                    LocalizationService.Instance.T("Msg.CapSaveFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -401,11 +401,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                     await App.Invoices.SuggestNextIdAsync(entity.ProformaId);
 
                 var result = MessageBox.Show(
-                    $"An invoice with ID '{entity.ProformaId}' already exists.\n\n" +
-                    $"• YES → Update the existing invoice (overwrite)\n" +
-                    $"• NO → Save as new invoice with ID '{suggestedId}'\n" +
-                    $"• CANCEL → Return to editing without saving",
-                    "Duplicate Proforma ID",
+                    string.Format(LocalizationService.Instance.T("Msg.InvoiceWithIDXAlready"), entity.ProformaId, suggestedId),
+                    LocalizationService.Instance.T("Msg.CapDuplicateProformaID"),
                     MessageBoxButton.YesNoCancel,
                     MessageBoxImage.Question);
 
@@ -504,10 +501,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
             string verb = isUpdate ? "updated" : "saved";
             MessageBox.Show(
-                $"Invoice '{proformaId}' was {verb} successfully.\n\n" +
-                "This SAVE ONLY action does not confirm the PI. " +
-                "Confirmation happens through Step 8 attachments / the approval flow.",
-                "Save Successful",
+                string.Format(LocalizationService.Instance.T("Msg.InvoiceXWasYSuccessfully"), proformaId, verb),
+                LocalizationService.Instance.T("Msg.CapSaveSuccessful"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
         }
@@ -521,8 +516,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             if (App.Invoices == null)
             {
                 MessageBox.Show(
-                    "Invoice database is not initialized. Please restart the app.",
-                    "Load Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationService.Instance.T("Msg.InvoiceDatabaseIsNotInitialized"),
+                    LocalizationService.Instance.T("Msg.CapLoadFailed"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -534,11 +529,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             if (hasCurrentData)
             {
                 var choice = MessageBox.Show(
-                    "Loading a saved invoice will replace your current wizard data.\n\n" +
-                    "• YES → Save current invoice first, then load\n" +
-                    "• NO → Discard current data and load\n" +
-                    "• CANCEL → Return to editing",
-                    "Unsaved Changes",
+                    LocalizationService.Instance.T("Msg.LoadingASavedInvoiceWill"),
+                    LocalizationService.Instance.T("Inquiry.UnsavedChanges"),
                     MessageBoxButton.YesNoCancel,
                     MessageBoxImage.Question);
 
@@ -559,8 +551,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             if (entity == null)
             {
                 MessageBox.Show(
-                    "Selected invoice could not be found.",
-                    "Load Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    LocalizationService.Instance.T("Msg.SelectedInvoiceCouldNotBe"),
+                    LocalizationService.Instance.T("Msg.CapLoadFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -581,9 +573,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             }
 
             MessageBox.Show(
-                $"Invoice '{entity.ProformaId}' loaded successfully.\n\n" +
-                "All wizard steps have been updated. Review each step and make changes as needed.",
-                "Load Successful",
+                string.Format(LocalizationService.Instance.T("Msg.InvoiceXLoadedSuccessfullyAll"), entity.ProformaId),
+                LocalizationService.Instance.T("Msg.CapLoadSuccessful"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
         }
@@ -649,9 +640,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             if (string.IsNullOrWhiteSpace(Company.ProformaId))
             {
                 MessageBox.Show(
-                    $"Cannot export — Proforma ID is empty.\n\n" +
-                    "Please set a Proforma ID in Step 1 (Company Details) before exporting.",
-                    $"{formatLabel} Export Failed",
+                    LocalizationService.Instance.T("Msg.CannotExportProformaIDIs"),
+                    LocalizationService.Instance.T("Msg.CapXExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return false;
@@ -663,8 +653,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         {
             if (result.Success || result.Cancelled) return;
             MessageBox.Show(
-                $"{formatLabel} export failed:\n\n{result.ErrorMessage}",
-                "Export Failed",
+                string.Format(LocalizationService.Instance.T("Msg.XExportFailedY"), formatLabel, result.ErrorMessage),
+                LocalizationService.Instance.T("Msg.CapExportFailed"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
@@ -1598,10 +1588,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         private static void ShowComingSoon(string featureName, string phase)
         {
             MessageBox.Show(
-                $"{featureName} is coming in {phase}.\n\n" +
-                "For now, use the Print button (top-right) — you can 'Print to PDF' " +
-                "via Microsoft Print to PDF to save as PDF.",
-                $"{featureName} — Coming Soon",
+                string.Format(LocalizationService.Instance.T("Msg.XIsComingInY"), featureName, phase),
+                LocalizationService.Instance.T("Msg.CapXComingSoon"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
         }

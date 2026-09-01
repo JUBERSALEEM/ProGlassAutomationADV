@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 {
@@ -91,14 +92,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 MessageBox.Show(
                     "Could not read the cut list.\n\n" + ex.Message +
                     "\n\nMake sure the file is a valid Excel (.xlsx), CSV or TXT file.",
-                    "Import cut list", MessageBoxButton.OK, MessageBoxImage.Error);
+                    LocalizationService.Instance.T("Msg.CapImportCutList"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (parsed.Rows.Count == 0)
             {
                 IoStatus = parsed.Warning ?? "No rows imported.";
-                MessageBox.Show(IoStatus, "Import cut list",
+                MessageBox.Show(IoStatus, LocalizationService.Instance.T("Msg.CapImportCutList"),
                     MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
             }

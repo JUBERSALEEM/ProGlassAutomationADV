@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 {
@@ -937,7 +938,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 // is wrong and would send the user chasing a fault that
                 // does not exist.
                 MessageBox.Show(
-                    denied.UserMessage, "Permission Denied",
+                    denied.UserMessage, LocalizationService.Instance.T("Msg.CapPermissionDenied"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
 
@@ -947,8 +948,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             {
                 // Errors still use MessageBox — must interrupt the user
                 MessageBox.Show(
-                    $"Failed to save spec:\n\n{ex.Message}",
-                    "Database Error",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToSaveSpecX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapDatabaseError"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
 

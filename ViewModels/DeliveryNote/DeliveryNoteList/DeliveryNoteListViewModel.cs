@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Localization;
 
 namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 {
@@ -573,8 +574,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     catch (Exception ex)
                     {
                         System.Windows.MessageBox.Show(
-                            $"Failed to load job order:\n\n{ex.Message}",
-                            "Error", System.Windows.MessageBoxButton.OK,
+                            string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrder"), ex.Message),
+                            LocalizationService.Instance.T("Msg.CapError"), System.Windows.MessageBoxButton.OK,
                             System.Windows.MessageBoxImage.Error);
                     }
                 },
@@ -635,9 +636,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             if (string.IsNullOrWhiteSpace(proformaId))
             {
                 MessageBox.Show(
-                    "Cannot create Tax Invoice — no PI reference.\n\n" +
-                    $"Source: {sourceRef}",
-                    "No PI Reference",
+                    string.Format(LocalizationService.Instance.T("Msg.CannotCreateTaxInvoiceNo"), sourceRef),
+                    LocalizationService.Instance.T("Msg.CapPIReference"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
@@ -646,19 +646,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             if (OnRequestOpenTaxInvoiceForProforma == null)
             {
                 MessageBox.Show(
-                    "Tax Invoice navigation is not wired up.\n\n" +
-                    "Restart the app.",
-                    "Not Wired",
+                    LocalizationService.Instance.T("Msg.TaxInvoiceNavigationIsNot2"),
+                    LocalizationService.Instance.T("Msg.CapWired"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
             }
 
             var confirm = MessageBox.Show(
-                $"Create Tax Invoice?\n\n" +
-                $"Source : {sourceRef}\n" +
-                $"PI     : {proformaId}",
-                "Create Tax Invoice",
+                string.Format(LocalizationService.Instance.T("Msg.CreateTaxInvoiceSourceX"), sourceRef, proformaId),
+                LocalizationService.Instance.T("TaxInvoice.CreateTAXInvoice"),
                 MessageBoxButton.OKCancel,
                 MessageBoxImage.Question);
 
@@ -671,8 +668,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to open Tax Invoice:\n\n{ex.Message}",
-                    "Navigation Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToOpenTaxInvoice"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapNavigationFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -687,8 +684,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             if (App.Jobs == null)
             {
                 MessageBox.Show(
-                    "Job Orders database not initialized.",
-                    "Error",
+                    LocalizationService.Instance.T("Msg.JobOrdersDatabaseNotInitialized"),
+                    LocalizationService.Instance.T("Msg.CapError"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
@@ -699,8 +696,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to load job orders:\n\n{ex.Message}",
-                    "Load Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrders"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapLoadFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
@@ -709,9 +706,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             if (allJobOrders.Count == 0)
             {
                 MessageBox.Show(
-                    "No job orders found.\n\n" +
-                    "Create a Job Order from a Proforma Invoice first.",
-                    "No Job Orders",
+                    LocalizationService.Instance.T("Msg.JobOrdersFoundCreateA"),
+                    LocalizationService.Instance.T("Msg.CapJobOrders"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;
@@ -763,9 +759,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             if (jobOrdersWithBalance.Count == 0)
             {
                 MessageBox.Show(
-                    "All job orders have been fully delivered.\n\n" +
-                    "No delivery notes to create.",
-                    "All Delivered",
+                    LocalizationService.Instance.T("Msg.JobOrdersHaveBeenFully"),
+                    LocalizationService.Instance.T("Msg.CapDelivered"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
                 return;
@@ -967,8 +962,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to reload tab: {ex.Message}",
-                    "Load Error",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToReloadTabX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapLoadError"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1071,9 +1066,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             if (row.IsMasterDn)
             {
                 MessageBox.Show(
-                    "Master DNs cannot be deleted manually.\n\n" +
-                    "They are managed automatically by the system.",
-                    "Cannot Delete Master DN",
+                    LocalizationService.Instance.T("Msg.MasterDNsCannotBeDeleted"),
+                    LocalizationService.Instance.T("Msg.CapCannotDeleteMasterDN"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
                 return;
@@ -1088,16 +1082,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     row.DeliveryNoteId);
             if (guard.HasDependents)
             {
-                MessageBox.Show(guard.Message, "Cannot Delete",
+                MessageBox.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             var result = MessageBox.Show(
-                $"Delete delivery note '{row.DeliveryNoteId}'?\n\n" +
-                $"Customer: {row.CustomerName}\n" +
-                "This action cannot be undone.",
-                "Confirm Delete",
+                string.Format(LocalizationService.Instance.T("Msg.DeleteDeliveryNoteXCustomer2"), row.DeliveryNoteId, row.CustomerName),
+                LocalizationService.Instance.T("Msg.CapConfirmDelete"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
@@ -1112,8 +1104,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to delete:\n\n{ex.Message}",
-                    "Delete Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -1136,7 +1128,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (!transition.IsValid)
                 {
                     MessageBox.Show(transition.Reason ?? "Invalid status change.",
-                        "Status Change Not Allowed",
+                        LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
@@ -1149,8 +1141,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to change status:\n\n{ex.Message}",
-                    "Update Failed",
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX"), ex.Message),
+                    LocalizationService.Instance.T("Msg.CapUpdateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
