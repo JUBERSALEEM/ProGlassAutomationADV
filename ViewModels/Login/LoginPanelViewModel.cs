@@ -87,7 +87,9 @@ namespace ProGlassAutomation.ViewModels.Login
         /// whole form).</summary>
         public bool IsFormEnabled { get; private set; } = true;
 
-        public string SignInButtonText { get; private set; } = "SIGN IN";
+        public string SignInButtonText { get; private set; } =
+            ProGlassAutomation.Services.Localization.LocalizationService
+                .Instance.T("Login.SignIn");
         public string StatusText { get; private set; } = "";
         public Visibility StatusVisibility { get; private set; } = Visibility.Hidden;
         public Visibility BusyDotVisibility { get; private set; } = Visibility.Collapsed;
@@ -362,7 +364,10 @@ namespace ProGlassAutomation.ViewModels.Login
             BusyDotVisibility = showStatus ? Visibility.Visible : Visibility.Collapsed;
 
             IsFormEnabled = !busy && !SignedIn;
-            SignInButtonText = busy ? "SIGNING IN…" : "SIGN IN";
+            SignInButtonText = busy
+                ? "SIGNING IN…"
+                : ProGlassAutomation.Services.Localization.LocalizationService
+                    .Instance.T("Login.SignIn");
 
             if (busy)
                 ErrorVisibility = Visibility.Collapsed;

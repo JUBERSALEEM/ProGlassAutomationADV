@@ -79,9 +79,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// <summary>Constant single-line label whose text conveys the
         /// mode — REQUIRED for LPO, OPTIONAL for Signed PI. Kept a plain
         /// string (not a DynamicResource) so the height never changes.</summary>
-        public string LpoLabelText => ApprovalMode == ModeLpo
-            ? "LPO / PO NUMBER (REQUIRED)"
-            : "LPO / PO NUMBER (OPTIONAL)";
+        public string LpoLabelText
+        {
+            get
+            {
+                string base_ = ProGlassAutomation.Services.Localization
+                    .LocalizationService.Instance.T("ProformaInvoice.LPOPONumber");
+                return ApprovalMode == ModeLpo
+                    ? base_ + " (REQUIRED)"
+                    : base_ + " (OPTIONAL)";
+            }
+        }
 
         public ICommand ApproveCommand { get; }
 
