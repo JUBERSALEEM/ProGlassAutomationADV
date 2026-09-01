@@ -242,6 +242,15 @@ def main() -> int:
             words = string_format_words(m.group("val"))
             if words and is_translatable_literal(words):
                 file_literals.append(("StringFormat", words))
+        # Element TEXT content ("<TextBlock>• Light theme — ...</TextBlock>")
+        # is user-visible copy that attribute scanning can never see.
+        for m in re.finditer(
+                r'<(?:TextBlock|Label|Button|TabItem|MenuItem|CheckBox|'
+                r'RadioButton|GroupBox)[^>]*>(?P<val>[^<{][^<]*)</',
+                text):
+            val = m.group("val").strip()
+            if val and is_translatable_literal(val):
+                file_literals.append(("Text", val))
         rel_snips = [f"({a}) {v[:60]}" for a, v in file_literals]
         if rel_snips:
             if is_god(f):

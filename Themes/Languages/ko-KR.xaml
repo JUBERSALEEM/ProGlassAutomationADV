@@ -140,6 +140,7 @@
     <sys:String x:Key="Action.Select">선택</sys:String>
     <sys:String x:Key="Action.View">보기</sys:String>
     <sys:String x:Key="Action.Yes">예</sys:String>
+    <sys:String x:Key="ApprovalUpload.GoToStep8">서명된 견적 인보이스 또는 LPO를 업로드하기 위해 8단계(첨부 파일)로 이동합니다. 업로드할 파일 유형을 선택하세요.</sys:String>
     <sys:String x:Key="Attachments.FilesTitle">파일</sys:String>
     <sys:String x:Key="Common.Actions">작업</sys:String>
     <sys:String x:Key="Common.Activity">활동</sys:String>
@@ -1688,7 +1689,19 @@
     <sys:String x:Key="Settings.APIKeyStored">API 키가 저장되었습니다</sys:String>
     <sys:String x:Key="Settings.AboutAIAssistant">AI 어시스턴트 정보</sys:String>
     <sys:String x:Key="Settings.AboutAPIKeyPrivacy">API 키 및 개인정보 정보</sys:String>
+    <sys:String x:Key="Settings.AboutContextAware">• 상황 인식 — 유리 유형, VAT 규칙, 앱 모듈을 인지.</sys:String>
+    <sys:String x:Key="Settings.AboutDarkTheme">• 다크 테마 — 야간 근무 시 눈이 편함.</sys:String>
+    <sys:String x:Key="Settings.AboutInstantSwap">• 즉시 전환 — 재시작 불필요.</sys:String>
+    <sys:String x:Key="Settings.AboutLightTheme">• 라이트 테마 — 낮 공장 사용에 최적화.</sys:String>
+    <sys:String x:Key="Settings.AboutModelBase">• 기본 (142 MB) — 정확도 95%+. 일상 사용에 최적.</sys:String>
+    <sys:String x:Key="Settings.AboutModelLarge">• 대형 v3 (3.1 GB) — 정확도 99%+. 최고 품질.</sys:String>
+    <sys:String x:Key="Settings.AboutModelMedium">• 중간 (1.5 GB) — 정확도 97%+. 소음 환경용.</sys:String>
+    <sys:String x:Key="Settings.AboutModelsOffline">• 모든 모델 완전 오프라인 실행 — 다운로드 후 인터넷 불필요.</sys:String>
+    <sys:String x:Key="Settings.AboutNoTelemetry">• 원격 측정 없음 — 어떤 분석 데이터도 전송하지 않음.</sys:String>
+    <sys:String x:Key="Settings.AboutOptIn">• 100% 선택 사항 — 자신의 API 키 사용.</sys:String>
+    <sys:String x:Key="Settings.AboutStoredAt">• %AppData%\ProGlassAutomation\config.json에 저장.</sys:String>
     <sys:String x:Key="Settings.AboutThemeSystem">테마 시스템 정보</sys:String>
+    <sys:String x:Key="Settings.AboutVoiceInput">• Whisper 음성 입력 — 오프라인, 정확도 95%+.</sys:String>
     <sys:String x:Key="Settings.AboutVoiceModels">음성 모델 정보</sys:String>
     <sys:String x:Key="Settings.AccentFONT">강조색 및 글꼴</sys:String>
     <sys:String x:Key="Settings.AccountNumberIBANPairedBankName">은행 이름과 짝을 이루는 계좌 번호 또는 IBAN.</sys:String>

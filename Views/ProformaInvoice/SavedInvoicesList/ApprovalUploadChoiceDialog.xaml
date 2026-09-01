@@ -76,8 +76,9 @@
                        FontSize="{StaticResource TextBody}"
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource MutedForegroundBrush}">
-                We'll take you to Step 8 (Attachments) to upload the signed
-                Proforma Invoice or LPO. Choose the file type you are uploading.
+                <TextBlock.Inlines>
+                    <Run Text="{DynamicResource ApprovalUpload.GoToStep8}"/>
+                </TextBlock.Inlines>
             </TextBlock>
 
             <!-- JPG / PDF buttons -->

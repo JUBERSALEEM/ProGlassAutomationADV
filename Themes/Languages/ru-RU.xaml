@@ -140,6 +140,7 @@
     <sys:String x:Key="Action.Select">Выбрать</sys:String>
     <sys:String x:Key="Action.View">Просмотр</sys:String>
     <sys:String x:Key="Action.Yes">Да</sys:String>
+    <sys:String x:Key="ApprovalUpload.GoToStep8">Мы перенесём вас к шагу 8 (Вложения), чтобы загрузить подписанный проформа-счёт или LPO. Выберите тип загружаемого файла.</sys:String>
     <sys:String x:Key="Attachments.FilesTitle">ФАЙЛЫ</sys:String>
     <sys:String x:Key="Common.Actions">Действия</sys:String>
     <sys:String x:Key="Common.Activity">Активность</sys:String>
@@ -1688,7 +1689,19 @@
     <sys:String x:Key="Settings.APIKeyStored">Ваш ключ API хранится</sys:String>
     <sys:String x:Key="Settings.AboutAIAssistant">Об ИИ-ассистенте</sys:String>
     <sys:String x:Key="Settings.AboutAPIKeyPrivacy">О вашем ключе API и конфиденциальности</sys:String>
+    <sys:String x:Key="Settings.AboutContextAware">• Понимает контекст — знает типы стекла, правила НДС, модули.</sys:String>
+    <sys:String x:Key="Settings.AboutDarkTheme">• Тёмная тема — бережёт глаза в ночные смены.</sys:String>
+    <sys:String x:Key="Settings.AboutInstantSwap">• Мгновенное переключение — без перезапуска.</sys:String>
+    <sys:String x:Key="Settings.AboutLightTheme">• Светлая тема — оптимизирована для дневной работы в цеху.</sys:String>
+    <sys:String x:Key="Settings.AboutModelBase">• Базовая (142 МБ) — точность 95%+. Лучшая для повседневного использования.</sys:String>
+    <sys:String x:Key="Settings.AboutModelLarge">• Большая v3 (3,1 ГБ) — точность 99%+. Максимальное качество.</sys:String>
+    <sys:String x:Key="Settings.AboutModelMedium">• Средняя (1,5 ГБ) — точность 97%+. Для шумной среды.</sys:String>
+    <sys:String x:Key="Settings.AboutModelsOffline">• Все модели работают полностью офлайн — интернет не нужен после загрузки.</sys:String>
+    <sys:String x:Key="Settings.AboutNoTelemetry">• Без телеметрии — никакая аналитика не отправляется.</sys:String>
+    <sys:String x:Key="Settings.AboutOptIn">• На 100% добровольно — используется ваш собственный API-ключ.</sys:String>
+    <sys:String x:Key="Settings.AboutStoredAt">• Хранится в %AppData%\ProGlassAutomation\config.json.</sys:String>
     <sys:String x:Key="Settings.AboutThemeSystem">О системе тем</sys:String>
+    <sys:String x:Key="Settings.AboutVoiceInput">• Голосовой ввод через Whisper — офлайн, точность 95%+.</sys:String>
     <sys:String x:Key="Settings.AboutVoiceModels">О голосовых моделях</sys:String>
     <sys:String x:Key="Settings.AccentFONT">АКЦЕНТ И ШРИФТ</sys:String>
     <sys:String x:Key="Settings.AccountNumberIBANPairedBankName">Номер счёта или IBAN вместе с названием банка.</sys:String>

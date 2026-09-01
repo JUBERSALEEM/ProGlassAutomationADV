@@ -140,6 +140,7 @@
     <sys:String x:Key="Action.Select">Seç</sys:String>
     <sys:String x:Key="Action.View">Görüntüle</sys:String>
     <sys:String x:Key="Action.Yes">Evet</sys:String>
+    <sys:String x:Key="ApprovalUpload.GoToStep8">İmzalı proforma faturayı veya LPO&#x27;yu yüklemek için sizi 8. adıma (Ekler) götüreceğiz. Yüklediğiniz dosya türünü seçin.</sys:String>
     <sys:String x:Key="Attachments.FilesTitle">DOSYALAR</sys:String>
     <sys:String x:Key="Common.Actions">Eylemler</sys:String>
     <sys:String x:Key="Common.Activity">Etkinlik</sys:String>
@@ -1688,7 +1689,19 @@
     <sys:String x:Key="Settings.APIKeyStored">API anahtarınız şurada saklanır:</sys:String>
     <sys:String x:Key="Settings.AboutAIAssistant">Yapay Zekâ Asistanı Hakkında</sys:String>
     <sys:String x:Key="Settings.AboutAPIKeyPrivacy">API Anahtarınız ve Gizlilik Hakkında</sys:String>
+    <sys:String x:Key="Settings.AboutContextAware">• Bağlama duyarlı — cam türlerini, KDV kurallarını ve uygulama modüllerini bilir.</sys:String>
+    <sys:String x:Key="Settings.AboutDarkTheme">• Koyu tema — gece vardiyalarında gözleri yormaz.</sys:String>
+    <sys:String x:Key="Settings.AboutInstantSwap">• Anında değişim — yeniden başlatma gerekmez.</sys:String>
+    <sys:String x:Key="Settings.AboutLightTheme">• Açık tema — gündüz fabrika kullanımı için optimize edildi.</sys:String>
+    <sys:String x:Key="Settings.AboutModelBase">• Temel (142 MB) — %95+ doğruluk. Günlük kullanım için ideal.</sys:String>
+    <sys:String x:Key="Settings.AboutModelLarge">• Büyük v3 (3,1 GB) — %99+ doğruluk. Maksimum kalite.</sys:String>
+    <sys:String x:Key="Settings.AboutModelMedium">• Orta (1,5 GB) — %97+ doğruluk. Gürültülü ortamlar.</sys:String>
+    <sys:String x:Key="Settings.AboutModelsOffline">• Tüm modeller tamamen çevrimdışı çalışır — indirmeden sonra internet gerekmez.</sys:String>
+    <sys:String x:Key="Settings.AboutNoTelemetry">• Telemetri yok — hiçbir analiz gönderilmez.</sys:String>
+    <sys:String x:Key="Settings.AboutOptIn">• %100 isteğe bağlı — kendi API anahtarınızı kullanır.</sys:String>
+    <sys:String x:Key="Settings.AboutStoredAt">• %AppData%\ProGlassAutomation\config.json içinde saklanır.</sys:String>
     <sys:String x:Key="Settings.AboutThemeSystem">Tema Sistemi Hakkında</sys:String>
+    <sys:String x:Key="Settings.AboutVoiceInput">• Whisper ile sesli giriş — çevrimdışı, %95+ doğruluk.</sys:String>
     <sys:String x:Key="Settings.AboutVoiceModels">Ses Modelleri Hakkında</sys:String>
     <sys:String x:Key="Settings.AccentFONT">VURGU VE YAZI TİPİ</sys:String>
     <sys:String x:Key="Settings.AccountNumberIBANPairedBankName">Banka adıyla eşleştirilmiş hesap numarası veya IBAN.</sys:String>

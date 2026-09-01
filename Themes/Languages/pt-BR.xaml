@@ -140,6 +140,7 @@
     <sys:String x:Key="Action.Select">Selecionar</sys:String>
     <sys:String x:Key="Action.View">Ver</sys:String>
     <sys:String x:Key="Action.Yes">Sim</sys:String>
+    <sys:String x:Key="ApprovalUpload.GoToStep8">Vamos levá-lo ao passo 8 (Anexos) para enviar a fatura proforma assinada ou a LPO. Escolha o tipo de arquivo que você está enviando.</sys:String>
     <sys:String x:Key="Attachments.FilesTitle">ARQUIVOS</sys:String>
     <sys:String x:Key="Common.Actions">Ações</sys:String>
     <sys:String x:Key="Common.Activity">Atividade</sys:String>
@@ -1688,7 +1689,19 @@
     <sys:String x:Key="Settings.APIKeyStored">Sua chave de API está armazenada</sys:String>
     <sys:String x:Key="Settings.AboutAIAssistant">Sobre o Assistente de IA</sys:String>
     <sys:String x:Key="Settings.AboutAPIKeyPrivacy">Sobre sua Chave de API e Privacidade</sys:String>
+    <sys:String x:Key="Settings.AboutContextAware">• Consciente do contexto — conhece tipos de vidro, regras de IVA, módulos.</sys:String>
+    <sys:String x:Key="Settings.AboutDarkTheme">• Tema escuro — mais confortável em turnos noturnos.</sys:String>
+    <sys:String x:Key="Settings.AboutInstantSwap">• Troca instantânea — sem reiniciar.</sys:String>
+    <sys:String x:Key="Settings.AboutLightTheme">• Tema claro — otimizado para uso diurno na fábrica.</sys:String>
+    <sys:String x:Key="Settings.AboutModelBase">• Base (142 MB) — precisão 95%+. Melhor para uso diário.</sys:String>
+    <sys:String x:Key="Settings.AboutModelLarge">• Grande v3 (3,1 GB) — precisão 99%+. Qualidade máxima.</sys:String>
+    <sys:String x:Key="Settings.AboutModelMedium">• Médio (1,5 GB) — precisão 97%+. Ambientes ruidosos.</sys:String>
+    <sys:String x:Key="Settings.AboutModelsOffline">• Todos os modelos funcionam totalmente offline — sem internet após o download.</sys:String>
+    <sys:String x:Key="Settings.AboutNoTelemetry">• Sem telemetria — nenhuma análise é enviada.</sys:String>
+    <sys:String x:Key="Settings.AboutOptIn">• 100% opcional — usa sua própria chave de API.</sys:String>
+    <sys:String x:Key="Settings.AboutStoredAt">• Armazenado em %AppData%\ProGlassAutomation\config.json.</sys:String>
     <sys:String x:Key="Settings.AboutThemeSystem">Sobre o Sistema de Temas</sys:String>
+    <sys:String x:Key="Settings.AboutVoiceInput">• Entrada por voz via Whisper — offline, precisão 95%+.</sys:String>
     <sys:String x:Key="Settings.AboutVoiceModels">Sobre os Modelos de Voz</sys:String>
     <sys:String x:Key="Settings.AccentFONT">COR DE DESTAQUE E FONTE</sys:String>
     <sys:String x:Key="Settings.AccountNumberIBANPairedBankName">Número da conta ou IBAN combinado com o nome do banco.</sys:String>

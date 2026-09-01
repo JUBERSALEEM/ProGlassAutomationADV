@@ -69,5 +69,18 @@
  "SheetStore.Entries": "entradas",
  "Settings.VoiceDownloadRequired": "Descarga necesaria",
  "Settings.VoiceInstalledOfflineSTT": "Instalado · STT neuronal sin conexión",
- "About.MadeInIndia": "Hecho en India · "
+ "About.MadeInIndia": "Hecho en India · ",
+ "Settings.AboutLightTheme": "• Tema claro — optimizado para uso en fábrica de día.",
+ "Settings.AboutDarkTheme": "• Tema oscuro — más cómodo para turnos nocturnos.",
+ "Settings.AboutInstantSwap": "• Cambio instantáneo — sin reiniciar.",
+ "Settings.AboutOptIn": "• 100 % opcional — usa tu propia clave API.",
+ "Settings.AboutContextAware": "• Consciente del contexto — conoce tipos de vidrio, reglas de IVA, módulos.",
+ "Settings.AboutVoiceInput": "• Entrada por voz con Whisper — sin conexión, precisión 95 %+.",
+ "Settings.AboutStoredAt": "• Guardado en %AppData%\\ProGlassAutomation\\config.json.",
+ "Settings.AboutNoTelemetry": "• Sin telemetría — no se envían análisis.",
+ "Settings.AboutModelBase": "• Base (142 MB) — precisión 95 %+. Ideal para uso diario.",
+ "Settings.AboutModelMedium": "• Medio (1,5 GB) — precisión 97 %+. Entornos ruidosos.",
+ "Settings.AboutModelLarge": "• Grande v3 (3,1 GB) — precisión 99 %+. Máxima calidad.",
+ "Settings.AboutModelsOffline": "• Todos los modelos funcionan sin conexión — sin internet tras la descarga.",
+ "ApprovalUpload.GoToStep8": "Le llevaremos al paso 8 (Adjuntos) para subir la factura proforma firmada o la LPO. Elija el tipo de archivo que sube."
 }

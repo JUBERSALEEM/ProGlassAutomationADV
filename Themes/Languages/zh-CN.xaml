@@ -140,6 +140,7 @@
     <sys:String x:Key="Action.Select">选择</sys:String>
     <sys:String x:Key="Action.View">查看</sys:String>
     <sys:String x:Key="Action.Yes">是</sys:String>
+    <sys:String x:Key="ApprovalUpload.GoToStep8">我们将带您前往第 8 步（附件）上传已签署的形式发票或 LPO。请选择要上传的文件类型。</sys:String>
     <sys:String x:Key="Attachments.FilesTitle">文件</sys:String>
     <sys:String x:Key="Common.Actions">操作</sys:String>
     <sys:String x:Key="Common.Activity">活动</sys:String>
@@ -1688,7 +1689,19 @@
     <sys:String x:Key="Settings.APIKeyStored">您的 API 密钥已存储</sys:String>
     <sys:String x:Key="Settings.AboutAIAssistant">关于 AI 助手</sys:String>
     <sys:String x:Key="Settings.AboutAPIKeyPrivacy">关于您的 API 密钥和隐私</sys:String>
+    <sys:String x:Key="Settings.AboutContextAware">• 上下文感知 — 了解玻璃类型、增值税规则和应用模块。</sys:String>
+    <sys:String x:Key="Settings.AboutDarkTheme">• 深色主题 — 夜班时更护眼。</sys:String>
+    <sys:String x:Key="Settings.AboutInstantSwap">• 即时切换 — 无需重启。</sys:String>
+    <sys:String x:Key="Settings.AboutLightTheme">• 浅色主题 — 适合白天车间使用。</sys:String>
+    <sys:String x:Key="Settings.AboutModelBase">• 基础版（142 MB）— 准确率 95% 以上。适合日常使用。</sys:String>
+    <sys:String x:Key="Settings.AboutModelLarge">• 大型 v3（3.1 GB）— 准确率 99% 以上。最高质量。</sys:String>
+    <sys:String x:Key="Settings.AboutModelMedium">• 中等版（1.5 GB）— 准确率 97% 以上。适合嘈杂环境。</sys:String>
+    <sys:String x:Key="Settings.AboutModelsOffline">• 所有模型完全离线运行 — 下载后无需联网。</sys:String>
+    <sys:String x:Key="Settings.AboutNoTelemetry">• 无遥测 — 不发送任何分析数据。</sys:String>
+    <sys:String x:Key="Settings.AboutOptIn">• 100% 自愿 — 使用您自己的 API 密钥。</sys:String>
+    <sys:String x:Key="Settings.AboutStoredAt">• 存储于 %AppData%\ProGlassAutomation\config.json。</sys:String>
     <sys:String x:Key="Settings.AboutThemeSystem">关于主题系统</sys:String>
+    <sys:String x:Key="Settings.AboutVoiceInput">• 通过 Whisper 语音输入 — 离线，准确率 95% 以上。</sys:String>
     <sys:String x:Key="Settings.AboutVoiceModels">关于语音模型</sys:String>
     <sys:String x:Key="Settings.AccentFONT">强调色和字体</sys:String>
     <sys:String x:Key="Settings.AccountNumberIBANPairedBankName">与银行名称配对的账户号码或 IBAN。</sys:String>

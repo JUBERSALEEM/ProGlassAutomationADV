@@ -140,6 +140,7 @@
     <sys:String x:Key="Action.Select">منتخب کریں</sys:String>
     <sys:String x:Key="Action.View">دیکھیں</sys:String>
     <sys:String x:Key="Action.Yes">ہاں</sys:String>
+    <sys:String x:Key="ApprovalUpload.GoToStep8">ہم آپ کو دستخط شدہ پروفارما انوائس یا LPO اپ لوڈ کرنے کے لیے مرحلہ 8 (منسلکات) پر لے جائیں گے۔ اپ لوڈ کی جانے والی فائل کی قسم منتخب کریں۔</sys:String>
     <sys:String x:Key="Attachments.FilesTitle">فائلیں</sys:String>
     <sys:String x:Key="Common.Actions">کارروائیاں</sys:String>
     <sys:String x:Key="Common.Activity">سرگرمی</sys:String>
@@ -1688,7 +1689,19 @@
     <sys:String x:Key="Settings.APIKeyStored">آپ کی API کلید محفوظ ہے</sys:String>
     <sys:String x:Key="Settings.AboutAIAssistant">AI اسسٹنٹ کے بارے میں</sys:String>
     <sys:String x:Key="Settings.AboutAPIKeyPrivacy">آپ کی API کلید اور رازداری کے بارے میں</sys:String>
+    <sys:String x:Key="Settings.AboutContextAware">• سیاق و سباق سے آگاہ — گلاس کی اقسام، VAT قواعد، ایپ ماڈیولز جانتا ہے۔</sys:String>
+    <sys:String x:Key="Settings.AboutDarkTheme">• گہری تھیم — رات کی شفٹوں میں آنکھوں پر آسان۔</sys:String>
+    <sys:String x:Key="Settings.AboutInstantSwap">• فوری تبدیلی — دوبارہ شروع کرنے کی ضرورت نہیں۔</sys:String>
+    <sys:String x:Key="Settings.AboutLightTheme">• ہلکی تھیم — دن کے فیکٹری استعمال کے لیے بہتر۔</sys:String>
+    <sys:String x:Key="Settings.AboutModelBase">• بیس (142 MB) — 95%+ درستگی۔ روزانہ استعمال کے لیے بہترین۔</sys:String>
+    <sys:String x:Key="Settings.AboutModelLarge">• لارج v3 (3.1 GB) — 99%+ درستگی۔ زیادہ سے زیادہ معیار۔</sys:String>
+    <sys:String x:Key="Settings.AboutModelMedium">• میڈیم (1.5 GB) — 97%+ درستگی۔ شور والے ماحول۔</sys:String>
+    <sys:String x:Key="Settings.AboutModelsOffline">• تمام ماڈل مکمل طور پر آف لائن چلتے ہیں — ڈاؤن لوڈ کے بعد کوئی انٹرنیٹ نہیں۔</sys:String>
+    <sys:String x:Key="Settings.AboutNoTelemetry">• کوئی ٹیلی میٹری نہیں — کہیں کوئی تجزیہ نہیں بھیجا جاتا۔</sys:String>
+    <sys:String x:Key="Settings.AboutOptIn">• 100% اختیاری — آپ کی اپنی API کلید استعمال کرتا ہے۔</sys:String>
+    <sys:String x:Key="Settings.AboutStoredAt">• %AppData%\ProGlassAutomation\config.json میں محفوظ۔</sys:String>
     <sys:String x:Key="Settings.AboutThemeSystem">تھیم سسٹم کے بارے میں</sys:String>
+    <sys:String x:Key="Settings.AboutVoiceInput">• Whisper کے ذریعے صوتی ان پٹ — آف لائن، 95%+ درستگی۔</sys:String>
     <sys:String x:Key="Settings.AboutVoiceModels">وائس ماڈلز کے بارے میں</sys:String>
     <sys:String x:Key="Settings.AccentFONT">ایکسنٹ اور فونٹ</sys:String>
     <sys:String x:Key="Settings.AccountNumberIBANPairedBankName">بینک نام کے ساتھ اکاؤنٹ نمبر یا IBAN۔</sys:String>

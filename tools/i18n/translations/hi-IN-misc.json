@@ -102,5 +102,18 @@
  "SheetStore.Entries": "प्रविष्टियाँ",
  "Settings.VoiceDownloadRequired": "डाउनलोड आवश्यक",
  "Settings.VoiceInstalledOfflineSTT": "स्थापित · ऑफ़लाइन न्यूरल STT",
- "About.MadeInIndia": "भारत में निर्मित · "
+ "About.MadeInIndia": "भारत में निर्मित · ",
+ "Settings.AboutLightTheme": "• हल्की थीम — दिन के कारखाने के उपयोग के लिए अनुकूलित।",
+ "Settings.AboutDarkTheme": "• गहरी थीम — रात की पाली के दौरान आँखों पर आसान।",
+ "Settings.AboutInstantSwap": "• तुरंत स्विच — पुनरारंभ की आवश्यकता नहीं।",
+ "Settings.AboutOptIn": "• 100% ऑप्ट-इन — आपकी अपनी API कुंजी का उपयोग करता है।",
+ "Settings.AboutContextAware": "• संदर्भ-जागरूक — ग्लास प्रकार, VAT नियम, ऐप मॉड्यूल जानता है।",
+ "Settings.AboutVoiceInput": "• Whisper के माध्यम से वॉइस इनपुट — ऑफ़लाइन, 95%+ सटीकता।",
+ "Settings.AboutStoredAt": "• %AppData%\\ProGlassAutomation\\config.json में संग्रहीत।",
+ "Settings.AboutNoTelemetry": "• कोई टेलीमेट्री नहीं — कहीं भी कोई विश्लेषण नहीं भेजा जाता।",
+ "Settings.AboutModelBase": "• बेस (142 MB) — 95%+ सटीकता। दैनिक उपयोग के लिए सर्वोत्तम।",
+ "Settings.AboutModelMedium": "• मध्यम (1.5 GB) — 97%+ सटीकता। शोर वाले वातावरण।",
+ "Settings.AboutModelLarge": "• लार्ज v3 (3.1 GB) — 99%+ सटीकता। अधिकतम गुणवत्ता।",
+ "Settings.AboutModelsOffline": "• सभी मॉडल पूरी तरह ऑफ़लाइन चलते हैं — डाउनलोड के बाद कोई इंटरनेट नहीं।",
+ "ApprovalUpload.GoToStep8": "हम आपको हस्ताक्षरित प्रोफॉर्मा इनवॉइस या LPO अपलोड करने के लिए चरण 8 (अटैचमेंट) पर ले जाएँगे। आप जो फ़ाइल प्रकार अपलोड कर रहे हैं उसे चुनें।"
 }

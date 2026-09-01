@@ -75,5 +75,18 @@
  "SheetStore.Entries": "Einträge",
  "Settings.VoiceDownloadRequired": "Download erforderlich",
  "Settings.VoiceInstalledOfflineSTT": "Installiert · Offline neuronales STT",
- "About.MadeInIndia": "Hergestellt in Indien · "
+ "About.MadeInIndia": "Hergestellt in Indien · ",
+ "Settings.AboutLightTheme": "• Helles Design — optimiert für den Werksalltag.",
+ "Settings.AboutDarkTheme": "• Dunkles Design — angenehmer für die Augen in Nachtschichten.",
+ "Settings.AboutInstantSwap": "• Sofortiger Wechsel — kein Neustart nötig.",
+ "Settings.AboutOptIn": "• 100 % optional — verwendet Ihren eigenen API-Schlüssel.",
+ "Settings.AboutContextAware": "• Kontextbewusst — kennt Glasarten, MwSt-Regeln und App-Module.",
+ "Settings.AboutVoiceInput": "• Spracheingabe über Whisper — offline, 95 %+ Genauigkeit.",
+ "Settings.AboutStoredAt": "• Gespeichert unter %AppData%\\ProGlassAutomation\\config.json.",
+ "Settings.AboutNoTelemetry": "• Keine Telemetrie — keine Analysen werden gesendet.",
+ "Settings.AboutModelBase": "• Basis (142 MB) — 95 %+ Genauigkeit. Ideal für den Alltag.",
+ "Settings.AboutModelMedium": "• Mittel (1,5 GB) — 97 %+ Genauigkeit. Für laute Umgebungen.",
+ "Settings.AboutModelLarge": "• Groß v3 (3,1 GB) — 99 %+ Genauigkeit. Maximale Qualität.",
+ "Settings.AboutModelsOffline": "• Alle Modelle laufen vollständig offline — nach dem Download kein Internet nötig.",
+ "ApprovalUpload.GoToStep8": "Wir führen Sie zu Schritt 8 (Anhänge), um die signierte Proforma-Rechnung oder LPO hochzuladen. Wählen Sie den Dateityp, den Sie hochladen."
 }

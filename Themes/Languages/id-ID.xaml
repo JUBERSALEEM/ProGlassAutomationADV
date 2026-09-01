@@ -140,6 +140,7 @@
     <sys:String x:Key="Action.Select">Pilih</sys:String>
     <sys:String x:Key="Action.View">Lihat</sys:String>
     <sys:String x:Key="Action.Yes">Ya</sys:String>
+    <sys:String x:Key="ApprovalUpload.GoToStep8">Kami akan membawa Anda ke Langkah 8 (Lampiran) untuk mengunggah faktur proforma yang ditandatangani atau LPO. Pilih jenis file yang Anda unggah.</sys:String>
     <sys:String x:Key="Attachments.FilesTitle">BERKAS</sys:String>
     <sys:String x:Key="Common.Actions">Tindakan</sys:String>
     <sys:String x:Key="Common.Activity">Aktivitas</sys:String>
@@ -1688,7 +1689,19 @@
     <sys:String x:Key="Settings.APIKeyStored">Kunci API Anda disimpan</sys:String>
     <sys:String x:Key="Settings.AboutAIAssistant">Tentang Asisten AI</sys:String>
     <sys:String x:Key="Settings.AboutAPIKeyPrivacy">Tentang Kunci API &amp; Privasi Anda</sys:String>
+    <sys:String x:Key="Settings.AboutContextAware">• Sadar konteks — mengenal jenis kaca, aturan PPN, modul aplikasi.</sys:String>
+    <sys:String x:Key="Settings.AboutDarkTheme">• Tema gelap — lebih nyaman di mata saat shift malam.</sys:String>
+    <sys:String x:Key="Settings.AboutInstantSwap">• Ganti instan — tanpa perlu restart.</sys:String>
+    <sys:String x:Key="Settings.AboutLightTheme">• Tema terang — dioptimalkan untuk penggunaan pabrik siang hari.</sys:String>
+    <sys:String x:Key="Settings.AboutModelBase">• Dasar (142 MB) — akurasi 95%+. Terbaik untuk penggunaan harian.</sys:String>
+    <sys:String x:Key="Settings.AboutModelLarge">• Besar v3 (3,1 GB) — akurasi 99%+. Kualitas maksimal.</sys:String>
+    <sys:String x:Key="Settings.AboutModelMedium">• Sedang (1,5 GB) — akurasi 97%+. Lingkungan bising.</sys:String>
+    <sys:String x:Key="Settings.AboutModelsOffline">• Semua model berjalan sepenuhnya offline — tanpa internet setelah unduh.</sys:String>
+    <sys:String x:Key="Settings.AboutNoTelemetry">• Tanpa telemetri — tidak ada analitik yang dikirim.</sys:String>
+    <sys:String x:Key="Settings.AboutOptIn">• 100% opsional — memakai kunci API Anda sendiri.</sys:String>
+    <sys:String x:Key="Settings.AboutStoredAt">• Tersimpan di %AppData%\ProGlassAutomation\config.json.</sys:String>
     <sys:String x:Key="Settings.AboutThemeSystem">Tentang Sistem Tema</sys:String>
+    <sys:String x:Key="Settings.AboutVoiceInput">• Input suara via Whisper — offline, akurasi 95%+.</sys:String>
     <sys:String x:Key="Settings.AboutVoiceModels">Tentang Model Suara</sys:String>
     <sys:String x:Key="Settings.AccentFONT">AKSEN &amp; FONT</sys:String>
     <sys:String x:Key="Settings.AccountNumberIBANPairedBankName">Nomor rekening atau IBAN yang dipasangkan dengan nama bank.</sys:String>

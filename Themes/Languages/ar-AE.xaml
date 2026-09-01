@@ -140,6 +140,7 @@
     <sys:String x:Key="Action.Select">تحديد</sys:String>
     <sys:String x:Key="Action.View">عرض</sys:String>
     <sys:String x:Key="Action.Yes">نعم</sys:String>
+    <sys:String x:Key="ApprovalUpload.GoToStep8">سننقلك إلى الخطوة 8 (المرفقات) لرفع الفاتورة المبدئية الموقعة أو LPO. اختر نوع الملف الذي ترفعه.</sys:String>
     <sys:String x:Key="Attachments.FilesTitle">الملفات</sys:String>
     <sys:String x:Key="Common.Actions">الإجراءات</sys:String>
     <sys:String x:Key="Common.Activity">النشاط</sys:String>
@@ -1688,7 +1689,19 @@
     <sys:String x:Key="Settings.APIKeyStored">يُخزَّن مفتاح API الخاص بك</sys:String>
     <sys:String x:Key="Settings.AboutAIAssistant">حول المساعد الذكي</sys:String>
     <sys:String x:Key="Settings.AboutAPIKeyPrivacy">حول مفتاح API والخصوصية</sys:String>
+    <sys:String x:Key="Settings.AboutContextAware">• مدرك للسياق — يعرف أنواع الزجاج وقواعد ضريبة القيمة المضافة ووحدات التطبيق.</sys:String>
+    <sys:String x:Key="Settings.AboutDarkTheme">• سمة داكنة — أسهل على العين أثناء النوبات الليلية.</sys:String>
+    <sys:String x:Key="Settings.AboutInstantSwap">• تبديل فوري — لا حاجة لإعادة التشغيل.</sys:String>
+    <sys:String x:Key="Settings.AboutLightTheme">• سمة فاتحة — مثالية للاستخدام النهاري في المصنع.</sys:String>
+    <sys:String x:Key="Settings.AboutModelBase">• أساسي (142 م.ب) — دقة 95%+. الأفضل للاستخدام اليومي.</sys:String>
+    <sys:String x:Key="Settings.AboutModelLarge">• كبير v3 (3.1 ج.ب) — دقة 99%+. أقصى جودة.</sys:String>
+    <sys:String x:Key="Settings.AboutModelMedium">• متوسط (1.5 ج.ب) — دقة 97%+. للبيئات الصاخبة.</sys:String>
+    <sys:String x:Key="Settings.AboutModelsOffline">• جميع النماذج تعمل دون اتصال بالكامل — لا إنترنت بعد التنزيل.</sys:String>
+    <sys:String x:Key="Settings.AboutNoTelemetry">• لا تتبع — لا تُرسل أي تحليلات.</sys:String>
+    <sys:String x:Key="Settings.AboutOptIn">• اختياري 100% — يستخدم مفتاح API الخاص بك.</sys:String>
+    <sys:String x:Key="Settings.AboutStoredAt">• مخزّن في %AppData%\ProGlassAutomation\config.json.</sys:String>
     <sys:String x:Key="Settings.AboutThemeSystem">حول نظام السمات</sys:String>
+    <sys:String x:Key="Settings.AboutVoiceInput">• إدخال صوتي عبر Whisper — دون اتصال، دقة 95%+.</sys:String>
     <sys:String x:Key="Settings.AboutVoiceModels">حول نماذج الصوت</sys:String>
     <sys:String x:Key="Settings.AccentFONT">اللون المميز والخط</sys:String>
     <sys:String x:Key="Settings.AccountNumberIBANPairedBankName">رقم الحساب أو IBAN مقترنًا باسم البنك.</sys:String>

@@ -81,5 +81,18 @@
  "SheetStore.Entries": "এন্ট্রি",
  "Settings.VoiceDownloadRequired": "ডাউনলোড প্রয়োজন",
  "Settings.VoiceInstalledOfflineSTT": "ইনস্টলড · অফলাইন নিউরাল STT",
- "About.MadeInIndia": "ভারতে তৈরি · "
+ "About.MadeInIndia": "ভারতে তৈরি · ",
+ "Settings.AboutLightTheme": "• হালকা থিম — দিনের কারখানার ব্যবহারের জন্য অনুকূলিত।",
+ "Settings.AboutDarkTheme": "• গাঢ় থিম — রাতের শিফটে চোখের জন্য আরামদায়ক।",
+ "Settings.AboutInstantSwap": "• তাৎক্ষণিক পরিবর্তন — পুনরায় চালু করার প্রয়োজন নেই।",
+ "Settings.AboutOptIn": "• ১০০% ঐচ্ছিক — আপনার নিজের API কী ব্যবহার করে।",
+ "Settings.AboutContextAware": "• প্রসঙ্গ-সচেতন — কাচের ধরন, VAT নিয়ম, অ্যাপ মডিউল জানে।",
+ "Settings.AboutVoiceInput": "• Whisper দিয়ে ভয়েস ইনপুট — অফলাইন, ৯৫%+ নির্ভুলতা।",
+ "Settings.AboutStoredAt": "• %AppData%\\ProGlassAutomation\\config.json-এ সংরক্ষিত।",
+ "Settings.AboutNoTelemetry": "• কোনো টেলিমেট্রি নেই — কোথাও কোনো বিশ্লেষণ পাঠানো হয় না।",
+ "Settings.AboutModelBase": "• বেস (142 MB) — ৯৫%+ নির্ভুলতা। দৈনন্দিন ব্যবহারের জন্য সেরা।",
+ "Settings.AboutModelMedium": "• মিডিয়াম (1.5 GB) — ৯৭%+ নির্ভুলতা। কোলাহলপূর্ণ পরিবেশ।",
+ "Settings.AboutModelLarge": "• লার্জ v3 (3.1 GB) — ৯৯%+ নির্ভুলতা। সর্বোচ্চ মান।",
+ "Settings.AboutModelsOffline": "• সব মডেল সম্পূর্ণ অফলাইনে চলে — ডাউনলোডের পর কোনো ইন্টারনেট নেই।",
+ "ApprovalUpload.GoToStep8": "স্বাক্ষরিত প্রোফরমা ইনভয়েস বা LPO আপলোড করতে আমরা আপনাকে ধাপ ৮ (সংযুক্তি)-এ নিয়ে যাব। আপনি যে ফাইল ধরন আপলোড করছেন তা নির্বাচন করুন।"
 }

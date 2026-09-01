@@ -87,5 +87,18 @@
  "SheetStore.Entries": "إدخالات",
  "Settings.VoiceDownloadRequired": "التنزيل مطلوب",
  "Settings.VoiceInstalledOfflineSTT": "مثبّت · تعرّف كلامي عصبي دون اتصال",
- "About.MadeInIndia": "صُنع في الهند · "
+ "About.MadeInIndia": "صُنع في الهند · ",
+ "Settings.AboutLightTheme": "• سمة فاتحة — مثالية للاستخدام النهاري في المصنع.",
+ "Settings.AboutDarkTheme": "• سمة داكنة — أسهل على العين أثناء النوبات الليلية.",
+ "Settings.AboutInstantSwap": "• تبديل فوري — لا حاجة لإعادة التشغيل.",
+ "Settings.AboutOptIn": "• اختياري 100% — يستخدم مفتاح API الخاص بك.",
+ "Settings.AboutContextAware": "• مدرك للسياق — يعرف أنواع الزجاج وقواعد ضريبة القيمة المضافة ووحدات التطبيق.",
+ "Settings.AboutVoiceInput": "• إدخال صوتي عبر Whisper — دون اتصال، دقة 95%+.",
+ "Settings.AboutStoredAt": "• مخزّن في %AppData%\\ProGlassAutomation\\config.json.",
+ "Settings.AboutNoTelemetry": "• لا تتبع — لا تُرسل أي تحليلات.",
+ "Settings.AboutModelBase": "• أساسي (142 م.ب) — دقة 95%+. الأفضل للاستخدام اليومي.",
+ "Settings.AboutModelMedium": "• متوسط (1.5 ج.ب) — دقة 97%+. للبيئات الصاخبة.",
+ "Settings.AboutModelLarge": "• كبير v3 (3.1 ج.ب) — دقة 99%+. أقصى جودة.",
+ "Settings.AboutModelsOffline": "• جميع النماذج تعمل دون اتصال بالكامل — لا إنترنت بعد التنزيل.",
+ "ApprovalUpload.GoToStep8": "سننقلك إلى الخطوة 8 (المرفقات) لرفع الفاتورة المبدئية الموقعة أو LPO. اختر نوع الملف الذي ترفعه."
 }

@@ -81,5 +81,18 @@
  "SheetStore.Entries": "اندراجات",
  "Settings.VoiceDownloadRequired": "ڈاؤن لوڈ ضروری",
  "Settings.VoiceInstalledOfflineSTT": "انسٹال شدہ · آف لائن نیورل STT",
- "About.MadeInIndia": "بھارت میں تیار کردہ · "
+ "About.MadeInIndia": "بھارت میں تیار کردہ · ",
+ "Settings.AboutLightTheme": "• ہلکی تھیم — دن کے فیکٹری استعمال کے لیے بہتر۔",
+ "Settings.AboutDarkTheme": "• گہری تھیم — رات کی شفٹوں میں آنکھوں پر آسان۔",
+ "Settings.AboutInstantSwap": "• فوری تبدیلی — دوبارہ شروع کرنے کی ضرورت نہیں۔",
+ "Settings.AboutOptIn": "• 100% اختیاری — آپ کی اپنی API کلید استعمال کرتا ہے۔",
+ "Settings.AboutContextAware": "• سیاق و سباق سے آگاہ — گلاس کی اقسام، VAT قواعد، ایپ ماڈیولز جانتا ہے۔",
+ "Settings.AboutVoiceInput": "• Whisper کے ذریعے صوتی ان پٹ — آف لائن، 95%+ درستگی۔",
+ "Settings.AboutStoredAt": "• %AppData%\\ProGlassAutomation\\config.json میں محفوظ۔",
+ "Settings.AboutNoTelemetry": "• کوئی ٹیلی میٹری نہیں — کہیں کوئی تجزیہ نہیں بھیجا جاتا۔",
+ "Settings.AboutModelBase": "• بیس (142 MB) — 95%+ درستگی۔ روزانہ استعمال کے لیے بہترین۔",
+ "Settings.AboutModelMedium": "• میڈیم (1.5 GB) — 97%+ درستگی۔ شور والے ماحول۔",
+ "Settings.AboutModelLarge": "• لارج v3 (3.1 GB) — 99%+ درستگی۔ زیادہ سے زیادہ معیار۔",
+ "Settings.AboutModelsOffline": "• تمام ماڈل مکمل طور پر آف لائن چلتے ہیں — ڈاؤن لوڈ کے بعد کوئی انٹرنیٹ نہیں۔",
+ "ApprovalUpload.GoToStep8": "ہم آپ کو دستخط شدہ پروفارما انوائس یا LPO اپ لوڈ کرنے کے لیے مرحلہ 8 (منسلکات) پر لے جائیں گے۔ اپ لوڈ کی جانے والی فائل کی قسم منتخب کریں۔"
 }

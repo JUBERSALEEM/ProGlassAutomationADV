@@ -63,5 +63,18 @@
  "SheetStore.Entries": "条记录",
  "Settings.VoiceDownloadRequired": "需要下载",
  "Settings.VoiceInstalledOfflineSTT": "已安装 · 离线神经语音识别",
- "About.MadeInIndia": "印度制造 · "
+ "About.MadeInIndia": "印度制造 · ",
+ "Settings.AboutLightTheme": "• 浅色主题 — 适合白天车间使用。",
+ "Settings.AboutDarkTheme": "• 深色主题 — 夜班时更护眼。",
+ "Settings.AboutInstantSwap": "• 即时切换 — 无需重启。",
+ "Settings.AboutOptIn": "• 100% 自愿 — 使用您自己的 API 密钥。",
+ "Settings.AboutContextAware": "• 上下文感知 — 了解玻璃类型、增值税规则和应用模块。",
+ "Settings.AboutVoiceInput": "• 通过 Whisper 语音输入 — 离线，准确率 95% 以上。",
+ "Settings.AboutStoredAt": "• 存储于 %AppData%\\ProGlassAutomation\\config.json。",
+ "Settings.AboutNoTelemetry": "• 无遥测 — 不发送任何分析数据。",
+ "Settings.AboutModelBase": "• 基础版（142 MB）— 准确率 95% 以上。适合日常使用。",
+ "Settings.AboutModelMedium": "• 中等版（1.5 GB）— 准确率 97% 以上。适合嘈杂环境。",
+ "Settings.AboutModelLarge": "• 大型 v3（3.1 GB）— 准确率 99% 以上。最高质量。",
+ "Settings.AboutModelsOffline": "• 所有模型完全离线运行 — 下载后无需联网。",
+ "ApprovalUpload.GoToStep8": "我们将带您前往第 8 步（附件）上传已签署的形式发票或 LPO。请选择要上传的文件类型。"
 }

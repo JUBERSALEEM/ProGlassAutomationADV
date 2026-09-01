@@ -79,5 +79,18 @@
  "SheetStore.Entries": "entrées",
  "Settings.VoiceDownloadRequired": "Téléchargement requis",
  "Settings.VoiceInstalledOfflineSTT": "Installé · STT neuronal hors ligne",
- "About.MadeInIndia": "Fabriqué en Inde · "
+ "About.MadeInIndia": "Fabriqué en Inde · ",
+ "Settings.AboutLightTheme": "• Thème clair — optimisé pour l'atelier en journée.",
+ "Settings.AboutDarkTheme": "• Thème sombre — plus doux pour les yeux en équipe de nuit.",
+ "Settings.AboutInstantSwap": "• Bascule instantanée — aucun redémarrage requis.",
+ "Settings.AboutOptIn": "• 100 % optionnel — utilise votre propre clé API.",
+ "Settings.AboutContextAware": "• Contextuel — connaît les types de verre, les règles de TVA, les modules.",
+ "Settings.AboutVoiceInput": "• Saisie vocale via Whisper — hors ligne, précision 95 %+.",
+ "Settings.AboutStoredAt": "• Stocké dans %AppData%\\ProGlassAutomation\\config.json.",
+ "Settings.AboutNoTelemetry": "• Aucune télémétrie — zéro analytique envoyé.",
+ "Settings.AboutModelBase": "• Base (142 Mo) — précision 95 %+. Idéal au quotidien.",
+ "Settings.AboutModelMedium": "• Moyen (1,5 Go) — précision 97 %+. Environnements bruyants.",
+ "Settings.AboutModelLarge": "• Large v3 (3,1 Go) — précision 99 %+. Qualité maximale.",
+ "Settings.AboutModelsOffline": "• Tous les modèles fonctionnent entièrement hors ligne — plus d'internet après le téléchargement.",
+ "ApprovalUpload.GoToStep8": "Nous vous amènerons à l'étape 8 (Pièces jointes) pour télécharger la facture proforma signée ou le LPO. Choisissez le type de fichier que vous téléchargez."
 }

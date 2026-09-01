@@ -64,5 +64,18 @@
  "SheetStore.Entries": "kayıt",
  "Settings.VoiceDownloadRequired": "İndirme gerekli",
  "Settings.VoiceInstalledOfflineSTT": "Kurulu · Çevrimdışı sinirsel STT",
- "About.MadeInIndia": "Hindistan'da üretildi · "
+ "About.MadeInIndia": "Hindistan'da üretildi · ",
+ "Settings.AboutLightTheme": "• Açık tema — gündüz fabrika kullanımı için optimize edildi.",
+ "Settings.AboutDarkTheme": "• Koyu tema — gece vardiyalarında gözleri yormaz.",
+ "Settings.AboutInstantSwap": "• Anında değişim — yeniden başlatma gerekmez.",
+ "Settings.AboutOptIn": "• %100 isteğe bağlı — kendi API anahtarınızı kullanır.",
+ "Settings.AboutContextAware": "• Bağlama duyarlı — cam türlerini, KDV kurallarını ve uygulama modüllerini bilir.",
+ "Settings.AboutVoiceInput": "• Whisper ile sesli giriş — çevrimdışı, %95+ doğruluk.",
+ "Settings.AboutStoredAt": "• %AppData%\\ProGlassAutomation\\config.json içinde saklanır.",
+ "Settings.AboutNoTelemetry": "• Telemetri yok — hiçbir analiz gönderilmez.",
+ "Settings.AboutModelBase": "• Temel (142 MB) — %95+ doğruluk. Günlük kullanım için ideal.",
+ "Settings.AboutModelMedium": "• Orta (1,5 GB) — %97+ doğruluk. Gürültülü ortamlar.",
+ "Settings.AboutModelLarge": "• Büyük v3 (3,1 GB) — %99+ doğruluk. Maksimum kalite.",
+ "Settings.AboutModelsOffline": "• Tüm modeller tamamen çevrimdışı çalışır — indirmeden sonra internet gerekmez.",
+ "ApprovalUpload.GoToStep8": "İmzalı proforma faturayı veya LPO'yu yüklemek için sizi 8. adıma (Ekler) götüreceğiz. Yüklediğiniz dosya türünü seçin."
 }

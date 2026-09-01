@@ -140,6 +140,7 @@
     <sys:String x:Key="Action.Select">चुनें</sys:String>
     <sys:String x:Key="Action.View">देखें</sys:String>
     <sys:String x:Key="Action.Yes">हाँ</sys:String>
+    <sys:String x:Key="ApprovalUpload.GoToStep8">हम आपको हस्ताक्षरित प्रोफॉर्मा इनवॉइस या LPO अपलोड करने के लिए चरण 8 (अटैचमेंट) पर ले जाएँगे। आप जो फ़ाइल प्रकार अपलोड कर रहे हैं उसे चुनें।</sys:String>
     <sys:String x:Key="Attachments.FilesTitle">फ़ाइलें</sys:String>
     <sys:String x:Key="Common.Actions">कार्रवाइयाँ</sys:String>
     <sys:String x:Key="Common.Activity">गतिविधि</sys:String>
@@ -1688,7 +1689,19 @@
     <sys:String x:Key="Settings.APIKeyStored">आपकी API कुंजी संग्रहीत है</sys:String>
     <sys:String x:Key="Settings.AboutAIAssistant">AI सहायक के बारे में</sys:String>
     <sys:String x:Key="Settings.AboutAPIKeyPrivacy">आपकी API कुंजी और गोपनीयता के बारे में</sys:String>
+    <sys:String x:Key="Settings.AboutContextAware">• संदर्भ-जागरूक — ग्लास प्रकार, VAT नियम, ऐप मॉड्यूल जानता है।</sys:String>
+    <sys:String x:Key="Settings.AboutDarkTheme">• गहरी थीम — रात की पाली के दौरान आँखों पर आसान।</sys:String>
+    <sys:String x:Key="Settings.AboutInstantSwap">• तुरंत स्विच — पुनरारंभ की आवश्यकता नहीं।</sys:String>
+    <sys:String x:Key="Settings.AboutLightTheme">• हल्की थीम — दिन के कारखाने के उपयोग के लिए अनुकूलित।</sys:String>
+    <sys:String x:Key="Settings.AboutModelBase">• बेस (142 MB) — 95%+ सटीकता। दैनिक उपयोग के लिए सर्वोत्तम।</sys:String>
+    <sys:String x:Key="Settings.AboutModelLarge">• लार्ज v3 (3.1 GB) — 99%+ सटीकता। अधिकतम गुणवत्ता।</sys:String>
+    <sys:String x:Key="Settings.AboutModelMedium">• मध्यम (1.5 GB) — 97%+ सटीकता। शोर वाले वातावरण।</sys:String>
+    <sys:String x:Key="Settings.AboutModelsOffline">• सभी मॉडल पूरी तरह ऑफ़लाइन चलते हैं — डाउनलोड के बाद कोई इंटरनेट नहीं।</sys:String>
+    <sys:String x:Key="Settings.AboutNoTelemetry">• कोई टेलीमेट्री नहीं — कहीं भी कोई विश्लेषण नहीं भेजा जाता।</sys:String>
+    <sys:String x:Key="Settings.AboutOptIn">• 100% ऑप्ट-इन — आपकी अपनी API कुंजी का उपयोग करता है।</sys:String>
+    <sys:String x:Key="Settings.AboutStoredAt">• %AppData%\ProGlassAutomation\config.json में संग्रहीत।</sys:String>
     <sys:String x:Key="Settings.AboutThemeSystem">थीम प्रणाली के बारे में</sys:String>
+    <sys:String x:Key="Settings.AboutVoiceInput">• Whisper के माध्यम से वॉइस इनपुट — ऑफ़लाइन, 95%+ सटीकता।</sys:String>
     <sys:String x:Key="Settings.AboutVoiceModels">वॉइस मॉडल के बारे में</sys:String>
     <sys:String x:Key="Settings.AccentFONT">एक्सेंट और फ़ॉन्ट</sys:String>
     <sys:String x:Key="Settings.AccountNumberIBANPairedBankName">बैंक नाम के साथ खाता संख्या या IBAN।</sys:String>
