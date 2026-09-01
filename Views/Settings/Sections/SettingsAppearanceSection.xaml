@@ -719,9 +719,9 @@
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{DynamicResource Settings.HintLanguage}"/>
-                            <ComboBox x:Name="LanguageCombo"
-                                      AutomationProperties.AutomationId="Settings.Language"
-                                      SelectionChanged="OnLanguageSelected"
+                            <ComboBox AutomationProperties.AutomationId="Settings.Language"
+                                      ItemsSource="{Binding Languages}"
+                                      SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
                                       DisplayMemberPath="DisplayName"
                                       MinWidth="180" Margin="0,8,0,0"/>
                         </StackPanel>
@@ -737,9 +737,9 @@
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{DynamicResource Settings.HintCurrency}"/>
-                            <ComboBox x:Name="CurrencyCombo"
-                                      AutomationProperties.AutomationId="Settings.Currency"
-                                      SelectionChanged="OnCurrencySelected"
+                            <ComboBox AutomationProperties.AutomationId="Settings.Currency"
+                                      ItemsSource="{Binding Currencies}"
+                                      SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
                                       DisplayMemberPath="DisplayName"
                                       MinWidth="180" Margin="0,8,0,0"/>
                         </StackPanel>
@@ -755,9 +755,9 @@
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{DynamicResource Settings.HintPhoneCountry}"/>
-                            <ComboBox x:Name="PhoneCountryCombo"
-                                      AutomationProperties.AutomationId="Settings.PhoneCountry"
-                                      SelectionChanged="OnPhoneCountrySelected"
+                            <ComboBox AutomationProperties.AutomationId="Settings.PhoneCountry"
+                                      ItemsSource="{Binding PhoneCountries}"
+                                      SelectedItem="{Binding PhoneCountry, Mode=TwoWay}"
                                       DisplayMemberPath="DisplayName"
                                       MinWidth="180" Margin="0,8,0,0"/>
                         </StackPanel>
@@ -772,18 +772,16 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel VerticalAlignment="Center">
-                        <CheckBox x:Name="AutoSuggestCheck"
-                                  Content="{DynamicResource Settings.LblAutoDetect}"
-                                  Checked="OnAutoSuggestToggled"
-                                  Unchecked="OnAutoSuggestToggled"
+                        <CheckBox Content="{DynamicResource Settings.LblAutoDetect}"
+                                  IsChecked="{Binding AutoSuggestByRegion, Mode=TwoWay}"
                                   AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>
-                        <TextBlock x:Name="FxStatusText"
+                        <TextBlock Text="{Binding FxStatusText}"
                                    Style="{StaticResource SettingsTileCaptionStyle}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
                     <Button Grid.Column="1"
                             Content="{DynamicResource Settings.ResetToEnglish}"
-                            Click="OnResetToEnglish"
+                            Command="{Binding ResetToEnglishCommand}"
                             AutomationProperties.AutomationId="Settings.ResetLocale"
                             VerticalAlignment="Center"/>
                 </Grid>
