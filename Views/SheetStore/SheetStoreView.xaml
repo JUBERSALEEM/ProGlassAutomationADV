@@ -112,8 +112,7 @@
     <!-- ══════════════════════════════════════════════════════════════
          ROOT LAYOUT — compact header + filters + main grid + slide panel
     ══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}"
-          PreviewMouseLeftButtonDown="Root_PreviewMouseLeftButtonDown">
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <!-- Header + filters -->
@@ -153,7 +152,7 @@
                             Style="{StaticResource OutlinedPillButton}"
                             Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
                             ToolTip="{DynamicResource SheetStore.MoreActions}"
-                            Click="ActionsMenuButton_Click"/>
+                            behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
                     <Button Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE710;" Content="{DynamicResource SheetStore.ADDNEW}"
                             ToolTip="{DynamicResource SheetStore.AddNewGlassSheet}"
@@ -186,31 +185,31 @@
                                 <Button Style="{StaticResource SheetMenuActionItem}"
                                         Tag="&#xE72C;" Content="{DynamicResource SheetStore.RefreshData}"
                                         Command="{Binding RefreshCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource SheetMenuActionItem}"
                                         Tag="&#xE896;" Content="{DynamicResource SheetStore.ImportCSV}"
                                         Command="{Binding ImportCsvCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource SheetMenuActionItem}"
                                         Tag="&#xE72D;" Content="{DynamicResource DeliveryNote.ExportCSV}"
                                         Command="{Binding ExportCsvCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource SheetMenuActionItem}"
                                         Tag="&#xE9F9;" Content="{DynamicResource DeliveryNote.ExportExcel}"
                                         Command="{Binding ExportExcelCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource SheetMenuActionItem}"
                                         Tag="&#xE8A5;" Content="{DynamicResource SheetStore.ExportPDFReport}"
                                         Command="{Binding ExportPdfCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource SheetMenuActionItem}"
                                         Tag="&#xE81C;" Content="{DynamicResource SheetStore.ShowHistory}"
                                         Command="{Binding ShowHistoryCommand}"
-                                        Click="MenuActionClicked"/>
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                             </StackPanel>
                         </Border>
                     </Popup>
@@ -454,9 +453,24 @@
                             </ListBox.ItemsPanel>
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource DataRowStyle}"
-                                            MouseLeftButtonDown="Row_Click"
-                                            Tag="{Binding}">
+                                    <Border behaviors:ClickToCommandBehavior.Command="{Binding DataContext.SelectSheetCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                            behaviors:ClickToCommandBehavior.CommandParameter="{Binding}">
+                                        <Border.Style>
+                                            <Style TargetType="Border" BasedOn="{StaticResource DataRowStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Value="True">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{StaticResource ReferenceEqualityConverter}">
+                                                                <Binding Path="SelectedSheet"/>
+                                                                <Binding/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter Property="Background" Value="{StaticResource LiquidSelectionBrush}"/>
+                                                        <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="36"/>

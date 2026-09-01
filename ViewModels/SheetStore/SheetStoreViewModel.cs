@@ -242,6 +242,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ICommand UseCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand ClearSelectionCommand { get; }
+        public ICommand SelectSheetCommand { get; }
         public ICommand ShowHistoryCommand { get; }
         public ICommand ClearFiltersCommand { get; }
         public ICommand ExportCsvCommand { get; }
@@ -265,6 +266,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             UseCommand = new RelayCommand(async p => await UseAsync(p as GlassSheet ?? SelectedSheet));
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             ClearSelectionCommand = new RelayCommand(_ => SelectedSheet = null);
+            SelectSheetCommand = new RelayCommand(p =>
+            {
+                if (p is GlassSheet sheet)
+                    SelectedSheet = ReferenceEquals(SelectedSheet, sheet) ? null : sheet;
+            });
             ShowHistoryCommand = new RelayCommand(_ => ShowHistory());
             ClearFiltersCommand = new RelayCommand(_ => ClearAllFilters());
             ExportCsvCommand = new RelayCommand(async _ => await ExportCsvAsync());

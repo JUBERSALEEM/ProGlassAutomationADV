@@ -13,8 +13,6 @@ namespace ProGlassAutomation.Views.SheetStore
 {
     public partial class SheetStoreView : UserControl
     {
-        private Border? _lastSelectedRow;
-
         // Reserved width of the slide-in panel column (360 panel + 16 margin).
         private const double PanelOpenWidth = 376;
 
@@ -74,78 +72,7 @@ namespace ProGlassAutomation.Views.SheetStore
             }
         }
 
-        private void Row_Click(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is Border row &&
-                row.Tag is GlassSheet sheet &&
-                DataContext is SheetStoreViewModel vm)
-            {
-                // Reset previous row visual
-                if (_lastSelectedRow != null)
-                {
-                    _lastSelectedRow.BorderBrush = Brushes.Transparent;
-                    _lastSelectedRow.Background = Brushes.Transparent;
-                }
-
-                // Toggle: click same row to deselect
-                if (vm.SelectedSheet == sheet)
-                {
-                    vm.SelectedSheet = null;
-                    _lastSelectedRow = null;
-                }
-                else
-                {
-                    vm.SelectedSheet = sheet;
-
-                    // Highlight the row
-                    row.Background = (System.Windows.Media.Brush)FindResource("LiquidSelectionBrush");
-                    if (Application.Current.Resources["AccentBrush"] is SolidColorBrush accent)
-                        row.BorderBrush = accent;
-
-                    _lastSelectedRow = row;
-                }
-            }
-        }
-
-        private bool _actionsMenuOpen;
-
-        // ACTIONS menu: single LEFT click opens, second LEFT click closes.
-        private void ActionsMenuButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (ActionsMenuPopup == null) return;
-            _actionsMenuOpen = !_actionsMenuOpen;
-            ActionsMenuPopup.IsOpen = _actionsMenuOpen;
-            e.Handled = true;
-        }
-
-        private void MenuActionClicked(object sender, RoutedEventArgs e)
-        {
-            // Run the bound command (the Click fires alongside the Command),
-            // then close the dropdown.
-            _actionsMenuOpen = false;
-            if (ActionsMenuPopup != null)
-                ActionsMenuPopup.IsOpen = false;
-        }
-
         // Close the dropdown when the user clicks anywhere that is not the
         // ACTIONS button and not inside the popup.
-        private void Root_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (!_actionsMenuOpen) return;
-
-            var source = e.OriginalSource as DependencyObject;
-            bool insideButton = source != null && IsDescendantOf(source, ActionsMenuButton);
-            bool insidePopup = source != null && ActionsMenuPopup.Child != null
-                               && IsDescendantOf(source, ActionsMenuPopup.Child);
-
-            if (!insideButton && !insidePopup)
-            {
-                _actionsMenuOpen = false;
-                ActionsMenuPopup.IsOpen = false;
-            }
         }
-
-        private static bool IsDescendantOf(DependencyObject element, DependencyObject root)
-            => ProGlassAutomation.Utilities.UiTreeHelper.IsDescendantOf(element, root);
-    }
 }

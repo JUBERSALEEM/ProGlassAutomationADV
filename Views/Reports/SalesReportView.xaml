@@ -179,7 +179,7 @@
                     <StackPanel>
 
                         <!-- Overview -->
-                        <Button Tag="Overview" Click="Nav_Click" ToolTip="{DynamicResource Reports.GlobalOverviewDashboardShowingCombinedERP}">
+                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="Overview" ToolTip="{DynamicResource Reports.GlobalOverviewDashboardShowingCombinedERP}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -213,7 +213,7 @@
                         <TextBlock Text="{DynamicResource Reports.Documents}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
 
                         <!-- Proforma Invoice -->
-                        <Button Tag="Pi" Click="Nav_Click" ToolTip="{DynamicResource Reports.ProformaInvoicesQuotesConversionRates}">
+                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="Pi" ToolTip="{DynamicResource Reports.ProformaInvoicesQuotesConversionRates}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -239,7 +239,7 @@
                         </Button>
 
                         <!-- Job Order -->
-                        <Button Tag="Jo" Click="Nav_Click" ToolTip="{DynamicResource Reports.JobOrdersFactoryProductionStagesDelivered}">
+                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="Jo" ToolTip="{DynamicResource Reports.JobOrdersFactoryProductionStagesDelivered}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -265,7 +265,7 @@
                         </Button>
 
                         <!-- Delivery -->
-                        <Button Tag="Delivery" Click="Nav_Click" ToolTip="{DynamicResource Reports.DeliveryNotesDispatchTrackingFulfillmentRate}">
+                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="Delivery" ToolTip="{DynamicResource Reports.DeliveryNotesDispatchTrackingFulfillmentRate}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -291,7 +291,7 @@
                         </Button>
 
                         <!-- Tax Invoice -->
-                        <Button Tag="TaxInvoice" Click="Nav_Click" ToolTip="{DynamicResource Reports.TaxInvoicesBillingStatusesCollectionsOverdue}">
+                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="TaxInvoice" ToolTip="{DynamicResource Reports.TaxInvoicesBillingStatusesCollectionsOverdue}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -317,7 +317,7 @@
                         </Button>
 
                         <!-- Statement -->
-                        <Button Tag="Statement" Click="Nav_Click" ToolTip="{DynamicResource Reports.CustomerStatementsAgingAnalysisReadReport}">
+                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="Statement" ToolTip="{DynamicResource Reports.CustomerStatementsAgingAnalysisReadReport}">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -480,7 +480,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Proforma Invoice -->
-                        <Button Grid.Column="0" Tag="Pi" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenProformaInvoiceReport}">
+                        <Button Grid.Column="0" Command="{Binding NavigateReportCommand}" CommandParameter="Pi" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenProformaInvoiceReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
@@ -508,7 +508,7 @@
                         </Button>
 
                         <!-- Job Order -->
-                        <Button Grid.Column="2" Tag="Jo" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenJobOrderReport}">
+                        <Button Grid.Column="2" Command="{Binding NavigateReportCommand}" CommandParameter="Jo" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenJobOrderReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
@@ -536,7 +536,7 @@
                         </Button>
 
                         <!-- Delivery -->
-                        <Button Grid.Column="4" Tag="Delivery" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenDeliveryReport}">
+                        <Button Grid.Column="4" Command="{Binding NavigateReportCommand}" CommandParameter="Delivery" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenDeliveryReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
@@ -564,7 +564,7 @@
                         </Button>
 
                         <!-- Tax Invoice -->
-                        <Button Grid.Column="6" Tag="TaxInvoice" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenTaxInvoiceReport}">
+                        <Button Grid.Column="6" Command="{Binding NavigateReportCommand}" CommandParameter="TaxInvoice" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenTaxInvoiceReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
@@ -592,7 +592,7 @@
                         </Button>
 
                         <!-- Statement -->
-                        <Button Grid.Column="8" Tag="Statement" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenStatementReport}">
+                        <Button Grid.Column="8" Command="{Binding NavigateReportCommand}" CommandParameter="Statement" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenStatementReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">

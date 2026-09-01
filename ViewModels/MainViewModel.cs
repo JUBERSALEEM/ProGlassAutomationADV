@@ -417,6 +417,7 @@ namespace ProGlassAutomation.ViewModels
         public ICommand TogglePopupCommand { get; private set; }
         public ICommand LogoClickCommand { get; private set; }
         public ICommand CloseAllPopupsCommand { get; private set; }
+        public ICommand OpenSettingsPageCommand { get; private set; }
         public ICommand ToggleMenuCommand { get; }
         public ICommand NewProformaInvoiceCommand { get; }
         public ICommand NavigateCommand { get; }
@@ -541,6 +542,7 @@ namespace ProGlassAutomation.ViewModels
             TogglePopupCommand = new RelayCommand(p => TogglePopup(p as string));
             LogoClickCommand = new RelayCommand(_ => { CloseAllPopups(); NavigateFromAgent("About"); });
             CloseAllPopupsCommand = new RelayCommand(_ => { IsMenuOpen = false; CloseAllPopups(); });
+            OpenSettingsPageCommand = new RelayCommand(p => OpenSettingsPage(p as string ?? ""));
 
             GlobalSearchVM = new GlobalSearchViewModel(_deliveryNotes, _invoices, _jobs, _masterData, _taxInvoices, target => Navigate(target));
 

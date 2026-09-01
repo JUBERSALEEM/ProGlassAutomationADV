@@ -21,16 +21,5 @@ namespace ProGlassAutomation.Views.Shared
             InitializeComponent();
         }
 
-        private void Link_Click(object sender, RoutedEventArgs e)
-        {
-            var btn = sender as Button;
-            if (btn == null) return;
-            string page = btn.Tag as string ?? "";
-
-            // Open the Settings module on the chosen section.
-            var vm = System.Windows.Application.Current?.MainWindow?.DataContext
-                as ProGlassAutomation.ViewModels.MainViewModel;
-            vm?.OpenSettingsPage(page);
         }
-    }
 }

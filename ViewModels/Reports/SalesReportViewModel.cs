@@ -165,6 +165,12 @@ namespace ProGlassAutomation.ViewModels.Reports
                 {
                     ActiveKey = key;
                     OnPropertyChanged(nameof(IsOverview));
+
+                    // Statements can be generated in the Dispatch section now;
+                    // refresh the read-only Statement report when it opens so it
+                    // reflects the latest generated statements.
+                    if (key == "Statement")
+                        _ = StatementReport.LoadAsync();
                 }
             });
 

@@ -105,7 +105,7 @@
                         <StackPanel>
 
                             <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="{DynamicResource Settings.GrpLook}"/>
-                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Appearance" Click="Link_Click">
+                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Appearance">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE790;"/>
                                     <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAppearance}"/>
@@ -113,19 +113,19 @@
                             </Button>
 
                             <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="{DynamicResource Settings.GrpIntelligence}"/>
-                            <Button Style="{StaticResource QuickSettingsRow}" Tag="AI" Click="Link_Click">
+                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="AI">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE8F2;"/>
                                     <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAi}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Agent" Click="Link_Click">
+                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Agent">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE99A;"/>
                                     <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAgent}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Voice" Click="Link_Click">
+                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Voice">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE720;"/>
                                     <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecVoice}"/>
@@ -133,37 +133,37 @@
                             </Button>
 
                             <TextBlock Style="{StaticResource QuickSettingsGroup}" Text="{DynamicResource Nav.GroupSystem}"/>
-                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Data" Click="Link_Click">
+                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Data">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE74E;"/>
                                     <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecData}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Updates" Click="Link_Click">
+                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Updates">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE72C;"/>
                                     <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecUpdates}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Demo" Click="Link_Click">
+                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Demo">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE714;"/>
                                     <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecDemo}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Tag="Features" Click="Link_Click">
+                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="Features">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE762;"/>
                                     <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecFeatures}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Tag="License" Click="Link_Click">
+                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="License">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE192;"/>
                                     <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecLicense}"/>
                                 </StackPanel>
                             </Button>
-                            <Button Style="{StaticResource QuickSettingsRow}" Tag="About" Click="Link_Click">
+                            <Button Style="{StaticResource QuickSettingsRow}" Command="{Binding OpenSettingsPageCommand}" CommandParameter="About">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource QuickSettingsGlyph}" Text="&#xE946;"/>
                                     <TextBlock Style="{StaticResource QuickSettingsLabel}" Text="{DynamicResource Settings.SecAbout}"/>
