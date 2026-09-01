@@ -208,13 +208,21 @@
                                         </TextBlock>
                                         <TextBlock FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Text="{Binding SelectedModelInfo.FileName}"
+                                                   IsHitTestVisible="False"/>
+                                        <TextBlock FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Text="·" Margin="5,0"
+                                                   IsHitTestVisible="False"/>
+                                        <TextBlock FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="{Binding SelectedModelInfo.FileName, StringFormat='{}{0} · Download required'}"/>
+                                                    <Setter Property="Text" Value="{DynamicResource Settings.VoiceDownloadRequired}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsWhisperModelReady}" Value="True">
-                                                            <Setter Property="Text" Value="{Binding SelectedModelInfo.FileName, StringFormat='{}{0} · Installed · Offline neural STT'}"/>
+                                                            <Setter Property="Text" Value="{DynamicResource Settings.VoiceInstalledOfflineSTT}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>

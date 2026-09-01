@@ -96,12 +96,14 @@
                                                Margin="0,6,0,0"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
-                                    <TextBlock Text="Made in India · {Binding Country}"
-                                               FontSize="{StaticResource TextBody}"
+                                    <TextBlock FontSize="{StaticResource TextBody}"
                                                Foreground="{DynamicResource LiquidCerulean}"
                                                Margin="0,6,0,0"
                                                TextWrapping="Wrap"
-                                               IsHitTestVisible="False"/>
+                                               IsHitTestVisible="False">
+                                        <Run Text="{DynamicResource About.MadeInIndia}"/>
+                                        <Run Text="{Binding Country}"/>
+                                    </TextBlock>
                                 </StackPanel>
                             </StackPanel>
 

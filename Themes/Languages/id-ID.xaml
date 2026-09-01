@@ -71,6 +71,7 @@
     <sys:String x:Key="About.Licensed">Dilisensikan kepada</sys:String>
     <sys:String x:Key="About.LocalFirstDataHandlingOperatorControl">Penanganan data lokal-pertama, kontrol operator, dan batas privasi praktis</sys:String>
     <sys:String x:Key="About.Machine">Mesin ini</sys:String>
+    <sys:String x:Key="About.MadeInIndia">Dibuat di India · </sys:String>
     <sys:String x:Key="About.ModularIsolation">• Isolasi modular —</sys:String>
     <sys:String x:Key="About.ModuleCount">JUMLAH MODUL</sys:String>
     <sys:String x:Key="About.MonetaryValuesStoredDisplayed">Semua nilai moneter disimpan dan ditampilkan dalam</sys:String>
@@ -139,6 +140,7 @@
     <sys:String x:Key="Action.Select">Pilih</sys:String>
     <sys:String x:Key="Action.View">Lihat</sys:String>
     <sys:String x:Key="Action.Yes">Ya</sys:String>
+    <sys:String x:Key="Attachments.FilesTitle">BERKAS</sys:String>
     <sys:String x:Key="Common.Actions">Tindakan</sys:String>
     <sys:String x:Key="Common.Activity">Aktivitas</sys:String>
     <sys:String x:Key="Common.Address">Alamat</sys:String>
@@ -221,6 +223,7 @@
     <sys:String x:Key="Currency.ConvertFrom">Konversi dari</sys:String>
     <sys:String x:Key="Currency.ConvertHint">1 AED = {rate} {currency} pada kurs saat ini.</sys:String>
     <sys:String x:Key="Currency.Example">Contoh</sys:String>
+    <sys:String x:Key="Currency.Imported">Impor</sys:String>
     <sys:String x:Key="Currency.KeepEnglish">Antarmuka Inggris + mata uang ini</sys:String>
     <sys:String x:Key="Currency.LastSync">Sinkronisasi terakhir</sys:String>
     <sys:String x:Key="Currency.LiveOnly">Kurs internet langsung</sys:String>
@@ -230,6 +233,7 @@
     <sys:String x:Key="Currency.Source">Sumber kurs</sys:String>
     <sys:String x:Key="Currency.Subtitle">Jalankan aplikasi dalam bahasa Anda; lihat nilai dalam mata uang Anda.</sys:String>
     <sys:String x:Key="Currency.Title">Bahasa &amp; mata uang</sys:String>
+    <sys:String x:Key="Currency.WithSurcharge">Dengan biaya tambahan</sys:String>
     <sys:String x:Key="Dashboard.AgeingBrackets">Kelompok penuaan</sys:String>
     <sys:String x:Key="Dashboard.AgeingMix">Campuran penuaan</sys:String>
     <sys:String x:Key="Dashboard.Attachments">Punya lampiran</sys:String>
@@ -1301,6 +1305,7 @@
     <sys:String x:Key="ProformaInvoice.Source">SUMBER</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSQM">SPACER / M²</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSqm0MeansRate">Spacer / m² — 0 berarti tidak ada dalam tarif</sys:String>
+    <sys:String x:Key="ProformaInvoice.Specs">Spesifikasi</sys:String>
     <sys:String x:Key="ProformaInvoice.Sqm">/m²</sys:String>
     <sys:String x:Key="ProformaInvoice.StandardUAEVAT">PPN standar UEA (</sys:String>
     <sys:String x:Key="ProformaInvoice.SubtotalBeforeVAT">Subtotal sebelum PPN</sys:String>
@@ -1444,6 +1449,7 @@
     <sys:String x:Key="Reports.OpenTaxInvoiceReport">Buka laporan faktur pajak</sys:String>
     <sys:String x:Key="Reports.PastDueDate">Lewat jatuh tempo</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">Kutipan disetujui dan diterbitkan siap untuk produksi</sys:String>
+    <sys:String x:Key="Reports.PiReport.AwaitingConversion">menunggu konversi</sys:String>
     <sys:String x:Key="Reports.PiReport.CompanyProject">PERUSAHAAN / PROYEK</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">DIKONVERSI</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">Ekspor catatan terfilter ke CSV</sys:String>
@@ -1458,6 +1464,7 @@
     <sys:String x:Key="Reports.PiReport.PIAmount">JUMLAH PI</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE">TANGGAL PI</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE2">PI # / TANGGAL</sys:String>
+    <sys:String x:Key="Reports.PiReport.PendingApproval">menunggu persetujuan</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceDetails">Detail faktur proforma</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceReport">Laporan faktur proforma</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob">Faktur proforma dikonversi menjadi order pabrik aktif</sys:String>
@@ -1622,6 +1629,7 @@
     <sys:String x:Key="Reports.TaxInvoiceReport.FilterStartIssueDate">Filter berdasarkan tanggal terbit awal</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.Invoice">FAKTUR #</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoiceDATE">FAKTUR # / TANGGAL</sys:String>
+    <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesIssued">faktur diterbitkan</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection">Faktur lewat ketentuan pembayaran yang memerlukan penagihan</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NeedsCollection">Perlu penagihan</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NoTaxInvoicesFound">Tidak ada faktur pajak yang ditemukan</sys:String>
@@ -1644,6 +1652,7 @@
     <sys:String x:Key="Reports.VatSubmission.5FTARate">Tarif FTA 5%</sys:String>
     <sys:String x:Key="Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject">Rincian PPN FTA UEA 5% per salesman, perusahaan, dan proyek · Ekspor untuk kepatuhan pengajuan pajak.</sys:String>
     <sys:String x:Key="Reports.VatSubmission.ActiveSalesmenContributingVATPeriod">Salesman aktif yang berkontribusi PPN dalam periode</sys:String>
+    <sys:String x:Key="Reports.VatSubmission.CompaniesCount">perusahaan</sys:String>
     <sys:String x:Key="Reports.VatSubmission.Company">Per perusahaan</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DATETIME">TANGGAL / WAKTU</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DetailView">Tampilan detail</sys:String>
@@ -2027,6 +2036,8 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Digunakan di setiap layar, dialog, dan tabel (ikon tetap di Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Visibilitas</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadRequired">Unduhan diperlukan</sys:String>
+    <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">Terpasang · STT neural offline</sys:String>
     <sys:String x:Key="Settings.Wallpapers">WALLPAPER</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">Apa yang dilakukan proses terakhir dan di mana outputnya.</sys:String>
     <sys:String x:Key="Settings.WhatMeans">Apa Artinya Ini</sys:String>
@@ -2113,6 +2124,7 @@
     <sys:String x:Key="SheetStore.EGJO2025001CustomerName">mis.: JO-2025-001 atau nama pelanggan</sys:String>
     <sys:String x:Key="SheetStore.Edited">Diedit</sys:String>
     <sys:String x:Key="SheetStore.EnterGlassSheetInventoryDetails">Masukkan detail inventaris lembaran kaca</sys:String>
+    <sys:String x:Key="SheetStore.Entries">entri</sys:String>
     <sys:String x:Key="SheetStore.ExistingDB">ADA (DI BASIS DATA)</sys:String>
     <sys:String x:Key="SheetStore.ExpectedProfit">LABA DIHARAPKAN</sys:String>
     <sys:String x:Key="SheetStore.ExportPDFReport">Ekspor laporan PDF</sys:String>

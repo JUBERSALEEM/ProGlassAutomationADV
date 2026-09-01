@@ -63,5 +63,17 @@
  "Shell.Offline": "Offline",
  "Shell.Online": "Online",
  "Shell.Version": "Version",
- "About.CurrencyUAE": "VAE-Dirham (AED)"
+ "About.CurrencyUAE": "VAE-Dirham (AED)",
+ "Currency.Imported": "Importiert",
+ "Currency.WithSurcharge": "Mit Aufschlag",
+ "ProformaInvoice.Specs": "Spezifikationen",
+ "Attachments.FilesTitle": "DATEIEN",
+ "Reports.PiReport.PendingApproval": "ausstehende Genehmigung",
+ "Reports.PiReport.AwaitingConversion": "wartet auf Umwandlung",
+ "Reports.VatSubmission.CompaniesCount": "Unternehmen",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "Rechnungen ausgestellt",
+ "SheetStore.Entries": "Einträge",
+ "Settings.VoiceDownloadRequired": "Download erforderlich",
+ "Settings.VoiceInstalledOfflineSTT": "Installiert · Offline neuronales STT",
+ "About.MadeInIndia": "Hergestellt in Indien · "
 }

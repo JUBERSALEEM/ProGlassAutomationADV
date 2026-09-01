@@ -71,6 +71,7 @@
     <sys:String x:Key="About.Licensed">ライセンス先</sys:String>
     <sys:String x:Key="About.LocalFirstDataHandlingOperatorControl">ローカルファーストのデータ処理、オペレーター制御、実用的なプライバシー境界</sys:String>
     <sys:String x:Key="About.Machine">このマシン</sys:String>
+    <sys:String x:Key="About.MadeInIndia">インド製 · </sys:String>
     <sys:String x:Key="About.ModularIsolation">• モジュール分離 —</sys:String>
     <sys:String x:Key="About.ModuleCount">モジュール数</sys:String>
     <sys:String x:Key="About.MonetaryValuesStoredDisplayed">すべての金額は次の通貨で保存・表示されます</sys:String>
@@ -139,6 +140,7 @@
     <sys:String x:Key="Action.Select">選択</sys:String>
     <sys:String x:Key="Action.View">表示</sys:String>
     <sys:String x:Key="Action.Yes">はい</sys:String>
+    <sys:String x:Key="Attachments.FilesTitle">ファイル</sys:String>
     <sys:String x:Key="Common.Actions">アクション</sys:String>
     <sys:String x:Key="Common.Activity">アクティビティ</sys:String>
     <sys:String x:Key="Common.Address">住所</sys:String>
@@ -221,6 +223,7 @@
     <sys:String x:Key="Currency.ConvertFrom">変換元</sys:String>
     <sys:String x:Key="Currency.ConvertHint">現在レートで 1 AED = {rate} {currency}。</sys:String>
     <sys:String x:Key="Currency.Example">例</sys:String>
+    <sys:String x:Key="Currency.Imported">輸入</sys:String>
     <sys:String x:Key="Currency.KeepEnglish">英語UI + この通貨</sys:String>
     <sys:String x:Key="Currency.LastSync">最終同期</sys:String>
     <sys:String x:Key="Currency.LiveOnly">ライブネット為替</sys:String>
@@ -230,6 +233,7 @@
     <sys:String x:Key="Currency.Source">レートソース</sys:String>
     <sys:String x:Key="Currency.Subtitle">アプリを自分の言語で、金額を自分の通貨で表示。</sys:String>
     <sys:String x:Key="Currency.Title">言語と通貨</sys:String>
+    <sys:String x:Key="Currency.WithSurcharge">追加料金込み</sys:String>
     <sys:String x:Key="Dashboard.AgeingBrackets">エージング区分</sys:String>
     <sys:String x:Key="Dashboard.AgeingMix">エージング構成</sys:String>
     <sys:String x:Key="Dashboard.Attachments">添付あり</sys:String>
@@ -1301,6 +1305,7 @@
     <sys:String x:Key="ProformaInvoice.Source">ソース</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSQM">スペーサー / M²</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSqm0MeansRate">スペーサー / m² — 0はレートに含まれないことを意味します</sys:String>
+    <sys:String x:Key="ProformaInvoice.Specs">仕様</sys:String>
     <sys:String x:Key="ProformaInvoice.Sqm">/m²</sys:String>
     <sys:String x:Key="ProformaInvoice.StandardUAEVAT">UAE標準VAT（</sys:String>
     <sys:String x:Key="ProformaInvoice.SubtotalBeforeVAT">VAT前小計</sys:String>
@@ -1444,6 +1449,7 @@
     <sys:String x:Key="Reports.OpenTaxInvoiceReport">税務請求書レポートを開く</sys:String>
     <sys:String x:Key="Reports.PastDueDate">期限超過</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">承認・発行済みの見積は製造準備完了</sys:String>
+    <sys:String x:Key="Reports.PiReport.AwaitingConversion">変換待ち</sys:String>
     <sys:String x:Key="Reports.PiReport.CompanyProject">会社 / プロジェクト</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">変換済み</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">フィルター済みレコードをCSVにエクスポート</sys:String>
@@ -1458,6 +1464,7 @@
     <sys:String x:Key="Reports.PiReport.PIAmount">PI金額</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE">PI日付</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE2">PI # / 日付</sys:String>
+    <sys:String x:Key="Reports.PiReport.PendingApproval">承認待ち</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceDetails">プロフォーマ請求書の詳細</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceReport">プロフォーマ請求書レポート</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob">アクティブな工場ジョブに変換されたプロフォーマ請求書</sys:String>
@@ -1622,6 +1629,7 @@
     <sys:String x:Key="Reports.TaxInvoiceReport.FilterStartIssueDate">請求書発行開始日でフィルター</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.Invoice">請求書 #</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoiceDATE">請求書 # / 日付</sys:String>
+    <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesIssued">枚発行済み</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection">支払条件を超え、回収が必要な請求書</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NeedsCollection">回収が必要</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NoTaxInvoicesFound">税務請求書が見つかりません</sys:String>
@@ -1644,6 +1652,7 @@
     <sys:String x:Key="Reports.VatSubmission.5FTARate">FTA税率5%</sys:String>
     <sys:String x:Key="Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject">営業担当、会社、プロジェクト別のUAE FTA 5% VAT内訳 · 税務申告コンプライアンス用にエクスポート。</sys:String>
     <sys:String x:Key="Reports.VatSubmission.ActiveSalesmenContributingVATPeriod">期間中にVATに貢献するアクティブな営業担当</sys:String>
+    <sys:String x:Key="Reports.VatSubmission.CompaniesCount">社</sys:String>
     <sys:String x:Key="Reports.VatSubmission.Company">会社別</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DATETIME">日付 / 時刻</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DetailView">詳細ビュー</sys:String>
@@ -2027,6 +2036,8 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">すべての画面、ダイアログ、テーブルで使用（アイコンはSegoe MDL2のまま）。</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">表示</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadRequired">ダウンロードが必要です</sys:String>
+    <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">インストール済み · オフライン神経STT</sys:String>
     <sys:String x:Key="Settings.Wallpapers">壁紙</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">最後の実行が何をしたか、その出力がどこにあるか。</sys:String>
     <sys:String x:Key="Settings.WhatMeans">この意味</sys:String>
@@ -2113,6 +2124,7 @@
     <sys:String x:Key="SheetStore.EGJO2025001CustomerName">例: JO-2025-001または顧客名</sys:String>
     <sys:String x:Key="SheetStore.Edited">編集済み</sys:String>
     <sys:String x:Key="SheetStore.EnterGlassSheetInventoryDetails">ガラスシート在庫の詳細を入力</sys:String>
+    <sys:String x:Key="SheetStore.Entries">件</sys:String>
     <sys:String x:Key="SheetStore.ExistingDB">既存（データベース内）</sys:String>
     <sys:String x:Key="SheetStore.ExpectedProfit">期待利益</sys:String>
     <sys:String x:Key="SheetStore.ExportPDFReport">PDFレポートをエクスポート</sys:String>

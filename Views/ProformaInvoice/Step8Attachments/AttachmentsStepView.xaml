@@ -20,8 +20,13 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="08" Style="{StaticResource PiStationCodeStyle}"/>
-                        <TextBlock Text="{Binding ProformaId, StringFormat=FILES  ·  {0}, FallbackValue=FILES}"
-                                   Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Style="{StaticResource PiStationTitleStyle}">
+                            <TextBlock.Inlines>
+                                <Run Text="{DynamicResource Attachments.FilesTitle}"/>
+                                <Run Text="  ·  "/>
+                                <Run Text="{Binding ProformaId}"/>
+                            </TextBlock.Inlines>
+                        </TextBlock>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button Style="{StaticResource PiGhostChipButton}"

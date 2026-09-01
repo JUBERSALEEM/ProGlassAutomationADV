@@ -53,5 +53,17 @@
  "God.Percent": "%",
  "Shell.AppBrand": "ProGlass",
  "Shell.AppTitle": "ProGlass Automation",
- "About.CurrencyUAE": "UAEディルハム (AED)"
+ "About.CurrencyUAE": "UAEディルハム (AED)",
+ "Currency.Imported": "輸入",
+ "Currency.WithSurcharge": "追加料金込み",
+ "ProformaInvoice.Specs": "仕様",
+ "Attachments.FilesTitle": "ファイル",
+ "Reports.PiReport.PendingApproval": "承認待ち",
+ "Reports.PiReport.AwaitingConversion": "変換待ち",
+ "Reports.VatSubmission.CompaniesCount": "社",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "枚発行済み",
+ "SheetStore.Entries": "件",
+ "Settings.VoiceDownloadRequired": "ダウンロードが必要です",
+ "Settings.VoiceInstalledOfflineSTT": "インストール済み · オフライン神経STT",
+ "About.MadeInIndia": "インド製 · "
 }

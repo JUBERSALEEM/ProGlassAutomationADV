@@ -75,5 +75,17 @@
  "Settings.MB": "MB ·",
  "Settings.Swift": "SWIFT",
  "Shell.AppBrand": "ProGlass",
- "About.CurrencyUAE": "درهم إماراتي (AED)"
+ "About.CurrencyUAE": "درهم إماراتي (AED)",
+ "Currency.Imported": "مستورد",
+ "Currency.WithSurcharge": "مع رسوم إضافية",
+ "ProformaInvoice.Specs": "المواصفات",
+ "Attachments.FilesTitle": "الملفات",
+ "Reports.PiReport.PendingApproval": "بانتظار الموافقة",
+ "Reports.PiReport.AwaitingConversion": "بانتظار التحويل",
+ "Reports.VatSubmission.CompaniesCount": "شركات",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "فواتير صادرة",
+ "SheetStore.Entries": "إدخالات",
+ "Settings.VoiceDownloadRequired": "التنزيل مطلوب",
+ "Settings.VoiceInstalledOfflineSTT": "مثبّت · تعرّف كلامي عصبي دون اتصال",
+ "About.MadeInIndia": "صُنع في الهند · "
 }

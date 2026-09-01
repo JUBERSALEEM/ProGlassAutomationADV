@@ -52,5 +52,17 @@
  "God.Percent": "%",
  "Shell.AppBrand": "ProGlass",
  "Shell.AppTitle": "ProGlass Automation",
- "About.CurrencyUAE": "Дирхам ОАЭ (AED)"
+ "About.CurrencyUAE": "Дирхам ОАЭ (AED)",
+ "Currency.Imported": "Импортный",
+ "Currency.WithSurcharge": "С наценкой",
+ "ProformaInvoice.Specs": "Спецификации",
+ "Attachments.FilesTitle": "ФАЙЛЫ",
+ "Reports.PiReport.PendingApproval": "ожидает одобрения",
+ "Reports.PiReport.AwaitingConversion": "ожидает конвертации",
+ "Reports.VatSubmission.CompaniesCount": "компаний",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "выставлено счетов",
+ "SheetStore.Entries": "записей",
+ "Settings.VoiceDownloadRequired": "Требуется загрузка",
+ "Settings.VoiceInstalledOfflineSTT": "Установлено · Офлайн нейро-СТТ",
+ "About.MadeInIndia": "Сделано в Индии · "
 }

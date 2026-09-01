@@ -71,6 +71,7 @@
     <sys:String x:Key="About.Licensed">라이선스 사용자</sys:String>
     <sys:String x:Key="About.LocalFirstDataHandlingOperatorControl">로컬 우선 데이터 처리, 운영자 제어, 실용적인 개인정보 경계</sys:String>
     <sys:String x:Key="About.Machine">이 머신</sys:String>
+    <sys:String x:Key="About.MadeInIndia">인도 제작 · </sys:String>
     <sys:String x:Key="About.ModularIsolation">• 모듈식 격리 —</sys:String>
     <sys:String x:Key="About.ModuleCount">모듈 수</sys:String>
     <sys:String x:Key="About.MonetaryValuesStoredDisplayed">모든 금액은 다음 통화로 저장 및 표시됩니다</sys:String>
@@ -139,6 +140,7 @@
     <sys:String x:Key="Action.Select">선택</sys:String>
     <sys:String x:Key="Action.View">보기</sys:String>
     <sys:String x:Key="Action.Yes">예</sys:String>
+    <sys:String x:Key="Attachments.FilesTitle">파일</sys:String>
     <sys:String x:Key="Common.Actions">작업</sys:String>
     <sys:String x:Key="Common.Activity">활동</sys:String>
     <sys:String x:Key="Common.Address">주소</sys:String>
@@ -221,6 +223,7 @@
     <sys:String x:Key="Currency.ConvertFrom">에서 변환</sys:String>
     <sys:String x:Key="Currency.ConvertHint">현재 환율로 1 AED = {rate} {currency}.</sys:String>
     <sys:String x:Key="Currency.Example">예시</sys:String>
+    <sys:String x:Key="Currency.Imported">수입</sys:String>
     <sys:String x:Key="Currency.KeepEnglish">영어 UI + 이 통화</sys:String>
     <sys:String x:Key="Currency.LastSync">마지막 동기화</sys:String>
     <sys:String x:Key="Currency.LiveOnly">실시간 인터넷 환율</sys:String>
@@ -230,6 +233,7 @@
     <sys:String x:Key="Currency.Source">환율 출처</sys:String>
     <sys:String x:Key="Currency.Subtitle">앱은 내 언어로, 금액은 내 통화로 표시합니다.</sys:String>
     <sys:String x:Key="Currency.Title">언어 및 통화</sys:String>
+    <sys:String x:Key="Currency.WithSurcharge">추가 요금 포함</sys:String>
     <sys:String x:Key="Dashboard.AgeingBrackets">에이징 구간</sys:String>
     <sys:String x:Key="Dashboard.AgeingMix">에이징 구성</sys:String>
     <sys:String x:Key="Dashboard.Attachments">첨부 있음</sys:String>
@@ -1301,6 +1305,7 @@
     <sys:String x:Key="ProformaInvoice.Source">소스</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSQM">스페이서 / M²</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSqm0MeansRate">스페이서 / m² — 0은 요율에 없음을 의미</sys:String>
+    <sys:String x:Key="ProformaInvoice.Specs">사양</sys:String>
     <sys:String x:Key="ProformaInvoice.Sqm">/m²</sys:String>
     <sys:String x:Key="ProformaInvoice.StandardUAEVAT">UAE 표준 VAT(</sys:String>
     <sys:String x:Key="ProformaInvoice.SubtotalBeforeVAT">VAT 전 소계</sys:String>
@@ -1444,6 +1449,7 @@
     <sys:String x:Key="Reports.OpenTaxInvoiceReport">세금 청구서 보고서 열기</sys:String>
     <sys:String x:Key="Reports.PastDueDate">기한 초과</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">승인되고 발행된 견적은 제조 준비 완료</sys:String>
+    <sys:String x:Key="Reports.PiReport.AwaitingConversion">변환 대기</sys:String>
     <sys:String x:Key="Reports.PiReport.CompanyProject">회사 / 프로젝트</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">변환됨</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">필터링된 레코드를 CSV로 내보내기</sys:String>
@@ -1458,6 +1464,7 @@
     <sys:String x:Key="Reports.PiReport.PIAmount">PI 금액</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE">PI 날짜</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE2">PI # / 날짜</sys:String>
+    <sys:String x:Key="Reports.PiReport.PendingApproval">승인 대기</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceDetails">프로포마 청구서 세부 정보</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceReport">프로포마 청구서 보고서</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob">활성 공장 작업으로 변환된 프로포마 청구서</sys:String>
@@ -1622,6 +1629,7 @@
     <sys:String x:Key="Reports.TaxInvoiceReport.FilterStartIssueDate">발행 시작 날짜로 필터</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.Invoice">청구서 #</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoiceDATE">청구서 # / 날짜</sys:String>
+    <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesIssued">장 발행됨</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection">결제 조건을 초과하여 수금이 필요한 청구서</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NeedsCollection">수금 필요</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NoTaxInvoicesFound">세금 청구서를 찾을 수 없습니다</sys:String>
@@ -1644,6 +1652,7 @@
     <sys:String x:Key="Reports.VatSubmission.5FTARate">FTA 5% 세율</sys:String>
     <sys:String x:Key="Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject">영업 담당자, 회사, 프로젝트별 UAE FTA 5% VAT 세부 내역 · 세금 신고 준수를 위해 내보내기.</sys:String>
     <sys:String x:Key="Reports.VatSubmission.ActiveSalesmenContributingVATPeriod">기간 내 VAT에 기여하는 활성 영업 담당자</sys:String>
+    <sys:String x:Key="Reports.VatSubmission.CompaniesCount">개 업체</sys:String>
     <sys:String x:Key="Reports.VatSubmission.Company">회사별</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DATETIME">날짜 / 시간</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DetailView">세부 보기</sys:String>
@@ -2027,6 +2036,8 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">모든 화면, 대화 상자, 테이블에서 사용(아이콘은 Segoe MDL2 유지).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">표시 여부</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadRequired">다운로드 필요</sys:String>
+    <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">설치됨 · 오프라인 신경 STT</sys:String>
     <sys:String x:Key="Settings.Wallpapers">배경화면</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">마지막 실행이 무엇을 했고 출력이 어디에 있는지.</sys:String>
     <sys:String x:Key="Settings.WhatMeans">의미</sys:String>
@@ -2113,6 +2124,7 @@
     <sys:String x:Key="SheetStore.EGJO2025001CustomerName">예: JO-2025-001 또는 고객 이름</sys:String>
     <sys:String x:Key="SheetStore.Edited">편집됨</sys:String>
     <sys:String x:Key="SheetStore.EnterGlassSheetInventoryDetails">유리 시트 재고 세부 정보 입력</sys:String>
+    <sys:String x:Key="SheetStore.Entries">개 항목</sys:String>
     <sys:String x:Key="SheetStore.ExistingDB">기존(데이터베이스 내)</sys:String>
     <sys:String x:Key="SheetStore.ExpectedProfit">예상 이익</sys:String>
     <sys:String x:Key="SheetStore.ExportPDFReport">PDF 보고서 내보내기</sys:String>

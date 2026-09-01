@@ -127,8 +127,14 @@
                 <Border Background="{DynamicResource AccentBrush}"
                         CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4"
                         VerticalAlignment="Center" Margin="14,2,0,0">
-                    <TextBlock Text="{Binding TotalEntries, StringFormat={}{0} entries}"
-                               FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                    <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}">
+                        <TextBlock.Inlines>
+                            <Run Text="{Binding TotalEntries}"/>
+                            <Run Text=" "/>
+                            <Run Text="{DynamicResource SheetStore.Entries}"/>
+                        </TextBlock.Inlines>
+                    </TextBlock>
                 </Border>
             </StackPanel>
             <TextBlock Text="{DynamicResource SheetStore.ChangeSheetStoreRecordedHere}"

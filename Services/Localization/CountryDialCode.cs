@@ -33,6 +33,10 @@ namespace ProGlassAutomation.Services.Localization
 
         /// <summary>Picker text ("🇦🇪 United Arab Emirates +971").</summary>
         public string DisplayName => $"{Flag} {Name} {DialCode}";
+
+        /// <summary>Never leak the raw type name into a picker if a
+        /// binding ever fails — always show the friendly label.</summary>
+        public override string ToString() => DisplayName;
     }
 
     /// <summary>Historic facade over the per-country catalog.</summary>

@@ -4,9 +4,9 @@
 // MODULE: Global currency (2026-09-01)
 //
 // Renders a BASE (AED) amount in the ACTIVE DISPLAY currency at the
-// current rate — 1 AED → ₹26.xx INR with internet rates, last-fetched
-// cache offline. The books and databases NEVER change: conversion is
-// display-only, at the converter.
+// current rate — 1 AED → ≈₹22.7 INR with internet rates (live fetch,
+// auto-refreshed), last-fetched cache offline. The books and databases
+// NEVER change: conversion is display-only, at the converter.
 //
 // Usage in XAML:
 //   <TextBlock Text="{Binding Total, Converter={StaticResource CurrencyConverter}}"/>
@@ -46,8 +46,8 @@ namespace ProGlassAutomation.Converters
             "sqm" => $"{svc.Format(amount)} / m²",
             "minus" => $"- {svc.Format(amount)}",
             "plus" => $"+ {svc.Format(amount)}",
-            "surcharge" => $"With surcharge {svc.Format(amount)}",
-            "imported" => $"Imported {svc.Format(amount)}",
+            "surcharge" => $"{LocalizationService.Instance.T("Currency.WithSurcharge")} {svc.Format(amount)}",
+            "imported" => $"{LocalizationService.Instance.T("Currency.Imported")} {svc.Format(amount)}",
             _ => svc.Format(amount),
         };
         return core;

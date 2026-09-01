@@ -71,6 +71,7 @@
     <sys:String x:Key="About.Licensed">লাইসেন্সধারী</sys:String>
     <sys:String x:Key="About.LocalFirstDataHandlingOperatorControl">স্থানীয়-প্রথম ডেটা হ্যান্ডলিং, অপারেটর নিয়ন্ত্রণ ও বাস্তব গোপনীয়তার সীমা</sys:String>
     <sys:String x:Key="About.Machine">এই মেশিন</sys:String>
+    <sys:String x:Key="About.MadeInIndia">ভারতে তৈরি · </sys:String>
     <sys:String x:Key="About.ModularIsolation">• মডুলার বিচ্ছিন্নতা —</sys:String>
     <sys:String x:Key="About.ModuleCount">মডিউল গণনা</sys:String>
     <sys:String x:Key="About.MonetaryValuesStoredDisplayed">সব আর্থিক মান সংরক্ষিত ও প্রদর্শিত হয়</sys:String>
@@ -139,6 +140,7 @@
     <sys:String x:Key="Action.Select">নির্বাচন করুন</sys:String>
     <sys:String x:Key="Action.View">দেখুন</sys:String>
     <sys:String x:Key="Action.Yes">হ্যাঁ</sys:String>
+    <sys:String x:Key="Attachments.FilesTitle">ফাইল</sys:String>
     <sys:String x:Key="Common.Actions">কর্ম</sys:String>
     <sys:String x:Key="Common.Activity">কার্যকলাপ</sys:String>
     <sys:String x:Key="Common.Address">ঠিকানা</sys:String>
@@ -221,6 +223,7 @@
     <sys:String x:Key="Currency.ConvertFrom">থেকে রূপান্তর</sys:String>
     <sys:String x:Key="Currency.ConvertHint">1 AED = {rate} {currency} বর্তমান রেটে।</sys:String>
     <sys:String x:Key="Currency.Example">উদাহরণ</sys:String>
+    <sys:String x:Key="Currency.Imported">আমদানিকৃত</sys:String>
     <sys:String x:Key="Currency.KeepEnglish">ইংরেজি ইন্টারফেস + এই মুদ্রা</sys:String>
     <sys:String x:Key="Currency.LastSync">শেষ সিঙ্ক</sys:String>
     <sys:String x:Key="Currency.LiveOnly">লাইভ ইন্টারনেট রেট</sys:String>
@@ -230,6 +233,7 @@
     <sys:String x:Key="Currency.Source">রেট উৎস</sys:String>
     <sys:String x:Key="Currency.Subtitle">অ্যাপ চালান নিজের ভাষায়; মূল্য দেখুন নিজের মুদ্রায়।</sys:String>
     <sys:String x:Key="Currency.Title">ভাষা ও মুদ্রা</sys:String>
+    <sys:String x:Key="Currency.WithSurcharge">সারচার্জ সহ</sys:String>
     <sys:String x:Key="Dashboard.AgeingBrackets">বয়স বিভাগ</sys:String>
     <sys:String x:Key="Dashboard.AgeingMix">বয়স মিশ্রণ</sys:String>
     <sys:String x:Key="Dashboard.Attachments">অ্যাটাচমেন্ট আছে</sys:String>
@@ -1301,6 +1305,7 @@
     <sys:String x:Key="ProformaInvoice.Source">উৎস</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSQM">স্পেসার / বর্গমিটার</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSqm0MeansRate">স্পেসার / বর্গমিটার — 0 মানে হারেও নয়</sys:String>
+    <sys:String x:Key="ProformaInvoice.Specs">স্পেকস</sys:String>
     <sys:String x:Key="ProformaInvoice.Sqm">/বর্গমিটার</sys:String>
     <sys:String x:Key="ProformaInvoice.StandardUAEVAT">মানক UAE VAT (</sys:String>
     <sys:String x:Key="ProformaInvoice.SubtotalBeforeVAT">VAT-এর আগে সাবটোটাল</sys:String>
@@ -1444,6 +1449,7 @@
     <sys:String x:Key="Reports.OpenTaxInvoiceReport">ট্যাক্স ইনভয়েস রিপোর্ট খুলুন</sys:String>
     <sys:String x:Key="Reports.PastDueDate">নির্ধারিত তারিখ পার হয়েছে</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">উৎপাদনের জন্য প্রস্তুত অনুমোদিত ও জারি কোটা</sys:String>
+    <sys:String x:Key="Reports.PiReport.AwaitingConversion">রূপান্তরের অপেক্ষায়</sys:String>
     <sys:String x:Key="Reports.PiReport.CompanyProject">কোম্পানি / প্রজেক্ট</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">রূপান্তরিত</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">ফিল্টারকৃত রেকর্ড CSV-তে রপ্তানি করুন</sys:String>
@@ -1458,6 +1464,7 @@
     <sys:String x:Key="Reports.PiReport.PIAmount">PI পরিমাণ</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE">PI তারিখ</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE2">PI # / তারিখ</sys:String>
+    <sys:String x:Key="Reports.PiReport.PendingApproval">অনুমোদনের অপেক্ষায়</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceDetails">প্রোফর্মা ইনভয়েস বিবরণ</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceReport">প্রোফর্মা ইনভয়েস রিপোর্ট</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob">সক্রিয় কারখানা জব অর্ডারে রূপান্তরিত প্রোফর্মা ইনভয়েস</sys:String>
@@ -1622,6 +1629,7 @@
     <sys:String x:Key="Reports.TaxInvoiceReport.FilterStartIssueDate">শুরু জারি তারিখ দিয়ে ফিল্টার করুন</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.Invoice">ইনভয়েস #</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoiceDATE">ইনভয়েস # / তারিখ</sys:String>
+    <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesIssued">জারিকৃত চালান</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection">পেমেন্ট শর্ত পার হওয়া ইনভয়েস যার জন্য আদায় অনুসরণ প্রয়োজন</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NeedsCollection">আদায় প্রয়োজন</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NoTaxInvoicesFound">কোনো ট্যাক্স ইনভয়েস পাওয়া যায়নি</sys:String>
@@ -1644,6 +1652,7 @@
     <sys:String x:Key="Reports.VatSubmission.5FTARate">5% FTA হার</sys:String>
     <sys:String x:Key="Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject">সেলসম্যান, কোম্পানি ও প্রজেক্ট অনুযায়ী 5% UAE FTA VAT ভাঙন · ট্যাক্স ফাইলিং সম্মতির জন্য রপ্তানি করুন।</sys:String>
     <sys:String x:Key="Reports.VatSubmission.ActiveSalesmenContributingVATPeriod">এই সময়কালে VAT-এ অবদানকারী সক্রিয় সেলসম্যান</sys:String>
+    <sys:String x:Key="Reports.VatSubmission.CompaniesCount">কোম্পানি</sys:String>
     <sys:String x:Key="Reports.VatSubmission.Company">কোম্পানি অনুযায়ী</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DATETIME">তারিখ / সময়</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DetailView">বিস্তারিত দৃশ্য</sys:String>
@@ -2027,6 +2036,8 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">প্রতিটি স্ক্রিন, ডায়ালগ ও টেবিলে ব্যবহৃত (আইকন Segoe MDL2-তে থাকে)।</sys:String>
     <sys:String x:Key="Settings.V">সংস্করণ</sys:String>
     <sys:String x:Key="Settings.Visibility">দৃশ্যমানতা</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadRequired">ডাউনলোড প্রয়োজন</sys:String>
+    <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">ইনস্টলড · অফলাইন নিউরাল STT</sys:String>
     <sys:String x:Key="Settings.Wallpapers">ওয়ালপেপার</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">শেষ রান কী করেছে এবং এর আউটপুট কোথায়।</sys:String>
     <sys:String x:Key="Settings.WhatMeans">এর অর্থ কী</sys:String>
@@ -2113,6 +2124,7 @@
     <sys:String x:Key="SheetStore.EGJO2025001CustomerName">যেমন, JO-2025-001 বা গ্রাহকের নাম</sys:String>
     <sys:String x:Key="SheetStore.Edited">সম্পাদিত</sys:String>
     <sys:String x:Key="SheetStore.EnterGlassSheetInventoryDetails">গ্লাস শিট ইনভেন্টরি বিবরণ প্রবেশ করুন</sys:String>
+    <sys:String x:Key="SheetStore.Entries">এন্ট্রি</sys:String>
     <sys:String x:Key="SheetStore.ExistingDB">বিদ্যমান (DB-তে)</sys:String>
     <sys:String x:Key="SheetStore.ExpectedProfit">প্রত্যাশিত লাভ</sys:String>
     <sys:String x:Key="SheetStore.ExportPDFReport">PDF রিপোর্ট রপ্তানি করুন</sys:String>

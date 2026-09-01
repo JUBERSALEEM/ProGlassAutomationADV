@@ -71,6 +71,7 @@
     <sys:String x:Key="About.Licensed">Şunun için lisanslı:</sys:String>
     <sys:String x:Key="About.LocalFirstDataHandlingOperatorControl">Önce yerel veri işleme, operatör kontrolü ve pratik gizlilik sınırları</sys:String>
     <sys:String x:Key="About.Machine">Bu makine</sys:String>
+    <sys:String x:Key="About.MadeInIndia">Hindistan&#x27;da üretildi · </sys:String>
     <sys:String x:Key="About.ModularIsolation">• Modüler izolasyon —</sys:String>
     <sys:String x:Key="About.ModuleCount">MODÜL SAYISI</sys:String>
     <sys:String x:Key="About.MonetaryValuesStoredDisplayed">Tüm parasal değerler şu para birimiyle saklanır ve görüntülenir:</sys:String>
@@ -139,6 +140,7 @@
     <sys:String x:Key="Action.Select">Seç</sys:String>
     <sys:String x:Key="Action.View">Görüntüle</sys:String>
     <sys:String x:Key="Action.Yes">Evet</sys:String>
+    <sys:String x:Key="Attachments.FilesTitle">DOSYALAR</sys:String>
     <sys:String x:Key="Common.Actions">Eylemler</sys:String>
     <sys:String x:Key="Common.Activity">Etkinlik</sys:String>
     <sys:String x:Key="Common.Address">Adres</sys:String>
@@ -221,6 +223,7 @@
     <sys:String x:Key="Currency.ConvertFrom">Dönüştür</sys:String>
     <sys:String x:Key="Currency.ConvertHint">1 AED = {rate} {currency} güncel kurdan.</sys:String>
     <sys:String x:Key="Currency.Example">Örnek</sys:String>
+    <sys:String x:Key="Currency.Imported">İthal</sys:String>
     <sys:String x:Key="Currency.KeepEnglish">İngilizce arayüz + bu para birimi</sys:String>
     <sys:String x:Key="Currency.LastSync">Son eşitleme</sys:String>
     <sys:String x:Key="Currency.LiveOnly">Canlı internet kuru</sys:String>
@@ -230,6 +233,7 @@
     <sys:String x:Key="Currency.Source">Kur kaynağı</sys:String>
     <sys:String x:Key="Currency.Subtitle">Uygulamayı dilinizde çalıştırın; tutarları para biriminizde görün.</sys:String>
     <sys:String x:Key="Currency.Title">Dil ve para birimi</sys:String>
+    <sys:String x:Key="Currency.WithSurcharge">Ek ücretle</sys:String>
     <sys:String x:Key="Dashboard.AgeingBrackets">Yaşlandırma dilimleri</sys:String>
     <sys:String x:Key="Dashboard.AgeingMix">Yaşlandırma karışımı</sys:String>
     <sys:String x:Key="Dashboard.Attachments">Ekleri var</sys:String>
@@ -1301,6 +1305,7 @@
     <sys:String x:Key="ProformaInvoice.Source">KAYNAK</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSQM">ARA ÇITA / M²</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSqm0MeansRate">Ara çıta / m² — 0, ücrette olmadığı anlamına gelir</sys:String>
+    <sys:String x:Key="ProformaInvoice.Specs">Özellikler</sys:String>
     <sys:String x:Key="ProformaInvoice.Sqm">/m²</sys:String>
     <sys:String x:Key="ProformaInvoice.StandardUAEVAT">Standart BAE KDV&#x27;si (</sys:String>
     <sys:String x:Key="ProformaInvoice.SubtotalBeforeVAT">KDV öncesi ara toplam</sys:String>
@@ -1444,6 +1449,7 @@
     <sys:String x:Key="Reports.OpenTaxInvoiceReport">Vergi faturası raporunu aç</sys:String>
     <sys:String x:Key="Reports.PastDueDate">Vade tarihi geçti</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">Üretime hazır onaylanmış ve verilmiş teklifler</sys:String>
+    <sys:String x:Key="Reports.PiReport.AwaitingConversion">dönüşüm bekliyor</sys:String>
     <sys:String x:Key="Reports.PiReport.CompanyProject">ŞİRKET / PROJE</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">DÖNÜŞTÜRÜLDÜ</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">Filtrelenen kayıtları CSV&#x27;ye dışa aktar</sys:String>
@@ -1458,6 +1464,7 @@
     <sys:String x:Key="Reports.PiReport.PIAmount">PI TUTARI</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE">PI TARİHİ</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE2">PI # / TARİH</sys:String>
+    <sys:String x:Key="Reports.PiReport.PendingApproval">onay bekliyor</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceDetails">Proforma fatura detayları</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceReport">Proforma fatura raporu</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob">Aktif fabrika işlerine dönüştürülen proforma faturalar</sys:String>
@@ -1622,6 +1629,7 @@
     <sys:String x:Key="Reports.TaxInvoiceReport.FilterStartIssueDate">Başlangıç düzenleme tarihine göre filtrele</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.Invoice">FATURA #</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoiceDATE">FATURA # / TARİH</sys:String>
+    <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesIssued">kesilen fatura</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection">Tahsilat takibi gerektiren, ödeme koşullarını aşmış faturalar</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NeedsCollection">Tahsilat gerekli</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NoTaxInvoicesFound">Vergi faturası bulunamadı</sys:String>
@@ -1644,6 +1652,7 @@
     <sys:String x:Key="Reports.VatSubmission.5FTARate">%5 FTA oranı</sys:String>
     <sys:String x:Key="Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject">Satış elemanı, şirket ve projeye göre %5 BAE FTA KDV dökümü · Vergi beyannamesi uyumu için dışa aktarın.</sys:String>
     <sys:String x:Key="Reports.VatSubmission.ActiveSalesmenContributingVATPeriod">Bu dönemde KDV&#x27;ye katkıda bulunan aktif satış elemanları</sys:String>
+    <sys:String x:Key="Reports.VatSubmission.CompaniesCount">şirket</sys:String>
     <sys:String x:Key="Reports.VatSubmission.Company">Şirkete göre</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DATETIME">TARİH / SAAT</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DetailView">Detay görünümü</sys:String>
@@ -2027,6 +2036,8 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Her ekranda, iletişim kutusunda ve tabloda kullanılır (simgeler Segoe MDL2&#x27;de kalır).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Görünürlük</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadRequired">İndirme gerekli</sys:String>
+    <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">Kurulu · Çevrimdışı sinirsel STT</sys:String>
     <sys:String x:Key="Settings.Wallpapers">DUVAR KÂĞITLARI</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">Son çalıştırmanın ne yaptığı ve çıktısının nerede olduğu.</sys:String>
     <sys:String x:Key="Settings.WhatMeans">Bu Ne Anlama Gelir</sys:String>
@@ -2113,6 +2124,7 @@
     <sys:String x:Key="SheetStore.EGJO2025001CustomerName">örn. JO-2025-001 veya müşteri adı</sys:String>
     <sys:String x:Key="SheetStore.Edited">Düzenlendi</sys:String>
     <sys:String x:Key="SheetStore.EnterGlassSheetInventoryDetails">Cam levha envanter ayrıntılarını girin</sys:String>
+    <sys:String x:Key="SheetStore.Entries">kayıt</sys:String>
     <sys:String x:Key="SheetStore.ExistingDB">MEVCUT (VERİTABANINDA)</sys:String>
     <sys:String x:Key="SheetStore.ExpectedProfit">BEKLENEN KÂR</sys:String>
     <sys:String x:Key="SheetStore.ExportPDFReport">PDF raporu dışa aktar</sys:String>

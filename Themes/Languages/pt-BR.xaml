@@ -71,6 +71,7 @@
     <sys:String x:Key="About.Licensed">Licenciado para</sys:String>
     <sys:String x:Key="About.LocalFirstDataHandlingOperatorControl">Tratamento de dados local primeiro, controle do operador e limites práticos de privacidade</sys:String>
     <sys:String x:Key="About.Machine">Esta máquina</sys:String>
+    <sys:String x:Key="About.MadeInIndia">Feito na Índia · </sys:String>
     <sys:String x:Key="About.ModularIsolation">• Isolamento modular —</sys:String>
     <sys:String x:Key="About.ModuleCount">NÚMERO DE MÓDULOS</sys:String>
     <sys:String x:Key="About.MonetaryValuesStoredDisplayed">Todos os valores monetários são armazenados e exibidos em</sys:String>
@@ -139,6 +140,7 @@
     <sys:String x:Key="Action.Select">Selecionar</sys:String>
     <sys:String x:Key="Action.View">Ver</sys:String>
     <sys:String x:Key="Action.Yes">Sim</sys:String>
+    <sys:String x:Key="Attachments.FilesTitle">ARQUIVOS</sys:String>
     <sys:String x:Key="Common.Actions">Ações</sys:String>
     <sys:String x:Key="Common.Activity">Atividade</sys:String>
     <sys:String x:Key="Common.Address">Endereço</sys:String>
@@ -221,6 +223,7 @@
     <sys:String x:Key="Currency.ConvertFrom">Converter de</sys:String>
     <sys:String x:Key="Currency.ConvertHint">1 AED = {rate} {currency} no câmbio atual.</sys:String>
     <sys:String x:Key="Currency.Example">Exemplo</sys:String>
+    <sys:String x:Key="Currency.Imported">Importado</sys:String>
     <sys:String x:Key="Currency.KeepEnglish">Interface em inglês com esta moeda</sys:String>
     <sys:String x:Key="Currency.LastSync">Última sincronização</sys:String>
     <sys:String x:Key="Currency.LiveOnly">Câmbio ao vivo pela internet</sys:String>
@@ -230,6 +233,7 @@
     <sys:String x:Key="Currency.Source">Fonte do câmbio</sys:String>
     <sys:String x:Key="Currency.Subtitle">Use o app no seu idioma; veja valores na sua moeda.</sys:String>
     <sys:String x:Key="Currency.Title">Idioma e moeda</sys:String>
+    <sys:String x:Key="Currency.WithSurcharge">Com sobretaxa</sys:String>
     <sys:String x:Key="Dashboard.AgeingBrackets">Faixas de envelhecimento</sys:String>
     <sys:String x:Key="Dashboard.AgeingMix">Mistura de envelhecimento</sys:String>
     <sys:String x:Key="Dashboard.Attachments">Tem anexos</sys:String>
@@ -1301,6 +1305,7 @@
     <sys:String x:Key="ProformaInvoice.Source">ORIGEM</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSQM">ESPAÇADOR / M²</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSqm0MeansRate">Espaçador / m² — 0 significa que não está na tarifa</sys:String>
+    <sys:String x:Key="ProformaInvoice.Specs">Especificações</sys:String>
     <sys:String x:Key="ProformaInvoice.Sqm">/m²</sys:String>
     <sys:String x:Key="ProformaInvoice.StandardUAEVAT">IVA padrão dos EAU (</sys:String>
     <sys:String x:Key="ProformaInvoice.SubtotalBeforeVAT">Subtotal antes do IVA</sys:String>
@@ -1444,6 +1449,7 @@
     <sys:String x:Key="Reports.OpenTaxInvoiceReport">Abrir relatório de faturas fiscais</sys:String>
     <sys:String x:Key="Reports.PastDueDate">Vencido</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">Cotações aprovadas e emitidas prontas para fabricação</sys:String>
+    <sys:String x:Key="Reports.PiReport.AwaitingConversion">aguardando conversão</sys:String>
     <sys:String x:Key="Reports.PiReport.CompanyProject">EMPRESA / PROJETO</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">CONVERTIDO</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">Exportar registros filtrados em CSV</sys:String>
@@ -1458,6 +1464,7 @@
     <sys:String x:Key="Reports.PiReport.PIAmount">VALOR DA PI</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE">DATA DA PI</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE2">PI # / DATA</sys:String>
+    <sys:String x:Key="Reports.PiReport.PendingApproval">aguardando aprovação</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceDetails">Detalhes da fatura proforma</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceReport">Relatório de faturas proforma</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob">Faturas proforma convertidas em ordens de fábrica ativas</sys:String>
@@ -1622,6 +1629,7 @@
     <sys:String x:Key="Reports.TaxInvoiceReport.FilterStartIssueDate">Filtrar por data de emissão inicial</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.Invoice">FATURA #</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoiceDATE">FATURA # / DATA</sys:String>
+    <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesIssued">faturas emitidas</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection">Faturas atrasadas em relação às condições de pagamento que exigem cobrança</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NeedsCollection">Requer cobrança</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NoTaxInvoicesFound">Nenhuma fatura fiscal encontrada</sys:String>
@@ -1644,6 +1652,7 @@
     <sys:String x:Key="Reports.VatSubmission.5FTARate">Taxa FTA de 5%</sys:String>
     <sys:String x:Key="Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject">Detalhamento do IVA de 5% FTA dos EAU por vendedor, empresa e projeto · Exporte para conformidade da declaração fiscal.</sys:String>
     <sys:String x:Key="Reports.VatSubmission.ActiveSalesmenContributingVATPeriod">Vendedores ativos que contribuem com IVA no período</sys:String>
+    <sys:String x:Key="Reports.VatSubmission.CompaniesCount">empresas</sys:String>
     <sys:String x:Key="Reports.VatSubmission.Company">Por empresa</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DATETIME">DATA / HORA</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DetailView">Visão de detalhe</sys:String>
@@ -2027,6 +2036,8 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Usado em cada tela, diálogo e tabela (ícones permanecem no Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Visibilidade</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadRequired">Download necessário</sys:String>
+    <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">Instalado · STT neural offline</sys:String>
     <sys:String x:Key="Settings.Wallpapers">PAPÉIS DE PAREDE</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">O que a última execução fez e onde está sua saída.</sys:String>
     <sys:String x:Key="Settings.WhatMeans">O Que Isso Significa</sys:String>
@@ -2113,6 +2124,7 @@
     <sys:String x:Key="SheetStore.EGJO2025001CustomerName">ex.: JO-2025-001 ou nome do cliente</sys:String>
     <sys:String x:Key="SheetStore.Edited">Editado</sys:String>
     <sys:String x:Key="SheetStore.EnterGlassSheetInventoryDetails">Digite os detalhes do inventário de chapas de vidro</sys:String>
+    <sys:String x:Key="SheetStore.Entries">lançamentos</sys:String>
     <sys:String x:Key="SheetStore.ExistingDB">EXISTENTE (NO BANCO)</sys:String>
     <sys:String x:Key="SheetStore.ExpectedProfit">LUCRO ESPERADO</sys:String>
     <sys:String x:Key="SheetStore.ExportPDFReport">Exportar relatório PDF</sys:String>

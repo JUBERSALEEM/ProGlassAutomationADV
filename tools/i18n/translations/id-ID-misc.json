@@ -65,5 +65,17 @@
  "Shell.Menu": "Menu",
  "Shell.Offline": "Offline",
  "Shell.Online": "Online",
- "About.CurrencyUAE": "Dirham UEA (AED)"
+ "About.CurrencyUAE": "Dirham UEA (AED)",
+ "Currency.Imported": "Impor",
+ "Currency.WithSurcharge": "Dengan biaya tambahan",
+ "ProformaInvoice.Specs": "Spesifikasi",
+ "Attachments.FilesTitle": "BERKAS",
+ "Reports.PiReport.PendingApproval": "menunggu persetujuan",
+ "Reports.PiReport.AwaitingConversion": "menunggu konversi",
+ "Reports.VatSubmission.CompaniesCount": "perusahaan",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "faktur diterbitkan",
+ "SheetStore.Entries": "entri",
+ "Settings.VoiceDownloadRequired": "Unduhan diperlukan",
+ "Settings.VoiceInstalledOfflineSTT": "Terpasang · STT neural offline",
+ "About.MadeInIndia": "Dibuat di India · "
 }

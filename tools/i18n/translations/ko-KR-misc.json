@@ -52,5 +52,17 @@
  "God.Percent": "%",
  "Shell.AppBrand": "ProGlass",
  "Shell.AppTitle": "ProGlass Automation",
- "About.CurrencyUAE": "UAE 디르함 (AED)"
+ "About.CurrencyUAE": "UAE 디르함 (AED)",
+ "Currency.Imported": "수입",
+ "Currency.WithSurcharge": "추가 요금 포함",
+ "ProformaInvoice.Specs": "사양",
+ "Attachments.FilesTitle": "파일",
+ "Reports.PiReport.PendingApproval": "승인 대기",
+ "Reports.PiReport.AwaitingConversion": "변환 대기",
+ "Reports.VatSubmission.CompaniesCount": "개 업체",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "장 발행됨",
+ "SheetStore.Entries": "개 항목",
+ "Settings.VoiceDownloadRequired": "다운로드 필요",
+ "Settings.VoiceInstalledOfflineSTT": "설치됨 · 오프라인 신경 STT",
+ "About.MadeInIndia": "인도 제작 · "
 }

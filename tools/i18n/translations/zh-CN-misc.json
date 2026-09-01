@@ -51,5 +51,17 @@
  "Dg.W2": "W2",
  "God.Percent": "%",
  "Shell.AppBrand": "ProGlass",
- "About.CurrencyUAE": "阿联酋迪拉姆 (AED)"
+ "About.CurrencyUAE": "阿联酋迪拉姆 (AED)",
+ "Currency.Imported": "进口",
+ "Currency.WithSurcharge": "含附加费",
+ "ProformaInvoice.Specs": "规格",
+ "Attachments.FilesTitle": "文件",
+ "Reports.PiReport.PendingApproval": "待审批",
+ "Reports.PiReport.AwaitingConversion": "待转换",
+ "Reports.VatSubmission.CompaniesCount": "家公司",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "张已开票",
+ "SheetStore.Entries": "条记录",
+ "Settings.VoiceDownloadRequired": "需要下载",
+ "Settings.VoiceInstalledOfflineSTT": "已安装 · 离线神经语音识别",
+ "About.MadeInIndia": "印度制造 · "
 }

@@ -57,5 +57,17 @@
  "God.TotalAed": "Total (AED)",
  "Shell.AppBrand": "ProGlass",
  "Shell.AppTitle": "ProGlass Automation",
- "About.CurrencyUAE": "Dírham de los EAU (AED)"
+ "About.CurrencyUAE": "Dírham de los EAU (AED)",
+ "Currency.Imported": "Importado",
+ "Currency.WithSurcharge": "Con recargo",
+ "ProformaInvoice.Specs": "Especificaciones",
+ "Attachments.FilesTitle": "ARCHIVOS",
+ "Reports.PiReport.PendingApproval": "pendiente de aprobación",
+ "Reports.PiReport.AwaitingConversion": "en espera de conversión",
+ "Reports.VatSubmission.CompaniesCount": "empresas",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "facturas emitidas",
+ "SheetStore.Entries": "entradas",
+ "Settings.VoiceDownloadRequired": "Descarga necesaria",
+ "Settings.VoiceInstalledOfflineSTT": "Instalado · STT neuronal sin conexión",
+ "About.MadeInIndia": "Hecho en India · "
 }

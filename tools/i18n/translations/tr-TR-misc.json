@@ -52,5 +52,17 @@
  "God.Percent": "%",
  "Shell.AppBrand": "ProGlass",
  "Shell.AppTitle": "ProGlass Automation",
- "About.CurrencyUAE": "BAE Dirhemi (AED)"
+ "About.CurrencyUAE": "BAE Dirhemi (AED)",
+ "Currency.Imported": "İthal",
+ "Currency.WithSurcharge": "Ek ücretle",
+ "ProformaInvoice.Specs": "Özellikler",
+ "Attachments.FilesTitle": "DOSYALAR",
+ "Reports.PiReport.PendingApproval": "onay bekliyor",
+ "Reports.PiReport.AwaitingConversion": "dönüşüm bekliyor",
+ "Reports.VatSubmission.CompaniesCount": "şirket",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "kesilen fatura",
+ "SheetStore.Entries": "kayıt",
+ "Settings.VoiceDownloadRequired": "İndirme gerekli",
+ "Settings.VoiceInstalledOfflineSTT": "Kurulu · Çevrimdışı sinirsel STT",
+ "About.MadeInIndia": "Hindistan'da üretildi · "
 }

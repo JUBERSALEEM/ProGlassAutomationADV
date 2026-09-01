@@ -263,14 +263,14 @@
                                     </StackPanel>
                                     <StackPanel Grid.Column="6" VerticalAlignment="Bottom">
                                         <TextBlock Text="{DynamicResource Dg.Base}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"
-                                                   ToolTip="{Binding ImportedPrice, StringFormat=Imported AED {0:N2}}"/>
+                                                   ToolTip="{Binding ImportedPrice, Converter={StaticResource CurrencyConverter}, ConverterParameter=imported}"/>
                                         <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
                                                  Style="{StaticResource GridDecStyle}"
                                                  Width="80"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="8" VerticalAlignment="Bottom">
                                         <TextBlock Text="{DynamicResource Dg.SurchargePct}" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"
-                                                   ToolTip="{Binding SurchargeRate, StringFormat=With surcharge AED {0:N2}}"/>
+                                                   ToolTip="{Binding SurchargeRate, Converter={StaticResource CurrencyConverter}, ConverterParameter=surcharge}"/>
                                         <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
                                                  Style="{StaticResource GridDecStyle}"
                                                  Width="64"/>

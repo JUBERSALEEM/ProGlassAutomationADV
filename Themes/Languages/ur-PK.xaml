@@ -71,6 +71,7 @@
     <sys:String x:Key="About.Licensed">لائسنس یافتہ</sys:String>
     <sys:String x:Key="About.LocalFirstDataHandlingOperatorControl">لوکل-فرسٹ ڈیٹا ہینڈلنگ، آپریٹر کنٹرول اور عملی رازداری کی حدود</sys:String>
     <sys:String x:Key="About.Machine">یہ مشین</sys:String>
+    <sys:String x:Key="About.MadeInIndia">بھارت میں تیار کردہ · </sys:String>
     <sys:String x:Key="About.ModularIsolation">• ماڈیولر تنہائی —</sys:String>
     <sys:String x:Key="About.ModuleCount">ماڈیول گنتی</sys:String>
     <sys:String x:Key="About.MonetaryValuesStoredDisplayed">تمام مالیاتی اقدار محفوظ اور ظاہر کی جاتی ہیں</sys:String>
@@ -139,6 +140,7 @@
     <sys:String x:Key="Action.Select">منتخب کریں</sys:String>
     <sys:String x:Key="Action.View">دیکھیں</sys:String>
     <sys:String x:Key="Action.Yes">ہاں</sys:String>
+    <sys:String x:Key="Attachments.FilesTitle">فائلیں</sys:String>
     <sys:String x:Key="Common.Actions">کارروائیاں</sys:String>
     <sys:String x:Key="Common.Activity">سرگرمی</sys:String>
     <sys:String x:Key="Common.Address">پتہ</sys:String>
@@ -221,6 +223,7 @@
     <sys:String x:Key="Currency.ConvertFrom">تبدیل از</sys:String>
     <sys:String x:Key="Currency.ConvertHint">1 AED = {rate} {currency} موجودہ ریٹ پر۔</sys:String>
     <sys:String x:Key="Currency.Example">مثال</sys:String>
+    <sys:String x:Key="Currency.Imported">درآمد شدہ</sys:String>
     <sys:String x:Key="Currency.KeepEnglish">انگریزی انٹرفیس + یہ کرنسی</sys:String>
     <sys:String x:Key="Currency.LastSync">آخری ہم آہنگی</sys:String>
     <sys:String x:Key="Currency.LiveOnly">لائیو انٹرنیٹ ریٹ</sys:String>
@@ -230,6 +233,7 @@
     <sys:String x:Key="Currency.Source">ریٹ کا ذریعہ</sys:String>
     <sys:String x:Key="Currency.Subtitle">ایپ اپنی زبان میں چلائیں؛ رقوم اپنی کرنسی میں دیکھیں۔</sys:String>
     <sys:String x:Key="Currency.Title">زبان اور کرنسی</sys:String>
+    <sys:String x:Key="Currency.WithSurcharge">سرچارج کے ساتھ</sys:String>
     <sys:String x:Key="Dashboard.AgeingBrackets">عمر رسیدگی کے زمرے</sys:String>
     <sys:String x:Key="Dashboard.AgeingMix">عمر رسیدگی مکس</sys:String>
     <sys:String x:Key="Dashboard.Attachments">منسلکات ہیں</sys:String>
@@ -1301,6 +1305,7 @@
     <sys:String x:Key="ProformaInvoice.Source">ماخذ</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSQM">اسپیسر / مربع میٹر</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSqm0MeansRate">اسپیسر / مربع میٹر — 0 کا مطلب شرح میں نہیں</sys:String>
+    <sys:String x:Key="ProformaInvoice.Specs">اسپیکس</sys:String>
     <sys:String x:Key="ProformaInvoice.Sqm">/مربع میٹر</sys:String>
     <sys:String x:Key="ProformaInvoice.StandardUAEVAT">معیاری UAE VAT (</sys:String>
     <sys:String x:Key="ProformaInvoice.SubtotalBeforeVAT">VAT سے پہلے ذیلی کل</sys:String>
@@ -1444,6 +1449,7 @@
     <sys:String x:Key="Reports.OpenTaxInvoiceReport">ٹیکس انوائس رپورٹ کھولیں</sys:String>
     <sys:String x:Key="Reports.PastDueDate">مقررہ تاریخ گزر چکی</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">مینوفیکچرنگ کے لیے تیار منظور شدہ اور جاری کردہ کوٹیشنز</sys:String>
+    <sys:String x:Key="Reports.PiReport.AwaitingConversion">تبدیلی کا انتظار</sys:String>
     <sys:String x:Key="Reports.PiReport.CompanyProject">کمپنی / پروجیکٹ</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">تبدیل شدہ</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">فلٹر شدہ ریکارڈز CSV میں برآمد کریں</sys:String>
@@ -1458,6 +1464,7 @@
     <sys:String x:Key="Reports.PiReport.PIAmount">PI رقم</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE">PI تاریخ</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE2">PI # / تاریخ</sys:String>
+    <sys:String x:Key="Reports.PiReport.PendingApproval">منظوری زیر التوا</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceDetails">پروفارما انوائس تفصیلات</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceReport">پروفارما انوائس رپورٹ</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob">فعال فیکٹری جاب آرڈرز میں تبدیل شدہ پروفارما انوائسز</sys:String>
@@ -1622,6 +1629,7 @@
     <sys:String x:Key="Reports.TaxInvoiceReport.FilterStartIssueDate">آغاز جاری تاریخ سے فلٹر کریں</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.Invoice">انوائس #</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoiceDATE">انوائس # / تاریخ</sys:String>
+    <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesIssued">جاری کردہ رسیدیں</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection">ادائیگی کی شرائط گزر چکے انوائسز جن کے لیے وصولی کی پیروی درکار ہے</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NeedsCollection">وصولی درکار</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NoTaxInvoicesFound">کوئی ٹیکس انوائس نہیں ملی</sys:String>
@@ -1644,6 +1652,7 @@
     <sys:String x:Key="Reports.VatSubmission.5FTARate">5% FTA شرح</sys:String>
     <sys:String x:Key="Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject">سیلز مین، کمپنی اور پروجیکٹ کے لحاظ سے 5% UAE FTA VAT تفصیل · ٹیکس فائلنگ تعمیل کے لیے برآمد کریں۔</sys:String>
     <sys:String x:Key="Reports.VatSubmission.ActiveSalesmenContributingVATPeriod">اس مدت میں VAT میں حصہ ڈالنے والے فعال سیلز مین</sys:String>
+    <sys:String x:Key="Reports.VatSubmission.CompaniesCount">کمپنیاں</sys:String>
     <sys:String x:Key="Reports.VatSubmission.Company">کمپنی کے لحاظ سے</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DATETIME">تاریخ / وقت</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DetailView">تفصیلی منظر</sys:String>
@@ -2027,6 +2036,8 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">ہر اسکرین، ڈائیلاگ اور جدول پر استعمال (آئیکنز Segoe MDL2 پر رہتے ہیں)۔</sys:String>
     <sys:String x:Key="Settings.V">ورژن</sys:String>
     <sys:String x:Key="Settings.Visibility">مرئیت</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadRequired">ڈاؤن لوڈ ضروری</sys:String>
+    <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">انسٹال شدہ · آف لائن نیورل STT</sys:String>
     <sys:String x:Key="Settings.Wallpapers">وال پیپرز</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">آخری رن نے کیا کیا اور اس کا آؤٹ پٹ کہاں ہے۔</sys:String>
     <sys:String x:Key="Settings.WhatMeans">اس کا کیا مطلب ہے</sys:String>
@@ -2113,6 +2124,7 @@
     <sys:String x:Key="SheetStore.EGJO2025001CustomerName">مثلاً، JO-2025-001 یا کسٹمر کا نام</sys:String>
     <sys:String x:Key="SheetStore.Edited">ترمیم شدہ</sys:String>
     <sys:String x:Key="SheetStore.EnterGlassSheetInventoryDetails">گلاس شیٹ انوینٹری تفصیلات درج کریں</sys:String>
+    <sys:String x:Key="SheetStore.Entries">اندراجات</sys:String>
     <sys:String x:Key="SheetStore.ExistingDB">موجودہ (DB میں)</sys:String>
     <sys:String x:Key="SheetStore.ExpectedProfit">متوقع منافع</sys:String>
     <sys:String x:Key="SheetStore.ExportPDFReport">PDF رپورٹ برآمد کریں</sys:String>

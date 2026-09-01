@@ -69,5 +69,17 @@
  "Shell.AppBrand": "ProGlass",
  "Splash.V": "· v",
  "TaxInvoice.VAT5": "ویلیو ایڈڈ ٹیکس 5%",
- "About.CurrencyUAE": "یو اے ای درہم (AED)"
+ "About.CurrencyUAE": "یو اے ای درہم (AED)",
+ "Currency.Imported": "درآمد شدہ",
+ "Currency.WithSurcharge": "سرچارج کے ساتھ",
+ "ProformaInvoice.Specs": "اسپیکس",
+ "Attachments.FilesTitle": "فائلیں",
+ "Reports.PiReport.PendingApproval": "منظوری زیر التوا",
+ "Reports.PiReport.AwaitingConversion": "تبدیلی کا انتظار",
+ "Reports.VatSubmission.CompaniesCount": "کمپنیاں",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "جاری کردہ رسیدیں",
+ "SheetStore.Entries": "اندراجات",
+ "Settings.VoiceDownloadRequired": "ڈاؤن لوڈ ضروری",
+ "Settings.VoiceInstalledOfflineSTT": "انسٹال شدہ · آف لائن نیورل STT",
+ "About.MadeInIndia": "بھارت میں تیار کردہ · "
 }

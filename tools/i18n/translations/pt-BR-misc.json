@@ -62,5 +62,17 @@
  "Shell.Menu": "Menu",
  "Shell.Offline": "Offline",
  "Shell.Online": "Online",
- "About.CurrencyUAE": "Dirham dos EAU (AED)"
+ "About.CurrencyUAE": "Dirham dos EAU (AED)",
+ "Currency.Imported": "Importado",
+ "Currency.WithSurcharge": "Com sobretaxa",
+ "ProformaInvoice.Specs": "Especificações",
+ "Attachments.FilesTitle": "ARQUIVOS",
+ "Reports.PiReport.PendingApproval": "aguardando aprovação",
+ "Reports.PiReport.AwaitingConversion": "aguardando conversão",
+ "Reports.VatSubmission.CompaniesCount": "empresas",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "faturas emitidas",
+ "SheetStore.Entries": "lançamentos",
+ "Settings.VoiceDownloadRequired": "Download necessário",
+ "Settings.VoiceInstalledOfflineSTT": "Instalado · STT neural offline",
+ "About.MadeInIndia": "Feito na Índia · "
 }

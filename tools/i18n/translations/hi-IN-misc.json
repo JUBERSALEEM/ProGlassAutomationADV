@@ -90,5 +90,17 @@
  "Shell.AppBrand": "ProGlass",
  "Splash.V": "· संस्करण",
  "TaxInvoice.VAT5": "मूल्य वर्धित कर 5%",
- "About.CurrencyUAE": "यूएई दिरहम (AED)"
+ "About.CurrencyUAE": "यूएई दिरहम (AED)",
+ "Currency.Imported": "आयातित",
+ "Currency.WithSurcharge": "अधिभार सहित",
+ "ProformaInvoice.Specs": "स्पेक्स",
+ "Attachments.FilesTitle": "फ़ाइलें",
+ "Reports.PiReport.PendingApproval": "अनुमोदन लंबित",
+ "Reports.PiReport.AwaitingConversion": "रूपांतरण की प्रतीक्षा में",
+ "Reports.VatSubmission.CompaniesCount": "कंपनियाँ",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "जारी चालान",
+ "SheetStore.Entries": "प्रविष्टियाँ",
+ "Settings.VoiceDownloadRequired": "डाउनलोड आवश्यक",
+ "Settings.VoiceInstalledOfflineSTT": "स्थापित · ऑफ़लाइन न्यूरल STT",
+ "About.MadeInIndia": "भारत में निर्मित · "
 }

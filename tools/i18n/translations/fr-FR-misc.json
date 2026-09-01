@@ -67,5 +67,17 @@
  "Shell.GroupModules": "MODULES",
  "Shell.Menu": "Menu",
  "Shell.Version": "Version",
- "About.CurrencyUAE": "Dirham des Émirats (AED)"
+ "About.CurrencyUAE": "Dirham des Émirats (AED)",
+ "Currency.Imported": "Importé",
+ "Currency.WithSurcharge": "Avec supplément",
+ "ProformaInvoice.Specs": "Spécifications",
+ "Attachments.FilesTitle": "FICHIERS",
+ "Reports.PiReport.PendingApproval": "en attente d'approbation",
+ "Reports.PiReport.AwaitingConversion": "en attente de conversion",
+ "Reports.VatSubmission.CompaniesCount": "entreprises",
+ "Reports.TaxInvoiceReport.InvoicesIssued": "factures émises",
+ "SheetStore.Entries": "entrées",
+ "Settings.VoiceDownloadRequired": "Téléchargement requis",
+ "Settings.VoiceInstalledOfflineSTT": "Installé · STT neuronal hors ligne",
+ "About.MadeInIndia": "Fabriqué en Inde · "
 }

@@ -55,6 +55,10 @@ LITERAL = re.compile(
     r'(?P<attr>Text|Content|Header|Title|ToolTip|Watermark|PlaceholderText)'
     r'="(?P<val>[^"{}]*)"')
 
+ALL_ATTR = re.compile(
+    r'(?P<attr>Text|Content|Header|Title|ToolTip|Watermark|PlaceholderText)'
+    r'="(?P<val>[^"]*)"')
+
 # ── String classification (master-prompt §20) ─────────────────────────────
 # Hard-coded attribute values that are NOT user-facing copy to translate:
 # icons, separators, numbers, currency codes, units, all-caps acronyms,
@@ -70,10 +74,71 @@ CURRENCY_CODES = {
 }
 UNITS = {"pcs", "pc", "m²", "m2", "m³", "m3", "kg", "g", "mm", "cm", "km",
          "ml", "l", "sqm", "sqft", "ft", "in", "yd", "hrs", "h", "min", "s",
-         "AED", "W", "kW", "V", "A", "%"}
+         "AED", "W", "kW", "V", "A", "%", "bytes", "KB", "MB", "GB", "TB"}
 BRAND_NAMES = {"ProGlass", "ProGlass Automation", "Microsoft Print to PDF",
                "Microsoft"}
 ACRONYM = re.compile(r"^[A-Z][A-Z0-9]{0,4}$")      # TRN, PI, JO, VAT, W1, H2
+
+# Date-format tokens ("dd MMM yyyy", "HH:mm") are culture patterns, not
+# copy — exempt from the StringFormat phrase check.
+DATE_TOKEN = re.compile(
+    r"^(d{1,4}|M{1,5}|y{1,5}|H{1,2}|h{1,2}|m{1,2}|s{1,2}|t{1,2}|z{1,3}|K{1,2}"
+    r"|F{1,7}|g{1,2}|:|\s|/|-|,|\.|'|·|\(|\))*$")
+
+
+def text_outside_markup(val: str) -> str:
+    """Characters of an attribute value that sit OUTSIDE balanced {..}
+    markup-extension spans. Non-empty letters here mean WPF renders raw
+    copy next to a binding (e.g. Text=\"Made in India · {Binding X}\")."""
+    out = []
+    depth = 0
+    for ch in val:
+        if ch == '{':
+            depth += 1
+        elif ch == '}':
+            depth = max(0, depth - 1)
+        elif depth == 0:
+            out.append(ch)
+    return ''.join(out)
+
+
+def extract_string_format(val: str) -> str:
+    """The raw StringFormat= value from an attribute text (val starts at
+    'StringFormat='). Quoted formats ('dd MMM yyyy') end at the closing
+    quote; unquoted formats end at the first '}' that is followed by a
+    binding-arg comma, the attribute end, or the extension close — so
+    args like Mode=OneWay / TargetNullValue=— never leak into the scan."""
+    i = val.find('StringFormat=')
+    if i < 0:
+        return ''
+    v = val[i + len('StringFormat='):]
+    if v.startswith("'"):
+        end = v.find("'", 1)
+        return v[1:end] if end > 0 else v[1:]
+    j = 0
+    while j < len(v):
+        if v[j] == '}' and (j + 1 >= len(v) or v[j + 1] in ',>}"'):
+            return v[:j]
+        j += 1
+    return v
+
+
+def string_format_words(val: str) -> str:
+    """Genuine words inside a StringFormat= value, or '' when the format
+    is pure placeholders/units/dates."""
+    fmt = extract_string_format(val)
+    rest = re.sub(r'\{[^{}]*\}', '', fmt)   # drop {..} placeholders + {} escapes
+    rest = rest.strip().strip("'").strip()
+    rest = re.sub(r'^[\s·\-–—.,/()|]+|[\s·\-–—.,/()|]+$', '', rest)
+    if not rest:
+        return ''
+    if rest in UNITS or rest in CURRENCY_CODES or rest in BRAND_NAMES:
+        return ''
+    if DATE_TOKEN.fullmatch(rest):
+        return ''
+    if ACRONYM.fullmatch(rest):
+        return ''
+    return rest
 
 
 def is_translatable_literal(val: str) -> bool:
@@ -161,13 +226,22 @@ def main() -> int:
             staticrefs.append((rel, m.group(1)))
 
         file_literals = []
-        for m in LITERAL.finditer(text):
+        # All attribute values (braces allowed): text outside markup
+        # spans is what the user actually sees — pure literals AND mixed
+        # literal+binding ("Made in India · {Binding X}") alike.
+        for m in ALL_ATTR.finditer(text):
             val = m.group("val").strip()
             if not val:
                 continue
-            if not is_translatable_literal(val):
-                continue
-            file_literals.append((m.group("attr"), val))
+            outside = text_outside_markup(val).strip()
+            if outside and is_translatable_literal(outside):
+                file_literals.append((m.group("attr"), outside))
+        # Genuine words inside StringFormat= values are user-visible copy
+        # glued to a number (e.g. "{0} pending approval").
+        for m in re.finditer(r'StringFormat=(?P<val>[^"][^"]*)', text):
+            words = string_format_words(m.group("val"))
+            if words and is_translatable_literal(words):
+                file_literals.append(("StringFormat", words))
         rel_snips = [f"({a}) {v[:60]}" for a, v in file_literals]
         if rel_snips:
             if is_god(f):

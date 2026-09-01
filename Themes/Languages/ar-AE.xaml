@@ -71,6 +71,7 @@
     <sys:String x:Key="About.Licensed">مرخّص إلى</sys:String>
     <sys:String x:Key="About.LocalFirstDataHandlingOperatorControl">معالجة البيانات محليًا أولًا، مع سيطرة المشغّل وحدود خصوصية عملية</sys:String>
     <sys:String x:Key="About.Machine">هذا الجهاز</sys:String>
+    <sys:String x:Key="About.MadeInIndia">صُنع في الهند · </sys:String>
     <sys:String x:Key="About.ModularIsolation">• عزل معياري —</sys:String>
     <sys:String x:Key="About.ModuleCount">عدد الوحدات</sys:String>
     <sys:String x:Key="About.MonetaryValuesStoredDisplayed">جميع القيم المالية تُخزَّن وتُعرض بالدرهم</sys:String>
@@ -139,6 +140,7 @@
     <sys:String x:Key="Action.Select">تحديد</sys:String>
     <sys:String x:Key="Action.View">عرض</sys:String>
     <sys:String x:Key="Action.Yes">نعم</sys:String>
+    <sys:String x:Key="Attachments.FilesTitle">الملفات</sys:String>
     <sys:String x:Key="Common.Actions">الإجراءات</sys:String>
     <sys:String x:Key="Common.Activity">النشاط</sys:String>
     <sys:String x:Key="Common.Address">العنوان</sys:String>
@@ -221,6 +223,7 @@
     <sys:String x:Key="Currency.ConvertFrom">التحويل من</sys:String>
     <sys:String x:Key="Currency.ConvertHint">1 درهم = {rate} {currency} بسعر الإنترنت الحالي.</sys:String>
     <sys:String x:Key="Currency.Example">مثال</sys:String>
+    <sys:String x:Key="Currency.Imported">مستورد</sys:String>
     <sys:String x:Key="Currency.KeepEnglish">استخدم الواجهة الإنجليزية مع هذه العملة</sys:String>
     <sys:String x:Key="Currency.LastSync">آخر مزامنة</sys:String>
     <sys:String x:Key="Currency.LiveOnly">أسعار الإنترنت المباشرة</sys:String>
@@ -230,6 +233,7 @@
     <sys:String x:Key="Currency.Source">مصدر السعر</sys:String>
     <sys:String x:Key="Currency.Subtitle">شغّل التطبيق بلغتك واعرض المبالغ بعملتك.</sys:String>
     <sys:String x:Key="Currency.Title">اللغة والعملة</sys:String>
+    <sys:String x:Key="Currency.WithSurcharge">مع رسوم إضافية</sys:String>
     <sys:String x:Key="Dashboard.AgeingBrackets">شرائح الأعمار</sys:String>
     <sys:String x:Key="Dashboard.AgeingMix">مزيج الأعمار</sys:String>
     <sys:String x:Key="Dashboard.Attachments">يحتوي مرفقات</sys:String>
@@ -1301,6 +1305,7 @@
     <sys:String x:Key="ProformaInvoice.Source">المصدر</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSQM">الفاصل / م²</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSqm0MeansRate">الفاصل / م² — 0 يعني غير مشمول في السعر</sys:String>
+    <sys:String x:Key="ProformaInvoice.Specs">المواصفات</sys:String>
     <sys:String x:Key="ProformaInvoice.Sqm">/م²</sys:String>
     <sys:String x:Key="ProformaInvoice.StandardUAEVAT">ضريبة القيمة المضافة الإماراتية القياسية (</sys:String>
     <sys:String x:Key="ProformaInvoice.SubtotalBeforeVAT">الإجمالي الفرعي قبل الضريبة</sys:String>
@@ -1444,6 +1449,7 @@
     <sys:String x:Key="Reports.OpenTaxInvoiceReport">فتح تقرير الفاتورة الضريبية</sys:String>
     <sys:String x:Key="Reports.PastDueDate">متأخر عن تاريخ الاستحقاق</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">عروض أسعار معتمدة وصادرة وجاهزة للتصنيع</sys:String>
+    <sys:String x:Key="Reports.PiReport.AwaitingConversion">بانتظار التحويل</sys:String>
     <sys:String x:Key="Reports.PiReport.CompanyProject">الشركة / المشروع</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">تم التحويل</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">تصدير السجلات المصفّاة إلى CSV</sys:String>
@@ -1458,6 +1464,7 @@
     <sys:String x:Key="Reports.PiReport.PIAmount">مبلغ الفاتورة الأولية</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE">تاريخ الفاتورة الأولية</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE2">رقم الفاتورة الأولية / التاريخ</sys:String>
+    <sys:String x:Key="Reports.PiReport.PendingApproval">بانتظار الموافقة</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceDetails">تفاصيل الفاتورة الأولية</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceReport">تقرير الفاتورة الأولية</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob">فواتير أولية محوَّلة إلى أوامر عمل مصنع نشطة</sys:String>
@@ -1622,6 +1629,7 @@
     <sys:String x:Key="Reports.TaxInvoiceReport.FilterStartIssueDate">تصفية من تاريخ الإصدار</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.Invoice">رقم الفاتورة</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoiceDATE">رقم الفاتورة / التاريخ</sys:String>
+    <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesIssued">فواتير صادرة</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection">فواتير تجاوزت شروط السداد وتتطلب متابعة التحصيل</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NeedsCollection">يتطلب تحصيلًا</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NoTaxInvoicesFound">لا توجد فواتير ضريبية</sys:String>
@@ -1644,6 +1652,7 @@
     <sys:String x:Key="Reports.VatSubmission.5FTARate">نسبة الهيئة الاتحادية للضرائب 5%</sys:String>
     <sys:String x:Key="Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject">تفصيل ضريبة القيمة المضافة 5% في الإمارات حسب مندوب المبيعات والشركة والمشروع · تصدير للامتثال بتقديم الإقرارات الضريبية.</sys:String>
     <sys:String x:Key="Reports.VatSubmission.ActiveSalesmenContributingVATPeriod">مندوبو المبيعات النشطون المساهمون في ضريبة القيمة المضافة خلال هذه الفترة</sys:String>
+    <sys:String x:Key="Reports.VatSubmission.CompaniesCount">شركات</sys:String>
     <sys:String x:Key="Reports.VatSubmission.Company">حسب الشركة</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DATETIME">التاريخ / الوقت</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DetailView">عرض التفاصيل</sys:String>
@@ -2027,6 +2036,8 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">مستخدم في كل شاشة وحوار وجدول (تبقى الأيقونات على Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">الإصدار</sys:String>
     <sys:String x:Key="Settings.Visibility">الرؤية</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadRequired">التنزيل مطلوب</sys:String>
+    <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">مثبّت · تعرّف كلامي عصبي دون اتصال</sys:String>
     <sys:String x:Key="Settings.Wallpapers">الخلفيات</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">ما فعله آخر تشغيل وأين مخرجاته.</sys:String>
     <sys:String x:Key="Settings.WhatMeans">ماذا يعني هذا</sys:String>
@@ -2113,6 +2124,7 @@
     <sys:String x:Key="SheetStore.EGJO2025001CustomerName">مثل: JO-2025-001 أو اسم العميل</sys:String>
     <sys:String x:Key="SheetStore.Edited">معدل</sys:String>
     <sys:String x:Key="SheetStore.EnterGlassSheetInventoryDetails">أدخل تفاصيل مخزون ألواح الزجاج</sys:String>
+    <sys:String x:Key="SheetStore.Entries">إدخالات</sys:String>
     <sys:String x:Key="SheetStore.ExistingDB">موجود (في قاعدة البيانات)</sys:String>
     <sys:String x:Key="SheetStore.ExpectedProfit">الربح المتوقع</sys:String>
     <sys:String x:Key="SheetStore.ExportPDFReport">تصدير تقرير PDF</sys:String>

@@ -71,6 +71,7 @@
     <sys:String x:Key="About.Licensed">Лицензировано для</sys:String>
     <sys:String x:Key="About.LocalFirstDataHandlingOperatorControl">Данные прежде всего локальны, контроль оператора и практичные границы конфиденциальности</sys:String>
     <sys:String x:Key="About.Machine">Эта машина</sys:String>
+    <sys:String x:Key="About.MadeInIndia">Сделано в Индии · </sys:String>
     <sys:String x:Key="About.ModularIsolation">• Модульная изоляция —</sys:String>
     <sys:String x:Key="About.ModuleCount">КОЛИЧЕСТВО МОДУЛЕЙ</sys:String>
     <sys:String x:Key="About.MonetaryValuesStoredDisplayed">Все денежные значения хранятся и отображаются в</sys:String>
@@ -139,6 +140,7 @@
     <sys:String x:Key="Action.Select">Выбрать</sys:String>
     <sys:String x:Key="Action.View">Просмотр</sys:String>
     <sys:String x:Key="Action.Yes">Да</sys:String>
+    <sys:String x:Key="Attachments.FilesTitle">ФАЙЛЫ</sys:String>
     <sys:String x:Key="Common.Actions">Действия</sys:String>
     <sys:String x:Key="Common.Activity">Активность</sys:String>
     <sys:String x:Key="Common.Address">Адрес</sys:String>
@@ -221,6 +223,7 @@
     <sys:String x:Key="Currency.ConvertFrom">Конвертировать из</sys:String>
     <sys:String x:Key="Currency.ConvertHint">1 AED = {rate} {currency} по текущему курсу.</sys:String>
     <sys:String x:Key="Currency.Example">Пример</sys:String>
+    <sys:String x:Key="Currency.Imported">Импортный</sys:String>
     <sys:String x:Key="Currency.KeepEnglish">Английский интерфейс с этой валютой</sys:String>
     <sys:String x:Key="Currency.LastSync">Последняя синхронизация</sys:String>
     <sys:String x:Key="Currency.LiveOnly">Онлайн-курсы в реальном времени</sys:String>
@@ -230,6 +233,7 @@
     <sys:String x:Key="Currency.Source">Источник курса</sys:String>
     <sys:String x:Key="Currency.Subtitle">Приложение на вашем языке; суммы в вашей валюте.</sys:String>
     <sys:String x:Key="Currency.Title">Язык и валюта</sys:String>
+    <sys:String x:Key="Currency.WithSurcharge">С наценкой</sys:String>
     <sys:String x:Key="Dashboard.AgeingBrackets">Группы по срокам давности</sys:String>
     <sys:String x:Key="Dashboard.AgeingMix">Смесь по срокам давности</sys:String>
     <sys:String x:Key="Dashboard.Attachments">Есть вложения</sys:String>
@@ -1301,6 +1305,7 @@
     <sys:String x:Key="ProformaInvoice.Source">ИСТОЧНИК</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSQM">РАМКА / М²</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSqm0MeansRate">Рамка / м² — 0 означает, что в тарифе нет</sys:String>
+    <sys:String x:Key="ProformaInvoice.Specs">Спецификации</sys:String>
     <sys:String x:Key="ProformaInvoice.Sqm">/м²</sys:String>
     <sys:String x:Key="ProformaInvoice.StandardUAEVAT">Стандартный НДС ОАЭ (</sys:String>
     <sys:String x:Key="ProformaInvoice.SubtotalBeforeVAT">Промежуточный итог до НДС</sys:String>
@@ -1444,6 +1449,7 @@
     <sys:String x:Key="Reports.OpenTaxInvoiceReport">Открыть отчёт по налоговым счетам</sys:String>
     <sys:String x:Key="Reports.PastDueDate">Просрочено</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">Утверждённые и выпущенные котировки, готовые к производству</sys:String>
+    <sys:String x:Key="Reports.PiReport.AwaitingConversion">ожидает конвертации</sys:String>
     <sys:String x:Key="Reports.PiReport.CompanyProject">КОМПАНИЯ / ПРОЕКТ</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">КОНВЕРТИРОВАНО</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">Экспортировать отфильтрованные записи в CSV</sys:String>
@@ -1458,6 +1464,7 @@
     <sys:String x:Key="Reports.PiReport.PIAmount">СУММА PI</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE">ДАТА PI</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE2">PI # / ДАТА</sys:String>
+    <sys:String x:Key="Reports.PiReport.PendingApproval">ожидает одобрения</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceDetails">Данные счёта-проформы</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceReport">Отчёт по счетам-проформам</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob">Счета-проформы, конвертированные в активные заводские заказы</sys:String>
@@ -1622,6 +1629,7 @@
     <sys:String x:Key="Reports.TaxInvoiceReport.FilterStartIssueDate">Фильтр по начальной дате выпуска</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.Invoice">СЧЁТ #</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoiceDATE">СЧЁТ # / ДАТА</sys:String>
+    <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesIssued">выставлено счетов</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection">Счета, просроченные по условиям оплаты и требующие взыскания</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NeedsCollection">Требует взыскания</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NoTaxInvoicesFound">Налоговых счетов не найдено</sys:String>
@@ -1644,6 +1652,7 @@
     <sys:String x:Key="Reports.VatSubmission.5FTARate">Ставка FTA 5 %</sys:String>
     <sys:String x:Key="Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject">Разбивка НДС 5 % FTA ОАЭ по продавцу, компании и проекту · Экспортируйте для соблюдения налоговой декларации.</sys:String>
     <sys:String x:Key="Reports.VatSubmission.ActiveSalesmenContributingVATPeriod">Активные продавцы, вносящие НДС в этом периоде</sys:String>
+    <sys:String x:Key="Reports.VatSubmission.CompaniesCount">компаний</sys:String>
     <sys:String x:Key="Reports.VatSubmission.Company">По компании</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DATETIME">ДАТА / ВРЕМЯ</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DetailView">Подробный вид</sys:String>
@@ -2027,6 +2036,8 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">Используется на каждом экране, в диалогах и таблицах (иконки остаются на Segoe MDL2).</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">Видимость</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadRequired">Требуется загрузка</sys:String>
+    <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">Установлено · Офлайн нейро-СТТ</sys:String>
     <sys:String x:Key="Settings.Wallpapers">ОБОИ</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">Что сделал последний запуск и где его вывод.</sys:String>
     <sys:String x:Key="Settings.WhatMeans">Что это значит</sys:String>
@@ -2113,6 +2124,7 @@
     <sys:String x:Key="SheetStore.EGJO2025001CustomerName">напр., JO-2025-001 или имя клиента</sys:String>
     <sys:String x:Key="SheetStore.Edited">Изменено</sys:String>
     <sys:String x:Key="SheetStore.EnterGlassSheetInventoryDetails">Введите данные инвентаря листов стекла</sys:String>
+    <sys:String x:Key="SheetStore.Entries">записей</sys:String>
     <sys:String x:Key="SheetStore.ExistingDB">СУЩЕСТВУЮЩИЙ (В БД)</sys:String>
     <sys:String x:Key="SheetStore.ExpectedProfit">ОЖИДАЕМАЯ ПРИБЫЛЬ</sys:String>
     <sys:String x:Key="SheetStore.ExportPDFReport">Экспортировать PDF-отчёт</sys:String>

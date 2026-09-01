@@ -22,6 +22,10 @@ namespace ProGlassAutomation.Services.Localization
 
         /// <summary>Picker text ("INR — Indian Rupee (₹)").</summary>
         public string DisplayName => $"{Code} — {EnglishName} ({Symbol})";
+
+        /// <summary>Never leak the raw type name into a picker if a
+        /// binding ever fails — always show the friendly label.</summary>
+        public override string ToString() => DisplayName;
     }
 
     public static class CurrencyCatalog

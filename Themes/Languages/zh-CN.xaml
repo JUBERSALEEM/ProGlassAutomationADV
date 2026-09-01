@@ -71,6 +71,7 @@
     <sys:String x:Key="About.Licensed">许可授予</sys:String>
     <sys:String x:Key="About.LocalFirstDataHandlingOperatorControl">本地优先的数据处理、操作员控制和实用的隐私边界</sys:String>
     <sys:String x:Key="About.Machine">本机</sys:String>
+    <sys:String x:Key="About.MadeInIndia">印度制造 · </sys:String>
     <sys:String x:Key="About.ModularIsolation">• 模块化隔离 —</sys:String>
     <sys:String x:Key="About.ModuleCount">模块数量</sys:String>
     <sys:String x:Key="About.MonetaryValuesStoredDisplayed">所有货币值均以以下货币存储和显示</sys:String>
@@ -139,6 +140,7 @@
     <sys:String x:Key="Action.Select">选择</sys:String>
     <sys:String x:Key="Action.View">查看</sys:String>
     <sys:String x:Key="Action.Yes">是</sys:String>
+    <sys:String x:Key="Attachments.FilesTitle">文件</sys:String>
     <sys:String x:Key="Common.Actions">操作</sys:String>
     <sys:String x:Key="Common.Activity">活动</sys:String>
     <sys:String x:Key="Common.Address">地址</sys:String>
@@ -221,6 +223,7 @@
     <sys:String x:Key="Currency.ConvertFrom">从…换算</sys:String>
     <sys:String x:Key="Currency.ConvertHint">1 AED = {rate} {currency}（按当前联网汇率）。</sys:String>
     <sys:String x:Key="Currency.Example">示例</sys:String>
+    <sys:String x:Key="Currency.Imported">进口</sys:String>
     <sys:String x:Key="Currency.KeepEnglish">使用英文界面 + 此货币</sys:String>
     <sys:String x:Key="Currency.LastSync">上次同步</sys:String>
     <sys:String x:Key="Currency.LiveOnly">联网实时汇率</sys:String>
@@ -230,6 +233,7 @@
     <sys:String x:Key="Currency.Source">汇率来源</sys:String>
     <sys:String x:Key="Currency.Subtitle">用您的语言运行应用，以您的货币显示金额。</sys:String>
     <sys:String x:Key="Currency.Title">语言与货币</sys:String>
+    <sys:String x:Key="Currency.WithSurcharge">含附加费</sys:String>
     <sys:String x:Key="Dashboard.AgeingBrackets">账龄区间</sys:String>
     <sys:String x:Key="Dashboard.AgeingMix">账龄组合</sys:String>
     <sys:String x:Key="Dashboard.Attachments">有附件</sys:String>
@@ -1301,6 +1305,7 @@
     <sys:String x:Key="ProformaInvoice.Source">来源</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSQM">隔条 / M²</sys:String>
     <sys:String x:Key="ProformaInvoice.SpacerSqm0MeansRate">隔条 / m² — 0 表示费率中不包含</sys:String>
+    <sys:String x:Key="ProformaInvoice.Specs">规格</sys:String>
     <sys:String x:Key="ProformaInvoice.Sqm">/m²</sys:String>
     <sys:String x:Key="ProformaInvoice.StandardUAEVAT">阿联酋标准增值税（</sys:String>
     <sys:String x:Key="ProformaInvoice.SubtotalBeforeVAT">增值税前小计</sys:String>
@@ -1444,6 +1449,7 @@
     <sys:String x:Key="Reports.OpenTaxInvoiceReport">打开税务发票报告</sys:String>
     <sys:String x:Key="Reports.PastDueDate">已逾期</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">已批准和已签发的报价准备制造</sys:String>
+    <sys:String x:Key="Reports.PiReport.AwaitingConversion">待转换</sys:String>
     <sys:String x:Key="Reports.PiReport.CompanyProject">公司 / 项目</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">已转换</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">将筛选的记录导出为 CSV</sys:String>
@@ -1458,6 +1464,7 @@
     <sys:String x:Key="Reports.PiReport.PIAmount">形式发票金额</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE">形式发票日期</sys:String>
     <sys:String x:Key="Reports.PiReport.PIDATE2">形式发票 # / 日期</sys:String>
+    <sys:String x:Key="Reports.PiReport.PendingApproval">待审批</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceDetails">形式发票详细信息</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoiceReport">形式发票报告</sys:String>
     <sys:String x:Key="Reports.PiReport.ProformaInvoicesConvertedActiveFactoryJob">转换为活动工厂工单的形式发票</sys:String>
@@ -1622,6 +1629,7 @@
     <sys:String x:Key="Reports.TaxInvoiceReport.FilterStartIssueDate">按签发开始日期筛选</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.Invoice">发票 #</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoiceDATE">发票 # / 日期</sys:String>
+    <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesIssued">张已开票</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.InvoicesPastPaymentTermsRequiringCollection">超过付款条款需要催收的发票</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NeedsCollection">需要催收</sys:String>
     <sys:String x:Key="Reports.TaxInvoiceReport.NoTaxInvoicesFound">未找到税务发票</sys:String>
@@ -1644,6 +1652,7 @@
     <sys:String x:Key="Reports.VatSubmission.5FTARate">FTA 5% 税率</sys:String>
     <sys:String x:Key="Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject">按销售员、公司和项目划分的阿联酋 FTA 5% 增值税明细 · 导出用于税务申报合规。</sys:String>
     <sys:String x:Key="Reports.VatSubmission.ActiveSalesmenContributingVATPeriod">期间内贡献增值税的活动销售员</sys:String>
+    <sys:String x:Key="Reports.VatSubmission.CompaniesCount">家公司</sys:String>
     <sys:String x:Key="Reports.VatSubmission.Company">按公司</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DATETIME">日期 / 时间</sys:String>
     <sys:String x:Key="Reports.VatSubmission.DetailView">详细视图</sys:String>
@@ -2027,6 +2036,8 @@
     <sys:String x:Key="Settings.UsedScreenDialogTableIconsStaySegoeMDL2">用于每个屏幕、对话框和表格（图标保持 Segoe MDL2）。</sys:String>
     <sys:String x:Key="Settings.V">v</sys:String>
     <sys:String x:Key="Settings.Visibility">可见性</sys:String>
+    <sys:String x:Key="Settings.VoiceDownloadRequired">需要下载</sys:String>
+    <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">已安装 · 离线神经语音识别</sys:String>
     <sys:String x:Key="Settings.Wallpapers">壁纸</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">上次运行做了什么以及其输出在哪里。</sys:String>
     <sys:String x:Key="Settings.WhatMeans">这意味着什么</sys:String>
@@ -2113,6 +2124,7 @@
     <sys:String x:Key="SheetStore.EGJO2025001CustomerName">例如：JO-2025-001 或客户名称</sys:String>
     <sys:String x:Key="SheetStore.Edited">已编辑</sys:String>
     <sys:String x:Key="SheetStore.EnterGlassSheetInventoryDetails">输入玻璃板库存详细信息</sys:String>
+    <sys:String x:Key="SheetStore.Entries">条记录</sys:String>
     <sys:String x:Key="SheetStore.ExistingDB">现有（在数据库中）</sys:String>
     <sys:String x:Key="SheetStore.ExpectedProfit">预期利润</sys:String>
     <sys:String x:Key="SheetStore.ExportPDFReport">导出 PDF 报告</sys:String>

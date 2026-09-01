@@ -48,6 +48,10 @@ namespace ProGlassAutomation.Services.Localization
 
         /// <summary>Picker text ("English — English", "Hindi — हिन्दी").</summary>
         public string DisplayName => LanguageCatalog.Display(this);
+
+        /// <summary>Never leak the raw type name into a picker if a
+        /// binding ever fails — always show the friendly label.</summary>
+        public override string ToString() => DisplayName;
     }
 
     /// <summary>

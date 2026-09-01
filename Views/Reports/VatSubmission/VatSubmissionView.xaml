@@ -72,7 +72,13 @@
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Reports.VatSubmission.Salesmen}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.BySalesman.Count}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.ByCompany.Count, Mode=OneWay, StringFormat={}{0} companies}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Style="{StaticResource ModuleListKpiHintStyle}">
+                                    <TextBlock.Inlines>
+                                        <Run Text="{Binding Summary.ByCompany.Count, Mode=OneWay}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{DynamicResource Reports.VatSubmission.CompaniesCount}"/>
+                                    </TextBlock.Inlines>
+                                </TextBlock>
                             </StackPanel>
                         </StackPanel>
 
