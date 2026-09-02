@@ -374,6 +374,27 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             bool haveFrame = false;
             int blankStreak = 0;
 
+            // ── ADAPTIVE THROTTLE (Phase 1 freeze fix) ───────────────
+            //
+            // PrintWindow BLOCKS on the window's owning thread — our UI
+            // thread (see GdiWindowCapture's header). Every capture is
+            // therefore a UI stall, and issuing them at a fixed 30fps
+            // regardless of cost is exactly what made the app
+            // unresponsive: on a heavy screen each capture can take
+            // longer than the frame interval, so the UI thread never gets
+            // a gap in which to service input, and STOP cannot be
+            // clicked.
+            //
+            // The loop now measures what it costs the UI thread and gives
+            // time back when it is expensive. Recording at a lower frame
+            // rate is a minor quality compromise; an unusable application
+            // is not acceptable at any frame rate.
+            int effectiveFps = fps;
+            var effInterval = interval;
+            double slowStreak = 0;
+            const double UiBudgetFraction = 0.5;   // never eat >50% of a frame
+            const int MinFps = 8;
+
             while (!ct.IsCancellationRequested)
             {
                 if (_paused)
@@ -396,6 +417,35 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     {
                         haveFrame = true;
                         blankStreak = capture.LastFrameWasBlank ? blankStreak + 1 : 0;
+
+                        // How much of this frame's budget did we take from
+                        // the UI thread?
+                        double budgetMs = effInterval.TotalMilliseconds * UiBudgetFraction;
+                        if (capture.LastCaptureMs > budgetMs)
+                        {
+                            slowStreak++;
+
+                            // Sustained overrun: halve the rate so the UI
+                            // thread gets real gaps back. Recovery is
+                            // deliberately slower than back-off, because
+                            // oscillating between rates looks worse to the
+                            // user than simply running at the lower one.
+                            if (slowStreak >= 5 && effectiveFps > MinFps)
+                            {
+                                effectiveFps = Math.Max(MinFps, effectiveFps / 2);
+                                effInterval = TimeSpan.FromMilliseconds(1000.0 / effectiveFps);
+                                slowStreak = 0;
+
+                                AppLogService.Debug(
+                                    $"[Recording] capture {capture.LastCaptureMs:F0}ms " +
+                                    $"exceeded budget; frame rate -> {effectiveFps}fps " +
+                                    "to keep the UI responsive.");
+                            }
+                        }
+                        else
+                        {
+                            slowStreak = Math.Max(0, slowStreak - 0.25);
+                        }
                     }
                 }
 
@@ -436,20 +486,35 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 }
 
                 slot++;
-                var wait = epoch + TimeSpan.FromTicks(interval.Ticks * slot) - DateTime.UtcNow;
+
+                // Pace against the ADAPTIVE interval. Using the nominal one
+                // here would defeat the throttle entirely: the loop would
+                // keep firing at the original rate no matter how expensive
+                // each capture had become.
+                var wait = epoch + TimeSpan.FromTicks(effInterval.Ticks * slot) - DateTime.UtcNow;
 
                 if (wait > TimeSpan.Zero)
                 {
                     try { await Task.Delay(wait, ct).ConfigureAwait(false); }
                     catch (OperationCanceledException) { break; }
                 }
-                else if (-wait > interval)
+                else
                 {
-                    // Behind by whole slots: step onto the grid instead of
-                    // firing a catch-up burst that would deepen the backlog.
-                    long behind = -wait.Ticks / interval.Ticks;
-                    slot += behind;
-                    Interlocked.Add(ref _droppedFrames, (int)Math.Min(behind, int.MaxValue));
+                    // We are already late. YIELD ANYWAY — an unconditional
+                    // pause is what guarantees the UI thread a gap to
+                    // service input. Without it a slow machine spins
+                    // capture-after-capture and STOP can never be clicked,
+                    // which is precisely the reported "have to force-close"
+                    // behaviour.
+                    try { await Task.Delay(15, ct).ConfigureAwait(false); }
+                    catch (OperationCanceledException) { break; }
+
+                    if (-wait > effInterval)
+                    {
+                        long behind = -wait.Ticks / effInterval.Ticks;
+                        slot += behind;
+                        Interlocked.Add(ref _droppedFrames, (int)Math.Min(behind, int.MaxValue));
+                    }
                 }
             }
         }

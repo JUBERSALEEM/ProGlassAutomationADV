@@ -176,6 +176,29 @@ namespace ProGlassAutomation.Services.Recording
             CleanupFolderForDemo(folder);
         }
 
+        /// <summary>
+        /// Signals the capture loop to stop IMMEDIATELY and synchronously.
+        ///
+        /// Called first thing when STOP is pressed, before the async save
+        /// pipeline is even scheduled. This matters because each capture
+        /// blocks the UI thread (PrintWindow -> WM_PRINT): the sooner the
+        /// loop stops issuing them, the sooner the UI thread is free to
+        /// process the rest of the stop, repaint the HUD and accept input.
+        ///
+        /// Cheap, non-throwing, and safe to call when nothing is running.
+        /// </summary>
+        public void RequestStopNow()
+        {
+            WindowScreenRecorder? rec;
+            lock (_gate) rec = _recorder;
+
+            try { rec?.Stop(); }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[UserScreenRecordService] RequestStopNow: {ex.Message}");
+            }
+        }
+
         public string? TryStart(ScreenRecordSettings? settings = null)
         {
             lock (_gate)

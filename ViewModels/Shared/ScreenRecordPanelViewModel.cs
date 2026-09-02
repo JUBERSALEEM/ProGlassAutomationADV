@@ -56,8 +56,32 @@ namespace ProGlassAutomation.ViewModels.Shared
             StartCommand = new RelayCommand(
                 _ => Start(),
                 _ => !_svc.IsBusy);
+            // STOP: fire-and-forget on purpose.
+            //
+            // `async _ => await ...` inside a RelayCommand is an async void
+            // in practice: the command returns at the first await, so any
+            // later fault is unobserved, and on a congested UI thread the
+            // continuation can be delayed behind pending work. Recording
+            // stop must be immediate and must never surface an exception
+            // through the command plumbing.
+            //
+            // Cancellation is also requested SYNCHRONOUSLY first, so the
+            // capture loop stops issuing UI-blocking captures the instant
+            // the button is pressed rather than after the save pipeline
+            // has been scheduled.
             StopCommand = new RelayCommand(
-                async _ => await _svc.StopAndSaveAsync().ConfigureAwait(true),
+                _ =>
+                {
+                    try { _svc.RequestStopNow(); }
+                    catch (Exception ex)
+                    {
+                        Services.Logging.AppLogService.Debug(
+                            $"[ScreenRecord] stop request: {ex.Message}");
+                    }
+
+                    ProGlassAutomation.Utilities.AsyncUtility.SafeFireAndForget(
+                        () => _svc.StopAndSaveAsync(), "ScreenRecord Stop");
+                },
                 _ => _svc.IsRecording);
             PauseCommand = new RelayCommand(
                 _ => _svc.TogglePause(),
@@ -163,15 +187,29 @@ namespace ProGlassAutomation.ViewModels.Shared
         /// </summary>
         public ICommand OpenRecordingsFolderCommand { get; }
 
+        /// <summary>
+        /// Pushes the four UI-exposed settings to the service.
+        ///
+        /// BUG FIXED (2026-09-02): this built a BRAND NEW
+        /// ScreenRecordSettings and assigned only the four properties the
+        /// popup shows. Every other setting — Supersample, DrawCursor,
+        /// JpegQuality, LivePreviewEncode — was silently reset to its
+        /// default on any quality/fps/audio change, discarding whatever
+        /// had been configured elsewhere.
+        ///
+        /// It now MUTATES A CLONE of the current settings, so unrelated
+        /// values survive.
+        /// </summary>
         private void PushSettings()
         {
-            _svc.Settings = new ScreenRecordSettings
-            {
-                Quality = SelectedQuality?.Quality ?? ScreenRecordQuality.FullHd,
-                Fps = SelectedFps?.Fps ?? 30,
-                CaptureLiveAudio = CaptureLiveAudio,
-                CaptureMicrophone = CaptureMicrophone
-            }.Clamp();
+            var next = (_svc.Settings ?? new ScreenRecordSettings()).Clone();
+
+            next.Quality = SelectedQuality?.Quality ?? ScreenRecordQuality.FullHd;
+            next.Fps = SelectedFps?.Fps ?? 30;
+            next.CaptureLiveAudio = CaptureLiveAudio;
+            next.CaptureMicrophone = CaptureMicrophone;
+
+            _svc.Settings = next.Clamp();
         }
 
         private void Start()

@@ -13,23 +13,42 @@
 //  separate top-level HWNDs that are not children of MainWindow's visual
 //  tree.
 //
-//  This captures the same way OBS's "Window Capture" does on Windows 10+:
+//  ⚠ CORRECTION (2026-09-02). An earlier version of this header claimed
+//  PrintWindow "runs entirely on the CALLING thread ... and never touches
+//  the WPF dispatcher". THAT WAS FALSE, and it caused the reported freeze.
 //
-//    PrintWindow(hwnd, hdc, PW_RENDERFULLCONTENT)
+//  Microsoft's own contract for PrintWindow:
 //
-//  PW_RENDERFULLCONTENT (0x2, Windows 8.1+) asks DWM for the window's
-//  ALREADY-COMPOSITED surface — the exact pixels on screen, including
-//  hardware-accelerated and layered content. Crucially it runs entirely
-//  on the CALLING thread against the OS, so it can be driven from a
-//  background thread and never touches the WPF dispatcher.
+//    "This is a BLOCKING or SYNCHRONOUS function ... THE APPLICATION THAT
+//     OWNS THE WINDOW referenced by hWnd PROCESSES the PrintWindow call
+//     and renders the image ... The application receives a WM_PRINT
+//     message ... Calling this function from a thread that manages
+//     interaction with the user interface could make the application
+//     appear to be unresponsive."
 //
-//  WHY GDI AND NOT Windows.Graphics.Capture
-//  WGC is the newer API, but it needs CsWinRT projections, a D3D11 device,
-//  a WinRT dispatcher pump and a Windows 10 1903+ contract. That is a
-//  large unverifiable surface for an environment with no compiler. GDI
-//  PrintWindow needs nothing but user32/gdi32, which this codebase already
-//  P/Invokes, and it solves both headline problems: off-thread, and real
-//  composited output.
+//  We pass our OWN MainWindow, so the owning thread is our OWN UI thread:
+//
+//      bg thread → PrintWindow → SendMessage(WM_PRINT) → UI THREAD renders
+//      bg thread ←──────────── blocks until finished ──┘
+//
+//  Calling it 30x/second therefore forces the UI thread to perform 30
+//  synchronous full-window renders per second. Architecturally identical
+//  to the RenderTargetBitmap path it replaced — the request moved
+//  off-thread, the WORK did not. Module switches crawl, dialogs stop
+//  responding, and STOP cannot be clicked because its input queues behind
+//  the WM_PRINT backlog.
+//
+//  MITIGATION IN THIS CLASS (Phase 1)
+//  The permanent fix is Windows.Graphics.Capture, which is DWM/GPU-side
+//  and never involves the owning thread. Until that lands, this class
+//  MEASURES every capture and refuses to keep hammering a UI thread that
+//  is struggling: see CaptureCost and the caller's adaptive frame rate.
+//  A recording that quietly drops to 10fps is acceptable; one that makes
+//  the application unusable is not.
+//
+//  APP-ONLY BY DESIGN
+//  The capture is bound to a single HWND, so the desktop, other apps and
+//  notifications never appear.
 //
 //  APP-ONLY BY DESIGN
 //  The capture is bound to a single HWND, so the desktop, other apps and
@@ -178,6 +197,11 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             int needed = _width * 4 * _height;
             if (buffer == null || buffer.Length < needed) return false;
 
+            // TIMED because PrintWindow blocks on the UI thread (see the
+            // header). The elapsed time IS the stall we inflicted, so the
+            // caller uses it to back off instead of compounding it.
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
             // PW_RENDERFULLCONTENT asks DWM for the composited surface.
             // Older/odd drivers ignore the flag and return black, so the
             // result is checked below rather than trusted.
@@ -203,9 +227,22 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             Marshal.Copy(_bits, buffer, 0, needed);
 
+            sw.Stop();
+            LastCaptureMs = sw.Elapsed.TotalMilliseconds;
+
             LastFrameWasBlank = IsMostlyBlank(buffer, needed);
             return true;
         }
+
+        /// <summary>
+        /// Wall-clock cost of the last successful capture, in milliseconds.
+        ///
+        /// This is not a diagnostic nicety: because PrintWindow blocks on
+        /// the window's owning thread, this value is very close to the
+        /// amount of time the UI thread was unavailable to the user. The
+        /// capture loop throttles against it.
+        /// </summary>
+        public double LastCaptureMs { get; private set; }
 
         /// <summary>
         /// Cheap sparse scan for an all-black frame. Full scans of a 4K
