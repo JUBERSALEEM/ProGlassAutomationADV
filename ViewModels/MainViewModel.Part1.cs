@@ -78,36 +78,54 @@ namespace ProGlassAutomation.ViewModels
         public DashboardViewModel DashboardVM { get; }
         public InquiryListViewModel InquiryVM { get; }
         public ProformaInvoiceViewModel ProformaInvoiceVM { get; }
-        public AboutViewModel AboutVM { get; }
+        private AboutViewModel? _lazyAboutVM;
+        public AboutViewModel AboutVM => _lazyAboutVM ??= ResolveOrNew<AboutViewModel>();
         public SettingsViewModel SettingsVM { get; }
-        public SystemCenterViewModel SystemCenterVM { get; }
-        public DiagnosticsViewModel DiagnosticsVM { get; }
+        private SystemCenterViewModel? _lazySystemCenterVM;
+        public SystemCenterViewModel SystemCenterVM => _lazySystemCenterVM ??= ResolveOrNew<SystemCenterViewModel>();
+        private DiagnosticsViewModel? _lazyDiagnosticsVM;
+        public DiagnosticsViewModel DiagnosticsVM => _lazyDiagnosticsVM ??= ResolveOrNew<DiagnosticsViewModel>();
         public GlobalSearchViewModel GlobalSearchVM { get; }
         public AiChatViewModel AiChatVM { get; }
         public ProGlassAutomation.Agent.UI.AgentChatViewModel AgentChatVM { get; }
 
-        public SheetStoreViewModel SheetStoreVM { get; }
+        private SheetStoreViewModel? _lazySheetStoreVM;
+        public SheetStoreViewModel SheetStoreVM => _lazySheetStoreVM ??= ResolveOrNew<SheetStoreViewModel>();
 
         /// <summary>Specifications Center — catalogue of saved specs.</summary>
-        public Specifications.SpecificationsCenterViewModel SpecificationsVM { get; private set; } = null!;
+        private Specifications.SpecificationsCenterViewModel? _lazySpecificationsVM;
+        public Specifications.SpecificationsCenterViewModel SpecificationsVM => _lazySpecificationsVM ??= ResolveOrNew<Specifications.SpecificationsCenterViewModel>();
         public JobOrderViewModel JobOrderVM { get; }
-        public OptimizationViewModel OptimizationVM { get; }
-        public CuttingViewModel CuttingVM { get; }
-        public HolesCutoutsViewModel HolesCutoutsVM { get; }
-        public PolishViewModel PolishVM { get; }
-        public EdgeDeletionViewModel EdgeDeletionVM { get; }
-        public MitringViewModel MitringVM { get; }
-        public TemperingViewModel TemperingVM { get; }
-        public PairingViewModel PairingVM { get; }
-        public DoublingLaminationViewModel DoublingLaminationVM { get; }
+        private OptimizationViewModel? _lazyOptimizationVM;
+        public OptimizationViewModel OptimizationVM => _lazyOptimizationVM ??= ResolveOrNew<OptimizationViewModel>();
+        private CuttingViewModel? _lazyCuttingVM;
+        public CuttingViewModel CuttingVM => _lazyCuttingVM ??= ResolveOrNew<CuttingViewModel>();
+        private HolesCutoutsViewModel? _lazyHolesCutoutsVM;
+        public HolesCutoutsViewModel HolesCutoutsVM => _lazyHolesCutoutsVM ??= ResolveOrNew<HolesCutoutsViewModel>();
+        private PolishViewModel? _lazyPolishVM;
+        public PolishViewModel PolishVM => _lazyPolishVM ??= ResolveOrNew<PolishViewModel>();
+        private EdgeDeletionViewModel? _lazyEdgeDeletionVM;
+        public EdgeDeletionViewModel EdgeDeletionVM => _lazyEdgeDeletionVM ??= ResolveOrNew<EdgeDeletionViewModel>();
+        private MitringViewModel? _lazyMitringVM;
+        public MitringViewModel MitringVM => _lazyMitringVM ??= ResolveOrNew<MitringViewModel>();
+        private TemperingViewModel? _lazyTemperingVM;
+        public TemperingViewModel TemperingVM => _lazyTemperingVM ??= ResolveOrNew<TemperingViewModel>();
+        private PairingViewModel? _lazyPairingVM;
+        public PairingViewModel PairingVM => _lazyPairingVM ??= ResolveOrNew<PairingViewModel>();
+        private DoublingLaminationViewModel? _lazyDoublingLaminationVM;
+        public DoublingLaminationViewModel DoublingLaminationVM => _lazyDoublingLaminationVM ??= ResolveOrNew<DoublingLaminationViewModel>();
         public DeliveryNoteViewModel DeliveryNoteVM { get; }
         public TaxInvoiceViewModel TaxInvoiceVM { get; }
         public SalesReportViewModel SalesReportVM { get; }
         public StatementModuleViewModel StatementModuleVM { get; }
-        public JobProfitabilityViewModel JobProfitabilityVM { get; }
-        public CompanyCenterViewModel CompanyCenterVM { get; }
-        public UserCenterViewModel UserCenterVM { get; }
-        public VatSubmissionViewModel VatSubmissionVM { get; }
+        private JobProfitabilityViewModel? _lazyJobProfitabilityVM;
+        public JobProfitabilityViewModel JobProfitabilityVM => _lazyJobProfitabilityVM ??= ResolveOrNew<JobProfitabilityViewModel>();
+        private CompanyCenterViewModel? _lazyCompanyCenterVM;
+        public CompanyCenterViewModel CompanyCenterVM => _lazyCompanyCenterVM ??= ResolveOrNew<CompanyCenterViewModel>();
+        private UserCenterViewModel? _lazyUserCenterVM;
+        public UserCenterViewModel UserCenterVM => _lazyUserCenterVM ??= ResolveOrNew<UserCenterViewModel>();
+        private VatSubmissionViewModel? _lazyVatSubmissionVM;
+        public VatSubmissionViewModel VatSubmissionVM => _lazyVatSubmissionVM ??= ResolveOrNew<VatSubmissionViewModel>();
 
         // ── popups ────────────────────────────────────────────────────
         private bool _isAgentChatOpen;
@@ -582,34 +600,31 @@ namespace ProGlassAutomation.ViewModels
             try { _dashboardFilter = serviceProvider.GetService<IDashboardFilterService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IDashboardFilterService; using App statics: " + ex.Message); }
 
             // Resolve all module VMs via DI — Phase 5: no `new ViewModel()` 
+            //
+            // LAZY vs EAGER (Phase 4, 2026-09-02)
+            // Constructing all 28 module view models here cost the user a
+            // slow, unresponsive startup: most of these constructors kick
+            // off database loads, so the shell could not paint until every
+            // module had queried. Modules are now built ON FIRST USE via
+            // `_lazyX ??= ResolveOrNew<X>()` properties.
+            //
+            // The ones still resolved eagerly below are the ones this
+            // constructor WIRES UP afterwards (cross-module callbacks such
+            // as InquiryVM.OpenProformaForRowRequested). Touching their
+            // property here would instantiate them anyway, so declaring
+            // them lazy would be a lie that only added indirection.
+            // Verified per-property by counting `X.` member access in this
+            // file rather than assumed.
             // Each GetService falls back to `new` if not registered (migration safety)
             DashboardVM = ResolveOrNew<DashboardViewModel>();
             InquiryVM = ResolveOrNew<InquiryListViewModel>();
             ProformaInvoiceVM = ResolveOrNew<ProformaInvoiceViewModel>();
-            AboutVM = ResolveOrNew<AboutViewModel>();
             SettingsVM = ResolveOrNew<SettingsViewModel>();
-            SystemCenterVM = ResolveOrNew<SystemCenterViewModel>();
-            DiagnosticsVM = ResolveOrNew<DiagnosticsViewModel>();
-            SheetStoreVM = ResolveOrNew<SheetStoreViewModel>();
-            SpecificationsVM = ResolveOrNew<Specifications.SpecificationsCenterViewModel>();
             JobOrderVM = ResolveOrNew<JobOrderViewModel>();
-            OptimizationVM = ResolveOrNew<OptimizationViewModel>();
-            CuttingVM = ResolveOrNew<CuttingViewModel>();
-            HolesCutoutsVM = ResolveOrNew<HolesCutoutsViewModel>();
-            PolishVM = ResolveOrNew<PolishViewModel>();
-            EdgeDeletionVM = ResolveOrNew<EdgeDeletionViewModel>();
-            MitringVM = ResolveOrNew<MitringViewModel>();
-            TemperingVM = ResolveOrNew<TemperingViewModel>();
-            PairingVM = ResolveOrNew<PairingViewModel>();
-            DoublingLaminationVM = ResolveOrNew<DoublingLaminationViewModel>();
             DeliveryNoteVM = ResolveOrNew<DeliveryNoteViewModel>();
             TaxInvoiceVM = ResolveOrNew<TaxInvoiceViewModel>();
             SalesReportVM = ResolveOrNew<SalesReportViewModel>();
             StatementModuleVM = ResolveOrNew<StatementModuleViewModel>();
-            JobProfitabilityVM = ResolveOrNew<JobProfitabilityViewModel>();
-            CompanyCenterVM = ResolveOrNew<CompanyCenterViewModel>();
-            UserCenterVM = ResolveOrNew<UserCenterViewModel>();
-            VatSubmissionVM = ResolveOrNew<VatSubmissionViewModel>();
 
             // AI chat — may need voice services from App
             try
