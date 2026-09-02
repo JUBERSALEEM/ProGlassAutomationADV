@@ -102,8 +102,9 @@ namespace ProGlassAutomation.ViewModels.Settings
             private set { _fxStatusText = value; OnPropertyChanged(); }
         }
 
-        public ICommand ResetToEnglishCommand { get; } =
-            new RelayCommand(_ => ResetToEnglish());
+        private ICommand? _resetToEnglishCommand;
+        public ICommand ResetToEnglishCommand =>
+            _resetToEnglishCommand ??= new RelayCommand(_ => ResetToEnglish());
 
         private void ResetToEnglish()
         {
