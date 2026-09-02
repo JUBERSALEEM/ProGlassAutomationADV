@@ -34,131 +34,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         private readonly IDialogService _dialogs = null!;
         private readonly IJobOrderRepository _jobs = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public DeliveryNoteListViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IJobOrderRepository? jobs, IDatabaseServices? database)
         {
             _deliveryNotes = deliveryNotes!;
             _dialogs = dialogs!;
             _jobs = jobs!;
             _database = database!;
-
-            RefreshCommand = new RelayCommand(async _ =>
-            {
-                SelectedRow = null;
-                await LoadAsync();
-            });
-
-            ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
-
-            OpenCommand = new RelayCommand(param =>
-            {
-                if (param is DeliveryNoteRowViewModel row)
-                    OnDeliveryNoteOpenRequested?.Invoke(row.Id);
-            });
-
-            SelectRowCommand = new RelayCommand(param =>
-            {
-                if (param is DeliveryNoteRowViewModel row)
-                    SelectedRow = (SelectedRow == row) ? null : row;
-            });
-
-            ClearSelectionCommand = new RelayCommand(_ => SelectedRow = null);
-
-            DeleteCommand = new RelayCommand(async param =>
-            {
-                if (param is DeliveryNoteRowViewModel row)
-                    await DeleteAsync(row);
-            });
-
-            ChangeStatusCommand = new RelayCommand(async param =>
-            {
-                if (param is (DeliveryNoteRowViewModel row, string newStatus))
-                    await ChangeStatusAsync(row, newStatus);
-            });
-
-            CreateDnCommand = new RelayCommand(
-                async _ => await OpenJobOrderPickerAsync());
-
-            GenerateInvoiceCommand = new RelayCommand(
-                execute: async param =>
-                {
-                    if (param is not DeliveryNoteRowViewModel row) return;
-                    await FireTaxInvoiceRequestAsync(
-                        row.ProformaId, row.DeliveryNoteId);
-                },
-                canExecute: param =>
-                    param is DeliveryNoteRowViewModel r
-                    && r.CanGenerateInvoice
-                    && !string.IsNullOrWhiteSpace(r.ProformaId));
-
-            OpenGroupCommand = new RelayCommand(param =>
-            {
-                if (param is JobOrderGroupRowViewModel group)
-                {
-                    // Open Master DN (tracking view) instead of latest real DN
-                    // Master DN shows complete delivery picture for this job order
-                    OnRequestOpenMaster?.Invoke(group.JobOrderId);
-                }
-            });
-
-            OpenMasterCommand = new RelayCommand(param =>
-            {
-                string? joId = param switch
-                {
-                    JobOrderGroupRowViewModel group => group.JobOrderId,
-                    string id => id,
-                    _ => null
-                };
-                if (!string.IsNullOrWhiteSpace(joId))
-                    OnRequestOpenMaster?.Invoke(joId);
-            });
-
-            GenerateMasterInvoiceCommand = new RelayCommand(
-                execute: async param =>
-                {
-                    if (param is not JobOrderGroupRowViewModel group) return;
-                    await FireTaxInvoiceRequestAsync(
-                        group.ProformaId, group.JobOrderId);
-                },
-                canExecute: param =>
-                    param is JobOrderGroupRowViewModel g
-                    && g.AnyDelivered
-                    && !string.IsNullOrWhiteSpace(g.ProformaId));
-
-            // Create DN directly from a job order row (no picker popup)
-            CreateDnForJobOrderCommand = new RelayCommand(
-                execute: async param =>
-                {
-                    string? jobOrderId = param as string;
-                    if (string.IsNullOrWhiteSpace(jobOrderId) || _jobs == null) return;
-
-                    try
-                    {
-                        var allJobs = await _jobs.GetAllAsync();
-                        var job = allJobs.FirstOrDefault(j => j.JobOrderId == jobOrderId);
-                        if (job != null)
-                            OnCreateDnFromJobOrder?.Invoke(job);
-                    }
-                    catch (Exception ex)
-                    {
-                        _dialogs.Show(
-                            string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrder"), ex.Message),
-                            LocalizationService.Instance.T("Msg.CapError"), System.Windows.MessageBoxButton.OK,
-                            System.Windows.MessageBoxImage.Error);
-                    }
-                },
-                canExecute: param => param is string s && !string.IsNullOrWhiteSpace(s));
-
-            _database.SubscribeDocumentsChanged(LoadAsync);
-
-            _ = LoadAsync();
         }
 
         private int _loadingFlag = 0;
@@ -603,6 +484,116 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IJobOrderRepository>()!,
             App.ServiceProvider?.GetService<IDatabaseServices>()!){
+            RefreshCommand = new RelayCommand(async _ =>
+            {
+                SelectedRow = null;
+                await LoadAsync();
+            });
+
+            ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
+
+            OpenCommand = new RelayCommand(param =>
+            {
+                if (param is DeliveryNoteRowViewModel row)
+                    OnDeliveryNoteOpenRequested?.Invoke(row.Id);
+            });
+
+            SelectRowCommand = new RelayCommand(param =>
+            {
+                if (param is DeliveryNoteRowViewModel row)
+                    SelectedRow = (SelectedRow == row) ? null : row;
+            });
+
+            ClearSelectionCommand = new RelayCommand(_ => SelectedRow = null);
+
+            DeleteCommand = new RelayCommand(async param =>
+            {
+                if (param is DeliveryNoteRowViewModel row)
+                    await DeleteAsync(row);
+            });
+
+            ChangeStatusCommand = new RelayCommand(async param =>
+            {
+                if (param is (DeliveryNoteRowViewModel row, string newStatus))
+                    await ChangeStatusAsync(row, newStatus);
+            });
+
+            CreateDnCommand = new RelayCommand(
+                async _ => await OpenJobOrderPickerAsync());
+
+            GenerateInvoiceCommand = new RelayCommand(
+                execute: async param =>
+                {
+                    if (param is not DeliveryNoteRowViewModel row) return;
+                    await FireTaxInvoiceRequestAsync(
+                        row.ProformaId, row.DeliveryNoteId);
+                },
+                canExecute: param =>
+                    param is DeliveryNoteRowViewModel r
+                    && r.CanGenerateInvoice
+                    && !string.IsNullOrWhiteSpace(r.ProformaId));
+
+            OpenGroupCommand = new RelayCommand(param =>
+            {
+                if (param is JobOrderGroupRowViewModel group)
+                {
+                    // Open Master DN (tracking view) instead of latest real DN
+                    // Master DN shows complete delivery picture for this job order
+                    OnRequestOpenMaster?.Invoke(group.JobOrderId);
+                }
+            });
+
+            OpenMasterCommand = new RelayCommand(param =>
+            {
+                string? joId = param switch
+                {
+                    JobOrderGroupRowViewModel group => group.JobOrderId,
+                    string id => id,
+                    _ => null
+                };
+                if (!string.IsNullOrWhiteSpace(joId))
+                    OnRequestOpenMaster?.Invoke(joId);
+            });
+
+            GenerateMasterInvoiceCommand = new RelayCommand(
+                execute: async param =>
+                {
+                    if (param is not JobOrderGroupRowViewModel group) return;
+                    await FireTaxInvoiceRequestAsync(
+                        group.ProformaId, group.JobOrderId);
+                },
+                canExecute: param =>
+                    param is JobOrderGroupRowViewModel g
+                    && g.AnyDelivered
+                    && !string.IsNullOrWhiteSpace(g.ProformaId));
+
+            // Create DN directly from a job order row (no picker popup)
+            CreateDnForJobOrderCommand = new RelayCommand(
+                execute: async param =>
+                {
+                    string? jobOrderId = param as string;
+                    if (string.IsNullOrWhiteSpace(jobOrderId) || _jobs == null) return;
+
+                    try
+                    {
+                        var allJobs = await _jobs.GetAllAsync();
+                        var job = allJobs.FirstOrDefault(j => j.JobOrderId == jobOrderId);
+                        if (job != null)
+                            OnCreateDnFromJobOrder?.Invoke(job);
+                    }
+                    catch (Exception ex)
+                    {
+                        _dialogs.Show(
+                            string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrder"), ex.Message),
+                            LocalizationService.Instance.T("Msg.CapError"), System.Windows.MessageBoxButton.OK,
+                            System.Windows.MessageBoxImage.Error);
+                    }
+                },
+                canExecute: param => param is string s && !string.IsNullOrWhiteSpace(s));
+
+            _database.SubscribeDocumentsChanged(LoadAsync);
+
+            _ = LoadAsync();
         }
 
         // ══════════════════════════════════════════════════════════════════

@@ -52,53 +52,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
     {
         private readonly IProformaInvoiceRepository _invoices = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public JobProfitabilityViewModel(IProformaInvoiceRepository? invoices)
         {
             _invoices = invoices!;
-
-            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh"));
-
-            Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));
-
-            CompanyFilterOptions.Add(AllFilter);
-            SalesmanFilterOptions.Add(AllFilter);
-            CustomerFilterOptions.Add(AllFilter);
-
-            // ══════════════════════════════════════════════════════════
-            //  LIVE UPDATES
-            //
-            //  Entering the module reloaded it, but saving an invoice while
-            //  this screen was already open left the figures stale with
-            //  nothing on screen saying so. The repository now raises a
-            //  signal on every insert, update and delete, so the list
-            //  follows the data instead of the navigation.
-            //
-            //  The handler marshals to the UI thread: a save may complete on
-            //  a background thread, and rebuilding an ObservableCollection
-            //  bound to a DataGrid from off-thread throws.
-            //
-            //  The subscription is never removed. This view model lives for
-            //  the whole application session (it is a shell singleton), so
-            //  there is no leak to unwind — and unsubscribing on a screen
-            //  change is exactly what would reintroduce the stale list.
-            // ══════════════════════════════════════════════════════════
-            // The namespace and the class share the name
-            // "ProformaInvoiceRepository", so a partial qualification is
-            // ambiguous. The using at the top of this file already imports
-            // the namespace, so the bare class name is what resolves.
-            ProformaInvoiceRepository.SavedInvoicesChanged += OnSavedInvoicesChanged;
-
-            // First load is fire-and-forget so construction stays cheap and
-            // the shell can build every module VM without blocking.
-            AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh");
         }
 
         public string Title { get; } = "JOB PROFITABILITY";
@@ -379,6 +335,41 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public JobProfitabilityViewModel()
          : this(
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){
+            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh"));
+
+            Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));
+
+            CompanyFilterOptions.Add(AllFilter);
+            SalesmanFilterOptions.Add(AllFilter);
+            CustomerFilterOptions.Add(AllFilter);
+
+            // ══════════════════════════════════════════════════════════
+            //  LIVE UPDATES
+            //
+            //  Entering the module reloaded it, but saving an invoice while
+            //  this screen was already open left the figures stale with
+            //  nothing on screen saying so. The repository now raises a
+            //  signal on every insert, update and delete, so the list
+            //  follows the data instead of the navigation.
+            //
+            //  The handler marshals to the UI thread: a save may complete on
+            //  a background thread, and rebuilding an ObservableCollection
+            //  bound to a DataGrid from off-thread throws.
+            //
+            //  The subscription is never removed. This view model lives for
+            //  the whole application session (it is a shell singleton), so
+            //  there is no leak to unwind — and unsubscribing on a screen
+            //  change is exactly what would reintroduce the stale list.
+            // ══════════════════════════════════════════════════════════
+            // The namespace and the class share the name
+            // "ProformaInvoiceRepository", so a partial qualification is
+            // ambiguous. The using at the top of this file already imports
+            // the namespace, so the bare class name is what resolves.
+            ProformaInvoiceRepository.SavedInvoicesChanged += OnSavedInvoicesChanged;
+
+            // First load is fire-and-forget so construction stays cheap and
+            // the shell can build every module VM without blocking.
+            AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh");
         }
 
         private void OnSavedInvoicesChanged()

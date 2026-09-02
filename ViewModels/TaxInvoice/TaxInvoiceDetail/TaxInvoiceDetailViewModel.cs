@@ -51,21 +51,59 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         private readonly IProformaInvoiceRepository _invoices = null!;
         private readonly ITaxInvoiceRepository _taxInvoices = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public TaxInvoiceDetailViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IProformaInvoiceRepository? invoices, ITaxInvoiceRepository? taxInvoices)
         {
             _deliveryNotes = deliveryNotes!;
             _dialogs = dialogs!;
             _invoices = invoices!;
             _taxInvoices = taxInvoices!;
+        }
 
+        public Action? OnRequestBackToList { get; set; }
+
+        // ── Navigation guard ─────────────────────────────────────────────
+
+        private bool _isNavigatingFamily;
+
+        // ── Mode ─────────────────────────────────────────────────────────
+
+        private bool _isNewInvoice = true;
+        public bool IsNewInvoice
+        {
+            get => _isNewInvoice;
+            private set
+            {
+                _isNewInvoice = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PageTitle));
+            }
+        }
+
+        private int _editingId;
+        private string _editingInvoiceNumber = "";
+
+        public string PageTitle => IsNewInvoice
+            ? "New Tax Invoice"
+            : $"Edit Invoice — {_editingInvoiceNumber}";
+
+        /// <summary>
+        /// Invoice number currently being edited, or empty for a new one.
+        /// Read-only accessor added so the agent context layer can name the
+        /// open document without reaching into private state. Exposes only
+        /// the identifier that PageTitle already shows on screen.
+        /// </summary>
+        public string EditingInvoiceNumber => _editingInvoiceNumber ?? "";
+
+        // ══════════════════════════════════════════════════════════════════
+        //  CONSTRUCTOR
+        // ══════════════════════════════════════════════════════════════════
+
+        public TaxInvoiceDetailViewModel()
+         : this(
+            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
             SaveCommand = new RelayCommand(
                 async _ => await SaveAsync(),
                 _ => !_isSaving && !_isLoading);
@@ -161,53 +199,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 RenumberAllSerialNumbers();
             };
-        }
-
-        public Action? OnRequestBackToList { get; set; }
-
-        // ── Navigation guard ─────────────────────────────────────────────
-
-        private bool _isNavigatingFamily;
-
-        // ── Mode ─────────────────────────────────────────────────────────
-
-        private bool _isNewInvoice = true;
-        public bool IsNewInvoice
-        {
-            get => _isNewInvoice;
-            private set
-            {
-                _isNewInvoice = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(PageTitle));
-            }
-        }
-
-        private int _editingId;
-        private string _editingInvoiceNumber = "";
-
-        public string PageTitle => IsNewInvoice
-            ? "New Tax Invoice"
-            : $"Edit Invoice — {_editingInvoiceNumber}";
-
-        /// <summary>
-        /// Invoice number currently being edited, or empty for a new one.
-        /// Read-only accessor added so the agent context layer can name the
-        /// open document without reaching into private state. Exposes only
-        /// the identifier that PageTitle already shows on screen.
-        /// </summary>
-        public string EditingInvoiceNumber => _editingInvoiceNumber ?? "";
-
-        // ══════════════════════════════════════════════════════════════════
-        //  CONSTRUCTOR
-        // ══════════════════════════════════════════════════════════════════
-
-        public TaxInvoiceDetailViewModel()
-         : this(
-            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
-            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
         }
 
         /// <summary>

@@ -26,116 +26,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             private readonly IDialogService _dialogs = null!;
         private readonly ISpecificationsRepository _specs = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public PricingEstimatorViewModel(IDialogService? dialogs, ISpecificationsRepository? specs)
         {
             _dialogs = dialogs!;
             _specs = specs!;
-
-            // Initialize panel VMs
-            SguVM = new SguParameters.SguParametersViewModel();
-            DguVM = new DguParameters.DguParametersViewModel();
-            LamVM = new LamParameters.LamParametersViewModel();
-            DguLamVM = new DguLamParameters.DguLamParametersViewModel();
-
-            // BUG-45: blanket recalc when the active glass type panel
-            // changes ANY property — no more brittle property-name switches
-            SguVM.PropertyChanged += OnAnyPanelPropertyChanged;
-            DguVM.PropertyChanged += OnAnyPanelPropertyChanged;
-            LamVM.PropertyChanged += OnAnyPanelPropertyChanged;
-            DguLamVM.PropertyChanged += OnAnyPanelPropertyChanged;
-
-            // Seed 4 glass type options
-            GlassTypes = new ObservableCollection<GlassTypeCard>
-            {
-                new GlassTypeCard
-                {
-                    Code        = "SGU",
-                    Title       = "Single Glass Unit (SGU)",
-                    Description = "Monolithic pane. Direct pricing with custom color & treatments.",
-                    Icon        = "\U0001F4E6",
-                    AccentColor = "#6366F1"
-                },
-                new GlassTypeCard
-                {
-                    Code        = "DGU",
-                    Title       = "Double Glass Unit (DGU)",
-                    Description = "Insulated glass assembly. Configures spacers, gas insertion & outer/inner treatments.",
-                    Icon        = "\U0001F4DA",
-                    AccentColor = "#A855F7"
-                },
-                new GlassTypeCard
-                {
-                    Code        = "LAM",
-                    Title       = "Laminated Assembly (LAM)",
-                    Description = "Multi-layer safety sandwich. Customizes PVB thickness, outer/inner prices & margins.",
-                    Icon        = "\U0001F517",
-                    AccentColor = "#22C55E"
-                },
-                new GlassTypeCard
-                {
-                    Code        = "DGU+LAM",
-                    Title       = "DGU + Laminated (Hybrid)",
-                    Description = "Double glazed unit with one laminated layer. Combines thermal and safety performance.",
-                    Icon        = "\U0001F3D7",
-                    AccentColor = "#F97316"
-                }
-            };
-
-            SpecGroups = new ObservableCollection<SpecTargetGroup>();
-
-            SelectGlassTypeCommand = new RelayCommand(param =>
-            {
-                if (param is GlassTypeCard card)
-                    SelectedGlassType = card;
-            });
-
-            ToggleSpecGroupCommand = new RelayCommand(param =>
-            {
-                if (param is SpecTargetGroup group)
-                    SelectCalculationSection(group);
-            });
-
-            AddCalculationSectionCommand = new RelayCommand(_ => AddCalculationSection());
-            RemoveCalculationSectionCommand = new RelayCommand(
-                _ => RemoveCalculationSection(),
-                _ => CanRemoveCalculationSection);
-
-            // CanExecute still requires a real spec name, which is what
-            // keeps an unimplemented glass type from saving garbage. All
-            // four types now produce one.
-            ApplyRateCommand = new RelayCommand(
-                async _ => await ApplyRateAsync(),
-                _ => TotalSpecsActive > 0
-                     && EstimatedRatePerSqm > 0m
-                     && !string.IsNullOrWhiteSpace(
-                            GetCurrentSpecName(SelectedGlassType?.Code ?? "")));
-
-            // Default selection = SGU
-            SelectedGlassType = GlassTypes[0];
-
-            // Default treatments
-            PolishedEdges = false;
-            DrillCutouts = false;
-            CountersunkHoles = false;
-            EdgeDeletionLayer = false;
-
-            // Initial calc
-            RecalculateEstimatedRate();
-            InitializeCalculationSections();
-
-            // PHASE A/J: populate the Sheet Store dropdowns and prices.
-            // Fire-and-forget with its own guard — a constructor cannot
-            // await, and an empty/locked Sheet Store must never stop the
-            // pricing panels from opening.
-            AsyncUtility.SafeFireAndForget(LoadSheetStoreDataAsync, "PricingEstimator");
         }
 
         // === Panel ViewModels (one per glass type) ===
@@ -295,6 +189,103 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
          : this(
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<ISpecificationsRepository>()!){
+            // Initialize panel VMs
+            SguVM = new SguParameters.SguParametersViewModel();
+            DguVM = new DguParameters.DguParametersViewModel();
+            LamVM = new LamParameters.LamParametersViewModel();
+            DguLamVM = new DguLamParameters.DguLamParametersViewModel();
+
+            // BUG-45: blanket recalc when the active glass type panel
+            // changes ANY property — no more brittle property-name switches
+            SguVM.PropertyChanged += OnAnyPanelPropertyChanged;
+            DguVM.PropertyChanged += OnAnyPanelPropertyChanged;
+            LamVM.PropertyChanged += OnAnyPanelPropertyChanged;
+            DguLamVM.PropertyChanged += OnAnyPanelPropertyChanged;
+
+            // Seed 4 glass type options
+            GlassTypes = new ObservableCollection<GlassTypeCard>
+            {
+                new GlassTypeCard
+                {
+                    Code        = "SGU",
+                    Title       = "Single Glass Unit (SGU)",
+                    Description = "Monolithic pane. Direct pricing with custom color & treatments.",
+                    Icon        = "\U0001F4E6",
+                    AccentColor = "#6366F1"
+                },
+                new GlassTypeCard
+                {
+                    Code        = "DGU",
+                    Title       = "Double Glass Unit (DGU)",
+                    Description = "Insulated glass assembly. Configures spacers, gas insertion & outer/inner treatments.",
+                    Icon        = "\U0001F4DA",
+                    AccentColor = "#A855F7"
+                },
+                new GlassTypeCard
+                {
+                    Code        = "LAM",
+                    Title       = "Laminated Assembly (LAM)",
+                    Description = "Multi-layer safety sandwich. Customizes PVB thickness, outer/inner prices & margins.",
+                    Icon        = "\U0001F517",
+                    AccentColor = "#22C55E"
+                },
+                new GlassTypeCard
+                {
+                    Code        = "DGU+LAM",
+                    Title       = "DGU + Laminated (Hybrid)",
+                    Description = "Double glazed unit with one laminated layer. Combines thermal and safety performance.",
+                    Icon        = "\U0001F3D7",
+                    AccentColor = "#F97316"
+                }
+            };
+
+            SpecGroups = new ObservableCollection<SpecTargetGroup>();
+
+            SelectGlassTypeCommand = new RelayCommand(param =>
+            {
+                if (param is GlassTypeCard card)
+                    SelectedGlassType = card;
+            });
+
+            ToggleSpecGroupCommand = new RelayCommand(param =>
+            {
+                if (param is SpecTargetGroup group)
+                    SelectCalculationSection(group);
+            });
+
+            AddCalculationSectionCommand = new RelayCommand(_ => AddCalculationSection());
+            RemoveCalculationSectionCommand = new RelayCommand(
+                _ => RemoveCalculationSection(),
+                _ => CanRemoveCalculationSection);
+
+            // CanExecute still requires a real spec name, which is what
+            // keeps an unimplemented glass type from saving garbage. All
+            // four types now produce one.
+            ApplyRateCommand = new RelayCommand(
+                async _ => await ApplyRateAsync(),
+                _ => TotalSpecsActive > 0
+                     && EstimatedRatePerSqm > 0m
+                     && !string.IsNullOrWhiteSpace(
+                            GetCurrentSpecName(SelectedGlassType?.Code ?? "")));
+
+            // Default selection = SGU
+            SelectedGlassType = GlassTypes[0];
+
+            // Default treatments
+            PolishedEdges = false;
+            DrillCutouts = false;
+            CountersunkHoles = false;
+            EdgeDeletionLayer = false;
+
+            // Initial calc
+            RecalculateEstimatedRate();
+            InitializeCalculationSections();
+
+            // PHASE A/J: populate the Sheet Store dropdowns and prices.
+            // Fire-and-forget with its own guard — a constructor cannot
+            // await, and an empty/locked Sheet Store must never stop the
+            // pricing panels from opening.
+            AsyncUtility.SafeFireAndForget(LoadSheetStoreDataAsync, "PricingEstimator");
         }
 
         /// <summary>

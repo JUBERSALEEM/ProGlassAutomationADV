@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/DependencyInjection/ServiceRegistration.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Infrastructure — Dependency Injection composition root (Phase 5)
@@ -73,6 +73,16 @@ namespace ProGlassAutomation.Services.DependencyInjection
             // are consumed directly (not through the container). Static
             // classes cannot be used as type arguments (CS0718), so they
             // are intentionally NOT registered here — see Phase 10 fix.
+
+            // ── Configuration ─────────────────────────────────────────
+            // AppConfig was previously NOT registered, so any view model
+            // taking it as a ctor parameter received null from DI while
+            // the parameterless path fell back to App.Config. That split
+            // meant DI-resolved instances null-referenced on _config.*.
+            // Register the SAME instance App.Config exposes so both
+            // construction routes observe identical state.
+            services.AddSingleton<Services.AI.AIConfig.AppConfig>(_ =>
+                App.Config ?? new Services.AI.AIConfig.AppConfig());
 
             // ── Repositories (each owns its own SQLite file) ──────────
             // Singleton — one per app lifetime, owns DB file + connection pool

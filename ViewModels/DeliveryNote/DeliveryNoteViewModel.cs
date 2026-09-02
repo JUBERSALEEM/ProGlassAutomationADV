@@ -34,100 +34,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         private readonly IDialogService _dialogs = null!;
         private readonly IJobOrderRepository _jobs = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public DeliveryNoteViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IJobOrderRepository? jobs)
         {
             _deliveryNotes = deliveryNotes!;
             _dialogs = dialogs!;
             _jobs = jobs!;
-
-            ListVM = new DeliveryNoteListViewModel();
-                        _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
-            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
-            DetailVM = new DeliveryNoteDetailViewModel();
-
-            ListVM.OnDeliveryNoteOpenRequested = id => AsyncUtility.SafeFireAndForget(
-                () => LoadDetailAsync(id), "DeliveryNote");
-
-            ListVM.OnCreateDnFromJobOrder = jo => AsyncUtility.SafeFireAndForget(
-                () => CreateDnFromJobOrderAsync(jo), "DeliveryNote");
-
-            ListVM.OnRequestOpenTaxInvoiceForProforma = async piId =>
-            {
-                try
-                {
-                    await RelayMasterInvoiceRequestAsync(piId);
-                }
-                catch (Exception ex)
-                {
-                    _dialogs.Show(
-                        string.Format(LocalizationService.Instance.T("Msg.FailedToOpenMasterInvoice"), ex.Message),
-                        LocalizationService.Instance.T("Msg.CapNavigationError"),
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                }
-            };
-
-            DetailVM.OnRequestBackToList = () => AsyncUtility.SafeFireAndForget(ReturnToList, "DeliveryNote");
-
-            DetailVM.OnRequestCreateDnFromMaster = masterDn => AsyncUtility.SafeFireAndForget(
-                () => CreateDnFromJobOrderAsync(
-                    new Models.JobOrder.SavedJobOrder.SavedJobOrder
-                    {
-                        JobOrderId = masterDn.JobOrderId,
-                        SourceProformaId = masterDn.ProformaId,
-                        CustomerName = masterDn.CustomerName,
-                        ProjectName = masterDn.ProjectName,
-                        FullSnapshotJson = "{}"
-                    }), "DeliveryNote");
-
-            DetailVM.OnRequestAutoCreateTaxInvoice = async dnId =>
-            {
-                if (OnRequestAutoCreateTaxInvoice == null) return "";
-                return await OnRequestAutoCreateTaxInvoice(dnId);
-            };
-
-            DetailVM.OnRequestOpenMasterDn = jobOrderId => AsyncUtility.SafeFireAndForget(
-                () => OpenMasterForJobOrderAsync(jobOrderId), "DeliveryNote");
-
-            ListVM.OnRequestOpenMaster = jobOrderId => AsyncUtility.SafeFireAndForget(
-                () => OpenMasterForJobOrderAsync(jobOrderId), "DeliveryNote");
-
-            DetailVM.OnRequestOpenTaxInvoiceForDeliveryNote = async dnId =>
-            {
-                try
-                {
-                    await RelayConvertDnRequestAsync(dnId);
-                }
-                catch (Exception ex)
-                {
-                    _dialogs.Show(
-                        string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo"), ex.Message),
-                        LocalizationService.Instance.T("Msg.CapNavigationError"),
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
-                }
-            };
-
-            BackToListCommand = new RelayCommand(
-                _ => AsyncUtility.SafeFireAndForget(ReturnToList, "DeliveryNote"));
-
-            GodViewVM = new DeliveryNoteGodViewViewModel();
-            GodViewVM.OnOpenRequested = id =>
-                AsyncUtility.SafeFireAndForget(() => LoadDetailAsync(id), "DeliveryNote");
-
-            ActivityVM = new SectionActivityViewModel(
-                AuditSections.DeliveryNote);
-
-            SwitchTabCommand = new RelayCommand(param =>
-                SwitchTab(param as string ?? TabWorkspace));
         }
 
         private Func<Task>? _dataSeededHandler;
@@ -225,6 +136,86 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IJobOrderRepository>()!){
+            ListVM = new DeliveryNoteListViewModel();
+                        _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
+            DetailVM = new DeliveryNoteDetailViewModel();
+
+            ListVM.OnDeliveryNoteOpenRequested = id => AsyncUtility.SafeFireAndForget(
+                () => LoadDetailAsync(id), "DeliveryNote");
+
+            ListVM.OnCreateDnFromJobOrder = jo => AsyncUtility.SafeFireAndForget(
+                () => CreateDnFromJobOrderAsync(jo), "DeliveryNote");
+
+            ListVM.OnRequestOpenTaxInvoiceForProforma = async piId =>
+            {
+                try
+                {
+                    await RelayMasterInvoiceRequestAsync(piId);
+                }
+                catch (Exception ex)
+                {
+                    _dialogs.Show(
+                        string.Format(LocalizationService.Instance.T("Msg.FailedToOpenMasterInvoice"), ex.Message),
+                        LocalizationService.Instance.T("Msg.CapNavigationError"),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            };
+
+            DetailVM.OnRequestBackToList = () => AsyncUtility.SafeFireAndForget(ReturnToList, "DeliveryNote");
+
+            DetailVM.OnRequestCreateDnFromMaster = masterDn => AsyncUtility.SafeFireAndForget(
+                () => CreateDnFromJobOrderAsync(
+                    new Models.JobOrder.SavedJobOrder.SavedJobOrder
+                    {
+                        JobOrderId = masterDn.JobOrderId,
+                        SourceProformaId = masterDn.ProformaId,
+                        CustomerName = masterDn.CustomerName,
+                        ProjectName = masterDn.ProjectName,
+                        FullSnapshotJson = "{}"
+                    }), "DeliveryNote");
+
+            DetailVM.OnRequestAutoCreateTaxInvoice = async dnId =>
+            {
+                if (OnRequestAutoCreateTaxInvoice == null) return "";
+                return await OnRequestAutoCreateTaxInvoice(dnId);
+            };
+
+            DetailVM.OnRequestOpenMasterDn = jobOrderId => AsyncUtility.SafeFireAndForget(
+                () => OpenMasterForJobOrderAsync(jobOrderId), "DeliveryNote");
+
+            ListVM.OnRequestOpenMaster = jobOrderId => AsyncUtility.SafeFireAndForget(
+                () => OpenMasterForJobOrderAsync(jobOrderId), "DeliveryNote");
+
+            DetailVM.OnRequestOpenTaxInvoiceForDeliveryNote = async dnId =>
+            {
+                try
+                {
+                    await RelayConvertDnRequestAsync(dnId);
+                }
+                catch (Exception ex)
+                {
+                    _dialogs.Show(
+                        string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo"), ex.Message),
+                        LocalizationService.Instance.T("Msg.CapNavigationError"),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            };
+
+            BackToListCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(ReturnToList, "DeliveryNote"));
+
+            GodViewVM = new DeliveryNoteGodViewViewModel();
+            GodViewVM.OnOpenRequested = id =>
+                AsyncUtility.SafeFireAndForget(() => LoadDetailAsync(id), "DeliveryNote");
+
+            ActivityVM = new SectionActivityViewModel(
+                AuditSections.DeliveryNote);
+
+            SwitchTabCommand = new RelayCommand(param =>
+                SwitchTab(param as string ?? TabWorkspace));
         }
 
         private void SwitchTab(string tabKey)

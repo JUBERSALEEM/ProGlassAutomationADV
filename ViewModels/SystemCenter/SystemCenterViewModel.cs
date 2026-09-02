@@ -35,19 +35,33 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         private readonly IDialogService _dialogs = null!;
         private readonly UserPresenceService _presence = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public SystemCenterViewModel(IDialogService? dialogs, UserPresenceService? presence)
         {
             _dialogs = dialogs!;
             _presence = presence!;
+        }
 
+        // Phase 4: Named handlers for static events — detachable
+        private EventHandler? _currentUserChangedHandler;
+        private bool _disposed;
+
+        public const string TabUsers = "Users";
+        public const string TabActivity = "Activity";
+
+        private const int MaxActivityRows = 300;
+
+        // PERF: tab switches must be instant. A reload only happens when
+        // the data is stale/empty; the live subscriptions already keep
+        // both lists current between reloads.
+        private static readonly TimeSpan ReloadStale =
+            TimeSpan.FromSeconds(30);
+        private DateTime _lastActivityLoadUtc = DateTime.MinValue;
+        private DateTime _lastUsersLoadUtc = DateTime.MinValue;
+
+        public SystemCenterViewModel()
+         : this(
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<UserPresenceService>()?? App.Presence){
             // ── Tab state ─────────────────────────────────────────────
             SwitchTabCommand = new RelayCommand(param =>
             {
@@ -97,29 +111,6 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
                 _presence.PeersChanged += (_, __) => RefreshPeers();
                 RefreshPeers();
             }
-        }
-
-        // Phase 4: Named handlers for static events — detachable
-        private EventHandler? _currentUserChangedHandler;
-        private bool _disposed;
-
-        public const string TabUsers = "Users";
-        public const string TabActivity = "Activity";
-
-        private const int MaxActivityRows = 300;
-
-        // PERF: tab switches must be instant. A reload only happens when
-        // the data is stale/empty; the live subscriptions already keep
-        // both lists current between reloads.
-        private static readonly TimeSpan ReloadStale =
-            TimeSpan.FromSeconds(30);
-        private DateTime _lastActivityLoadUtc = DateTime.MinValue;
-        private DateTime _lastUsersLoadUtc = DateTime.MinValue;
-
-        public SystemCenterViewModel()
-         : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<UserPresenceService>()?? App.Presence){
         }
 
         // ══════════════════════════════════════════════════════════════

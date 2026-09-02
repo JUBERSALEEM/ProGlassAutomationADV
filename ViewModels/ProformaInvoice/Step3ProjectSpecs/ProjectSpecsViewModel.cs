@@ -27,38 +27,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
     {
         private readonly IMasterDataRepository _masterData = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public ProjectSpecsViewModel(IMasterDataRepository? masterData)
         {
             _masterData = masterData!;
-
-            LoadProjectCommand = new RelayCommand(param =>
-            {
-                if (param is ProjectProfileCard card)
-                    LoadProjectFromCard(card);
-            });
-
-            ShowAllProjectsCommand = new RelayCommand(_ =>
-            {
-                _showingAll = true;
-                RebuildVisibleCards();
-                OnPropertyChanged(nameof(HasMoreProjects));
-            });
-
-            RefreshCardsCommand = new RelayCommand(
-                _ => AsyncUtility.SafeFireAndForget(LoadCardsAsync, "PI Step3"));
-
-            ClearClientFilterCommand = new RelayCommand(_ =>
-            {
-                SetClientFilter("");
-            });
         }
 
         // ── Guard while populating from card ──────────────────────────
@@ -238,6 +209,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
         public ProjectSpecsViewModel()
          : this(
             App.ServiceProvider?.GetService<IMasterDataRepository>()!){
+            LoadProjectCommand = new RelayCommand(param =>
+            {
+                if (param is ProjectProfileCard card)
+                    LoadProjectFromCard(card);
+            });
+
+            ShowAllProjectsCommand = new RelayCommand(_ =>
+            {
+                _showingAll = true;
+                RebuildVisibleCards();
+                OnPropertyChanged(nameof(HasMoreProjects));
+            });
+
+            RefreshCardsCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(LoadCardsAsync, "PI Step3"));
+
+            ClearClientFilterCommand = new RelayCommand(_ =>
+            {
+                SetClientFilter("");
+            });
         }
 
         // ═══════════════════════════════════════════════════════════════

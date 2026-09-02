@@ -32,25 +32,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
     {
         private readonly IDeliveryNoteRepository _deliveryNotes = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public DeliveryNoteGodViewViewModel(IDeliveryNoteRepository? deliveryNotes)
         {
             _deliveryNotes = deliveryNotes!;
-
-            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
-
-            OpenCommand = new RelayCommand(param =>
-            {
-                if (param is DeliveryNoteListItem item)
-                    OnOpenRequested?.Invoke(item.Id);
-            });
         }
 
         private ObservableCollection<DeliveryNoteListItem> _allRows = new();
@@ -87,6 +71,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
         public DeliveryNoteGodViewViewModel()
          : this(
             App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!){
+            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
+
+            OpenCommand = new RelayCommand(param =>
+            {
+                if (param is DeliveryNoteListItem item)
+                    OnOpenRequested?.Invoke(item.Id);
+            });
         }
 
         /// <summary>Loads every delivery note and recomputes KPIs.</summary>

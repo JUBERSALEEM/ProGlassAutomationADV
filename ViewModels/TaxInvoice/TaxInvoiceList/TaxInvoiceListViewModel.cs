@@ -40,83 +40,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         private readonly IDatabaseServices _database = null!;
         private readonly ITaxInvoiceRepository _taxInvoices = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public TaxInvoiceListViewModel(IDialogService? dialogs, ITaxInvoiceRepository? taxInvoices, IDatabaseServices? database)
         {
             _dialogs = dialogs!;
             _taxInvoices = taxInvoices!;
             _database = database!;
-
-            RefreshCommand = new RelayCommand(async _ =>
-            {
-                SelectedFamily = null;
-                await LoadAsync();
-            });
-
-            ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
-
-            OpenFamilyCommand = new RelayCommand(param =>
-            {
-                if (param is InvoiceFamilyRowViewModel family
-                    && family.LatestInvoiceId > 0)
-                    OnInvoiceOpenRequested?.Invoke(family.LatestInvoiceId);
-            });
-
-            SelectFamilyCommand = new RelayCommand(param =>
-            {
-                if (param is InvoiceFamilyRowViewModel family)
-                    SelectedFamily = SelectedFamily == family ? null : family;
-            });
-
-            ClearSelectionCommand = new RelayCommand(_ => SelectedFamily = null);
-
-            CreateInvoiceCommand = new RelayCommand(_ =>
-                OnCreateInvoiceRequested?.Invoke());
-
-            DeleteFamilyCommand = new RelayCommand(async param =>
-            {
-                if (param is not InvoiceFamilyRowViewModel fam) return;
-                if (_taxInvoices == null) return;
-
-                // NEVER delete directly — explicit confirmation first.
-                var result = _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.DeleteTaxInvoiceFamilyX"), fam.ProformaId, fam.InvoiceCount),
-                    LocalizationService.Instance.T("Msg.CapConfirmDelete"),
-                    System.Windows.MessageBoxButton.YesNo,
-                    System.Windows.MessageBoxImage.Warning);
-
-                if (result != System.Windows.MessageBoxResult.Yes) return;
-
-                try
-                {
-                    foreach (var m in fam.Members)
-                        await _taxInvoices.DeleteAsync(m.Id);
-
-                    ProGlassAutomation.Services.Audit.AuditService.Log(
-                        ProGlassAutomation.Services.Audit.AuditSections.TaxInvoice,
-                        "Invoice family deleted",
-                        $"{fam.ProformaId} ({fam.InvoiceCount} invoice(s))");
-
-                    await LoadAsync();
-                }
-                catch (Exception ex)
-                {
-                    _dialogs.Show(
-                        string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
-                        LocalizationService.Instance.T("Msg.CapDeleteFailed"),
-                        System.Windows.MessageBoxButton.OK,
-                        System.Windows.MessageBoxImage.Error);
-                }
-            });
-
-            _database.SubscribeDocumentsChanged(LoadAsync);
         }
 
         private int _loadingFlag = 0;
@@ -452,6 +380,69 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!,
             App.ServiceProvider?.GetService<IDatabaseServices>()!){
+            RefreshCommand = new RelayCommand(async _ =>
+            {
+                SelectedFamily = null;
+                await LoadAsync();
+            });
+
+            ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
+
+            OpenFamilyCommand = new RelayCommand(param =>
+            {
+                if (param is InvoiceFamilyRowViewModel family
+                    && family.LatestInvoiceId > 0)
+                    OnInvoiceOpenRequested?.Invoke(family.LatestInvoiceId);
+            });
+
+            SelectFamilyCommand = new RelayCommand(param =>
+            {
+                if (param is InvoiceFamilyRowViewModel family)
+                    SelectedFamily = SelectedFamily == family ? null : family;
+            });
+
+            ClearSelectionCommand = new RelayCommand(_ => SelectedFamily = null);
+
+            CreateInvoiceCommand = new RelayCommand(_ =>
+                OnCreateInvoiceRequested?.Invoke());
+
+            DeleteFamilyCommand = new RelayCommand(async param =>
+            {
+                if (param is not InvoiceFamilyRowViewModel fam) return;
+                if (_taxInvoices == null) return;
+
+                // NEVER delete directly — explicit confirmation first.
+                var result = _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Msg.DeleteTaxInvoiceFamilyX"), fam.ProformaId, fam.InvoiceCount),
+                    LocalizationService.Instance.T("Msg.CapConfirmDelete"),
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning);
+
+                if (result != System.Windows.MessageBoxResult.Yes) return;
+
+                try
+                {
+                    foreach (var m in fam.Members)
+                        await _taxInvoices.DeleteAsync(m.Id);
+
+                    ProGlassAutomation.Services.Audit.AuditService.Log(
+                        ProGlassAutomation.Services.Audit.AuditSections.TaxInvoice,
+                        "Invoice family deleted",
+                        $"{fam.ProformaId} ({fam.InvoiceCount} invoice(s))");
+
+                    await LoadAsync();
+                }
+                catch (Exception ex)
+                {
+                    _dialogs.Show(
+                        string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
+                        LocalizationService.Instance.T("Msg.CapDeleteFailed"),
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Error);
+                }
+            });
+
+            _database.SubscribeDocumentsChanged(LoadAsync);
         }
 
         // ══════════════════════════════════════════════════════════════════

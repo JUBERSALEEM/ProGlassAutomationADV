@@ -54,56 +54,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         private readonly IProformaInvoiceRepository _invoices = null!;
         private readonly ITaxInvoiceRepository _taxInvoices = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public TaxInvoiceViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IProformaInvoiceRepository? invoices, ITaxInvoiceRepository? taxInvoices)
         {
             _deliveryNotes = deliveryNotes!;
             _dialogs = dialogs!;
             _invoices = invoices!;
             _taxInvoices = taxInvoices!;
-
-            ListVM = new TaxInvoiceListViewModel();
-            // Phase 4: Named handler — detachable, no lambda leak
-            _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
-            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
-            DetailVM = new TaxInvoiceDetailViewModel();
-
-            // Wire list → detail navigation
-            ListVM.OnInvoiceOpenRequested = id =>
-                AsyncUtility.SafeFireAndForget(() => LoadDetailAsync(id), "TaxInvoice");
-
-            // Shell opens ProformaPickerDialog — ListVM never touches Views
-            ListVM.OnCreateInvoiceRequested = () =>
-                AsyncUtility.SafeFireAndForget(OpenProformaPickerAsync, "TaxInvoice");
-
-            // Wire detail → list back navigation
-            DetailVM.OnRequestBackToList = () =>
-                AsyncUtility.SafeFireAndForget(ReturnToList, "TaxInvoice");
-
-            BackToListCommand = new RelayCommand(
-                _ => AsyncUtility.SafeFireAndForget(ReturnToList, "TaxInvoice"));
-
-            // ── God View tab: row-open hands off to detail flow ───────
-            GodViewVM = new TaxInvoiceGodViewViewModel();
-            GodViewVM.OnOpenRequested = id =>
-                AsyncUtility.SafeFireAndForget(() => LoadDetailAsync(id), "TaxInvoice");
-
-            // ── Activity tab: live audit feed for this section ────────
-            ActivityVM = new SectionActivityViewModel(
-                AuditSections.TaxInvoice);
-
-            SwitchTabCommand = new RelayCommand(param =>
-                SwitchTab(param as string ?? TabWorkspace));
-
-            // Initial list load
-            AsyncUtility.SafeFireAndForget(SafeLoadListAsync, "TaxInvoice");
         }
 
         // Phase 4: Named handler for static event — detachable
@@ -208,6 +164,41 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
             App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
+            ListVM = new TaxInvoiceListViewModel();
+            // Phase 4: Named handler — detachable, no lambda leak
+            _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
+            DetailVM = new TaxInvoiceDetailViewModel();
+
+            // Wire list → detail navigation
+            ListVM.OnInvoiceOpenRequested = id =>
+                AsyncUtility.SafeFireAndForget(() => LoadDetailAsync(id), "TaxInvoice");
+
+            // Shell opens ProformaPickerDialog — ListVM never touches Views
+            ListVM.OnCreateInvoiceRequested = () =>
+                AsyncUtility.SafeFireAndForget(OpenProformaPickerAsync, "TaxInvoice");
+
+            // Wire detail → list back navigation
+            DetailVM.OnRequestBackToList = () =>
+                AsyncUtility.SafeFireAndForget(ReturnToList, "TaxInvoice");
+
+            BackToListCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(ReturnToList, "TaxInvoice"));
+
+            // ── God View tab: row-open hands off to detail flow ───────
+            GodViewVM = new TaxInvoiceGodViewViewModel();
+            GodViewVM.OnOpenRequested = id =>
+                AsyncUtility.SafeFireAndForget(() => LoadDetailAsync(id), "TaxInvoice");
+
+            // ── Activity tab: live audit feed for this section ────────
+            ActivityVM = new SectionActivityViewModel(
+                AuditSections.TaxInvoice);
+
+            SwitchTabCommand = new RelayCommand(param =>
+                SwitchTab(param as string ?? TabWorkspace));
+
+            // Initial list load
+            AsyncUtility.SafeFireAndForget(SafeLoadListAsync, "TaxInvoice");
         }
 
         // ═════════════════════════════════════════════════════════════════

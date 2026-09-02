@@ -41,87 +41,12 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         private readonly IProformaInvoiceRepository _invoices = null!;
         private readonly IJobOrderRepository _jobs = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public SavedJobOrdersListViewModel(IDialogService? dialogs, IProformaInvoiceRepository? invoices, IJobOrderRepository? jobs, IDatabaseServices? database)
         {
             _dialogs = dialogs!;
             _invoices = invoices!;
             _jobs = jobs!;
             _database = database!;
-
-            OpenJobOrderCommand = new RelayCommand(param =>
-            {
-                if (param is JobOrderRowViewModel row)
-                    OnJobOrderOpenRequested?.Invoke(row.Id);
-            });
-
-            DeleteJobOrderCommand = new RelayCommand(async param =>
-            {
-                if (param is JobOrderRowViewModel row)
-                    await DeleteJobOrderAsync(row);
-            });
-
-            // Mirrors the Proforma Invoice module's BUG-72 fix: the list's
-            // code-behind context menu passes Tuple.Create(row, status) as the
-            // command parameter, so accept both Tuple and ValueTuple shapes.
-            ChangeStatusCommand = new RelayCommand(async param =>
-            {
-                switch (param)
-                {
-                    case Tuple<JobOrderRowViewModel, string> tuple
-                        when tuple.Item1 != null && !string.IsNullOrWhiteSpace(tuple.Item2):
-                        await ChangeStatusAsync(tuple.Item1, tuple.Item2);
-                        break;
-                    case ValueTuple<JobOrderRowViewModel, string> vtuple
-                        when vtuple.Item1 != null && !string.IsNullOrWhiteSpace(vtuple.Item2):
-                        await ChangeStatusAsync(vtuple.Item1, vtuple.Item2);
-                        break;
-                }
-            });
-
-            ChangePriorityCommand = new RelayCommand(async param =>
-            {
-                switch (param)
-                {
-                    case Tuple<JobOrderRowViewModel, string> tuple
-                        when tuple.Item1 != null && !string.IsNullOrWhiteSpace(tuple.Item2):
-                        await ChangePriorityAsync(tuple.Item1, tuple.Item2);
-                        break;
-                    case ValueTuple<JobOrderRowViewModel, string> vtuple
-                        when vtuple.Item1 != null && !string.IsNullOrWhiteSpace(vtuple.Item2):
-                        await ChangePriorityAsync(vtuple.Item1, vtuple.Item2);
-                        break;
-                }
-            });
-
-            RefreshCommand = new RelayCommand(async _ => await LoadJobOrdersAsync());
-
-            // Instant refresh when sample data is seeded.
-                        _dataSeededHandler = async () => { try { await LoadJobOrdersAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
-            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
-
-            // A DN / TI delete in another module must refresh this list
-            // immediately so derived delivery status matches remaining docs.
-            _database.SubscribeDocumentsChanged(LoadJobOrdersAsync);
-
-            // v2 §24: version history dialog (shared with Proforma).
-            ShowVersionsCommand = new RelayCommand(
-                async param => await ShowVersionsAsync(
-                    param as JobOrderRowViewModel));
-            ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
-
-            CreateJobOrderCommand = new RelayCommand(
-                async _ => await CreateJobOrderAsync());
-
-            // Load on construction
-            _ = LoadJobOrdersAsync();
         }
 
         // Phase 4: Named handler for static event — detachable
@@ -319,6 +244,72 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
             App.ServiceProvider?.GetService<IJobOrderRepository>()!,
             App.ServiceProvider?.GetService<IDatabaseServices>()!){
+            OpenJobOrderCommand = new RelayCommand(param =>
+            {
+                if (param is JobOrderRowViewModel row)
+                    OnJobOrderOpenRequested?.Invoke(row.Id);
+            });
+
+            DeleteJobOrderCommand = new RelayCommand(async param =>
+            {
+                if (param is JobOrderRowViewModel row)
+                    await DeleteJobOrderAsync(row);
+            });
+
+            // Mirrors the Proforma Invoice module's BUG-72 fix: the list's
+            // code-behind context menu passes Tuple.Create(row, status) as the
+            // command parameter, so accept both Tuple and ValueTuple shapes.
+            ChangeStatusCommand = new RelayCommand(async param =>
+            {
+                switch (param)
+                {
+                    case Tuple<JobOrderRowViewModel, string> tuple
+                        when tuple.Item1 != null && !string.IsNullOrWhiteSpace(tuple.Item2):
+                        await ChangeStatusAsync(tuple.Item1, tuple.Item2);
+                        break;
+                    case ValueTuple<JobOrderRowViewModel, string> vtuple
+                        when vtuple.Item1 != null && !string.IsNullOrWhiteSpace(vtuple.Item2):
+                        await ChangeStatusAsync(vtuple.Item1, vtuple.Item2);
+                        break;
+                }
+            });
+
+            ChangePriorityCommand = new RelayCommand(async param =>
+            {
+                switch (param)
+                {
+                    case Tuple<JobOrderRowViewModel, string> tuple
+                        when tuple.Item1 != null && !string.IsNullOrWhiteSpace(tuple.Item2):
+                        await ChangePriorityAsync(tuple.Item1, tuple.Item2);
+                        break;
+                    case ValueTuple<JobOrderRowViewModel, string> vtuple
+                        when vtuple.Item1 != null && !string.IsNullOrWhiteSpace(vtuple.Item2):
+                        await ChangePriorityAsync(vtuple.Item1, vtuple.Item2);
+                        break;
+                }
+            });
+
+            RefreshCommand = new RelayCommand(async _ => await LoadJobOrdersAsync());
+
+            // Instant refresh when sample data is seeded.
+                        _dataSeededHandler = async () => { try { await LoadJobOrdersAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
+
+            // A DN / TI delete in another module must refresh this list
+            // immediately so derived delivery status matches remaining docs.
+            _database.SubscribeDocumentsChanged(LoadJobOrdersAsync);
+
+            // v2 §24: version history dialog (shared with Proforma).
+            ShowVersionsCommand = new RelayCommand(
+                async param => await ShowVersionsAsync(
+                    param as JobOrderRowViewModel));
+            ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
+
+            CreateJobOrderCommand = new RelayCommand(
+                async _ => await CreateJobOrderAsync());
+
+            // Load on construction
+            _ = LoadJobOrdersAsync();
         }
 
         // ═════════════════════════════════════════════════════════════════

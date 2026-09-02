@@ -29,25 +29,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
     {
         private readonly ITaxInvoiceRepository _taxInvoices = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public TaxInvoiceGodViewViewModel(ITaxInvoiceRepository? taxInvoices)
         {
             _taxInvoices = taxInvoices!;
-
-            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
-
-            OpenCommand = new RelayCommand(param =>
-            {
-                if (param is TaxInvoiceListItem item)
-                    OnOpenRequested?.Invoke(item.Id);
-            });
         }
 
         private ObservableCollection<TaxInvoiceListItem> _allRows = new();
@@ -84,6 +68,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
         public TaxInvoiceGodViewViewModel()
          : this(
             App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
+            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
+
+            OpenCommand = new RelayCommand(param =>
+            {
+                if (param is TaxInvoiceListItem item)
+                    OnOpenRequested?.Invoke(item.Id);
+            });
         }
 
         /// <summary>Loads every tax invoice and recomputes KPIs.</summary>

@@ -51,14 +51,6 @@ namespace ProGlassAutomation.ViewModels.Settings
         private readonly IDatabaseServices _database = null!;
         private readonly Services.AI.IAiProviderEvents _providerEvents = null!;
 
-        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
-        // Initialization used to live in the PARAMETERLESS ctor while
-        // DI selected this parameterized overload (MS.DI always picks
-        // the greediest satisfiable ctor). Every DI-resolved instance
-        // was therefore half-built — null child view models / null
-        // commands — and threw NullReferenceException on first use.
-        // The body was moved HERE so all construction routes (DI,
-        // Activator fallback, XAML design-time) initialize fully.
         public SettingsViewModel(IAiService? ai, AppConfig? config, IDialogService? dialogs, ISpeechToTextService? speechToText, IDatabaseServices? database, Services.AI.IAiProviderEvents? providerEvents = null)
         {
             _ai = ai!;
@@ -67,7 +59,33 @@ namespace ProGlassAutomation.ViewModels.Settings
             _speechToText = speechToText!;
             _database = database!;
             _providerEvents = providerEvents ?? new Services.AI.AiProviderEvents();
+        }
 
+        // Phase 4: Named handlers for static events — detachable
+        private EventHandler? _themeChangedHandler;
+        private EventHandler? _uiScaleChangedHandler;
+        private bool _disposed;
+
+        private string _geminiTestStatus = string.Empty;
+        private string _groqTestStatus = string.Empty;
+        private string _cohereTestStatus = string.Empty;
+        private bool _apiKeyJustSaved;
+        private bool _isDownloadingModel;
+        private int _downloadProgress;
+        private string _voiceStatus = string.Empty;
+        private CancellationTokenSource _downloadCts;
+
+        // ══════════════════════════════════════════════════════════════
+        //  CONSTRUCTOR
+        // ══════════════════════════════════════════════════════════════
+
+        public SettingsViewModel()
+         : this(
+            App.ServiceProvider?.GetService<IAiService>()!,
+            App.ServiceProvider?.GetService<AppConfig>()?? App.Config,
+            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
+            App.ServiceProvider?.GetService<ISpeechToTextService>()!,
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){
             // v2 shell: navigation between the settings pages.
             SwitchSettingsPageCommand = new RelayCommand(
                 p => SettingsPage = p as string ?? "Appearance");
@@ -292,33 +310,6 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             // v2 sections: security keys, OTA updates, backup & restore
             InitializeV2Sections();
-        }
-
-        // Phase 4: Named handlers for static events — detachable
-        private EventHandler? _themeChangedHandler;
-        private EventHandler? _uiScaleChangedHandler;
-        private bool _disposed;
-
-        private string _geminiTestStatus = string.Empty;
-        private string _groqTestStatus = string.Empty;
-        private string _cohereTestStatus = string.Empty;
-        private bool _apiKeyJustSaved;
-        private bool _isDownloadingModel;
-        private int _downloadProgress;
-        private string _voiceStatus = string.Empty;
-        private CancellationTokenSource _downloadCts;
-
-        // ══════════════════════════════════════════════════════════════
-        //  CONSTRUCTOR
-        // ══════════════════════════════════════════════════════════════
-
-        public SettingsViewModel()
-         : this(
-            App.ServiceProvider?.GetService<IAiService>()!,
-            App.ServiceProvider?.GetService<AppConfig>()?? App.Config,
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<ISpeechToTextService>()!,
-            App.ServiceProvider?.GetService<IDatabaseServices>()!){
         }
 
     }
