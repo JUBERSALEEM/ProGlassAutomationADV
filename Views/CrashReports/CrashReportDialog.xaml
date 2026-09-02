@@ -11,7 +11,7 @@
         Title="{DynamicResource CrashReports.ProglassAutomationError}"
         Width="560" Height="380"
         MinWidth="480" MinHeight="320"
-        Background="{DynamicResource GlassSurfaceElevated}"
+        Background="{DynamicResource WindowBackgroundBrush}"
         Foreground="{DynamicResource PrimaryForegroundBrush}"
         FontFamily="Segoe UI, Segoe UI Variable, Arial"
         WindowStartupLocation="CenterScreen"

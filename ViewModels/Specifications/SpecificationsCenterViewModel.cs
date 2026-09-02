@@ -74,6 +74,8 @@ namespace ProGlassAutomation.ViewModels.Specifications
             DeleteSpecCommand = new RelayCommand(p => _ = DeleteSpecAsync(p as SavedSpecification));
             ExportCsvCommand = new RelayCommand(_ => _ = ExportCsvAsync());
             ImportCsvCommand = new RelayCommand(_ => _ = ImportCsvAsync());
+            ExportExcelCommand = new RelayCommand(_ => _ = ExportExcelAsync());
+            ExportPdfCommand = new RelayCommand(_ => _ = ExportPdfAsync());
 
             // Live catalogue sync: Step 4 saving a spec updates this list
             // with no manual refresh, same channel Step 5's dropdown uses.
@@ -128,6 +130,8 @@ namespace ProGlassAutomation.ViewModels.Specifications
         public ICommand DeleteSpecCommand { get; private set; } = null!;
         public ICommand ExportCsvCommand { get; private set; } = null!;
         public ICommand ImportCsvCommand { get; private set; } = null!;
+        public ICommand ExportExcelCommand { get; private set; } = null!;
+        public ICommand ExportPdfCommand { get; private set; } = null!;
 
         // ── Filters ──────────────────────────────────────────────────────
 
@@ -478,6 +482,93 @@ namespace ProGlassAutomation.ViewModels.Specifications
                     $"Specifications CSV export failed: {ex.Message}",
                     new LogContext { Module = "Specifications", Operation = "ExportCsv" });
                 _dialogs?.Error("Export failed.\n\n" + ex.Message, "Specifications");
+            }
+        }
+
+        private async Task ExportExcelAsync()
+        {
+            if (Specifications.Count == 0)
+            {
+                _dialogs?.Info("There is nothing to export.", "Specifications");
+                return;
+            }
+
+            try
+            {
+                // Pull ALL usage rows so the workbook's second sheet can
+                // show the per-proforma price history, which is the part a
+                // flat catalogue export cannot express.
+                List<SpecificationUsage> usage = new();
+                if (_specs != null)
+                {
+                    try { usage = await _specs.GetRecentUsageAsync(5000); }
+                    catch (Exception ux)
+                    {
+                        AppLogService.Debug($"[SpecCenter.ExcelUsage] {ux.Message}");
+                    }
+                }
+
+                var layout = new Services.Specifications.Export
+                    .SpecificationsExcelLayout(Specifications.ToList(), usage);
+
+                var engine = new Services.Export.Excel.ExcelExportEngine();
+                var result = await engine.ExportAsync(
+                    layout,
+                    new Services.Export.Core.ExportRequest
+                    {
+                        PromptForLocation = true,
+                        OpenAfterSave = false,
+                        SuggestedFileName =
+                            $"Specifications_{DateTime.Now:yyyy-MM-dd_HH-mm}"
+                    });
+
+                StatusMessage = result != null && result.Success
+                    ? $"Exported {Specifications.Count} specifications to Excel."
+                    : "Export cancelled.";
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Specifications Excel export failed: {ex.Message}",
+                    new LogContext { Module = "Specifications", Operation = "ExportExcel" });
+                _dialogs?.Error("Excel export failed.\n\n" + ex.Message, "Specifications");
+            }
+        }
+
+        private async Task ExportPdfAsync()
+        {
+            if (Specifications.Count == 0)
+            {
+                _dialogs?.Info("There is nothing to export.", "Specifications");
+                return;
+            }
+
+            try
+            {
+                var layout = new Services.Specifications.Export
+                    .SpecificationsPdfLayout(Specifications.ToList());
+
+                var engine = new Services.Export.Pdf.PdfExportEngine();
+                var result = await engine.ExportAsync(
+                    layout,
+                    new Services.Export.Core.ExportRequest
+                    {
+                        PromptForLocation = true,
+                        OpenAfterSave = false,
+                        SuggestedFileName =
+                            $"Specifications_{DateTime.Now:yyyy-MM-dd_HH-mm}"
+                    });
+
+                StatusMessage = result != null && result.Success
+                    ? $"Exported {Specifications.Count} specifications to PDF."
+                    : "Export cancelled.";
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Specifications PDF export failed: {ex.Message}",
+                    new LogContext { Module = "Specifications", Operation = "ExportPdf" });
+                _dialogs?.Error("PDF export failed.\n\n" + ex.Message, "Specifications");
             }
         }
 

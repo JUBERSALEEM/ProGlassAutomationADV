@@ -859,7 +859,7 @@
                             <Border x:Name="DropDownBorder" MinWidth="{TemplateBinding ActualWidth}"
                                     MaxHeight="{TemplateBinding MaxDropDownHeight}"
                                     CornerRadius="16" Margin="0,6,0,0"
-                                    Background="{DynamicResource GlassSurfaceElevated}"
+                                    Background="{DynamicResource PopupSurfaceBrush}"
                                     BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                     BorderThickness="1"
                                     Effect="{DynamicResource ShadowElevated}">

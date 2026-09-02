@@ -75,6 +75,20 @@
                         Foreground="{DynamicResource PrimaryForegroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"/>
+                <Button Command="{Binding ExportExcelCommand}"
+                        Content="{DynamicResource Common.ExportExcel}"
+                        Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
+                        Background="{DynamicResource GlassSurfaceElevated}"
+                        Foreground="{DynamicResource PrimaryForegroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"/>
+                <Button Command="{Binding ExportPdfCommand}"
+                        Content="{DynamicResource Common.ExportPdf}"
+                        Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
+                        Background="{DynamicResource GlassSurfaceElevated}"
+                        Foreground="{DynamicResource PrimaryForegroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"/>
                 <Button Command="{Binding RefreshCommand}"
                         Content="{DynamicResource Common.Refresh}"
                         Height="34" Padding="16,0" Cursor="Hand"
@@ -227,12 +241,21 @@
                             BorderThickness="0,0,0,1"
                             Padding="24,10">
                         <Grid>
+                            <!--
+                                Sheet size intentionally NOT a column.
+                                A specification has one size PER PANE, and a
+                                DGU's two leaves can differ (HD Grey
+                                3210x2250, Clear 3660x2440). A single cell
+                                could only ever show one of them, which is
+                                why it read "—". Per-pane sizes live in the
+                                detail sidebar where each glass has its own
+                                width and height.
+                            -->
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="72"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="150"/>
                                 <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="40"/>
                             </Grid.ColumnDefinitions>
 
@@ -240,15 +263,13 @@
                                        Style="{StaticResource SpecColumnHeaderStyle}"/>
                             <TextBlock Grid.Column="1" Text="{DynamicResource Specifications.ColSpecification}"
                                        Style="{StaticResource SpecColumnHeaderStyle}" Margin="12,0,10,0"/>
-                            <TextBlock Grid.Column="2" Text="{DynamicResource Specifications.ColSheetSize}"
-                                       Style="{StaticResource SpecColumnHeaderStyle}"/>
-                            <TextBlock Grid.Column="3" Text="{DynamicResource Specifications.ColUsed}"
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Specifications.ColUsed}"
                                        Style="{StaticResource SpecColumnHeaderStyle}"
                                        HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="4" Text="{DynamicResource Specifications.ColRate}"
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Specifications.ColRate}"
                                        Style="{StaticResource SpecColumnHeaderStyle}"
                                        HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="5" Text=""
+                            <TextBlock Grid.Column="4" Text=""
                                        Style="{StaticResource SpecColumnHeaderStyle}"/>
                         </Grid>
                     </Border>
@@ -280,9 +301,8 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="72"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="150"/>
                                             <ColumnDefinition Width="90"/>
-                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="120"/>
                                             <ColumnDefinition Width="40"/>
                                         </Grid.ColumnDefinitions>
 
@@ -311,23 +331,8 @@
                                                        Margin="0,2,0,0"/>
                                         </StackPanel>
 
-                                        <!-- Sheet size, boxed like Sheet Store -->
-                                        <Border Grid.Column="2"
-                                                Background="{DynamicResource GlassSurfaceElevated}"
-                                                BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="8,4" Margin="0,0,10,0"
-                                                HorizontalAlignment="Left"
-                                                VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding SheetSizeDisplay, Mode=OneWay}"
-                                                       FontSize="{StaticResource TextBody}"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        </Border>
-
                                         <!-- Usage count -->
-                                        <TextBlock Grid.Column="3"
+                                        <TextBlock Grid.Column="2"
                                                    FontSize="{StaticResource TextBody}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
@@ -336,7 +341,7 @@
                                             <Run Text="×"/>
                                         </TextBlock>
 
-                                        <TextBlock Grid.Column="4"
+                                        <TextBlock Grid.Column="3"
                                                    Text="{Binding PricePerSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                                    FontSize="{StaticResource TextBody}"
                                                    FontWeight="Bold"
@@ -345,7 +350,7 @@
                                                    Margin="0,0,10,0"
                                                    Foreground="{DynamicResource SuccessBrush}"/>
 
-                                        <Button Grid.Column="5"
+                                        <Button Grid.Column="4"
                                                 Command="{Binding DataContext.DeleteSpecCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                 CommandParameter="{Binding}"
                                                 Content="&#xE74D;"

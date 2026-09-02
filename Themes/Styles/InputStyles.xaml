@@ -176,7 +176,7 @@
                                    Focusable="False"
                                    PopupAnimation="Fade"
                                    StaysOpen="False">
-                                <Border Background="{DynamicResource GlassSurfaceElevated}"
+                                <Border Background="{DynamicResource PopupSurfaceBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
@@ -269,7 +269,7 @@
                                    Focusable="False"
                                    PopupAnimation="Fade"
                                    StaysOpen="False">
-                                <Border Background="{DynamicResource GlassSurfaceElevated}"
+                                <Border Background="{DynamicResource PopupSurfaceBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
                                         CornerRadius="{DynamicResource CardCornerRadius}"

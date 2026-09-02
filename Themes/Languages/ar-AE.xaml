@@ -2476,4 +2476,6 @@
     <sys:String x:Key="Specifications.NoPanes">Could not read glass panes from this specification name.</sys:String>
     <sys:String x:Key="Specifications.NoSheetMatch">No Sheet Store match for this colour and thickness.</sys:String>
     <sys:String x:Key="Specifications.Width">WIDTH</sys:String>
+    <sys:String x:Key="Common.ExportExcel">Export Excel</sys:String>
+    <sys:String x:Key="Common.ExportPdf">Export PDF</sys:String>
 </ResourceDictionary>

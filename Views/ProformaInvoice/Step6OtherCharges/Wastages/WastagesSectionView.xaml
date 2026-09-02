@@ -161,7 +161,7 @@
                                            AllowsTransparency="True"
                                            PopupAnimation="Fade">
                                         <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
-                                                Background="{DynamicResource ElevatedSurfaceBrush}"
+                                                Background="{DynamicResource PopupSurfaceBrush}"
                                                 BorderBrush="{DynamicResource AccentBrush}"
                                                 BorderThickness="1.5"
                                                 CornerRadius="{DynamicResource CardCornerRadius}"
@@ -232,7 +232,7 @@
                                            AllowsTransparency="True"
                                            PopupAnimation="Fade">
                                         <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
-                                                Background="{DynamicResource ElevatedSurfaceBrush}"
+                                                Background="{DynamicResource PopupSurfaceBrush}"
                                                 BorderBrush="{DynamicResource AccentBrush}"
                                                 BorderThickness="1.5"
                                                 CornerRadius="{DynamicResource CardCornerRadius}"

@@ -269,7 +269,7 @@
                     <!-- Status footer -->
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1"
                             Padding="12,7"
-                            Background="{DynamicResource MenuHoverBrush}"
+                            Background="{DynamicResource PopupSurfaceBrush}"
                             CornerRadius="0,0,12,12">
                         <TextBlock Text="{Binding StatusMessage}"
                                    FontSize="{StaticResource TextCaption}"
