@@ -179,7 +179,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     s.WidthMm,
                     s.HeightMm,
                     $"{s.WidthMm} × {s.HeightMm}",
-                    Math.Round((s.WidthMm * (decimal)s.HeightMm) / 1_000_000m, 4)));
+                    Utilities.SqmCalculator.CalculateSheetArea(s.WidthMm, s.HeightMm)));
             }
 
             return result;

@@ -381,7 +381,7 @@ namespace ProGlassAutomation.Services.Reporting
             int qty = qtyOverride ?? row.TotalQty;
             if (qty <= 0) return 0m;
 
-            return (w * (decimal)h) / 1_000_000m * qty;
+            return Utilities.SqmCalculator.CalculatePhysicalPanelArea(w, h) * qty;
         }
 
         /// <summary>

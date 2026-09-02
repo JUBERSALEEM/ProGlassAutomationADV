@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.Specifications
 {
@@ -115,10 +115,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Specifications
 
         /// <summary>Sheet area in SQM, or 0 when no sheet was matched.</summary>
         public decimal SheetSqm =>
-            SheetWidthMm > 0 && SheetHeightMm > 0
-                ? System.Math.Round(
-                    (SheetWidthMm * (decimal)SheetHeightMm) / 1_000_000m, 4)
-                : 0m;
+            Utilities.SqmCalculator.CalculateSheetArea(SheetWidthMm, SheetHeightMm);
 
         /// <summary>"3210 × 2250" or "—" for the catalogue list.</summary>
         public string SheetSizeDisplay =>

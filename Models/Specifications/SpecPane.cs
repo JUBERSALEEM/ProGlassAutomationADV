@@ -64,7 +64,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Specifications
 
         public decimal SheetSqm =>
             HasSheet
-                ? Math.Round((SheetWidthMm * (decimal)SheetHeightMm) / 1_000_000m, 4)
+                ? Utilities.SqmCalculator.CalculateSheetArea(SheetWidthMm, SheetHeightMm)
                 : 0m;
     }
 }
