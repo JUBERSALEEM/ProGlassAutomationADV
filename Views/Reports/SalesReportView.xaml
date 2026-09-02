@@ -73,6 +73,15 @@
                             <Trigger Property="Tag" Value="Active">
                                 <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent"/>
+                                <!-- CONTRAST: the active pill fills with AccentBrush, so the
+                                     content must flip to the on-accent foreground. The old
+                                     hand-copied cards did this with a per-TextBlock DataTrigger
+                                     in every block; doing it once here means the data-driven
+                                     template cannot forget it and the label can never render
+                                     dark-on-dark. TextElement.Foreground inherits into the
+                                     ContentPresenter, covering title and subtitle together. -->
+                                <Setter TargetName="Bd" Property="TextElement.Foreground"
+                                        Value="{DynamicResource OnAccentForegroundBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -178,169 +187,128 @@
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="2,0,2,6">
                     <StackPanel>
 
-                        <!-- Overview -->
-                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="Overview" ToolTip="{DynamicResource Reports.GlobalOverviewDashboardShowingCombinedERP}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource Nav.Overview}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="{DynamicResource Reports.KPIDashboard}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
+                        <!-- ═══════════════════════════════════════════════
+                             DATA-DRIVEN HUB RAIL (2026-09-02)
+                             Was SIX hand-copied ~26-line <Button> blocks that
+                             differed only by icon / title / subtitle / key.
+                             They had already drifted from the view model's
+                             NavItems list, which nothing was bound to: it
+                             declares SEVEN reports, so "VAT Submission" was
+                             implemented but unreachable. Now one template
+                             renders every item, and adding a report means
+                             adding one line to NavItems.
 
-                        <TextBlock Text="{DynamicResource Reports.Documents}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
+                             Titles bind through ResourceKeyToString so the
+                             rail still translates on a live language switch.
+                        ══════════════════════════════════════════════════ -->
+                        <ItemsControl ItemsSource="{Binding NavItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <!-- Optional group heading, from data. -->
+                                        <TextBlock Text="{Binding Group, Converter={StaticResource ResourceKeyToString}}"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   Margin="8,10,8,4">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Group}" Value="">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
 
-                        <!-- Proforma Invoice -->
-                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="Pi" ToolTip="{DynamicResource Reports.ProformaInvoicesQuotesConversionRates}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource Module.ProformaInvoice}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="{DynamicResource Reports.QuotesConversion}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-
-                        <!-- Job Order -->
-                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="Jo" ToolTip="{DynamicResource Reports.JobOrdersFactoryProductionStagesDelivered}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource Common.JobOrder}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="{DynamicResource Reports.ProductionStatus}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-
-                        <!-- Delivery -->
-                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="Delivery" ToolTip="{DynamicResource Reports.DeliveryNotesDispatchTrackingFulfillmentRate}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource Nav.Delivery}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="{DynamicResource Reports.DispatchedPending}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-
-                        <!-- Tax Invoice -->
-                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="TaxInvoice" ToolTip="{DynamicResource Reports.TaxInvoicesBillingStatusesCollectionsOverdue}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource Module.TaxInvoice}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="{DynamicResource Reports.BilledOverdue}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-
-                        <!-- Statement -->
-                        <Button Command="{Binding NavigateReportCommand}" CommandParameter="Statement" ToolTip="{DynamicResource Reports.CustomerStatementsAgingAnalysisReadReport}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource Module.Statement}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="{DynamicResource Reports.CustomerStatements}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
+                                        <Button Command="{Binding DataContext.NavigateReportCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding Key}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Value="True">
+                                                            <DataTrigger.Binding>
+                                                                <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                                                    <Binding Path="Key"/>
+                                                                    <Binding Path="DataContext.ActiveKey"
+                                                                             RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                                </MultiBinding>
+                                                            </DataTrigger.Binding>
+                                                            <Setter Property="Tag" Value="Active"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7"
+                                                        Background="{DynamicResource MenuHoverBrush}">
+                                                    <TextBlock Text="{Binding Icon}"
+                                                               FontFamily="Segoe MDL2 Assets"
+                                                               FontSize="{StaticResource TextBody}"
+                                                               Foreground="{DynamicResource AccentBrush}"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                                    <!-- Foreground is set via a trigger, NOT as a local
+                                                         value: a local Foreground would win over the
+                                                         TextElement.Foreground the active-pill trigger
+                                                         inherits down, leaving dark text on the accent
+                                                         fill. Default here, flip when this item is the
+                                                         active one. -->
+                                                    <TextBlock Text="{Binding TitleKey, Converter={StaticResource ResourceKeyToString}}"
+                                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Value="True">
+                                                                        <DataTrigger.Binding>
+                                                                            <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                                                                <Binding Path="Key"/>
+                                                                                <Binding Path="DataContext.ActiveKey"
+                                                                                         RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                                            </MultiBinding>
+                                                                        </DataTrigger.Binding>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                                        <Setter Property="FontWeight" Value="Bold"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                    <TextBlock Text="{Binding SubtitleKey, Converter={StaticResource ResourceKeyToString}}"
+                                                               FontSize="{StaticResource TextBody}"
+                                                               Margin="0,1,0,0">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Value="True">
+                                                                        <DataTrigger.Binding>
+                                                                            <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                                                                <Binding Path="Key"/>
+                                                                                <Binding Path="DataContext.ActiveKey"
+                                                                                         RelativeSource="{RelativeSource AncestorType=ItemsControl}"/>
+                                                                            </MultiBinding>
+                                                                        </DataTrigger.Binding>
+                                                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentSecondaryForegroundBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
 
                     </StackPanel>
                 </ScrollViewer>

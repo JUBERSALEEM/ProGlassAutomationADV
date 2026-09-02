@@ -61,6 +61,10 @@
     <conv:FractionToStarConverter           x:Key="FractionToStarConverter"/>
     <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
     <conv:StringEqualsMultiConverter        x:Key="StringEqualsMultiConverter"/>
+
+    <!-- Resolves a resource KEY carried as data (e.g. "Nav.Overview") to its
+         localized string, so data-driven card lists stay translatable. -->
+    <conv:ResourceKeyToStringConverter      x:Key="ResourceKeyToString"/>
     <conv:WindowInsetConverter              x:Key="WindowInsetConverter"/>
 
 </ResourceDictionary>

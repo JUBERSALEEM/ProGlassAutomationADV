@@ -70,23 +70,46 @@ namespace ProGlassAutomation.ViewModels.Reports
         public VatSubmissionViewModel VatSubmission { get; private set; }
 
         // ── Hub navigation ────────────────────────────────────────────────
+        /// <summary>
+        /// One card in the Reports hub rail.
+        ///
+        /// TitleKey/SubtitleKey are LOCALIZATION RESOURCE KEYS, not literal
+        /// text. The XAML resolves them through ResourceKeyToStringConverter
+        /// so these data-driven cards keep live language switching — binding
+        /// literal strings here would silently leave the rail in English
+        /// while the rest of the app translated.
+        ///
+        /// Group lets the rail render its "Documents" separator from data
+        /// instead of a hand-placed TextBlock between two copied blocks.
+        /// </summary>
         public class ReportNavItem
         {
             public string Key { get; set; } = "";
-            public string Title { get; set; } = "";
+            public string TitleKey { get; set; } = "";
             public string Icon { get; set; } = "";
-            public string Subtitle { get; set; } = "";
+            public string SubtitleKey { get; set; } = "";
+            public string Group { get; set; } = "";
         }
 
+        // SINGLE SOURCE OF TRUTH for the hub rail (2026-09-02).
+        //
+        // This collection already existed but was DEAD CODE — nothing bound
+        // to it, and the view instead hand-copied one ~26-line <Button> block
+        // per report. The two drifted, which is exactly the failure mode of
+        // hardcoded cards: the list below has SEVEN entries but the view only
+        // ever rendered SIX. "VatSubmission" is a fully implemented report
+        // (it has a title, a view model and a nav target) that no button
+        // could reach. Binding the rail to this list both removes the
+        // duplication and restores access to that report.
         public List<ReportNavItem> NavItems { get; } = new()
         {
-            new ReportNavItem{ Key="Overview", Title="Overview", Icon="\uE9D2", Subtitle="KPI dashboard" },
-            new ReportNavItem{ Key="Pi", Title="Proforma Invoice", Icon="\uE8A5", Subtitle="Quotes & conversion" },
-            new ReportNavItem{ Key="Jo", Title="Job Order", Icon="\uE8B7", Subtitle="Production & status" },
-            new ReportNavItem{ Key="Delivery", Title="Delivery", Icon="\uE814", Subtitle="Dispatched / pending" },
-            new ReportNavItem{ Key="TaxInvoice", Title="Tax Invoice", Icon="\uE8C7", Subtitle="Billed & overdue" },
-            new ReportNavItem{ Key="Statement", Title="Statement", Icon="\uE9F7", Subtitle="Customer statements" },
-            new ReportNavItem{ Key="VatSubmission", Title="VAT Submission", Icon="\uE8C7", Subtitle="5% VAT for FTA" },
+            new ReportNavItem{ Key="Overview",   Icon="\uE9D2", TitleKey="Nav.Overview",           SubtitleKey="Reports.KPIDashboard" },
+            new ReportNavItem{ Key="Pi",         Icon="\uE8A5", TitleKey="Module.ProformaInvoice", SubtitleKey="Reports.QuotesConversion",   Group="Reports.Documents" },
+            new ReportNavItem{ Key="Jo",         Icon="\uE8B7", TitleKey="Common.JobOrder",        SubtitleKey="Reports.ProductionStatus" },
+            new ReportNavItem{ Key="Delivery",   Icon="\uE814", TitleKey="Nav.Delivery",           SubtitleKey="Reports.DispatchedPending" },
+            new ReportNavItem{ Key="TaxInvoice", Icon="\uE8C7", TitleKey="Module.TaxInvoice",      SubtitleKey="Reports.BilledOverdue" },
+            new ReportNavItem{ Key="Statement",  Icon="\uE9F7", TitleKey="Module.Statement",       SubtitleKey="Reports.CustomerStatements" },
+            new ReportNavItem{ Key="VatSubmission", Icon="\uE8C7", TitleKey="Nav.VatSubmission",   SubtitleKey="Reports.VatSubmission.5FTARate" },
         };
 
         private string _activeKey = "Overview";
@@ -190,6 +213,22 @@ namespace ProGlassAutomation.ViewModels.Reports
             });
 
             _ = StatementReport.LoadAsync();
+
+            // LIVE LANGUAGE SWITCH for the data-driven hub rail.
+            //
+            // The rail's labels are resource KEYS resolved by
+            // ResourceKeyToStringConverter at bind time. A converter does not
+            // re-run when the merged language dictionary is swapped, so the
+            // rail would keep the old language until the view was rebuilt.
+            // Re-raising the collection's change notification forces every
+            // item binding — and therefore every converter call — to
+            // re-evaluate.
+            //
+            // The hand-copied cards this replaced used {DynamicResource}
+            // directly, which WPF refreshed automatically; this restores that
+            // behaviour for the data-driven version.
+            Services.Localization.LocalizationService.Instance.LanguageChanged
+                += (_, __) => OnPropertyChanged(nameof(NavItems));
         }
     }
 }

@@ -104,17 +104,20 @@
                          "latest app" look). Brand-blue gradient background,
                          white text, subtle glass circle deco, and a light
                          sparkline. Reads as the page's hero number. -->
+                    <!-- Background MUST be the attribute form. As a property
+                         ELEMENT (<DynamicResource ResourceKey=.../>) WPF does
+                         not treat this as a deferred reference: it assigns the
+                         DynamicResourceExtension OBJECT to Background instead
+                         of resolving it, so the card rendered fully
+                         TRANSPARENT. This was the only such site in the app. -->
                     <Border Grid.Column="0"
                             Margin="0,0,18,0"
-                            
+                            Background="{DynamicResource DashHeroBlueBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             ClipToBounds="True"
                             BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
                             BorderThickness="1"
                             SnapsToDevicePixels="True">
-                        <Border.Background>
-                            <DynamicResource ResourceKey="DashHeroBlueBrush"/>
-                        </Border.Background>
                         <Grid>
                             <!-- Glass specular highlight -->
                             <Border Height="1" VerticalAlignment="Top"
@@ -280,7 +283,13 @@
 
                 <!-- ROW: sales / production / inventory strips -->
                 <Grid Grid.Row="4">
+                    <!-- 4 columns since 2026-09-02: the view model computes
+                         SalesTiles, ProductionTiles, InventoryTiles AND
+                         DeliveryTiles, but only three were ever rendered, so
+                         the delivery KPIs were calculated on every refresh and
+                         silently thrown away. -->
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
@@ -305,6 +314,17 @@
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Module.SheetStore}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
                             <ItemsControl ItemsSource="{Binding InventoryTiles}"
+                                          ItemTemplate="{StaticResource SoftKpiTileTemplate}"
+                                          ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
+                        </StackPanel>
+                    </Border>
+                    <!-- Delivery KPIs — same shared template and panel as the
+                         other three, so this adds a card without adding any
+                         new hardcoded tile markup. -->
+                    <Border Grid.Column="3" Style="{StaticResource SoftCardStyle}" Margin="18,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Nav.Delivery}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <ItemsControl ItemsSource="{Binding DeliveryTiles}"
                                           ItemTemplate="{StaticResource SoftKpiTileTemplate}"
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
                         </StackPanel>
