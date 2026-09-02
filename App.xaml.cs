@@ -271,6 +271,24 @@ namespace ProGlassAutomation
 
         protected override void OnExit(ExitEventArgs e)
         {
+            // FIRST: write any debounced settings change.
+            //
+            // Settings toggles now queue their save (ConfigService
+            // .SaveDebounced) instead of blocking the UI thread on disk
+            // I/O. If the user flips a switch and closes the app inside
+            // the debounce window, the timer never fires -- so the flush
+            // must happen here, before anything else tears down, or that
+            // change is silently lost. Non-throwing by contract.
+            try
+            {
+                Services.AI.AIConfig.ConfigService.FlushPending();
+            }
+            catch (System.Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                    "[App] OnExit config flush failed: " + ex.Message);
+            }
+
             // Phase 4: Detach static events — no leak
             try { AuditService.CurrentUserChanged -= OnCurrentUserChanged; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[App] OnExit event-detach failed: " + ex.Message); }
 

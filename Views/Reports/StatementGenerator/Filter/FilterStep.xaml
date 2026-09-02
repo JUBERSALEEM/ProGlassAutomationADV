@@ -193,7 +193,7 @@
                                    Focusable="False"
                                    PopupAnimation="Fade"
                                    VerticalOffset="4">
-                                <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                <Border Background="{DynamicResource PopupSurfaceBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -389,7 +389,7 @@
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="14,8"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    Background="{DynamicResource PopupSurfaceBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     SnapsToDevicePixels="True">
                 <StackPanel Orientation="Horizontal"

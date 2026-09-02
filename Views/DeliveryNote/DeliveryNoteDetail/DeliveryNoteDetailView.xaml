@@ -313,7 +313,7 @@
                            AllowsTransparency="True"
                            StaysOpen="True"
                            PopupAnimation="Fade">
-                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                        <Border Background="{DynamicResource PopupSurfaceBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="1"
                                 CornerRadius="{DynamicResource CardCornerRadius}"

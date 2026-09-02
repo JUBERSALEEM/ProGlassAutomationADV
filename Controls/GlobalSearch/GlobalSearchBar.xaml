@@ -162,7 +162,7 @@
                PopupAnimation="Fade"
                MaxHeight="460">
 
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+            <Border Background="{DynamicResource PopupSurfaceBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"

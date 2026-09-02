@@ -23,6 +23,8 @@ using ProGlassAutomation.Services.Security;
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.AI.AIConfig
 {
@@ -144,6 +146,85 @@ namespace ProGlassAutomation.Services.AI.AIConfig
             {
                 return new AppConfig();
             }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  DEBOUNCED BACKGROUND SAVE
+        //  -------------------------------------------------------------
+        //  Save() is expensive: three DPAPI vault writes plus a full JSON
+        //  serialize plus a synchronous File.WriteAllText. Settings
+        //  toggles called it DIRECTLY from their property setters, on the
+        //  UI thread, on every single click -- which is why the iOS-style
+        //  pills and the per-module wallpaper switches felt laggy. The
+        //  animation was never the problem; the thread was blocked on
+        //  disk I/O before it could even start.
+        //
+        //  SaveDebounced() returns immediately and coalesces bursts: flip
+        //  eight toggles quickly and you get ONE write, not eight. That
+        //  matters because the toggles all serialize the SAME AppConfig
+        //  object, so intermediate writes are pure waste.
+        //
+        //  Correctness notes:
+        //   • The timer restarts on each call, so the write happens
+        //     shortly after the user STOPS interacting.
+        //   • FlushPending() forces an immediate synchronous write and is
+        //     called on shutdown, so a pending change can never be lost.
+        //   • The lock guards the timer only. Save() itself is unchanged
+        //     and still available for callers that need certainty now.
+        // ═══════════════════════════════════════════════════════════════
+
+        private static readonly object DebounceGate = new();
+        private static Timer? _debounceTimer;
+        private static AppConfig? _pendingConfig;
+
+        /// <summary>Delay before a coalesced write. Long enough to absorb
+        /// a burst of toggles, short enough that a user who flips one
+        /// switch and immediately closes the app is still covered by
+        /// FlushPending().</summary>
+        private const int DebounceMs = 400;
+
+        /// <summary>
+        /// Queues a configuration save without blocking the caller.
+        /// Repeated calls within the debounce window collapse into one
+        /// write. Use this from UI property setters.
+        /// </summary>
+        public static void SaveDebounced(AppConfig config)
+        {
+            if (config == null) return;
+
+            lock (DebounceGate)
+            {
+                _pendingConfig = config;
+
+                if (_debounceTimer == null)
+                {
+                    _debounceTimer = new Timer(
+                        _ => FlushPending(), null, DebounceMs, Timeout.Infinite);
+                }
+                else
+                {
+                    _debounceTimer.Change(DebounceMs, Timeout.Infinite);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes any queued configuration immediately. Safe to call when
+        /// nothing is pending. Call on shutdown so a debounced change is
+        /// never lost.
+        /// </summary>
+        public static void FlushPending()
+        {
+            AppConfig? cfg;
+
+            lock (DebounceGate)
+            {
+                cfg = _pendingConfig;
+                _pendingConfig = null;
+                _debounceTimer?.Change(Timeout.Infinite, Timeout.Infinite);
+            }
+
+            if (cfg != null) Save(cfg);
         }
 
         public static void Save(AppConfig config)

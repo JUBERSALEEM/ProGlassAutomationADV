@@ -111,7 +111,7 @@
                Focusable="False">
             <Border Width="{Binding ActualWidth, ElementName=MainBorder}"
                     MaxHeight="300"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    Background="{DynamicResource PopupSurfaceBrush}"
                     BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"

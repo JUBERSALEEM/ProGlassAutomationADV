@@ -107,7 +107,7 @@
                                AllowsTransparency="True"
                                Focusable="False"
                                PopupAnimation="Fade">
-                            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                            <Border Background="{DynamicResource PopupSurfaceBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
                                     BorderThickness="1"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
@@ -208,7 +208,7 @@
                                AllowsTransparency="True"
                                Focusable="False"
                                PopupAnimation="Fade">
-                            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                            <Border Background="{DynamicResource PopupSurfaceBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
                                     BorderThickness="1"
                                     CornerRadius="{DynamicResource CardCornerRadius}"

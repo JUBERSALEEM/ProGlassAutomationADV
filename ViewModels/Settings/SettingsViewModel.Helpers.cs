@@ -44,7 +44,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         private void SaveConfig()
         {
             if (_config != null)
-                ConfigService.Save(_config);
+                ConfigService.SaveDebounced(_config);
         }
 
         private void InitializeV2Sections()

@@ -90,6 +90,18 @@
          Module, Elevated, Sidebar, Menu, Overlay surfaces.
     ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#00FFFFFF" po:Freeze="True"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         POPUP SURFACE — must be OPAQUE.
+         A <Popup> is a floating HWND: nothing in the app renders behind
+         it, so a glass brush with alpha < FF shows the DESKTOP through
+         the menu. ModuleBackgroundBrush is #00FFFFFF (alpha 00) and was
+         being used for popup cards, which is why every context menu,
+         autocomplete list and action popup rendered see-through.
+         This is the frosted-white the glass brushes tint toward, but at
+         full alpha so it can stand alone.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FFF7F4EC" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleWallpaperBrush" Color="Transparent" po:Freeze="True"/>
     <LinearGradientBrush x:Key="ElevatedSurfaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#90FFFCF5" Offset="0.00"/>

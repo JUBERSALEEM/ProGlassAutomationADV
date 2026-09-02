@@ -78,7 +78,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
                 if (App.Config == null) return;
                 App.Config.Localization.PhoneCountryIso = value.Iso;
-                try { ConfigService.Save(App.Config); } catch { /* config best-effort */ }
+                try { ConfigService.SaveDebounced(App.Config); } catch { /* config best-effort */ }
             }
         }
 
@@ -92,7 +92,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
                 if (App.Config == null) return;
                 App.Config.Localization.AutoSuggestByRegion = value;
-                try { ConfigService.Save(App.Config); } catch { /* config best-effort */ }
+                try { ConfigService.SaveDebounced(App.Config); } catch { /* config best-effort */ }
             }
         }
 

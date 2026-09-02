@@ -102,7 +102,7 @@ public ModuleWallpaperRow(string key, string label, AppConfig? config)
         private void Save()
         {
             if (_config != null)
-                ConfigService.Save(_config);
+                ConfigService.SaveDebounced(_config);
         }
 
         /// <summary>

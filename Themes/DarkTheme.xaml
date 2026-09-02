@@ -67,6 +67,11 @@
          SECTION 4 — SURFACE BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#00000000" po:Freeze="True"/>
+
+    <!-- Opaque popup surface. See the note in LightTheme.xaml: a Popup
+         is a floating window, so an alpha-00 glass brush shows the
+         desktop through it. -->
+    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FF1C1F26" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleWallpaperBrush" Color="Transparent" po:Freeze="True"/>
     <LinearGradientBrush x:Key="ElevatedSurfaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#74FFFFFF" Offset="0.00"/>

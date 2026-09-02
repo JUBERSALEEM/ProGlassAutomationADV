@@ -130,7 +130,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             if (!_debouncedSavePending || _config == null) return;
             _debouncedSavePending = false;
 
-            Services.AI.AIConfig.ConfigService.Save(_config);
+            Services.AI.AIConfig.ConfigService.SaveDebounced(_config);
 
             if (_auditBorderOnSave)
             {

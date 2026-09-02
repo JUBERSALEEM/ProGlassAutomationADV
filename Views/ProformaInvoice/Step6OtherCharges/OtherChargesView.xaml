@@ -394,7 +394,7 @@
                                                        AllowsTransparency="True"
                                                        PopupAnimation="Fade">
                                                     <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
-                                                            Background="{DynamicResource ModuleBackgroundBrush}"
+                                                            Background="{DynamicResource PopupSurfaceBrush}"
                                                             BorderBrush="{DynamicResource AccentBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"

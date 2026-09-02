@@ -100,7 +100,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             try
             {
                 if (_config != null)
-                    ConfigService.Save(_config);
+                    ConfigService.SaveDebounced(_config);
             }
             catch (Exception ex)
             {
@@ -163,7 +163,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             try
             {
                 if (_config != null)
-                    ConfigService.Save(_config);
+                    ConfigService.SaveDebounced(_config);
             }
             catch (Exception ex)
             {

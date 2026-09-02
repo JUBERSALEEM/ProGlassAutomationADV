@@ -56,7 +56,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 _config.Appearance.UseDefinedOutline = value;
                 ThemeManager.ApplyOutline(value);
-                Services.AI.AIConfig.ConfigService.Save(_config);
+                Services.AI.AIConfig.ConfigService.SaveDebounced(_config);
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
@@ -133,7 +133,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 _config.Appearance.PdfLayoutId = theme.Id;
                 ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Apply(theme);
-                Services.AI.AIConfig.ConfigService.Save(_config);
+                Services.AI.AIConfig.ConfigService.SaveDebounced(_config);
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
@@ -163,7 +163,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 _config.Appearance.DisplayDensity = v;
                 ThemeManager.ApplyDisplayDensity(v);
-                Services.AI.AIConfig.ConfigService.Save(_config);
+                Services.AI.AIConfig.ConfigService.SaveDebounced(_config);
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
@@ -185,7 +185,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 _config.Appearance.UiScale = v;
                 ThemeManager.ApplyUiScale(v);
-                Services.AI.AIConfig.ConfigService.Save(_config);
+                Services.AI.AIConfig.ConfigService.SaveDebounced(_config);
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(UiScalePercent));
             }
