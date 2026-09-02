@@ -7,6 +7,51 @@
 
 ---
 
+> ## ⚠️ SUPERSEDED — READ FIRST (2026-09-02, same day)
+>
+> **The bulk view-model refactor described in sections 3–5 of this document
+> was SHIPPED AS `6a93c0e`, BROKE THE APPLICATION, AND HAS BEEN REVERTED
+> IN `3dfa6ed`.** Symptoms: dashboards blank, agent panel stuck open,
+> nothing clickable.
+>
+> **Why it broke.** `SettingsViewModel`'s relocated initialization body
+> dereferences `_config` (`AppConfig`) in three places. `AppConfig` was
+> never registered in the DI container, so the DI-selected constructor
+> received `null` and threw. That exception was swallowed by the
+> defensive handlers in `App.StartupCore.cs` and `MainWindow.xaml.cs`,
+> which then displayed the window with a **null `DataContext`**. Every
+> binding failed silently; the agent panel's `Visibility` binding had no
+> `FallbackValue`, so it reverted to the default `Visible`.
+>
+> Separately, `tools/fix_two_phase_ctors.py` has a real defect: where
+> field **declarations** sat physically between the two constructors, it
+> swept them along with the constructor body and re-emitted them after
+> the parameterized constructor (11 fields in `SettingsViewModel`).
+> **Do not re-run that tool as written.**
+>
+> **The lesson.** This document originally carried an explicit "NOT
+> COMPILED" caveat, and it was shipped anyway. *A documented risk is not
+> a mitigated risk.* Every static check available here — brace balance,
+> BOM, logic-loss diff, use-before-assign, duplicate-assignment — passed
+> on the broken code, because the damage was semantic (a null dependency)
+> rather than syntactic. **Static analysis cannot substitute for a
+> compile and a launch.**
+>
+> **What was kept** (all verified, low risk): the ERR-918BAB fix
+> (`Modifiers="None"` throws in `ModifierKeysConverter`), both Python
+> validators, and the xUnit guards. The two-phase-constructor problem
+> described below is **still real and still unfixed** — the guard test
+> is marked `Skip` with this rationale. Redo it **one view model at a
+> time, compiling and launching after each.**
+>
+> **Follow-up hardening** (`ba7b1a0`, `1e2a55e`): registered `AppConfig`,
+> `IConnectivityService`, `InvoiceMainSummaryViewModel` and
+> `TermsAndConditionsViewModel`; upgraded the swallowed startup warning
+> to a full `Error` log; added `FallbackValue=Collapsed` to the agent
+> panel so this symptom cannot recur.
+
+---
+
 ## 0. Why the previous three fixes felt like whack-a-mole
 
 Each crash was fixed correctly, but each fix was **reactive** — driven by the

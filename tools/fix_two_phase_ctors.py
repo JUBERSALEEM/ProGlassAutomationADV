@@ -266,3 +266,27 @@ if __name__ == "__main__":
         print("   fix  ", d)
     for s, why in skipped:
         print("   skip ", s, "->", why)
+
+# ─────────────────────────────────────────────────────────────────────
+# ⚠️ DEFECTIVE — DO NOT RUN. Quarantined 2026-09-02.
+#
+# This script produced commit 6a93c0e, which broke the application and
+# was reverted in 3dfa6ed. Two separate problems:
+#
+#  1. It relocates field/property DECLARATIONS that sit physically
+#     between the parameterless and parameterized constructors, sweeping
+#     them along with the constructor body (11 fields displaced in
+#     SettingsViewModel). Harmless to the compiler, but it proves the
+#     extractor does not distinguish statements from member declarations.
+#
+#  2. More seriously, moving initialization into the DI-selected ctor is
+#     only safe if EVERY ctor parameter is actually registered in the DI
+#     container. SettingsViewModel dereferences _config (AppConfig),
+#     which was unregistered -> null -> throw -> null MainWindow
+#     DataContext -> dead shell.
+#
+# Before reusing this: (a) fix the extractor to move only statements,
+# and (b) verify each target's ctor dependencies are DI-registered.
+# Then migrate ONE view model at a time, compiling and launching after
+# each. See Docs/SENIOR_ANALYSIS_STARTUP_CRASH_SWEEP.md.
+# ─────────────────────────────────────────────────────────────────────
