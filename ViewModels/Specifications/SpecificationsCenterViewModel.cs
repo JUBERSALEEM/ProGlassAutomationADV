@@ -296,7 +296,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
                 // Never throws into the shell: an unreadable catalogue shows
                 // an empty, explained list rather than taking the app down.
                 AppLogService.Warning(
-                    $"Specifications Center load failed: {ex.Message}",
+                    $"Specifications Center load failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "Load" });
                 StatusMessage = "Could not load specifications.";
                 _all = new List<SavedSpecification>();
@@ -419,7 +419,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[SpecificationsCenter.Panes] {ex.Message}");
+                AppLogService.Debug($"[SpecificationsCenter.Panes] {ExceptionMessages.Deep(ex)}");
             }
 
             try
@@ -429,7 +429,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[SpecificationsCenter.History] {ex.Message}");
+                AppLogService.Debug($"[SpecificationsCenter.History] {ExceptionMessages.Deep(ex)}");
             }
             finally
             {
@@ -516,7 +516,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"Specifications CSV export failed: {ex.Message}",
+                    $"Specifications CSV export failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "ExportCsv" });
                 _dialogs?.Error("Export failed.\n\n" + ex.Message, "Specifications");
             }
@@ -566,7 +566,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"Specifications Excel export failed: {ex.Message}",
+                    $"Specifications Excel export failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "ExportExcel" });
                 _dialogs?.Error("Excel export failed.\n\n" + ex.Message, "Specifications");
             }
@@ -603,7 +603,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"Specifications PDF export failed: {ex.Message}",
+                    $"Specifications PDF export failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "ExportPdf" });
                 _dialogs?.Error("PDF export failed.\n\n" + ex.Message, "Specifications");
             }
@@ -650,7 +650,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"Specifications CSV import failed: {ex.Message}",
+                    $"Specifications CSV import failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "ImportCsv" });
                 _dialogs?.Error("Import failed.\n\n" + ex.Message, "Specifications");
             }
@@ -787,7 +787,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"Specification delete failed: {ex.Message}",
+                    $"Specification delete failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "Delete" });
                 _dialogs?.Error("Could not delete that specification.", "Specifications");
             }

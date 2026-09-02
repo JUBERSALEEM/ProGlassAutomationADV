@@ -98,7 +98,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToReloadTabX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToReloadTabX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapLoadError"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -238,7 +238,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -275,7 +275,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapUpdateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

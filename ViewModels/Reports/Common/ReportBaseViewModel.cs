@@ -21,6 +21,7 @@ using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Reporting;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -232,7 +233,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
                 Page = 1;
                 await LoadAsync();
             }
-            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
         }
 
         /// <summary>
@@ -259,7 +260,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
             }
             catch (Exception ex)
             {
-                AppLogService.Warning($"Report auto-reload failed: {ex.Message}");
+                AppLogService.Warning($"Report auto-reload failed: {ExceptionMessages.Deep(ex)}");
             }
         }
 
@@ -269,7 +270,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
 
         protected void CancelPrevious()
         {
-            try { _cts?.Cancel(); _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { _cts?.Cancel(); _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
             _cts = new CancellationTokenSource();
         }
 
@@ -312,7 +313,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
                 ProjectOptions = await _service.GetProjectOptionsAsync();
                 SalesmanOptions = await _service.GetSalesmanOptionsAsync();
             }
-            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
         }
     }
 }

@@ -288,7 +288,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 HasError = true;
-                ErrorMessage = $"Failed to load delivery note: {ex.Message}";
+                ErrorMessage = $"Failed to load delivery note: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {
@@ -506,7 +506,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    $"[DN] SyncMasterBalances skipped: {ex.Message}");
+                    $"[DN] SyncMasterBalances skipped: {ExceptionMessages.Deep(ex)}");
             }
         }
 
@@ -635,7 +635,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -757,7 +757,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    $"[DN] RestoreVersion failed: {ex.Message}");
+                    $"[DN] RestoreVersion failed: {ExceptionMessages.Deep(ex)}");
                 return false;
             }
         }
@@ -871,7 +871,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.DispatchFailedX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.DispatchFailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapDispatchFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

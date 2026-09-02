@@ -294,7 +294,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
             catch (Exception ex)
             {
                 CardsErrorMessage =
-                    $"Could not load saved projects: {ex.Message}";
+                    $"Could not load saved projects: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {

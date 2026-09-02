@@ -186,7 +186,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.CouldNotOpenJobOrder"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.CouldNotOpenJobOrder"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Dashboard.JobOrders"),
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Warning);
@@ -211,7 +211,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"[JobOrderVM] ReturnToList failed: {ex.Message}",
+                    $"[JobOrderVM] ReturnToList failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "JobOrder", Operation = "ReturnToList" });
             }
         }
@@ -256,7 +256,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"[JobOrderVM] RestoreVersion failed: {ex.Message}",
+                    $"[JobOrderVM] RestoreVersion failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "JobOrder", Operation = "RestoreVersion" });
             }
         }

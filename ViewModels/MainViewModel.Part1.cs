@@ -1017,7 +1017,7 @@ namespace ProGlassAutomation.ViewModels
             }
             catch (Exception ex)
             {
-                AppLogService.Warning($"[MainViewModel] agent wiring failed: {ex.Message}",
+                AppLogService.Warning($"[MainViewModel] agent wiring failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Main", Operation = "AgentWiring" });
             }
         }

@@ -286,7 +286,7 @@ public PrintableInvoiceViewModel(
         {
             string msg = $"{title.ToUpper()}:\n\n" +
                          $"Type: {ex.GetType().Name}\n" +
-                         $"Message: {ex.Message}";
+                         $"Message: {ExceptionMessages.Deep(ex)}";
 
             if (ex.InnerException != null)
                 msg += $"\n\nInner: {ex.InnerException.Message}";

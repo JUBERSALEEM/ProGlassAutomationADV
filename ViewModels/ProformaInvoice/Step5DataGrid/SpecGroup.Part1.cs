@@ -784,7 +784,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    $"[SpecGroup] sheet selection not adopted: {ex.Message}");
+                    $"[SpecGroup] sheet selection not adopted: {ExceptionMessages.Deep(ex)}");
             }
         }
 

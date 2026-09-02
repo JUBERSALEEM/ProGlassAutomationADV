@@ -18,6 +18,7 @@ using ProGlassAutomation.Agent.Demo.Recording;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -210,7 +211,7 @@ namespace ProGlassAutomation.ViewModels.Shared
 
         private void Pause()
         {
-            try { _onPause?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { _onPause?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
             Tick();
         }
 
@@ -223,7 +224,7 @@ namespace ProGlassAutomation.ViewModels.Shared
             OnPropertyChanged(nameof(IsStopEnabled));
             SetStage("Stopping…");
 
-            try { _onStop?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { _onStop?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
         }
 
         private void OpenFolder()
@@ -251,7 +252,7 @@ namespace ProGlassAutomation.ViewModels.Shared
 
         private void Close()
         {
-            try { RequestHide?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { RequestHide?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
         }
     }
 }

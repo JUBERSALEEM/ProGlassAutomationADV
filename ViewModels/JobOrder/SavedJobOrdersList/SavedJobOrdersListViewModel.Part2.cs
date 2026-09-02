@@ -17,6 +17,7 @@ using ProGlassAutomation.Services.JobOrder.Export;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -68,7 +69,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangePriorityX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangePriorityX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapUpdateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -156,7 +157,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrder"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrder"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapLoadFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

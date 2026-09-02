@@ -28,6 +28,7 @@ using ProGlassAutomation.Models.ProformaInvoice.Attachments;
 using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -163,7 +164,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             }
             catch (Exception ex)
             {
-                ShowMessage($"Failed to load Proforma Invoices:\n{ex.Message}",
+                ShowMessage($"Failed to load Proforma Invoices:\n{ExceptionMessages.Deep(ex)}",
                     error: true);
             }
         }

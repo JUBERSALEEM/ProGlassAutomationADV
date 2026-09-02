@@ -5,6 +5,7 @@ using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
 using ProGlassAutomation.ViewModels.Reports.PiReport;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -185,7 +186,7 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
             }
             catch (Exception ex)
             {
-                Services.Logging.AppLogService.Warning($"Delivery filter options warning: {ex.Message}");
+                Services.Logging.AppLogService.Warning($"Delivery filter options warning: {ExceptionMessages.Deep(ex)}");
             }
         }
 
@@ -338,7 +339,7 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
             {
                 row.Deliveries.Clear();
                 row.HasLoadedDeliveries = true;
-                Services.Logging.AppLogService.Warning($"Could not load delivery history: {ex.Message}");
+                Services.Logging.AppLogService.Warning($"Could not load delivery history: {ExceptionMessages.Deep(ex)}");
             }
         }
 

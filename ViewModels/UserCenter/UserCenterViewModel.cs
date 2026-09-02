@@ -21,6 +21,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.Shared;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -194,7 +195,7 @@ namespace ProGlassAutomation.ViewModels.UserCenter
             }
             catch (Exception ex)
             {
-                UiDispatch.Run(() => Status = "Load failed: " + ex.Message);
+                UiDispatch.Run(() => Status = "Load failed: " + ExceptionMessages.Deep(ex));
             }
         }
 

@@ -1,5 +1,6 @@
 using ProGlassAutomation.Services;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -188,7 +189,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             catch (Exception ex)
             {
                 HasError = true;
-                ErrorMessage = $"Failed to load data: {ex.Message}";
+                ErrorMessage = $"Failed to load data: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {

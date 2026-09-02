@@ -321,7 +321,7 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.CannotOpenFileX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.CannotOpenFileX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("DeliveryNote.Attachments"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);

@@ -233,7 +233,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
 
             // Phase 4: Named handler — detachable, no lambda leak
-            _dataSeededHandler = async () => { try { await LoadInvoicesAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            _dataSeededHandler = async () => { try { await LoadInvoicesAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); } };
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
 
             // Instant refresh when this PI changes OR when a related JO / DN /
@@ -405,9 +405,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                LastExportStatus = $"✗ Excel export failed: {ex.Message}";
+                LastExportStatus = $"✗ Excel export failed: {ExceptionMessages.Deep(ex)}";
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -493,7 +493,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToLoadSavedInvoices"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToLoadSavedInvoices"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapLoadError"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -561,7 +561,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                AppLogService.Warning($"Suppressed exception: {ex.Message}");
+                AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}");
             }
 
             return confirmed;
@@ -714,7 +714,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToDuplicateX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDuplicateX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapDuplicateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -761,7 +761,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX2"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX2"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -832,7 +832,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX2"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX2"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapStatusChangeFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -868,7 +868,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             {
                 AppLogService.Warning(
                     $"Could not clear attachments for cancelled PI " +
-                    $"{proformaId}: {ex.Message}",
+                    $"{proformaId}: {ExceptionMessages.Deep(ex)}",
                     new LogContext
                     {
                         Module = "Proforma",

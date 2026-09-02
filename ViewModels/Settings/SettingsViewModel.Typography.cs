@@ -18,6 +18,7 @@ using ProGlassAutomation.Services.AI.AIVoice;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Fonts;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -326,7 +327,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
             catch (Exception ex)
             {
-                SetResetStatus($"Error: {ex.Message}");
+                SetResetStatus($"Error: {ExceptionMessages.Deep(ex)}");
                 await Task.Delay(2000);
             }
             finally

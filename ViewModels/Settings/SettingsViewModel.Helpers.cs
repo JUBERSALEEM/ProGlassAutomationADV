@@ -18,6 +18,7 @@ using ProGlassAutomation.Services.AI.AIVoice;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Fonts;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -548,7 +549,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     System.IO.Directory.CreateDirectory(folder);
                                 ProcessStartGuard.TryOpenFolder(folder, CorrelationContext.NewId());
                 }
-                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
             });
 
             // ── Database health (diagnostics + emergency rebuild) ─────
@@ -594,7 +595,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
             catch (Exception ex)
             {
-                DatabaseHealthStatus = "✗ Diagnostics failed: " + ex.Message;
+                DatabaseHealthStatus = "✗ Diagnostics failed: " + ExceptionMessages.Deep(ex);
                 AppLogService.Error(
                     "Database diagnostics failed", ex,
                     new Services.Logging.LogContext
@@ -698,7 +699,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
             catch (Exception ex)
             {
-                DatabaseHealthStatus = "✗ Rebuild failed: " + ex.Message;
+                DatabaseHealthStatus = "✗ Rebuild failed: " + ExceptionMessages.Deep(ex);
                 AppLogService.Error(
                     "Emergency database rebuild failed", ex,
                     new Services.Logging.LogContext

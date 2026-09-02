@@ -592,7 +592,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[SpecGroup.LoadSpecs] {ex.Message}");
+                AppLogService.Debug($"[SpecGroup.LoadSpecs] {ExceptionMessages.Deep(ex)}");
             }
         }
 
@@ -630,7 +630,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[SpecGroup.LoadAllTypesFallback] {ex.Message}");
+                AppLogService.Debug($"[SpecGroup.LoadAllTypesFallback] {ExceptionMessages.Deep(ex)}");
             }
         }
 
@@ -796,7 +796,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[SpecGroup.CarryForward] {ex.Message}");
+                AppLogService.Debug($"[SpecGroup.CarryForward] {ExceptionMessages.Deep(ex)}");
                 return null;
             }
         }

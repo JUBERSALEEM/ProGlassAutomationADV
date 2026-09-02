@@ -17,6 +17,7 @@ using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,7 +54,7 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
         private async Task LoadStatusOptionsAsync()
         {
             try { SetStatusOptions(await _service.GetPiStatusOptionsAsync()); }
-            catch (System.Exception ex) { AppLogService.Warning($"PI status options warning: {ex.Message}"); }
+            catch (System.Exception ex) { AppLogService.Warning($"PI status options warning: {ExceptionMessages.Deep(ex)}"); }
         }
 
         /// <summary>Maps the "All" sentinel back to no status filter.</summary>
@@ -123,7 +124,7 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
             {
                 row.DetailRows.Clear();
                 row.HasLoadedDetail = true;
-                AppLogService.Warning($"Suppressed exception: {ex.Message}");
+                AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}");
             }
         }
 
@@ -148,7 +149,7 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
             catch (System.Exception ex) when (!(ex is System.OperationCanceledException))
             {
                 HasError = true; ErrorMessage = ex.Message;
-                AppLogService.Warning($"PiReport LoadAsync error: {ex.Message}");
+                AppLogService.Warning($"PiReport LoadAsync error: {ExceptionMessages.Deep(ex)}");
             }
             finally { IsLoading = false; }
         }

@@ -595,7 +595,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     catch (Exception ex)
                     {
                         _dialogs.Show(
-                            string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrder"), ex.Message),
+                            string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrder"), ExceptionMessages.Deep(ex)),
                             LocalizationService.Instance.T("Msg.CapError"), System.Windows.MessageBoxButton.OK,
                             System.Windows.MessageBoxImage.Error);
                     }
@@ -689,7 +689,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToOpenTaxInvoice"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToOpenTaxInvoice"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapNavigationFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -717,7 +717,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrders"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToLoadJobOrders"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapLoadFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -900,7 +900,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             catch (Exception ex)
             {
                 HasError = true;
-                ErrorMessage = $"Failed to load delivery notes: {ex.Message}";
+                ErrorMessage = $"Failed to load delivery notes: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {

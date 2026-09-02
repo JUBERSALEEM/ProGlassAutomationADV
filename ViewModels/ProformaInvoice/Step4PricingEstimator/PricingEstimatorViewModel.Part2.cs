@@ -239,7 +239,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             {
                 // Errors still use MessageBox — must interrupt the user
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToSaveSpecX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToSaveSpecX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapDatabaseError"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

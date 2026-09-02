@@ -12,6 +12,7 @@ using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.JobOrder.Export;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -306,7 +307,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.ExportFailedX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.ExportFailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapXExportFailed"),
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
@@ -400,7 +401,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             catch (Exception ex)
             {
                 HasError = true;
-                ErrorMessage = $"Load failed: {ex.Message}";
+                ErrorMessage = $"Load failed: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {
@@ -616,7 +617,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -687,7 +688,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToOpenMasterDN"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToOpenMasterDN"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("JobOrder.MasterDN"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -741,7 +742,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateDeliveryNote"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateDeliveryNote"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

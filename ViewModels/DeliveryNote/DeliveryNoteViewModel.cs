@@ -148,7 +148,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         private void InitializeCore()
         {
             ListVM = new DeliveryNoteListViewModel();
-                        _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+                        _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); } };
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
             DetailVM = new DeliveryNoteDetailViewModel();
 
@@ -167,7 +167,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 catch (Exception ex)
                 {
                     _dialogs.Show(
-                        string.Format(LocalizationService.Instance.T("Msg.FailedToOpenMasterInvoice"), ex.Message),
+                        string.Format(LocalizationService.Instance.T("Msg.FailedToOpenMasterInvoice"), ExceptionMessages.Deep(ex)),
                         LocalizationService.Instance.T("Msg.CapNavigationError"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
@@ -208,7 +208,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 catch (Exception ex)
                 {
                     _dialogs.Show(
-                        string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo"), ex.Message),
+                        string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo"), ExceptionMessages.Deep(ex)),
                         LocalizationService.Instance.T("Msg.CapNavigationError"),
                         MessageBoxButton.OK,
                         MessageBoxImage.Error);
@@ -388,7 +388,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    $"[DeliveryNoteViewModel] ListVM.LoadAsync failed: {ex.Message}");
+                    $"[DeliveryNoteViewModel] ListVM.LoadAsync failed: {ExceptionMessages.Deep(ex)}");
             }
         }
 

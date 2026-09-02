@@ -20,6 +20,7 @@ using ProGlassAutomation.Services.Documents;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.ViewModels;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -220,9 +221,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                LastExportStatus = $"✗ PDF export failed: {ex.Message}";
+                LastExportStatus = $"✗ PDF export failed: {ExceptionMessages.Deep(ex)}";
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.PDFExportFailedX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.PDFExportFailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -322,7 +323,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             catch (Exception ex)
             {
                 ProGlassAutomation.Services.Logging.AppLogService.Warning(
-                    $"Dossier export failed: {ex.Message}",
+                    $"Dossier export failed: {ExceptionMessages.Deep(ex)}",
                     new ProGlassAutomation.Services.Logging.LogContext
                     {
                         Module = "ProformaInvoice",
@@ -374,9 +375,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                LastExportStatus = $"✗ Excel export failed: {ex.Message}";
+                LastExportStatus = $"✗ Excel export failed: {ExceptionMessages.Deep(ex)}";
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.ExcelExportFailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -424,9 +425,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                LastExportStatus = $"✗ CSV export failed: {ex.Message}";
+                LastExportStatus = $"✗ CSV export failed: {ExceptionMessages.Deep(ex)}";
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.CSVExportFailedX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.CSVExportFailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

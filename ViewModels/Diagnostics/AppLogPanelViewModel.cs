@@ -13,6 +13,7 @@ using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels.Shared;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Windows.Input;
 
@@ -147,7 +148,7 @@ namespace ProGlassAutomation.ViewModels.Diagnostics
                         UseShellExecute = true
                     });
             }
-            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
         }
     }
 }

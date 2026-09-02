@@ -437,7 +437,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             {
                 AppLogService.Debug($"[T&C] GetActivePrintableClauses failed: {ex}");
                 stack.Children.Add(MakeText(
-                    $"[Error loading clauses: {ex.Message}]",
+                    $"[Error loading clauses: {ExceptionMessages.Deep(ex)}]",
                     9, FontWeights.Normal, RedBrush, fontStyle: FontStyles.Italic));
                 return stack;
             }

@@ -27,6 +27,7 @@ using ProGlassAutomation.Models.Statement.Workflow;
 using ProGlassAutomation.Services.Statement.Workflow;
 using ProGlassAutomation.ViewModels;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -265,7 +266,7 @@ public WorkflowProgressViewModel(IDialogService? dialogs,
                 Result = new WorkflowResult
                 {
                     Outcome = WorkflowOutcome.Blocked,
-                    Summary = $"Unexpected error: {ex.Message}",
+                    Summary = $"Unexpected error: {ExceptionMessages.Deep(ex)}",
                     Steps = _engine.Steps
                 };
             }

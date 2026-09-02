@@ -353,7 +353,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 // Never leave the list showing stale data after a failure —
                 // surface it but keep whatever we already loaded.
                 AppLogService.Debug(
-                    $"[SheetStore] Load failed: {ex.Message}");
+                    $"[SheetStore] Load failed: {ExceptionMessages.Deep(ex)}");
             }
             finally
             {

@@ -19,6 +19,7 @@ using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
 using ProGlassAutomation.ViewModels.Reports.StatementList;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Windows.Input;
 
 using ProGlassAutomation.Services.Dialogs;
@@ -169,7 +170,7 @@ namespace ProGlassAutomation.ViewModels.Reports
             catch (Exception ex)
             {
                 Services.Logging.AppLogService.Debug(
-                    $"[StatementModule] DI resolve of {typeof(T).Name} failed: {ex.Message}");
+                    $"[StatementModule] DI resolve of {typeof(T).Name} failed: {ExceptionMessages.Deep(ex)}");
                 return null;
             }
         }

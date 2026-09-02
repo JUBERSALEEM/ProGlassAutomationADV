@@ -19,6 +19,7 @@ using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -262,7 +263,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 }
                 catch (Exception ex)
                 {
-                    Status = "Save failed: " + ex.Message;
+                    Status = "Save failed: " + ExceptionMessages.Deep(ex);
                 }
             });
 
@@ -289,7 +290,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 }
                 catch (Exception ex)
                 {
-                    Status = "Delete failed: " + ex.Message;
+                    Status = "Delete failed: " + ExceptionMessages.Deep(ex);
                 }
             });
 
@@ -363,7 +364,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             }
             catch (Exception ex)
             {
-                Status = "Load failed: " + ex.Message;
+                Status = "Load failed: " + ExceptionMessages.Deep(ex);
             }
         }
 

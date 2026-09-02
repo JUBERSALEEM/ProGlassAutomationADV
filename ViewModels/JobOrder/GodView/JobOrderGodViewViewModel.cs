@@ -116,7 +116,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    $"[JO GodView] Load failed: {ex.Message}");
+                    $"[JO GodView] Load failed: {ExceptionMessages.Deep(ex)}");
                 UiDispatch.Run(() => IsLoading = false);
             }
         }

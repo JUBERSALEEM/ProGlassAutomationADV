@@ -433,7 +433,7 @@ public ProformaInvoiceViewModel() : this(
             catch (Exception ex)
             {
                 Services.Logging.AppLogService.Debug(
-                    $"[PI.GoToStep] invoice context publish failed: {ex.Message}");
+                    $"[PI.GoToStep] invoice context publish failed: {ExceptionMessages.Deep(ex)}");
             }
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = ws.StepNumber < _furthestStepReached;
@@ -694,7 +694,7 @@ public ProformaInvoiceViewModel() : this(
                 // The host dialog threw — log and default to Skip so
                 // the user is never left without a path. The audit
                 // log captures the host-side exception.
-                AppLogService.Warning($"PI NewInvoice prompt failed: {ex.Message}",
+                AppLogService.Warning($"PI NewInvoice prompt failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Proforma", Class = nameof(ProformaInvoiceViewModel), Operation = "NewInvoicePrompt" });
                 choice = NewProformaStartChoice.Skip;
             }
@@ -789,7 +789,7 @@ public ProformaInvoiceViewModel() : this(
             try { await LoadInvoiceIntoWizardAsync(invoiceId); }
             catch (Exception ex)
             {
-                AppLogService.Warning($"Could not open proforma invoice {invoiceId}: {ex.Message}",
+                AppLogService.Warning($"Could not open proforma invoice {invoiceId}: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Proforma", Class = nameof(ProformaInvoiceViewModel), Operation = "OpenFromReports" });
             }
         }

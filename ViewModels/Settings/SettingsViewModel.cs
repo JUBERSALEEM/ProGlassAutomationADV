@@ -25,6 +25,7 @@ using ProGlassAutomation.Services.AI.AIVoice;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Fonts;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -231,7 +232,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         catch (Exception ex)
                         {
                             AppLogService.Debug(
-                                $"[Settings] Whisper swap failed: {ex.Message}");
+                                $"[Settings] Whisper swap failed: {ExceptionMessages.Deep(ex)}");
                         }
                     }
                 }

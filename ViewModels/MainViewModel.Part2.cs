@@ -126,7 +126,7 @@ namespace ProGlassAutomation.ViewModels
             }
             catch (Exception ex)
             {
-                AppLogService.Warning($"[MainViewModel] agent confirm failed: {ex.Message}",
+                AppLogService.Warning($"[MainViewModel] agent confirm failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Main", Operation = "AgentConfirm" });
                 return System.Threading.Tasks.Task.FromResult(false);
             }
@@ -295,7 +295,7 @@ namespace ProGlassAutomation.ViewModels
             }
             catch (Exception ex)
             {
-                Services.Logging.AppLogService.Error($"Failed to load VAT Submission: {ex.Message}", ex);
+                Services.Logging.AppLogService.Error($"Failed to load VAT Submission: {ExceptionMessages.Deep(ex)}", ex);
             }
         }
 

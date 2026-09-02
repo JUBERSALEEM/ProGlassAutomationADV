@@ -2,6 +2,7 @@ using ProGlassAutomation.Agent.Demo.Recording;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Recording;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -76,7 +77,7 @@ namespace ProGlassAutomation.ViewModels.Shared
                     catch (Exception ex)
                     {
                         Services.Logging.AppLogService.Debug(
-                            $"[ScreenRecord] stop request: {ex.Message}");
+                            $"[ScreenRecord] stop request: {ExceptionMessages.Deep(ex)}");
                     }
 
                     ProGlassAutomation.Utilities.AsyncUtility.SafeFireAndForget(

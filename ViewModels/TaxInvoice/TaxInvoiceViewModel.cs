@@ -177,7 +177,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         {
             ListVM = new TaxInvoiceListViewModel();
             // Phase 4: Named handler — detachable, no lambda leak
-            _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); } };
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
             DetailVM = new TaxInvoiceDetailViewModel();
 
@@ -566,7 +566,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"[TaxInvoiceViewModel] ListVM.LoadAsync failed: {ex.Message}",
+                    $"[TaxInvoiceViewModel] ListVM.LoadAsync failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "TaxInvoice", Operation = "SafeLoadList" });
             }
         }

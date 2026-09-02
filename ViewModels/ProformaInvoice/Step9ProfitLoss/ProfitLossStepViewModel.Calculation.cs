@@ -499,7 +499,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 try { gross = _grossProvider?.Invoke() ?? 0m; }
                 catch (Exception ex)
                 {
-                    AppLogService.Debug($"[ProfitLossStepViewModel] gross provider: {ex.Message}");
+                    AppLogService.Debug($"[ProfitLossStepViewModel] gross provider: {ExceptionMessages.Deep(ex)}");
                 }
 
                 GrossVatInclusive = gross;
@@ -586,7 +586,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             catch (Exception ex)
             {
                 // A P&L failure must never break the wizard.
-                AppLogService.Debug($"[ProfitLossStepViewModel] Recalculate failed: {ex.Message}");
+                AppLogService.Debug($"[ProfitLossStepViewModel] Recalculate failed: {ExceptionMessages.Deep(ex)}");
                 StatusMessage =
                     "Could not complete the calculation — check Sheet Store data and try again.";
             }

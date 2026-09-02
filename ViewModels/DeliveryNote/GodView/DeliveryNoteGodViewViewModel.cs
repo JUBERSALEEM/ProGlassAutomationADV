@@ -119,7 +119,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    $"[DN GodView] Load failed: {ex.Message}");
+                    $"[DN GodView] Load failed: {ExceptionMessages.Deep(ex)}");
                 UiDispatch.Run(() => IsLoading = false);
             }
         }

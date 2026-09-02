@@ -262,7 +262,7 @@ public GlobalSearchViewModel() : this(
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[GlobalSearch] navigate failed: {ex.Message}");
+                AppLogService.Debug($"[GlobalSearch] navigate failed: {ExceptionMessages.Deep(ex)}");
             }
 
             // Reset so re-picking the same row navigates again.
@@ -378,7 +378,7 @@ public GlobalSearchViewModel() : this(
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[GlobalSearch] search failed: {ex.Message}");
+                AppLogService.Debug($"[GlobalSearch] search failed: {ExceptionMessages.Deep(ex)}");
                 StatusMessage = "Search failed — some modules may be unavailable.";
             }
             finally
@@ -601,6 +601,6 @@ public GlobalSearchViewModel() : this(
         }
 
         private static void Skip(string module, Exception ex) =>
-            AppLogService.Debug($"[GlobalSearch] {module} skipped: {ex.Message}");
+            AppLogService.Debug($"[GlobalSearch] {module} skipped: {ExceptionMessages.Deep(ex)}");
     }
 }

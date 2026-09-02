@@ -8,6 +8,7 @@ using ProGlassAutomation.Services.AI.AIContext;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -295,7 +296,7 @@ public AiChatViewModel(
                         catch (Exception ex)
                         {
                             AppLogService.Debug(
-                                $"[AiChatVM] Fallback swap failed: {ex.Message}");
+                                $"[AiChatVM] Fallback swap failed: {ExceptionMessages.Deep(ex)}");
                             StatusMessage =
                                 "⚠ Voice unavailable — check audio drivers";
                             OnPropertyChanged(nameof(IsVoiceAvailable));
@@ -359,7 +360,7 @@ public AiChatViewModel(
 
                 // v3: closing the panel aborts any in-flight generation
                 // so nothing keeps running (and billing) invisibly.
-                try { _cts?.Cancel(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                try { _cts?.Cancel(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
             });
 
             ClearChatCommand = new RelayCommand(_ =>
@@ -459,7 +460,7 @@ public AiChatViewModel(
 
             StopGenerationCommand = new RelayCommand(_ =>
             {
-                try { _cts?.Cancel(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                try { _cts?.Cancel(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
                 StatusMessage = "⏹ Stopping generation…";
             });
 
@@ -534,7 +535,7 @@ public AiChatViewModel(
 
             // v3: one cancellation source per request — the Stop button
             // can abort an in-flight generation at any time.
-            try { _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
             _cts = new CancellationTokenSource();
             var token = _cts.Token;
 
@@ -554,7 +555,7 @@ public AiChatViewModel(
                         dataContext =
                             await AiContextBuilder.BuildContextAsync();
                     }
-                    catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                    catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
                 }
                 else
                 {
@@ -567,7 +568,7 @@ public AiChatViewModel(
                         learningContext = await AiContextBuilder
                             .BuildLearningContextAsync();
                     }
-                    catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                    catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
                 }
 
                 var fullSystemPrompt = systemPrompt;
@@ -596,7 +597,7 @@ public AiChatViewModel(
                             if (!string.IsNullOrEmpty(entityContext))
                                 fullSystemPrompt += "\n" + entityContext;
                         }
-                        catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                        catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
                     }
                 }
 
@@ -643,7 +644,7 @@ public AiChatViewModel(
                     catch (Exception ex)
                     {
                         handled = true;
-                        AddError($"⚠ {currentAi.ProviderName} error: {ex.Message}");
+                        AddError($"⚠ {currentAi.ProviderName} error: {ExceptionMessages.Deep(ex)}");
                     }
                 }
 
@@ -664,7 +665,7 @@ public AiChatViewModel(
                 ActiveStream = null;
                 IsBusy = false;
                 StatusMessage = string.Empty;
-                try { _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                try { _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
                 _cts = null;
             }
         }

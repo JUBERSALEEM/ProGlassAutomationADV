@@ -93,7 +93,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -181,7 +181,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToOpenTaxInvoice"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToOpenTaxInvoice"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapNavigationFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -203,7 +203,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.ExportFailedX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.ExportFailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapXExportFailed"),
                     System.Windows.MessageBoxButton.OK,
                     System.Windows.MessageBoxImage.Error);
@@ -380,7 +380,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToUploadImageX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToUploadImageX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapUploadFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -444,7 +444,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToUploadPDFX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToUploadPDFX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapUploadFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -512,7 +512,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteAttachmentX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteAttachmentX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -550,7 +550,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    $"[DN] MarkReceived skipped: {ex.Message}");
+                    $"[DN] MarkReceived skipped: {ExceptionMessages.Deep(ex)}");
             }
         }
 

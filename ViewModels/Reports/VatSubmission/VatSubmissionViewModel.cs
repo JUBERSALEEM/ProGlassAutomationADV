@@ -4,6 +4,7 @@ using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -156,7 +157,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             }
             catch (Exception ex)
             {
-                Services.Logging.AppLogService.Warning($"VAT filter options warning: {ex.Message}");
+                Services.Logging.AppLogService.Warning($"VAT filter options warning: {ExceptionMessages.Deep(ex)}");
                 // Set default options on error
                 CompanyOptions = new List<string> { AllFilter };
                 SalesmanOptions = new List<string> { AllFilter };
@@ -201,7 +202,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             { 
                 HasError = true; 
                 ErrorMessage = ex.Message;
-                Services.Logging.AppLogService.Error($"VAT load error: {ex.Message}", ex);
+                Services.Logging.AppLogService.Error($"VAT load error: {ExceptionMessages.Deep(ex)}", ex);
             }
             finally { IsLoading = false; }
         }

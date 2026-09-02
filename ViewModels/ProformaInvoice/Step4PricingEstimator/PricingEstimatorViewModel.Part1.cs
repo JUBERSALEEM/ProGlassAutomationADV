@@ -316,7 +316,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    $"[PricingEstimator] Sheet Store load failed: {ex.Message}");
+                    $"[PricingEstimator] Sheet Store load failed: {ExceptionMessages.Deep(ex)}");
             }
         }
 

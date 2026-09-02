@@ -17,6 +17,7 @@ using ProGlassAutomation.Services.JobOrder.Export;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -303,7 +304,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             RefreshCommand = new RelayCommand(async _ => await LoadJobOrdersAsync());
 
             // Instant refresh when sample data is seeded.
-                        _dataSeededHandler = async () => { try { await LoadJobOrdersAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+                        _dataSeededHandler = async () => { try { await LoadJobOrdersAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); } };
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
 
             // A DN / TI delete in another module must refresh this list
@@ -373,7 +374,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 HasError = true;
-                ErrorMessage = $"Failed to load job orders: {ex.Message}";
+                ErrorMessage = $"Failed to load job orders: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {
@@ -550,7 +551,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     // A failed attachment read must never block the job
                     // order delete — log and continue with KEEP.
                     AppLogService.Warning(
-                        $"Could not inspect attachments for {proformaId}: {ex.Message}",
+                        $"Could not inspect attachments for {proformaId}: {ExceptionMessages.Deep(ex)}",
                         new LogContext
                         {
                             Module = "JobOrder",
@@ -578,7 +579,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteJobOrder"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteJobOrder"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -606,7 +607,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"Could not clear attachments for {proformaId}: {ex.Message}",
+                    $"Could not clear attachments for {proformaId}: {ExceptionMessages.Deep(ex)}",
                     new LogContext
                     {
                         Module = "Proforma",
@@ -729,7 +730,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateJobOrder"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateJobOrder"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -785,7 +786,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToChangeStatusX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapUpdateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

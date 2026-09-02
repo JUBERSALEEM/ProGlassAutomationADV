@@ -565,7 +565,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[JobProfitabilityViewModel] Load failed: {ex.Message}");
+                AppLogService.Debug($"[JobProfitabilityViewModel] Load failed: {ExceptionMessages.Deep(ex)}");
                 StatusMessage = "Could not load job profitability — check the invoice database.";
             }
             finally

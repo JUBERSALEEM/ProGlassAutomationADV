@@ -5,6 +5,7 @@ using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
 using ProGlassAutomation.ViewModels.Reports.PiReport;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -59,7 +60,7 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
                 list.AddRange(await _service.GetTiProformaOptionsAsync());
                 PiOptions = list;
             }
-            catch (System.Exception ex) { Services.Logging.AppLogService.Warning($"TI PI options warning: {ex.Message}"); }
+            catch (System.Exception ex) { Services.Logging.AppLogService.Warning($"TI PI options warning: {ExceptionMessages.Deep(ex)}"); }
         }
 
         /// <summary>Populates the status dropdown from DISTINCT statuses
@@ -67,7 +68,7 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
         private async Task LoadStatusOptionsAsync()
         {
             try { SetStatusOptions(await _service.GetTiStatusOptionsAsync()); }
-            catch (System.Exception ex) { Services.Logging.AppLogService.Warning($"TI status options warning: {ex.Message}"); }
+            catch (System.Exception ex) { Services.Logging.AppLogService.Warning($"TI status options warning: {ExceptionMessages.Deep(ex)}"); }
         }
 
         /// <summary>Maps the "All" sentinel back to no filter.</summary>

@@ -80,7 +80,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
             catch (Exception ex)
             {
-                await ShowToastAsync($"Parse error: {ex.Message}", isError: true);
+                await ShowToastAsync($"Parse error: {ExceptionMessages.Deep(ex)}", isError: true);
                 return;
             }
 

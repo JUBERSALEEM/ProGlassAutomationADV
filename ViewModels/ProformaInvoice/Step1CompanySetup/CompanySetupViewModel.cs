@@ -446,7 +446,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
             catch (Exception ex)
             {
                 CardsErrorMessage =
-                    $"Could not load saved companies: {ex.Message}";
+                    $"Could not load saved companies: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {

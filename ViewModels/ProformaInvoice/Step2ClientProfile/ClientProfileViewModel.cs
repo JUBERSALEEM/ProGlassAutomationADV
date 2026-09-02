@@ -400,7 +400,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
             catch (Exception ex)
             {
                 CardsErrorMessage =
-                    $"Could not load saved clients: {ex.Message}";
+                    $"Could not load saved clients: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {

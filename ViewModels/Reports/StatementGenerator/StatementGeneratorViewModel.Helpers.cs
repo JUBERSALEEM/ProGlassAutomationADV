@@ -118,7 +118,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             {
                 // Duplicate detection is best-effort — never block generation
                 // on a DB read failure.
-                AppLogService.Debug($"[StatementGenerator] Duplicate check failed: {ex.Message}");
+                AppLogService.Debug($"[StatementGenerator] Duplicate check failed: {ExceptionMessages.Deep(ex)}");
             }
 
             return null;
