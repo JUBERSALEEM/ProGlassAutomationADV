@@ -187,7 +187,7 @@ namespace ProGlassAutomation.Services.Storage
         private static IEnumerable<string> WithSiblings(string path, string[]? siblings)
         {
             yield return path;
-            if (siblings == null) return;
+            if (siblings == null) yield break;
             foreach (var s in siblings)
                 yield return path + s;
         }

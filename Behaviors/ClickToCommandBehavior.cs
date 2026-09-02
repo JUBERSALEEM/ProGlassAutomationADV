@@ -71,7 +71,7 @@ namespace ProGlassAutomation.Behaviors
 
             var excludes = GetExcludeAncestorTypes(element);
             if (!string.IsNullOrWhiteSpace(excludes) &&
-                IsInsideExcludedType(e.OriginalSource, excludes))
+                IsInsideExcludedType(e.OriginalSource as DependencyObject, excludes))
                 return;
 
             var command = GetCommand(element);

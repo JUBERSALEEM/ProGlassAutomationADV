@@ -588,7 +588,7 @@ namespace ProGlassAutomation.ViewModels
             try
             {
                 AiChatVM = serviceProvider.GetService<ViewModels.AI.AiChatViewModel>()
-                    ?? new ViewModels.AI.AiChatViewModel(_ai, _speechToText, _textToSpeech);
+                    ?? new ViewModels.AI.AiChatViewModel(_config, _connectivity, _ai, _speechToText, _textToSpeech);
             }
             catch
             {

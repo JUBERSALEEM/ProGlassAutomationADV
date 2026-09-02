@@ -44,7 +44,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand EnableAllCommand          { get; }
         public ICommand DisableAllOptionalCommand { get; }
 
-        private static TaxInvoiceFeatureFlags Flags
+        private TaxInvoiceFeatureFlags Flags
         {
             get
             {

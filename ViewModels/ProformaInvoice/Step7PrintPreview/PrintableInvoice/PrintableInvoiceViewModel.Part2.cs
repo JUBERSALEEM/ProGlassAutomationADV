@@ -731,7 +731,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             // BUG-64: WPF inherits attached props to children — no recursive walk
         }
 
-        private static void ShowComingSoon(string featureName, string phase)
+        private void ShowComingSoon(string featureName, string phase)
         {
             _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Msg.XIsComingInY"), featureName, phase),

@@ -87,6 +87,7 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
         /// "Open Job Order". Wired by the hub to MainViewModel.</summary>
         public Action<string>? OpenJobOrderRequested { get; set; }
         public ICommand OpenJobOrderCommand { get; private set; } = null!;
+        public ICommand SelectRowCommand { get; private set; } = null!;
 
         // ── Filters (data-driven dropdowns; "All" = no filter) ──────────
 

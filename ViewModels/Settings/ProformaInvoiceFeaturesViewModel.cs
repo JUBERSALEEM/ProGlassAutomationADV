@@ -67,7 +67,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         // ── Backing helpers ────────────────────────────────────────
 
-        private static ProformaInvoiceFeatureFlags Flags
+        private ProformaInvoiceFeatureFlags Flags
         {
             get
             {

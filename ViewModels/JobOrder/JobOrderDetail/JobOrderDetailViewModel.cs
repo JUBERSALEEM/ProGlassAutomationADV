@@ -801,7 +801,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             return false;
         }
 
-        private static void ShowExportResult(ExportResult result, string formatLabel)
+        private void ShowExportResult(ExportResult result, string formatLabel)
         {
             if (result.Success) return;
             if (result.Cancelled) return;

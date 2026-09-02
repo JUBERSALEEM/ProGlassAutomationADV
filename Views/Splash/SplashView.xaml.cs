@@ -139,13 +139,11 @@ namespace ProGlassAutomation.Views.Splash
             _termsVm.RequestContinue = () =>
             {
                 RecordAcceptance();
-                TermsAccepted = true;
                 TermsPanel.Visibility = Visibility.Collapsed;
                 TermsResolved?.Invoke();
             };
             _termsVm.RequestDecline = () =>
             {
-                TermsAccepted = false;
                 TermsResolved?.Invoke();
                 Close();
             };

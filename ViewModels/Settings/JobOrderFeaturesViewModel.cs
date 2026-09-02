@@ -46,7 +46,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand EnableAllCommand          { get; }
         public ICommand DisableAllOptionalCommand { get; }
 
-        private static JobOrderFeatureFlags Flags
+        private JobOrderFeatureFlags Flags
         {
             get
             {

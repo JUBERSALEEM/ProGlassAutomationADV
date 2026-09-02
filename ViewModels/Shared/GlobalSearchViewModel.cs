@@ -404,7 +404,7 @@ public GlobalSearchViewModel() : this(
 
         // ── Per-module queries ────────────────────────────────────────────
 
-        private static async Task AddSheetsAsync(
+        private async Task AddSheetsAsync(
             List<GlobalSearchResult> hits, string term)
         {
             try
@@ -433,7 +433,7 @@ public GlobalSearchViewModel() : this(
             catch (Exception ex) { Skip(ModuleSheetStore, ex); }
         }
 
-        private static async Task AddProformasAsync(
+        private async Task AddProformasAsync(
             List<GlobalSearchResult> hits, string term)
         {
             try
@@ -460,7 +460,7 @@ public GlobalSearchViewModel() : this(
             catch (Exception ex) { Skip(ModuleProforma, ex); }
         }
 
-        private static async Task AddJobOrdersAsync(
+        private async Task AddJobOrdersAsync(
             List<GlobalSearchResult> hits, string term)
         {
             try
@@ -487,7 +487,7 @@ public GlobalSearchViewModel() : this(
             catch (Exception ex) { Skip(ModuleJobOrders, ex); }
         }
 
-        private static async Task AddDeliveriesAsync(
+        private async Task AddDeliveriesAsync(
             List<GlobalSearchResult> hits, string term)
         {
             try
@@ -515,7 +515,7 @@ public GlobalSearchViewModel() : this(
             catch (Exception ex) { Skip(ModuleDeliveries, ex); }
         }
 
-        private static async Task AddTaxInvoicesAsync(
+        private async Task AddTaxInvoicesAsync(
             List<GlobalSearchResult> hits, string term)
         {
             try
@@ -543,7 +543,7 @@ public GlobalSearchViewModel() : this(
             catch (Exception ex) { Skip(ModuleTaxInvoices, ex); }
         }
 
-        private static async Task AddCompaniesAsync(
+        private async Task AddCompaniesAsync(
             List<GlobalSearchResult> hits, string term)
         {
             try
@@ -571,7 +571,7 @@ public GlobalSearchViewModel() : this(
             catch (Exception ex) { Skip(ModuleCompanies, ex); }
         }
 
-        private static async Task AddClientsAsync(
+        private async Task AddClientsAsync(
             List<GlobalSearchResult> hits, string term)
         {
             try

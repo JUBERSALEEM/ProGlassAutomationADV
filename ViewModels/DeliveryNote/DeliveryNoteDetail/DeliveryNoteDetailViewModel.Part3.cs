@@ -289,7 +289,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             return true;
         }
 
-        private static void ShowExportResult(
+        private void ShowExportResult(
             ExportResult result, string formatLabel)
         {
             if (result.Success || result.Cancelled) return;

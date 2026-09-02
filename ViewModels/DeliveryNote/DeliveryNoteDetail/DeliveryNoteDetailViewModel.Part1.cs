@@ -553,6 +553,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 : $"{SelectedItemRow.GlassRef} · Sr {SelectedItemRow.SerialNumber}";
 
         public ICommand ClearSelectionCommand { get; }
+        public ICommand ToggleItemSelectionCommand { get; }
 
         private static bool IsOpenForDispatch(string? status) =>
             DeliveryNoteWorkflow.IsOpenForDispatch(status);

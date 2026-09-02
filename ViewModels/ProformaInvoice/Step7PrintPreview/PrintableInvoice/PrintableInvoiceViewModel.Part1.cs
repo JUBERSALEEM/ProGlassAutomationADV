@@ -282,7 +282,7 @@ public PrintableInvoiceViewModel(
             }
         }
 
-        private static void ShowPrintError(string title, Exception ex)
+        private void ShowPrintError(string title, Exception ex)
         {
             string msg = $"{title.ToUpper()}:\n\n" +
                          $"Type: {ex.GetType().Name}\n" +
@@ -475,7 +475,7 @@ public PrintableInvoiceViewModel(
             }
         }
 
-        private static void ShowSaveSuccess(string proformaId, bool isUpdate)
+        private void ShowSaveSuccess(string proformaId, bool isUpdate)
         {
             // Single audit point — all three save paths funnel through
             // here, so one line covers create AND update.
@@ -631,7 +631,7 @@ public PrintableInvoiceViewModel(
             return true;
         }
 
-        private static void ShowExportFailureIfAny(ExportResult result, string formatLabel)
+        private void ShowExportFailureIfAny(ExportResult result, string formatLabel)
         {
             if (result.Success || result.Cancelled) return;
             _dialogs.Show(

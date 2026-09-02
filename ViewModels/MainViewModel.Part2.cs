@@ -106,7 +106,7 @@ namespace ProGlassAutomation.ViewModels
             try { return Activator.CreateInstance<T>(); } catch { return null!; }
         }
 
-        private static System.Threading.Tasks.Task<bool> AgentConfirmAsync(string title, string message, bool destructive)
+        private System.Threading.Tasks.Task<bool> AgentConfirmAsync(string title, string message, bool destructive)
         {
             try
             {
@@ -139,7 +139,7 @@ namespace ProGlassAutomation.ViewModels
         /// <see cref="ViewModels.ProformaInvoice.ProformaInvoiceViewModel.NewProformaStartChoice.Cancelled"/>
         /// so a stray dismissal never silently creates a blank PI.
         /// </summary>
-        private static ViewModels.ProformaInvoice.ProformaInvoiceViewModel.NewProformaStartChoice PromptNewPiStart()
+        private ViewModels.ProformaInvoice.ProformaInvoiceViewModel.NewProformaStartChoice PromptNewPiStart()
         {
             // We use a 3-button MessageBox: Yes / No / Cancel, mapped to
             // FromInquiry / Skip / Cancelled. The Yes button is the
@@ -247,7 +247,7 @@ namespace ProGlassAutomation.ViewModels
             IsMenuOpen = false;
         }
 
-        private static void ApplyModuleWallpaper(string? navKey)
+        private void ApplyModuleWallpaper(string? navKey)
         {
             string moduleKey = navKey switch
             {

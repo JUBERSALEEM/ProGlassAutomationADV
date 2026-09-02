@@ -29,6 +29,7 @@ namespace ProGlassAutomation.ViewModels.AI
         private ISpeechToTextService _stt;
         private readonly ITextToSpeechService _tts;
         private readonly Services.AI.IAiProviderEvents _providerEvents;
+        private readonly IAiService _ai = null!;
 
         private string _currentInput;
         private bool _isBusy;
@@ -162,10 +163,10 @@ namespace ProGlassAutomation.ViewModels.AI
 
         public bool HasActiveStream => _activeStream != null;
 
-        public string ActiveProviderName => ai?.ProviderName ?? "AI";
-        public string ActiveProviderIcon => ai?.ProviderIcon ?? "🤖";
-        public string ActiveProviderSubtitle => ai != null
-            ? $"Powered by {ai.ProviderName}"
+        public string ActiveProviderName => _ai?.ProviderName ?? "AI";
+        public string ActiveProviderIcon => _ai?.ProviderIcon ?? "🤖";
+        public string ActiveProviderSubtitle => _ai != null
+            ? $"Powered by {_ai.ProviderName}"
             : "Configure provider in Settings";
 
         // ══════════════════════════════════════════════════════════════
@@ -204,6 +205,7 @@ public AiChatViewModel(
             _stt = stt;
             _tts = tts;
             _providerEvents = providerEvents ?? new Services.AI.AiProviderEvents();
+            _ai = ai!;
 
             // ── Wire Whisper events (all Dispatcher-marshaled) ────────
             if (_stt is WhisperSpeechService whisper)
@@ -485,7 +487,7 @@ public AiChatViewModel(
 
             _tts?.Stop();
 
-            var currentAi = ai;
+            var currentAi = _ai;
 
             if (currentAi == null)
             {
@@ -687,7 +689,7 @@ public AiChatViewModel(
                         Text = text.Trim() + "\n\n⏹ Generation stopped.",
                         IsUser = false,
                         ProviderName = providerName,
-                        ProviderIcon = ai?.ProviderIcon ?? "🤖"
+                        ProviderIcon = _ai?.ProviderIcon ?? "🤖"
                     });
                     RememberExchange(userMsg, text, entityRef);
                 }
@@ -707,7 +709,7 @@ public AiChatViewModel(
                     Text = aiText,
                     IsUser = false,
                     ProviderName = providerName,
-                    ProviderIcon = ai?.ProviderIcon ?? "🤖"
+                    ProviderIcon = _ai?.ProviderIcon ?? "🤖"
                 });
 
                 OnPropertyChanged(nameof(ActiveProviderName));

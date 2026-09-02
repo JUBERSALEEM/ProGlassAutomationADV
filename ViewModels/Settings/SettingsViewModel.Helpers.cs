@@ -41,7 +41,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         //  HELPERS
         // ══════════════════════════════════════════════════════════════
 
-        private static void SaveConfig()
+        private void SaveConfig()
         {
             if (_config != null)
                 ConfigService.Save(_config);
@@ -750,7 +750,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         ///   4. on ANY failure keeps the app OPEN and tells the user,
         ///      so a failed restart can never strand them closed.
         /// </summary>
-        private static void RestartApplication()
+        private void RestartApplication()
         {
             try
             {

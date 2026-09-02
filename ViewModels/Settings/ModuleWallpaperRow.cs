@@ -99,7 +99,7 @@ public ModuleWallpaperRow(string key, string label, AppConfig? config)
             OnPropertyChanged(nameof(FileName));
         }
 
-        private static void Save()
+        private void Save()
         {
             if (_config != null)
                 ConfigService.Save(_config);
@@ -109,7 +109,7 @@ public ModuleWallpaperRow(string key, string label, AppConfig? config)
         /// Re-layer the wallpaper of whichever module is on screen
         /// right now, so changes are visible immediately.
         /// </summary>
-        private static void Refresh() =>
+        private void Refresh() =>
             VisualThemeEngine.ApplyModule(
                 VisualThemeEngine.LastRequestedModule,
                 _config?.Appearance);

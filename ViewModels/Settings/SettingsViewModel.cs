@@ -44,10 +44,10 @@ namespace ProGlassAutomation.ViewModels.Settings
 {
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
-        private readonly IAiService _ai = null!;
+        private IAiService _ai = null!;
         private readonly AppConfig _config = null!;
         private readonly IDialogService _dialogs = null!;
-        private readonly ISpeechToTextService _speechToText = null!;
+        private ISpeechToTextService _speechToText = null!;
         private readonly IDatabaseServices _database = null!;
         private readonly Services.AI.IAiProviderEvents _providerEvents = null!;
 

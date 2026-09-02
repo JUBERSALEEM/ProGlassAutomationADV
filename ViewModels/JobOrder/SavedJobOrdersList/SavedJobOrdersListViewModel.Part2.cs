@@ -176,7 +176,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             GC.SuppressFinalize(this);
         }
 
-        private static void ShowExportResult(ExportResult result, string formatLabel)
+        private void ShowExportResult(ExportResult result, string formatLabel)
         {
             if (result.Success || result.Cancelled)
                 return;
