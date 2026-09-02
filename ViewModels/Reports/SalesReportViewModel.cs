@@ -55,7 +55,11 @@ namespace ProGlassAutomation.ViewModels.Reports
             InitializeCore();
         }
 
-        private readonly IReportingDataService _reportingService;
+        // Not 'readonly': assigned in InitializeCore(), and C# only allows
+        // readonly fields to be assigned in a declaration or a constructor
+        // (CS0191). Still assigned exactly once, on the single construction
+        // path, before any consumer runs.
+        private IReportingDataService _reportingService;
 
         // ── Central reporting modules ─────────────────────────────────────
         public PiReportViewModel PiReport { get; private set; }
