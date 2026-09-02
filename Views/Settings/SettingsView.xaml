@@ -45,7 +45,13 @@
 
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="232"/>
+            <!-- ERR-BEFC44 follow-up: this rail was a hard 232px, so with a
+                 larger global UI scale or font the longest labels clipped
+                 mid-word ("Appearance" rendered as "Appea"). Auto-size to
+                 the widest label instead, with MinWidth preserving the old
+                 232px look at default scale and MaxWidth stopping the rail
+                 from eating the content pane in verbose languages. -->
+            <ColumnDefinition Width="Auto" MinWidth="232" MaxWidth="420"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
