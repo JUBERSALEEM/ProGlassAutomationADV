@@ -148,7 +148,7 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
             }
             catch (System.Exception ex) when (!(ex is System.OperationCanceledException))
             {
-                HasError = true; ErrorMessage = ex.Message;
+                HasError = true; ErrorMessage = ExceptionMessages.Deep(ex);
                 AppLogService.Warning($"PiReport LoadAsync error: {ExceptionMessages.Deep(ex)}");
             }
             finally { IsLoading = false; }

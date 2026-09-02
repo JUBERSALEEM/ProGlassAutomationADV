@@ -5,6 +5,7 @@ using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
 using ProGlassAutomation.ViewModels.Reports.PiReport;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -95,7 +96,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
                 IsLoaded = true;
             }
             catch (System.Exception ex) when (!(ex is System.OperationCanceledException))
-            { HasError = true; ErrorMessage = ex.Message; }
+            { HasError = true; ErrorMessage = ExceptionMessages.Deep(ex); }
             finally { IsLoading = false; }
         }
 

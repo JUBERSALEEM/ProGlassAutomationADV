@@ -365,7 +365,7 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
                 IsLoaded = true;
             }
             catch (Exception ex) when (!(ex is OperationCanceledException))
-            { HasError = true; ErrorMessage = ex.Message; }
+            { HasError = true; ErrorMessage = ExceptionMessages.Deep(ex); }
             finally { IsLoading = false; }
         }
 

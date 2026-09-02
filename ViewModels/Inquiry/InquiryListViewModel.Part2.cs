@@ -151,7 +151,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 SetStatus($"Imported {created} inquiries{suffix}{dupes}{(failed > 0 ? $", {failed} failed" : "")}.");
                 ResetAndReload();
             }
-            catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.Message); }
+            catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ExceptionMessages.Deep(ex)); }
             catch (OperationCanceledException) { /* superseded import — user clicked again */ }
             catch (Exception ex) { SetStatus("Import failed: " + ExceptionMessages.Deep(ex)); }
         }

@@ -141,7 +141,7 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
                 IsLoaded = true;
             }
             catch (System.Exception ex) when (!(ex is System.OperationCanceledException))
-            { HasError = true; ErrorMessage = ex.Message; }
+            { HasError = true; ErrorMessage = ExceptionMessages.Deep(ex); }
             finally { IsLoading = false; }
         }
 

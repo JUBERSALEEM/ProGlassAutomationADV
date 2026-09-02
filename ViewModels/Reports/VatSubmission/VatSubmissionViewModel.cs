@@ -201,7 +201,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             catch (Exception ex) when (!(ex is OperationCanceledException))
             { 
                 HasError = true; 
-                ErrorMessage = ex.Message;
+                ErrorMessage = ExceptionMessages.Deep(ex);
                 Services.Logging.AppLogService.Error($"VAT load error: {ExceptionMessages.Deep(ex)}", ex);
             }
             finally { IsLoading = false; }
