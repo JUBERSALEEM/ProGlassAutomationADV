@@ -12,6 +12,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Statement.Workflow;
 using ProGlassAutomation.Models.Statement.Workflow;
 using System;
 using System.Collections.Generic;

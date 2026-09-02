@@ -43,6 +43,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 
 using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 {
