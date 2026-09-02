@@ -68,8 +68,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             if (Contains(spec, "Overlap"))
             {
                 bool specialOverlapSqm = Contains(spec, "Overlap (SQM)");
-                bool explicitSiliconSqm = Contains(spec, "Silicon Bed (SQM)");
-                bool explicitSiliconLm = Contains(spec, "Silicon Bed (LM)");
 
                 if (specialOverlapSqm)
                 {
@@ -130,11 +128,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     Add("HOLES", "QTY", "Spec requires holes.");
             }
 
-            if (Contains(spec, "Mitring"))
-                Add("MITRING", "LM1", "Spec requires mitring.");
+            if (Contains(spec, "Mitring") || Contains(spec, "Beveled"))
+                Add("MITRING", "LM1", "Spec requires mitring/beveling.");
 
-            if (Contains(spec, "Sandblasted"))
-                Add("SANDBLASTING", "SQM1", "Spec requires sandblasting.");
+            if (Contains(spec, "Sandblasted") || Contains(spec, "Frosted"))
+                Add("SANDBLASTING", "SQM1", "Spec requires sandblasting/frosting.");
 
             var polishType = DetectPolish(spec);
             if (polishType.HasValue)
@@ -189,43 +187,62 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     && glassMatches.Count == 0)
                     return rows;
 
+                // COLOR-BASED WASTAGE: Clear glass offcuts are reusable across
+                // orders (clear is common), so clear panes skip wastage charges.
+                // Colored/tinted/coated glass offcuts cannot be reused, so they
+                // get wastage charges to cover the lost material cost.
                 if (!string.IsNullOrWhiteSpace(outerColor) || glassMatches.Count > 0)
                 {
-                    rows.Add(new AutoWastageSuggestion
+                    if (RequiresWastageCharge(outerColor))
                     {
-                        SpecGroupNumber = specGroupNumber,
-                        SourceSideLabel = "Outer (W1/H1)",
-                        DisplayName = string.IsNullOrWhiteSpace(outerColor)
-                            ? "Outer glass wastage"
-                            : $"{outerColor} — outer glass wastage",
-                        Reason = "Primary outer pane wastage."
-                    });
+                        rows.Add(new AutoWastageSuggestion
+                        {
+                            SpecGroupNumber = specGroupNumber,
+                            SourceSideLabel = "Outer (W1/H1)",
+                            DisplayName = string.IsNullOrWhiteSpace(outerColor)
+                                ? "Outer glass wastage"
+                                : $"{outerColor} — outer glass wastage",
+                            Reason = RequiresWastageCharge(outerColor)
+                                ? "Colored/coated glass — offcuts not reusable."
+                                : "Primary outer pane wastage."
+                        });
+                    }
                 }
 
                 if (!string.IsNullOrWhiteSpace(lamOuterColor) || glassMatches.Count > 1)
                 {
-                    rows.Add(new AutoWastageSuggestion
+                    if (RequiresWastageCharge(lamOuterColor))
                     {
-                        SpecGroupNumber = specGroupNumber,
-                        SourceSideLabel = "Lam Outer (W2/H2)",
-                        DisplayName = string.IsNullOrWhiteSpace(lamOuterColor)
-                            ? "Lam outer glass wastage"
-                            : $"{lamOuterColor} — lam outer glass wastage",
-                        Reason = "Laminated outer pane wastage."
-                    });
+                        rows.Add(new AutoWastageSuggestion
+                        {
+                            SpecGroupNumber = specGroupNumber,
+                            SourceSideLabel = "Lam Outer (W2/H2)",
+                            DisplayName = string.IsNullOrWhiteSpace(lamOuterColor)
+                                ? "Lam outer glass wastage"
+                                : $"{lamOuterColor} — lam outer glass wastage",
+                            Reason = RequiresWastageCharge(lamOuterColor)
+                                ? "Colored/coated glass — offcuts not reusable."
+                                : "Laminated outer pane wastage."
+                        });
+                    }
                 }
 
                 if (!string.IsNullOrWhiteSpace(lamInnerColor) || glassMatches.Count > 2)
                 {
-                    rows.Add(new AutoWastageSuggestion
+                    if (RequiresWastageCharge(lamInnerColor))
                     {
-                        SpecGroupNumber = specGroupNumber,
-                        SourceSideLabel = "Lam Inner (W2/H2)",
-                        DisplayName = string.IsNullOrWhiteSpace(lamInnerColor)
-                            ? "Lam inner glass wastage"
-                            : $"{lamInnerColor} — lam inner glass wastage",
-                        Reason = "Laminated inner pane wastage."
-                    });
+                        rows.Add(new AutoWastageSuggestion
+                        {
+                            SpecGroupNumber = specGroupNumber,
+                            SourceSideLabel = "Lam Inner (W2/H2)",
+                            DisplayName = string.IsNullOrWhiteSpace(lamInnerColor)
+                                ? "Lam inner glass wastage"
+                                : $"{lamInnerColor} — lam inner glass wastage",
+                            Reason = RequiresWastageCharge(lamInnerColor)
+                                ? "Colored/coated glass — offcuts not reusable."
+                                : "Laminated inner pane wastage."
+                        });
+                    }
                 }
 
                 return rows;
@@ -237,17 +254,22 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 && glassMatches.Count == 0)
                 return rows;
 
-            rows.Add(new AutoWastageSuggestion
+            // COLOR-BASED WASTAGE: Only charge wastage for colored/coated glass.
+            // Clear glass is common across orders, so offcuts can be reused.
+            if (RequiresWastageCharge(outerColor))
             {
-                SpecGroupNumber = specGroupNumber,
-                SourceSideLabel = "Outer (W1/H1)",
-                DisplayName = string.IsNullOrWhiteSpace(outerColor)
-                    ? "Outer glass wastage"
-                    : $"{outerColor} — outer glass wastage",
-                Reason = "Primary pane wastage."
-            });
+                rows.Add(new AutoWastageSuggestion
+                {
+                    SpecGroupNumber = specGroupNumber,
+                    SourceSideLabel = "Outer (W1/H1)",
+                    DisplayName = string.IsNullOrWhiteSpace(outerColor)
+                        ? "Outer glass wastage"
+                        : $"{outerColor} — outer glass wastage",
+                    Reason = "Colored/coated glass — offcuts not reusable."
+                });
+            }
 
-            if (doubleGlass)
+            if (doubleGlass && RequiresWastageCharge(innerColor))
             {
                 rows.Add(new AutoWastageSuggestion
                 {
@@ -256,11 +278,35 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     DisplayName = string.IsNullOrWhiteSpace(innerColor)
                         ? "Inner glass wastage"
                         : $"{innerColor} — inner glass wastage",
-                    Reason = "Second pane wastage."
+                    Reason = "Colored/coated glass — offcuts not reusable."
                 });
             }
 
             return rows;
+        }
+
+        /// <summary>
+        /// Determines if a glass color requires a wastage charge.
+        /// Clear glass offcuts are reusable across orders (clear is the most
+        /// common glass type), so clear panes skip wastage charges.
+        /// Colored, tinted, coated (Low-E, reflective), and specialty glass
+        /// offcuts cannot be reused, so they require wastage charges.
+        /// </summary>
+        private static bool RequiresWastageCharge(string? colorName)
+        {
+            if (string.IsNullOrWhiteSpace(colorName))
+                return false;
+
+            string color = colorName.Trim();
+
+            // Clear glass = no wastage charge (offcuts reusable)
+            if (color.Equals("Clear", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // Everything else (colored, tinted, coated) = wastage charge required
+            // Examples: HD Grey, Euro Grey, Bronze, Dark Grey, Green, Blue,
+            //           Low-E, Reflective, Tinted, etc.
+            return true;
         }
 
         public static PolishSubType? DetectPolish(string? specName)
