@@ -154,7 +154,35 @@ app-wide, at a constant frame budget.
 
 ## 4. Progress log
 
-| Phase | Status | Commit |
-|---|---|---|
-| Audit + plan | ✅ | this document |
-| 1 — Stop the freeze | in progress | — |
+| Phase | Status | Commit | Outcome |
+|---|---|---|---|
+| Audit + plan | ✅ | `7b5f6ec` | Root cause proven from the Win32 contract |
+| 1 — Stop the freeze | ✅ | `7b5f6ec` | Adaptive fps + unconditional yield + sync STOP |
+| 3a — Sync-over-async | ✅ | `58ef86f` | Attachment open no longer blocks on file I/O |
+| 4 — Lazy modules | ✅ | `604d8a5` | 18 of 28 VMs now build on first use |
+| 2 — WGC backend | next | — | Permanent capture fix |
+| 3b — Dispatcher.Invoke review | pending | — | 33 blocking call sites to read |
+| 5 — Virtualisation | pending | — | |
+| 6 — Async correctness | pending | — | |
+| 7 — Leaks | pending | — | |
+| 8 — Motion/theme polish | pending | — | |
+
+### Phase 4 finding worth remembering
+
+I assumed the smooth/slow difference would be **virtualisation**. It was
+not — Specifications has **zero** virtualisation while the modules that
+feel slow have plenty (DeliveryNote 26, TaxInvoice 24). Measuring beat
+assuming.
+
+The real cause was **28 view models constructed eagerly at startup**,
+most of which start database loads in their constructors
+(InquiryListViewModel alone had 24). Nothing could paint until that
+storm cleared.
+
+### Phase 4 near-miss
+
+My first attempt lazified 25 VMs. Caught before commit: the constructor
+wires cross-module callbacks (`InquiryVM.OpenProformaForRowRequested`
+etc.), which touches those properties and would have instantiated them
+anyway. Reverted, re-derived the safe set mechanically by counting `X.`
+member access per property, landed 18.
