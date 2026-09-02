@@ -39,7 +39,7 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Specifications
 {
-    public class SpecificationsCenterViewModel : ViewModelBase
+    public class SpecificationsCenterViewModel : ViewModelBase, IDisposable
     {
         private readonly IDialogService? _dialogs;
         private readonly ISpecificationsRepository? _specs;
@@ -673,6 +673,21 @@ namespace ProGlassAutomation.ViewModels.Specifications
             }
 
             return result;
+        }
+
+        // ── IDisposable — detach static event subscription ────────────
+        // SpecCatalogNotifier.Changed is a static event that outlives
+        // any single VM instance. Without detaching, the VM leaks until
+        // the app exits (or until the next SpecCatalogNotifier.Changed
+        // fires and tries to call a method on a dead VM).
+        private bool _disposed;
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { SpecCatalogNotifier.Changed -= OnCatalogChanged; }
+            catch { /* best-effort */ }
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
