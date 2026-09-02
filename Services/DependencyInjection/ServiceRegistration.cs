@@ -163,6 +163,12 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddTransient<ViewModels.ProformaInvoice.Step5DataGrid.DataGridViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.Step6OtherCharges.OtherChargesViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.Step7PrintPreview.PrintPreviewViewModel>();
+            // PrintableInvoiceViewModel takes these two and throws
+            // ArgumentNullException on null, so they MUST be registered
+            // or resolving the print preview fails outright. Both have
+            // ctors whose own dependencies are already registered above.
+            services.AddTransient<ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary.InvoiceMainSummaryViewModel>();
+            services.AddTransient<ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions.TermsAndConditionsViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.Step7PrintPreview.PrintableInvoice.PrintableInvoiceViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.Step8Attachments.AttachmentsStepViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.Step9ProfitLoss.ProfitLossStepViewModel>();
@@ -243,6 +249,12 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<IAiService>(_ => global::ProGlassAutomation.App.Ai);
             services.AddSingleton<ISpeechToTextService>(_ => global::ProGlassAutomation.App.SpeechToText);
             services.AddSingleton<ITextToSpeechService>(_ => global::ProGlassAutomation.App.TextToSpeech);
+
+            // AiChatViewModel also takes IConnectivityService. It was
+            // unregistered, so MS.DI could not build the greediest ctor
+            // and the AI chat panel silently failed to resolve.
+            services.AddSingleton<Services.AI.AIConnectivity.IConnectivityService,
+                                  Services.AI.AIConnectivity.ConnectivityService>();
 
             services.AddTransient<Agent.UI.AgentChatViewModel>();
             services.AddTransient<Agent.UI.AgentSettingsViewModel>();
