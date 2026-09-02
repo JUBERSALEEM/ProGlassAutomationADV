@@ -51,9 +51,9 @@ namespace ProGlassAutomation.ViewModels.Settings
             DisableAllOptionalCommand   = new RelayCommand(_ => SetAll(false));
         }
 
-        public ICommand ResetToDefaultsCommand    { get; }
-        public ICommand EnableAllCommand          { get; }
-        public ICommand DisableAllOptionalCommand { get; }
+        public ICommand ResetToDefaultsCommand    { get; private set; }
+        public ICommand EnableAllCommand          { get; private set; }
+        public ICommand DisableAllOptionalCommand { get; private set; }
 
         private TaxInvoiceFeatureFlags Flags
         {

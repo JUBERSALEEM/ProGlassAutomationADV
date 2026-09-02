@@ -68,10 +68,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder
         public const string TabGodView = "GodView";
         public const string TabActivity = "Activity";
 
-        public SavedJobOrdersListViewModel ListVM { get; }
-        public JobOrderDetailViewModel DetailVM { get; }
-        public JobOrderGodViewViewModel GodViewVM { get; }
-        public SectionActivityViewModel ActivityVM { get; }
+        public SavedJobOrdersListViewModel ListVM { get; private set; }
+        public JobOrderDetailViewModel DetailVM { get; private set; }
+        public JobOrderGodViewViewModel GodViewVM { get; private set; }
+        public SectionActivityViewModel ActivityVM { get; private set; }
 
         private bool _isListView = true;
         public bool IsListView
@@ -107,8 +107,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder
         public bool IsGodViewTab => ActiveTab == TabGodView;
         public bool IsActivityTab => ActiveTab == TabActivity;
 
-        public ICommand BackToListCommand { get; }
-        public ICommand SwitchTabCommand { get; }
+        public ICommand BackToListCommand { get; private set; }
+        public ICommand SwitchTabCommand { get; private set; }
         public Action<int>? OnRequestOpenDeliveryNote { get; set; }
 
         public JobOrderViewModel()

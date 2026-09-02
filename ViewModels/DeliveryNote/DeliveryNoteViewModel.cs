@@ -72,14 +72,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         public const string TabGodView = "GodView";
         public const string TabActivity = "Activity";
 
-        public DeliveryNoteListViewModel ListVM { get; }
-        public DeliveryNoteDetailViewModel DetailVM { get; }
+        public DeliveryNoteListViewModel ListVM { get; private set; }
+        public DeliveryNoteDetailViewModel DetailVM { get; private set; }
 
         /// <summary>God View tab — every delivery note in the system.</summary>
-        public DeliveryNoteGodViewViewModel GodViewVM { get; }
+        public DeliveryNoteGodViewViewModel GodViewVM { get; private set; }
 
         /// <summary>Activity tab — live audit feed for this section.</summary>
-        public SectionActivityViewModel ActivityVM { get; }
+        public SectionActivityViewModel ActivityVM { get; private set; }
 
         public Func<string, Task>? OnRequestOpenTaxInvoiceForDeliveryNote
         { get; set; }
@@ -123,8 +123,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         public bool IsGodViewTab => ActiveTab == TabGodView;
         public bool IsActivityTab => ActiveTab == TabActivity;
 
-        public ICommand BackToListCommand { get; }
-        public ICommand SwitchTabCommand { get; }
+        public ICommand BackToListCommand { get; private set; }
+        public ICommand SwitchTabCommand { get; private set; }
 
         public void Dispose()
         {

@@ -38,7 +38,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         ProGlassAutomation.Agent.Context.IAgentContextAware,
         IDisposable
     {
-        public string Title { get; } = "Proforma Invoice Builder";
+        public string Title { get; private set; } = "Proforma Invoice Builder";
 
         public string AgentContextDetail
         {
@@ -52,7 +52,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 catch { return ""; }
             }
         }
-        public string Subtitle { get; } = "Nine-station industrial quotation deck";
+        public string Subtitle { get; private set; } = "Nine-station industrial quotation deck";
 
         public const int TotalSteps = 9;
 
@@ -64,17 +64,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public int PendingCount => 0;
         public bool HasInvoices => false;
 
-        public Step1CompanySetup.CompanySetupViewModel Step1VM { get; }
-        public Step2ClientProfile.ClientProfileViewModel Step2VM { get; }
-        public Step3ProjectSpecs.ProjectSpecsViewModel Step3VM { get; }
-        public Step4PricingEstimator.PricingEstimatorViewModel Step4VM { get; }
-        public Step5DataGrid.DataGridViewModel Step5VM { get; }
-        public Step6OtherCharges.OtherChargesViewModel Step6VM { get; }
-        public Step7PrintPreview.PrintPreviewViewModel Step7VM { get; }
-        public Step8Attachments.AttachmentsStepViewModel Step8VM { get; }
-        public Step9ProfitLoss.ProfitLossStepViewModel Step9VM { get; }
+        public Step1CompanySetup.CompanySetupViewModel Step1VM { get; private set; }
+        public Step2ClientProfile.ClientProfileViewModel Step2VM { get; private set; }
+        public Step3ProjectSpecs.ProjectSpecsViewModel Step3VM { get; private set; }
+        public Step4PricingEstimator.PricingEstimatorViewModel Step4VM { get; private set; }
+        public Step5DataGrid.DataGridViewModel Step5VM { get; private set; }
+        public Step6OtherCharges.OtherChargesViewModel Step6VM { get; private set; }
+        public Step7PrintPreview.PrintPreviewViewModel Step7VM { get; private set; }
+        public Step8Attachments.AttachmentsStepViewModel Step8VM { get; private set; }
+        public Step9ProfitLoss.ProfitLossStepViewModel Step9VM { get; private set; }
 
-        public ObservableCollection<WizardStep> WizardSteps { get; }
+        public ObservableCollection<WizardStep> WizardSteps { get; private set; }
 
         private WizardStep _currentStep;
         private int _furthestStepReached = 1;
@@ -131,14 +131,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         }
 
         public bool IsWizardView => !_isListView;
-        public SavedInvoicesList.SavedInvoicesListViewModel SavedInvoicesListVM { get; }
+        public SavedInvoicesList.SavedInvoicesListViewModel SavedInvoicesListVM { get; private set; }
 
-        public ICommand NextStepCommand { get; }
-        public ICommand PreviousStepCommand { get; }
-        public ICommand GoToStepCommand { get; }
-        public ICommand NewInvoiceCommand { get; }
-        public ICommand BackToListCommand { get; }
-        public ICommand NewFromInquiryCommand { get; }
+        public ICommand NextStepCommand { get; private set; }
+        public ICommand PreviousStepCommand { get; private set; }
+        public ICommand GoToStepCommand { get; private set; }
+        public ICommand NewInvoiceCommand { get; private set; }
+        public ICommand BackToListCommand { get; private set; }
+        public ICommand NewFromInquiryCommand { get; private set; }
 
         // ── Cross-module callbacks (wired by MainViewModel) ─────────────
         // Ask the host to show the user a 3-way picker for how a "new PI"

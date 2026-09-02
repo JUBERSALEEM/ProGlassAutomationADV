@@ -48,8 +48,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
         /// <summary>Raised with the JO database Id when a row is opened.</summary>
         public Action<int>? OnOpenRequested { get; set; }
 
-        public ICommand RefreshCommand { get; }
-        public ICommand OpenCommand { get; }
+        public ICommand RefreshCommand { get; private set; }
+        public ICommand OpenCommand { get; private set; }
 
         private string _searchText = "";
         public string SearchText

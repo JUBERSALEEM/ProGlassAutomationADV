@@ -78,12 +78,12 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         public Action? TriggerNewInvoice { get; set; }
 
         // ── quick action commands ─────────────────────────────────────────
-        public ICommand NewInvoiceCommand { get; }
-        public ICommand SavedInvoicesCommand { get; }
-        public ICommand ViewStockCommand { get; }
-        public ICommand ViewJobsCommand { get; }
-        public ICommand ViewDeliveriesCommand { get; }
-        public ICommand ExportReportCommand { get; }
+        public ICommand NewInvoiceCommand { get; private set; }
+        public ICommand SavedInvoicesCommand { get; private set; }
+        public ICommand ViewStockCommand { get; private set; }
+        public ICommand ViewJobsCommand { get; private set; }
+        public ICommand ViewDeliveriesCommand { get; private set; }
+        public ICommand ExportReportCommand { get; private set; }
 
         // ═════════════════════════════════════════════════════════════════
         //  PARENT CARDS

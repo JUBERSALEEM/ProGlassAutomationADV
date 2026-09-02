@@ -103,9 +103,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
         public bool IsEmpty => _isLoaded && !IsLoading && _totalStatements == 0;
 
         // ── Commands ──────────────────────────────────────────────────────
-        public ICommand GoToStatementsCommand { get; }
-        public ICommand NewStatementCommand { get; }
-        public ICommand OpenPdfCommand { get; }
+        public ICommand GoToStatementsCommand { get; private set; }
+        public ICommand NewStatementCommand { get; private set; }
+        public ICommand OpenPdfCommand { get; private set; }
 
         // ═════════════════════════════════════════════════════════════════
         public StDashboardViewModel()

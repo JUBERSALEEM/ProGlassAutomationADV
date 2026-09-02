@@ -58,12 +58,12 @@ namespace ProGlassAutomation.ViewModels.Reports
         private readonly IReportingDataService _reportingService;
 
         // ── Central reporting modules ─────────────────────────────────────
-        public PiReportViewModel PiReport { get; }
-        public JoReportViewModel JoReport { get; }
-        public DeliveryReportViewModel DeliveryReport { get; }
-        public TaxInvoiceReportViewModel TaxInvoiceReport { get; }
-        public StatementReportViewModel StatementReport { get; }
-        public VatSubmissionViewModel VatSubmission { get; }
+        public PiReportViewModel PiReport { get; private set; }
+        public JoReportViewModel JoReport { get; private set; }
+        public DeliveryReportViewModel DeliveryReport { get; private set; }
+        public TaxInvoiceReportViewModel TaxInvoiceReport { get; private set; }
+        public StatementReportViewModel StatementReport { get; private set; }
+        public VatSubmissionViewModel VatSubmission { get; private set; }
 
         // ── Hub navigation ────────────────────────────────────────────────
         public class ReportNavItem
@@ -124,7 +124,7 @@ namespace ProGlassAutomation.ViewModels.Reports
         };
 
         public bool IsOverview => _activeKey == "Overview";
-        public ICommand NavigateReportCommand { get; }
+        public ICommand NavigateReportCommand { get; private set; }
 
         // ── Open-original-document callbacks ──────────────────────────────
         // Wired by MainViewModel so a report sidebar can jump to the REAL

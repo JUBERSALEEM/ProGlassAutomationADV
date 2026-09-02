@@ -103,14 +103,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
 
         // ── Child VMs ─────────────────────────────────────────────────────
 
-        public TaxInvoiceListViewModel ListVM { get; }
-        public TaxInvoiceDetailViewModel DetailVM { get; }
+        public TaxInvoiceListViewModel ListVM { get; private set; }
+        public TaxInvoiceDetailViewModel DetailVM { get; private set; }
 
         /// <summary>God View tab — every tax invoice in the system.</summary>
-        public TaxInvoiceGodViewViewModel GodViewVM { get; }
+        public TaxInvoiceGodViewViewModel GodViewVM { get; private set; }
 
         /// <summary>Activity tab — live audit feed for this section.</summary>
-        public SectionActivityViewModel ActivityVM { get; }
+        public SectionActivityViewModel ActivityVM { get; private set; }
 
         // ── View toggle ───────────────────────────────────────────────────
 
@@ -154,10 +154,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
 
         // ── Commands ──────────────────────────────────────────────────────
 
-        public ICommand BackToListCommand { get; }
+        public ICommand BackToListCommand { get; private set; }
 
         /// <summary>Switches tabs. Parameter = tab key constant.</summary>
-        public ICommand SwitchTabCommand { get; }
+        public ICommand SwitchTabCommand { get; private set; }
 
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR

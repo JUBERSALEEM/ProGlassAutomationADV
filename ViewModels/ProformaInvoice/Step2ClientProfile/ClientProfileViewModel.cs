@@ -317,10 +317,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
         //  COMMANDS
         // ═══════════════════════════════════════════════════════════════
 
-        public ICommand LoadClientCommand { get; }
-        public ICommand ShowAllClientsCommand { get; }
-        public ICommand RefreshCardsCommand { get; }
-        public ICommand RefreshSalesmanCommand { get; }
+        public ICommand LoadClientCommand { get; private set; }
+        public ICommand ShowAllClientsCommand { get; private set; }
+        public ICommand RefreshCardsCommand { get; private set; }
+        public ICommand RefreshSalesmanCommand { get; private set; }
 
         // ═══════════════════════════════════════════════════════════════
         //  CONSTRUCTOR

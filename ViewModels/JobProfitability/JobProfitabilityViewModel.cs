@@ -335,7 +335,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         // ── Commands ──────────────────────────────────────────────────────
 
         /// <summary>Reloads everything from the invoice database.</summary>
-        public ICommand RefreshCommand { get; }
+        public ICommand RefreshCommand { get; private set; }
 
         public JobProfitabilityViewModel()
          : this(

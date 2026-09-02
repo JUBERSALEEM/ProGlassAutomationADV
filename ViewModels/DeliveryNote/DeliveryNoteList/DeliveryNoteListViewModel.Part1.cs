@@ -149,8 +149,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         private static string NullIfBlank(string? s, string fallback)
             => string.IsNullOrWhiteSpace(s) ? fallback : s!;
 
-        public ICommand SelectRowCommand { get; }
-        public ICommand ClearSelectionCommand { get; }
+        public ICommand SelectRowCommand { get; private set; }
+        public ICommand ClearSelectionCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════════
         //  TAB INDEX
@@ -467,17 +467,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         //  COMMANDS
         // ══════════════════════════════════════════════════════════════════
 
-        public ICommand RefreshCommand { get; }
-        public ICommand ClearFiltersCommand { get; }
-        public ICommand OpenCommand { get; }
-        public ICommand DeleteCommand { get; }
-        public ICommand ChangeStatusCommand { get; }
-        public ICommand CreateDnCommand { get; }
-        public ICommand GenerateInvoiceCommand { get; }
-        public ICommand OpenGroupCommand { get; }
-        public ICommand OpenMasterCommand { get; }
-        public ICommand GenerateMasterInvoiceCommand { get; }
-        public ICommand CreateDnForJobOrderCommand { get; }
+        public ICommand RefreshCommand { get; private set; }
+        public ICommand ClearFiltersCommand { get; private set; }
+        public ICommand OpenCommand { get; private set; }
+        public ICommand DeleteCommand { get; private set; }
+        public ICommand ChangeStatusCommand { get; private set; }
+        public ICommand CreateDnCommand { get; private set; }
+        public ICommand GenerateInvoiceCommand { get; private set; }
+        public ICommand OpenGroupCommand { get; private set; }
+        public ICommand OpenMasterCommand { get; private set; }
+        public ICommand GenerateMasterInvoiceCommand { get; private set; }
+        public ICommand CreateDnForJobOrderCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR

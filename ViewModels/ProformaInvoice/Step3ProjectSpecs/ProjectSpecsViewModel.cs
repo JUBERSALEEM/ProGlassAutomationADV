@@ -202,10 +202,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
         //  COMMANDS
         // ═══════════════════════════════════════════════════════════════
 
-        public ICommand LoadProjectCommand { get; }
-        public ICommand ShowAllProjectsCommand { get; }
-        public ICommand RefreshCardsCommand { get; }
-        public ICommand ClearClientFilterCommand { get; }
+        public ICommand LoadProjectCommand { get; private set; }
+        public ICommand ShowAllProjectsCommand { get; private set; }
+        public ICommand RefreshCardsCommand { get; private set; }
+        public ICommand ClearClientFilterCommand { get; private set; }
 
         // ═══════════════════════════════════════════════════════════════
         //  CONSTRUCTOR

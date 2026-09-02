@@ -292,9 +292,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         }
         public bool IsOverviewTab => DetailTab == "Overview";
         public bool IsProductionTab => DetailTab == "Production";
-        public ICommand SwitchDetailTabCommand { get; }
+        public ICommand SwitchDetailTabCommand { get; private set; }
 
-        public ICommand SaveCommand { get; }
+        public ICommand SaveCommand { get; private set; }
         /// <summary>
         /// Deep-sweep fix: exports must NEVER crash the app. Any failure
         /// surfaces the standard error dialog instead of an unhandled
@@ -313,18 +313,18 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             }
         }
 
-        public ICommand BackToListCommand { get; }
+        public ICommand BackToListCommand { get; private set; }
 
         // Phase 9.5a-r3 — export
-        public ICommand ExportPdfCommand { get; }
-        public ICommand ExportExcelCommand { get; }
-        public ICommand ExportCsvCommand { get; }
+        public ICommand ExportPdfCommand { get; private set; }
+        public ICommand ExportExcelCommand { get; private set; }
+        public ICommand ExportCsvCommand { get; private set; }
 
         // Phase 10.5 — create DN from this JO
-        public ICommand CreateDeliveryNoteCommand { get; }
+        public ICommand CreateDeliveryNoteCommand { get; private set; }
 
         /// <summary>Opens the Master DN created from this Job Order.</summary>
-        public ICommand OpenMasterDnCommand { get; }
+        public ICommand OpenMasterDnCommand { get; private set; }
 
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR

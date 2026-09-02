@@ -219,15 +219,15 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
         // ── commands ──────────────────────────────────────────────────────
 
-        public ICommand OpenJobOrderCommand { get; }
-        public ICommand DeleteJobOrderCommand { get; }
-        public ICommand ChangeStatusCommand { get; }
-        public ICommand ChangePriorityCommand { get; }
-        public ICommand RefreshCommand { get; }
-        public ICommand ClearFiltersCommand { get; }
+        public ICommand OpenJobOrderCommand { get; private set; }
+        public ICommand DeleteJobOrderCommand { get; private set; }
+        public ICommand ChangeStatusCommand { get; private set; }
+        public ICommand ChangePriorityCommand { get; private set; }
+        public ICommand RefreshCommand { get; private set; }
+        public ICommand ClearFiltersCommand { get; private set; }
 
         /// <summary>v2 §24: shows the version history dialog for a row.</summary>
-        public ICommand ShowVersionsCommand { get; }
+        public ICommand ShowVersionsCommand { get; private set; }
 
         /// <summary>
         /// Raises a new Job Order from an approved Proforma Invoice.
@@ -237,7 +237,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         /// though JobOrderMapper.BuildFromProformaInvoice already existed.
         /// </para>
         /// </summary>
-        public ICommand CreateJobOrderCommand { get; }
+        public ICommand CreateJobOrderCommand { get; private set; }
 
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR

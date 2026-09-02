@@ -38,13 +38,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         }
 
         // === Panel ViewModels (one per glass type) ===
-        public SguParameters.SguParametersViewModel SguVM { get; }
-        public DguParameters.DguParametersViewModel DguVM { get; }
-        public LamParameters.LamParametersViewModel LamVM { get; }
-        public DguLamParameters.DguLamParametersViewModel DguLamVM { get; }
+        public SguParameters.SguParametersViewModel SguVM { get; private set; }
+        public DguParameters.DguParametersViewModel DguVM { get; private set; }
+        public LamParameters.LamParametersViewModel LamVM { get; private set; }
+        public DguLamParameters.DguLamParametersViewModel DguLamVM { get; private set; }
 
         // === Glass Type Cards ===
-        public ObservableCollection<GlassTypeCard> GlassTypes { get; }
+        public ObservableCollection<GlassTypeCard> GlassTypes { get; private set; }
 
         private GlassTypeCard? _selectedGlassType;
         public GlassTypeCard? SelectedGlassType
@@ -102,7 +102,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         }
 
         // === Specification Target Groups (Step 4 preview only — see BUG-43) ===
-        public ObservableCollection<SpecTargetGroup> SpecGroups { get; }
+        public ObservableCollection<SpecTargetGroup> SpecGroups { get; private set; }
 
         private SpecTargetGroup? _selectedCalculationSection;
         public SpecTargetGroup? SelectedCalculationSection
@@ -184,11 +184,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         public bool HasRestoredSnapshotState { get; private set; }
 
         // === Commands ===
-        public ICommand SelectGlassTypeCommand { get; }
-        public ICommand ToggleSpecGroupCommand { get; }
-        public ICommand AddCalculationSectionCommand { get; }
-        public ICommand RemoveCalculationSectionCommand { get; }
-        public ICommand ApplyRateCommand { get; }
+        public ICommand SelectGlassTypeCommand { get; private set; }
+        public ICommand ToggleSpecGroupCommand { get; private set; }
+        public ICommand AddCalculationSectionCommand { get; private set; }
+        public ICommand RemoveCalculationSectionCommand { get; private set; }
+        public ICommand ApplyRateCommand { get; private set; }
 
         public PricingEstimatorViewModel()
          : this(

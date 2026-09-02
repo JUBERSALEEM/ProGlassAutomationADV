@@ -181,22 +181,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         // ── Commands ─────────────────────────────────────────────────────────
 
-        public ICommand RefreshCommand { get; }
-        public ICommand ClearFiltersCommand { get; }
-        public ICommand LoadInvoiceCommand { get; }
-        public ICommand DuplicateInvoiceCommand { get; }
-        public ICommand DeleteInvoiceCommand { get; }
-        public ICommand ChangeStatusCommand { get; }
-        public ICommand ExportPdfFromListCommand { get; }
-        public ICommand ExportExcelFromListCommand { get; }
-        public ICommand ExportCsvFromListCommand { get; }   // BUG-76
+        public ICommand RefreshCommand { get; private set; }
+        public ICommand ClearFiltersCommand { get; private set; }
+        public ICommand LoadInvoiceCommand { get; private set; }
+        public ICommand DuplicateInvoiceCommand { get; private set; }
+        public ICommand DeleteInvoiceCommand { get; private set; }
+        public ICommand ChangeStatusCommand { get; private set; }
+        public ICommand ExportPdfFromListCommand { get; private set; }
+        public ICommand ExportExcelFromListCommand { get; private set; }
+        public ICommand ExportCsvFromListCommand { get; private set; }   // BUG-76
 
         // v2: quick "today" filter + share the filtered list as Excel
-        public ICommand SetTodayFilterCommand { get; }
-        public ICommand ExportFilteredExcelCommand { get; }
+        public ICommand SetTodayFilterCommand { get; private set; }
+        public ICommand ExportFilteredExcelCommand { get; private set; }
 
         // v2: version history (§24)
-        public ICommand ShowVersionsCommand { get; }
+        public ICommand ShowVersionsCommand { get; private set; }
 
         /// <summary>
         /// v2: fired when the user restores an old version — payload is

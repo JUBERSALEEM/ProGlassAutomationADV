@@ -82,7 +82,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public List<string> GlassTypeOptions { get; } =
             new() { "SGU", "DGU", "LAM", "DGU+LAM" };
 
-        public ObservableCollection<SpecGroup> SpecGroups { get; }
+        public ObservableCollection<SpecGroup> SpecGroups { get; private set; }
 
         public int TotalSpecGroups => SpecGroups?.Count ?? 0;
 
@@ -103,12 +103,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
-        public ICommand AddSpecGroupCommand { get; }
-        public ICommand RemoveSpecGroupCommand { get; }
-        public ICommand OpenGlobalFindCommand { get; }
-        public ICommand OpenGlobalFindReplaceCommand { get; }
+        public ICommand AddSpecGroupCommand { get; private set; }
+        public ICommand RemoveSpecGroupCommand { get; private set; }
+        public ICommand OpenGlobalFindCommand { get; private set; }
+        public ICommand OpenGlobalFindReplaceCommand { get; private set; }
 
-        public GrandTotalSummaryViewModel SummaryViewModel { get; }
+        public GrandTotalSummaryViewModel SummaryViewModel { get; private set; }
 
         private readonly IDialogService _dialogs = null!;
 

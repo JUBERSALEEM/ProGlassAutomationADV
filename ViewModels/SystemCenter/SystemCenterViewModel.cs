@@ -175,7 +175,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         public bool IsUsersTab => ActiveTab == TabUsers;
         public bool IsActivityTab => ActiveTab == TabActivity;
 
-        public ICommand SwitchTabCommand { get; }
+        public ICommand SwitchTabCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════
         //  USERS TAB
@@ -193,7 +193,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
 
         // ── Create form ───────────────────────────────────────────────
 
-        public List<string> RoleOptions { get; }
+        public List<string> RoleOptions { get; private set; }
 
         private string _selectedRole = "Operator";
         public string SelectedRole
@@ -230,9 +230,9 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             private set { _userFormMessage = value; OnPropertyChanged(); }
         }
 
-        public ICommand CreateUserCommand { get; }
-        public ICommand ToggleActiveCommand { get; }
-        public ICommand RefreshUsersCommand { get; }
+        public ICommand CreateUserCommand { get; private set; }
+        public ICommand ToggleActiveCommand { get; private set; }
+        public ICommand RefreshUsersCommand { get; private set; }
 
         /// <summary>Loads the user table from audit.db.</summary>
         public async Task LoadUsersAsync()
@@ -327,7 +327,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             private set { _switchMessage = value; OnPropertyChanged(); }
         }
 
-        public ICommand SwitchUserCommand { get; }
+        public ICommand SwitchUserCommand { get; private set; }
 
         private async Task SwitchUserAsync()
         {
@@ -391,7 +391,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             private set { _activityEmpty = value; OnPropertyChanged(); }
         }
 
-        public ICommand RefreshActivityCommand { get; }
+        public ICommand RefreshActivityCommand { get; private set; }
 
         /// <summary>Loads the audit trail (filtered by selected section).</summary>
         public async Task LoadActivityAsync()

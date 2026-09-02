@@ -366,15 +366,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         //  COMMANDS
         // ══════════════════════════════════════════════════════════════════
 
-        public ICommand RefreshCommand { get; }
-        public ICommand ClearFiltersCommand { get; }
-        public ICommand OpenFamilyCommand { get; }
-        public ICommand SelectFamilyCommand { get; }
-        public ICommand ClearSelectionCommand { get; }
-        public ICommand CreateInvoiceCommand { get; }
+        public ICommand RefreshCommand { get; private set; }
+        public ICommand ClearFiltersCommand { get; private set; }
+        public ICommand OpenFamilyCommand { get; private set; }
+        public ICommand SelectFamilyCommand { get; private set; }
+        public ICommand ClearSelectionCommand { get; private set; }
+        public ICommand CreateInvoiceCommand { get; private set; }
 
         /// <summary>Deletes a family after explicit Yes/No confirmation.</summary>
-        public ICommand DeleteFamilyCommand { get; }
+        public ICommand DeleteFamilyCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR

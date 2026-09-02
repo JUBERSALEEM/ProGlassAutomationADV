@@ -68,13 +68,13 @@ namespace ProGlassAutomation.ViewModels.Settings
         // ── Convenience helpers ────────────────────────────────────
 
         /// <summary>Reset every field to its default (all visible).</summary>
-        public ICommand ResetToDefaultsCommand { get; }
+        public ICommand ResetToDefaultsCommand { get; private set; }
 
         /// <summary>Turn every optional field ON in one click.</summary>
-        public ICommand EnableAllCommand { get; }
+        public ICommand EnableAllCommand { get; private set; }
 
         /// <summary>Turn every optional field OFF in one click.</summary>
-        public ICommand DisableAllOptionalCommand { get; }
+        public ICommand DisableAllOptionalCommand { get; private set; }
 
         // ── Backing helpers ────────────────────────────────────────
 
