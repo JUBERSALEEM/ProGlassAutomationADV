@@ -71,26 +71,20 @@ namespace ProGlassAutomation.Services.ProformaInvoice
 
                 if (specialOverlapSqm)
                 {
+                    // Overlap (SQM) mode: rare case for specific customers.
+                    // Only charge overlap (sqm), do NOT charge silicon bed.
+                    // The SQM pricing already includes all overlap-related costs.
                     Add("OVERLAP_SQM", "SQM1", "Spec requires overlap charged by area (SQM).");
-
-                    // For DGU builds, overlap ALWAYS requires silicon bed as
-                    // a separate charge. The spec just says "With Overlap" but
-                    // physically overlap + silicon bed are two distinct processes
-                    // that are always charged separately.
-                    if (dguLike)
-                    {
-                        Add("SILICON_BED_SQM", "SQM1",
-                            "DGU overlap requires silicon bed as a separate charge (SQM).");
-                    }
                 }
                 else
                 {
-                    Add("OVERLAP", "LM1", "Spec requires overlap charged by perimeter (LM).");
-
+                    // Overlap (LM) mode: standard case.
                     // For DGU builds, overlap ALWAYS requires silicon bed as
                     // a separate charge. The spec just says "With Overlap" but
                     // physically overlap + silicon bed are two distinct processes
                     // that are always charged separately.
+                    Add("OVERLAP", "LM1", "Spec requires overlap charged by perimeter (LM).");
+
                     if (dguLike)
                     {
                         Add("SILICON_BED", "LM1",
