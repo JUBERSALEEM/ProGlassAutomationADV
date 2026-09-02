@@ -7,7 +7,7 @@
 
 ---
 
-> ## ⚠️ SUPERSEDED — READ FIRST (2026-09-02, same day)
+> ## ⚠️ HISTORY — v1 FAILED, v2 LANDED (2026-09-02)
 >
 > **The bulk view-model refactor described in sections 3–5 of this document
 > was SHIPPED AS `6a93c0e`, BROKE THE APPLICATION, AND HAS BEEN REVERTED
@@ -37,12 +37,18 @@
 > rather than syntactic. **Static analysis cannot substitute for a
 > compile and a launch.**
 >
-> **What was kept** (all verified, low risk): the ERR-918BAB fix
-> (`Modifiers="None"` throws in `ModifierKeysConverter`), both Python
-> validators, and the xUnit guards. The two-phase-constructor problem
-> described below is **still real and still unfixed** — the guard test
-> is marked `Skip` with this rationale. Redo it **one view model at a
-> time, compiling and launching after each.**
+> **RESOLVED in `a8bd6a0`.** The defect class described below is now
+> fixed for all 28 view models, using a different mechanism:
+> `tools/fix_two_phase_v2.py` **extracts** the body into a private
+> `InitializeCore()` and calls it from the parameterized ctor, instead
+> of **moving** it. Declarations never move. Verified per file: body
+> byte-identical, declaration order unchanged, exactly 1 call site and
+> 1 definition, call is the last statement, brace/paren balance and BOM
+> preserved. The guard test is re-enabled and passes with 0 violations.
+>
+> The user confirmed the app runs after the revert, then hit ERR-BEFC44
+> (Settings > Appearance, `SwitchSettingsPageCommand` null) — which is
+> exactly this defect, and is what the v2 fix resolves.
 >
 > **Follow-up hardening** (`ba7b1a0`, `1e2a55e`): registered `AppConfig`,
 > `IConnectivityService`, `InvoiceMainSummaryViewModel` and
