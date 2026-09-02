@@ -202,7 +202,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     // Analyze each P&L row
                     foreach (var row in pl.Rows)
                     {
-                        var serviceType = CategorizeServiceType(row.Kind, row.Description);
+                        var serviceType = CategorizeServiceType(row.Kind, row.Description, row.SpecNumber, snap.SpecGroups);
                         if (string.IsNullOrEmpty(serviceType)) continue;
 
                         var charge = row.Amount;
@@ -282,18 +282,55 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             }
         }
 
-        private string CategorizeServiceType(string kind, string description)
+        private string CategorizeServiceType(string kind, string description, int specNumber, List<Models.ProformaInvoice.SavedInvoice.SpecGroupSnapshot> specGroups)
         {
+            // Get the spec group to determine glass type
+            var specGroup = specGroups?.FirstOrDefault(s => s.GroupNumber == specNumber);
+            var glassType = specGroup?.SelectedGlassType?.ToUpperInvariant() ?? "";
+
             if (kind == "Glass") return "Glass Margin";
-            if (kind == "Spacer") return "Spacer/ASP Service";
+
+            if (kind == "Spacer")
+            {
+                // DGU: Spacer charge INCLUDES cutting + tempering + production
+                // Don't categorize separately - it's a bundled service
+                return "Spacer/ASP Service (incl. cutting, tempering, production)";
+            }
+
             if (kind == "Production")
             {
                 var desc = description ?? "";
-                if (desc.Contains("Cutting")) return "Cutting Service";
-                if (desc.Contains("Tempering")) return "Tempering Service";
-                if (desc.Contains("interlayer")) return "PVB Interlayer Service";
+
+                // Check if this is for DGU (spacer already includes these)
+                if (glassType.Contains("DGU") && !glassType.Contains("LAM"))
+                {
+                    // DGU: These are already included in spacer charge
+                    // But if they appear as separate rows, they're extras
+                    if (desc.Contains("U-Insert") || desc.Contains("U Insert"))
+                        return "U-Insert Service";
+                    if (desc.Contains("Hole") || desc.Contains("Cutout"))
+                        return "Holes/Cutouts Service";
+                    // Skip cutting/tempering for DGU (already in spacer)
+                    return null;
+                }
+
+                // SGU or LAM: Cutting and tempering are SEPARATE charges
+                if (desc.Contains("Cutting"))
+                    return "Cutting Service";
+                if (desc.Contains("Tempering"))
+                    return "Tempering Service";
+                if (desc.Contains("interlayer") || desc.Contains("PVB"))
+                    return "PVB Interlayer Service (outsourced)";
+                if (desc.Contains("Hole") || desc.Contains("Cutout"))
+                    return "Holes/Cutouts Service";
+                if (desc.Contains("Polish"))
+                    return "Polishing Service";
+
+                return "Other Production Service";
             }
+
             if (kind == "UInsert") return "U-Insert Service";
+
             return null;
         }
 
