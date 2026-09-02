@@ -279,7 +279,11 @@
                              Background="Transparent"
                              BorderThickness="0"
                              HorizontalContentAlignment="Stretch"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             VirtualizingPanel.ScrollUnit="Pixel"
+                             ScrollViewer.CanContentScroll="True">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Padding" Value="0"/>
@@ -622,7 +626,10 @@
                                  ItemsSource="{Binding UsageHistory}"
                                  Background="Transparent"
                                  BorderThickness="0"
-                                 HorizontalContentAlignment="Stretch">
+                                 HorizontalContentAlignment="Stretch"
+                                 VirtualizingPanel.IsVirtualizing="True"
+                                 VirtualizingPanel.VirtualizationMode="Recycling"
+                                 ScrollViewer.CanContentScroll="True">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="10,8" Margin="0,0,0,6"
