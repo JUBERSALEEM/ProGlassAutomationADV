@@ -97,7 +97,34 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
         // specifications.db
         public static IReadOnlyList<SchemaMigration> Specifications { get; }
-            = new List<SchemaMigration>();
+            = new List<SchemaMigration>
+            {
+                // Specifications Center catalogue columns.
+                //
+                // EnsureCreated() only ever CREATES a missing database -- it
+                // never alters an existing one. Every install that has
+                // already run the app has a specifications.db without these
+                // columns, so without this migration EF would query columns
+                // that do not exist and the Step 5 dropdown would fail on
+                // every load. Purely additive and idempotent.
+                new(1001, "Specifications Center: catalogue + sheet-match columns", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "Specifications", "Category",      "TEXT NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "Specifications", "Color",         "TEXT NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "Specifications", "ThicknessMm",   "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "Specifications", "SheetWidthMm",  "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "Specifications", "SheetHeightMm", "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "Specifications", "SheetId",       "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "Specifications", "ProformaId",    "TEXT NULL");
+
+                    // The Center filters by category and colour the way
+                    // Sheet Store does.
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_Specifications_Category ON Specifications(Category);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_Specifications_Color ON Specifications(Color);");
+                })
+            };
 
         // masterdata.db
         public static IReadOnlyList<SchemaMigration> MasterData { get; }

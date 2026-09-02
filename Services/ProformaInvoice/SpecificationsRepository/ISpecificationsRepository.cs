@@ -24,6 +24,31 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
         Task<SavedSpecification> SaveOrUpdateAsync(string glassType, string specName, decimal pricePerSqm);
 
         /// <summary>
+        /// Specifications Center overload. Same save, plus the catalogue
+        /// columns: category/colour/thickness parsed from the spec, the
+        /// matched Sheet Store size, and the originating proforma.
+        ///
+        /// The sheet values are recorded for DISPLAY and traceability only
+        /// ("which sheet was this quoted against"). Pricing still comes from
+        /// pricePerSqm, i.e. from Step 4 -- a later Sheet Store price edit
+        /// must never silently re-cost an existing specification.
+        ///
+        /// Any argument may be null/0; those simply leave the column blank,
+        /// so callers that do not know a value are not forced to invent one.
+        /// </summary>
+        Task<SavedSpecification> SaveOrUpdateAsync(
+            string glassType,
+            string specName,
+            decimal pricePerSqm,
+            string? category,
+            string? color,
+            int thicknessMm,
+            int sheetWidthMm,
+            int sheetHeightMm,
+            int sheetId,
+            string? proformaId);
+
+        /// <summary>
         /// Increment usage count and update LastUsedAt when a spec is picked
         /// in Step 5. Called when spec is selected from dropdown.
         /// </summary>

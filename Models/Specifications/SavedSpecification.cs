@@ -49,6 +49,68 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Specifications
         /// </summary>
         public int UsageCount { get; set; }
 
+        // ═══════════════════════════════════════════════════════════════
+        //  SPECIFICATIONS CENTER (2026-09-02)
+        //  ---------------------------------------------------------------
+        //  Catalogue columns. Step 4 remains the only place a spec is
+        //  BUILT and priced; these fields just record what it was built
+        //  from so the Specifications Center can list, group and filter
+        //  entries the way Sheet Store does.
+        //
+        //  The Sheet Store relationship is READ-ONLY and for MATCHING the
+        //  glass sheet size only -- opening a row shows which sheet this
+        //  spec was quoted against. Nothing here drives pricing; that
+        //  stays with PricePerSqm from Step 4.
+        //
+        //  All columns are NULLABLE / defaulted. Existing rows created
+        //  before this change stay valid and simply read as blank, which
+        //  is why the migration is purely additive.
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>Sheet Store category, e.g. "Clear", "Tinted", "Low-E".</summary>
+        public string? Category { get; set; }
+
+        /// <summary>Outer pane colour, as parsed from the spec name.</summary>
+        public string? Color { get; set; }
+
+        /// <summary>Outer pane thickness in mm. 0 when unknown.</summary>
+        public int ThicknessMm { get; set; }
+
+        /// <summary>
+        /// Matched Sheet Store sheet size, in mm. Recorded at save time so
+        /// the catalogue can show "which sheet was used" without a live
+        /// lookup, and so a later Sheet Store edit cannot silently rewrite
+        /// what an existing quote was costed against.
+        /// </summary>
+        public int SheetWidthMm { get; set; }
+        public int SheetHeightMm { get; set; }
+
+        /// <summary>
+        /// Id of the GlassSheet row this spec matched, or 0 if none did.
+        /// Kept only so the Center can open the originating sheet.
+        /// </summary>
+        public int SheetId { get; set; }
+
+        /// <summary>
+        /// Proforma number this spec was first generated from, for
+        /// traceability in the catalogue list.
+        /// </summary>
+        public string? ProformaId { get; set; }
+
+        /// <summary>True when a Sheet Store size was actually matched.</summary>
+        public bool HasSheetMatch => SheetWidthMm > 0 && SheetHeightMm > 0;
+
+        /// <summary>Sheet area in SQM, or 0 when no sheet was matched.</summary>
+        public decimal SheetSqm =>
+            SheetWidthMm > 0 && SheetHeightMm > 0
+                ? System.Math.Round(
+                    (SheetWidthMm * (decimal)SheetHeightMm) / 1_000_000m, 4)
+                : 0m;
+
+        /// <summary>"3210 × 2250" or "—" for the catalogue list.</summary>
+        public string SheetSizeDisplay =>
+            HasSheetMatch ? $"{SheetWidthMm} × {SheetHeightMm}" : "—";
+
         public SavedSpecification()
         {
             CreatedAt = DateTime.Now;

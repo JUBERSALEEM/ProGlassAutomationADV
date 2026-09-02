@@ -104,8 +104,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
             try
             {
+                // SPECIFICATIONS CENTER: record what this spec was built
+                // from, alongside the price. Step 4 already knows the outer
+                // colour/thickness and the exact sheet the operator has in
+                // the boxes, so the catalogue is populated from the values
+                // that were actually used -- no re-derivation, no guessing.
+                //
+                // Sheet size is stored for DISPLAY/traceability only. Price
+                // still comes from `rate` (Step 4), so editing a sheet in
+                // Sheet Store later cannot silently re-cost this spec.
+                var (specColor, specThicknessMm, specW, specH) =
+                    GetCatalogueDetailsForCurrentPanel(glassType);
+
                 var savedSpec = await _specs.SaveOrUpdateAsync(
-                    glassType, specName, rate);
+                    glassType, specName, rate,
+                    category: null,          // Sheet Store category: resolved
+                                             // in the Center from colour+thickness
+                    color: specColor,
+                    thicknessMm: specThicknessMm,
+                    sheetWidthMm: specW,
+                    sheetHeightMm: specH,
+                    sheetId: 0,
+                    proformaId: null);
 
                 // PHASE G: remember WHICH stock sheet this spec was priced
                 // against, so Step 5 can carry it and Step 9 can cost the
@@ -160,6 +180,65 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         /// other panels record nothing and Step 9 falls back as before.
         /// Never throws — a failure here must not block saving the spec.
         /// </summary>
+        /// <summary>
+        /// Pulls the outer pane's colour/thickness and the chosen sheet size
+        /// from whichever pricing panel is active, for the Specifications
+        /// Center catalogue columns.
+        ///
+        /// The OUTER pane is used deliberately: it is the leaf every build
+        /// family has, so a DGU and the SGU carried out of it in Step 5
+        /// describe the same glass.
+        ///
+        /// Never throws and never blocks a save -- a spec with blank
+        /// catalogue details is still a perfectly valid spec.
+        /// </summary>
+        private (string? Color, int ThicknessMm, int SheetWidthMm, int SheetHeightMm)
+            GetCatalogueDetailsForCurrentPanel(string glassType)
+        {
+            try
+            {
+                return glassType switch
+                {
+                    "SGU" => (SguVM.GlassColor,
+                              ParseThicknessMm(SguVM.SelectedThickness),
+                              SguVM.SheetWidthMm,
+                              SguVM.SheetHeightMm),
+
+                    "DGU" => (DguVM.OuterGlassColor,
+                              ParseThicknessMm(DguVM.OuterThickness),
+                              DguVM.OuterSheetWidthMm,
+                              DguVM.OuterSheetHeightMm),
+
+                    "LAM" => (LamVM.OuterGlassColor,
+                              ParseThicknessMm(LamVM.OuterThickness),
+                              LamVM.OuterSheetWidthMm,
+                              LamVM.OuterSheetHeightMm),
+
+                    _ => (null, 0, 0, 0)
+                };
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    $"[Step4.CatalogueDetails] {ex.Message}");
+                return (null, 0, 0, 0);
+            }
+        }
+
+        /// <summary>
+        /// "6mm" / "6 mm" / "6" -> 6. Returns 0 when no leading number is
+        /// present, which the catalogue treats as "unknown".
+        /// </summary>
+        private static int ParseThicknessMm(string? thickness)
+        {
+            if (string.IsNullOrWhiteSpace(thickness)) return 0;
+
+            var digits = new string(
+                thickness.TrimStart().TakeWhile(char.IsDigit).ToArray());
+
+            return int.TryParse(digits, out int mm) ? mm : 0;
+        }
+
         private void RecordSheetSelection(string glassType, string specName)
         {
             try

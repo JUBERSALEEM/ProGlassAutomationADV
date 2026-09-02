@@ -46,7 +46,30 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 .ToListAsync();
         }
 
-        public async Task<SavedSpecification> SaveOrUpdateAsync(string glassType, string specName, decimal pricePerSqm)
+        /// <summary>
+        /// Original 3-argument save. Delegates to the catalogue overload with
+        /// empty catalogue values so there is exactly ONE write path and the
+        /// two cannot drift apart.
+        /// </summary>
+        public Task<SavedSpecification> SaveOrUpdateAsync(
+            string glassType, string specName, decimal pricePerSqm)
+            => SaveOrUpdateAsync(
+                glassType, specName, pricePerSqm,
+                category: null, color: null, thicknessMm: 0,
+                sheetWidthMm: 0, sheetHeightMm: 0, sheetId: 0,
+                proformaId: null);
+
+        public async Task<SavedSpecification> SaveOrUpdateAsync(
+            string glassType,
+            string specName,
+            decimal pricePerSqm,
+            string? category,
+            string? color,
+            int thicknessMm,
+            int sheetWidthMm,
+            int sheetHeightMm,
+            int sheetId,
+            string? proformaId)
         {
             ReadOnlyGate.Demand("save a specification");
             // A-1: service-layer authorization. A saved spec sets the rate
@@ -74,6 +97,21 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 existing.PricePerSqm = pricePerSqm;
                 existing.LastUsedAt = DateTime.Now;
                 existing.UsageCount += 1;
+
+                // Refresh catalogue columns, but only when the caller
+                // actually supplied a value. A 3-arg save (or a caller that
+                // could not resolve a sheet) must not wipe details an
+                // earlier, better-informed save already recorded.
+                if (!string.IsNullOrWhiteSpace(category))   existing.Category = category;
+                if (!string.IsNullOrWhiteSpace(color))      existing.Color = color;
+                if (thicknessMm > 0)                        existing.ThicknessMm = thicknessMm;
+                if (sheetWidthMm > 0 && sheetHeightMm > 0)
+                {
+                    existing.SheetWidthMm = sheetWidthMm;
+                    existing.SheetHeightMm = sheetHeightMm;
+                }
+                if (sheetId > 0)                            existing.SheetId = sheetId;
+                if (!string.IsNullOrWhiteSpace(proformaId)) existing.ProformaId = proformaId;
                 await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 // Tell every open SpecGroup its dropdown is stale. Without
@@ -91,7 +129,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 PricePerSqm = pricePerSqm,
                 CreatedAt = DateTime.Now,
                 LastUsedAt = DateTime.Now,
-                UsageCount = 1
+                UsageCount = 1,
+
+                Category = category,
+                Color = color,
+                ThicknessMm = thicknessMm,
+                SheetWidthMm = sheetWidthMm,
+                SheetHeightMm = sheetHeightMm,
+                SheetId = sheetId,
+                ProformaId = proformaId
             };
 
             db.Specifications.Add(newSpec);
