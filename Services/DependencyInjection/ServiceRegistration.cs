@@ -201,7 +201,13 @@ namespace ProGlassAutomation.Services.DependencyInjection
 
             // ── Reporting Hub — Transient (new instance per navigation) ──
             services.AddTransient<ViewModels.Reports.SalesReportViewModel>();
-            services.AddTransient<ViewModels.Reports.StatementModuleViewModel>();
+            // ERR-633EEB: build via an explicit factory so the container can never
+            // pick a partially-initializing constructor overload.
+            services.AddTransient(sp => new ViewModels.Reports.StatementModuleViewModel(
+                sp.GetService<Services.Dialogs.IDialogService>(),
+                sp.GetService<Services.Statement.Repository.IStatementRepository>(),
+                sp.GetService<Services.MasterData.Repository.IMasterDataRepository>(),
+                sp.GetService<Services.Database.IDatabaseServices>()));
             services.AddTransient<ViewModels.Reports.PiReport.PiReportViewModel>();
             services.AddTransient<ViewModels.Reports.JoReport.JoReportViewModel>();
             services.AddTransient<ViewModels.Reports.DeliveryReport.DeliveryReportViewModel>();

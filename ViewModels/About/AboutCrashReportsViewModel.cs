@@ -45,9 +45,13 @@ namespace ProGlassAutomation.ViewModels.About
     {
         private readonly IDialogService _dialogs = null!;
 
-        public AboutCrashReportsViewModel(IDialogService? dialogs)
+        // ERR-633EEB hardening: this DI overload used to leave every
+        // command and collection NULL (all initialization lived in the
+        // parameterless ctor). The container always picks the GREEDIEST
+        // resolvable ctor, so DI-built instances were half-constructed.
+        // It now chains into the fully-initializing ctor.
+        public AboutCrashReportsViewModel(IDialogService? dialogs) : this(dialogs, initialize: true)
         {
-            _dialogs = dialogs!;
         }
 
         /// <summary>
@@ -105,9 +109,17 @@ namespace ProGlassAutomation.ViewModels.About
         /// </summary>
         private int _scanGeneration;
 
-        public AboutCrashReportsViewModel()
-         : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService()){
+        public AboutCrashReportsViewModel() : this(null, initialize: true)
+        {
+        }
+
+        private AboutCrashReportsViewModel(IDialogService? dialogs, bool initialize)
+        {
+            _dialogs = dialogs
+                ?? App.ServiceProvider?.GetService<IDialogService>()
+                ?? new DialogService();
+            _ = initialize; // discriminator only — keeps the two ctors distinct
+
             RefreshCommand = new RelayCommand(_ => Refresh());
             ClearAllCommand = new RelayCommand(_ => ClearAll(),
                 _ => !IsEmpty);

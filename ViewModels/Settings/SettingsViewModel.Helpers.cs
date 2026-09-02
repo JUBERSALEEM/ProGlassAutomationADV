@@ -204,8 +204,26 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged(nameof(WallpaperStatus));
             });
 
-            // Apply the persisted visual theme once Settings loads.
-            ApplyVisualTheme();
+            // 2026-09-02 (splash colour-bounce fix): this used to re-apply
+            // the ENTIRE visual theme every time a SettingsViewModel was
+            // constructed. SettingsViewModel is built eagerly inside
+            // MainViewModel's ctor, so each MainViewModel construction
+            // triggered a full ClearOverrides + rebuild — while the splash
+            // was still on screen and bound to those exact DynamicResource
+            // keys. That is the flash users see before the shell appears.
+            //
+            // App.StartupCore step 9d already applies the persisted family,
+            // colour mode, accent and wallpaper before the splash is shown.
+            // Only re-apply if the engine has somehow not run yet.
+            if (string.IsNullOrEmpty(
+                    ProGlassAutomation.Services.Theme.VisualThemeEngine
+                        .LastRequestedModule) &&
+                ProGlassAutomation.Services.Theme.VisualThemeEngine.Current ==
+                    ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal &&
+                (_config?.Appearance?.VisualTheme ?? "Normal") != "Normal")
+            {
+                ApplyVisualTheme();
+            }
 
             // v2 §34: show the persisted update history on open.
             _ = LoadUpdateHistoryAsync();

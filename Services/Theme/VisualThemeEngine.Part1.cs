@@ -136,6 +136,66 @@ namespace ProGlassAutomation.Services.Theme
         private static string _lastWallpaperPath = "";
         private static double _lastWallpaperOpacity = 0.85;
 
+        // ── Scene de-duplication (2026-09-02, splash colour-bounce fix) ──
+        // Fingerprint of the last scene ApplyModule actually rendered.
+        // See the guard at the top of ApplyModule for the full rationale.
+        private static string _lastAppliedSignature = "";
+        private static bool _hasAppliedOnce;
+
+        /// <summary>
+        /// Fingerprints everything ApplyModule's output depends on:
+        /// colour mode, family, module key, system wallpaper + opacity and
+        /// that module's own wallpaper override. Equal signature ⇒ pixel-
+        /// identical result ⇒ safe (and necessary) to skip.
+        /// </summary>
+        private static string BuildSceneSignature(
+            string? moduleKey, AI.AIConfig.AppearanceSettings? appearance)
+        {
+            string mod = moduleKey ?? "";
+            string family = Normalize(appearance?.VisualTheme ?? Normal);
+            string wall = appearance?.WallpaperPath ?? "";
+            double op = ClampOpacity(appearance?.WallpaperOpacity ?? 0.85);
+
+            string moduleWall = "";
+            if (!string.IsNullOrEmpty(mod) &&
+                appearance?.ModuleWallpapers != null &&
+                appearance.ModuleWallpapers.TryGetValue(mod, out var mw) &&
+                mw != null)
+            {
+                moduleWall = $"{mw.Enabled}|{mw.Path}|{ClampOpacity(mw.Opacity):F3}";
+            }
+
+            // ThemeManager's Light/Dark mode and the accent are inputs too:
+            // the family derives its surfaces from them.
+            return string.Join("¦",
+                ThemeManager.CurrentTheme,
+                ThemeManager.AccentColor.ToString(
+                    System.Globalization.CultureInfo.InvariantCulture),
+                family, mod, wall, op.ToString("F3",
+                    System.Globalization.CultureInfo.InvariantCulture),
+                moduleWall,
+                FontPreferenceSignature());
+        }
+
+        /// <summary>Global font-colour preference participates in the
+        /// scene, because ApplyFontPreference is the last write of every
+        /// apply pass.</summary>
+        private static string FontPreferenceSignature()
+        {
+            return App.Config?.Appearance?.FontColor ?? "";
+        }
+
+        /// <summary>
+        /// Drop the de-duplication fingerprint so the very next
+        /// ApplyModule re-renders unconditionally. Called by everything
+        /// that mutates theme state OUTSIDE ApplyModule (family swap via
+        /// Apply, Light/Dark toggle, accent change, Theme Studio).
+        /// </summary>
+        public static void InvalidateSceneCache()
+        {
+            _lastAppliedSignature = "";
+        }
+
         // Phase 4: Named handler for static event — detachable, no lambda leak
         private static readonly EventHandler _accentChangedHandler = OnAccentChanged;
 
@@ -163,6 +223,7 @@ namespace ProGlassAutomation.Services.Theme
             // re-derive when the user changes the accent.
             if (Current != Monet && Current != LiquidGlass && Current != UltraTransparent)
                 return;
+            InvalidateSceneCache();
             Apply(Current, _lastWallpaperPath, _lastWallpaperOpacity);
             ApplyModule(LastRequestedModule, App.Config?.Appearance);
         }
@@ -178,6 +239,11 @@ namespace ProGlassAutomation.Services.Theme
         {
             var resources = Application.Current?.Resources;
             if (resources == null) return;
+
+            // Apply() writes the family baseline directly; the module
+            // fingerprint no longer describes what is on screen, so the
+            // next ApplyModule must run for real.
+            InvalidateSceneCache();
 
             try
             {
@@ -272,6 +338,27 @@ namespace ProGlassAutomation.Services.Theme
         {
             var resources = Application.Current?.Resources;
             if (resources == null) return;
+
+            // ── IDEMPOTENCE GUARD (2026-09-02) ───────────────────────────
+            // ApplyModule tears the family down (ClearOverrides removes ~60
+            // brush keys from the application resource scope) and rebuilds
+            // it. Every DynamicResource-bound surface therefore repaints
+            // TWICE — once to the theme-file fallback, once to the rebuilt
+            // family value. That double repaint is the visible colour
+            // "bounce" users reported over the splash and on navigation.
+            //
+            // During startup alone this ran 3-4 times with byte-identical
+            // inputs (extra XAML-constructed MainViewModel, DI MainViewModel,
+            // Settings' ApplyVisualTheme, MainWindow retry). Re-applying an
+            // identical scene is a pure no-op visually but an expensive,
+            // FLASHING no-op — so skip it.
+            //
+            // The signature covers every input the render depends on. Any
+            // real change (family, module, wallpaper path/opacity, per-module
+            // override) produces a different signature and applies normally.
+            string signature = BuildSceneSignature(moduleKey, appearance);
+            if (signature == _lastAppliedSignature && _hasAppliedOnce)
+                return;
 
             try
             {
@@ -380,6 +467,14 @@ namespace ProGlassAutomation.Services.Theme
             {
                 // Last line of defense — see GuaranteeCriticalResources.
                 GuaranteeCriticalResources(resources);
+
+                // Record the rendered scene LAST (in finally, because the
+                // module-wallpaper branch returns early). A pass that threw
+                // still records: the catch already restored a guaranteed
+                // scene, and re-running the same failing input would only
+                // flash again.
+                _lastAppliedSignature = signature;
+                _hasAppliedOnce = true;
             }
         }
 

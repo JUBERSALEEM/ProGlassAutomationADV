@@ -37,6 +37,28 @@ namespace ProGlassAutomation
         {
             InitializeComponent();
 
+            // DataContext is no longer created by the XAML (see the note
+            // in MainWindow.xaml). App.StartupCore assigns the DI-resolved
+            // MainViewModel right after construction; this fallback only
+            // runs for the design surface or any code path that forgets.
+            if (DataContext == null)
+            {
+                try
+                {
+                    DataContext =
+                        App.ServiceProvider?.GetService(typeof(MainViewModel))
+                        ?? new MainViewModel();
+                }
+                catch (Exception ex)
+                {
+                    // Never let the shell fail to open over a VM fault —
+                    // that was the ERR-633EEB failure mode.
+                    Services.Logging.AppLogService.Warning(
+                        "[MainWindow] fallback MainViewModel construction failed: "
+                        + ex.Message);
+                }
+            }
+
             // Global locale: mirror the active language direction onto
             // the shell (Arabic/Urdu → RightToLeft). The service also
             // flips this live when the user switches language.

@@ -18,9 +18,13 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
     {
         private readonly IDialogService _dialogs = null!;
 
-        public HistoryViewModel(IDialogService? dialogs)
+        // ERR-633EEB hardening: this DI overload used to leave every
+        // command and collection NULL (all initialization lived in the
+        // parameterless ctor). The container always picks the GREEDIEST
+        // resolvable ctor, so DI-built instances were half-constructed.
+        // It now chains into the fully-initializing ctor.
+        public HistoryViewModel(IDialogService? dialogs) : this(dialogs, initialize: true)
         {
-            _dialogs = dialogs!;
         }
 
         private readonly ISheetHistoryRepository _repo = new SheetHistoryRepository();
@@ -107,9 +111,17 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
 
         public Action? CloseAction { get; set; }
 
-        public HistoryViewModel()
-         : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService()){
+        public HistoryViewModel() : this(null, initialize: true)
+        {
+        }
+
+        private HistoryViewModel(IDialogService? dialogs, bool initialize)
+        {
+            _dialogs = dialogs
+                ?? App.ServiceProvider?.GetService<IDialogService>()
+                ?? new DialogService();
+            _ = initialize; // discriminator only — keeps the two ctors distinct
+
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             CloseCommand = new RelayCommand(_ => CloseAction?.Invoke());
             ClearDatesCommand = new RelayCommand(_ =>

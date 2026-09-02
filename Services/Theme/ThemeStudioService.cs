@@ -177,6 +177,12 @@ namespace ProGlassAutomation.Services.Theme
             if (resources == null) return;
             if (!_snapshotTaken) Snapshot();
 
+            // Theme Studio writes glass brushes on TOP of the family the
+            // engine painted. The next ApplyModule must therefore repaint
+            // for real rather than be skipped as an identical scene
+            // (splash colour-bounce de-duplication, 2026-09-02).
+            VisualThemeEngine.InvalidateSceneCache();
+
             double frost = Clamp01(s.Frostness);
             double transp = Clamp01(s.Transparency);
             double blur = Clamp01(s.BlurIntensity);

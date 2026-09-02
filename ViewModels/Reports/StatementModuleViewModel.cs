@@ -80,19 +80,49 @@ namespace ProGlassAutomation.ViewModels.Reports
             set => GeneratorVM.OnPrepareDeliveryNote = value;
         }
 
-                private readonly IDialogService _dialogs = null!;
+        private readonly IDialogService _dialogs;
 
+        // ═══════════════════════════════════════════════════════════════
+        // SINGLE real constructor.
+        //
+        // ERR-633EEB (2026-09-02): the DI container resolved the
+        // `StatementModuleViewModel(IDialogService)` overload, which set
+        // only `_dialogs` and left ListVM / GeneratorVM / the commands
+        // NULL. MainViewModel then assigned
+        // `StatementModuleVM.OnOpenTaxInvoiceByNumber = ...`, whose setter
+        // forwards to `GeneratorVM.OnOpenTaxInvoiceByNumber` → NRE →
+        // MainWindow's XAML object graph failed to construct →
+        // TargetInvocationException → fatal startup crash.
+        //
+        // There is now exactly ONE initialization path, so every
+        // construction route (DI, Activator fallback, XAML design-time)
+        // produces a fully-built view model. Optional dependencies fall
+        // back to the App-level singletons.
+        // ═══════════════════════════════════════════════════════════════
+        public StatementModuleViewModel(
+            IDialogService? dialogs,
+            IStatementRepository? repo,
+            IMasterDataRepository? masterData,
+            IDatabaseServices? database)
+        {
+            var sp = App.ServiceProvider;
 
-        public StatementModuleViewModel(IDialogService? dialogs)
-        {
-            _dialogs = dialogs!;
-        }
-public StatementModuleViewModel() : this(
-            App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService())
-        {
-            var repo = new StatementRepository();
-            ListVM = new StatementListViewModel(_dialogs, repo, App.ServiceProvider?.GetService<IDatabaseServices>()!);
-            GeneratorVM = new StatementGeneratorViewModel(_dialogs, App.ServiceProvider?.GetService<IMasterDataRepository>() ?? App.MasterData, repo, App.ServiceProvider?.GetService<IDatabaseServices>()!);
+            _dialogs = dialogs
+                ?? TryGet<IDialogService>(sp)
+                ?? new DialogService();
+
+            var statements = repo
+                ?? TryGet<IStatementRepository>(sp)
+                ?? new StatementRepository();
+
+            var master = masterData
+                ?? TryGet<IMasterDataRepository>(sp)
+                ?? App.MasterData;
+
+            var db = database ?? TryGet<IDatabaseServices>(sp);
+
+            ListVM = new StatementListViewModel(_dialogs, statements, db!);
+            GeneratorVM = new StatementGeneratorViewModel(_dialogs, master, statements, db!);
 
             ListVM.OnRequestNewStatement = () =>
             {
@@ -119,6 +149,29 @@ public StatementModuleViewModel() : this(
             BackToListCommand = new RelayCommand(_ => ShowList = true);
 
             _ = ListVM.LoadAsync();
+        }
+
+        /// <summary>Parameterless ctor for XAML design-time and for
+        /// MainViewModel's <c>Activator.CreateInstance&lt;T&gt;()</c> fallback.
+        /// Chains into the single real ctor, so no construction route can
+        /// ever produce a half-initialized instance (ERR-633EEB). The four
+        /// parameters above are deliberately NOT optional: overlapping
+        /// optional parameters would make <c>new StatementModuleViewModel()</c>
+        /// resolve against two candidates.</summary>
+        public StatementModuleViewModel() : this(null, null, null, null) { }
+
+        /// <summary>DI lookup that never throws (the provider may be
+        /// mid-build during startup, or the service simply unregistered).</summary>
+        private static T? TryGet<T>(IServiceProvider? sp) where T : class
+        {
+            if (sp == null) return null;
+            try { return sp.GetService<T>(); }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    $"[StatementModule] DI resolve of {typeof(T).Name} failed: {ex.Message}");
+                return null;
+            }
         }
     }
 }

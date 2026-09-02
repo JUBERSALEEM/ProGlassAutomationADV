@@ -140,6 +140,17 @@ namespace ProGlassAutomation.Services
             // defaults, then the user's saved radius wins.
             ReapplyCardCornerRadius();
 
+            // The colour mode is an input to VisualThemeEngine's scene
+            // fingerprint (splash colour-bounce fix, 2026-09-02). Drop the
+            // cache so the next ApplyModule re-renders against the new
+            // Light/Dark palette instead of being skipped as a duplicate.
+            try { Theme.VisualThemeEngine.InvalidateSceneCache(); }
+            catch (Exception ex)
+            {
+                Logging.AppLogService.Debug(
+                    "[ThemeManager] scene-cache invalidation failed: " + ex.Message);
+            }
+
             ThemeChanged?.Invoke(null, EventArgs.Empty);
         }
 
@@ -253,6 +264,14 @@ namespace ProGlassAutomation.Services
 
             var resources = Application.Current?.Resources;
             if (resources == null) return;
+
+            // Accent participates in the visual-theme scene fingerprint.
+            try { Theme.VisualThemeEngine.InvalidateSceneCache(); }
+            catch (Exception ex)
+            {
+                Logging.AppLogService.Debug(
+                    "[ThemeManager] scene-cache invalidation failed: " + ex.Message);
+            }
 
             // Resolve the effective accent: custom, or theme default.
             Color effective = accent ?? ThemeDefaultAccent();

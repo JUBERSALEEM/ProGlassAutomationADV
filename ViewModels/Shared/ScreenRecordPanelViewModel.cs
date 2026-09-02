@@ -20,18 +20,30 @@ namespace ProGlassAutomation.ViewModels.Shared
     {
         private readonly IDialogService _dialogs = null!;
 
-        public ScreenRecordPanelViewModel(IDialogService? dialogs)
+        // ERR-633EEB hardening: this DI overload used to leave every
+        // command and collection NULL (all initialization lived in the
+        // parameterless ctor). The container always picks the GREEDIEST
+        // resolvable ctor, so DI-built instances were half-constructed.
+        // It now chains into the fully-initializing ctor.
+        public ScreenRecordPanelViewModel(IDialogService? dialogs) : this(dialogs, initialize: true)
         {
-            _dialogs = dialogs!;
         }
 
         public static ScreenRecordPanelViewModel Shared { get; } = new();
 
         private readonly UserScreenRecordService _svc = UserScreenRecordService.Shared;
 
-        public ScreenRecordPanelViewModel()
-         : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService()){
+        public ScreenRecordPanelViewModel() : this(null, initialize: true)
+        {
+        }
+
+        private ScreenRecordPanelViewModel(IDialogService? dialogs, bool initialize)
+        {
+            _dialogs = dialogs
+                ?? App.ServiceProvider?.GetService<IDialogService>()
+                ?? new DialogService();
+            _ = initialize; // discriminator only — keeps the two ctors distinct
+
             SelectedQuality = ScreenRecordSettings.Qualities
                 .FirstOrDefault(q => q.Quality == _svc.Settings.Quality)
                 ?? ScreenRecordSettings.Qualities[1];

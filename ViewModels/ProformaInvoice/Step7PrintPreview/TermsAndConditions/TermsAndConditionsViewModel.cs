@@ -31,9 +31,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
     {
         private readonly IDialogService _dialogs = null!;
 
-        public TermsAndConditionsViewModel(IDialogService? dialogs)
+        // ERR-633EEB hardening: this DI overload used to leave every
+        // command and collection NULL (all initialization lived in the
+        // parameterless ctor). The container always picks the GREEDIEST
+        // resolvable ctor, so DI-built instances were half-constructed.
+        // It now chains into the fully-initializing ctor.
+        public TermsAndConditionsViewModel(IDialogService? dialogs) : this(dialogs, initialize: true)
         {
-            _dialogs = dialogs!;
         }
 
         // BUG-71: extracted for future localization
@@ -59,9 +63,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
         public ICommand AddPaymentSubLineCommand { get; }
         public ICommand RemovePaymentSubLineCommand { get; }
 
-        public TermsAndConditionsViewModel()
-         : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService()){
+        public TermsAndConditionsViewModel() : this(null, initialize: true)
+        {
+        }
+
+        private TermsAndConditionsViewModel(IDialogService? dialogs, bool initialize)
+        {
+            _dialogs = dialogs
+                ?? App.ServiceProvider?.GetService<IDialogService>()
+                ?? new DialogService();
+            _ = initialize; // discriminator only — keeps the two ctors distinct
+
             LoadDefaults();
 
             AddCustomClauseCommand = new RelayCommand(_ => AddCustomClause());

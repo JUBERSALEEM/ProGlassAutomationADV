@@ -95,9 +95,31 @@
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
 
-    <Window.DataContext>
-        <vm:MainViewModel/>
-    </Window.DataContext>
+    <!-- ═══════════════════════════════════════════════════════════════
+         2026-09-02 — the XAML-instantiated DataContext was REMOVED.
+
+         `<vm:MainViewModel/>` here made the BAML loader construct a
+         SECOND, throw-away MainViewModel on every MainWindow creation,
+         even though App.StartupCore already resolved one through DI and
+         assigns it immediately after `new MainWindow()`. Two concrete
+         consequences, both observed in production:
+
+           1. CRASH ERR-633EEB — the XAML-built VM used the parameterless
+              ctor, whose failures surface as TargetInvocationException
+              from InitializeComponent() and kill startup. The DI path's
+              own failure was already handled gracefully; this one was
+              not recoverable because it happens inside XAML load.
+
+           2. SPLASH COLOUR BOUNCE — MainViewModel's ctor calls
+              ApplyModuleWallpaper("Dashboard") → VisualThemeEngine
+              .ApplyModule(), which does ClearOverrides() then rebuilds
+              the family. Every extra VM meant one extra full theme
+              teardown/rebuild while the (Topmost, DynamicResource-bound)
+              splash was on screen — the visible colour flash.
+
+         DataContext is now assigned exactly once, in code: by
+         App.StartupCore (DI instance) or by the MainWindow ctor fallback.
+    ═══════════════════════════════════════════════════════════════ -->
 
     <Window.Resources>
 

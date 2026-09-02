@@ -40,9 +40,13 @@ namespace ProGlassAutomation.ViewModels.SheetStore
     {
             private readonly IDialogService _dialogs = null!;
 
-        public SheetStoreViewModel(IDialogService? dialogs)
+        // ERR-633EEB hardening: this DI overload used to leave every
+        // command and collection NULL (all initialization lived in the
+        // parameterless ctor). The container always picks the GREEDIEST
+        // resolvable ctor, so DI-built instances were half-constructed.
+        // It now chains into the fully-initializing ctor.
+        public SheetStoreViewModel(IDialogService? dialogs) : this(dialogs, initialize: true)
         {
-            _dialogs = dialogs!;
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -254,9 +258,17 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ICommand ExportExcelCommand { get; }
         public ICommand ExportPdfCommand { get; }
 
-        public SheetStoreViewModel()
-         : this(
-            App.ServiceProvider?.GetService<IDialogService>()?? new DialogService()){
+        public SheetStoreViewModel() : this(null, initialize: true)
+        {
+        }
+
+        private SheetStoreViewModel(IDialogService? dialogs, bool initialize)
+        {
+            _dialogs = dialogs
+                ?? App.ServiceProvider?.GetService<IDialogService>()
+                ?? new DialogService();
+            _ = initialize; // discriminator only — keeps the two ctors distinct
+
             _repo = new SheetStoreRepository();
             _historyRepo = new SheetHistoryRepository();
             _csvService = new SheetStoreCsvService();
