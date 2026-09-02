@@ -344,6 +344,49 @@ public PrintableInvoiceViewModel(
             }
         }
 
+        // ── CROSS-STEP VALIDATION SNAPSHOT ─────────────────────────
+        // Builds a snapshot of the current invoice state for the
+        // CrossStepValidator. Decoupled from the VMs so the validator
+        // can be tested independently.
+        // ────────────────────────────────────────────────────────────
+        private ProGlassAutomation.Services.ProformaInvoice.Validation.InvoiceValidationSnapshot
+            BuildValidationSnapshot()
+        {
+            return new ProGlassAutomation.Services.ProformaInvoice.Validation.InvoiceValidationSnapshot
+            {
+                // Step 1: Company
+                ProformaId = Company?.ProformaId,
+                CompanyName = Company?.CompanyName,
+                IssueDate = Company?.IssueDate ?? DateTime.Now,
+                ValidUntil = Company?.ValidUntil ?? DateTime.Now.AddDays(7),
+
+                // Step 2: Client
+                CustomerName = Client?.CustomerName,
+
+                // Step 5: Data grid
+                SpecGroupCount = DataGrid?.SpecGroups?.Count ?? 0,
+                TotalSqm = DataGrid?.SummaryViewModel?.GrandTotalSqm ?? 0m,
+                TotalPieces = DataGrid?.SummaryViewModel?.GrandTotalQty ?? 0m,
+                TotalAmount = DataGrid?.SummaryViewModel?.GrandTotalValue ?? 0m,
+
+                // Step 6: Other charges
+                TotalOtherCharges = OtherCharges?.TotalOtherCharges ?? 0m,
+                ActiveChargeRows = OtherCharges?.ChargeRows?.Count(r => r.IsActive) ?? 0,
+                HasWastageRows = OtherCharges?.WastagesSection?.WastageRows?.Any(r => r.IsActive) ?? false,
+
+                // Step 7: Summary
+                GrandTotal = MainSummary?.GrandTotalVatInclusive ?? 0m,
+                VatAmount = MainSummary?.VatAmount ?? 0m,
+                DiscountPercent = 0m // DiscountValue can be % or fixed AED; skip for now
+
+                // Step 9: Profit & Loss
+                ProfitMarginPercent = ProfitLoss?.MarginPercent ?? 0m,
+                TotalCost = (ProfitLoss?.TotalGlassCost ?? 0m) + (ProfitLoss?.TotalProductionCost ?? 0m),
+                TotalRevenue = ProfitLoss?.GrossVatInclusive ?? 0m
+            };
+        }
+        // ── END CROSS-STEP VALIDATION SNAPSHOT ─────────────────────
+
         private async Task ExecuteSaveInvoiceAsync()
         {
             if (_invoices == null)
@@ -361,6 +404,50 @@ public PrintableInvoiceViewModel(
                     LocalizationService.Instance.T("Msg.CapSaveFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+
+            // ── CROSS-STEP VALIDATION ──────────────────────────────
+            // Before saving, validate business rules that span multiple
+            // steps. Errors block the save; warnings show a confirm dialog.
+            try
+            {
+                var snapshot = BuildValidationSnapshot();
+                var validationResult = ProGlassAutomation.Services.ProformaInvoice
+                    .Validation.CrossStepValidator.Validate(snapshot);
+
+                if (!validationResult.IsValid)
+                {
+                    string errorMsg = string.Join("\n\n", validationResult.Errors);
+                    _dialogs.Show(
+                        "Please fix the following issues before saving:\n\n" + errorMsg,
+                        "Validation Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (validationResult.HasWarnings)
+                {
+                    string warnMsg = string.Join("\n\n", validationResult.Warnings);
+                    var proceed = _dialogs.Show(
+                        "The following warnings were detected:\n\n" + warnMsg +
+                        "\n\nDo you want to proceed with saving?",
+                        "Validation Warnings",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (proceed != MessageBoxResult.Yes)
+                        return;
+                }
+            }
+            catch (Exception valEx)
+            {
+                // Validation itself failed — log but don't block save.
+                // The validator is defensive and should never throw, but
+                // if it does, the save should still work.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                    $"[PI Save] Cross-step validation error: {ExceptionMessages.Deep(valEx)}");
+            }
+            // ── END CROSS-STEP VALIDATION ──────────────────────────
 
             // v2 permission gate — the operation itself verifies access.
             if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
