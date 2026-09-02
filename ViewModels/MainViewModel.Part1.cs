@@ -346,7 +346,30 @@ namespace ProGlassAutomation.ViewModels
         {
             CurrentModuleKey = "Settings";
             CurrentViewModel = SettingsVM;
-            SettingsVM.SwitchSettingsPageCommand.Execute(page ?? "Appearance");
+
+            // ERR-BEFC44 / ERR-435233: this line had TWO unguarded
+            // dereferences. SettingsVM comes from ResolveOrNew<T>(), which
+            // returns null! if both DI and Activator fail; and
+            // SwitchSettingsPageCommand is only non-null once InitializeCore()
+            // has run. Navigation must never crash the shell, so fall back to
+            // setting the page directly if the command is unavailable.
+            var vm = SettingsVM;
+            if (vm != null)
+            {
+                var target = string.IsNullOrWhiteSpace(page) ? "Appearance" : page;
+                var cmd = vm.SwitchSettingsPageCommand;
+                if (cmd != null && cmd.CanExecute(target))
+                    cmd.Execute(target);
+                else
+                    vm.GoToPage(target);        // same effect as the command
+            }
+            else
+            {
+                Services.Logging.AppLogService.Error(
+                    "OpenSettingsPage: SettingsVM is null — Settings cannot open. "
+                    + "SettingsViewModel failed to construct via both DI and Activator.");
+            }
+
             IsSettingsOpen = false;
             IsMenuOpen = false;
         }

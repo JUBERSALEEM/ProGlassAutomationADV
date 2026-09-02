@@ -233,7 +233,12 @@ namespace ProGlassAutomation.ViewModels
                 case "UserCenter": CurrentViewModel = UserCenterVM; break;
                 case "JobProfitability":
                     CurrentViewModel = JobProfitabilityVM;
-                    JobProfitabilityVM.RefreshCommand.Execute(null);
+                    // Guarded for the same reason as OpenSettingsPage: this VM
+                    // comes from ResolveOrNew<T>() and its commands are created
+                    // in InitializeCore(), so navigation must not assume either
+                    // is non-null (ERR-BEFC44 family).
+                    if (JobProfitabilityVM?.RefreshCommand?.CanExecute(null) == true)
+                        JobProfitabilityVM.RefreshCommand.Execute(null);
                     break;
                 case "VatSubmission":
                     CurrentViewModel = VatSubmissionVM;

@@ -110,6 +110,16 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// <summary>Switches the active settings page (nav rail).</summary>
         public ICommand SwitchSettingsPageCommand { get; private set; }
 
+        /// <summary>
+        /// Command-free way to switch page. SettingsPage has a private
+        /// setter, and SwitchSettingsPageCommand is null until
+        /// InitializeCore() has run, so callers outside this class need a
+        /// path that cannot NullReference (see ERR-BEFC44 / ERR-435233).
+        /// Validation still happens in the SettingsPage setter.
+        /// </summary>
+        public void GoToPage(string? page)
+            => SettingsPage = string.IsNullOrWhiteSpace(page) ? "Appearance" : page;
+
         public string ConfigFilePath { get; }
 
     }
