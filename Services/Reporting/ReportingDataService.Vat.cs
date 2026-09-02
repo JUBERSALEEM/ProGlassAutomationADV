@@ -135,14 +135,40 @@ namespace ProGlassAutomation.Services.Reporting
                     query = query.Where(i => i.IssueDate >= filter.DateFrom.Value);
                 if (filter.DateTo.HasValue)
                     query = query.Where(i => i.IssueDate <= filter.DateTo.Value);
+                // EF Core cannot translate the local helpers Eq()/ContainsCI()
+                // -- they are plain C# methods using StringComparison, which
+                // has no SQL equivalent. Passing them to Where() made EF throw
+                // "An exception was thrown while attempting to evaluate a LINQ
+                // query parameter expression", which the catch below swallowed,
+                // so the VAT report silently returned ZERO rows on every load.
+                //
+                // Use translatable constructs instead: EF.Functions.Like is
+                // case-insensitive for ASCII in SQLite, and Trim()/Contains()
+                // both map to SQL. Semantics are preserved.
                 if (!string.IsNullOrWhiteSpace(filter.Company))
-                    query = query.Where(i => Eq(i.CompanyName, filter.Company));
+                {
+                    var company = filter.Company.Trim();
+                    query = query.Where(i => i.CompanyName != null
+                        && EF.Functions.Like(i.CompanyName.Trim(), company));
+                }
                 if (!string.IsNullOrWhiteSpace(filter.Customer))
-                    query = query.Where(i => Eq(i.CustomerName, filter.Customer));
+                {
+                    var customer = filter.Customer.Trim();
+                    query = query.Where(i => i.CustomerName != null
+                        && EF.Functions.Like(i.CustomerName.Trim(), customer));
+                }
                 if (!string.IsNullOrWhiteSpace(filter.Project))
-                    query = query.Where(i => Eq(i.ProjectName, filter.Project));
+                {
+                    var project = filter.Project.Trim();
+                    query = query.Where(i => i.ProjectName != null
+                        && EF.Functions.Like(i.ProjectName.Trim(), project));
+                }
                 if (!string.IsNullOrWhiteSpace(filter.ProformaId))
-                    query = query.Where(i => ContainsCI(i.ProformaId, filter.ProformaId));
+                {
+                    var pid = filter.ProformaId.Trim();
+                    query = query.Where(i => i.ProformaId != null
+                        && EF.Functions.Like(i.ProformaId, "%" + pid + "%"));
+                }
                 
                 ct.ThrowIfCancellationRequested();
                 
@@ -251,8 +277,15 @@ namespace ProGlassAutomation.Services.Reporting
                 // GRACEFUL DEGRADATION: Return empty results instead of crashing
                 // This handles cases where the database doesn't exist yet,
                 // the table is missing, or the connection fails.
+                // Log the INNER exception too. EF wraps the real cause (e.g.
+                // an untranslatable LINQ expression) inside a generic outer
+                // message, and logging only ex.Message hid the actual bug
+                // here for a long time -- the report just showed no data.
                 Services.Logging.AppLogService.Warning(
                     $"VAT Submission: Data load failed gracefully — {ex.Message}. " +
+                    (ex.InnerException != null
+                        ? $"INNER: {ex.InnerException.GetType().Name}: {ex.InnerException.Message}. "
+                        : string.Empty) +
                     "Returning empty results. The database may not be initialized yet.");
                 return new List<VatSubmissionRow>();
             }
