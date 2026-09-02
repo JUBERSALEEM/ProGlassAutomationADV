@@ -212,6 +212,8 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Style="{StaticResource JpTileStyle}">
@@ -259,9 +261,9 @@
                 </StackPanel>
             </Border>
 
-            <!-- Overall Profit Margin % -->
+            <!-- Overall Profit Margin % (Cost-Based) -->
             <Border Grid.Column="6"
-                    ToolTip="{DynamicResource JobProfitability.OverallPortfolioMarginPIConfirmedJobsTotal}">
+                    ToolTip="Cost-based margin: (Revenue - Total Cost) / Total Cost × 100. Includes ALL costs (glass + ASP + U-insert). Real job profitability for decision making.">
                 <Border.Style>
                     <Style TargetType="Border" BasedOn="{StaticResource JpTileStyle}">
                         <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
@@ -274,10 +276,40 @@
                     </Style>
                 </Border.Style>
                 <StackPanel>
-                    <TextBlock Text="{DynamicResource JobProfitability.OverallProfitMargin}" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="OVERALL MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
                     <!-- No green: margin is reported neutrally; only a
                          loss-making portfolio carries colour (red). -->
                     <TextBlock Text="{Binding OverallMarginDisplay}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPortfolioLoss}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Price-Based Margin (Net Margin - Accounting) -->
+            <Border Grid.Column="8"
+                    ToolTip="Net margin: (Revenue - Total Cost) / Revenue × 100. Accounting perspective - profit as % of revenue.">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource JpTileStyle}">
+                        <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                        <Setter Property="BorderThickness" Value="2"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsPortfolioLoss}" Value="True">
+                                <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel>
+                    <TextBlock Text="NET MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{Binding OverallPriceBasedMarginDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
                                 <Style.Triggers>
@@ -296,7 +328,7 @@
                  the Overall Profit Margin tile above). Coloured by the
                  average itself, not the portfolio total: a net-loss
                  portfolio can still show a positive average. -->
-            <Border Grid.Column="8"
+            <Border Grid.Column="10"
                     ToolTip="{DynamicResource JobProfitability.AverageMarginShownDisplayedCostedJobsJob}">
                 <Border.Style>
                     <Style TargetType="Border" BasedOn="{StaticResource JpTileStyle}">
@@ -326,7 +358,7 @@
             </Border>
 
             <!-- Loss-making job count -->
-            <Border Grid.Column="10" Style="{StaticResource JpTileStyle}">
+            <Border Grid.Column="12" Style="{StaticResource JpTileStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource JobProfitability.LOSSMakingJOBS}" Style="{StaticResource JpTileCaptionStyle}"/>
                     <TextBlock Text="{Binding LossCountDisplay}">

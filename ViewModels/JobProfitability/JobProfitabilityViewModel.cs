@@ -234,7 +234,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             }
         }
 
-        public string OverallMarginDisplay => $"{OverallMarginPercent:0.#}%";
+        public string OverallMarginDisplay => $"AED {TotalProfit:N0} | {OverallMarginPercent:0.#}%";
 
         private decimal _overallPriceBasedMarginPercent;
         /// <summary>
@@ -253,7 +253,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             }
         }
 
-        public string OverallPriceBasedMarginDisplay => $"{OverallPriceBasedMarginPercent:0.#}%";
+        public string OverallPriceBasedMarginDisplay => $"{OverallPriceBasedMarginPercent:0.#}% | AED {TotalProfit:N0}";
 
         private decimal _averageMarginPercent;
         /// <summary>

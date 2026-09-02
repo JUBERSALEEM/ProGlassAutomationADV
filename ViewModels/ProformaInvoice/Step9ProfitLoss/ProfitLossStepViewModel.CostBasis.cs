@@ -336,19 +336,77 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         //  the selling price. Neither number is hardcoded: both follow the
         //  live recalculation.
 
+        // ── THREE MARGIN PERSPECTIVES ─────────────────────────────────────
+        //
+        //  1. Cost-Based Margin (BASE COST ONLY)
+        //     Formula: (Revenue - Base Cost) / Base Cost × 100
+        //     Shows: Glass + ASP margin (ignoring U-insert)
+        //     Use: Compare to Step 4's margin setting
+        //
+        //  2. Overall Margin (INCLUDES ALL COSTS) ← MOST IMPORTANT
+        //     Formula: (Revenue - Total Cost) / Total Cost × 100
+        //     Shows: Real job profitability (glass + ASP + U-insert)
+        //     Use: Decision making
+        //
+        //  3. Net Margin (ACCOUNTING)
+        //     Formula: (Revenue - Total Cost) / Revenue × 100
+        //     Shows: Profit as % of revenue
+        //     Use: Financial reporting
+        //
+        //  Each KPI card shows: "AED -212 | -6.2%"
+        //  (profit amount + margin percentage)
+        // ══════════════════════════════════════════════════════════════════
+
         /// <summary>
-        /// Cost-based profit margin: the EXISTING Profit ÷ Net Selling × 100
-        /// margin (renamed only — same as MarginPercent).
+        /// Cost-based profit margin: (Revenue - Base Cost) / Base Cost × 100
+        /// Shows glass + ASP margin only (ignoring U-insert).
         /// </summary>
         public decimal CostBasedMarginPercent => MarginPercent;
 
-        /// <summary>KPI card value for the cost-based margin.</summary>
-        public string CostBasedMarginDisplay => $"{CostBasedMarginPercent:0.#}%";
+        /// <summary>
+        /// Profit amount for cost-based margin (Revenue - Base Cost).
+        /// This is different from PriceBasedActualProfit which includes U-insert.
+        /// </summary>
+        public decimal CostBasedProfitAmount => 
+            Math.Round(GrossVatInclusive - PriceBasedBasisCost, 2);
+
+        /// <summary>
+        /// KPI card display: "AED -12 | -0.4%"
+        /// </summary>
+        public string CostBasedMarginDisplay =>
+            $"AED {CostBasedProfitAmount:N0} | {CostBasedMarginPercent:0.#}%";
+
+        private decimal _overallMarginPercent;
+        /// <summary>
+        /// Overall profit margin: (Revenue - Total Cost) / Total Cost × 100
+        /// Includes ALL costs (glass + ASP + U-insert).
+        /// This is the REAL job profitability - most important for decisions!
+        /// </summary>
+        public decimal OverallMarginPercent
+        {
+            get => _overallMarginPercent;
+            private set
+            {
+                if (_overallMarginPercent == value) return;
+                _overallMarginPercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OverallMarginDisplay));
+            }
+        }
+
+        /// <summary>Profit amount for overall margin (Revenue - Total Cost with U-insert).</summary>
+        public decimal OverallProfitAmount => PriceBasedActualProfit;
+
+        /// <summary>
+        /// KPI card display: "AED -212 | -6.2%"
+        /// </summary>
+        public string OverallMarginDisplay =>
+            $"AED {OverallProfitAmount:N0} | {OverallMarginPercent:0.#}%";
 
         private decimal _priceBasedMarginPercent;
         /// <summary>
-        /// Price-based profit margin: (Actual Profit ÷ Net Selling Amount) × 100,
-        /// where Actual Profit = Net Selling − (Glass + Production/ASP + U-Insert).
+        /// Net profit margin: (Revenue - Total Cost) / Revenue × 100
+        /// Accounting perspective - profit as % of revenue.
         /// </summary>
         public decimal PriceBasedMarginPercent
         {
@@ -362,12 +420,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
+        /// <summary>Profit amount for net margin (Revenue - Total Cost).</summary>
+        public decimal NetProfitAmount => PriceBasedActualProfit;
+
         /// <summary>
-        /// KPI card value for the price-based margin. Two decimals so the
-        /// figure can never be mistaken for the cost-based one — both are
-        /// computed live, never from a stored result.
+        /// KPI card display: "AED -212 | -6.6%"
         /// </summary>
-        public string PriceBasedMarginDisplay => $"{PriceBasedMarginPercent:0.##}%";
+        public string PriceBasedMarginDisplay =>
+            $"AED {NetProfitAmount:N0} | {PriceBasedMarginPercent:0.#}%";
 
         /// <summary>
         /// The U-insert cost the Price-Based margin uses. Becomes zero when
