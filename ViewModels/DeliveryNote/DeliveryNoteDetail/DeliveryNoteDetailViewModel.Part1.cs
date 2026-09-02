@@ -45,12 +45,155 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         private readonly IStatusService _statusService = null!;
         private readonly IDatabaseServices _database = null!;
 
+        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
+        // The initialization body below used to live in the
+        // PARAMETERLESS ctor (in .Part2.cs) while DI selected THIS
+        // parameterized overload. Every DI-resolved instance was
+        // therefore missing every ICommand created there and threw
+        // NullReferenceException on first use. Moved here so all
+        // construction routes initialize fully.
         public DeliveryNoteDetailViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IStatusService? status, IDatabaseServices? database)
         {
             _deliveryNotes = deliveryNotes!;
             _dialogs = dialogs!;
             _statusService = status!;
             _database = database!;
+
+            // v2 §24: version history (read-only list for DN — restore
+            // needs relational-item support and ships in a later phase).
+            ShowVersionsCommand = new RelayCommand(
+                async _ => await ShowVersionsAsync());
+
+            // ═══ DETAIL TAB SWITCHER (Overview / Attachments / History) ═══
+            SwitchDetailTabCommand = new RelayCommand(p2 =>
+                DetailTab = p2 as string ?? "Overview");
+
+            SaveCommand = new RelayCommand(
+                async _ =>
+                {
+                    if (IsOpenForDispatch(Status))
+                        await ConfirmDispatchAsync();
+                    else
+                        await SaveAsync();
+                },
+                _ => !IsSaving && !IsLoading && !IsMasterDn);
+
+            BackCommand = new RelayCommand(
+                _ => OnRequestBackToList?.Invoke());
+
+            MakeDnCommand = new RelayCommand(
+                async _ => await ConfirmDispatchAsync(),
+                _ => IsOpenForDispatch(Status) && !IsSaving && !IsMasterDn);
+
+            DeleteDnCommand = new RelayCommand(
+                async _ => await DeleteDnAsync(),
+                _ => _entity != null && !IsSaving && !IsMasterDn);
+
+            UploadImageCommand = new RelayCommand(
+                async _ => await UploadImageAsync(),
+                _ => _entity != null && !IsSaving && !IsMasterDn);
+
+            UploadPdfCommand = new RelayCommand(
+                async _ => await UploadPdfAsync(),
+                _ => _entity != null && !IsSaving && !IsMasterDn);
+
+            OpenAttachmentCommand = new RelayCommand(param =>
+            {
+                if (param is DnAttachmentRowViewModel row)
+                    OpenAttachment(row);
+            });
+
+            DeleteAttachmentCommand = new RelayCommand(
+                async param =>
+                {
+                    if (param is DnAttachmentRowViewModel row)
+                        await DeleteAttachmentAsync(row);
+                },
+                canExecute: param =>
+                    param is DnAttachmentRowViewModel && !IsMasterDn);
+
+            SelectHistoryEntryCommand = new RelayCommand(async param =>
+            {
+                if (param is DnHistoryEntryViewModel entry)
+                    await NavigateToDnAsync(entry.DeliveryNoteId);
+            });
+
+            ExportPdfCommand = new RelayCommand(
+                async _ => await GuardedExportAsync(ExportPdfAsync, "PDF"),
+                _ => _entity != null && !IsSaving && !IsLoading);
+
+            ExportExcelCommand = new RelayCommand(
+                async _ => await GuardedExportAsync(ExportExcelAsync, "Excel"),
+                _ => _entity != null && !IsSaving && !IsLoading);
+
+            ExportCsvCommand = new RelayCommand(
+                async _ => await GuardedExportAsync(ExportCsvAsync, "CSV"),
+                _ => _entity != null && !IsSaving && !IsLoading);
+
+            // Phase 3: No async void — wrapper uses central AsyncUtility
+            ConvertToTaxInvoiceCommand = new RelayCommand(
+                execute: param => AsyncUtility.SafeFireAndForget(
+                    () => ConvertToTaxInvoiceAsync(param as DnHistoryEntryViewModel),
+                    $"DN ConvertToTI {DeliveryNoteId}"),
+                canExecute: param => CanConvertToTaxInvoice(
+                    param as DnHistoryEntryViewModel));
+
+            // ═══════════════════════════════════════════════════════════
+            //  CHAT 19 — FillRemainingCommand
+            //  SELECT ALL REMAINING: fills balance qty into DeliveredQty
+            //  REMINDER: balance pcs = ALL remaining pcs for that item
+            // ═══════════════════════════════════════════════════════════
+            FillRemainingCommand = new RelayCommand(
+                _ => FillAllRemaining(),
+                _ => !IsMasterDn &&
+                     !IsSaving &&
+                     _itemRows.Any(r => r.BalanceQty > 0));
+
+            // ═══════════════════════════════════════════════════════════
+            //  CHAT 19 — ResetQtyCommand
+            //  RESET QTY: sets DeliveredQty = 0 for ALL items
+            //  Companion to FillRemainingCommand — lets user start over
+            // ═══════════════════════════════════════════════════════════
+            ResetQtyCommand = new RelayCommand(
+                _ => ResetAllQty(),
+                _ => !IsMasterDn &&
+                     !IsSaving &&
+                     _itemRows.Any(r => r.DeliveredQty > 0));
+
+            // CHAT 19 — Create new real DN from Master DN balance
+            CreateNewDnFromMasterCommand = new RelayCommand(
+                _ =>
+                {
+                    if (_entity != null)
+                        OnRequestCreateDnFromMaster?.Invoke(_entity);
+                },
+                _ => IsMasterDn &&
+                     !IsSaving &&
+                     _entity != null &&
+                     _itemRows.Any(r => r.BalanceQty > 0));
+
+            ToggleFullMasterCommand = new RelayCommand(
+                _ => ShowFullMaster = !ShowFullMaster,
+                _ => IsMasterDn && !IsLoading);
+
+            OpenMasterCommand = new RelayCommand(
+                _ =>
+                {
+                    if (!string.IsNullOrWhiteSpace(JobOrderId))
+                        OnRequestOpenMasterDn?.Invoke(JobOrderId);
+                },
+                _ => !IsMasterDn &&
+                     !IsLoading &&
+                     !string.IsNullOrWhiteSpace(JobOrderId));
+
+            // Sheet Store pattern — clear the selected row so the top strip
+            // returns to totals.
+            ClearSelectionCommand = new RelayCommand(_ => SelectedItemRow = null);
+            ToggleItemSelectionCommand = new RelayCommand(p =>
+            {
+                if (p is DnItemRowViewModel row)
+                    SelectedItemRow = ReferenceEquals(SelectedItemRow, row) ? null : row;
+            });
         }
 
         // ── callbacks ──────────────────────────────────────────────────────

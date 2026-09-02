@@ -42,12 +42,33 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         private readonly IJobOrderRepository _jobs = null!;
         private readonly IStatusService _status = null!;
 
+        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
+        // Initialization used to live in the PARAMETERLESS ctor while
+        // DI selected this parameterized overload (MS.DI always picks
+        // the greediest satisfiable ctor). Every DI-resolved instance
+        // was therefore half-built — null child view models / null
+        // commands — and threw NullReferenceException on first use.
+        // The body was moved HERE so all construction routes (DI,
+        // Activator fallback, XAML design-time) initialize fully.
         public JobOrderDetailViewModel(IDeliveryNoteRepository? deliveryNotes, IDialogService? dialogs, IJobOrderRepository? jobs, IStatusService? status)
         {
             _deliveryNotes = deliveryNotes!;
             _dialogs = dialogs!;
             _jobs = jobs!;
             _status = status!;
+
+            SwitchDetailTabCommand = new RelayCommand(p2 =>
+                DetailTab = p2 as string ?? "Overview");
+
+            SaveCommand = new RelayCommand(async _ => await SaveAsync());
+            BackToListCommand = new RelayCommand(_ => OnRequestBackToList?.Invoke());
+
+            ExportPdfCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportPdfAsync, "PDF"));
+            ExportExcelCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportExcelAsync, "Excel"));
+            ExportCsvCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportCsvAsync, "CSV"));
+
+            CreateDeliveryNoteCommand = new RelayCommand(async _ => await CreateDeliveryNoteAsync());
+            OpenMasterDnCommand = new RelayCommand(async _ => await OpenMasterDnAsync());
         }
 
         // ── reentrancy guard ──────────────────────────────────────────────
@@ -331,18 +352,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IJobOrderRepository>()!,
             App.ServiceProvider?.GetService<IStatusService>()!){
-            SwitchDetailTabCommand = new RelayCommand(p2 =>
-                DetailTab = p2 as string ?? "Overview");
-
-            SaveCommand = new RelayCommand(async _ => await SaveAsync());
-            BackToListCommand = new RelayCommand(_ => OnRequestBackToList?.Invoke());
-
-            ExportPdfCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportPdfAsync, "PDF"));
-            ExportExcelCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportExcelAsync, "Excel"));
-            ExportCsvCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportCsvAsync, "CSV"));
-
-            CreateDeliveryNoteCommand = new RelayCommand(async _ => await CreateDeliveryNoteAsync());
-            OpenMasterDnCommand = new RelayCommand(async _ => await OpenMasterDnAsync());
         }
 
         // ═════════════════════════════════════════════════════════════════

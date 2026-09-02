@@ -180,6 +180,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         private readonly ISpecificationsRepository _specs = null!;
 
         
+// ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
+// Initialization used to live in the PARAMETERLESS ctor while
+// DI selected this parameterized overload (MS.DI always picks
+// the greediest satisfiable ctor). Every DI-resolved instance
+// was therefore half-built — null child view models / null
+// commands — and threw NullReferenceException on first use.
+// The body was moved HERE so all construction routes (DI,
+// Activator fallback, XAML design-time) initialize fully.
         public ProformaInvoiceViewModel(IDialogService? dialogs,
             IProformaInvoiceRepository? invoices,
             IMasterDataRepository? masterData,
@@ -189,13 +197,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             _invoices = invoices!;
             _masterData = masterData!;
             _specs = specs!;
-        }
-public ProformaInvoiceViewModel() : this(
-            App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService(),
-            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
-            App.ServiceProvider?.GetService<IMasterDataRepository>()!,
-            App.ServiceProvider?.GetService<ISpecificationsRepository>()!)
-        {
+
             Step1VM = new Step1CompanySetup.CompanySetupViewModel(
                 _invoices, _masterData, stepNumber => GoToStep(stepNumber));
 
@@ -295,7 +297,14 @@ public ProformaInvoiceViewModel() : this(
                 AsyncUtility.SafeFireAndForget(() => RestoreSnapshotIntoWizardAsync(json), "PI RestoreSnapshot");
 
             Step2VM.PropertyChanged += OnStep2PropertyChanged;
-        }
+}
+public ProformaInvoiceViewModel() : this(
+            App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService(),
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
+            App.ServiceProvider?.GetService<IMasterDataRepository>()!,
+            App.ServiceProvider?.GetService<ISpecificationsRepository>()!)
+        {
+}
 
         // ══════════════════════════════════════════════════════════════
         //  IDISPOSABLE — event-handler cleanup (P2 fix, senior audit)

@@ -41,6 +41,14 @@ namespace ProGlassAutomation.ViewModels.Reports
         private readonly IReportingDataService _reporting = null!;
         private readonly IDatabaseServices _database = null!;
 
+        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
+        // Initialization used to live in the PARAMETERLESS ctor while
+        // DI selected this parameterized overload (MS.DI always picks
+        // the greediest satisfiable ctor). Every DI-resolved instance
+        // was therefore half-built — null child view models / null
+        // commands — and threw NullReferenceException on first use.
+        // The body was moved HERE so all construction routes (DI,
+        // Activator fallback, XAML design-time) initialize fully.
         public SalesReportViewModel(IDialogService? dialogs,
             IReportingDataService? reporting,
             IDatabaseServices? database)
@@ -48,6 +56,42 @@ namespace ProGlassAutomation.ViewModels.Reports
             _dialogs = dialogs!;
             _reporting = reporting!;
             _database = database!;
+
+            _reportingService = _reporting ?? new ReportingDataService();
+
+            ToggleRailCommand = new RelayCommand(_ => IsRailOpen = !IsRailOpen);
+
+            PiReport = new PiReportViewModel(_dialogs, _reportingService, _database);
+            JoReport = new JoReportViewModel(_dialogs, _reportingService, _database);
+            DeliveryReport = new DeliveryReportViewModel(_dialogs, _reportingService, _database);
+            TaxInvoiceReport = new TaxInvoiceReportViewModel(_dialogs, _reportingService, _database);
+            StatementReport = new StatementReportViewModel(_dialogs, _reportingService, _database);
+            VatSubmission = new VatSubmissionViewModel(_dialogs, _reportingService, _database);
+
+            // Route "open original document" requests from report sidebars to
+            // the shell callbacks (MainViewModel wires OnOpenProforma/...).
+            PiReport.OpenDocumentRequested = id => OnOpenProforma?.Invoke(id);
+            JoReport.OpenDocumentRequested = id => OnOpenJobOrder?.Invoke(id);
+            TaxInvoiceReport.OpenDocumentRequested = id => OnOpenTaxInvoice?.Invoke(id);
+            DeliveryReport.OpenJobOrderRequested = joId => OnOpenJobOrderByNumber?.Invoke(joId);
+            StatementReport.OpenTaxInvoiceRequested = invNum => OnOpenTaxInvoiceByNumber?.Invoke(invNum);
+
+            NavigateReportCommand = new RelayCommand(p =>
+            {
+                if (p is string key && !string.IsNullOrWhiteSpace(key))
+                {
+                    ActiveKey = key;
+                    OnPropertyChanged(nameof(IsOverview));
+
+                    // Statements can be generated in the Dispatch section now;
+                    // refresh the read-only Statement report when it opens so it
+                    // reflects the latest generated statements.
+                    if (key == "Statement")
+                        _ = StatementReport.LoadAsync();
+                }
+            });
+
+            _ = StatementReport.LoadAsync();
         }
 
         private readonly IReportingDataService _reportingService;
@@ -140,41 +184,6 @@ namespace ProGlassAutomation.ViewModels.Reports
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IReportingDataService>()!,
             App.ServiceProvider?.GetService<IDatabaseServices>()!){
-            _reportingService = _reporting ?? new ReportingDataService();
-
-            ToggleRailCommand = new RelayCommand(_ => IsRailOpen = !IsRailOpen);
-
-            PiReport = new PiReportViewModel(_dialogs, _reportingService, _database);
-            JoReport = new JoReportViewModel(_dialogs, _reportingService, _database);
-            DeliveryReport = new DeliveryReportViewModel(_dialogs, _reportingService, _database);
-            TaxInvoiceReport = new TaxInvoiceReportViewModel(_dialogs, _reportingService, _database);
-            StatementReport = new StatementReportViewModel(_dialogs, _reportingService, _database);
-            VatSubmission = new VatSubmissionViewModel(_dialogs, _reportingService, _database);
-
-            // Route "open original document" requests from report sidebars to
-            // the shell callbacks (MainViewModel wires OnOpenProforma/...).
-            PiReport.OpenDocumentRequested = id => OnOpenProforma?.Invoke(id);
-            JoReport.OpenDocumentRequested = id => OnOpenJobOrder?.Invoke(id);
-            TaxInvoiceReport.OpenDocumentRequested = id => OnOpenTaxInvoice?.Invoke(id);
-            DeliveryReport.OpenJobOrderRequested = joId => OnOpenJobOrderByNumber?.Invoke(joId);
-            StatementReport.OpenTaxInvoiceRequested = invNum => OnOpenTaxInvoiceByNumber?.Invoke(invNum);
-
-            NavigateReportCommand = new RelayCommand(p =>
-            {
-                if (p is string key && !string.IsNullOrWhiteSpace(key))
-                {
-                    ActiveKey = key;
-                    OnPropertyChanged(nameof(IsOverview));
-
-                    // Statements can be generated in the Dispatch section now;
-                    // refresh the read-only Statement report when it opens so it
-                    // reflects the latest generated statements.
-                    if (key == "Statement")
-                        _ = StatementReport.LoadAsync();
-                }
-            });
-
-            _ = StatementReport.LoadAsync();
         }
     }
 }

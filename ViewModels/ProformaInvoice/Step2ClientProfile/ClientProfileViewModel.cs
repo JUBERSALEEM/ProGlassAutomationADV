@@ -36,9 +36,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
     {
         private readonly IMasterDataRepository _masterData = null!;
 
+        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
+        // Initialization used to live in the PARAMETERLESS ctor while
+        // DI selected this parameterized overload (MS.DI always picks
+        // the greediest satisfiable ctor). Every DI-resolved instance
+        // was therefore half-built — null child view models / null
+        // commands — and threw NullReferenceException on first use.
+        // The body was moved HERE so all construction routes (DI,
+        // Activator fallback, XAML design-time) initialize fully.
         public ClientProfileViewModel(IMasterDataRepository? masterData)
         {
             _masterData = masterData!;
+
+            LoadClientCommand = new RelayCommand(param =>
+            {
+                if (param is ClientProfileCard card)
+                    LoadClientFromCard(card);
+            });
+
+            ShowAllClientsCommand = new RelayCommand(_ =>
+            {
+                _showingAll = true;
+                RebuildVisibleCards();
+                OnPropertyChanged(nameof(HasMoreClients));
+            });
+
+            RefreshCardsCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(LoadCardsAsync, "PI Step2"));
+
+            RefreshSalesmanCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(LoadSalesmanOptionsAsync, "PI Step2"));
         }
 
         // ── Guard while populating from card ──────────────────────────
@@ -324,24 +351,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
         public ClientProfileViewModel()
          : this(
             App.ServiceProvider?.GetService<IMasterDataRepository>()!){
-            LoadClientCommand = new RelayCommand(param =>
-            {
-                if (param is ClientProfileCard card)
-                    LoadClientFromCard(card);
-            });
-
-            ShowAllClientsCommand = new RelayCommand(_ =>
-            {
-                _showingAll = true;
-                RebuildVisibleCards();
-                OnPropertyChanged(nameof(HasMoreClients));
-            });
-
-            RefreshCardsCommand = new RelayCommand(
-                _ => AsyncUtility.SafeFireAndForget(LoadCardsAsync, "PI Step2"));
-
-            RefreshSalesmanCommand = new RelayCommand(
-                _ => AsyncUtility.SafeFireAndForget(LoadSalesmanOptionsAsync, "PI Step2"));
         }
 
         // ═══════════════════════════════════════════════════════════════

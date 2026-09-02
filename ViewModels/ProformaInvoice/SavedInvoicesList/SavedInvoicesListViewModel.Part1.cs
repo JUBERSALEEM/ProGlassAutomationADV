@@ -43,6 +43,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         private readonly IJobOrderRepository _jobs = null!;
         private readonly IStatusService _status = null!;
 
+        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
+        // Initialization used to live in the PARAMETERLESS ctor while
+        // DI selected this parameterized overload (MS.DI always picks
+        // the greediest satisfiable ctor). Every DI-resolved instance
+        // was therefore half-built — null child view models / null
+        // commands — and threw NullReferenceException on first use.
+        // The body was moved HERE so all construction routes (DI,
+        // Activator fallback, XAML design-time) initialize fully.
         public SavedInvoicesListViewModel(IDialogService? dialogs, IProformaInvoiceRepository? invoices, IJobOrderRepository? jobs, IStatusService? status, IDatabaseServices? database)
         {
             _dialogs = dialogs!;
@@ -50,6 +58,78 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             _jobs = jobs!;
             _status = status!;
             _database = database!;
+
+            RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
+
+            // Phase 4: Named handler — detachable, no lambda leak
+            _dataSeededHandler = async () => { try { await LoadInvoicesAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
+
+            // Instant refresh when this PI changes OR when a related JO / DN /
+            // TI is created or deleted. Display status is derived from those
+            // documents, so a delete in another module must reload this list
+            // without waiting for a manual Refresh.
+            _database.SubscribeDocumentsChanged(LoadInvoicesAsync);
+            ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
+            LoadInvoiceCommand = new RelayCommand(p => RequestLoad(p as SavedInvoiceListItem));
+
+            DuplicateInvoiceCommand = new RelayCommand(
+                async p => await DuplicateAsync(p as SavedInvoiceListItem));
+            DeleteInvoiceCommand = new RelayCommand(
+                async p => await DeleteAsync(p as SavedInvoiceListItem));
+
+            // BUG-72 [HIGH]: accept Tuple parameter matching code-behind
+            ChangeStatusCommand = new RelayCommand(async p =>
+            {
+                switch (p)
+                {
+                    // View code-behind CreateStatusItem returns MenuItem
+                    // that fires an event capturing the tuple pattern:
+                    case Tuple<SavedInvoiceListItem, string> tuple
+                        when tuple.Item1 != null && !string.IsNullOrWhiteSpace(tuple.Item2):
+                        await ChangeStatusAsync(tuple.Item1, tuple.Item2);
+                        break;
+
+                    case ValueTuple<SavedInvoiceListItem, string> vtuple
+                        when vtuple.Item1 != null && !string.IsNullOrWhiteSpace(vtuple.Item2):
+                        await ChangeStatusAsync(vtuple.Item1, vtuple.Item2);
+                        break;
+
+                    // Backward-compat: original object[] shape
+                    case object[] arr when arr.Length == 2
+                        && arr[0] is SavedInvoiceListItem item
+                        && arr[1] is string newStatus:
+                        await ChangeStatusAsync(item, newStatus);
+                        break;
+                }
+            });
+
+            ExportPdfFromListCommand = new RelayCommand(
+                async p => await ExportPdfFromListAsync(p as SavedInvoiceListItem));
+            ExportExcelFromListCommand = new RelayCommand(
+                async p => await ExportExcelFromListAsync(p as SavedInvoiceListItem));
+
+            // BUG-76: CSV export from list for parity with detail view
+            ExportCsvFromListCommand = new RelayCommand(
+                async p => await ExportCsvFromListAsync(p as SavedInvoiceListItem));
+
+            // v2: one tap → show today's invoices (FromDate/ToDate both today)
+            SetTodayFilterCommand = new RelayCommand(_ =>
+            {
+                SelectedStatusFilter = "All Statuses";
+                FromDate = DateTime.Today;
+                ToDate = DateTime.Today;
+            });
+
+            // v2: version history per invoice
+            ShowVersionsCommand = new RelayCommand(
+                async p => await ShowVersionsAsync(p as SavedInvoiceListItem));
+
+            // v2: share the CURRENT FILTERED list as one styled Excel table
+            ExportFilteredExcelCommand = new RelayCommand(
+                async _ => await ExportFilteredExcelAsync());
+
+            _ = LoadInvoicesAsync();
         }
 
         // Phase 4: Named handler for static event — detachable
@@ -206,77 +286,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             App.ServiceProvider?.GetService<IJobOrderRepository>()!,
             App.ServiceProvider?.GetService<IStatusService>()!,
             App.ServiceProvider?.GetService<IDatabaseServices>()!){
-            RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
-
-            // Phase 4: Named handler — detachable, no lambda leak
-            _dataSeededHandler = async () => { try { await LoadInvoicesAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
-            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
-
-            // Instant refresh when this PI changes OR when a related JO / DN /
-            // TI is created or deleted. Display status is derived from those
-            // documents, so a delete in another module must reload this list
-            // without waiting for a manual Refresh.
-            _database.SubscribeDocumentsChanged(LoadInvoicesAsync);
-            ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
-            LoadInvoiceCommand = new RelayCommand(p => RequestLoad(p as SavedInvoiceListItem));
-
-            DuplicateInvoiceCommand = new RelayCommand(
-                async p => await DuplicateAsync(p as SavedInvoiceListItem));
-            DeleteInvoiceCommand = new RelayCommand(
-                async p => await DeleteAsync(p as SavedInvoiceListItem));
-
-            // BUG-72 [HIGH]: accept Tuple parameter matching code-behind
-            ChangeStatusCommand = new RelayCommand(async p =>
-            {
-                switch (p)
-                {
-                    // View code-behind CreateStatusItem returns MenuItem
-                    // that fires an event capturing the tuple pattern:
-                    case Tuple<SavedInvoiceListItem, string> tuple
-                        when tuple.Item1 != null && !string.IsNullOrWhiteSpace(tuple.Item2):
-                        await ChangeStatusAsync(tuple.Item1, tuple.Item2);
-                        break;
-
-                    case ValueTuple<SavedInvoiceListItem, string> vtuple
-                        when vtuple.Item1 != null && !string.IsNullOrWhiteSpace(vtuple.Item2):
-                        await ChangeStatusAsync(vtuple.Item1, vtuple.Item2);
-                        break;
-
-                    // Backward-compat: original object[] shape
-                    case object[] arr when arr.Length == 2
-                        && arr[0] is SavedInvoiceListItem item
-                        && arr[1] is string newStatus:
-                        await ChangeStatusAsync(item, newStatus);
-                        break;
-                }
-            });
-
-            ExportPdfFromListCommand = new RelayCommand(
-                async p => await ExportPdfFromListAsync(p as SavedInvoiceListItem));
-            ExportExcelFromListCommand = new RelayCommand(
-                async p => await ExportExcelFromListAsync(p as SavedInvoiceListItem));
-
-            // BUG-76: CSV export from list for parity with detail view
-            ExportCsvFromListCommand = new RelayCommand(
-                async p => await ExportCsvFromListAsync(p as SavedInvoiceListItem));
-
-            // v2: one tap → show today's invoices (FromDate/ToDate both today)
-            SetTodayFilterCommand = new RelayCommand(_ =>
-            {
-                SelectedStatusFilter = "All Statuses";
-                FromDate = DateTime.Today;
-                ToDate = DateTime.Today;
-            });
-
-            // v2: version history per invoice
-            ShowVersionsCommand = new RelayCommand(
-                async p => await ShowVersionsAsync(p as SavedInvoiceListItem));
-
-            // v2: share the CURRENT FILTERED list as one styled Excel table
-            ExportFilteredExcelCommand = new RelayCommand(
-                async _ => await ExportFilteredExcelAsync());
-
-            _ = LoadInvoicesAsync();
         }
 
         /// <summary>

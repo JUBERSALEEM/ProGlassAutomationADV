@@ -29,9 +29,25 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
     {
         private readonly IJobOrderRepository _jobs = null!;
 
+        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
+        // Initialization used to live in the PARAMETERLESS ctor while
+        // DI selected this parameterized overload (MS.DI always picks
+        // the greediest satisfiable ctor). Every DI-resolved instance
+        // was therefore half-built — null child view models / null
+        // commands — and threw NullReferenceException on first use.
+        // The body was moved HERE so all construction routes (DI,
+        // Activator fallback, XAML design-time) initialize fully.
         public JobOrderGodViewViewModel(IJobOrderRepository? jobs)
         {
             _jobs = jobs!;
+
+            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
+
+            OpenCommand = new RelayCommand(param =>
+            {
+                if (param is JobOrderListRow jo)
+                    OnOpenRequested?.Invoke(jo.Id);
+            });
         }
 
         private ObservableCollection<JobOrderListRow> _allRows = new();
@@ -68,13 +84,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
         public JobOrderGodViewViewModel()
          : this(
             App.ServiceProvider?.GetService<IJobOrderRepository>()!){
-            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
-
-            OpenCommand = new RelayCommand(param =>
-            {
-                if (param is JobOrderListRow jo)
-                    OnOpenRequested?.Invoke(jo.Id);
-            });
         }
 
         /// <summary>Loads every job order and recomputes KPIs.</summary>

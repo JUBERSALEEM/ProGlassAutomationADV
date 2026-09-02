@@ -319,7 +319,15 @@
                                  AcceptsReturn="False"
                                  ToolTip="Ask a question, or teach: whenever I say X, open Y">
                                 <TextBox.InputBindings>
-                                    <KeyBinding Key="Enter" Modifiers="None" Command="{Binding SendCommand}"/>
+                                    <!-- ERR-918BAB (2026-09-02): Modifiers="None" is
+                                         REJECTED by WPF's ModifierKeysConverter with
+                                         NotSupportedException "Unrecognized ModifierKeys
+                                         'NONE'", even though ModifierKeys.None exists as
+                                         an enum value. Omitting the attribute is the
+                                         correct way to express "no modifier" and is
+                                         exactly what Views/AI/AiChatView.xaml already
+                                         does for the same Enter-to-send binding. -->
+                                    <KeyBinding Key="Enter" Command="{Binding SendCommand}"/>
                                 </TextBox.InputBindings>
                             </TextBox>
                     </Border>

@@ -27,17 +27,26 @@ namespace ProGlassAutomation.ViewModels.Settings
     {
         private readonly AppConfig _config = null!;
 
+        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
+        // Initialization used to live in the PARAMETERLESS ctor while
+        // DI selected this parameterized overload (MS.DI always picks
+        // the greediest satisfiable ctor). Every DI-resolved instance
+        // was therefore half-built — null child view models / null
+        // commands — and threw NullReferenceException on first use.
+        // The body was moved HERE so all construction routes (DI,
+        // Activator fallback, XAML design-time) initialize fully.
         public TaxInvoiceFeaturesViewModel(AppConfig? config)
         {
             _config = config!;
+
+            ResetToDefaultsCommand      = new RelayCommand(_ => SetAll(true));
+            EnableAllCommand            = new RelayCommand(_ => SetAll(true));
+            DisableAllOptionalCommand   = new RelayCommand(_ => SetAll(false));
         }
 
         public TaxInvoiceFeaturesViewModel()
          : this(
             App.ServiceProvider?.GetService<AppConfig>()?? App.Config){
-            ResetToDefaultsCommand      = new RelayCommand(_ => SetAll(true));
-            EnableAllCommand            = new RelayCommand(_ => SetAll(true));
-            DisableAllOptionalCommand   = new RelayCommand(_ => SetAll(false));
         }
 
         public ICommand ResetToDefaultsCommand    { get; }

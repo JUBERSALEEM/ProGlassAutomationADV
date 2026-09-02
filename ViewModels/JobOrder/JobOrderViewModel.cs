@@ -37,10 +37,46 @@ namespace ProGlassAutomation.ViewModels.JobOrder
         private readonly IDialogService _dialogs = null!;
         private readonly IJobOrderRepository _jobs = null!;
 
+        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
+        // Initialization used to live in the PARAMETERLESS ctor while
+        // DI selected this parameterized overload (MS.DI always picks
+        // the greediest satisfiable ctor). Every DI-resolved instance
+        // was therefore half-built — null child view models / null
+        // commands — and threw NullReferenceException on first use.
+        // The body was moved HERE so all construction routes (DI,
+        // Activator fallback, XAML design-time) initialize fully.
         public JobOrderViewModel(IDialogService? dialogs, IJobOrderRepository? jobs)
         {
             _dialogs = dialogs!;
             _jobs = jobs!;
+
+            ListVM = new SavedJobOrdersListViewModel();
+            DetailVM = new JobOrderDetailViewModel();
+
+            // Phase 3: No async void — wrap with SafeFireAndForget
+            ListVM.OnJobOrderOpenRequested = id =>
+                AsyncUtility.SafeFireAndForget(() => OpenJobOrderAsync(id), $"JobOrder Open {id}");
+
+            ListVM.OnVersionRestoreRequested = versionId =>
+                AsyncUtility.SafeFireAndForget(() => RestoreVersionAsync(versionId), $"JobOrder Restore {versionId}");
+
+            DetailVM.OnRequestBackToList = () =>
+                AsyncUtility.SafeFireAndForget(ReturnToListAsync, "JobOrder BackToList");
+
+            DetailVM.OnRequestOpenDeliveryNote = dnId =>
+                OnRequestOpenDeliveryNote?.Invoke(dnId);
+
+            BackToListCommand = new RelayCommand(_ =>
+                AsyncUtility.SafeFireAndForget(ReturnToListAsync, "JobOrder BackToList"));
+
+            GodViewVM = new JobOrderGodViewViewModel();
+            GodViewVM.OnOpenRequested = id =>
+                AsyncUtility.SafeFireAndForget(() => OpenJobOrderAsync(id), $"JobOrder GodView Open {id}");
+
+            ActivityVM = new SectionActivityViewModel(AuditSections.JobOrder);
+
+            SwitchTabCommand = new RelayCommand(param =>
+                SwitchTab(param as string ?? TabWorkspace));
         }
 
         public string Title { get; } = "Job Orders";
@@ -110,33 +146,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder
          : this(
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IJobOrderRepository>()!){
-            ListVM = new SavedJobOrdersListViewModel();
-            DetailVM = new JobOrderDetailViewModel();
-
-            // Phase 3: No async void — wrap with SafeFireAndForget
-            ListVM.OnJobOrderOpenRequested = id =>
-                AsyncUtility.SafeFireAndForget(() => OpenJobOrderAsync(id), $"JobOrder Open {id}");
-
-            ListVM.OnVersionRestoreRequested = versionId =>
-                AsyncUtility.SafeFireAndForget(() => RestoreVersionAsync(versionId), $"JobOrder Restore {versionId}");
-
-            DetailVM.OnRequestBackToList = () =>
-                AsyncUtility.SafeFireAndForget(ReturnToListAsync, "JobOrder BackToList");
-
-            DetailVM.OnRequestOpenDeliveryNote = dnId =>
-                OnRequestOpenDeliveryNote?.Invoke(dnId);
-
-            BackToListCommand = new RelayCommand(_ =>
-                AsyncUtility.SafeFireAndForget(ReturnToListAsync, "JobOrder BackToList"));
-
-            GodViewVM = new JobOrderGodViewViewModel();
-            GodViewVM.OnOpenRequested = id =>
-                AsyncUtility.SafeFireAndForget(() => OpenJobOrderAsync(id), $"JobOrder GodView Open {id}");
-
-            ActivityVM = new SectionActivityViewModel(AuditSections.JobOrder);
-
-            SwitchTabCommand = new RelayCommand(param =>
-                SwitchTab(param as string ?? TabWorkspace));
         }
 
         private void SwitchTab(string tabKey)

@@ -53,11 +53,32 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         private readonly IDashboardMetricsService _dashboardMetrics = null!;
         private readonly IProformaInvoiceRepository _invoices = null!;
 
+        // ── ERR-633EEB CLASS FIX (2026-09-02) ──────────────────────
+        // Initialization used to live in the PARAMETERLESS ctor while
+        // DI selected this parameterized overload (MS.DI always picks
+        // the greediest satisfiable ctor). Every DI-resolved instance
+        // was therefore half-built — null child view models / null
+        // commands — and threw NullReferenceException on first use.
+        // The body was moved HERE so all construction routes (DI,
+        // Activator fallback, XAML design-time) initialize fully.
         public OverviewDashboardViewModel(IDashboardFilterService? dashboardFilter, IDashboardMetricsService? dashboardMetrics, IProformaInvoiceRepository? invoices)
         {
             _dashboardFilter = dashboardFilter!;
             _dashboardMetrics = dashboardMetrics!;
             _invoices = invoices!;
+
+            NewInvoiceCommand = new RelayCommand(_ =>
+            {
+                NavigateTo?.Invoke("ProformaInvoice");
+                TriggerNewInvoice?.Invoke();
+            });
+
+            SavedInvoicesCommand = new RelayCommand(_ => NavigateTo?.Invoke("ProformaInvoice"));
+            ViewStockCommand = new RelayCommand(_ => NavigateTo?.Invoke("SheetStore"));
+            ViewJobsCommand = new RelayCommand(_ => NavigateTo?.Invoke("JobOrder"));
+            ViewDeliveriesCommand = new RelayCommand(_ => NavigateTo?.Invoke("DeliveryNote"));
+
+            ExportReportCommand = new RelayCommand(_ => { }, _ => false);
         }
 
         public override string TabTitle => "Overview";
@@ -223,18 +244,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             App.ServiceProvider?.GetService<IDashboardFilterService>()!,
             App.ServiceProvider?.GetService<IDashboardMetricsService>()!,
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){
-            NewInvoiceCommand = new RelayCommand(_ =>
-            {
-                NavigateTo?.Invoke("ProformaInvoice");
-                TriggerNewInvoice?.Invoke();
-            });
-
-            SavedInvoicesCommand = new RelayCommand(_ => NavigateTo?.Invoke("ProformaInvoice"));
-            ViewStockCommand = new RelayCommand(_ => NavigateTo?.Invoke("SheetStore"));
-            ViewJobsCommand = new RelayCommand(_ => NavigateTo?.Invoke("JobOrder"));
-            ViewDeliveriesCommand = new RelayCommand(_ => NavigateTo?.Invoke("DeliveryNote"));
-
-            ExportReportCommand = new RelayCommand(_ => { }, _ => false);
         }
 
         // ═════════════════════════════════════════════════════════════════
