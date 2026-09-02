@@ -794,10 +794,51 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         /// </summary>
         public ISpecificationsRepository? Specifications { get; set; }
 
+        // INSTANT CATALOGUE SYNC (2026-09-02).
+        //
+        // Held as a field so the delegate has a stable identity and can be
+        // detached. Subscribed WEAKLY: SpecGroups are dropped via
+        // SpecGroups.Clear()/Remove() with no Dispose() call anywhere, so a
+        // direct handler on a static event would root every group of every
+        // invoice ever opened. The handler only keeps a WeakReference to
+        // this instance and unhooks itself once the target is collected.
+        private EventHandler? _specCatalogHandler;
+
+        private void HookSpecCatalogNotifications()
+        {
+            var weakSelf = new WeakReference<SpecGroup>(this);
+
+            _specCatalogHandler = (_, __) =>
+            {
+                if (!weakSelf.TryGetTarget(out var self))
+                {
+                    // Target is gone; stop listening so the closure dies too.
+                    if (_specCatalogHandler != null)
+                        Services.ProformaInvoice.SpecificationsRepository
+                            .SpecCatalogNotifier.Changed -= _specCatalogHandler;
+                    return;
+                }
+
+                // NotifyChanged can fire on a background thread (the write is
+                // async) while _specSource is bound to the dropdown, so the
+                // reload must be marshalled.
+                var dispatcher = Application.Current?.Dispatcher;
+                if (dispatcher == null || dispatcher.CheckAccess())
+                    _ = self.LoadSpecsAsync();
+                else
+                    dispatcher.BeginInvoke(new Action(() => _ = self.LoadSpecsAsync()));
+            };
+
+            Services.ProformaInvoice.SpecificationsRepository
+                .SpecCatalogNotifier.Changed += _specCatalogHandler;
+        }
+
         public SpecGroup()
         {
             _filteredSpecsView = CollectionViewSource.GetDefaultView(_specSource);
             _filteredSpecsView.Filter = SpecFilterPredicate;
+
+            HookSpecCatalogNotifications();
 
             ItemRows.CollectionChanged += OnItemRowsChanged;
 

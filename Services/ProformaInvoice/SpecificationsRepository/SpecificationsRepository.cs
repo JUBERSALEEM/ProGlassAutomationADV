@@ -75,6 +75,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 existing.LastUsedAt = DateTime.Now;
                 existing.UsageCount += 1;
                 await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+
+                // Tell every open SpecGroup its dropdown is stale. Without
+                // this the price change is on disk but Step 5 keeps showing
+                // the old one until the glass type is toggled.
+                SpecCatalogNotifier.NotifyChanged();
                 return existing;
             }
 
@@ -91,6 +96,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
             db.Specifications.Add(newSpec);
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+
+            // A brand-new spec must appear in the Step 5 dropdown
+            // immediately -- this is the "instant sync" path.
+            SpecCatalogNotifier.NotifyChanged();
             return newSpec;
         }
 
@@ -121,6 +130,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             {
                 db.Specifications.Remove(spec);
                 await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+
+                // A deleted spec must vanish from open dropdowns too,
+                // otherwise it can still be picked and priced.
+                SpecCatalogNotifier.NotifyChanged();
             }
         }
     }
