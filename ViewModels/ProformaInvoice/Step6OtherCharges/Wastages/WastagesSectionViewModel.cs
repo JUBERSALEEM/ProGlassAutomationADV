@@ -290,8 +290,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             bool preferInner)
         {
             ApplyStep4SourceMetadata(source, step4Snapshot, selectedGlassType, preferInner);
+
+            // AUTO-TICK: If this source was previously checked, restore it.
+            // If this is a NEW row (no previous checks) and it's an inner
+            // pane for a double-glass build, auto-tick it so the operator
+            // doesn't miss inner glass wastage.
             if (checkedIds.Contains($"{source.SpecNumber}-{source.SideLabel}"))
+            {
                 source.IsChecked = true;
+            }
+            else if (checkedIds.Count == 0 && preferInner)
+            {
+                // Fresh row with no prior state — auto-tick inner panes
+                // for DGU/LAM/DGU+LAM builds. The outer pane is always
+                // ticked by default; the inner must be too or Step 9
+                // only costs one pane's wastage.
+                source.IsChecked = true;
+            }
+
             row.AvailableSources.Add(source);
         }
 

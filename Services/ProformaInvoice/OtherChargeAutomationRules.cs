@@ -73,20 +73,33 @@ namespace ProGlassAutomation.Services.ProformaInvoice
 
                 if (specialOverlapSqm)
                 {
+                    // OVERLAP (SQM) — always a separate charge
                     Add("OVERLAP_SQM", "SQM1", "Special overlap is charged by area (SQM).");
-                    if (dguLike && explicitSiliconSqm)
+
+                    // SILICON BED (SQM) — always separate from overlap.
+                    // For DGU builds, silicon bed is compulsory when overlap
+                    // exists. The two are distinct physical processes:
+                    // overlap = stepped edge offset, silicon bed = secondary
+                    // sealant barrier. Same rate possible, always separate rows.
+                    if (dguLike)
                     {
                         Add("SILICON_BED_SQM", "SQM1",
-                            "Special overlap also charges silicon bed by area (SQM).");
+                            "DGU overlap requires silicon bed as a separate charge (SQM).");
                     }
                 }
                 else
                 {
+                    // OVERLAP (LM) — always a separate charge
                     Add("OVERLAP", "LM1", "Normal overlap is charged by perimeter (LM).");
-                    if (dguLike && (explicitSiliconLm || !Contains(spec, "Silicon Bed")))
+
+                    // SILICON BED (LM) — always separate from overlap.
+                    // For DGU builds, silicon bed is compulsory when overlap
+                    // exists, regardless of whether the spec explicitly
+                    // mentions it. The two are distinct physical processes.
+                    if (dguLike)
                     {
                         Add("SILICON_BED", "LM1",
-                            "Normal DGU overlap also charges silicon bed by perimeter (LM).");
+                            "DGU overlap requires silicon bed as a separate charge (LM).");
                     }
                 }
             }
