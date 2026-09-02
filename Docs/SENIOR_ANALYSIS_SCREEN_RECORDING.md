@@ -3,6 +3,7 @@
 **Date:** 2026-09-02
 **Reported:** "completely broken… UI lag, freeze, stop/start not instant, quality poor"
 **Verdict:** The complaints are all **symptoms of one architectural decision**. Tuning cannot fix it.
+**Status:** Slice A shipped (`35558e8`). **Slice B shipped (`df6b69b`) — the architecture is now replaced.**
 
 ---
 
@@ -149,14 +150,53 @@ closes immediately rather than waiting on disk.
 
 ---
 
-## 6. Honest status
+## 6. Slice B — shipped
 
-Slice A is a real improvement and safe to ship. It does **not** make
-recording lag-free — that requires slice B, because the lag is caused by the
-capture API itself, not by tuning.
+The architecture is replaced. `GdiWindowCapture` + `FfmpegRawPipe`:
 
-If you want the smooth, popup-inclusive, GB-sized crisp recording you
-described, **slice B is not optional**. Say the word and I will build it
-behind an interface with the current recorder as fallback, so a failure on
-any machine degrades to today's behaviour rather than breaking recording
-entirely.
+```
+OLD:  UI thread → RenderTargetBitmap → JPEG → disk → decode → H.264
+NEW:  bg thread → PrintWindow(DWM)   → raw BGRA → H.264
+```
+
+| | Before | After |
+|---|---|---|
+| Capture thread | **UI thread** | Background |
+| Method | Software visual-tree re-render | DWM composited surface |
+| Popups / dialogs | **Invisible** | **Captured** |
+| Encodes per frame | **2** (JPEG + H.264) | **1** |
+| Disk writes | One file per frame | None until the MP4 |
+| Stop | Compose from thousands of JPEGs | Stream-copy, or a file move |
+
+### Additional bugs found while wiring
+
+1. **`ProcessStartGuard.TryStartTool` never redirected stdin.**
+   `FfmpegLivePipe` has therefore been unable to receive a single frame
+   since it was written — masked only because `LivePreviewEncode`
+   defaults off. Fixed with an opt-in overload.
+
+2. **The HUD staying open — the regression you reported.** `Ensure()`
+   cached the overlay window, but `ShowSaved`'s auto-dismiss timer
+   `Close()`s it. **A closed WPF `Window` cannot be re-shown** — `Show()`
+   throws — so the next recording reused a dead window and the HUD failed
+   to appear or appeared stuck. Now driven by the window's own `Closed`
+   event.
+
+### Safety
+
+Three independent fallbacks to the legacy path — no HWND, init failure,
+or two seconds of blank frames (some drivers ignore
+`PW_RENDERFULLCONTENT` and return black). Recording degrades rather than
+breaking.
+
+### Still to verify on real hardware
+
+I cannot compile or run here. The two things to watch on first use:
+
+- **Blank/black video** → the driver ignored `PW_RENDERFULLCONTENT`; the
+  blank detector should catch it and fall back within ~2 s.
+- **Popups still missing** → DWM did not composite them into the window
+  surface; that would mean moving to `Windows.Graphics.Capture`.
+
+Neither should happen on Windows 10 26200, but they are the honest
+unknowns.
