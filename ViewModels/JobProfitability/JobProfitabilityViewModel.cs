@@ -52,10 +52,20 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
     {
         private readonly IProformaInvoiceRepository _invoices = null!;
 
+        // Portfolio analysis ViewModels (Phase 1-3)
+        public PortfolioServiceProfitabilityViewModel PortfolioServiceProfitability { get; }
+        public PortfolioWastageAnalysisViewModel PortfolioWastageAnalysis { get; }
+        public PortfolioGlassTypeComparisonViewModel PortfolioGlassTypeComparison { get; }
+
         public JobProfitabilityViewModel(IProformaInvoiceRepository? invoices)
         {
             _invoices = invoices!;
         
+            // Initialize portfolio analysis VMs
+            PortfolioServiceProfitability = new PortfolioServiceProfitabilityViewModel(_invoices);
+            PortfolioWastageAnalysis = new PortfolioWastageAnalysisViewModel(_invoices);
+            PortfolioGlassTypeComparison = new PortfolioGlassTypeComparisonViewModel(_invoices);
+
             // ERR-633EEB: run shared initialization on EVERY construction
             // path. DI selects this (greediest) ctor, so without this call the
             // parameterless ctor's setup never ran and commands stayed null.

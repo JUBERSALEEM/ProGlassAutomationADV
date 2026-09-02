@@ -259,6 +259,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         /// <summary>
         /// Refresh the sheet profitability analysis.
+        /// Reads ACTUAL wastage charge data from Step 6 (not estimated "reusable offcuts").
+        /// We charge wastage and throw away small offcuts, so this shows the real wastage cost impact.
         /// </summary>
         public void RefreshAnalysis()
         {
@@ -280,8 +282,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 decimal totalSheetArea = 0m;
                 decimal totalUsedArea = 0m;
                 decimal totalPurchaseCost = 0m;
-                decimal totalReusableOffcutArea = 0m;
-                decimal totalReusableOffcutValue = 0m;
+                decimal totalWastageChargeAmount = 0m;
+                decimal totalWastageArea = 0m;
 
                 // Analyze each specification group
                 foreach (var specGroup in groups)
@@ -308,17 +310,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         // Calculate areas
                         var totalSheetAreaForThisRow = sheetsPurchased * sheetSqm;
                         var usedAreaForThisRow = area; // Assume all area is used for this pane
-                        var offcutAreaForThisRow = totalSheetAreaForThisRow - usedAreaForThisRow;
-                        
-                        // Estimate reusable offcuts (assume 80% of offcuts are reusable)
-                        var reusablePercent = 0.80m;
-                        var reusableOffcutAreaForThisRow = offcutAreaForThisRow * reusablePercent;
-                        var wasteOffcutAreaForThisRow = offcutAreaForThisRow - reusableOffcutAreaForThisRow;
 
                         // Get price per SQM
                         var pricePerSqm = glassRow.PricePerSqm;
                         var purchaseCostForThisRow = totalSheetAreaForThisRow * pricePerSqm;
-                        var reusableOffcutValueForThisRow = reusableOffcutAreaForThisRow * pricePerSqm;
+
+                        // Calculate wastage from ACTUAL Step 6 wastage charges for this pane
+                        var wastageAreaForThisRow = 0m;
+                        var wastageChargeForThisRow = 0m;
+                        
+                        // Find matching wastage rows from Step 6
+                        // Match by spec number and side (Outer/Inner)
+                        var paneSide = glassRow.Description?.Contains("Inner") == true ? "Inner" : "Outer";
+                        var matchingWastageRows = GetWastageRowsForPane(specGroup.SpecNumber, paneSide);
+                        
+                        foreach (var wastageRow in matchingWastageRows)
+                        {
+                            if (wastageRow.IsActive)
+                            {
+                                wastageAreaForThisRow += wastageRow.TotalSqm;
+                                wastageChargeForThisRow += wastageRow.ResultAmount;
+                            }
+                        }
 
                         // Calculate efficiency
                         var efficiencyPercent = totalSheetAreaForThisRow > 0
@@ -335,14 +348,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             SheetsPurchased = sheetsPurchased,
                             TotalSheetArea = totalSheetAreaForThisRow,
                             UsedArea = usedAreaForThisRow,
-                            OffcutArea = offcutAreaForThisRow,
-                            ReusableOffcutArea = reusableOffcutAreaForThisRow,
-                            WasteOffcutArea = wasteOffcutAreaForThisRow,
-                            ReusablePercent = reusablePercent * 100m,
+                            OffcutArea = totalSheetAreaForThisRow - usedAreaForThisRow,
+                            ReusableOffcutArea = wastageAreaForThisRow, // Now shows ACTUAL wastage area
+                            WasteOffcutArea = (totalSheetAreaForThisRow - usedAreaForThisRow) - wastageAreaForThisRow,
+                            ReusablePercent = totalSheetAreaForThisRow > 0 
+                                ? Math.Round((wastageAreaForThisRow / totalSheetAreaForThisRow) * 100m, 1) 
+                                : 0m,
                             PricePerSqm = pricePerSqm,
                             PurchaseCost = purchaseCostForThisRow,
-                            ReusableOffcutValue = reusableOffcutValueForThisRow,
-                            RealCost = purchaseCostForThisRow - reusableOffcutValueForThisRow,
+                            ReusableOffcutValue = wastageChargeForThisRow, // Now shows ACTUAL wastage charge
+                            RealCost = purchaseCostForThisRow, // Real cost is purchase cost (wastage is charged to customer)
                             UsageEfficiencyPercent = efficiencyPercent,
                             IsEfficient = efficiencyPercent >= 70m
                         };
@@ -354,8 +369,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         totalSheetArea += totalSheetAreaForThisRow;
                         totalUsedArea += usedAreaForThisRow;
                         totalPurchaseCost += purchaseCostForThisRow;
-                        totalReusableOffcutArea += reusableOffcutAreaForThisRow;
-                        totalReusableOffcutValue += reusableOffcutValueForThisRow;
+                        totalWastageChargeAmount += wastageChargeForThisRow;
+                        totalWastageArea += wastageAreaForThisRow;
                     }
                 }
 
@@ -364,18 +379,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 TotalSheetArea = totalSheetArea;
                 TotalUsedArea = totalUsedArea;
                 TotalOffcutArea = totalSheetArea - totalUsedArea;
-                ReusableOffcutArea = totalReusableOffcutArea;
-                ReusableOffcutValue = totalReusableOffcutValue;
+                ReusableOffcutArea = totalWastageArea; // Actual wastage area
+                ReusableOffcutValue = totalWastageChargeAmount; // Actual wastage charge
                 TotalPurchaseCost = totalPurchaseCost;
-                RealCost = totalPurchaseCost - totalReusableOffcutValue;
-                CostSavings = totalReusableOffcutValue;
+                RealCost = totalPurchaseCost; // Real cost is purchase cost
+                CostSavings = totalWastageChargeAmount; // Wastage charged to customer
                 UsageEfficiencyPercent = totalSheetArea > 0
                     ? Math.Round((totalUsedArea / totalSheetArea) * 100m, 1)
                     : 0m;
 
                 StatusMessage = $"Analysis complete. {SheetBreakdown.Count} sheet type(s) analyzed. " +
                                $"Usage efficiency: {UsageEfficiencyPercent:0.#}%. " +
-                               $"Cost savings from reusable offcuts: AED {CostSavings:N2}.";
+                               $"Wastage charged to customer: AED {CostSavings:N2}.";
             }
             catch (Exception ex)
             {
@@ -386,6 +401,34 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 IsBusy = false;
             }
+        }
+
+        /// <summary>
+        /// Get wastage rows from Step 6 that match a specific pane (spec number + side).
+        /// </summary>
+        private List<WastageRow> GetWastageRowsForPane(int specNumber, string paneSide)
+        {
+            var result = new List<WastageRow>();
+            
+            var wastagesSection = _parentViewModel._otherChargesVm?.WastagesSection;
+            if (wastagesSection?.WastageRows == null) return result;
+
+            foreach (var wastageRow in wastagesSection.WastageRows)
+            {
+                // Check if this wastage row targets the specified pane
+                foreach (var source in wastageRow.AvailableSources)
+                {
+                    if (source.IsChecked && 
+                        source.SpecNumber == specNumber &&
+                        source.SideLabel.Contains(paneSide, StringComparison.OrdinalIgnoreCase))
+                    {
+                        result.Add(wastageRow);
+                        break;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 
