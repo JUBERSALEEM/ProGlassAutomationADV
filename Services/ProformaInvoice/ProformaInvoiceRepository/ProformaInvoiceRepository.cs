@@ -80,7 +80,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             using var db = new ProformaInvoicesDbContext();
             return await db.ProformaInvoices
-                .AnyAsync(x => x.ProformaId == proformaId);
+                .AnyAsync(x => x.ProformaId == proformaId).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -147,7 +147,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             var existingIds = await db.ProformaInvoices
                 .Where(x => x.ProformaId.StartsWith(prefix))
                 .Select(x => x.ProformaId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var existingSet = new HashSet<string>(
                 existingIds, StringComparer.OrdinalIgnoreCase);
@@ -278,7 +278,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             using var db = new ProformaInvoicesDbContext();
 
             var existing = await db.ProformaInvoices
-                .FirstOrDefaultAsync(x => x.ProformaId == invoice.ProformaId);
+                .FirstOrDefaultAsync(x => x.ProformaId == invoice.ProformaId).ConfigureAwait(false);
 
             int? previousInquiryId = existing?.InquiryId;
 
@@ -357,7 +357,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         public async Task<SavedProformaInvoice?> GetByIdAsync(int id)
         {
             using var db = new ProformaInvoicesDbContext();
-            return await db.ProformaInvoices.FindAsync(id);
+            return await db.ProformaInvoices.FindAsync(id).ConfigureAwait(false);
         }
 
         public async Task<SavedProformaInvoice?> GetByProformaIdAsync(
@@ -367,7 +367,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             using var db = new ProformaInvoicesDbContext();
             return await db.ProformaInvoices
-                .FirstOrDefaultAsync(x => x.ProformaId == proformaId);
+                .FirstOrDefaultAsync(x => x.ProformaId == proformaId).ConfigureAwait(false);
         }
 
         public async Task<List<SavedProformaInvoice>> GetAllAsync(
@@ -377,7 +377,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             return await db.ProformaInvoices
                 .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
-                .ToListAsync(cancellationToken);
+                .ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<List<SavedProformaInvoice>> GetByStatusAsync(
@@ -389,7 +389,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 .AsNoTracking()
                 .Where(x => x.Status == status)
                 .OrderByDescending(x => x.CreatedAt)
-                .ToListAsync(cancellationToken);
+                .ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -417,7 +417,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt
                 })
-                .ToListAsync(cancellationToken);
+                .ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -443,7 +443,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     CreatedAt              = x.CreatedAt,
                     IssueDate              = x.IssueDate
                 })
-                .ToListAsync(cancellationToken);
+                .ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<List<ProformaSearchRow>> SearchAsync(
@@ -477,7 +477,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     CompanyName = p.CompanyName,
                     Status = p.Status
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task DeleteAsync(int id)
@@ -490,7 +490,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             ReadOnlyGate.Demand("delete a proforma invoice");
 
             using var db = new ProformaInvoicesDbContext();
-            var entity = await db.ProformaInvoices.FindAsync(id);
+            var entity = await db.ProformaInvoices.FindAsync(id).ConfigureAwait(false);
             if (entity == null) return;
 
             // Capture identifiers BEFORE removing so we can synchronise
@@ -541,7 +541,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             using var db = new ProformaInvoicesDbContext();
             var entity = await db.ProformaInvoices
-                .FirstOrDefaultAsync(x => x.ProformaId == proformaId);
+                .FirstOrDefaultAsync(x => x.ProformaId == proformaId).ConfigureAwait(false);
             if (entity == null) return false;
 
             // Lifecycle-forced write (downstream delete cascade, see

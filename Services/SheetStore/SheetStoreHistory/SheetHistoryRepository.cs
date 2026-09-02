@@ -15,7 +15,7 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
             using var db = new AppDbContext();
             return await db.SheetHistories
                 .OrderByDescending(h => h.Timestamp)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<SheetHistory>> GetBySheetIdAsync(int sheetId)
@@ -24,7 +24,7 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
             return await db.SheetHistories
                 .Where(h => h.SheetId == sheetId)
                 .OrderByDescending(h => h.Timestamp)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task LogAsync(int sheetId, string sheetDescription, string action, string details,
@@ -63,13 +63,13 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
             using var db = new AppDbContext();
             if (!await db.SheetHistories.AnyAsync())
                 return null;
-            return await db.SheetHistories.MaxAsync(h => h.Timestamp);
+            return await db.SheetHistories.MaxAsync(h => h.Timestamp).ConfigureAwait(false);
         }
 
         public async Task<int> GetTotalCountAsync()
         {
             using var db = new AppDbContext();
-            return await db.SheetHistories.CountAsync();
+            return await db.SheetHistories.CountAsync().ConfigureAwait(false);
         }
     }
 }

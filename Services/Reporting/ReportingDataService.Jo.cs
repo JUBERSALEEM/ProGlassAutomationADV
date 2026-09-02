@@ -73,15 +73,15 @@ namespace ProGlassAutomation.Services.Reporting
             }
 
             var summary = new JoReportSummary();
-            summary.TotalJo = await query.CountAsync(ct);
+            summary.TotalJo = await query.CountAsync(ct).ConfigureAwait(false);
             if (summary.TotalJo == 0) return summary;
 
-            var totals = await query.Select(j => j.GrandTotalVatInclusive).ToListAsync(ct);
+            var totals = await query.Select(j => j.GrandTotalVatInclusive).ToListAsync(ct).ConfigureAwait(false);
             summary.TotalValue = totals.Sum();
 
             var statusGroups = await query.GroupBy(j => j.Status)
                 .Select(g => new { Status = g.Key, Count = g.Count() })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             foreach (var g in statusGroups)
             {
@@ -93,7 +93,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var piDb = new ProformaInvoicesDbContext();
-                var piCount = await piDb.ProformaInvoices.CountAsync(ct);
+                var piCount = await piDb.ProformaInvoices.CountAsync(ct).ConfigureAwait(false);
                 summary.AwaitingJo = Math.Max(0, piCount - summary.TotalJo);
             }
             catch (Exception ex) { AppLogService.Warning($"Awaiting JO count warning: {ex.Message}"); }
@@ -135,7 +135,7 @@ namespace ProGlassAutomation.Services.Reporting
                     EF.Functions.Like(j.CustomerName, $"%{term}%"));
             }
 
-            var totalCount = await query.CountAsync(ct);
+            var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)
                 return new PagedResult<JoReportRow> { Items = new List<JoReportRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
@@ -148,7 +148,7 @@ namespace ProGlassAutomation.Services.Reporting
                     j.Id, j.JobOrderId, j.SourceProformaId, j.CustomerName, j.Status, j.Priority, j.DeliveryDate,
                     j.GrandTotalVatInclusive, j.FullSnapshotJson, j.CreatedAt, j.UpdatedAt
                 })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             var pageJoIds = page.Select(x => x.JobOrderId).ToList();
 
@@ -165,11 +165,11 @@ namespace ProGlassAutomation.Services.Reporting
                 var realDnIds = await dnDb.DeliveryNotes.AsNoTracking()
                     .Where(d => !d.IsMasterDn && pageJoIds.Contains(d.JobOrderId))
                     .Select(d => d.DeliveryNoteId)
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
                 var delivered = await dnDb.DeliveryNoteItems.AsNoTracking()
                     .Where(i => pageJoIds.Contains(i.JobOrderId) && realDnIds.Contains(i.DeliveryNoteId))
                     .Select(i => new { i.JobOrderId, i.DeliveredQty })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
                 foreach (var it in delivered)
                 {
                     if (string.IsNullOrWhiteSpace(it.JobOrderId)) continue;

@@ -61,10 +61,10 @@ namespace ProGlassAutomation.Services.Reporting
             }
 
             var summary = new StatementReportSummary();
-            summary.TotalCount = await query.CountAsync(ct);
+            summary.TotalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (summary.TotalCount == 0) return summary;
 
-            var stAmounts = await query.Select(s => new { s.TotalInvoiced, s.TotalOutstanding, s.OverdueAmount }).ToListAsync(ct);
+            var stAmounts = await query.Select(s => new { s.TotalInvoiced, s.TotalOutstanding, s.OverdueAmount }).ToListAsync(ct).ConfigureAwait(false);
             summary.TotalInvoiced = stAmounts.Sum(x => x.TotalInvoiced);
             summary.TotalOutstanding = stAmounts.Sum(x => x.TotalOutstanding);
             summary.TotalOverdue = stAmounts.Sum(x => x.OverdueAmount);
@@ -94,7 +94,7 @@ namespace ProGlassAutomation.Services.Reporting
                     EF.Functions.Like(s.FilterCompany, $"%{term}%"));
             }
 
-            var totalCount = await query.CountAsync(ct);
+            var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)
                 return new PagedResult<StatementReportRow> { Items = new List<StatementReportRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
@@ -115,7 +115,7 @@ namespace ProGlassAutomation.Services.Reporting
                     CreatedAt = s.CreatedAt,
                     FilterJson = s.FilterJson
                 })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             return new PagedResult<StatementReportRow> { Items = page, TotalCount = totalCount, Page = filter.Page, PageSize = filter.PageSize };
         }
@@ -202,12 +202,12 @@ namespace ProGlassAutomation.Services.Reporting
             using var db = new StatementDbContext();
             var query = BuildStatementLineQuery(db, filter);
 
-            summary.TotalCount = await query.CountAsync(ct);
+            summary.TotalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (summary.TotalCount == 0) return summary;
 
             // SQLite cannot aggregate decimal server-side (no native decimal
             // type), so materialize the Debit/Credit values and sum in memory.
-            var amounts = await query.Select(x => new { x.Debit, x.Credit }).ToListAsync(ct);
+            var amounts = await query.Select(x => new { x.Debit, x.Credit }).ToListAsync(ct).ConfigureAwait(false);
             summary.TotalDebit = amounts.Sum(x => x.Debit);
             summary.TotalCredit = amounts.Sum(x => x.Credit);
             summary.ClosingBalance = summary.TotalDebit - summary.TotalCredit;
@@ -228,7 +228,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var openingQuery = BuildStatementLineQuery(db, openingFilter);
                 var openingAmounts = await openingQuery
                     .Select(x => new { x.Debit, x.Credit })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
                 summary.OpeningBalance = Math.Max(0,
                     openingAmounts.Sum(x => x.Debit - x.Credit));
             }
@@ -243,7 +243,7 @@ namespace ProGlassAutomation.Services.Reporting
             using var db = new StatementDbContext();
 
             var query = BuildStatementLineQuery(db, filter);
-            var totalCount = await query.CountAsync(ct);
+            var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)
                 return new PagedResult<StatementLineRow> { Items = new List<StatementLineRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
@@ -252,7 +252,7 @@ namespace ProGlassAutomation.Services.Reporting
                 .ThenBy(x => x.InvoiceNumber)
                 .Skip(filter.Skip)
                 .Take(filter.Take)
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             var rows = page.Select(x => new StatementLineRow
             {

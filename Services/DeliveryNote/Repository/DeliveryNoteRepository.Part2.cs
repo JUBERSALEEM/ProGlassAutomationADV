@@ -31,7 +31,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             var entity = await ctx.DeliveryNotes
                 .Include(x => x.Items)
                 .Include(x => x.Attachments)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
 
             if (entity == null) return;
 
@@ -61,14 +61,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
             return await ctx.DeliveryNotes
-                .AnyAsync(x => x.DeliveryNoteId == deliveryNoteId);
+                .AnyAsync(x => x.DeliveryNoteId == deliveryNoteId).ConfigureAwait(false);
         }
 
         public async Task<bool> HasAnyDeliveryAsync(string jobOrderId)
         {
             using var ctx = new DeliveryNotesDbContext();
             return await ctx.DeliveryNotes
-                .AnyAsync(x => x.JobOrderId == jobOrderId && !x.IsMasterDn);
+                .AnyAsync(x => x.JobOrderId == jobOrderId && !x.IsMasterDn).ConfigureAwait(false);
         }
 
         // ── Attachments ──────────────────────────────────────────────────
@@ -80,7 +80,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             return await ctx.DeliveryNoteAttachments
                 .Where(a => a.DeliveryNoteId == deliveryNoteId)
                 .OrderByDescending(a => a.UploadedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<DeliveryNoteAttachment> AddAttachmentAsync(
@@ -107,7 +107,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             using var ctx = new DeliveryNotesDbContext();
             var entity = await ctx.DeliveryNoteAttachments
-                .FirstOrDefaultAsync(a => a.Id == attachmentId);
+                .FirstOrDefaultAsync(a => a.Id == attachmentId).ConfigureAwait(false);
             if (entity == null) return;
 
             ctx.DeliveryNoteAttachments.Remove(entity);
@@ -118,7 +118,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
             return await ctx.DeliveryNoteAttachments
-                .CountAsync(a => a.DeliveryNoteId == deliveryNoteId);
+                .CountAsync(a => a.DeliveryNoteId == deliveryNoteId).ConfigureAwait(false);
         }
 
         public async Task<Dictionary<string, int>> GetAttachmentCountsAsync(
@@ -133,7 +133,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .Where(a => idList.Contains(a.DeliveryNoteId))
                 .GroupBy(a => a.DeliveryNoteId)
                 .Select(g => new { Id = g.Key, Count = g.Count() })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var dict = raw.ToDictionary(x => x.Id, x => x.Count);
 
@@ -159,7 +159,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                     DeliveryDate = d.DeliveryDate,
                     HasTaxInvoice = d.HasTaxInvoice
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         // ── Private helpers ──────────────────────────────────────────────

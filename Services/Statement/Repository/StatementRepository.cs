@@ -70,7 +70,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
             return await ctx.Statements
                 .Include(s => s.LineItems)         // ← nav prop now exists
                 .AsNoTracking()
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
         }
 
         public async Task<SavedStatement?> GetByStatementNumberAsync(
@@ -81,7 +81,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
                 .Include(s => s.LineItems)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s =>
-                    s.StatementNumber == statementNumber);
+                    s.StatementNumber == statementNumber).ConfigureAwait(false);
         }
 
         // ── List retrieval ────────────────────────────────────────────────
@@ -115,7 +115,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
                     HasAttachments = s.HasAttachments,
                     CreatedAt = s.CreatedAt
                 })
-                .ToListAsync(cancellationToken);
+                .ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<List<StatementListItem>> GetByCustomerAsync(
@@ -127,7 +127,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
                 .AsNoTracking()
                 .Where(s => s.FilterCustomer.ToLower().Contains(lower))
                 .OrderByDescending(s => s.CreatedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             return entities.Select(ToListItem).ToList();
         }
@@ -141,7 +141,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
                 .AsNoTracking()
                 .Where(s => s.FilterCompany.ToLower().Contains(lower))
                 .OrderByDescending(s => s.CreatedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             return entities.Select(ToListItem).ToList();
         }
@@ -155,7 +155,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
                 .AsNoTracking()
                 .Where(s => s.FilterProject.ToLower().Contains(lower))
                 .OrderByDescending(s => s.CreatedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             return entities.Select(ToListItem).ToList();
         }
@@ -197,7 +197,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
                 .AsNoTracking()
                 .Where(s => s.StatementNumber.StartsWith(prefix))
                 .Select(s => s.StatementNumber)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             // Find the MAX numeric suffix across all existing numbers.
             // Parses "STMT-2026-005" → 5, "STMT-2026-012" → 12, etc.
@@ -256,7 +256,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
             // Same pattern as TaxInvoiceRepository.UpdateAsync
             var existingLines = await ctx.LineItems
                 .Where(l => l.StatementId == entity.Id)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             ctx.LineItems.RemoveRange(existingLines);
 
@@ -280,7 +280,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
             await using var ctx = new StatementDbContext();
             var entity = await ctx.Statements
                 .Include(s => s.LineItems)
-                .FirstOrDefaultAsync(s => s.Id == id);
+                .FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
 
             if (entity == null) return;
 
@@ -298,7 +298,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
             await using var ctx = new StatementDbContext();
             return await ctx.Statements
                 .AsNoTracking()
-                .AnyAsync(s => s.StatementNumber == statementNumber);
+                .AnyAsync(s => s.StatementNumber == statementNumber).ConfigureAwait(false);
         }
 
         // ── PDF path management ───────────────────────────────────────────
@@ -315,7 +315,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
                 AppPermissions.StatementGenerate, "update a statement PDF path");
 
             await using var ctx = new StatementDbContext();
-            var entity = await ctx.Statements.FindAsync(statementId);
+            var entity = await ctx.Statements.FindAsync(statementId).ConfigureAwait(false);
             if (entity == null) return;
 
             entity.PdfPath = pdfPath;
@@ -365,7 +365,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
                     TotalOutstanding = s.TotalOutstanding,
                     OverdueAmount = s.OverdueAmount
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
     }
 }

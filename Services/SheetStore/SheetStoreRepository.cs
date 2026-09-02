@@ -24,13 +24,13 @@ namespace ProGlassAutomation.Services.SheetStore
                 .OrderBy(g => g.Category)
                 .ThenBy(g => g.Color)
                 .ThenBy(g => g.ThicknessMm)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<GlassSheet?> GetByIdAsync(int id)
         {
             using var db = new AppDbContext();
-            return await db.GlassSheets.FindAsync(id);
+            return await db.GlassSheets.FindAsync(id).ConfigureAwait(false);
         }
 
         public async Task<List<GlassSheet>> SearchAsync(
@@ -87,7 +87,7 @@ namespace ProGlassAutomation.Services.SheetStore
             return await query
                 .Skip(skip)
                 .Take(take)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<GlassSheet> AddAsync(GlassSheet sheet)
@@ -131,7 +131,7 @@ namespace ProGlassAutomation.Services.SheetStore
                 AppPermissions.SheetStoreDelete, "delete a glass sheet");
 
             using var db = new AppDbContext();
-            var sheet = await db.GlassSheets.FindAsync(id);
+            var sheet = await db.GlassSheets.FindAsync(id).ConfigureAwait(false);
             if (sheet != null)
             {
                 db.GlassSheets.Remove(sheet);
@@ -145,7 +145,7 @@ namespace ProGlassAutomation.Services.SheetStore
             if (quantity <= 0) return;
 
             using var db = new AppDbContext();
-            var sheet = await db.GlassSheets.FindAsync(sheetId);
+            var sheet = await db.GlassSheets.FindAsync(sheetId).ConfigureAwait(false);
             if (sheet == null) return;
 
             sheet.Stock += quantity;
@@ -164,7 +164,7 @@ namespace ProGlassAutomation.Services.SheetStore
             if (quantity <= 0) return;
 
             using var db = new AppDbContext();
-            var sheet = await db.GlassSheets.FindAsync(sheetId);
+            var sheet = await db.GlassSheets.FindAsync(sheetId).ConfigureAwait(false);
             if (sheet == null) return;
 
             if (sheet.Balance < quantity)
@@ -184,7 +184,7 @@ namespace ProGlassAutomation.Services.SheetStore
                 .Select(g => g.Category)
                 .Distinct()
                 .OrderBy(c => c)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<string>> GetColorsAsync()
@@ -195,7 +195,7 @@ namespace ProGlassAutomation.Services.SheetStore
                 .Select(g => g.Color)
                 .Distinct()
                 .OrderBy(c => c)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<string>> GetSuppliersAsync()
@@ -206,7 +206,7 @@ namespace ProGlassAutomation.Services.SheetStore
                 .Select(g => g.Supplier)
                 .Distinct()
                 .OrderBy(s => s)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<int>> GetThicknessesAsync()
@@ -217,7 +217,7 @@ namespace ProGlassAutomation.Services.SheetStore
                 .Select(g => g.ThicknessMm)
                 .Distinct()
                 .OrderBy(t => t)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
     }
 }

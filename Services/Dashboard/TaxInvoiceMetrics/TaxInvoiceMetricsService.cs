@@ -99,7 +99,7 @@ namespace ProGlassAutomation.Services.Dashboard.TaxInvoiceMetrics
                     VatAmount = t.VatAmount,
                     CreatedAt = t.CreatedAt
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             if (all.Count == 0)
                 return summary; // All zeros — no invoices yet
@@ -193,7 +193,7 @@ namespace ProGlassAutomation.Services.Dashboard.TaxInvoiceMetrics
                     VatAmount = t.VatAmount,
                     CreatedAt = t.CreatedAt
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             return rows
                 .Select(r => new RecentInvoiceItem
@@ -233,7 +233,7 @@ namespace ProGlassAutomation.Services.Dashboard.TaxInvoiceMetrics
                     t.DueDate,
                     t.GrandTotal
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             // Apply status filter in-memory
             var overdue = all
@@ -296,7 +296,7 @@ namespace ProGlassAutomation.Services.Dashboard.TaxInvoiceMetrics
                     t.Status,
                     t.GrandTotal
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             // Group in-memory (status filter + case-insensitive customer name)
             var grouped = rows
@@ -360,7 +360,7 @@ namespace ProGlassAutomation.Services.Dashboard.TaxInvoiceMetrics
                     t.GrandTotal,
                     t.VatAmount
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             // Status filter in-memory
             var revenue = rows

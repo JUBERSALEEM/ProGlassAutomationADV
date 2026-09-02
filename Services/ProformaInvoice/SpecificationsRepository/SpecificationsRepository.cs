@@ -43,7 +43,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             return await query
                 .OrderByDescending(s => s.UsageCount)
                 .ThenByDescending(s => s.LastUsedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
             // Check if this exact spec already exists (dedup by GlassType + SpecName)
             var existing = await db.Specifications
-                .FirstOrDefaultAsync(s => s.GlassType == glassType && s.SpecName == specName);
+                .FirstOrDefaultAsync(s => s.GlassType == glassType && s.SpecName == specName).ConfigureAwait(false);
 
             if (existing != null)
             {
@@ -156,7 +156,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
         {
             ReadOnlyGate.Demand("mark a specification as used");
             using var db = new SpecificationsDbContext();
-            var spec = await db.Specifications.FindAsync(specId);
+            var spec = await db.Specifications.FindAsync(specId).ConfigureAwait(false);
             if (spec != null)
             {
                 spec.LastUsedAt = DateTime.Now;
@@ -218,7 +218,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                     .AsNoTracking()
                     .Where(u => u.SpecificationId == specId)
                     .OrderByDescending(u => u.UsedAt)
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -239,7 +239,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                     .AsNoTracking()
                     .OrderByDescending(u => u.UsedAt)
                     .Take(limit)
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -263,7 +263,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
             // Load once and match in memory: an import is a handful of
             // hundred rows at most, and this avoids a per-row round trip.
-            var existing = await db.Specifications.ToListAsync();
+            var existing = await db.Specifications.ToListAsync().ConfigureAwait(false);
 
             foreach (var row in rows)
             {
@@ -328,7 +328,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 AppPermissions.ProformaDelete, "delete a pricing specification");
 
             using var db = new SpecificationsDbContext();
-            var spec = await db.Specifications.FindAsync(specId);
+            var spec = await db.Specifications.FindAsync(specId).ConfigureAwait(false);
             if (spec != null)
             {
                 db.Specifications.Remove(spec);

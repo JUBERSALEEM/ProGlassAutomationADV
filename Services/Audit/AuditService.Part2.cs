@@ -35,7 +35,7 @@ namespace ProGlassAutomation.Services.Audit
             {
                 using var db = new AuditDbContext();
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == username);
+                    .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
                 return user == null ? 0 : LockoutRemainingSeconds(user);
             }
             catch

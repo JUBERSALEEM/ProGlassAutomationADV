@@ -92,7 +92,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var db = new ProformaInvoicesDbContext();
-                var list = await db.ProformaInvoices.AsNoTracking().Select(p => p.CompanyName).Distinct().ToListAsync(ct);
+                var list = await db.ProformaInvoices.AsNoTracking().Select(p => p.CompanyName).Distinct().ToListAsync(ct).ConfigureAwait(false);
                 return list.Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList()!;
             }
             catch { return new List<string>(); }
@@ -103,7 +103,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var db = new ProformaInvoicesDbContext();
-                var list = await db.ProformaInvoices.AsNoTracking().Select(p => p.CustomerName).Distinct().ToListAsync(ct);
+                var list = await db.ProformaInvoices.AsNoTracking().Select(p => p.CustomerName).Distinct().ToListAsync(ct).ConfigureAwait(false);
                 return list.Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList()!;
             }
             catch { return new List<string>(); }
@@ -114,8 +114,8 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var db = new MasterDataDbContext();
-                var list = await db.Salesmen.AsNoTracking().Select(s => s.Name).ToListAsync(ct);
-                var clientReps = await db.Clients.AsNoTracking().Select(c => c.SalesRepresentative).Distinct().ToListAsync(ct);
+                var list = await db.Salesmen.AsNoTracking().Select(s => s.Name).ToListAsync(ct).ConfigureAwait(false);
+                var clientReps = await db.Clients.AsNoTracking().Select(c => c.SalesRepresentative).Distinct().ToListAsync(ct).ConfigureAwait(false);
                 var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var s in list.Where(x => !string.IsNullOrWhiteSpace(x))) set.Add(s.Trim());
                 foreach (var s in clientReps.Where(x => !string.IsNullOrWhiteSpace(x))) set.Add(s.Trim());
@@ -130,7 +130,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var db = new ProformaInvoicesDbContext();
-                var list = await db.ProformaInvoices.AsNoTracking().Select(p => p.ProjectName).Distinct().ToListAsync(ct);
+                var list = await db.ProformaInvoices.AsNoTracking().Select(p => p.ProjectName).Distinct().ToListAsync(ct).ConfigureAwait(false);
                 return list.Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList()!;
             }
             catch { return new List<string>(); }
@@ -151,7 +151,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var list = await db.DeliveryNotes.AsNoTracking()
                     .Where(d => !d.IsMasterDn && !string.IsNullOrWhiteSpace(d.ProformaId))
                     .Select(d => d.ProformaId)
-                    .Distinct().ToListAsync(ct);
+                    .Distinct().ToListAsync(ct).ConfigureAwait(false);
                 return list.OrderBy(s => s).ToList()!;
             }
             catch { return new List<string>(); }
@@ -165,7 +165,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var list = await db.DeliveryNoteItems.AsNoTracking()
                     .Where(i => !string.IsNullOrWhiteSpace(i.SpecGroupName))
                     .Select(i => i.SpecGroupName)
-                    .Distinct().ToListAsync(ct);
+                    .Distinct().ToListAsync(ct).ConfigureAwait(false);
                 return list.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s!.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s).ToList();
             }
             catch { return new List<string>(); }
@@ -179,7 +179,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var list = await db.DeliveryNoteItems.AsNoTracking()
                     .Where(i => !string.IsNullOrWhiteSpace(i.GlassRef))
                     .Select(i => i.GlassRef)
-                    .Distinct().ToListAsync(ct);
+                    .Distinct().ToListAsync(ct).ConfigureAwait(false);
                 return list.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s!.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s).ToList();
             }
             catch { return new List<string>(); }
@@ -193,7 +193,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var list = await db.DeliveryNotes.AsNoTracking()
                     .Where(d => !d.IsMasterDn && !string.IsNullOrWhiteSpace(d.ProjectName))
                     .Select(d => d.ProjectName)
-                    .Distinct().ToListAsync(ct);
+                    .Distinct().ToListAsync(ct).ConfigureAwait(false);
                 return list.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s!.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s).ToList();
             }
             catch { return new List<string>(); }
@@ -206,7 +206,7 @@ namespace ProGlassAutomation.Services.Reporting
                 using var joDb = new JobOrdersDbContext();
                 var snapshots = await joDb.JobOrders.AsNoTracking()
                     .Select(j => new { j.FullSnapshotJson })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
 
                 var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var s in snapshots)
@@ -230,7 +230,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var list = await db.JobOrders.AsNoTracking()
                     .Where(j => !string.IsNullOrWhiteSpace(j.SourceProformaId))
                     .Select(j => j.SourceProformaId)
-                    .Distinct().ToListAsync(ct);
+                    .Distinct().ToListAsync(ct).ConfigureAwait(false);
                 return list.Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList()!;
             }
             catch { return new List<string>(); }
@@ -244,7 +244,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var list = await db.TaxInvoices.AsNoTracking()
                     .Where(t => !string.IsNullOrWhiteSpace(t.ProformaId))
                     .Select(t => t.ProformaId)
-                    .Distinct().ToListAsync(ct);
+                    .Distinct().ToListAsync(ct).ConfigureAwait(false);
                 return list.Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList()!;
             }
             catch { return new List<string>(); }
@@ -255,7 +255,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var db = new ProformaInvoicesDbContext();
-                var list = await db.ProformaInvoices.AsNoTracking().Select(p => p.Status).Distinct().ToListAsync(ct);
+                var list = await db.ProformaInvoices.AsNoTracking().Select(p => p.Status).Distinct().ToListAsync(ct).ConfigureAwait(false);
                 return list.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s!.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s).ToList();
             }
             catch { return new List<string>(); }
@@ -266,7 +266,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var db = new JobOrdersDbContext();
-                var list = await db.JobOrders.AsNoTracking().Select(j => j.Status).Distinct().ToListAsync(ct);
+                var list = await db.JobOrders.AsNoTracking().Select(j => j.Status).Distinct().ToListAsync(ct).ConfigureAwait(false);
                 // Normalise the legacy "InProduction" ↔ "In Production" split
                 // to a single human label so the dropdown reflects real data.
                 var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -285,7 +285,7 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var db = new TaxInvoiceDbContext();
-                var list = await db.TaxInvoices.AsNoTracking().Select(t => t.Status).Distinct().ToListAsync(ct);
+                var list = await db.TaxInvoices.AsNoTracking().Select(t => t.Status).Distinct().ToListAsync(ct).ConfigureAwait(false);
                 // Normalise "PartiallyPaid" ↔ "Partially Paid" to one label.
                 var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                 foreach (var s in list.Where(x => !string.IsNullOrWhiteSpace(x)))

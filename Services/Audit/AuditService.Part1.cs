@@ -278,7 +278,7 @@ namespace ProGlassAutomation.Services.Audit
                 return await query
                     .OrderByDescending(e => e.TimestampUtc)
                     .Take(Math.Max(1, count))
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -298,7 +298,7 @@ namespace ProGlassAutomation.Services.Audit
                     .Select(e => e.Section)
                     .Distinct()
                     .OrderBy(s => s)
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(false);
             }
             catch
             {
@@ -316,7 +316,7 @@ namespace ProGlassAutomation.Services.Audit
                 var rows = await db.ActivityLog
                     .GroupBy(e => e.Section)
                     .Select(g => new { Section = g.Key, Count = g.Count() })
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(false);
 
                 return rows.ToDictionary(r => r.Section, r => r.Count);
             }
@@ -338,7 +338,7 @@ namespace ProGlassAutomation.Services.Audit
                 using var db = new AuditDbContext();
                 return await db.Users
                     .OrderBy(u => u.Id)
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(false);
             }
             catch
             {
@@ -365,7 +365,7 @@ namespace ProGlassAutomation.Services.Audit
             try
             {
                 using var db = new AuditDbContext();
-                return await db.Users.AnyAsync();
+                return await db.Users.AnyAsync().ConfigureAwait(false);
             }
             catch
             {
@@ -407,7 +407,7 @@ namespace ProGlassAutomation.Services.Audit
                 using var db = new AuditDbContext();
 
                 bool exists = await db.Users
-                    .AnyAsync(u => u.Username == username);
+                    .AnyAsync(u => u.Username == username).ConfigureAwait(false);
 
                 if (exists)
                     return (false,
@@ -438,14 +438,14 @@ namespace ProGlassAutomation.Services.Audit
             try
             {
                 using var db = new AuditDbContext();
-                var user = await db.Users.FindAsync(userId);
+                var user = await db.Users.FindAsync(userId).ConfigureAwait(false);
                 if (user == null) return false;
 
                 // Guard: never allow deactivating the last active admin.
                 if (!isActive && user.Role == "Admin")
                 {
                     int activeAdmins = await db.Users
-                        .CountAsync(u => u.IsActive && u.Role == "Admin");
+                        .CountAsync(u => u.IsActive && u.Role == "Admin").ConfigureAwait(false);
                     if (activeAdmins <= 1) return false;
                 }
 
@@ -475,7 +475,7 @@ namespace ProGlassAutomation.Services.Audit
             {
                 using var db = new AuditDbContext();
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == username);
+                    .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
 
                 if (user == null)
                     return (false, "Unknown username.");
@@ -571,7 +571,7 @@ namespace ProGlassAutomation.Services.Audit
 
                 using var db = new AuditDbContext();
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == username);
+                    .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
 
                 if (user == null)
                     return (false, "Unknown username.");
@@ -640,7 +640,7 @@ namespace ProGlassAutomation.Services.Audit
                 using var db = new AuditDbContext();
 
                 var admin = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == adminUsername);
+                    .FirstOrDefaultAsync(u => u.Username == adminUsername).ConfigureAwait(false);
                 if (admin == null || !admin.IsActive)
                     return (false, "Administrator account not found or inactive.");
 
@@ -654,7 +654,7 @@ namespace ProGlassAutomation.Services.Audit
                     return (false, "Administrator password is incorrect.");
 
                 var target = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == targetUsername);
+                    .FirstOrDefaultAsync(u => u.Username == targetUsername).ConfigureAwait(false);
                 if (target == null)
                     return (false, $"User '{targetUsername}' not found.");
                 if (!target.IsActive)
@@ -699,7 +699,7 @@ namespace ProGlassAutomation.Services.Audit
             {
                 using var db = new AuditDbContext();
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == username);
+                    .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
 
                 if (user == null || !user.IsActive) return false;
 

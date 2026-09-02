@@ -72,15 +72,15 @@ namespace ProGlassAutomation.Services.Reporting
             }
 
             // DB-side counts & sums
-            summary.TotalPi = await query.CountAsync(ct);
+            summary.TotalPi = await query.CountAsync(ct).ConfigureAwait(false);
             if (summary.TotalPi == 0) return summary;
 
-            var totals = await query.Select(i => i.GrandTotalVatInclusive).ToListAsync(ct);
+            var totals = await query.Select(i => i.GrandTotalVatInclusive).ToListAsync(ct).ConfigureAwait(false);
             summary.TotalValue = totals.Sum();
 
             var statusGroups = await query.GroupBy(i => i.Status)
                 .Select(g => new { Status = g.Key, Count = g.Count() })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             foreach (var g in statusGroups)
             {
@@ -96,12 +96,12 @@ namespace ProGlassAutomation.Services.Reporting
             try
             {
                 using var joDb = new JobOrdersDbContext();
-                var piIds = await query.Select(i => i.ProformaId).ToListAsync(ct);
+                var piIds = await query.Select(i => i.ProformaId).ToListAsync(ct).ConfigureAwait(false);
                 var convertedCount = await joDb.JobOrders.AsNoTracking()
                     .Where(j => piIds.Contains(j.SourceProformaId))
                     .Select(j => j.SourceProformaId)
                     .Distinct()
-                    .CountAsync(ct);
+                    .CountAsync(ct).ConfigureAwait(false);
                 summary.Converted = convertedCount;
                 summary.NotConverted = Math.Max(0, summary.TotalPi - convertedCount);
             }
@@ -142,7 +142,7 @@ namespace ProGlassAutomation.Services.Reporting
                     EF.Functions.Like(i.ProjectName, $"%{term}%"));
             }
 
-            var totalCount = await query.CountAsync(ct);
+            var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)
                 return new PagedResult<PiReportRow> { Items = new List<PiReportRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
@@ -155,7 +155,7 @@ namespace ProGlassAutomation.Services.Reporting
                     i.Id, i.ProformaId, i.Status, i.CompanyName, i.CustomerName, i.ProjectName,
                     i.IssueDate, i.ValidUntil, i.GrandTotalVatInclusive, i.FullSnapshotJson, i.CreatedAt, i.UpdatedAt
                 })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             var pagePiIds = pageItems.Select(x => x.ProformaId).ToList();
 
@@ -169,7 +169,7 @@ namespace ProGlassAutomation.Services.Reporting
                 using var joDb = new JobOrdersDbContext();
                 var jos = await joDb.JobOrders.AsNoTracking()
                     .Where(j => pagePiIds.Contains(j.SourceProformaId))
-                    .Select(j => j.SourceProformaId).ToListAsync(ct);
+                    .Select(j => j.SourceProformaId).ToListAsync(ct).ConfigureAwait(false);
                 foreach (var id in jos.Where(s => !string.IsNullOrWhiteSpace(s))) joSet.Add(id!);
             }
             catch (Exception ex) { AppLogService.Warning($"JO flag warning: {ex.Message}"); }
@@ -179,7 +179,7 @@ namespace ProGlassAutomation.Services.Reporting
                 using var dnDb = new DeliveryNotesDbContext();
                 var dns = await dnDb.DeliveryNotes.AsNoTracking()
                     .Where(d => !d.IsMasterDn && pagePiIds.Contains(d.ProformaId))
-                    .Select(d => d.ProformaId).ToListAsync(ct);
+                    .Select(d => d.ProformaId).ToListAsync(ct).ConfigureAwait(false);
                 foreach (var id in dns.Where(s => !string.IsNullOrWhiteSpace(s))) dnSet.Add(id!);
             }
             catch (Exception ex) { AppLogService.Warning($"DN flag warning: {ex.Message}"); }
@@ -189,7 +189,7 @@ namespace ProGlassAutomation.Services.Reporting
                 using var tiDb = new TaxInvoiceDbContext();
                 var tis = await tiDb.TaxInvoices.AsNoTracking()
                     .Where(t => pagePiIds.Contains(t.ProformaId))
-                    .Select(t => t.ProformaId).ToListAsync(ct);
+                    .Select(t => t.ProformaId).ToListAsync(ct).ConfigureAwait(false);
                 foreach (var id in tis.Where(s => !string.IsNullOrWhiteSpace(s))) tiSet.Add(id!);
             }
             catch (Exception ex) { AppLogService.Warning($"TI flag warning: {ex.Message}"); }

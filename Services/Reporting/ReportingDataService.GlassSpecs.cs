@@ -65,7 +65,7 @@ namespace ProGlassAutomation.Services.Reporting
                 .Select(p => new
                 {
                     p.ProformaId, p.CompanyName, p.CustomerName, p.ProjectName, p.Status, p.IssueDate, p.CreatedAt, p.FullSnapshotJson
-                }).ToListAsync(ct);
+                }).ToListAsync(ct).ConfigureAwait(false);
 
             foreach (var pi in piList)
             {

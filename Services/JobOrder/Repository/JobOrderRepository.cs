@@ -39,13 +39,13 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             return await db.JobOrders
                 .AsNoTracking()
                 .OrderByDescending(j => j.UpdatedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<SavedJobOrder?> GetByIdAsync(int id)
         {
             using var db = new JobOrdersDbContext();
-            return await db.JobOrders.FindAsync(id);
+            return await db.JobOrders.FindAsync(id).ConfigureAwait(false);
         }
 
         public async Task<List<JobOrderListRow>> GetListRowsAsync()
@@ -68,7 +68,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
                     CreatedAt = j.CreatedAt,
                     UpdatedAt = j.UpdatedAt
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<SavedJobOrder?> GetByJobOrderIdAsync(string jobOrderId)
@@ -77,7 +77,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
             using var db = new JobOrdersDbContext();
             return await db.JobOrders
-                .FirstOrDefaultAsync(j => j.JobOrderId == jobOrderId);
+                .FirstOrDefaultAsync(j => j.JobOrderId == jobOrderId).ConfigureAwait(false);
         }
 
         public async Task<SavedJobOrder> InsertAsync(SavedJobOrder jobOrder)
@@ -121,7 +121,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
                 AppPermissions.JobOrderDelete, "delete a job order");
 
             using var db = new JobOrdersDbContext();
-            var job = await db.JobOrders.FindAsync(id);
+            var job = await db.JobOrders.FindAsync(id).ConfigureAwait(false);
             if (job == null) return;
 
             string? sourcePi = job.SourceProformaId;
@@ -173,7 +173,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
             using var db = new JobOrdersDbContext();
             return await db.JobOrders
-                .AnyAsync(j => j.JobOrderId == jobOrderId);
+                .AnyAsync(j => j.JobOrderId == jobOrderId).ConfigureAwait(false);
         }
 
         public async Task<string> SuggestNextIdAsync(string baseId)
@@ -202,7 +202,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             {
                 candidateId = prefix + candidate.ToString().PadLeft(width, '0');
                 bool exists = await db.JobOrders
-                    .AnyAsync(j => j.JobOrderId == candidateId);
+                    .AnyAsync(j => j.JobOrderId == candidateId).ConfigureAwait(false);
                 if (!exists) return candidateId;
                 candidate++;
 
@@ -224,7 +224,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
                     Status = j.Status,
                     DeliveryDate = j.DeliveryDate
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         // ── SEARCH (bounded, DB-side) ─────────────────────────────────────
@@ -260,7 +260,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
                     SourceProformaId = j.SourceProformaId,
                     Status = j.Status
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         // ── LOOKUP FROM PI ────────────────────────────────────────────────
@@ -273,7 +273,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             return await db.JobOrders
                 .Where(j => j.SourceProformaId == proformaId)
                 .OrderByDescending(j => j.CreatedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
     }
 }

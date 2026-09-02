@@ -75,10 +75,10 @@ namespace ProGlassAutomation.Services.Reporting
             }
 
             var summary = new TaxInvoiceReportSummary();
-            summary.TotalInvoices = await query.CountAsync(ct);
+            summary.TotalInvoices = await query.CountAsync(ct).ConfigureAwait(false);
             if (summary.TotalInvoices == 0) return summary;
 
-            var tiAmounts = await query.Select(t => new { t.GrandTotal, t.VatAmount, t.Status, t.DueDate }).ToListAsync(ct);
+            var tiAmounts = await query.Select(t => new { t.GrandTotal, t.VatAmount, t.Status, t.DueDate }).ToListAsync(ct).ConfigureAwait(false);
             summary.TotalAmount = tiAmounts.Sum(x => x.GrandTotal);
             summary.TotalVat = tiAmounts.Sum(x => x.VatAmount);
 
@@ -128,7 +128,7 @@ namespace ProGlassAutomation.Services.Reporting
                     EF.Functions.Like(t.CustomerName, $"%{term}%"));
             }
 
-            var totalCount = await query.CountAsync(ct);
+            var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)
                 return new PagedResult<TaxInvoiceReportRow> { Items = new List<TaxInvoiceReportRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
@@ -155,7 +155,7 @@ namespace ProGlassAutomation.Services.Reporting
                     TotalSqm = t.TotalSqm,
                     CreatedAt = t.CreatedAt
                 })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             // Enrich the visible page (≤100 rows) with Salesman + Prepared By
             // from the linked PI snapshot JSON — never the full dataset.
@@ -185,7 +185,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var snapshots = await piDb.ProformaInvoices.AsNoTracking()
                     .Where(p => piIds.Contains(p.ProformaId))
                     .Select(p => new { p.ProformaId, p.FullSnapshotJson })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
 
                 foreach (var s in snapshots)
                 {
@@ -224,7 +224,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var confirmedPis = await piDb.ProformaInvoices.AsNoTracking()
                     .Where(p => p.Status == "Approved" || p.Status == "Confirmed" || p.Status == "Issued" || p.Status == "Sent")
                     .Select(p => new { p.ProformaId, p.CustomerName, p.ProjectName, p.CompanyName, p.GrandTotalVatInclusive, p.IssueDate })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
 
                 var invoicedPis = (await tiDb.TaxInvoices.AsNoTracking().Select(t => t.ProformaId).ToListAsync(ct))
                     .ToHashSet(StringComparer.OrdinalIgnoreCase);

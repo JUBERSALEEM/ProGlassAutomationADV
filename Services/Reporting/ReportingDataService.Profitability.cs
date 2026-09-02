@@ -79,7 +79,7 @@ namespace ProGlassAutomation.Services.Reporting
             if (filter.DateTo.HasValue)
                 query = query.Where(p => p.IssueDate <= filter.DateTo.Value || (p.IssueDate == default && p.CreatedAt <= filter.DateTo.Value));
 
-            var totalCount = await query.CountAsync(ct);
+            var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)
                 return new PagedResult<ProfitabilityRow> { Items = rows, TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
@@ -87,7 +87,7 @@ namespace ProGlassAutomation.Services.Reporting
                 .Skip(filter.Skip)
                 .Take(filter.Take)
                 .Select(p => new { p.ProformaId, p.CompanyName, p.CustomerName, p.ProjectName, p.GrandTotalVatInclusive, p.Status, p.IssueDate, p.FullSnapshotJson })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             foreach (var pi in pis)
             {

@@ -104,7 +104,7 @@ namespace ProGlassAutomation.Services.AI.AIMemory
                 return await db.Memories
                     .OrderByDescending(m => m.TimestampUtc)
                     .Take(count)
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(false);
             }
             catch
             {
@@ -170,13 +170,13 @@ namespace ProGlassAutomation.Services.AI.AIMemory
 
         private static async Task TrimAsync(AiMemoryDbContext db)
         {
-            int count = await db.Memories.CountAsync();
+            int count = await db.Memories.CountAsync().ConfigureAwait(false);
             if (count <= MaxStored) return;
 
             var oldest = await db.Memories
                 .OrderBy(m => m.TimestampUtc)
                 .Take(count - MaxStored)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             db.Memories.RemoveRange(oldest);
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());

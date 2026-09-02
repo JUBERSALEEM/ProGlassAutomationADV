@@ -143,7 +143,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                     CreatedAt    = i.CreatedAt,
                     UpdatedAt    = i.UpdatedAt
                 })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             if (rows.Count == 0) return m;
 
@@ -221,7 +221,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                     DeliveryDate = j.DeliveryDate,
                     UpdatedAt    = j.UpdatedAt
                 })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             if (rows.Count == 0) return m;
 
@@ -294,7 +294,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                     DeliveryDate      = d.DeliveryDate,
                     TotalDeliveredQty = d.TotalDeliveredQty
                 })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             // "Sent out" covers every state after dispatch. Counting only
             // "Dispatched" under-reports, because a note that has since
@@ -389,7 +389,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                     SellPricePerSqm     = s.SellPricePerSqm,
                     PurchasePricePerSqm = s.PurchasePricePerSqm
                 })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             if (rows.Count == 0) return m;
 
@@ -493,7 +493,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                         CreatedAt              = i.CreatedAt,
                         UpdatedAt              = i.UpdatedAt
                     })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
             }
 
             using (var db = new JobOrdersDbContext())
@@ -512,7 +512,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                         DeliveryDate           = j.DeliveryDate,
                         UpdatedAt              = j.UpdatedAt
                     })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
             }
 
             using (var db = new DeliveryNotesDbContext())
@@ -529,7 +529,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                         DeliveryDate      = d.DeliveryDate,
                         TotalDeliveredQty = d.TotalDeliveredQty
                     })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
             }
 
             return result;

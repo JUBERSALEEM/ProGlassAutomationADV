@@ -55,15 +55,15 @@ namespace ProGlassAutomation.Services.Reporting
             var glassTypeKeys = await ResolveGlassTypeKeysAsync(filter.GlassType, ct);
             var query = BuildDeliveryRowQuery(db, filter, salesmanJobIds, glassTypeKeys);
 
-            summary.TotalRows = await query.CountAsync(ct);
+            summary.TotalRows = await query.CountAsync(ct).ConfigureAwait(false);
             if (summary.TotalRows == 0) return summary;
 
             // Individual DB-side aggregates (no row materialization).
-            summary.TotalOrderedQty = await query.SumAsync(x => x.TotalQty, ct);
-            summary.TotalDeliveredQty = await query.SumAsync(x => x.DeliveredQty, ct);
+            summary.TotalOrderedQty = await query.SumAsync(x => x.TotalQty, ct).ConfigureAwait(false);
+            summary.TotalDeliveredQty = await query.SumAsync(x => x.DeliveredQty, ct).ConfigureAwait(false);
             summary.TotalRemainingQty = Math.Max(0, summary.TotalOrderedQty - summary.TotalDeliveredQty);
-            summary.NotDelivered = await query.CountAsync(x => x.DeliveredQty == 0, ct);
-            summary.FullyDelivered = await query.CountAsync(x => x.DeliveredQty > 0 && x.DeliveredQty >= x.TotalQty, ct);
+            summary.NotDelivered = await query.CountAsync(x => x.DeliveredQty == 0, ct).ConfigureAwait(false);
+            summary.FullyDelivered = await query.CountAsync(x => x.DeliveredQty > 0 && x.DeliveredQty >= x.TotalQty, ct).ConfigureAwait(false);
             summary.Partial = Math.Max(0, summary.TotalRows - summary.NotDelivered - summary.FullyDelivered);
 
             return summary;
@@ -90,7 +90,7 @@ namespace ProGlassAutomation.Services.Reporting
             var glassTypeKeys = await ResolveGlassTypeKeysAsync(filter.GlassType, ct);
             var query = BuildDeliveryRowQuery(db, filter, salesmanJobIds, glassTypeKeys);
 
-            var totalCount = await query.CountAsync(ct);
+            var totalCount = await query.CountAsync(ct).ConfigureAwait(false);
             if (totalCount == 0)
                 return new PagedResult<DeliveryReportRow> { Items = new List<DeliveryReportRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
 
@@ -124,7 +124,7 @@ namespace ProGlassAutomation.Services.Reporting
                 .ThenBy(x => x.SerialNumber)
                 .Skip(filter.Skip)
                 .Take(filter.Take)
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
 
             var rows = page.Select(x => new DeliveryReportRow
             {
@@ -182,7 +182,7 @@ namespace ProGlassAutomation.Services.Reporting
                     DriverName = i.DeliveryNote!.DriverName ?? "",
                     VehicleNumber = i.DeliveryNote!.VehicleNumber ?? ""
                 })
-                .ToListAsync(ct);
+                .ToListAsync(ct).ConfigureAwait(false);
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -357,7 +357,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var snapshots = await joDb.JobOrders.AsNoTracking()
                     .Where(j => jobIds.Contains(j.JobOrderId))
                     .Select(j => new { j.JobOrderId, j.FullSnapshotJson })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
 
                 foreach (var s in snapshots)
                 {
@@ -417,7 +417,7 @@ namespace ProGlassAutomation.Services.Reporting
                 using var joDb = new JobOrdersDbContext();
                 var snapshots = await joDb.JobOrders.AsNoTracking()
                     .Select(j => new { j.JobOrderId, j.FullSnapshotJson })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
 
                 foreach (var s in snapshots)
                 {
@@ -457,7 +457,7 @@ namespace ProGlassAutomation.Services.Reporting
                 using var joDb = new JobOrdersDbContext();
                 var snapshots = await joDb.JobOrders.AsNoTracking()
                     .Select(j => new { j.JobOrderId, j.FullSnapshotJson })
-                    .ToListAsync(ct);
+                    .ToListAsync(ct).ConfigureAwait(false);
 
                 foreach (var s in snapshots)
                 {

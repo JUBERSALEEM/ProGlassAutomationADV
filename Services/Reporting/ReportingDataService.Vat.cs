@@ -221,7 +221,7 @@ namespace ProGlassAutomation.Services.Reporting
                 
                 // SECURITY: DoS protection - limit maximum records
                 const int MAX_RECORDS = 10000;
-                var invoiceList = await query.Take(MAX_RECORDS + 1).ToListAsync(ct);
+                var invoiceList = await query.Take(MAX_RECORDS + 1).ToListAsync(ct).ConfigureAwait(false);
                 
                 if (invoiceList.Count > MAX_RECORDS)
                 {

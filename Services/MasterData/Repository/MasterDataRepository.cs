@@ -159,7 +159,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             return await ctx.Companies
                 .OrderByDescending(c => c.UsageCount)
                 .ThenByDescending(c => c.LastUsedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<SavedCompany>> SearchCompaniesAsync(string query)
@@ -174,7 +174,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 .Where(c => c.CompanyName.ToLower().Contains(q))
                 .OrderByDescending(c => c.UsageCount)
                 .Take(SEARCH_LIMIT)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task DeleteCompanyAsync(int id)
@@ -186,7 +186,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 AppPermissions.SettingsManage, "delete a company");
 
             using var ctx = new MasterDataDbContext();
-            var entity = await ctx.Companies.FindAsync(id);
+            var entity = await ctx.Companies.FindAsync(id).ConfigureAwait(false);
             if (entity == null) return;
 
             ctx.Companies.Remove(entity);
@@ -248,7 +248,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             return await ctx.Clients
                 .OrderByDescending(c => c.UsageCount)
                 .ThenByDescending(c => c.LastUsedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<SavedClient>> SearchClientsAsync(string query)
@@ -263,7 +263,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 .Where(c => c.CustomerName.ToLower().Contains(q))
                 .OrderByDescending(c => c.UsageCount)
                 .Take(SEARCH_LIMIT)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task DeleteClientAsync(int id)
@@ -275,7 +275,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 AppPermissions.SettingsManage, "delete a client");
 
             using var ctx = new MasterDataDbContext();
-            var entity = await ctx.Clients.FindAsync(id);
+            var entity = await ctx.Clients.FindAsync(id).ConfigureAwait(false);
             if (entity == null) return;
 
             ctx.Clients.Remove(entity);
@@ -335,7 +335,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             return await ctx.Projects
                 .OrderByDescending(p => p.UsageCount)
                 .ThenByDescending(p => p.LastUsedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<SavedProject>> SearchProjectsAsync(string query)
@@ -350,7 +350,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 .Where(p => p.ProjectIdentifierName.ToLower().Contains(q))
                 .OrderByDescending(p => p.UsageCount)
                 .Take(SEARCH_LIMIT)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<SavedProject>> GetProjectsByCustomerAsync(
@@ -366,7 +366,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 .Where(p => p.CustomerName.ToLower() == name)
                 .OrderByDescending(p => p.UsageCount)
                 .ThenByDescending(p => p.LastUsedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task DeleteProjectAsync(int id)
@@ -378,7 +378,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 AppPermissions.SettingsManage, "delete a project");
 
             using var ctx = new MasterDataDbContext();
-            var entity = await ctx.Projects.FindAsync(id);
+            var entity = await ctx.Projects.FindAsync(id).ConfigureAwait(false);
             if (entity == null) return;
 
             ctx.Projects.Remove(entity);
@@ -437,7 +437,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             return await ctx.Salesmen
                 .OrderByDescending(s => s.UsageCount)
                 .ThenByDescending(s => s.LastUsedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<SavedSalesman>> SearchSalesmenAsync(string query)
@@ -452,7 +452,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 .Where(s => s.Name.ToLower().Contains(q))
                 .OrderByDescending(s => s.UsageCount)
                 .Take(SEARCH_LIMIT)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task DeleteSalesmanAsync(int id)
@@ -464,7 +464,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 AppPermissions.SettingsManage, "delete a salesman");
 
             using var ctx = new MasterDataDbContext();
-            var entity = await ctx.Salesmen.FindAsync(id);
+            var entity = await ctx.Salesmen.FindAsync(id).ConfigureAwait(false);
             if (entity == null) return;
 
             ctx.Salesmen.Remove(entity);

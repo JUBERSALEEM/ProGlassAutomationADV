@@ -75,7 +75,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             return await ctx.DeliveryNotes
                 .Include(x => x.Items)
                 .Include(x => x.Attachments)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
         }
 
         public async Task<SavedDeliveryNote?> GetByDeliveryNoteIdAsync(
@@ -85,7 +85,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             return await ctx.DeliveryNotes
                 .Include(x => x.Items)
                 .Include(x => x.Attachments)
-                .FirstOrDefaultAsync(x => x.DeliveryNoteId == deliveryNoteId);
+                .FirstOrDefaultAsync(x => x.DeliveryNoteId == deliveryNoteId).ConfigureAwait(false);
         }
 
         // ── CHAT 19 — Master DN methods ──────────────────────────────────
@@ -98,7 +98,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .Include(x => x.Items)
                 .FirstOrDefaultAsync(x =>
                     x.JobOrderId == jobOrderId &&
-                    x.IsMasterDn);
+                    x.IsMasterDn).ConfigureAwait(false);
         }
 
         public async Task<List<DeliveryNoteListItem>> GetMasterDnsAsync()
@@ -111,7 +111,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .AsNoTracking()
                 .OrderByDescending(x => x.UpdatedAt)
                 .Select(ToListItemProjection)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<SavedDeliveryNote?> CreateMasterDnAsync(
@@ -130,7 +130,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             using var ctx = new DeliveryNotesDbContext();
 
             bool exists = await ctx.DeliveryNotes
-                .AnyAsync(x => x.JobOrderId == jobOrderId && x.IsMasterDn);
+                .AnyAsync(x => x.JobOrderId == jobOrderId && x.IsMasterDn).ConfigureAwait(false);
             if (exists) return null;
 
             var now = DateTime.Now;
@@ -187,7 +187,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .Include(x => x.Items)
                 .FirstOrDefaultAsync(x =>
                     x.JobOrderId == jobOrderId &&
-                    x.IsMasterDn);
+                    x.IsMasterDn).ConfigureAwait(false);
 
             if (masterDn == null) return;
 
@@ -202,12 +202,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                              x.Status == "Signed" ||
                              x.Status == "Received"))
                 .Select(x => x.DeliveryNoteId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var allRealItems = await ctx.DeliveryNoteItems
                 .Where(i => i.JobOrderId == jobOrderId &&
                             realDnIds.Contains(i.DeliveryNoteId))
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var deliveredMap = BuildDeliveredLookup(allRealItems);
 
@@ -231,7 +231,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             var existingItems = await ctx.DeliveryNoteItems
                 .Where(i => i.DeliveryNoteId == masterDn.DeliveryNoteId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
             ctx.DeliveryNoteItems.RemoveRange(existingItems);
 
             masterDn.Attachments.Clear();
@@ -274,7 +274,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             var entity = await ctx.DeliveryNotes
                 .FirstOrDefaultAsync(x =>
-                    x.DeliveryNoteId == deliveryNoteId);
+                    x.DeliveryNoteId == deliveryNoteId).ConfigureAwait(false);
 
             if (entity == null) return;
 
@@ -322,7 +322,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             var entities = await ctx.DeliveryNotes
                 .Where(x => idList.Contains(x.DeliveryNoteId))
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             if (entities.Count == 0) return;
 
@@ -363,7 +363,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             var entities = await ctx.DeliveryNotes
                 .Where(x => x.HasTaxInvoice &&
                             x.TaxInvoiceId == taxInvoiceId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             if (entities.Count == 0) return;
 
@@ -391,7 +391,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(ToListItemProjection)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<DeliveryNoteListItem>> GetByJobOrderIdAsync(
@@ -405,7 +405,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .AsNoTracking()
                 .OrderBy(x => x.SequenceNumber)
                 .Select(ToListItemProjection)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<DeliveryNoteListItem>> GetPreparedAsync()
@@ -419,7 +419,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(ToListItemProjection)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<DeliveryNoteListItem>> GetDeliveredAsync()
@@ -434,7 +434,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .AsNoTracking()
                 .OrderByDescending(x => x.DeliveryDate)
                 .Select(ToListItemProjection)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<PendingQtySummary>> GetPendingQtyJobsAsync()
@@ -445,12 +445,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .Where(x => !x.IsMasterDn &&
                             x.DeliveryType != "Dummy")
                 .Select(x => x.DeliveryNoteId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var allItems = await ctx.DeliveryNoteItems
                 .Where(i => i.JobOrderId != null &&
                             realDnIds.Contains(i.DeliveryNoteId))
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var grouped = allItems
                 .GroupBy(i => i.JobOrderId)
@@ -469,7 +469,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                     .Where(x => joIds.Contains(x.JobOrderId) && !x.IsMasterDn)
                     .AsNoTracking()
                     .OrderByDescending(x => x.SequenceNumber)
-                    .ToListAsync();
+                    .ToListAsync().ConfigureAwait(false);
 
                 foreach (var dn in latestList)
                 {
@@ -521,7 +521,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(ToListItemProjection)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<DeliveryNoteListItem>> GetReturnedAsync()
@@ -533,7 +533,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(ToListItemProjection)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         // ── Delivery history ─────────────────────────────────────────────
@@ -554,14 +554,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                             !x.IsMasterDn &&
                             x.DeliveryType != "Dummy")
                 .OrderBy(x => x.SequenceNumber)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var realDnIds = allDns.Select(x => x.DeliveryNoteId).ToList();
 
             var items = await ctx.DeliveryNoteItems
                 .Where(i => i.JobOrderId == jobOrderId &&
                             realDnIds.Contains(i.DeliveryNoteId))
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var itemGroups = items
                 .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber })
@@ -579,7 +579,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             {
                 var masterDn = await ctx.DeliveryNotes
                     .FirstOrDefaultAsync(x =>
-                        x.JobOrderId == jobOrderId && x.IsMasterDn);
+                        x.JobOrderId == jobOrderId && x.IsMasterDn).ConfigureAwait(false);
                 if (masterDn != null)
                 {
                     totalOrdered = masterDn.TotalOrderedQty;
@@ -651,14 +651,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                              x.Status == "Signed" ||
                              x.Status == "Received"))
                 .Select(x => x.DeliveryNoteId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             return await ctx.DeliveryNoteItems
                 .Where(i => siblingIds.Contains(i.DeliveryNoteId)
                          && i.JobOrderId == jobOrderId
                          && i.SpecGroupNumber == specGroupNumber
                          && i.SerialNumber == serialNumber)
-                .SumAsync(i => i.DeliveredQty);
+                .SumAsync(i => i.DeliveredQty).ConfigureAwait(false);
         }
 
         public async Task<Dictionary<string, int>> GetPreviouslyDeliveredMapAsync(
@@ -676,7 +676,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                              x.Status == "Signed" ||
                              x.Status == "Received"))
                 .Select(x => x.DeliveryNoteId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             if (siblingIds.Count == 0)
                 return new Dictionary<string, int>();
@@ -684,7 +684,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             var items = await ctx.DeliveryNoteItems
                 .Where(i => siblingIds.Contains(i.DeliveryNoteId)
                          && i.JobOrderId == jobOrderId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             return BuildDeliveredLookup(items);
         }
@@ -736,13 +736,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                             !x.IsMasterDn &&
                             x.DeliveryType != "Dummy")
                 .Select(x => x.DeliveryNoteId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var items = await ctx.DeliveryNoteItems
                 .Where(i => i.JobOrderId != null
                          && idList.Contains(i.JobOrderId)
                          && realDnIds.Contains(i.DeliveryNoteId))
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var result = new Dictionary<string, JobOrderSqmSummary>();
             var joGroups = items.GroupBy(i => i.JobOrderId!);
@@ -830,7 +830,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             var existingItems = await ctx.DeliveryNoteItems
                 .Where(i => i.DeliveryNoteId == entity.DeliveryNoteId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
             ctx.DeliveryNoteItems.RemoveRange(existingItems);
 
             entity.Attachments.Clear();

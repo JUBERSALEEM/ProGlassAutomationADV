@@ -48,7 +48,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             return await ctx.TaxInvoices
                 .Include(x => x.Items)
                 .Include(x => x.Attachments)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
         }
 
         public async Task<SavedTaxInvoice?> GetByInvoiceNumberAsync(string invoiceNumber)
@@ -57,7 +57,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             return await ctx.TaxInvoices
                 .Include(x => x.Items)
                 .Include(x => x.Attachments)
-                .FirstOrDefaultAsync(x => x.InvoiceNumber == invoiceNumber);
+                .FirstOrDefaultAsync(x => x.InvoiceNumber == invoiceNumber).ConfigureAwait(false);
         }
 
         // ── List retrieval ────────────────────────────────────────────
@@ -96,7 +96,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<List<TaxInvoiceListItem>> GetByProformaIdAsync(string proformaId)
@@ -105,7 +105,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             var entities = await ctx.TaxInvoices
                 .Where(x => x.ProformaId == proformaId)
                 .OrderBy(x => x.SequenceNumber)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
             return entities.Select(ToListItem).ToList();
         }
 
@@ -115,7 +115,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             var entities = await ctx.TaxInvoices
                 .Where(x => x.Status == status)
                 .OrderByDescending(x => x.IssueDate)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
             return entities.Select(ToListItem).ToList();
         }
 
@@ -135,7 +135,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                 .Where(x => x.Status == "Overdue"
                          || (x.Status == "Issued" && x.DueDate < DateTime.Today))
                 .OrderBy(x => x.DueDate)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
             return entities.Select(ToListItem).ToList();
         }
 
@@ -146,7 +146,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             using var ctx = new TaxInvoiceDbContext();
             var entities = await ctx.TaxInvoices
                 .OrderByDescending(x => x.IssueDate)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var items = entities.Select(ToListItem).ToList();
             var families = TaxInvoiceFamily.BuildFrom(items).ToList();
@@ -160,7 +160,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             var entities = await ctx.TaxInvoices
                 .Where(x => x.ProformaId == proformaId)
                 .OrderBy(x => x.SequenceNumber)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             if (entities.Count == 0) return null;
 
@@ -178,7 +178,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
             var members = await ctx.TaxInvoices
                 .Where(x => x.ProformaId == proformaId)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             if (members.Count == 0)
                 return new InvoiceFamilySummary { ProformaId = proformaId };
@@ -220,7 +220,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                          && x.SequenceLetter != null
                          && x.SequenceLetter != "")
                 .Select(x => x.SequenceLetter)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             if (letters.Count == 0) return "A";
 
@@ -275,7 +275,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
             var existingItems = await ctx.TaxInvoiceItems
                 .Where(i => i.InvoiceNumber == entity.InvoiceNumber)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
             ctx.TaxInvoiceItems.RemoveRange(existingItems);
 
             entity.Attachments.Clear();
@@ -294,7 +294,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             var entity = await ctx.TaxInvoices
                 .Include(x => x.Items)
                 .Include(x => x.Attachments)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
 
             if (entity == null) return;
 
@@ -329,13 +329,13 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         public async Task<bool> ExistsByInvoiceNumberAsync(string invoiceNumber)
         {
             using var ctx = new TaxInvoiceDbContext();
-            return await ctx.TaxInvoices.AnyAsync(x => x.InvoiceNumber == invoiceNumber);
+            return await ctx.TaxInvoices.AnyAsync(x => x.InvoiceNumber == invoiceNumber).ConfigureAwait(false);
         }
 
         public async Task<bool> HasAnyInvoiceAsync(string proformaId)
         {
             using var ctx = new TaxInvoiceDbContext();
-            return await ctx.TaxInvoices.AnyAsync(x => x.ProformaId == proformaId);
+            return await ctx.TaxInvoices.AnyAsync(x => x.ProformaId == proformaId).ConfigureAwait(false);
         }
 
         // ── Status management ──────────────────────────────────────
@@ -347,7 +347,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
             using var ctx = new TaxInvoiceDbContext();
             var entity = await ctx.TaxInvoices
-                .FirstOrDefaultAsync(x => x.InvoiceNumber == invoiceNumber);
+                .FirstOrDefaultAsync(x => x.InvoiceNumber == invoiceNumber).ConfigureAwait(false);
 
             if (entity == null) return;
 
@@ -368,7 +368,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                 .OrderBy(a => a.AttachmentType == "SignedPI" ? 0
                             : a.AttachmentType == "SignedDN" ? 1 : 2)
                 .ThenByDescending(a => a.UploadedAt)
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         public async Task<TaxInvoiceAttachment> AddAttachmentAsync(TaxInvoiceAttachment entity)
@@ -390,7 +390,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
             using var ctx = new TaxInvoiceDbContext();
             var entity = await ctx.TaxInvoiceAttachments
-                .FirstOrDefaultAsync(a => a.Id == attachmentId);
+                .FirstOrDefaultAsync(a => a.Id == attachmentId).ConfigureAwait(false);
             if (entity == null) return;
 
             ctx.TaxInvoiceAttachments.Remove(entity);
@@ -401,7 +401,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         {
             using var ctx = new TaxInvoiceDbContext();
             return await ctx.TaxInvoiceAttachments
-                .CountAsync(a => a.InvoiceNumber == invoiceNumber);
+                .CountAsync(a => a.InvoiceNumber == invoiceNumber).ConfigureAwait(false);
         }
 
         public async Task<Dictionary<string, int>> GetAttachmentCountsAsync(IEnumerable<string> invoiceNumbers)
@@ -415,7 +415,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                 .Where(a => idList.Contains(a.InvoiceNumber))
                 .GroupBy(a => a.InvoiceNumber)
                 .Select(g => new { Id = g.Key, Count = g.Count() })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
 
             var dict = raw.ToDictionary(x => x.Id, x => x.Count);
             foreach (var id in idList)
@@ -439,7 +439,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                     DueDate = t.DueDate,
                     GrandTotal = t.GrandTotal
                 })
-                .ToListAsync();
+                .ToListAsync().ConfigureAwait(false);
         }
 
         // ── Private helpers ─────────────────────────────────────────
