@@ -2448,4 +2448,21 @@
     <sys:String x:Key="ToolTip.SearchQuery">Search documents, companies and clients across every module</sys:String>
     <sys:String x:Key="ToolTip.ClearSearch">Clear search</sys:String>
 
+    <sys:String x:Key="Common.Clear">Clear</sys:String>
+    <sys:String x:Key="Common.Delete">Delete</sys:String>
+    <sys:String x:Key="Common.Refresh">Refresh</sys:String>
+    <sys:String x:Key="Nav.Specifications">Specifications</sys:String>
+    <sys:String x:Key="Specifications.AvgRate">AVG RATE / SQM</sys:String>
+    <sys:String x:Key="Specifications.EmptyHint">Apply a rate in Step 4 and it will appear here automatically.</sys:String>
+    <sys:String x:Key="Specifications.EmptyTitle">No specifications yet</sys:String>
+    <sys:String x:Key="Specifications.FilterColor">Filter by colour</sys:String>
+    <sys:String x:Key="Specifications.FilterGlassType">Filter by glass type</sys:String>
+    <sys:String x:Key="Specifications.MatchedSheet">MATCHED SHEET SIZE</sys:String>
+    <sys:String x:Key="Specifications.MostUsed">MOST USED</sys:String>
+    <sys:String x:Key="Specifications.SearchHint">Search by name, colour or proforma…</sys:String>
+    <sys:String x:Key="Specifications.SheetLinked">SHEET MATCHED</sys:String>
+    <sys:String x:Key="Specifications.Sort">Sort specifications</sys:String>
+    <sys:String x:Key="Specifications.Subtitle">Saved glass specifications generated from Step 4 pricing</sys:String>
+    <sys:String x:Key="Specifications.TotalSpecs">SPECIFICATIONS</sys:String>
+    <sys:String x:Key="Specifications.TotalUses">TOTAL USES</sys:String>
 </ResourceDictionary>

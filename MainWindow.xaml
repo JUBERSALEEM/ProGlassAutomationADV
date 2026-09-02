@@ -43,6 +43,7 @@
         xmlns:vmAbout="clr-namespace:ProGlassAutomation.ViewModels.About"
         xmlns:vmSettings="clr-namespace:ProGlassAutomation.ViewModels.Settings"
         xmlns:vmSheetStore="clr-namespace:ProGlassAutomation.ViewModels.SheetStore"
+        xmlns:vmSpecifications="clr-namespace:ProGlassAutomation.ViewModels.Specifications"
         xmlns:vmJobOrder="clr-namespace:ProGlassAutomation.ViewModels.JobOrder"
         xmlns:vmOptimization="clr-namespace:ProGlassAutomation.ViewModels.Optimization"
         xmlns:vmProduction="clr-namespace:ProGlassAutomation.ViewModels.Production"
@@ -61,6 +62,7 @@
         xmlns:viewsLicensing="clr-namespace:ProGlassAutomation.Views.Licensing"
         xmlns:viewsSettings="clr-namespace:ProGlassAutomation.Views.Settings"
         xmlns:viewsSheetStore="clr-namespace:ProGlassAutomation.Views.SheetStore"
+        xmlns:viewsSpecifications="clr-namespace:ProGlassAutomation.Views.Specifications"
         xmlns:viewsJobOrder="clr-namespace:ProGlassAutomation.Views.JobOrder"
         xmlns:viewsOptimization="clr-namespace:ProGlassAutomation.Views.Optimization"
         xmlns:viewsProduction="clr-namespace:ProGlassAutomation.Views.Production"
@@ -146,6 +148,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmSheetStore:SheetStoreViewModel}">
             <viewsSheetStore:SheetStoreView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmSpecifications:SpecificationsCenterViewModel}">
+            <viewsSpecifications:SpecificationsCenterView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmJobOrder:JobOrderViewModel}">
             <viewsJobOrder:JobOrderView/>
@@ -713,6 +718,11 @@
                                         Tag="&#xE7B8;"
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="SheetStore"/>
+                                <Button Style="{StaticResource SidebarNavItem}"
+                                        Content="{DynamicResource Nav.Specifications}"
+                                        Tag="&#xE8F1;"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Specifications"/>
 
                                 <!-- SALES (expandable) -->
                                 <TextBlock Text="{DynamicResource Nav.GroupSales}"

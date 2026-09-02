@@ -203,6 +203,7 @@ namespace ProGlassAutomation.ViewModels
                 case "Dashboard": CurrentViewModel = DashboardVM; break;
                 case "Inquiry": CurrentViewModel = InquiryVM; break;
                 case "SheetStore": CurrentViewModel = SheetStoreVM; break;
+                case "Specifications": CurrentViewModel = SpecificationsVM; break;
                 case "ProformaInvoice": CurrentViewModel = ProformaInvoiceVM; break;
                 case "JobOrder": CurrentViewModel = JobOrderVM; break;
                 case "Optimization": CurrentViewModel = OptimizationVM; break;
@@ -259,6 +260,10 @@ namespace ProGlassAutomation.ViewModels
                 "Dashboard" => ProGlassAutomation.Services.Theme.WallpaperModules.Dashboard,
                 "Inquiry" => ProGlassAutomation.Services.Theme.WallpaperModules.ProformaInvoice,
                 "SheetStore" => ProGlassAutomation.Services.Theme.WallpaperModules.SheetStore,
+                // Specifications sits in the same Inventory group as Sheet
+                // Store and reads as part of it, so it shares its wallpaper
+                // rather than adding a module key nobody can configure yet.
+                "Specifications" => ProGlassAutomation.Services.Theme.WallpaperModules.SheetStore,
                 "ProformaInvoice" => ProGlassAutomation.Services.Theme.WallpaperModules.ProformaInvoice,
                 "JobOrder" => ProGlassAutomation.Services.Theme.WallpaperModules.JobOrder,
                 "DeliveryNote" => ProGlassAutomation.Services.Theme.WallpaperModules.DeliveryNote,

@@ -194,6 +194,13 @@ namespace ProGlassAutomation.Services.DependencyInjection
 
             // Other modules
             services.AddTransient<SheetStoreViewModel>();
+
+            // Specifications Center. Its greedy ctor takes IDialogService +
+            // ISpecificationsRepository, both registered above, so MS.DI
+            // picks it rather than silently downgrading to the
+            // parameterless fallback.
+            services.AddTransient<
+                ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel>();
             services.AddTransient<OptimizationViewModel>();
             services.AddTransient<CuttingViewModel>();
             services.AddTransient<HolesCutoutsViewModel>();

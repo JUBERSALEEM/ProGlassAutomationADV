@@ -87,6 +87,9 @@ namespace ProGlassAutomation.ViewModels
         public ProGlassAutomation.Agent.UI.AgentChatViewModel AgentChatVM { get; }
 
         public SheetStoreViewModel SheetStoreVM { get; }
+
+        /// <summary>Specifications Center — catalogue of saved specs.</summary>
+        public Specifications.SpecificationsCenterViewModel SpecificationsVM { get; private set; } = null!;
         public JobOrderViewModel JobOrderVM { get; }
         public OptimizationViewModel OptimizationVM { get; }
         public CuttingViewModel CuttingVM { get; }
@@ -588,6 +591,7 @@ namespace ProGlassAutomation.ViewModels
             SystemCenterVM = ResolveOrNew<SystemCenterViewModel>();
             DiagnosticsVM = ResolveOrNew<DiagnosticsViewModel>();
             SheetStoreVM = ResolveOrNew<SheetStoreViewModel>();
+            SpecificationsVM = ResolveOrNew<Specifications.SpecificationsCenterViewModel>();
             JobOrderVM = ResolveOrNew<JobOrderViewModel>();
             OptimizationVM = ResolveOrNew<OptimizationViewModel>();
             CuttingVM = ResolveOrNew<CuttingViewModel>();
