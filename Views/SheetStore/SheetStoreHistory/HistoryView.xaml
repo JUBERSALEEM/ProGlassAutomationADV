@@ -101,7 +101,7 @@
                     <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}">
                         <TextBlock.Inlines>
-                            <Run Text="{Binding TotalEntries}"/>
+                            <Run Text="{Binding TotalEntries, Mode=OneWay}"/>
                             <Run Text=" "/>
                             <Run Text="{DynamicResource SheetStore.Entries}"/>
                         </TextBlock.Inlines>

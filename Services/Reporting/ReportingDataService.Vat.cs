@@ -127,8 +127,35 @@ namespace ProGlassAutomation.Services.Reporting
                 // VAT compliance — exclude non-finalized invoices
                 // Draft = never issued, Rejected/Cancelled/Void = voided
                 // Include: Approved, Confirmed, Issued, Sent, Released (all have VAT charged)
-                var vatExcludedStatuses = new[] { "Draft", "Rejected", "Cancelled", "Void" };
-                query = query.Where(i => i.Status != null && !vatExcludedStatuses.Contains(i.Status));
+                // ERR-4F211D ROOT CAUSE.
+                //
+                // This ran on EVERY load, before any user filter, which is why
+                // the warning appeared repeatedly at startup with no
+                // interaction. It was the ONLY string[].Contains() in a query
+                // anywhere in the codebase.
+                //
+                // EF must hoist `vatExcludedStatuses` into a query parameter.
+                // On .NET 8 the expression interpreter binds the array's
+                // Contains to a ReadOnlySpan<string> overload, producing:
+                //
+                //   An exception was thrown while attempting to evaluate a
+                //   LINQ query parameter expression ... INNER: ArgumentException:
+                //   GenericArguments[1], 'System.ReadOnlySpan`1[System.String]',
+                //   ... violates the constraint of type 'TRet'
+                //
+                // The broad catch below swallowed it and returned an empty
+                // list, so the VAT report showed ZERO ROWS every time.
+                //
+                // Fix: express the exclusion as explicit, individually
+                // translatable comparisons. No collection is captured, so
+                // there is no parameter for the interpreter to mis-bind.
+                // Semantics are identical.
+                query = query.Where(i =>
+                    i.Status != null
+                    && i.Status != "Draft"
+                    && i.Status != "Rejected"
+                    && i.Status != "Cancelled"
+                    && i.Status != "Void");
                 
                 // Apply filters
                 if (filter.DateFrom.HasValue)
@@ -145,29 +172,49 @@ namespace ProGlassAutomation.Services.Reporting
                 // Use translatable constructs instead: EF.Functions.Like is
                 // case-insensitive for ASCII in SQLite, and Trim()/Contains()
                 // both map to SQL. Semantics are preserved.
+                // ERR-4F211D FOLLOW-UP — the LIKE PATTERN MUST BE A PLAIN LOCAL.
+                //
+                // The previous version built the pattern inside the lambda
+                // ("%" + pid + "%") and called .Trim() on the COLUMN. Both are
+                // parameter expressions EF must evaluate on the client, and on
+                // .NET 8 the expression interpreter binds string.Concat to a
+                // ReadOnlySpan<char> overload, which blows up with:
+                //
+                //   ArgumentException: GenericArguments[1],
+                //   'System.ReadOnlySpan`1[System.String]' ... violates the
+                //   constraint of type 'TRet'
+                //
+                // The broad catch below turned that into "load failed
+                // gracefully" and the VAT report showed ZERO ROWS on every
+                // load, repeatedly.
+                //
+                // Fix: precompute the complete pattern into a local BEFORE the
+                // query, and never call a method on the column. This is the
+                // same shape JobOrderRepository/ProformaInvoiceRepository
+                // already use successfully.
                 if (!string.IsNullOrWhiteSpace(filter.Company))
                 {
-                    var company = filter.Company.Trim();
+                    var companyPattern = filter.Company.Trim();
                     query = query.Where(i => i.CompanyName != null
-                        && EF.Functions.Like(i.CompanyName.Trim(), company));
+                        && EF.Functions.Like(i.CompanyName, companyPattern));
                 }
                 if (!string.IsNullOrWhiteSpace(filter.Customer))
                 {
-                    var customer = filter.Customer.Trim();
+                    var customerPattern = filter.Customer.Trim();
                     query = query.Where(i => i.CustomerName != null
-                        && EF.Functions.Like(i.CustomerName.Trim(), customer));
+                        && EF.Functions.Like(i.CustomerName, customerPattern));
                 }
                 if (!string.IsNullOrWhiteSpace(filter.Project))
                 {
-                    var project = filter.Project.Trim();
+                    var projectPattern = filter.Project.Trim();
                     query = query.Where(i => i.ProjectName != null
-                        && EF.Functions.Like(i.ProjectName.Trim(), project));
+                        && EF.Functions.Like(i.ProjectName, projectPattern));
                 }
                 if (!string.IsNullOrWhiteSpace(filter.ProformaId))
                 {
-                    var pid = filter.ProformaId.Trim();
+                    var pidPattern = "%" + filter.ProformaId.Trim() + "%";
                     query = query.Where(i => i.ProformaId != null
-                        && EF.Functions.Like(i.ProformaId, "%" + pid + "%"));
+                        && EF.Functions.Like(i.ProformaId, pidPattern));
                 }
                 
                 ct.ThrowIfCancellationRequested();

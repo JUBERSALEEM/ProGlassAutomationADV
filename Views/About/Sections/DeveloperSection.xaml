@@ -102,7 +102,7 @@
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False">
                                         <Run Text="{DynamicResource About.MadeInIndia}"/>
-                                        <Run Text="{Binding Country}"/>
+                                        <Run Text="{Binding Country, Mode=OneWay}"/>
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>

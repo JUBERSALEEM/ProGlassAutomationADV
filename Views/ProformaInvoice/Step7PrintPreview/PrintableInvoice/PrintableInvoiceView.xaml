@@ -564,7 +564,7 @@
                         <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                    Foreground="White">
                             <TextBlock.Inlines>
-                                <Run Text="{Binding DataGrid.SpecGroups.Count}"/>
+                                <Run Text="{Binding DataGrid.SpecGroups.Count, Mode=OneWay}"/>
                                 <Run Text=" "/>
                                 <Run Text="{DynamicResource ProformaInvoice.Specs}"/>
                             </TextBlock.Inlines>

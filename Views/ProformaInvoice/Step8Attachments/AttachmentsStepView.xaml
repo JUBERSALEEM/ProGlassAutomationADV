@@ -24,7 +24,7 @@
                             <TextBlock.Inlines>
                                 <Run Text="{DynamicResource Attachments.FilesTitle}"/>
                                 <Run Text="  ·  "/>
-                                <Run Text="{Binding ProformaId}"/>
+                                <Run Text="{Binding ProformaId, Mode=OneWay}"/>
                             </TextBlock.Inlines>
                         </TextBlock>
                     </StackPanel>
