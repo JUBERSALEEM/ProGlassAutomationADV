@@ -91,8 +91,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             "Real cost of this invoice — glass from Sheet Store, production from Step 4 rates.";
 
         // ── Fallback stock sheet when the store has no size on file ──────
-        private const int DefaultSheetWidthMm = 2440;
-        private const int DefaultSheetHeightMm = 1830;
+        // 3210 × 2250 is the standard jumbo stock sheet actually used here.
+        // The old 2440 × 1830 default understated sheet area by ~38%
+        // (4.4652 vs 7.2225 SQM), so any row that fell through to the
+        // fallback reported a materially wrong cost -- and therefore a
+        // wrong profit figure -- while looking perfectly plausible.
+        private const int DefaultSheetWidthMm = 3210;
+        private const int DefaultSheetHeightMm = 2250;
 
         /// <summary>UAE standard VAT divisor used to strip VAT off the gross.</summary>
         private const decimal VatDivisor = 1.05m;
