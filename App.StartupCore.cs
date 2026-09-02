@@ -516,7 +516,22 @@ namespace ProGlassAutomation
             }
 
             // 11) Connectivity monitoring
-            Connectivity = new ConnectivityService();
+            //
+            // MUST be the SAME instance the DI container hands out.
+            // Previously this created its own `new ConnectivityService()`
+            // and started monitoring on it, while
+            // ServiceRegistration registered a SEPARATE singleton that
+            // nothing ever called StartMonitoring() on. MainViewModel got
+            // the DI one, whose _isOnline stayed at its default `false`
+            // forever and never raised ConnectivityChanged -- so the shell
+            // pill read "Offline" on a perfectly good connection.
+            //
+            // Resolving from the provider means App.Connectivity and every
+            // injected IConnectivityService are one object, monitored once.
+            Connectivity =
+                ServiceProvider?.GetService(typeof(IConnectivityService))
+                    as IConnectivityService
+                ?? new ConnectivityService();
             Connectivity.StartMonitoring();
 
             // Pin shutdown BEFORE the first window. Default OnLastWindowClose

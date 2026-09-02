@@ -87,6 +87,19 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
         Task<List<SpecificationUsage>> GetRecentUsageAsync(int limit = 200);
 
         /// <summary>
+        /// Bulk upsert used by CSV import. Each row is matched on
+        /// GlassType + SpecName exactly like a Step 4 save, so re-importing
+        /// a file you exported updates in place instead of duplicating.
+        ///
+        /// Returns (inserted, updated, skipped). Rows missing a glass type,
+        /// a spec name, or with a non-positive price are SKIPPED rather than
+        /// written -- a malformed import must not poison the catalogue that
+        /// Step 5 prices against.
+        /// </summary>
+        Task<(int Inserted, int Updated, int Skipped)> ImportAsync(
+            IEnumerable<SavedSpecification> rows);
+
+        /// <summary>
         /// Delete a saved spec (user-initiated cleanup).
         /// </summary>
         Task DeleteAsync(int specId);

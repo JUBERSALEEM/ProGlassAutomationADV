@@ -6,6 +6,21 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
+    <UserControl.Resources>
+        <!--
+            Column header. Uppercase + letter-spacing via FontWeight only;
+            the muted foreground keeps it subordinate to the data, which is
+            what stops a header row from competing with the rows under it.
+        -->
+        <Style x:Key="SpecColumnHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+    </UserControl.Resources>
+
     <!--
         SPECIFICATIONS CENTER
 
@@ -45,15 +60,29 @@
                            Margin="0,2,0,0"/>
             </StackPanel>
 
-            <Button Grid.Column="1"
-                    Command="{Binding RefreshCommand}"
-                    Content="{DynamicResource Common.Refresh}"
-                    Height="34" Padding="16,0" Cursor="Hand"
-                    VerticalAlignment="Center"
-                    Background="{DynamicResource GlassSurfaceElevated}"
-                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Command="{Binding ImportCsvCommand}"
+                        Content="{DynamicResource Common.ImportCsv}"
+                        Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
+                        Background="{DynamicResource GlassSurfaceElevated}"
+                        Foreground="{DynamicResource PrimaryForegroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"/>
+                <Button Command="{Binding ExportCsvCommand}"
+                        Content="{DynamicResource Common.ExportCsv}"
+                        Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
+                        Background="{DynamicResource GlassSurfaceElevated}"
+                        Foreground="{DynamicResource PrimaryForegroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"/>
+                <Button Command="{Binding RefreshCommand}"
+                        Content="{DynamicResource Common.Refresh}"
+                        Height="34" Padding="16,0" Cursor="Hand"
+                        Background="{DynamicResource GlassSurfaceElevated}"
+                        Foreground="{DynamicResource PrimaryForegroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"/>
+            </StackPanel>
         </Grid>
 
         <!-- ══ KPI CARDS ══ -->
@@ -173,7 +202,59 @@
 
             <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Padding="0">
                 <Grid>
-                    <ListBox ItemsSource="{Binding Specifications}"
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!--
+                        COLUMN HEADER.
+
+                        Widths are duplicated verbatim in the row template
+                        below. WPF has no shared-size scope across a ListBox
+                        item boundary (SharedSizeGroup does not cross the
+                        ItemsPanel), so the only way header and rows line up
+                        is identical fixed definitions in both places. If you
+                        change one, change the other.
+
+                        Spacing: the header uses the SAME 14,11 padding and
+                        10,5 margin as the row cards, so the label sits
+                        directly over its column instead of drifting.
+                    -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource GlassSurfaceElevated}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="0,0,0,1"
+                            Padding="24,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="72"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Specifications.ColType}"
+                                       Style="{StaticResource SpecColumnHeaderStyle}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Specifications.ColSpecification}"
+                                       Style="{StaticResource SpecColumnHeaderStyle}" Margin="12,0,10,0"/>
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Specifications.ColSheetSize}"
+                                       Style="{StaticResource SpecColumnHeaderStyle}"/>
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Specifications.ColUsed}"
+                                       Style="{StaticResource SpecColumnHeaderStyle}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="{DynamicResource Specifications.ColRate}"
+                                       Style="{StaticResource SpecColumnHeaderStyle}"
+                                       HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="5" Text=""
+                                       Style="{StaticResource SpecColumnHeaderStyle}"/>
+                        </Grid>
+                    </Border>
+
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Specifications}"
                              Background="Transparent"
                              BorderThickness="0"
                              HorizontalContentAlignment="Stretch"
@@ -195,12 +276,14 @@
                                         Style="{StaticResource InteractiveListRowCardStyle}"
                                         Margin="10,5" Padding="14,11">
                                     <Grid>
+                                        <!-- Widths MUST match the header grid above. -->
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="72"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="40"/>
                                         </Grid.ColumnDefinitions>
 
                                         <!-- Glass type chip -->
@@ -221,37 +304,48 @@
                                                        FontWeight="SemiBold"
                                                        TextTrimming="CharacterEllipsis"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                            <TextBlock FontSize="{StaticResource TextBody}"
+                                            <TextBlock Text="{Binding Color, Mode=OneWay}"
+                                                       FontSize="{StaticResource TextBody}"
+                                                       TextTrimming="CharacterEllipsis"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"
-                                                       Margin="0,2,0,0">
-                                                <Run Text="{Binding SheetSizeDisplay, Mode=OneWay}"/>
-                                                <Run Text="  ·  "/>
-                                                <Run Text="{Binding Color, Mode=OneWay}"/>
-                                            </TextBlock>
+                                                       Margin="0,2,0,0"/>
                                         </StackPanel>
 
-                                        <!-- Usage count -->
+                                        <!-- Sheet size, boxed like Sheet Store -->
                                         <Border Grid.Column="2"
                                                 Background="{DynamicResource GlassSurfaceElevated}"
+                                                BorderBrush="{DynamicResource OutlineBrush}"
+                                                BorderThickness="1"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="9,4" Margin="0,0,10,0"
+                                                Padding="8,4" Margin="0,0,10,0"
+                                                HorizontalAlignment="Left"
                                                 VerticalAlignment="Center">
-                                            <TextBlock FontSize="{StaticResource TextBody}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                <Run Text="{Binding UsageCount, Mode=OneWay}"/>
-                                                <Run Text="×"/>
-                                            </TextBlock>
+                                            <TextBlock Text="{Binding SheetSizeDisplay, Mode=OneWay}"
+                                                       FontSize="{StaticResource TextBody}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                         </Border>
 
+                                        <!-- Usage count -->
                                         <TextBlock Grid.Column="3"
+                                                   FontSize="{StaticResource TextBody}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                            <Run Text="{Binding UsageCount, Mode=OneWay}"/>
+                                            <Run Text="×"/>
+                                        </TextBlock>
+
+                                        <TextBlock Grid.Column="4"
                                                    Text="{Binding PricePerSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                                    FontSize="{StaticResource TextBody}"
                                                    FontWeight="Bold"
                                                    VerticalAlignment="Center"
+                                                   HorizontalAlignment="Right"
                                                    Margin="0,0,10,0"
                                                    Foreground="{DynamicResource SuccessBrush}"/>
 
-                                        <Button Grid.Column="4"
+                                        <Button Grid.Column="5"
                                                 Command="{Binding DataContext.DeleteSpecCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                 CommandParameter="{Binding}"
                                                 Content="&#xE74D;"
@@ -364,19 +458,72 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Usage history -->
+                    <!-- Usage history + price bands -->
                     <Grid Grid.Row="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <TextBlock Grid.Row="0"
-                                   Text="{Binding UsageCountDisplay}"
-                                   FontSize="{StaticResource TextBody}"
-                                   FontWeight="Bold"
-                                   Margin="0,0,0,8"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        <StackPanel Grid.Row="0">
+                            <!--
+                                PRICE BANDS.
+
+                                One specification can be quoted at several
+                                rates: SaveOrUpdateAsync overwrites
+                                PricePerSqm on every Step 4 apply, so the
+                                catalogue row holds only the LATEST rate
+                                while each usage row holds what that invoice
+                                actually paid. Showing only the latest would
+                                misrepresent history, so the distinct rates
+                                are listed with the proformas that used them.
+                                Hidden when every use was at the same rate.
+                            -->
+                            <ItemsControl ItemsSource="{Binding PriceBands}" Margin="0,0,0,12">
+                                <ItemsControl.Style>
+                                    <Style TargetType="ItemsControl">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasPriceVariation}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ItemsControl.Style>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="10,7" Margin="0,0,0,6"
+                                                Background="{DynamicResource TintIndigoBrush}"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding PricePerSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
+                                                           FontSize="{StaticResource TextBody}"
+                                                           FontWeight="Bold"
+                                                           Margin="0,0,10,0"
+                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding ProformaList}"
+                                                           FontSize="{StaticResource TextBody}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Text="{Binding UsageCountDisplay}"
+                                       FontSize="{StaticResource TextBody}"
+                                       FontWeight="Bold"
+                                       Margin="0,0,0,8"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        </StackPanel>
 
                         <ListBox Grid.Row="1"
                                  ItemsSource="{Binding UsageHistory}"

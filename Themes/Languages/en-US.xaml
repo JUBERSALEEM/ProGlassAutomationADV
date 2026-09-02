@@ -2465,4 +2465,11 @@
     <sys:String x:Key="Specifications.Subtitle">Saved glass specifications generated from Step 4 pricing</sys:String>
     <sys:String x:Key="Specifications.TotalSpecs">SPECIFICATIONS</sys:String>
     <sys:String x:Key="Specifications.TotalUses">TOTAL USES</sys:String>
+    <sys:String x:Key="Common.ExportCsv">Export CSV</sys:String>
+    <sys:String x:Key="Common.ImportCsv">Import CSV</sys:String>
+    <sys:String x:Key="Specifications.ColRate">RATE / SQM</sys:String>
+    <sys:String x:Key="Specifications.ColSheetSize">SHEET SIZE</sys:String>
+    <sys:String x:Key="Specifications.ColSpecification">SPECIFICATION</sys:String>
+    <sys:String x:Key="Specifications.ColType">TYPE</sys:String>
+    <sys:String x:Key="Specifications.ColUsed">USED</sys:String>
 </ResourceDictionary>

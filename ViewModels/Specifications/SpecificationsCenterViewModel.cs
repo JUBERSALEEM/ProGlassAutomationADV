@@ -72,6 +72,8 @@ namespace ProGlassAutomation.ViewModels.Specifications
             SelectSpecCommand = new RelayCommand(p => _ = SelectSpecAsync(p as SavedSpecification));
             CloseDetailCommand = new RelayCommand(_ => SelectedSpec = null);
             DeleteSpecCommand = new RelayCommand(p => _ = DeleteSpecAsync(p as SavedSpecification));
+            ExportCsvCommand = new RelayCommand(_ => _ = ExportCsvAsync());
+            ImportCsvCommand = new RelayCommand(_ => _ = ImportCsvAsync());
 
             // Live catalogue sync: Step 4 saving a spec updates this list
             // with no manual refresh, same channel Step 5's dropdown uses.
@@ -114,6 +116,8 @@ namespace ProGlassAutomation.ViewModels.Specifications
         public ICommand SelectSpecCommand { get; private set; } = null!;
         public ICommand CloseDetailCommand { get; private set; } = null!;
         public ICommand DeleteSpecCommand { get; private set; } = null!;
+        public ICommand ExportCsvCommand { get; private set; } = null!;
+        public ICommand ImportCsvCommand { get; private set; } = null!;
 
         // ── Filters ──────────────────────────────────────────────────────
 
@@ -359,12 +363,227 @@ namespace ProGlassAutomation.ViewModels.Specifications
             }
             finally
             {
+                RebuildPriceBands();
                 OnPropertyChanged(nameof(UsageCountDisplay));
             }
         }
 
         public string UsageCountDisplay =>
             UsageHistory.Count == 1 ? "1 use" : $"{UsageHistory.Count} uses";
+
+        // ── Price variation across proformas ─────────────────────────────
+        //
+        // You were unsure whether one spec can carry different prices. It
+        // can, and it routinely does: SaveOrUpdateAsync OVERWRITES
+        // PricePerSqm on every Step 4 apply, so the catalogue row holds only
+        // the LATEST rate while each usage row holds what that invoice was
+        // actually quoted at. Showing only the latest would misrepresent
+        // history, so the detail pane lists the distinct rates with the
+        // proformas that used them.
+
+        public ObservableCollection<SpecPriceBand> PriceBands { get; } = new();
+
+        private void RebuildPriceBands()
+        {
+            PriceBands.Clear();
+
+            foreach (var g in UsageHistory
+                         .GroupBy(u => u.PricePerSqm)
+                         .OrderByDescending(g => g.Key))
+            {
+                var pis = g.Select(u => u.ProformaDisplay)
+                           .Where(s => !string.IsNullOrWhiteSpace(s))
+                           .Distinct(StringComparer.OrdinalIgnoreCase)
+                           .ToList();
+
+                PriceBands.Add(new SpecPriceBand
+                {
+                    PricePerSqm = g.Key,
+                    UseCount = g.Count(),
+                    ProformaList = pis.Count == 0 ? "—" : string.Join(", ", pis)
+                });
+            }
+
+            OnPropertyChanged(nameof(HasPriceVariation));
+        }
+
+        /// <summary>True when this spec was quoted at more than one rate.</summary>
+        public bool HasPriceVariation => PriceBands.Count > 1;
+
+        // ── CSV export / import ──────────────────────────────────────────
+
+        private async Task ExportCsvAsync()
+        {
+            if (Specifications.Count == 0)
+            {
+                _dialogs?.Info("There is nothing to export.", "Specifications");
+                return;
+            }
+
+            try
+            {
+                // Exports the FILTERED list, matching what is on screen --
+                // exporting hidden rows the user has filtered out is a
+                // surprise, not a feature.
+                var layout = new Services.Specifications.Export
+                    .SpecificationsCsvLayout(Specifications.ToList());
+
+                var engine = new Services.Export.Csv.CsvExportEngine();
+                var result = await engine.ExportAsync(
+                    layout,
+                    new Services.Export.Core.ExportRequest
+                    {
+                        PromptForLocation = true,
+                        OpenAfterSave = false,
+                        SuggestedFileName =
+                            $"Specifications_{DateTime.Now:yyyy-MM-dd_HH-mm}"
+                    });
+
+                StatusMessage = result != null && result.Success
+                    ? $"Exported {Specifications.Count} specifications."
+                    : "Export cancelled.";
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Specifications CSV export failed: {ex.Message}",
+                    new LogContext { Module = "Specifications", Operation = "ExportCsv" });
+                _dialogs?.Error("Export failed.\n\n" + ex.Message, "Specifications");
+            }
+        }
+
+        private async Task ImportCsvAsync()
+        {
+            if (_specs == null) return;
+
+            try
+            {
+                var picker = new Microsoft.Win32.OpenFileDialog
+                {
+                    Title = "Import specifications from CSV",
+                    Filter = "CSV file (*.csv)|*.csv|All files (*.*)|*.*",
+                    CheckFileExists = true
+                };
+                if (picker.ShowDialog() != true) return;
+
+                var rows = ParseCsv(picker.FileName);
+                if (rows.Count == 0)
+                {
+                    _dialogs?.Warning(
+                        "No usable rows were found. The file needs a header "
+                        + "row with at least GlassType, SpecName and "
+                        + "PricePerSqm.",
+                        "Import specifications");
+                    return;
+                }
+
+                var (ins, upd, skip) = await _specs.ImportAsync(rows);
+
+                StatusMessage =
+                    $"Imported — {ins} added, {upd} updated, {skip} skipped.";
+
+                _dialogs?.Info(StatusMessage, "Import complete");
+                // Repository raises SpecCatalogNotifier on success, which
+                // reloads this list automatically.
+            }
+            catch (Services.Audit.PermissionDeniedException denied)
+            {
+                _dialogs?.Warning(denied.UserMessage, "Permission denied");
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Specifications CSV import failed: {ex.Message}",
+                    new LogContext { Module = "Specifications", Operation = "ImportCsv" });
+                _dialogs?.Error("Import failed.\n\n" + ex.Message, "Specifications");
+            }
+        }
+
+        /// <summary>
+        /// Header-driven CSV parse: columns are located BY NAME, so a file
+        /// with reordered or extra columns still imports correctly. Rows
+        /// that cannot be parsed are dropped here and counted as skipped by
+        /// the repository rather than aborting the whole import.
+        /// </summary>
+        private static List<SavedSpecification> ParseCsv(string path)
+        {
+            var result = new List<SavedSpecification>();
+            var lines = System.IO.File.ReadAllLines(path);
+            if (lines.Length < 2) return result;
+
+            var header = SplitCsvLine(lines[0]);
+            int Idx(string name) => header.FindIndex(h =>
+                string.Equals(h.Trim(), name, StringComparison.OrdinalIgnoreCase));
+
+            int iType = Idx("GlassType"), iName = Idx("SpecName"), iPrice = Idx("PricePerSqm");
+            if (iType < 0 || iName < 0 || iPrice < 0) return result;
+
+            int iColor = Idx("Color"), iThk = Idx("ThicknessMm");
+            int iW = Idx("SheetWidthMm"), iH = Idx("SheetHeightMm");
+            int iCat = Idx("Category"), iPi = Idx("ProformaId");
+
+            string? Get(List<string> f, int i) =>
+                i >= 0 && i < f.Count ? f[i].Trim() : null;
+
+            for (int r = 1; r < lines.Length; r++)
+            {
+                if (string.IsNullOrWhiteSpace(lines[r])) continue;
+                var f = SplitCsvLine(lines[r]);
+
+                decimal.TryParse(Get(f, iPrice), out decimal price);
+                int.TryParse(Get(f, iThk), out int thk);
+                int.TryParse(Get(f, iW), out int w);
+                int.TryParse(Get(f, iH), out int h);
+
+                result.Add(new SavedSpecification
+                {
+                    GlassType = Get(f, iType) ?? "",
+                    SpecName = Get(f, iName) ?? "",
+                    PricePerSqm = price,
+                    Color = Get(f, iColor),
+                    ThicknessMm = thk,
+                    SheetWidthMm = w,
+                    SheetHeightMm = h,
+                    Category = Get(f, iCat),
+                    ProformaId = Get(f, iPi)
+                });
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Minimal RFC-4180 splitter: handles quoted fields and escaped
+        /// doubled quotes, which is what Excel emits for names containing
+        /// commas (spec names routinely do: "6mm Clear FT, polished").
+        /// </summary>
+        private static List<string> SplitCsvLine(string line)
+        {
+            var fields = new List<string>();
+            var sb = new System.Text.StringBuilder();
+            bool inQuotes = false;
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                char c = line[i];
+
+                if (inQuotes)
+                {
+                    if (c == '"')
+                    {
+                        if (i + 1 < line.Length && line[i + 1] == '"') { sb.Append('"'); i++; }
+                        else inQuotes = false;
+                    }
+                    else sb.Append(c);
+                }
+                else if (c == '"') inQuotes = true;
+                else if (c == ',') { fields.Add(sb.ToString()); sb.Clear(); }
+                else sb.Append(c);
+            }
+
+            fields.Add(sb.ToString());
+            return fields;
+        }
 
         // ── Delete ───────────────────────────────────────────────────────
 

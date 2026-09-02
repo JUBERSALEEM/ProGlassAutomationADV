@@ -246,6 +246,76 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             }
         }
 
+        public async Task<(int Inserted, int Updated, int Skipped)> ImportAsync(
+            IEnumerable<SavedSpecification> rows)
+        {
+            ReadOnlyGate.Demand("import specifications");
+            OperationGuard.Demand(
+                AppPermissions.ProformaEdit, "import pricing specifications");
+
+            int inserted = 0, updated = 0, skipped = 0;
+            if (rows == null) return (0, 0, 0);
+
+            using var db = new SpecificationsDbContext();
+
+            // Load once and match in memory: an import is a handful of
+            // hundred rows at most, and this avoids a per-row round trip.
+            var existing = await db.Specifications.ToListAsync();
+
+            foreach (var row in rows)
+            {
+                if (row == null
+                    || string.IsNullOrWhiteSpace(row.GlassType)
+                    || string.IsNullOrWhiteSpace(row.SpecName)
+                    || row.PricePerSqm <= 0m)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                var match = existing.FirstOrDefault(s =>
+                    string.Equals(s.GlassType, row.GlassType, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(s.SpecName, row.SpecName, StringComparison.OrdinalIgnoreCase));
+
+                if (match != null)
+                {
+                    match.PricePerSqm = row.PricePerSqm;
+                    match.LastUsedAt = DateTime.Now;
+
+                    // Same rule as SaveOrUpdateAsync: only overwrite a
+                    // catalogue column when the incoming row actually has a
+                    // value, so a sparse import cannot erase good data.
+                    if (!string.IsNullOrWhiteSpace(row.Color)) match.Color = row.Color;
+                    if (!string.IsNullOrWhiteSpace(row.Category)) match.Category = row.Category;
+                    if (row.ThicknessMm > 0) match.ThicknessMm = row.ThicknessMm;
+                    if (row.SheetWidthMm > 0 && row.SheetHeightMm > 0)
+                    {
+                        match.SheetWidthMm = row.SheetWidthMm;
+                        match.SheetHeightMm = row.SheetHeightMm;
+                    }
+                    updated++;
+                }
+                else
+                {
+                    row.CreatedAt = row.CreatedAt == default ? DateTime.Now : row.CreatedAt;
+                    row.LastUsedAt = DateTime.Now;
+                    if (row.UsageCount < 0) row.UsageCount = 0;
+
+                    db.Specifications.Add(row);
+                    existing.Add(row);
+                    inserted++;
+                }
+            }
+
+            if (inserted > 0 || updated > 0)
+            {
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+                SpecCatalogNotifier.NotifyChanged();
+            }
+
+            return (inserted, updated, skipped);
+        }
+
         public async Task DeleteAsync(int specId)
         {
             ReadOnlyGate.Demand("delete a specification");
