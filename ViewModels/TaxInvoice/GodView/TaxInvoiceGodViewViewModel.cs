@@ -138,17 +138,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
 
         private static bool Matches(TaxInvoiceListItem r, string filter)
         {
-            return Contains(r.InvoiceNumber, filter)
-                || Contains(r.ProformaId, filter)
-                || Contains(r.JobOrderId, filter)
-                || Contains(r.CustomerName, filter)
-                || Contains(r.ProjectName, filter)
-                || Contains(r.Status, filter)
-                || Contains(r.InvoiceType, filter);
+            return Utilities.SearchHelper.MatchesAny(filter,
+                r.InvoiceNumber, r.ProformaId, r.JobOrderId,
+                r.CustomerName, r.ProjectName, r.Status, r.InvoiceType);
         }
-
-        private static bool Contains(string? text, string filter) =>
-            text?.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0;
 
         private void RebuildKpis()
         {

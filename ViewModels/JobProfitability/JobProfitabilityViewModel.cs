@@ -684,9 +684,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             if (term.Length > 0)
             {
                 query = query.Where(r =>
-                    Contains(r.ProformaId, term) ||
-                    Contains(r.CustomerName, term) ||
-                    Contains(r.ProjectName, term));
+                    Utilities.SearchHelper.ContainsIgnoreCase(r.ProformaId, term) ||
+                    Utilities.SearchHelper.ContainsIgnoreCase(r.CustomerName, term) ||
+                    Utilities.SearchHelper.ContainsIgnoreCase(r.ProjectName, term));
             }
 
             var result = query
@@ -701,9 +701,6 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             RecalculateTotals(result);
             StatusMessage = BuildStatus(result);
         }
-
-        private static bool Contains(string? haystack, string needle) =>
-            (haystack ?? "").IndexOf(needle, StringComparison.OrdinalIgnoreCase) >= 0;
 
         private void RecalculateTotals(List<JobProfitabilityRow> rows)
         {

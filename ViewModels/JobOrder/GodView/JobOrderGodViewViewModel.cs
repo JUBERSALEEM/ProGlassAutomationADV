@@ -138,16 +138,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
 
         private static bool Matches(JobOrderListRow r, string filter)
         {
-            return Contains(r.JobOrderId, filter)
-                || Contains(r.SourceProformaId, filter)
-                || Contains(r.CustomerName, filter)
-                || Contains(r.ProjectName, filter)
-                || Contains(r.Status, filter)
-                || Contains(r.Priority, filter);
+            return Utilities.SearchHelper.MatchesAny(filter,
+                r.JobOrderId, r.SourceProformaId, r.CustomerName,
+                r.ProjectName, r.Status, r.Priority);
         }
-
-        private static bool Contains(string? text, string filter) =>
-            text?.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0;
 
         private void RebuildKpis()
         {

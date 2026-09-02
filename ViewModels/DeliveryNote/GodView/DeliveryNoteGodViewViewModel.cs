@@ -144,18 +144,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
 
         private static bool Matches(DeliveryNoteListItem r, string filter)
         {
-            return Contains(r.DeliveryNoteId, filter)
-                || Contains(r.JobOrderId, filter)
-                || Contains(r.ProformaId, filter)
-                || Contains(r.CustomerName, filter)
-                || Contains(r.ProjectName, filter)
-                || Contains(r.Status, filter)
-                || Contains(r.DriverName, filter)
-                || Contains(r.VehicleNumber, filter);
+            return Utilities.SearchHelper.MatchesAny(filter,
+                r.DeliveryNoteId, r.JobOrderId, r.ProformaId,
+                r.CustomerName, r.ProjectName, r.Status,
+                r.DriverName, r.VehicleNumber);
         }
-
-        private static bool Contains(string? text, string filter) =>
-            text?.IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0;
 
         private void RebuildKpis()
         {
