@@ -9,6 +9,16 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
 
+                <!-- ── Converters MUST be merged FIRST (2026-09-02, ERR-2FFFF1).
+                     {StaticResource} resolves at parse time against what is
+                     already defined. Merged dictionaries are parsed BEFORE
+                     the inline body below, so converters declared inline
+                     were invisible to every style dictionary that needed
+                     them — ShellStyles.xaml aborted mid-parse, SidebarNavItem
+                     never got defined, and MainWindow.xaml:702 crashed the
+                     app. Declare new converters in this file, not inline. ── -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ConverterResources.xaml"/>
+
                 <!-- ── Theme (must be first so styles can reference brushes) ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/LightTheme.xaml"/>
 
@@ -108,41 +118,15 @@
             <FontWeight x:Key="AppFontWeight">Normal</FontWeight>
             <FontStyle x:Key="AppFontStyle">Normal</FontStyle>
 
-            <!-- ══════════════════════════════════════════════════════════
-                     BUILT-IN CONVERTERS (preserved)
-                ══════════════════════════════════════════════════════════ -->
-            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-            <!-- Live currency: renders BASE (AED) amounts in the active
-                 display currency at the current internet rate (₹, ¥, €…),
-                 offline = last fetched rate. Books stay in AED. -->
-            <conv:CurrencyDisplayConverter x:Key="CurrencyConverter"/>
-            <!-- Short aliases so XAML files can use the more concise
-                 "BoolToVis" / "InverseBoolToVis" names that match the
-                 app's other XAML conventions. Both names resolve to
-                 the same converter instance, so either is fine. -->
-            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
-            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
+            <!-- BUILT-IN + CUSTOM CONVERTERS moved to
+                 Themes/Styles/ConverterResources.xaml and merged FIRST
+                 above, so merged style dictionaries can resolve them at
+                 parse time (ERR-2FFFF1). Do not re-declare them here. -->
 
             <sys:Double x:Key="UiScale">1.0</sys:Double>
 
             <!-- Density defaults (overwritten at startup by ThemeManager). -->
 
-            <!-- ══════════════════════════════════════════════════════════
-                     CUSTOM CONVERTERS (preserved — all 7 unchanged + 1 NEW)
-                ══════════════════════════════════════════════════════════ -->
-            <conv:ColorStringConverter              x:Key="ColorStringConverter"/>
-            <conv:DecimalIsPositiveConverter        x:Key="DecimalIsPositiveConverter"/>
-            <conv:DecimalTypingConverter            x:Key="DecimalTypingConverter"/>
-            <conv:ReferenceEqualityConverter        x:Key="ReferenceEqualityConverter"/>
-            <conv:IndexEqualsConverter             x:Key="IndexEqualsConverter"/>
-            <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
-            <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>
-            <conv:PercentToWidthConverter           x:Key="PercentToWidthConverter"/>
-            <conv:SliderValueLabelConverter         x:Key="SliderValueLabelConverter"/>
-            <conv:FractionToStarConverter           x:Key="FractionToStarConverter"/>
-            <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
-            <conv:StringEqualsMultiConverter        x:Key="StringEqualsMultiConverter"/>
-            <conv:WindowInsetConverter              x:Key="WindowInsetConverter"/>
 
             <!-- ══════════════════════════════════════════════════════════
                      GLOBAL TEXTBOX STYLE — Bug 2 + Bug 5

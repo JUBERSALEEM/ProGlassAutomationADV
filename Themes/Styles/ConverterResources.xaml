@@ -1,0 +1,66 @@
+<!--
+    FILE: Themes/Styles/ConverterResources.xaml
+    PROJECT: ProGlassAutomation
+    CREATED: 2026-09-02 — fix for ERR-2FFFF1
+
+    ═══════════════════════════════════════════════════════════════════════
+    WHY THIS FILE EXISTS
+    ═══════════════════════════════════════════════════════════════════════
+    Every converter instance used to be declared INLINE in App.xaml, in the
+    resource body that comes AFTER <ResourceDictionary.MergedDictionaries>.
+
+    XAML resolves {StaticResource} at PARSE time, walking only what is
+    already defined. A merged dictionary is parsed BEFORE the inline body of
+    the dictionary that merges it — so a merged style dictionary could never
+    see those converters. Any style file doing
+
+        Converter="{StaticResource StringEqualsMultiConverter}"
+
+    threw "Cannot find resource named '...'" while App.xaml was still
+    loading. The failure surfaced far from its cause: the dictionary aborted,
+    every style inside it (e.g. SidebarNavItem) was silently missing, and the
+    first consumer — MainWindow.xaml line 702 — crashed the app with
+    XamlParseException / ERR-2FFFF1.
+
+    Converters are pure, stateless, theme-independent objects, so they are
+    now declared here and merged FIRST in App.xaml. Every subsequent
+    dictionary — and every view — can reference them with {StaticResource}.
+
+    RULE: declare new converters HERE, never inline in App.xaml.
+    ═══════════════════════════════════════════════════════════════════════
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:conv="clr-namespace:ProGlassAutomation.Converters">
+
+    <!-- ═══ BUILT-IN / FRAMEWORK CONVERTERS ═══════════════════════════ -->
+    <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+
+    <!-- Short alias matching the app's other XAML conventions. Both names
+         resolve to an equivalent converter, so either is fine. -->
+    <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+    <!-- ═══ CUSTOM CONVERTERS ═════════════════════════════════════════ -->
+
+    <!-- Live currency: renders BASE (AED) amounts in the active display
+         currency at the current internet rate; offline = last fetched
+         rate. Books always stay in AED. -->
+    <conv:CurrencyDisplayConverter          x:Key="CurrencyConverter"/>
+
+    <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVis"/>
+    <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
+
+    <conv:ColorStringConverter              x:Key="ColorStringConverter"/>
+    <conv:DecimalIsPositiveConverter        x:Key="DecimalIsPositiveConverter"/>
+    <conv:DecimalTypingConverter            x:Key="DecimalTypingConverter"/>
+    <conv:ReferenceEqualityConverter        x:Key="ReferenceEqualityConverter"/>
+    <conv:IndexEqualsConverter              x:Key="IndexEqualsConverter"/>
+    <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>
+    <conv:PercentToWidthConverter           x:Key="PercentToWidthConverter"/>
+    <conv:SliderValueLabelConverter         x:Key="SliderValueLabelConverter"/>
+    <conv:FractionToStarConverter           x:Key="FractionToStarConverter"/>
+    <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
+    <conv:StringEqualsMultiConverter        x:Key="StringEqualsMultiConverter"/>
+    <conv:WindowInsetConverter              x:Key="WindowInsetConverter"/>
+
+</ResourceDictionary>
