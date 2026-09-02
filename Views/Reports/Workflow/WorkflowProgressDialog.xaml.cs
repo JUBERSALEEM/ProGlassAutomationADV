@@ -58,7 +58,7 @@ namespace ProGlassAutomation.Views.Reports.Workflow
             // Wire callback: when VM requests close, close the window
             _vm.RequestClose = () =>
             {
-                Dispatcher.Invoke(() =>
+                Dispatcher.BeginInvoke(() =>
                 {
                     DialogResult = true;
                     Close();

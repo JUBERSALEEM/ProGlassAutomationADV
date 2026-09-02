@@ -147,7 +147,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 return;
             }
 
-            dispatcher.Invoke(() =>
+            dispatcher.BeginInvoke(() =>
             {
                 ProcessingLog.Add(new ProGlassAutomation.Models.Statement.Workflow.LogEntry
                 {

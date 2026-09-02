@@ -176,7 +176,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             var dispatcher = System.Windows.Application.Current?.Dispatcher;
             if (dispatcher != null && !dispatcher.CheckAccess())
             {
-                dispatcher.Invoke(RefreshAppearanceFxStatusCore);
+                dispatcher.BeginInvoke(RefreshAppearanceFxStatusCore);
                 return;
             }
             RefreshAppearanceFxStatusCore();

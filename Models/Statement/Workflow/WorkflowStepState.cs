@@ -241,7 +241,7 @@ namespace ProGlassAutomation.Models.Statement.Workflow
             }
             else
             {
-                dispatcher.Invoke(action);
+                dispatcher.BeginInvoke(action, System.Windows.Threading.DispatcherPriority.DataBind);
             }
         }
     }

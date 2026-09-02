@@ -171,7 +171,7 @@ namespace ProGlassAutomation.ViewModels
             if (string.IsNullOrWhiteSpace(target)) return;
             var dispatcher = System.Windows.Application.Current?.Dispatcher;
             if (dispatcher != null && !dispatcher.CheckAccess())
-                dispatcher.Invoke(() => Navigate(target));
+                dispatcher.BeginInvoke(new Action(() => Navigate(target)));
             else
                 Navigate(target);
         }
