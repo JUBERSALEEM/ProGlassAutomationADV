@@ -1117,8 +1117,15 @@
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     Effect="{DynamicResource ShadowElevated}"
+                    <!-- FallbackValue/TargetNullValue are load-bearing: if the
+                         DataContext is null or the binding fails, Visibility
+                         would otherwise revert to its default (Visible) and
+                         the agent panel would cover the shell, looking
+                         "already open" with nothing clickable behind it. -->
                     Visibility="{Binding IsAgentChatOpen,
-                        Converter={StaticResource BoolToVisibilityConverter}}">
+                        Converter={StaticResource BoolToVisibilityConverter},
+                        FallbackValue=Collapsed,
+                        TargetNullValue=Collapsed}">
                 <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         ClipToBounds="True"
                         Background="{DynamicResource ModuleBackgroundBrush}">

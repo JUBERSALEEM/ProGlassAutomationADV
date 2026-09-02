@@ -656,9 +656,36 @@ namespace ProGlassAutomation
             }
             catch (Exception ex)
             {
-                AppLogService.Warning(
-                    $"DI MainViewModel resolve failed, using parameterless ctor: {ex.Message}",
+                // ERROR, not Warning: if this fires, every binding in the
+                // shell is about to fail silently. Log the FULL exception
+                // (including inner) -- the message alone hid the real
+                // cause during the 2026-09-02 dead-shell incident.
+                AppLogService.Error(
+                    "DI MainViewModel resolve failed, using parameterless ctor",
+                    ex,
                     new LogContext { Module = "Main", Operation = "ResolveMainViewModel" });
+            }
+
+            // Fallback: never hand MainWindow a null DataContext. A null
+            // DataContext makes every binding fail silently -- dashboards
+            // render blank and any element whose Visibility is bound with
+            // no FallbackValue reverts to its default (this is why the
+            // agent panel appeared stuck open). Try the parameterless
+            // ctor explicitly rather than leaving it null.
+            if (mainVm == null)
+            {
+                try
+                {
+                    mainVm = new ViewModels.MainViewModel();
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Error(
+                        "Parameterless MainViewModel ctor ALSO failed; the shell "
+                        + "will open with no DataContext and will not respond",
+                        ex,
+                        new LogContext { Module = "Main", Operation = "ResolveMainViewModel" });
+                }
             }
 
             MainWindow mainWindow;
