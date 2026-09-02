@@ -136,12 +136,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         public List<string> PanelExtraOptions { get; } = new()
         {
             "None",
-            "With Overlap (LM) and Silicon Bed (LM)",
-            "With Overlap (LM) and Silicon Bed (LM) As Per DWG",
+            "With Overlap",
+            "With Overlap As Per DWG",
+            "With Overlap As Per Details",
             "With Overlap (SQM)",
             "With Overlap (SQM) As Per DWG",
-            "With Overlap (SQM) and Silicon Bed (SQM)",
-            "With Overlap (SQM) and Silicon Bed (SQM) As Per DWG",
             "With Fanhole",
             "With Fanhole As Per DWG",
             "With Cutout",

@@ -68,31 +68,33 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             if (Contains(spec, "Overlap"))
             {
                 bool specialOverlapSqm = Contains(spec, "Overlap (SQM)");
-                bool explicitSiliconSqm = Contains(spec, "Silicon Bed (SQM)");
-                bool explicitSiliconLm = Contains(spec, "Silicon Bed (LM)");
 
                 if (specialOverlapSqm)
                 {
-                    Add("OVERLAP_SQM", "SQM1", "Special overlap is charged by area (SQM).");
+                    Add("OVERLAP_SQM", "SQM1", "Spec requires overlap charged by area (SQM).");
 
-                    // Silicon bed is a separate charge ONLY when explicitly
-                    // mentioned in the spec. Not all overlap jobs require it.
-                    if (explicitSiliconSqm)
+                    // For DGU builds, overlap ALWAYS requires silicon bed as
+                    // a separate charge. The spec just says "With Overlap" but
+                    // physically overlap + silicon bed are two distinct processes
+                    // that are always charged separately.
+                    if (dguLike)
                     {
                         Add("SILICON_BED_SQM", "SQM1",
-                            "Spec requires silicon bed charged by area (SQM).");
+                            "DGU overlap requires silicon bed as a separate charge (SQM).");
                     }
                 }
                 else
                 {
-                    Add("OVERLAP", "LM1", "Normal overlap is charged by perimeter (LM).");
+                    Add("OVERLAP", "LM1", "Spec requires overlap charged by perimeter (LM).");
 
-                    // Silicon bed is a separate charge ONLY when explicitly
-                    // mentioned in the spec. Not all overlap jobs require it.
-                    if (explicitSiliconLm)
+                    // For DGU builds, overlap ALWAYS requires silicon bed as
+                    // a separate charge. The spec just says "With Overlap" but
+                    // physically overlap + silicon bed are two distinct processes
+                    // that are always charged separately.
+                    if (dguLike)
                     {
                         Add("SILICON_BED", "LM1",
-                            "Spec requires silicon bed charged by perimeter (LM).");
+                            "DGU overlap requires silicon bed as a separate charge (LM).");
                     }
                 }
             }
