@@ -46,15 +46,41 @@ namespace ProGlassAutomation.Models.SheetStore.SheetStoreHistory
         //  and the record must not silently change or vanish.
         // ═══════════════════════════════════════════════════════════
 
-        /// <summary>PI or JO number this consumption was booked against.</summary>
-        public string DocumentReference { get; set; } = string.Empty;
+        // NULLABLE ON PURPOSE — this was a real crash ("The data is NULL at
+        // ordinal 2") and the fix is the TYPE, not the data.
+        //
+        // Migration 1001 adds these as "TEXT NULL", so every row that
+        // existed BEFORE the migration has SQL NULL in them. A non-nullable
+        // CLR `string` tells EF the column can never be null, so EF emits a
+        // GetString() with no null check and throws on the first legacy row
+        // — which is why the history list failed to load entirely.
+        //
+        // Backfilling to '' would fix today's rows but leave the same trap
+        // for any row inserted by an older build or by hand, so the model
+        // now states the truth: these columns are optional.
+        //
+        // Readers should use the *Display helpers below rather than the raw
+        // values, so a null never reaches the UI.
 
-        public string CustomerName { get; set; } = string.Empty;
-        public string ProjectName { get; set; } = string.Empty;
-        public string Salesman { get; set; } = string.Empty;
+        /// <summary>PI or JO number this consumption was booked against.</summary>
+        public string? DocumentReference { get; set; }
+
+        public string? CustomerName { get; set; }
+        public string? ProjectName { get; set; }
+        public string? Salesman { get; set; }
 
         /// <summary>"Outer" / "Inner" — which pane of the spec consumed it.</summary>
-        public string PanePosition { get; set; } = string.Empty;
+        public string? PanePosition { get; set; }
+
+        // ── Null-safe display accessors ──────────────────────────────
+        public string DocumentReferenceDisplay => Text(DocumentReference);
+        public string CustomerNameDisplay => Text(CustomerName);
+        public string ProjectNameDisplay => Text(ProjectName);
+        public string SalesmanDisplay => Text(Salesman);
+        public string PanePositionDisplay => Text(PanePosition);
+
+        private static string Text(string? v) =>
+            string.IsNullOrWhiteSpace(v) ? "—" : v!.Trim();
 
         public DateTime Timestamp { get; set; } = DateTime.Now;
 

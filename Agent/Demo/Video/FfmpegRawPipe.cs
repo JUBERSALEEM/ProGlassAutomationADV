@@ -33,6 +33,7 @@
 
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;   // CorrelationContext
 using System;
 using System.Diagnostics;
 using System.IO;

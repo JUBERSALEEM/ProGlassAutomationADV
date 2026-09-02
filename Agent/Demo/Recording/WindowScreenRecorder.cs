@@ -82,6 +82,14 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         /// <summary>True when the fast off-thread pipeline produced the video.</summary>
         public bool RawCaptureActive => _rawActive;
 
+        /// <summary>
+        /// Non-null when capture could not start at all. The service reports
+        /// this instead of pretending a recording is running — a HUD stuck
+        /// on "REC" with no encoder behind it was part of why STOP appeared
+        /// dead.
+        /// </summary>
+        public string? FatalStartError { get; private set; }
+
         /// <summary>Final MP4 written directly by the raw pipeline, if any.</summary>
         public string? RawVideoPath => _rawActive ? _rawVideoPath : null;
 
@@ -185,6 +193,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             // the capture loop never touches the dispatcher again — that
             // is the whole point of the new pipeline.
             _targetHwnd = ResolveMainWindowHandle();
+            FatalStartError = null;
             _rawActive = false;
             _rawVideoPath = null;
             try { _rawPipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
@@ -199,9 +208,11 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             }
             else
             {
-                // No HWND (headless/test): keep the legacy path so
-                // recording degrades instead of disappearing.
-                _loop = Task.Run(() => LoopAsync(framesFolder, ct));
+                FatalStartError =
+                    "The application window is not available for capture.";
+                AppLogService.Warning(
+                    FatalStartError,
+                    new Services.Logging.LogContext { Module = "Recording", Operation = "Start" });
             }
         }
 
@@ -312,99 +323,6 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         [StructLayout(LayoutKind.Sequential)]
         private struct NativePoint { public int X; public int Y; }
 
-        /// <summary>
-        /// Capture loop.
-        ///
-        /// TIMING IS FRAME-INDEXED, NOT WALL-CLOCK. The old loop slept for
-        /// "interval minus however long this iteration took", which lets
-        /// error accumulate: every late frame pushes all later frames later
-        /// still, so a 60 s recording drifts and plays back at the wrong
-        /// speed.
-        ///
-        /// Each slot now has an absolute deadline computed from the START
-        /// time and the slot INDEX, so drift cannot accumulate — a late
-        /// frame is late once and the next slot is still on the grid.
-        ///
-        /// A DROPPED SLOT KEEPS ITS PLACE. Previously a drop just vanished,
-        /// which silently shortened the video and desynchronised audio.
-        /// The slot index still advances, so the composer sees a gap at the
-        /// right moment instead of a shorter timeline.
-        /// </summary>
-        private async Task LoopAsync(string folder, CancellationToken ct)
-        {
-            int fps = Math.Max(1, _settings.Fps);
-            var interval = TimeSpan.FromMilliseconds(1000.0 / fps);
-
-            var epoch = DateTime.UtcNow;
-            long slot = 0;      // absolute frame slot since epoch
-            int saved = 0;      // frames actually written
-
-            while (!ct.IsCancellationRequested)
-            {
-                if (_paused)
-                {
-                    try { await Task.Delay(60, ct).ConfigureAwait(false); }
-                    catch (OperationCanceledException) { break; }
-
-                    // Re-base the grid so paused time is not counted as
-                    // dropped frames when recording resumes.
-                    epoch = DateTime.UtcNow - TimeSpan.FromTicks(interval.Ticks * slot);
-                    continue;
-                }
-
-                bool busy = Volatile.Read(ref _pendingEncodes) >= MaxPendingEncodes
-                            || Volatile.Read(ref _captureBusy) != 0;
-
-                if (busy)
-                {
-                    Interlocked.Increment(ref _droppedFrames);
-                }
-                else
-                {
-                    var shot = await CapturePixelsAsync(ct, TimeSpan.FromTicks(interval.Ticks * slot))
-                        .ConfigureAwait(false);
-
-                    if (shot != null)
-                    {
-                        string path = System.IO.Path.Combine(folder, $"f{saved:00000}.jpg");
-                        saved++;
-                        Interlocked.Increment(ref _pendingEncodes);
-                        var copy = shot;
-                        _ = Task.Run(async () =>
-                        {
-                            await _encodeSlots.WaitAsync().ConfigureAwait(false);
-                            try { EncodeJpeg(copy, path); }
-                            finally { _encodeSlots.Release(); }
-                        }, CancellationToken.None);
-                    }
-                    else
-                    {
-                        Interlocked.Increment(ref _droppedFrames);
-                    }
-                }
-
-                slot++;
-
-                // Absolute deadline for the NEXT slot — no accumulated drift.
-                var nextDue = epoch + TimeSpan.FromTicks(interval.Ticks * slot);
-                var wait = nextDue - DateTime.UtcNow;
-
-                if (wait > TimeSpan.Zero)
-                {
-                    try { await Task.Delay(wait, ct).ConfigureAwait(false); }
-                    catch (OperationCanceledException) { break; }
-                }
-                else if (-wait > interval)
-                {
-                    // We are behind by whole slots. Skip forward onto the
-                    // grid rather than firing a burst of catch-up captures,
-                    // which would only deepen the backlog.
-                    long behind = (long)(-wait.Ticks / interval.Ticks);
-                    slot += behind;
-                    Interlocked.Add(ref _droppedFrames, (int)Math.Min(behind, int.MaxValue));
-                }
-            }
-        }
 
         /// <summary>
         /// Resolves MainWindow's HWND. The ONLY dispatcher touch in the new
@@ -456,10 +374,17 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             if (!capture.Prepare(_targetHwnd))
             {
+                // DO NOT fall back to the UI-thread capture. That path is
+                // what froze the app: it posts a full software re-render to
+                // the dispatcher 30x a second, so module switches, dialogs
+                // and even the STOP button stop responding. A recording
+                // that fails loudly is strictly better than one that
+                // hangs the application.
+                FatalStartError =
+                    "Window capture could not start. Recording was not begun.";
                 AppLogService.Warning(
-                    "Window capture could not initialise; using legacy path.",
+                    FatalStartError,
                     new Services.Logging.LogContext { Module = "Recording", Operation = "RawLoop" });
-                await LoopAsync(framesFolder, ct).ConfigureAwait(false);
                 return;
             }
 
@@ -473,10 +398,11 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             if (_rawPipe == null)
             {
+                FatalStartError =
+                    "Video encoder could not start (ffmpeg). Recording was not begun.";
                 AppLogService.Warning(
-                    "Video encoder unavailable; using legacy path.",
+                    FatalStartError,
                     new Services.Logging.LogContext { Module = "Recording", Operation = "RawLoop" });
-                await LoopAsync(framesFolder, ct).ConfigureAwait(false);
                 return;
             }
 
@@ -538,11 +464,16 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                         "Window capture returned blank frames; using legacy path.",
                         new Services.Logging.LogContext { Module = "Recording", Operation = "RawLoop" });
 
+                    // Blank output means the driver ignored
+                    // PW_RENDERFULLCONTENT. Stop cleanly instead of
+                    // switching to the UI-thread path and freezing the app.
                     _rawActive = false;
+                    FatalStartError =
+                        "The display driver returned blank frames for this window. "
+                        + "Recording stopped.";
+
                     try { await _rawPipe.FinishAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false); }
                     catch (Exception ex) { AppLogService.Debug($"[RawLoop] finish: {ex.Message}"); }
-
-                    await LoopAsync(framesFolder, ct).ConfigureAwait(false);
                     return;
                 }
 
@@ -565,227 +496,10 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             }
         }
 
-        private sealed class PixelShot
-        {
-            public required byte[] Pixels { get; init; }
-            public int Width { get; init; }
-            public int Height { get; init; }
-            public int CursorX { get; init; }
-            public int CursorY { get; init; }
-            public TimeSpan Timestamp { get; init; }
-        }
 
-        // Phase 3: No ContinueWith + .Result — use async/await, single _captureBusy handling
-        private async Task<PixelShot?> CapturePixelsAsync(
-            CancellationToken ct, TimeSpan slotTimestamp)
-        {
-            var disp = Application.Current?.Dispatcher;
-            if (disp == null) return null;
-            if (Interlocked.Exchange(ref _captureBusy, 1) != 0) return null;
 
-            try
-            {
-                // 2026-08-25 senior fix — capture ran at Background
-                // priority, which queues every frame behind ALL normal
-                // UI work. While the demo workflow drives navigation at
-                // normal priority, captures waited indefinitely — the
-                // recorded video lagged behind the actions on screen
-                // ("not recording live as per input").
-                //
-                // Loaded sits above Background/DataBind but BELOW Input,
-                // so user input and demo interactions still win, yet
-                // frames are captured promptly instead of whenever the
-                // UI goes idle. RenderTargetBitmap.Render still forces
-                // layout, so we never raise it to Input/Normal.
-                var shot = await disp.InvokeAsync(() =>
-                {
-                    ct.ThrowIfCancellationRequested();
-                    return CaptureOnUi(slotTimestamp);
-                }, DispatcherPriority.Loaded, ct).Task.ConfigureAwait(false);
 
-                return shot;
-            }
-            catch (OperationCanceledException)
-            {
-                return null;
-            }
-            catch (Exception ex)
-            {
-                Services.Logging.AppLogService.Warning(
-                    $"CapturePixels failed: {ex.Message}",
-                    new Services.Logging.LogContext { Module = "Recording", Operation = "CapturePixels" });
-                return null;
-            }
-            finally
-            {
-                Interlocked.Exchange(ref _captureBusy, 0);
-            }
-        }
 
-        private PixelShot? CaptureOnUi(TimeSpan slotTimestamp)
-        {
-            var window = Application.Current?.MainWindow;
-            if (window == null || window.ActualWidth < 2 || window.ActualHeight < 2)
-                return null;
-
-            // Never waste a capture on a minimized / hidden window — it
-            // would render an empty frame and drop the next real one.
-            if (!window.IsVisible || window.WindowState == WindowState.Minimized)
-                return null;
-
-            var (targetW, targetH) = _settings.CaptureSize;
-            double dipW = Math.Max(1, window.ActualWidth);
-            double dipH = Math.Max(1, window.ActualHeight);
-            var dpiInfo = VisualTreeHelper.GetDpi(window);
-            // Defensive: some systems/drivers report 0 DPI scale; default to 1.0
-            // to avoid zero-size captures (would produce empty 2x2 frames).
-            double scaleX = dpiInfo.DpiScaleX > 0 ? dpiInfo.DpiScaleX : 1.0;
-            double scaleY = dpiInfo.DpiScaleY > 0 ? dpiInfo.DpiScaleY : 1.0;
-            double nativeW = dipW * scaleX;
-            double nativeH = dipH * scaleY;
-            double scale = Math.Max(
-                Math.Min(targetW / Math.Max(1, nativeW), targetH / Math.Max(1, nativeH)),
-                1.0);
-
-            int capW = Math.Max(2, ((int)Math.Round(nativeW * scale)) & ~1);
-            int capH = Math.Max(2, ((int)Math.Round(nativeH * scale)) & ~1);
-            capW = Math.Min(capW, targetW);
-            capH = Math.Min(capH, targetH);
-            int dpi = Math.Max(96, (int)Math.Round(96 * scaleX * scale));
-
-            BitmapSource? bmp;
-            try
-            {
-                // Do not SetBitmapScalingMode on the live window every
-                // frame — that dirties the visual tree and is a leading
-                // cause of laggy capture. NearestNeighbor is enough for
-                // a screen recording of already-crisp UI chrome.
-                var rtb = new RenderTargetBitmap(capW, capH, dpi, dpi, PixelFormats.Pbgra32);
-                rtb.Render(window);
-                rtb.Freeze();
-                bmp = rtb;
-            }
-            catch
-            {
-                return null;
-            }
-
-            int stride = capW * 4;
-            var pixels = new byte[stride * capH];
-            bmp.CopyPixels(pixels, stride, 0);
-
-            GetCursorPos(out var pos);
-            int cx = 0, cy = 0;
-            try
-            {
-                var origin = window.PointToScreen(new Point(0, 0));
-                double pxW = dipW * scaleX;
-                double pxH = dipH * scaleY;
-                if (pxW > 0 && pxH > 0)
-                {
-                    cx = (int)Math.Round((pos.X - origin.X) / pxW * capW);
-                    cy = (int)Math.Round((pos.Y - origin.Y) / pxH * capH);
-                }
-            }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] CaptureOnUi: cursor overlay is optional: " + ex.Message); }
-
-            if (_settings.DrawCursor)
-                DrawPointer(pixels, capW, capH, cx, cy);
-
-            return new PixelShot
-            {
-                Pixels = pixels,
-                Width = capW,
-                Height = capH,
-                CursorX = cx,
-                CursorY = cy,
-                // Grid time, not clock time — see LoopAsync. Using the
-                // wall clock here reintroduced the drift the slot grid
-                // exists to prevent.
-                Timestamp = slotTimestamp
-            };
-        }
-
-        private void EncodeJpeg(PixelShot shot, string path)
-        {
-            try
-            {
-                var src = BitmapSource.Create(
-                    shot.Width, shot.Height, 96, 96,
-                    PixelFormats.Pbgra32, null, shot.Pixels, shot.Width * 4);
-                src.Freeze();
-
-                byte[] bytes;
-                using (var ms = new MemoryStream())
-                {
-                    var enc = new JpegBitmapEncoder { QualityLevel = _settings.JpegQualityFor };
-                    enc.Frames.Add(BitmapFrame.Create(src));
-                    enc.Save(ms);
-                    bytes = ms.ToArray();
-                }
-
-                // Keep the on-disk frame (fallback encode path) AND feed the
-                // live H.264 pipe. Without this the live encoder was started
-                // but starved — STOP always fell back to the slow JPEG
-                // re-encode (or failed when frames were dropped).
-                Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
-                File.WriteAllBytes(path, bytes);
-                var pipe = _pipe;
-                if (pipe != null && !pipe.WriteJpeg(bytes))
-                {
-                    // ffmpeg died — the HUD switches to "JPEG fallback" and
-                    // the stop path uses the on-disk frames instead.
-                }
-
-                if (File.Exists(path))
-                {
-                    lock (_framesGate)
-                    {
-                        _frames.Add(new RecordedFrame
-                        {
-                            Path = path,
-                            Timestamp = shot.Timestamp,
-                            CursorX = shot.CursorX,
-                            CursorY = shot.CursorY
-                        });
-                    }
-                    Interlocked.Increment(ref _encodedFrames);
-                }
-            }
-            catch
-            {
-                Interlocked.Increment(ref _droppedFrames);
-            }
-            finally
-            {
-                Interlocked.Decrement(ref _pendingEncodes);
-            }
-        }
-
-        private static void DrawPointer(byte[] px, int w, int h, int cx, int cy)
-        {
-            if ((uint)cx >= (uint)w || (uint)cy >= (uint)h) return;
-            const int r = 8;
-            for (int y = cy - r - 1; y <= cy + r + 1; y++)
-            {
-                if ((uint)y >= (uint)h) continue;
-                for (int x = cx - r - 1; x <= cx + r + 1; x++)
-                {
-                    if ((uint)x >= (uint)w) continue;
-                    int dx = x - cx, dy = y - cy;
-                    int d2 = dx * dx + dy * dy;
-                    int i = (y * w + x) * 4;
-                    if (d2 <= 16)
-                    {
-                        px[i] = 220; px[i + 1] = 96; px[i + 2] = 37; px[i + 3] = 255;
-                    }
-                    else if (d2 <= r * r)
-                    {
-                        px[i] = 255; px[i + 1] = 255; px[i + 2] = 255; px[i + 3] = 255;
-                    }
-                }
-            }
-        }
 
         public void Dispose()
         {

@@ -326,6 +326,8 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                         <Border Width="30" Height="30" CornerRadius="{DynamicResource ControlCornerRadius}" Margin="0,0,10,0"
@@ -353,9 +355,33 @@
                         <TextBlock Text="{DynamicResource SheetStore.SellingValue}" Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="6">
+                    <!--
+                        USED VALUE and BALANCE VALUE complete the picture.
+                        Buying/Selling value describe what was PURCHASED;
+                        without these the strip cannot answer "is stock
+                        turning into revenue, or just sitting on a rack?".
+                    -->
+                    <StackPanel Grid.Column="6" Margin="0,0,28,0">
+                        <TextBlock Text="{DynamicResource SheetStore.UsedValue}" Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding TotalUsedValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource WarningBrush}"
+                                   ToolTip="{DynamicResource SheetStore.UsedValueTip}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="7" Margin="0,0,28,0">
+                        <TextBlock Text="{DynamicResource SheetStore.BalanceValue}" Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding TotalBalanceValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource InfoBrush}"
+                                   ToolTip="{DynamicResource SheetStore.BalanceValueTip}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="8">
                         <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}" Style="{StaticResource StatLabel}"/>
-                        <TextBlock Text="{Binding TotalProfit, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource AccentBrush}"/>
+                        <!--
+                            Was TotalProfit (sell minus buy on ALL stock),
+                            which counts margin on sheets already consumed
+                            as still "expected". ExpectedProfit is the
+                            margin remaining on UNUSED stock, which is what
+                            the label claims.
+                        -->
+                        <TextBlock Text="{Binding ExpectedProfit, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource AccentBrush}"
+                                   ToolTip="{DynamicResource SheetStore.ExpectedProfitTip}"/>
                     </StackPanel>
                 </Grid>
             </Border>

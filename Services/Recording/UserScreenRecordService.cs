@@ -220,6 +220,29 @@ namespace ProGlassAutomation.Services.Recording
             try
             {
                 recorder.Start(frames, rec);
+
+                // Start() posts the capture loop and returns. If capture or
+                // the encoder could not initialise, the loop reports it via
+                // FatalStartError almost immediately. Surface that instead
+                // of leaving a HUD stuck on "REC" with nothing behind it —
+                // which is what made STOP look dead.
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(600).ConfigureAwait(false);
+                    var fatal = recorder.FatalStartError;
+                    if (string.IsNullOrWhiteSpace(fatal)) return;
+                    if (!IsRecording) return;
+
+                    AppLogService.Warning(
+                        $"Recording aborted at start: {fatal}",
+                        new LogContext { Module = "Recording", Operation = "StartWatchdog" });
+
+                    try { await StopAndSaveAsync().ConfigureAwait(false); }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Debug($"[Recording] watchdog stop: {ex.Message}");
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -360,7 +383,13 @@ namespace ProGlassAutomation.Services.Recording
                     .ToList();
                 if (framesList.Count == 0)
                 {
-                    Fail("No frames captured. Nothing to save.");
+                    // The capture pipeline no longer writes intermediate
+                    // JPEGs — it encodes H.264 directly — so reaching here
+                    // means the direct path failed. Report THAT, not a
+                    // misleading "no frames captured".
+                    Fail(string.IsNullOrWhiteSpace(recorder.FatalStartError)
+                        ? "The video encoder did not produce a file."
+                        : recorder.FatalStartError!);
                     return;
                 }
 

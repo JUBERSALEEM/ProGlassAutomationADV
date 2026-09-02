@@ -103,6 +103,24 @@ namespace ProGlassAutomation.Models.SheetStore
         [NotMapped]
         public decimal ProfitValue => TotalSellValue - TotalPurchaseValue;
 
+        // ── CONSUMED VALUE ───────────────────────────────────────────
+        // Stock/Sell values above are computed on TOTAL Stock, i.e. what
+        // was bought. Neither says what has actually been CONSUMED, which
+        // is the number that tells you whether inventory is turning into
+        // revenue or just sitting on a rack.
+
+        /// <summary>What the consumed sheets COST (purchase side).</summary>
+        public decimal UsedCostValue => SqmPerSheet * Used * PurchasePricePerSqm;
+
+        /// <summary>What the consumed sheets are WORTH (sell side).</summary>
+        public decimal UsedSellValue => SqmPerSheet * Used * SellPricePerSqm;
+
+        /// <summary>Realised margin on what has actually been consumed.</summary>
+        public decimal UsedProfitValue => UsedSellValue - UsedCostValue;
+
+        /// <summary>Purchase value still sitting unused on the rack.</summary>
+        public decimal BalanceCostValue => SqmPerSheet * Balance * PurchasePricePerSqm;
+
         /// <summary>Profit margin per SQM.</summary>
         [NotMapped]
         public decimal ProfitPerSqm => SellPricePerSqm - PurchasePricePerSqm;

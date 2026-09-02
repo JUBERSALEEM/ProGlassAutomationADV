@@ -2499,4 +2499,9 @@
     <sys:String x:Key="SheetStore.Pane">PANE (OUTER / INNER)</sys:String>
     <sys:String x:Key="SheetStore.Project">PROJECT</sys:String>
     <sys:String x:Key="SheetStore.Salesman">SALESMAN</sys:String>
+    <sys:String x:Key="SheetStore.BalanceValue">BALANCE VALUE</sys:String>
+    <sys:String x:Key="SheetStore.BalanceValueTip">Sell value of stock still on the rack.</sys:String>
+    <sys:String x:Key="SheetStore.ExpectedProfitTip">Margin still to be earned on unused stock (balance sell value minus its purchase cost).</sys:String>
+    <sys:String x:Key="SheetStore.UsedValue">USED VALUE</sys:String>
+    <sys:String x:Key="SheetStore.UsedValueTip">Sell value of stock already consumed.</sys:String>
 </ResourceDictionary>

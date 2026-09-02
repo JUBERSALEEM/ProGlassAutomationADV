@@ -183,6 +183,35 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public decimal TotalSellingValue => Sheets.Sum(s => s.TotalSellValue);
         public decimal TotalProfit => TotalSellingValue - TotalBuyingValue;
 
+        // ── CONSUMPTION + BALANCE VALUE ──────────────────────────────
+        // Buying/Selling value describe what was PURCHASED. These describe
+        // what has been CONSUMED and what is still on the rack, which is
+        // what makes the strip answer "is stock turning into revenue?"
+        // rather than just "how much did we buy?".
+
+        /// <summary>Purchase cost of everything consumed so far.</summary>
+        public decimal TotalUsedCostValue => Sheets.Sum(s => s.UsedCostValue);
+
+        /// <summary>Sell value of everything consumed so far.</summary>
+        public decimal TotalUsedValue => Sheets.Sum(s => s.UsedSellValue);
+
+        /// <summary>Realised margin on consumed stock.</summary>
+        public decimal TotalUsedProfit => Sheets.Sum(s => s.UsedProfitValue);
+
+        /// <summary>Sell value of stock still on the rack.</summary>
+        public decimal TotalBalanceValue => Sheets.Sum(s => s.BalanceValue);
+
+        /// <summary>Purchase cost still tied up in unused stock.</summary>
+        public decimal TotalBalanceCostValue => Sheets.Sum(s => s.BalanceCostValue);
+
+        /// <summary>
+        /// Margin still to be earned if all remaining stock sells at the
+        /// current sell price. Labelled "expected" because it is a
+        /// projection, not realised money — TotalUsedProfit is the realised
+        /// figure.
+        /// </summary>
+        public decimal ExpectedProfit => TotalBalanceValue - TotalBalanceCostValue;
+
         // ============ DISPLAY STATS ============
         public int DisplayItems => TotalItems;
         public int DisplayStock => SelectedSheet?.Stock ?? TotalStock;
@@ -489,6 +518,16 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(TotalBuyingValue));
             OnPropertyChanged(nameof(TotalSellingValue));
             OnPropertyChanged(nameof(TotalProfit));
+
+            // New consumption/balance stats must refresh with the rest,
+            // otherwise the strip shows stale money after a Buy or Use.
+            OnPropertyChanged(nameof(TotalUsedCostValue));
+            OnPropertyChanged(nameof(TotalUsedValue));
+            OnPropertyChanged(nameof(TotalUsedProfit));
+            OnPropertyChanged(nameof(TotalBalanceValue));
+            OnPropertyChanged(nameof(TotalBalanceCostValue));
+            OnPropertyChanged(nameof(ExpectedProfit));
+
             OnPropertyChanged(nameof(HasSheets));
             OnPropertyChanged(nameof(IsEmpty));
             RaiseDisplayStatsChanged();
