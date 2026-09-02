@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss;
 
@@ -31,12 +32,44 @@ namespace ProGlassAutomation.Services.ProformaInvoice
     }
 
     /// <summary>
-    /// Pure rule engine for Advanced Step 6 automation. It reads a spec name
-    /// and glass type and decides which predefined Step 6 rows should turn on.
+    /// Abstraction for spec parsing operations. Allows OtherChargeAutomationService
+    /// to be tested with mock parsers instead of depending on the static PnLSpecParser.
     /// </summary>
-    public static class OtherChargeAutomationRules
+    public interface ISpecParser
     {
-        public static IReadOnlyList<AutoChargeSuggestion> GetChargeSuggestions(
+        IReadOnlyList<Match> GlassMatches(string spec);
+        Match Spacer(string spec);
+        Match Interlayer(string spec);
+    }
+
+    /// <summary>
+    /// Default implementation that delegates to the static PnLSpecParser.
+    /// Used in production code.
+    /// </summary>
+    public sealed class PnLSpecParserAdapter : ISpecParser
+    {
+        public IReadOnlyList<Match> GlassMatches(string spec) => PnLSpecParser.GlassMatches(spec);
+        public Match Spacer(string spec) => PnLSpecParser.Spacer(spec);
+        public Match Interlayer(string spec) => PnLSpecParser.Interlayer(spec);
+    }
+
+    /// <summary>
+    /// Testable service for Advanced Step 6 automation. Reads a spec name
+    /// and glass type and decides which predefined Step 6 rows should turn on.
+    /// 
+    /// This is the instance-based version. For backward compatibility, the
+    /// static OtherChargeAutomationRules class delegates to a singleton instance.
+    /// </summary>
+    public sealed class OtherChargeAutomationService
+    {
+        private readonly ISpecParser _specParser;
+
+        public OtherChargeAutomationService(ISpecParser specParser)
+        {
+            _specParser = specParser ?? throw new ArgumentNullException(nameof(specParser));
+        }
+
+        public IReadOnlyList<AutoChargeSuggestion> GetChargeSuggestions(
             string? glassType,
             string? specName,
             bool matchedSameGlass)
@@ -142,7 +175,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             return suggestions.Values.ToList();
         }
 
-        public static IReadOnlyList<AutoWastageSuggestion> GetWastageSuggestions(
+        public IReadOnlyList<AutoWastageSuggestion> GetWastageSuggestions(
             int specGroupNumber,
             string? glassType,
             string? specName,
@@ -153,7 +186,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             string type = ResolveEffectiveGlassType(glassType, spec);
             bool doubleGlass = IsDoubleGlass(type);
 
-            var glassMatches = PnLSpecParser.GlassMatches(spec);
+            var glassMatches = _specParser.GlassMatches(spec);
             string outerColor = glassMatches.Count > 0
                 ? (glassMatches[0].Groups["color"].Value ?? "").Trim()
                 : (outerColorFallback ?? "").Trim();
@@ -281,7 +314,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             return colorName.Trim().Equals("Clear", StringComparison.OrdinalIgnoreCase);
         }
 
-        public static PolishSubType? DetectPolish(string? specName)
+        public PolishSubType? DetectPolish(string? specName)
         {
             string spec = specName ?? "";
 
@@ -316,12 +349,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         /// text is ambiguous the Step 4 glass-type field is authoritative;
         /// "SGU" is the final fallback.
         /// </summary>
-        public static string ResolveEffectiveGlassType(string? glassType, string? specName)
+        public string ResolveEffectiveGlassType(string? glassType, string? specName)
         {
             string spec = specName ?? string.Empty;
-            bool hasSpacer = PnLSpecParser.Spacer(spec).Success;
-            bool hasInterlayer = PnLSpecParser.Interlayer(spec).Success;
-            bool hasGlass = PnLSpecParser.GlassMatches(spec).Count > 0;
+            bool hasSpacer = _specParser.Spacer(spec).Success;
+            bool hasInterlayer = _specParser.Interlayer(spec).Success;
+            bool hasGlass = _specParser.GlassMatches(spec).Count > 0;
 
             if (hasSpacer && hasInterlayer) return "DGU+LAM";
             if (hasSpacer) return "DGU";
@@ -357,5 +390,38 @@ namespace ProGlassAutomation.Services.ProformaInvoice
 
         private static bool ContainsAny(string specName, params string[] tokens) =>
             tokens.Any(t => Contains(specName, t));
+    }
+
+    /// <summary>
+    /// Static wrapper for backward compatibility. Delegates to a singleton
+    /// instance of OtherChargeAutomationService with the default PnLSpecParserAdapter.
+    /// 
+    /// New code should prefer injecting OtherChargeAutomationService directly
+    /// for better testability.
+    /// </summary>
+    public static class OtherChargeAutomationRules
+    {
+        private static readonly OtherChargeAutomationService _instance =
+            new OtherChargeAutomationService(new PnLSpecParserAdapter());
+
+        public static IReadOnlyList<AutoChargeSuggestion> GetChargeSuggestions(
+            string? glassType,
+            string? specName,
+            bool matchedSameGlass) =>
+            _instance.GetChargeSuggestions(glassType, specName, matchedSameGlass);
+
+        public static IReadOnlyList<AutoWastageSuggestion> GetWastageSuggestions(
+            int specGroupNumber,
+            string? glassType,
+            string? specName,
+            string? outerColorFallback,
+            string? innerColorFallback) =>
+            _instance.GetWastageSuggestions(specGroupNumber, glassType, specName, outerColorFallback, innerColorFallback);
+
+        public static PolishSubType? DetectPolish(string? specName) =>
+            _instance.DetectPolish(specName);
+
+        public static string ResolveEffectiveGlassType(string? glassType, string? specName) =>
+            _instance.ResolveEffectiveGlassType(glassType, specName);
     }
 }
