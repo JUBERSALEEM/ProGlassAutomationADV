@@ -720,11 +720,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 || string.Equals(detected, nextType, StringComparison.OrdinalIgnoreCase))
                 return;
 
+            // CARRY THE GLASS FORWARD ACROSS A TYPE SWITCH.
+            //
+            // Requested behaviour: a DGU of
+            //     "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass"
+            // switched to SGU should land on "6mm Clear FT Glass" rather
+            // than clearing the box and making the operator retype it. The
+            // outer pane is the shared component of every build family, so
+            // it is the correct thing to keep going DGU/LAM/DGU+LAM -> SGU.
+            //
+            // Only attempted when the target type is SGU and the source name
+            // actually parses into panes. Anything else still clears, which
+            // preserves the original safety property: a stale spec from a
+            // different build family must never stay on screen (it made
+            // Step 6 automation read the wrong type/spec pair).
+            string? carried = TryCarryForwardSpecName(nextType);
+
             _isProgrammaticSpecChange = true;
             try
             {
-                _selectedSpecName = "";
-                _specTypedText = "";
+                _selectedSpecName = carried ?? "";
+                _specTypedText = carried ?? "";
                 _selectedSpecItem = null;
                 OnPropertyChanged(nameof(SelectedSpecName));
                 OnPropertyChanged(nameof(SpecTypedText));
@@ -734,9 +750,55 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 ImportedPrice = 0m;
                 BaseRate = 0m;
                 RefreshGlassColorsFromSpecName();
-                AdoptSheetSelection("");
+
+                // Re-adopt for the carried name so the sheet chosen in Step 4
+                // for that pane follows too; "" correctly resets to zero.
+                AdoptSheetSelection(carried ?? "");
             }
             finally { _isProgrammaticSpecChange = false; }
+
+            // The carried name is a real saved spec in most cases, so pull its
+            // price back in. Runs after the programmatic flag is cleared so
+            // the normal auto-fill path applies.
+            if (!string.IsNullOrEmpty(carried))
+                TryAutoFillRate();
+        }
+
+        /// <summary>
+        /// Returns the single-pane spec name to keep when switching to SGU,
+        /// or null when nothing sensible can be carried (caller then clears).
+        ///
+        /// Uses the OUTER pane, matching how Step 4 composes a build: the
+        /// outer leaf is listed first for DGU, LAM and DGU+LAM alike.
+        /// </summary>
+        private string? TryCarryForwardSpecName(string nextType)
+        {
+            if (!string.Equals(nextType, "SGU", StringComparison.OrdinalIgnoreCase))
+                return null;
+
+            try
+            {
+                var panes = PnLSpecParser.GlassMatches(_selectedSpecName);
+                if (panes.Count == 0) return null;
+
+                // Rebuild the pane exactly as Step 4 would name it, so the
+                // result matches a saved SGU spec and the dropdown/price
+                // lookup can find it.
+                var m = panes[0];
+                string thk = (m.Groups["thk"].Value ?? "").Trim();
+                string color = (m.Groups["color"].Value ?? "").Trim();
+                if (thk.Length == 0 || color.Length == 0) return null;
+
+                // m.Value is the whole matched pane including its treatment
+                // and the trailing "Glass", which is precisely the SGU form.
+                string candidate = m.Value.Trim();
+                return candidate.Length > 0 ? candidate : null;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SpecGroup.CarryForward] {ex.Message}");
+                return null;
+            }
         }
 
         /// <summary>
