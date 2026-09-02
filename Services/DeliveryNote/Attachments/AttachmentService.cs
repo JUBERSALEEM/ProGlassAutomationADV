@@ -281,12 +281,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         ///   - Size cap double-checked
         ///   - CorrelationId + ErrorId for support
         /// </summary>
+        [Obsolete("Use OpenInDefaultAppAsync instead. This sync overload blocks the UI thread and uses GetAwaiter().GetResult().")]
         public void OpenInDefaultApp(string filePath)
         {
             var corrId = CorrelationContext.NewIdFor("DeliveryNote", "OpenAttachment");
             using var scope = CorrelationContext.BeginScope(corrId);
 
-            // Phase 8: Use central guard with full validation
             var validationResult = AttachmentValidationService.ValidateAttachmentAsync(filePath, corrId).GetAwaiter().GetResult();
             if (validationResult.IsFailure)
             {
@@ -334,7 +334,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
             return ProcessStartGuard.TryOpenFile(filePath, corrId);
         }
 
-        // Phase 8: New Result-based API for ViewModels
+        [Obsolete("Use OpenInDefaultAppAsync instead. This sync overload blocks the UI thread and uses GetAwaiter().GetResult().")]
         public Result OpenInDefaultAppWithResult(string filePath, string? correlationId = null)
         {
             var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", "OpenAttachment");
