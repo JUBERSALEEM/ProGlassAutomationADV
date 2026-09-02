@@ -458,6 +458,26 @@ public ProformaInvoiceViewModel() : this(
             }
             if (stepNumber == 5)
             {
+                // AUTO-SAVE ON THE WAY INTO STEP 5.
+                //
+                // Previously a spec only reached the Step 5 dropdown if the
+                // operator remembered to press APPLY in Step 4. Continuing
+                // without it left the dropdown missing the very spec they
+                // had just configured.
+                //
+                // Fire-and-forget deliberately: navigation must not wait on
+                // a database write. The dropdown does not depend on this
+                // completing first -- SpecCatalogNotifier fires when the
+                // save lands and every SpecGroup reloads itself, so the new
+                // entry appears a moment later without a refresh.
+                //
+                // Silent: no-ops when there is nothing valid to save, and a
+                // re-save of an unchanged spec is already an idempotent
+                // update in the repository.
+                AsyncUtility.SafeFireAndForget(
+                    () => Step4VM.AutoSaveCurrentSpecAsync(),
+                    "PI Step4 AutoSaveSpec");
+
                 Step5VM.EnsureSpecGroupCount(Step4VM.CalculationSectionCount);
                 SyncStep5SelectionsFromStep4();
                 Step5VM.EnsureDefaultWorkspace();

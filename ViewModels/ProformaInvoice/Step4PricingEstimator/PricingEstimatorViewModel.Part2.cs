@@ -75,6 +75,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         ///         of blocking MessageBox for success. Errors still use
         ///         MessageBox because they need to interrupt user attention.
         /// </summary>
+        /// <summary>
+        /// Saves the current spec on the way out of Step 4, so moving to
+        /// Step 5 by Continue (or by clicking the step in the header) makes
+        /// it available in the dropdown without the operator remembering to
+        /// press APPLY.
+        ///
+        /// SILENT BY DESIGN. Navigation must never be interrupted, so this:
+        ///   • does nothing when there is nothing valid to save -- the same
+        ///     conditions ApplyRateCommand.CanExecute checks, so it cannot
+        ///     write the "not implemented" garbage BUG-42 guards against;
+        ///   • re-saving an unchanged spec is already a no-op update in the
+        ///     repository (it just bumps UsageCount), which is what you
+        ///     asked for: "if already saved then stay silent, do nothing";
+        ///   • swallows everything, including a permission denial, because
+        ///     an auto-save the user did not ask for must not raise a
+        ///     dialog mid-navigation. An explicit APPLY still reports
+        ///     normally.
+        /// </summary>
+        public async System.Threading.Tasks.Task AutoSaveCurrentSpecAsync()
+        {
+            try
+            {
+                if (SelectedGlassType == null) return;
+                if (EstimatedRatePerSqm <= 0m) return;
+                if (TotalSpecsActive <= 0) return;
+
+                string specName = GetCurrentSpecName(SelectedGlassType.Code ?? "");
+                if (string.IsNullOrWhiteSpace(specName)) return;
+
+                await ApplyRateAsync();
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    $"[Step4.AutoSave] {ex.Message}");
+            }
+        }
+
         private async System.Threading.Tasks.Task ApplyRateAsync()
         {
             if (SelectedGlassType == null || EstimatedRatePerSqm <= 0m)
