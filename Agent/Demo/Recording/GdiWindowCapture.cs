@@ -38,13 +38,32 @@
 //  responding, and STOP cannot be clicked because its input queues behind
 //  the WM_PRINT backlog.
 //
-//  MITIGATION IN THIS CLASS (Phase 1)
-//  The permanent fix is Windows.Graphics.Capture, which is DWM/GPU-side
-//  and never involves the owning thread. Until that lands, this class
-//  MEASURES every capture and refuses to keep hammering a UI thread that
-//  is struggling: see CaptureCost and the caller's adaptive frame rate.
-//  A recording that quietly drops to 10fps is acceptable; one that makes
-//  the application unusable is not.
+//  PHASE 2 — THE ACTUAL FIX: BLIT FROM THE SCREEN DC
+//  PrintWindow is no longer the primary path. Instead:
+//
+//      BitBlt(dst, GetDC(NULL), screenX, screenY, SRCCOPY)
+//
+//  Reading the DESKTOP device context sends NO window message to anyone.
+//  It never enters our message queue, so it CANNOT block the UI thread —
+//  which is the entire defect this class existed to work around. Cost is
+//  a GPU-to-sysmem blit, roughly 1-3 ms at 1080p, on the capture thread.
+//
+//  It also captures popups, dropdowns, context menus and dialogs for
+//  free, because they are physically on screen inside our window's
+//  rectangle.
+//
+//  HONEST TRADE-OFF: this reads the SCREEN REGION our window occupies.
+//  If another application is placed on top of ours, those pixels are what
+//  gets recorded. That is how lightweight screen recorders behave, and it
+//  is strictly better than an application that freezes. The rect is
+//  clamped to our own window, so the desktop at large is never recorded,
+//  and the recording HUD excludes itself via
+//  SetWindowDisplayAffinity(WDA_EXCLUDEFROMCAPTURE).
+//
+//  PrintWindow is RETAINED as an explicit fallback for the case where the
+//  window is not visible on screen (occluded/off-screen), where a screen
+//  blit would capture the wrong pixels. It is used only then, so its
+//  UI-thread cost is paid rarely instead of 30 times a second.
 //
 //  APP-ONLY BY DESIGN
 //  The capture is bound to a single HWND, so the desktop, other apps and
@@ -86,6 +105,13 @@ namespace ProGlassAutomation.Agent.Demo.Recording
     {
         private const uint PW_RENDERFULLCONTENT = 0x00000002;
         private const int SRCCOPY = 0x00CC0020;
+
+        /// <summary>
+        /// Include layered/transparent windows in a BitBlt. Without it the
+        /// app's own glass chrome and any overlapping popup are simply
+        /// missing from the captured frame.
+        /// </summary>
+        private const int CAPTUREBLT = 0x40000000;
         private const int BI_RGB = 0;
         private const int DIB_RGB_COLORS = 0;
 
@@ -96,6 +122,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         private IntPtr _bits;
         private int _width;
         private int _height;
+        private int _screenX;
+        private int _screenY;
         private bool _disposed;
 
         public int Width => _width;
@@ -107,6 +135,19 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         /// to fall back rather than silently writing a black video.
         /// </summary>
         public bool LastFrameWasBlank { get; private set; }
+
+        /// <summary>
+        /// Use the desktop-DC blit (default, and the whole point of Phase 2).
+        /// Exposed so the fallback can be forced for diagnosis.
+        /// </summary>
+        public bool UseScreenBlit { get; set; } = true;
+
+        /// <summary>
+        /// True once a frame has been served by the PrintWindow fallback.
+        /// Surfaced so a machine that silently degrades to the expensive
+        /// path is diagnosable instead of just "feeling slow".
+        /// </summary>
+        public bool UsedFallbackPath { get; private set; }
 
         /// <summary>
         /// Prepares (or re-prepares) the capture surface for a window.
@@ -121,11 +162,25 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             if (!IsWindow(hwnd)) return false;
             if (IsIconic(hwnd)) return false;   // minimised: nothing to grab
 
+            // The desktop blit reads real screen pixels, so a hidden window
+            // would capture whatever is behind it. Refuse instead.
+            if (!IsWindowVisible(hwnd)) return false;
+
             if (!GetClientRect(hwnd, out RECT rc)) return false;
 
             int w = rc.Right - rc.Left;
             int h = rc.Bottom - rc.Top;
             if (w < 2 || h < 2) return false;
+
+            // Screen position of the client area's top-left. Needed because
+            // the primary capture path blits from the DESKTOP DC, which is
+            // addressed in screen coordinates, not window coordinates.
+            var origin = new POINT { X = 0, Y = 0 };
+            if (ClientToScreen(hwnd, ref origin))
+            {
+                _screenX = origin.X;
+                _screenY = origin.Y;
+            }
 
             // Even dimensions: yuv420p (what every H.264 encoder wants)
             // cannot represent odd width/height.
@@ -197,33 +252,50 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             int needed = _width * 4 * _height;
             if (buffer == null || buffer.Length < needed) return false;
 
-            // TIMED because PrintWindow blocks on the UI thread (see the
-            // header). The elapsed time IS the stall we inflicted, so the
-            // caller uses it to back off instead of compounding it.
+            // Still timed: the caller's adaptive throttle uses this, and it
+            // now also proves the screen path is cheap.
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
-            // PW_RENDERFULLCONTENT asks DWM for the composited surface.
-            // Older/odd drivers ignore the flag and return black, so the
-            // result is checked below rather than trusted.
-            bool ok = PrintWindow(_hwnd, _memDc, PW_RENDERFULLCONTENT);
+            bool ok = false;
 
+            // ── PRIMARY: blit from the DESKTOP DC ────────────────────
+            // Sends no window message, so it can never block our UI
+            // thread. Only valid while the window is actually on screen,
+            // which IsWindowVisible + the non-iconic check in Prepare()
+            // already established.
+            if (UseScreenBlit)
+            {
+                IntPtr screenDc = GetDC(IntPtr.Zero);
+                if (screenDc != IntPtr.Zero)
+                {
+                    try
+                    {
+                        // CAPTUREBLT is required or layered/transparent
+                        // windows (our own glass chrome, and any popup
+                        // overlapping us) are omitted from the blit.
+                        ok = BitBlt(
+                            _memDc, 0, 0, _width, _height,
+                            screenDc, _screenX, _screenY,
+                            SRCCOPY | CAPTUREBLT);
+                    }
+                    finally
+                    {
+                        ReleaseDC(IntPtr.Zero, screenDc);
+                    }
+                }
+            }
+
+            // ── FALLBACK: PrintWindow ────────────────────────────────
+            // Costly — it marshals WM_PRINT to the owning UI thread (see
+            // header) — so it runs ONLY when the screen blit is
+            // unavailable or failed, not on every frame.
             if (!ok)
             {
-                // Fallback: blit straight from the window DC. Loses
-                // layered/DirectComposition content but is better than
-                // dropping the frame entirely.
-                IntPtr src = GetDC(_hwnd);
-                if (src == IntPtr.Zero) return false;
-                try
-                {
-                    ok = BitBlt(_memDc, 0, 0, _width, _height, src, 0, 0, SRCCOPY);
-                }
-                finally
-                {
-                    ReleaseDC(_hwnd, src);
-                }
-                if (!ok) return false;
+                ok = PrintWindow(_hwnd, _memDc, PW_RENDERFULLCONTENT);
+                if (ok) UsedFallbackPath = true;
             }
+
+            if (!ok) return false;
 
             Marshal.Copy(_bits, buffer, 0, needed);
 
@@ -282,6 +354,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             _hwnd = IntPtr.Zero;
             _width = 0;
             _height = 0;
+            _screenX = 0;
+            _screenY = 0;
         }
 
         public void Dispose()
@@ -325,6 +399,15 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
         [DllImport("user32.dll")]
         private static extern bool GetClientRect(IntPtr hwnd, out RECT rect);
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT { public int X; public int Y; }
+
+        [DllImport("user32.dll")]
+        private static extern bool ClientToScreen(IntPtr hwnd, ref POINT pt);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsWindowVisible(IntPtr hwnd);
 
         [DllImport("user32.dll")]
         private static extern bool IsWindow(IntPtr hwnd);

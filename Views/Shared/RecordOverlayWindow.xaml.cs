@@ -86,7 +86,13 @@ namespace ProGlassAutomation.Views.Shared
                 _vm.Tick();
                 Place();
             };
-            Loaded += (_, _) => { _lastLeft = double.NaN; _lastTop = double.NaN; Place(); };
+            Loaded += (_, _) =>
+            {
+                _lastLeft = double.NaN;
+                _lastTop = double.NaN;
+                Place();
+                ExcludeFromCapture();
+            };
         }
 
         // ── Public API (DemoRecordingChrome contract) — forwarded ───────
@@ -113,6 +119,48 @@ namespace ProGlassAutomation.Views.Shared
         /// blocking MessageBox that used to fire.
         /// </summary>
         public void EnableOpenFolder(string? savedPath) => _vm.EnableOpenFolder(savedPath);
+
+        /// <summary>
+        /// Removes this HUD from screen capture.
+        ///
+        /// Phase 2 captures by blitting the DESKTOP DC, which records
+        /// whatever is physically on screen inside the app's rectangle —
+        /// including this always-on-top REC bar. Without this the recorder
+        /// would film its own controls in the middle of every video.
+        ///
+        /// WDA_EXCLUDEFROMCAPTURE exists for exactly this case; Microsoft's
+        /// documentation cites "windows that show video recording controls"
+        /// as the motivating example. It needs Windows 10 2004+; on older
+        /// builds the OS treats it as WDA_MONITOR, which also keeps the HUD
+        /// out of the capture, so there is no version check to write.
+        ///
+        /// Best-effort: if it fails the recording still works, it just
+        /// contains the HUD.
+        /// </summary>
+        private void ExcludeFromCapture()
+        {
+            try
+            {
+                var hwnd = new System.Windows.Interop.WindowInteropHelper(this).Handle;
+                if (hwnd == IntPtr.Zero) return;
+
+                if (!SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE))
+                {
+                    AppLogService.Debug(
+                        "[RecordOverlay] Could not exclude the HUD from capture; " +
+                        "it may appear in the recording.");
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[RecordOverlay] ExcludeFromCapture: {ex.Message}");
+            }
+        }
+
+        private const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetWindowDisplayAffinity(IntPtr hwnd, uint affinity);
 
         private void Place()
         {

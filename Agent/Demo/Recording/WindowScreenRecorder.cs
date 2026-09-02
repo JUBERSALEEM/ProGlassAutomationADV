@@ -373,6 +373,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             long slot = 0;
             bool haveFrame = false;
             int blankStreak = 0;
+            bool warnedFallback = false;
 
             // ── ADAPTIVE THROTTLE (Phase 1 freeze fix) ───────────────
             //
@@ -417,6 +418,21 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     {
                         haveFrame = true;
                         blankStreak = capture.LastFrameWasBlank ? blankStreak + 1 : 0;
+
+                        // The screen blit costs nothing on the UI thread;
+                        // the PrintWindow fallback does. Say so once, so a
+                        // machine silently on the slow path is diagnosable
+                        // instead of just "feeling laggy".
+                        if (capture.UsedFallbackPath && !warnedFallback)
+                        {
+                            warnedFallback = true;
+                            AppLogService.Warning(
+                                "Screen capture fell back to PrintWindow, which " +
+                                "blocks the UI thread. Recording will throttle to " +
+                                "stay responsive.",
+                                new Services.Logging.LogContext
+                                { Module = "Recording", Operation = "RawLoop" });
+                        }
 
                         // How much of this frame's budget did we take from
                         // the UI thread?
