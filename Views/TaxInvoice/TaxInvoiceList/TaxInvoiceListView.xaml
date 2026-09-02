@@ -10,7 +10,7 @@
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">>
+             SnapsToDevicePixels="True">
 
     <UserControl.Resources>
 

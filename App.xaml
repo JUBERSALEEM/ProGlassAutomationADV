@@ -120,6 +120,8 @@
                  "BoolToVis" / "InverseBoolToVis" names that match the
                  app's other XAML conventions. Both names resolve to
                  the same converter instance, so either is fine. -->
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
 
             <sys:Double x:Key="UiScale">1.0</sys:Double>
 
