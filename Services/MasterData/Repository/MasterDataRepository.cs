@@ -156,7 +156,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         public async Task<List<SavedCompany>> GetAllCompaniesAsync()
         {
             using var ctx = new MasterDataDbContext();
-            return await ctx.Companies
+            return await ctx.Companies.AsNoTracking()
                 .OrderByDescending(c => c.UsageCount)
                 .ThenByDescending(c => c.LastUsedAt)
                 .ToListAsync().ConfigureAwait(false);
@@ -245,7 +245,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         public async Task<List<SavedClient>> GetAllClientsAsync()
         {
             using var ctx = new MasterDataDbContext();
-            return await ctx.Clients
+            return await ctx.Clients.AsNoTracking()
                 .OrderByDescending(c => c.UsageCount)
                 .ThenByDescending(c => c.LastUsedAt)
                 .ToListAsync().ConfigureAwait(false);
@@ -332,7 +332,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         public async Task<List<SavedProject>> GetAllProjectsAsync()
         {
             using var ctx = new MasterDataDbContext();
-            return await ctx.Projects
+            return await ctx.Projects.AsNoTracking()
                 .OrderByDescending(p => p.UsageCount)
                 .ThenByDescending(p => p.LastUsedAt)
                 .ToListAsync().ConfigureAwait(false);
@@ -434,7 +434,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         public async Task<List<SavedSalesman>> GetAllSalesmenAsync()
         {
             using var ctx = new MasterDataDbContext();
-            return await ctx.Salesmen
+            return await ctx.Salesmen.AsNoTracking()
                 .OrderByDescending(s => s.UsageCount)
                 .ThenByDescending(s => s.LastUsedAt)
                 .ToListAsync().ConfigureAwait(false);

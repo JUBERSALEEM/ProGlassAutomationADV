@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Services.Database;
 using System;
@@ -13,7 +13,7 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
         public async Task<List<SheetHistory>> GetAllAsync()
         {
             using var db = new AppDbContext();
-            return await db.SheetHistories
+            return await db.SheetHistories.AsNoTracking()
                 .OrderByDescending(h => h.Timestamp)
                 .ToListAsync().ConfigureAwait(false);
         }

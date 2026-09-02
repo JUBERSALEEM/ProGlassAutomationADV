@@ -34,7 +34,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
         {
             using var db = new SpecificationsDbContext();
 
-            var query = db.Specifications.AsQueryable();
+            var query = db.Specifications.AsNoTracking().AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(glassTypeFilter))
                 query = query.Where(s => s.GlassType == glassTypeFilter);
