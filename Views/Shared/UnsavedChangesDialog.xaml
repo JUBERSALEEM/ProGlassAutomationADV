@@ -15,7 +15,7 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         FontFamily="{DynamicResource AppFontFamily}"
-        Background="{DynamicResource ModuleBackgroundBrush}"
+        Background="{DynamicResource WindowBackgroundBrush}"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
 

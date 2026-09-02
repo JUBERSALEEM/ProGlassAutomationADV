@@ -19,7 +19,7 @@
         MinWidth="480" MinHeight="320"
         WindowStartupLocation="CenterOwner"
         FontFamily="{DynamicResource AppFontFamily}"
-        Background="{DynamicResource ModuleBackgroundBrush}"
+        Background="{DynamicResource WindowBackgroundBrush}"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
 

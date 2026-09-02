@@ -18,7 +18,7 @@
         Width="1000" Height="680"
         WindowStartupLocation="CenterOwner"
         FontFamily="{DynamicResource AppFontFamily}"
-        Background="{DynamicResource ModuleBackgroundBrush}"
+        Background="{DynamicResource WindowBackgroundBrush}"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="ClearType"
         UseLayoutRounding="True"
