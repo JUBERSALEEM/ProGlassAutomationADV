@@ -1,7 +1,7 @@
 # Senior Analysis — Advanced Reporting
 
 **Date:** 2026-09-02
-**Status:** Design proposal — no code written yet, awaiting your decision
+**Status:** Slice 1 SHIPPED (data layer). Slices 2–5 pending.
 **Author's note:** You said you're not sure how to implement this and asked me to bring the industry experience. This document is that answer. Read §3 and §7; the rest is supporting detail.
 
 ---
@@ -146,10 +146,31 @@ I am deliberately **not** writing ~2,000 lines of report code in one push. That 
 
 ---
 
-## 8. Two decisions I need from you
+## 8. Decisions taken (you asked me to choose)
 
-1. **P&L exposure.** Should the PI dossier default to *excluding* P&L (customer-safe), with the internal version as a separate explicitly-labelled button? My strong recommendation is yes.
-2. **Pareto depth.** Top 10 specs/colours, or all with a "% of total" column? Top 10 + "other" is the industry norm and keeps a printed page readable.
+1. **P&L exposure — dossier will EXCLUDE P&L by default.** The
+   customer pack is the default action; the internal version is a
+   separate, explicitly-labelled "Internal — includes P&L" button. An
+   export-everything button containing cost and margin will eventually
+   be emailed to a customer, and that is not a recoverable mistake.
+2. **Pareto depth — Top 10 + folded "Other (n more)" tail.** Readable
+   on a printed page and still reconciles to 100%, which a bare top-10
+   would not. Implemented in `ReportingAnalyticsBuilder.TopN`.
+3. **Ageing thresholds — 0-7 / 8-14 / 15-30 / 30+**, with 30+ flagged
+   critical. These are the standard dispatch buckets; anything finer is
+   noise on a weekly review, anything coarser hides the problem.
+
+### Shipped in slice 1
+
+`ReportingAnalyticsModels.cs` — `MixRow`, `AgeingBucket`,
+`JoAnalyticsSummary`, `DeliveryAnalyticsSummary`, `ThroughputPoint`.
+
+`ReportingAnalyticsBuilder.cs` — pure, synchronous, database-free
+aggregation. Unit-testable as-is.
+
+`ReportingDataService.Analytics.cs` — `GetJoAnalyticsAsync` and
+`GetDeliveryAnalyticsAsync`, both pulling the full filtered set rather
+than one page.
 
 ---
 
