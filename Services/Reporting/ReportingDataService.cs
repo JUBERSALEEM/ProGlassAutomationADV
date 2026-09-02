@@ -62,6 +62,24 @@ namespace ProGlassAutomation.Services.Reporting
         Task<PagedResult<DeliveryReportRow>> GetDeliveryRowsAsync(ReportingFilter filter, CancellationToken ct = default);
 
         /// <summary>
+        /// Job Order MIX analytics — which specifications, colours and
+        /// customers dominate the filtered set.
+        ///
+        /// Built from the same filtered rows the detail table shows, so the
+        /// analysis always reconciles to the rows beneath it.
+        /// </summary>
+        Task<JoAnalyticsSummary> GetJoAnalyticsAsync(
+            ReportingFilter filter, CancellationToken ct = default);
+
+        /// <summary>
+        /// Delivery ageing and outstanding-work analytics. Answers "how old
+        /// is the pending work, and who/what is it for" -- the part that
+        /// turns a pending count into a call list.
+        /// </summary>
+        Task<DeliveryAnalyticsSummary> GetDeliveryAnalyticsAsync(
+            ReportingFilter filter, CancellationToken ct = default);
+
+        /// <summary>
         /// The Delivery Notes that delivered this exact row (detail panel):
         /// DN #, delivery date, status, quantity delivered in each DN.
         /// </summary>
