@@ -1,0 +1,140 @@
+<UserControl x:Class="ProGlassAutomation.Controls.Reporting.MixPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             FontFamily="{DynamicResource AppFontFamily}"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <!--
+        PARETO / MIX PANEL
+
+        One reusable table for every "top N" analysis in reporting: top
+        specifications, top colours, pending by customer, and so on.
+
+        Built once and shared rather than copied per report, because the
+        whole value of a Pareto is that it reads IDENTICALLY everywhere —
+        rank, label, a proportional bar, the measure, and the share. An
+        operator learns the shape once.
+
+        The bar is a pure-XAML proportional fill driven by SharePct, so
+        there is no charting dependency and it prints correctly.
+    -->
+
+    <Border Style="{StaticResource SoftCardStyle}" Padding="14,12">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Title -->
+            <TextBlock Grid.Row="0"
+                       Text="{Binding Title, ElementName=Root}"
+                       FontSize="{StaticResource TextBody}"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+            <TextBlock Grid.Row="1"
+                       Text="{Binding Subtitle, ElementName=Root}"
+                       FontSize="{StaticResource TextBody}"
+                       Foreground="{DynamicResource MutedForegroundBrush}"
+                       Margin="0,2,0,8"
+                       TextWrapping="Wrap"/>
+
+            <ItemsControl Grid.Row="2"
+                          ItemsSource="{Binding Rows, ElementName=Root}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0,0,0,7">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="52"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                       Text="{Binding Rank}"
+                                       FontSize="{StaticResource TextBody}"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+
+                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding Label}"
+                                       FontSize="{StaticResource TextBody}"
+                                       FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <!-- The folded tail is context, not a finding. -->
+                                            <DataTrigger Binding="{Binding IsOtherBucket}" Value="True">
+                                                <Setter Property="FontStyle" Value="Italic"/>
+                                                <Setter Property="Foreground"
+                                                        Value="{DynamicResource MutedForegroundBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <TextBlock Grid.Row="0" Grid.Column="2"
+                                       Text="{Binding SqmDisplay}"
+                                       FontSize="{StaticResource TextBody}"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                            <TextBlock Grid.Row="0" Grid.Column="3"
+                                       Text="{Binding SharePctDisplay}"
+                                       FontSize="{StaticResource TextBody}"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+
+                            <!--
+                                Proportional bar. A 0-100 share maps onto a
+                                100-unit grid, so the fill needs no converter
+                                and no measured width.
+                            -->
+                            <Border x:Name="BarTrack"
+                                    Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
+                                    Height="4" Margin="0,4,0,0"
+                                    CornerRadius="2"
+                                    Background="{DynamicResource GlassSurfaceElevated}">
+                                <Border CornerRadius="2"
+                                        HorizontalAlignment="Left"
+                                        Background="{DynamicResource AccentBrush}">
+                                    <!--
+                                        Same MultiBinding the delivery
+                                        progress bar uses: share (0-100)
+                                        plus the track's measured width.
+                                        No charting dependency, prints
+                                        correctly.
+                                    -->
+                                    <Border.Width>
+                                        <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
+                                            <Binding Path="SharePct"/>
+                                            <Binding Path="ActualWidth" ElementName="BarTrack"/>
+                                        </MultiBinding>
+                                    </Border.Width>
+                                </Border>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </Border>
+</UserControl>

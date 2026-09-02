@@ -231,6 +231,34 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
             }
         }
 
+        // ── AGEING ANALYTICS (slice 2) ───────────────────────────────────
+        // DeliveryReportSummary already answers "how many gone / how many
+        // pending". This answers how OLD the pending work is and who it is
+        // for -- the part that turns a count into a call list.
+        private DeliveryAnalyticsSummary _analytics = new();
+        public DeliveryAnalyticsSummary Analytics
+        {
+            get => _analytics;
+            set
+            {
+                _analytics = value ?? new DeliveryAnalyticsSummary();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasAnalytics));
+                OnPropertyChanged(nameof(CriticalPendingText));
+                OnPropertyChanged(nameof(HasCriticalPending));
+            }
+        }
+
+        public bool HasAnalytics => _analytics is { HasData: true };
+
+        /// <summary>
+        /// The single number a dispatch manager should see first.
+        /// </summary>
+        public string CriticalPendingText =>
+            $"{_analytics.CriticalPendingQty:N0} pcs over 30 days";
+
+        public bool HasCriticalPending => _analytics.CriticalPendingQty > 0;
+
         public string CompletionText =>
             $"{Summary.CompletionPct:0.0}% delivered ({Summary.TotalDeliveredQty:N0}/{Summary.TotalOrderedQty:N0} pcs)";
 
@@ -327,6 +355,10 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
                 if (token.IsCancellationRequested) return;
                 Summary = s;
                 Rows = new ObservableCollection<DeliveryReportRow>(paged.Items);
+
+                // Enhancement, not a gatekeeper — see JoReportViewModel.
+                Analytics = await _service.GetDeliveryAnalyticsAsync(filter, token);
+                if (token.IsCancellationRequested) return;
                 TotalCount = paged.TotalCount;
                 TotalPages = paged.TotalPages == 0 ? 1 : paged.TotalPages;
                 IsLoaded = true;

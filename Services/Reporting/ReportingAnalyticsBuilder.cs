@@ -322,35 +322,24 @@ namespace ProGlassAutomation.Services.Reporting
         }
 
         /// <summary>
-        /// Age of an outstanding row, in days.
+        /// Age of an outstanding row, in days, measured from when the work
+        /// was ORDERED (DeliveryReportRow.OrderedAt, the master-DN creation
+        /// date) rather than when part of it shipped. Ageing must express
+        /// how long the customer has been waiting; a dispatch date would
+        /// reset the clock on every partial delivery and make chronically
+        /// late rows look fresh.
         ///
-        /// DeliveryReportRow carries no order/promise date of its own, so
-        /// the age is supplied by the caller through
-        /// <see cref="RowAgeResolver"/>. When no resolver is provided every
-        /// row ages as 0 and lands in the youngest bucket.
-        ///
-        /// That default is deliberately CONSERVATIVE: escalating work that
-        /// might not actually be late is worse than under-reporting it,
-        /// because a critical bucket nobody trusts gets ignored entirely.
-        /// The Job Order layer, which does know the dates, supplies the
-        /// resolver.
+        /// Rows with no usable date age as 0 and land in the youngest
+        /// bucket. That is deliberately conservative: escalating work that
+        /// may not be late is worse than under-reporting it, because a
+        /// critical bucket nobody trusts gets ignored entirely.
         /// </summary>
-        public static Func<DeliveryReportRow, DateTime, int>? RowAgeResolver { get; set; }
-
         private static int AgeInDays(DeliveryReportRow row, DateTime now)
         {
-            var resolver = RowAgeResolver;
-            if (resolver == null) return 0;
+            if (row.OrderedAt == default) return 0;
 
-            try
-            {
-                int age = resolver(row, now);
-                return age < 0 ? 0 : age;
-            }
-            catch
-            {
-                return 0;
-            }
+            int days = (int)(now.Date - row.OrderedAt.Date).TotalDays;
+            return days < 0 ? 0 : days;
         }
 
         private static List<ThroughputPoint> BuildThroughput(

@@ -84,6 +84,25 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
         private JoReportSummary _summary = new();
         public JoReportSummary Summary { get => _summary; set { _summary = value; OnPropertyChanged(); OnPropertyChanged(nameof(SummaryCards)); } }
 
+        // ── MIX ANALYTICS (slice 2) ──────────────────────────────────────
+        // Answers "which specifications and colours are most used".
+        // Computed from the same filtered set as Rows, so the Pareto tables
+        // always reconcile to the grid beneath them.
+        private JoAnalyticsSummary _analytics = new();
+        public JoAnalyticsSummary Analytics
+        {
+            get => _analytics;
+            set
+            {
+                _analytics = value ?? new JoAnalyticsSummary();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasAnalytics));
+            }
+        }
+
+        /// <summary>Drives visibility: no rows means no meaningful mix.</summary>
+        public bool HasAnalytics => _analytics is { HasData: true };
+
         public ObservableCollection<KpiItem> SummaryCards => new()
         {
             new KpiItem("TOTAL JO", Summary.TotalJo.ToString("N0"), $"Value AED {Summary.TotalValue:N0}", "AccentBrush"),
@@ -140,6 +159,13 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
                 if (token.IsCancellationRequested) return;
                 Summary = s;
                 Rows = new ObservableCollection<JoReportRow>(paged.Items);
+
+                // Analytics is an ENHANCEMENT, never a gatekeeper: it is
+                // loaded after the grid is populated and its failure is
+                // swallowed by the service, so a mix-analysis problem can
+                // never blank the detail table the user came for.
+                Analytics = await _service.GetJoAnalyticsAsync(filter, token);
+                if (token.IsCancellationRequested) return;
                 TotalCount = paged.TotalCount;
                 TotalPages = paged.TotalPages == 0 ? 1 : paged.TotalPages;
                 IsLoaded = true;

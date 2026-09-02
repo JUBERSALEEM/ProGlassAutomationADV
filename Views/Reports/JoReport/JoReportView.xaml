@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             xmlns:reporting="clr-namespace:ProGlassAutomation.Controls.Reporting"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
@@ -26,6 +27,7 @@
         <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,14">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -167,7 +169,60 @@
                                 <!-- ══════════════════════════════════════════════════════════
                      3. SINGLE TABLE (header + rows, inline job details)
                 ══════════════════════════════════════════════════════════ -->
-                <Grid Grid.Row="2">
+                <!-- ══════════════════════════════════════════════════════════
+                     2b. MIX ANALYTICS  (slice 2)
+                     Layer 3 of the standard industrial report structure:
+                     the breakdowns that EXPLAIN the KPI band above.
+                     "47 job orders" is volume; "6mm Clear FT is 63% of it"
+                     is what changes purchasing behaviour.
+                     Computed from the same filtered set as the grid below,
+                     so the analysis always reconciles to the rows.
+                ══════════════════════════════════════════════════════════════ -->
+                <Border Grid.Row="2"
+                        Margin="10,0,10,10"
+                        Visibility="{Binding HasAnalytics, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed, TargetNullValue=Collapsed}">
+                    <Expander IsExpanded="False"
+                              Foreground="{DynamicResource PrimaryForegroundBrush}">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{DynamicResource Reports.MixAnalysis}"
+                                           FontSize="{StaticResource TextBody}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <TextBlock Text="{Binding Analytics.DominantSpecification}"
+                                           FontSize="{StaticResource TextBody}"
+                                           Margin="12,0,0,0"
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxWidth="280"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="{Binding Analytics.DominantColour}"
+                                           FontSize="{StaticResource TextBody}"
+                                           Margin="12,0,0,0"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            </StackPanel>
+                        </Expander.Header>
+
+                        <UniformGrid Columns="3" Margin="0,8,0,0">
+                            <reporting:MixPanel
+                                Title="{DynamicResource Reports.TopSpecifications}"
+                                Subtitle="{DynamicResource Reports.BySqm}"
+                                Rows="{Binding Analytics.TopSpecifications}"
+                                Margin="0,0,8,0"/>
+                            <reporting:MixPanel
+                                Title="{DynamicResource Reports.TopColours}"
+                                Subtitle="{DynamicResource Reports.BySqm}"
+                                Rows="{Binding Analytics.TopColours}"
+                                Margin="4,0,4,0"/>
+                            <reporting:MixPanel
+                                Title="{DynamicResource Reports.TopCustomers}"
+                                Subtitle="{DynamicResource Reports.ByValue}"
+                                Rows="{Binding Analytics.TopCustomers}"
+                                Margin="8,0,0,0"/>
+                        </UniformGrid>
+                    </Expander>
+                </Border>
+
+                <Grid Grid.Row="3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>

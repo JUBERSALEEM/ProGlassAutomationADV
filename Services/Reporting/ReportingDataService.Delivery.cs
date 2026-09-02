@@ -142,7 +142,8 @@ namespace ProGlassAutomation.Services.Reporting
                 DeliveredQty = x.DeliveredQty,
                 BalanceQty = Math.Max(0, x.TotalQty - x.DeliveredQty),
                 DeliveryStatus = x.DeliveryStatus,
-                DeliveryStatusBrushKey = RowStatusBrushKey(x.DeliveredQty, x.TotalQty)
+                DeliveryStatusBrushKey = RowStatusBrushKey(x.DeliveredQty, x.TotalQty),
+                OrderedAt = x.OrderedAt
             }).ToList();
 
             await EnrichCompanyAndSalesmanAsync(rows, ct);
@@ -206,6 +207,16 @@ namespace ProGlassAutomation.Services.Reporting
             public int H2 { get; set; }
             public int TotalQty { get; set; }
             public int DeliveredQty { get; set; }
+
+            /// <summary>
+            /// Earliest date this row was raised, used for delivery AGEING.
+            /// Taken from the MASTER DN (the JO-side catalogue row), which
+            /// is when the work was ordered — not from a real DN, which is
+            /// when part of it shipped. Ageing must measure how long the
+            /// customer has been waiting, so the order date is correct and
+            /// the dispatch date would understate every late row.
+            /// </summary>
+            public DateTime OrderedAt { get; set; }
         }
 
         /// <summary>Projection with the SQL-computed delivery status string.</summary>
@@ -318,7 +329,11 @@ namespace ProGlassAutomation.Services.Reporting
                     W1 = g.Max(i => i.W1), H1 = g.Max(i => i.H1),
                     W2 = g.Max(i => i.W2), H2 = g.Max(i => i.H2),
                     TotalQty = g.Max(i => i.OrderedQty),
-                    DeliveredQty = g.Sum(i => i.DeliveryNote!.IsMasterDn ? 0 : i.DeliveredQty)
+                    DeliveredQty = g.Sum(i => i.DeliveryNote!.IsMasterDn ? 0 : i.DeliveredQty),
+
+                    // Min() = the first time this row appeared anywhere,
+                    // i.e. when it was ordered. Translatable to SQL MIN.
+                    OrderedAt = g.Min(i => i.DeliveryNote!.CreatedAt)
                 });
         }
 

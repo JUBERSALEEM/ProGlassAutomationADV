@@ -2478,4 +2478,15 @@
     <sys:String x:Key="Specifications.Width">WIDTH</sys:String>
     <sys:String x:Key="Common.ExportExcel">Export Excel</sys:String>
     <sys:String x:Key="Common.ExportPdf">Export PDF</sys:String>
+    <sys:String x:Key="Reports.AgeingAnalysis">AGEING ANALYSIS</sys:String>
+    <sys:String x:Key="Reports.ByPieces">Ranked by pieces</sys:String>
+    <sys:String x:Key="Reports.BySqm">Ranked by area (SQM)</sys:String>
+    <sys:String x:Key="Reports.ByValue">Ranked by value</sys:String>
+    <sys:String x:Key="Reports.MixAnalysis">MIX ANALYSIS</sys:String>
+    <sys:String x:Key="Reports.PendingAgeing">PENDING BY AGE</sys:String>
+    <sys:String x:Key="Reports.PendingByCustomer">PENDING BY CUSTOMER</sys:String>
+    <sys:String x:Key="Reports.PendingBySpecification">PENDING BY SPECIFICATION</sys:String>
+    <sys:String x:Key="Reports.TopColours">TOP COLOURS</sys:String>
+    <sys:String x:Key="Reports.TopCustomers">TOP CUSTOMERS</sys:String>
+    <sys:String x:Key="Reports.TopSpecifications">TOP SPECIFICATIONS</sys:String>
 </ResourceDictionary>

@@ -112,6 +112,13 @@ namespace ProGlassAutomation.Services.Reporting
         public int DeliveredQty { get; set; }
         public int BalanceQty { get; set; }
 
+        /// <summary>
+        /// When this row was ordered. Drives delivery AGEING — how long the
+        /// customer has been waiting, which is the number that turns a
+        /// pending count into a call list.
+        /// </summary>
+        public DateTime OrderedAt { get; set; }
+
         // ── Row delivery state ──────────────────────────────────────
         public string DeliveryStatus { get; set; } = "";
         public string DeliveryStatusBrushKey { get; set; } = "NeutralBrush";

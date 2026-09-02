@@ -5,6 +5,7 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             xmlns:reporting="clr-namespace:ProGlassAutomation.Controls.Reporting"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
@@ -37,6 +38,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- KPI Strip -->
                     <RowDefinition Height="Auto"/> <!-- Filter Bar -->
+                    <RowDefinition Height="Auto"/> <!-- Ageing analytics -->
                     <RowDefinition Height="*"/>    <!-- Table -->
                     <RowDefinition Height="Auto"/> <!-- Pagination Footer -->
                 </Grid.RowDefinitions>
@@ -225,7 +227,126 @@
                                 <!-- ══════════════════════════════════════════════════════════
                      3. TABLE + RIGHT SLIDE-IN ROW DETAIL PANEL (Sheet Store)
                 ══════════════════════════════════════════════════════════ -->
-                <Grid Grid.Row="2">
+                <!-- ══════════════════════════════════════════════════════════
+                     2b. DELIVERY AGEING  (slice 2)
+                     The KPI strip above answers "how many gone / how many
+                     pending". This answers HOW OLD the pending work is —
+                     "47 pending" is inert, "12 pending over 30 days" is a
+                     call list. Ageing runs from the ORDER date, so a
+                     partial delivery cannot reset the clock on a late row.
+                ══════════════════════════════════════════════════════════════ -->
+                <Border Grid.Row="2"
+                        Margin="10,0,10,10"
+                        Visibility="{Binding HasAnalytics, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed, TargetNullValue=Collapsed}">
+                    <Expander IsExpanded="False"
+                              Foreground="{DynamicResource PrimaryForegroundBrush}">
+                        <Expander.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{DynamicResource Reports.AgeingAnalysis}"
+                                           FontSize="{StaticResource TextBody}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <!-- Escalation badge: only shown when there
+                                     IS overdue work, so it never becomes
+                                     background noise. -->
+                                <Border Margin="12,0,0,0"
+                                        Padding="8,2"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Background="{DynamicResource DangerBrush}"
+                                        Visibility="{Binding HasCriticalPending, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed, TargetNullValue=Collapsed}">
+                                    <TextBlock Text="{Binding CriticalPendingText}"
+                                               FontSize="{StaticResource TextBody}"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                </Border>
+                            </StackPanel>
+                        </Expander.Header>
+
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Ageing buckets -->
+                            <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
+                                    Padding="14,12" Margin="0,0,8,0">
+                                <StackPanel>
+                                    <TextBlock Text="{DynamicResource Reports.PendingAgeing}"
+                                               FontSize="{StaticResource TextBody}"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="{DynamicResource Reports.ByPieces}"
+                                               FontSize="{StaticResource TextBody}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               Margin="0,2,0,8"/>
+
+                                    <ItemsControl ItemsSource="{Binding Analytics.PendingAgeing}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,0,0,7">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="60"/>
+                                                        <ColumnDefinition Width="52"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Column="0"
+                                                               Text="{Binding Label}"
+                                                               FontSize="{StaticResource TextBody}"
+                                                               VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsCritical}" Value="True">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                        <Setter Property="FontWeight" Value="Bold"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding Qty}"
+                                                               FontSize="{StaticResource TextBody}"
+                                                               FontWeight="SemiBold"
+                                                               HorizontalAlignment="Right"
+                                                               VerticalAlignment="Center"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                                                    <TextBlock Grid.Column="2"
+                                                               Text="{Binding SharePctDisplay}"
+                                                               FontSize="{StaticResource TextBody}"
+                                                               FontWeight="Bold"
+                                                               HorizontalAlignment="Right"
+                                                               VerticalAlignment="Center"
+                                                               Foreground="{DynamicResource AccentBrush}"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+
+                            <reporting:MixPanel Grid.Column="1"
+                                Title="{DynamicResource Reports.PendingByCustomer}"
+                                Subtitle="{DynamicResource Reports.ByPieces}"
+                                Rows="{Binding Analytics.PendingByCustomer}"
+                                Margin="4,0,4,0"/>
+
+                            <reporting:MixPanel Grid.Column="2"
+                                Title="{DynamicResource Reports.PendingBySpecification}"
+                                Subtitle="{DynamicResource Reports.ByPieces}"
+                                Rows="{Binding Analytics.PendingBySpecification}"
+                                Margin="8,0,0,0"/>
+                        </Grid>
+                    </Expander>
+                </Border>
+
+                <Grid Grid.Row="3">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <!-- Animated panel column: width 0 when closed, expands to
@@ -510,7 +631,7 @@
 <!-- ══════════════════════════════════════════════════════════
                      4. PAGINATION FOOTER
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="3" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
