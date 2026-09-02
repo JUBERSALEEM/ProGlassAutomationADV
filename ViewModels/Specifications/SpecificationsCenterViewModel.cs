@@ -623,7 +623,10 @@ namespace ProGlassAutomation.ViewModels.Specifications
                 };
                 if (picker.ShowDialog() != true) return;
 
-                var rows = ParseCsv(picker.FileName);
+                // PERFORMANCE: CSV parsing runs on background thread.
+                // File.ReadAllLines + header parsing on a large file
+                // (1000+ rows) would freeze the UI for ~100ms.
+                var rows = await Task.Run(() => ParseCsv(picker.FileName));
                 if (rows.Count == 0)
                 {
                     _dialogs?.Warning(
