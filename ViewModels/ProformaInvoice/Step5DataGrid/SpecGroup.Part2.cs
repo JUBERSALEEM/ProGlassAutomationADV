@@ -589,6 +589,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     }
                 }
                 _filteredSpecsView?.Refresh();
+
+                // FIX: After reloading specs, re-select the current spec if
+                // SelectedSpecName is set but SelectedSpecItem is null or stale.
+                // This happens when a spec is synced from Step 4 before the
+                // auto-save completes, then the catalog reloads with the new spec.
+                if (!string.IsNullOrWhiteSpace(_selectedSpecName))
+                {
+                    var match = _specSource.FirstOrDefault(s =>
+                        string.Equals(s.SpecName, _selectedSpecName,
+                            StringComparison.OrdinalIgnoreCase));
+
+                    if (!ReferenceEquals(_selectedSpecItem, match))
+                    {
+                        _isProgrammaticSpecChange = true;
+                        try
+                        {
+                            _selectedSpecItem = match;
+                            OnPropertyChanged(nameof(SelectedSpecItem));
+                        }
+                        finally { _isProgrammaticSpecChange = false; }
+                    }
+                }
             }
             catch (Exception ex)
             {
