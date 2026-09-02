@@ -4,13 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace ProGlassAutomation.Agent.Demo.Recording
 {
@@ -30,29 +26,6 @@ namespace ProGlassAutomation.Agent.Demo.Recording
     /// </summary>
     public sealed class WindowScreenRecorder : IDisposable
     {
-        // Absorbs bursts: JPEG encode runs on background threads, so a short
-        // UI stall should queue frames instead of dropping them. 4 was too
-        // tight and turned a busy dispatcher into visible frame drops (lag).
-        // 2026-08-25: raised 8 -> 16. When the JPEG encoders fell behind
-        // (busy module transitions), captures were skipped and the
-        // recording visibly "jumped" over workspace activity. A deeper
-        // queue absorbs the burst; the concat-demuxer compose in
-        // FfmpegMp4Composer handles whatever still drops.
-        private const int MaxPendingEncodes = 24;
-
-        /// <summary>
-        /// Cap on concurrent JPEG encoders.
-        ///
-        /// Task.Run per frame let the pool spawn as many encoders as frames
-        /// in flight. On a busy machine the pool injects threads roughly one
-        /// per second, so a burst produced a thread stampede that competed
-        /// with the UI for cores -- one of the reasons the app stuttered
-        /// WHILE recording. Bounded parallelism keeps throughput without the
-        /// stampede; the 24-deep queue still absorbs bursts.
-        /// </summary>
-        private readonly SemaphoreSlim _encodeSlots =
-            new(Math.Max(2, Environment.ProcessorCount / 2));
-
         private readonly List<RecordedFrame> _frames = new();
         private readonly object _framesGate = new();
         private readonly WasapiLoopbackRecorder _audio = new();
@@ -62,8 +35,6 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         private DateTime _started;
         private DateTime _pauseStarted;
         private TimeSpan _pausedAccumulated;
-        private int _pendingEncodes;
-        private int _captureBusy;
         private ScreenRecordSettings _settings = new();
         private FfmpegLivePipe? _pipe;
         private string? _liveVideoPath;
@@ -248,13 +219,6 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             }
             _loop = null;
 
-            // Short, bounded settle so the LAST few frames land. 1.5 s is
-            // enough for a 24-deep queue at any supported resolution, and it
-            // is short enough to feel instant.
-            var until = DateTime.UtcNow.AddMilliseconds(1500);
-            while (Volatile.Read(ref _pendingEncodes) > 0 && DateTime.UtcNow < until)
-                await Task.Delay(25).ConfigureAwait(false);
-
             Duration = Elapsed;
 
             // Finalise the raw encoder FIRST: it holds the actual video.
@@ -316,12 +280,6 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         }
 
         public void Stop() => _cts?.Cancel();
-
-        [DllImport("user32.dll")]
-        private static extern bool GetCursorPos(out NativePoint pos);
-
-        [StructLayout(LayoutKind.Sequential)]
-        private struct NativePoint { public int X; public int Y; }
 
 
         /// <summary>
@@ -509,8 +467,6 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             try { _rawPipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             _audio.Dispose();
             _mic.Dispose();
-            try { _encodeSlots.Dispose(); }
-            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
     }
 }
