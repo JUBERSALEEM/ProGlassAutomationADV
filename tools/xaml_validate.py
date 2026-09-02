@@ -312,10 +312,28 @@ for path in all_xaml():
 # ══════════════════════════════════════════════════════════════════════
 
 SEVERITY = {
+    "X0": "FATAL  ",
     "R1": "FATAL  ", "R2": "FATAL  ", "R3": "FATAL  ",
     "M1": "FATAL  ", "M2": "FATAL  ", "E1": "FATAL  ",
     "C1": "FATAL  ", "D1": "warning",
 }
+
+# ── X0: the file must be well-formed XML ────────────────────────────
+# Learned the hard way (MC3000, 2026-09-02): an XML comment was placed
+# INSIDE a start tag, i.e. between attributes. Every regex rule below
+# still passed, but the WPF XAML compiler rejected the whole file with
+# "Name cannot begin with the '<' character" -- which then cascaded into
+# CS0103 "InitializeComponent does not exist" for unrelated files,
+# because a failed XAML pass emits no .g.cs at all.
+# A real parse is the only thing that catches this class of error.
+import xml.etree.ElementTree as _ET
+for _p in all_xaml():
+    try:
+        _ET.parse(_p)
+    except _ET.ParseError as _ex:
+        _ln = getattr(_ex, "position", (0, 0))[0]
+        add("X0", _p, _ln, f"malformed XML: {_ex}")
+
 
 if not violations:
     print("XAML validation: CLEAN — no parse-time faults found.")
