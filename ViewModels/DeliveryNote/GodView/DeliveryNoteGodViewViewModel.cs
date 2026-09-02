@@ -102,10 +102,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
 
                 var items = await _deliveryNotes.GetAllAsync();
 
+                // PERFORMANCE: sort on background thread (not UI thread).
+                // For 2000+ records, OrderByDescending is measurable.
+                var sorted = items.OrderByDescending(i => i.CreatedAt).ToList();
+
                 UiDispatch.Run(() =>
                 {
-                    _allRows = new ObservableCollection<DeliveryNoteListItem>(
-                        items.OrderByDescending(i => i.CreatedAt));
+                    _allRows = new ObservableCollection<DeliveryNoteListItem>(sorted);
                     RebuildKpis();
                     ApplyFilter();
                     IsLoading = false;

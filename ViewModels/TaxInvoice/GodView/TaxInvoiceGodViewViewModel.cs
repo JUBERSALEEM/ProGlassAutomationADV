@@ -99,10 +99,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
 
                 var items = await _taxInvoices.GetAllAsync();
 
+                // Sort on background thread (not UI thread)
+                var sorted = items.OrderByDescending(i => i.CreatedAt).ToList();
+
                 UiDispatch.Run(() =>
                 {
-                    _allRows = new ObservableCollection<TaxInvoiceListItem>(
-                        items.OrderByDescending(i => i.CreatedAt));
+                    _allRows = new ObservableCollection<TaxInvoiceListItem>(sorted);
                     RebuildKpis();
                     ApplyFilter();
                     IsLoading = false;

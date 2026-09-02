@@ -99,10 +99,12 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
 
                 var items = await _jobs.GetListRowsAsync();
 
+                // Sort on background thread (not UI thread)
+                var sorted = items.OrderByDescending(i => i.CreatedAt).ToList();
+
                 UiDispatch.Run(() =>
                 {
-                    _allRows = new ObservableCollection<JobOrderListRow>(
-                        items.OrderByDescending(i => i.CreatedAt));
+                    _allRows = new ObservableCollection<JobOrderListRow>(sorted);
                     RebuildKpis();
                     ApplyFilter();
                     IsLoading = false;
