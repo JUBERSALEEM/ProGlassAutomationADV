@@ -29,6 +29,7 @@ using ProGlassAutomation.Models.ProformaInvoice.Specifications;
 using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -96,7 +97,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
 
         // ── Collections ──────────────────────────────────────────────────
 
-        public ObservableCollection<SavedSpecification> Specifications { get; } = new();
+        public BulkObservableCollection<SavedSpecification> Specifications { get; } = new();
         public ObservableCollection<SpecificationUsage> UsageHistory { get; } = new();
 
         /// <summary>
@@ -216,22 +217,50 @@ namespace ProGlassAutomation.ViewModels.Specifications
 
         public int TotalSpecs => Specifications.Count;
 
-        public int TotalUses => Specifications.Sum(s => s.UsageCount);
+        public int TotalUses => _cachedTotalUses;
 
-        public decimal AveragePricePerSqm =>
-            Specifications.Count == 0
-                ? 0m
-                : Math.Round(Specifications.Average(s => s.PricePerSqm), 2);
+        public decimal AveragePricePerSqm => _cachedAvgPrice;
 
-        public int LinkedSheetCount => Specifications.Count(s => s.HasSheetMatch);
+        public int LinkedSheetCount => _cachedLinkedSheet;
 
-        public string MostUsedSpecName =>
-            Specifications.Count == 0
-                ? "—"
-                : Specifications.OrderByDescending(s => s.UsageCount).First().SpecName;
+        public string MostUsedSpecName => _cachedMostUsed;
+
+        // Cached KPI values computed in a single pass during RaiseKpis().
+        // Previously each property did its own LINQ scan of the full list
+        // (Sum + Average + Count + OrderByDescending.First = 4 passes).
+        private int _cachedTotalUses;
+        private decimal _cachedAvgPrice;
+        private int _cachedLinkedSheet;
+        private string _cachedMostUsed = "—";
 
         private void RaiseKpis()
         {
+            // SINGLE-PASS KPI computation instead of 4 separate LINQ scans.
+            int totalUses = 0;
+            decimal priceSum = 0m;
+            int linkedSheet = 0;
+            int maxUsage = 0;
+            string mostUsedName = "—";
+
+            foreach (var s in Specifications)
+            {
+                totalUses += s.UsageCount;
+                priceSum += s.PricePerSqm;
+                if (s.HasSheetMatch) linkedSheet++;
+                if (s.UsageCount > maxUsage)
+                {
+                    maxUsage = s.UsageCount;
+                    mostUsedName = s.SpecName ?? "—";
+                }
+            }
+
+            _cachedTotalUses = totalUses;
+            _cachedAvgPrice = Specifications.Count == 0
+                ? 0m
+                : Math.Round(priceSum / Specifications.Count, 2);
+            _cachedLinkedSheet = linkedSheet;
+            _cachedMostUsed = mostUsedName;
+
             OnPropertyChanged(nameof(TotalSpecs));
             OnPropertyChanged(nameof(TotalUses));
             OnPropertyChanged(nameof(AveragePricePerSqm));
@@ -339,8 +368,13 @@ namespace ProGlassAutomation.ViewModels.Specifications
                                           .ThenByDescending(s => s.LastUsedAt)
             };
 
-            Specifications.Clear();
-            foreach (var s in q) Specifications.Add(s);
+            // PERFORMANCE: AddRangeSilent + single RaiseReset fires ONE
+            // CollectionChanged(Reset) instead of N+1 events (1 Clear +
+            // N Add). With 500+ specs this prevents visible jank during
+            // filtering.
+            Specifications.ClearSilent();
+            Specifications.AddRangeSilent(q);
+            Specifications.RaiseReset();
 
             RaiseKpis();
         }

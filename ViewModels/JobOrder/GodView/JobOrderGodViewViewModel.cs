@@ -41,7 +41,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
 
         private ObservableCollection<JobOrderListRow> _allRows = new();
 
-        public ObservableCollection<JobOrderListRow> Rows { get; } = new();
+        public BulkObservableCollection<JobOrderListRow> Rows { get; } = new();
 
         public ObservableCollection<GodViewKpiViewModel> Kpis { get; } = new();
 
@@ -123,15 +123,15 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
 
         private void ApplyFilter()
         {
-            Rows.Clear();
-
             var filter = (SearchText ?? "").Trim();
 
-            foreach (var row in _allRows)
-            {
-                if (filter.Length == 0 || Matches(row, filter))
-                    Rows.Add(row);
-            }
+            var filtered = filter.Length == 0
+                ? _allRows.ToList()
+                : _allRows.Where(r => Matches(r, filter)).ToList();
+
+            Rows.ClearSilent();
+            Rows.AddRangeSilent(filtered);
+            Rows.RaiseReset();
         }
 
         private static bool Matches(JobOrderListRow r, string filter)

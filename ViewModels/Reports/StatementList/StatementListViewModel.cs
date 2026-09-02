@@ -19,6 +19,7 @@ using ProGlassAutomation.Services.Statement.Repository;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using ProGlassAutomation.Utilities;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -34,7 +35,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         private readonly IStatementRepository _repo;
 
         // ── Collections ───────────────────────────────────────────────────
-        public ObservableCollection<StatementListRowViewModel> Rows { get; }
+        public BulkObservableCollection<StatementListRowViewModel> Rows { get; }
             = new();
 
         // ── Search ────────────────────────────────────────────────────────
@@ -289,9 +290,9 @@ public StatementListViewModel(IDialogService? dialogs,
                         StringComparison.OrdinalIgnoreCase))
                   .ToList();
 
-            Rows.Clear();
-            foreach (var r in filtered)
-                Rows.Add(r);
+            Rows.ClearSilent();
+            Rows.AddRangeSilent(filtered);
+            Rows.RaiseReset();
 
             // FIX L3 + L6: notify all computed visibility properties
             // after Rows collection is updated

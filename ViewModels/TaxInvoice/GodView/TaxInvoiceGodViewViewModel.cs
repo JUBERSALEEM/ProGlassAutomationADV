@@ -41,7 +41,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
 
         private ObservableCollection<TaxInvoiceListItem> _allRows = new();
 
-        public ObservableCollection<TaxInvoiceListItem> Rows { get; } = new();
+        public BulkObservableCollection<TaxInvoiceListItem> Rows { get; } = new();
 
         public ObservableCollection<GodViewKpiViewModel> Kpis { get; } = new();
 
@@ -123,15 +123,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
 
         private void ApplyFilter()
         {
-            Rows.Clear();
-
             var filter = (SearchText ?? "").Trim();
 
-            foreach (var row in _allRows)
-            {
-                if (filter.Length == 0 || Matches(row, filter))
-                    Rows.Add(row);
-            }
+            var filtered = filter.Length == 0
+                ? _allRows.ToList()
+                : _allRows.Where(r => Matches(r, filter)).ToList();
+
+            Rows.ClearSilent();
+            Rows.AddRangeSilent(filtered);
+            Rows.RaiseReset();
         }
 
         private static bool Matches(TaxInvoiceListItem r, string filter)

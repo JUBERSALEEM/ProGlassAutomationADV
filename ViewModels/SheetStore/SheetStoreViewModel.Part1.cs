@@ -25,6 +25,7 @@ using ProGlassAutomation.ViewModels.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using ProGlassAutomation.Utilities;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -96,7 +97,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         /// response cannot overwrite a newer one.</summary>
         private int _filterGeneration;
 
-        public ObservableCollection<GlassSheet> Sheets { get; } = new();
+        public BulkObservableCollection<GlassSheet> Sheets { get; } = new();
 
         // ============ FILTER DROPDOWN OPTIONS ============
         public ObservableCollection<string> CategoryOptions { get; } = new();
@@ -462,8 +463,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             UiDispatch.Run(() =>
             {
                 if (generation != _filterGeneration) return;
-                Sheets.Clear();
-                foreach (var s in final) Sheets.Add(s);
+                Sheets.ClearSilent();
+                Sheets.AddRangeSilent(final);
+                Sheets.RaiseReset();
                 RaiseStatsChanged();
                 OnPropertyChanged(nameof(HasActiveFilters));
             });

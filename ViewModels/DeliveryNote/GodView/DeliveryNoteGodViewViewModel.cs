@@ -44,7 +44,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
 
         private ObservableCollection<DeliveryNoteListItem> _allRows = new();
 
-        public ObservableCollection<DeliveryNoteListItem> Rows { get; } = new();
+        public BulkObservableCollection<DeliveryNoteListItem> Rows { get; } = new();
 
         public ObservableCollection<GodViewKpiViewModel> Kpis { get; } = new();
 
@@ -126,15 +126,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
 
         private void ApplyFilter()
         {
-            Rows.Clear();
-
             var filter = (SearchText ?? "").Trim();
 
-            foreach (var row in _allRows)
-            {
-                if (filter.Length == 0 || Matches(row, filter))
-                    Rows.Add(row);
-            }
+            // PERFORMANCE: build filtered list then bulk-add, fires ONE
+            // CollectionChanged(Reset) instead of N+1 events.
+            var filtered = filter.Length == 0
+                ? _allRows.ToList()
+                : _allRows.Where(r => Matches(r, filter)).ToList();
+
+            Rows.ClearSilent();
+            Rows.AddRangeSilent(filtered);
+            Rows.RaiseReset();
         }
 
         private static bool Matches(DeliveryNoteListItem r, string filter)

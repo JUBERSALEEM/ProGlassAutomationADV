@@ -22,6 +22,7 @@ using ProGlassAutomation.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using ProGlassAutomation.Utilities;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -78,7 +79,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public Action<int, bool> OnInvoiceUploadRequested { get; set; }
 
         private List<SavedInvoiceListItem> _allItems = new();
-        public ObservableCollection<SavedInvoiceListItem> FilteredItems { get; } = new();
+        public BulkObservableCollection<SavedInvoiceListItem> FilteredItems { get; } = new();
 
         public List<string> StatusFilterOptions { get; } = new()
         {
@@ -612,8 +613,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             var result = query.ToList();
 
             // BUG-74: standard clear + refill pattern
-            FilteredItems.Clear();
-            foreach (var item in result) FilteredItems.Add(item);
+            FilteredItems.ClearSilent();
+            FilteredItems.AddRangeSilent(result);
+            FilteredItems.RaiseReset();
 
             FilteredCount = result.Count;
             TotalValueSum = result.Sum(x => x.GrandTotal);

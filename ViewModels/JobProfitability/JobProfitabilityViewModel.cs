@@ -75,7 +75,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         private readonly List<JobProfitabilityRow> _allRows = new();
 
         /// <summary>Filtered rows shown in the list.</summary>
-        public ObservableCollection<JobProfitabilityRow> Rows { get; } = new();
+        public BulkObservableCollection<JobProfitabilityRow> Rows { get; } = new();
 
         /// <summary>Distinct companies, "All" first.</summary>
         public ObservableCollection<string> CompanyFilterOptions { get; } = new();
@@ -693,8 +693,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 .OrderByDescending(r => r.IssueDate)
                 .ToList();
 
-            Rows.Clear();
-            foreach (var r in result) Rows.Add(r);
+            Rows.ClearSilent();
+            Rows.AddRangeSilent(result);
+            Rows.RaiseReset();
             OnPropertyChanged(nameof(HasRows));
 
             RecalculateTotals(result);
