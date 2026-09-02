@@ -51,6 +51,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             _dialogs = dialogs!;
             _statusService = status!;
             _database = database!;
+        
+            // ERR-633EEB: initialization lives in .Part2.cs and is shared by
+            // both ctors. DI selects THIS overload, so it must invoke it.
+            InitializeCore();
         }
 
         // ── callbacks ──────────────────────────────────────────────────────

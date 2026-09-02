@@ -50,6 +50,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             _jobs = jobs!;
             _status = status!;
             _database = database!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         // Phase 4: Named handler for static event — detachable
@@ -205,7 +210,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
             App.ServiceProvider?.GetService<IJobOrderRepository>()!,
             App.ServiceProvider?.GetService<IStatusService>()!,
-            App.ServiceProvider?.GetService<IDatabaseServices>()!){
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
 
             // Phase 4: Named handler — detachable, no lambda leak

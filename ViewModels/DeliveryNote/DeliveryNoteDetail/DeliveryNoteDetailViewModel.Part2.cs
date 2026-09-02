@@ -45,7 +45,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IStatusService>()!,
-            App.ServiceProvider?.GetService<IDatabaseServices>()!){
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor (this file)
+        // and invoked by the DI-selected parameterized ctor in
+        // .Part1.cs, so every construction path initializes fully.
+        private void InitializeCore()
+        {
             // v2 §24: version history (read-only list for DN — restore
             // needs relational-item support and ships in a later phase).
             ShowVersionsCommand = new RelayCommand(

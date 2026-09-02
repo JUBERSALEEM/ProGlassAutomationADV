@@ -39,6 +39,11 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         {
             _dialogs = dialogs!;
             _presence = presence!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         // Phase 4: Named handlers for static events — detachable
@@ -61,7 +66,13 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         public SystemCenterViewModel()
          : this(
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<UserPresenceService>()?? App.Presence){
+            App.ServiceProvider?.GetService<UserPresenceService>()?? App.Presence){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             // ── Tab state ─────────────────────────────────────────────
             SwitchTabCommand = new RelayCommand(param =>
             {

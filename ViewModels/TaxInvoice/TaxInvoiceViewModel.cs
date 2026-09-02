@@ -60,6 +60,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             _dialogs = dialogs!;
             _invoices = invoices!;
             _taxInvoices = taxInvoices!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         // Phase 4: Named handler for static event — detachable
@@ -163,7 +168,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
-            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             ListVM = new TaxInvoiceListViewModel();
             // Phase 4: Named handler — detachable, no lambda leak
             _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };

@@ -44,11 +44,22 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ProformaInvoiceFeaturesViewModel(AppConfig? config)
         {
             _config = config!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         public ProformaInvoiceFeaturesViewModel()
          : this(
-            App.ServiceProvider?.GetService<AppConfig>()?? App.Config){
+            App.ServiceProvider?.GetService<AppConfig>()?? App.Config){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             ResetToDefaultsCommand = new RelayCommand(_ => ResetToDefaults());
             EnableAllCommand = new RelayCommand(_ => SetAll(true));
             DisableAllOptionalCommand = new RelayCommand(_ => SetAll(false));

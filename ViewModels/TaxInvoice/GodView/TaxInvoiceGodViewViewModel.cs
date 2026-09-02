@@ -32,6 +32,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
         public TaxInvoiceGodViewViewModel(ITaxInvoiceRepository? taxInvoices)
         {
             _taxInvoices = taxInvoices!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         private ObservableCollection<TaxInvoiceListItem> _allRows = new();
@@ -67,7 +72,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
 
         public TaxInvoiceGodViewViewModel()
          : this(
-            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
 
             OpenCommand = new RelayCommand(param =>

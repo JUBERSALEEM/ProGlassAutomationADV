@@ -30,6 +30,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         {
             _dialogs = dialogs!;
             _specs = specs!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         // === Panel ViewModels (one per glass type) ===
@@ -188,7 +193,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         public PricingEstimatorViewModel()
          : this(
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<ISpecificationsRepository>()!){
+            App.ServiceProvider?.GetService<ISpecificationsRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             // Initialize panel VMs
             SguVM = new SguParameters.SguParametersViewModel();
             DguVM = new DguParameters.DguParametersViewModel();

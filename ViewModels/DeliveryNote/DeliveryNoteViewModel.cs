@@ -39,6 +39,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             _deliveryNotes = deliveryNotes!;
             _dialogs = dialogs!;
             _jobs = jobs!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         private Func<Task>? _dataSeededHandler;
@@ -135,7 +140,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
          : this(
             App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<IJobOrderRepository>()!){
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             ListVM = new DeliveryNoteListViewModel();
                         _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;

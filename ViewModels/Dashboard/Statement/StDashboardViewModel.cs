@@ -45,6 +45,11 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
         public StDashboardViewModel(IStatementRepository? statements)
         {
             _statements = statements!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         // ── Tab identity ──────────────────────────────────────────────────
@@ -105,7 +110,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
         // ═════════════════════════════════════════════════════════════════
         public StDashboardViewModel()
          : this(
-            App.ServiceProvider?.GetService<IStatementRepository>()!){
+            App.ServiceProvider?.GetService<IStatementRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             GoToStatementsCommand = new RelayCommand(_ =>
                 NavigateTo?.Invoke("StatementGenerator"));
 

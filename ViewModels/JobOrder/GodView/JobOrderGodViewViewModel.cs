@@ -32,6 +32,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
         public JobOrderGodViewViewModel(IJobOrderRepository? jobs)
         {
             _jobs = jobs!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         private ObservableCollection<JobOrderListRow> _allRows = new();
@@ -67,7 +72,13 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
 
         public JobOrderGodViewViewModel()
          : this(
-            App.ServiceProvider?.GetService<IJobOrderRepository>()!){
+            App.ServiceProvider?.GetService<IJobOrderRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
 
             OpenCommand = new RelayCommand(param =>

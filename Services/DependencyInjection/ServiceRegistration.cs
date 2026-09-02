@@ -250,6 +250,16 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<ISpeechToTextService>(_ => global::ProGlassAutomation.App.SpeechToText);
             services.AddSingleton<ITextToSpeechService>(_ => global::ProGlassAutomation.App.TextToSpeech);
 
+            // SystemCenterViewModel takes UserPresenceService. It was
+            // unregistered, so the DI path got null while the
+            // parameterless path fell back to App.Presence -- meaning
+            // peer presence silently stopped working for the real
+            // instance. Every use is null-guarded so it never crashed,
+            // it just did nothing. Resolve to the same App.Presence
+            // singleton both paths expect.
+            services.AddSingleton<Services.Network.UserPresenceService>(
+                _ => global::ProGlassAutomation.App.Presence);
+
             // AiChatViewModel also takes IConnectivityService. It was
             // unregistered, so MS.DI could not build the greediest ctor
             // and the AI chat panel silently failed to resolve.

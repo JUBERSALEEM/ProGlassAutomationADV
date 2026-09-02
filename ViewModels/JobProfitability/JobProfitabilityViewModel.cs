@@ -55,6 +55,11 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public JobProfitabilityViewModel(IProformaInvoiceRepository? invoices)
         {
             _invoices = invoices!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         public string Title { get; } = "JOB PROFITABILITY";
@@ -334,7 +339,13 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         public JobProfitabilityViewModel()
          : this(
-            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh"));
 
             Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));

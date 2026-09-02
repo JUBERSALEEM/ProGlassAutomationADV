@@ -58,6 +58,11 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             _dashboardFilter = dashboardFilter!;
             _dashboardMetrics = dashboardMetrics!;
             _invoices = invoices!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         public override string TabTitle => "Overview";
@@ -222,7 +227,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard
          : this(
             App.ServiceProvider?.GetService<IDashboardFilterService>()!,
             App.ServiceProvider?.GetService<IDashboardMetricsService>()!,
-            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             NewInvoiceCommand = new RelayCommand(_ =>
             {
                 NavigateTo?.Invoke("ProformaInvoice");

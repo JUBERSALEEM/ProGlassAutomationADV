@@ -35,6 +35,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
         public DeliveryNoteGodViewViewModel(IDeliveryNoteRepository? deliveryNotes)
         {
             _deliveryNotes = deliveryNotes!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         private ObservableCollection<DeliveryNoteListItem> _allRows = new();
@@ -70,7 +75,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
 
         public DeliveryNoteGodViewViewModel()
          : this(
-            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!){
+            App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
 
             OpenCommand = new RelayCommand(param =>

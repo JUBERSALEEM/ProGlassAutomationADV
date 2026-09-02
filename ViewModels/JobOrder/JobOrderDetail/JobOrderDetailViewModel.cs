@@ -48,6 +48,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             _dialogs = dialogs!;
             _jobs = jobs!;
             _status = status!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         // ── reentrancy guard ──────────────────────────────────────────────
@@ -330,7 +335,13 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IJobOrderRepository>()!,
-            App.ServiceProvider?.GetService<IStatusService>()!){
+            App.ServiceProvider?.GetService<IStatusService>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             SwitchDetailTabCommand = new RelayCommand(p2 =>
                 DetailTab = p2 as string ?? "Overview");
 

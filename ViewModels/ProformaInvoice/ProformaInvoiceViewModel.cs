@@ -189,12 +189,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             _invoices = invoices!;
             _masterData = masterData!;
             _specs = specs!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 public ProformaInvoiceViewModel() : this(
             App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService(),
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
             App.ServiceProvider?.GetService<IMasterDataRepository>()!,
             App.ServiceProvider?.GetService<ISpecificationsRepository>()!)
+        { }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
         {
             Step1VM = new Step1CompanySetup.CompanySetupViewModel(
                 _invoices, _masterData, stepNumber => GoToStep(stepNumber));

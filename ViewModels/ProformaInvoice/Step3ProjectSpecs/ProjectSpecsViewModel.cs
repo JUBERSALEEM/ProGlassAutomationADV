@@ -30,6 +30,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
         public ProjectSpecsViewModel(IMasterDataRepository? masterData)
         {
             _masterData = masterData!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         // ── Guard while populating from card ──────────────────────────
@@ -208,7 +213,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
 
         public ProjectSpecsViewModel()
          : this(
-            App.ServiceProvider?.GetService<IMasterDataRepository>()!){
+            App.ServiceProvider?.GetService<IMasterDataRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             LoadProjectCommand = new RelayCommand(param =>
             {
                 if (param is ProjectProfileCard card)

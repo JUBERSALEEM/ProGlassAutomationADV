@@ -68,6 +68,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         {
             _dialogs = dialogs!;
             _specs = specs!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         public string Title { get; } = "SPECIFICATION SUB-GROUPS";
@@ -112,6 +117,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public DataGridViewModel() : this(
             App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService(),
             App.ServiceProvider?.GetService<ISpecificationsRepository>())
+        { }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
         {
             SpecGroups = new ObservableCollection<SpecGroup>();
             SpecGroups.CollectionChanged += (_, e) =>

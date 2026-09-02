@@ -57,6 +57,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             _dialogs = dialogs!;
             _invoices = invoices!;
             _taxInvoices = taxInvoices!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         public Action? OnRequestBackToList { get; set; }
@@ -103,7 +108,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             App.ServiceProvider?.GetService<IDeliveryNoteRepository>()!,
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
-            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){
+            App.ServiceProvider?.GetService<ITaxInvoiceRepository>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             SaveCommand = new RelayCommand(
                 async _ => await SaveAsync(),
                 _ => !_isSaving && !_isLoading);

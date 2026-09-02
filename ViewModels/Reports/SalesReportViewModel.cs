@@ -48,6 +48,11 @@ namespace ProGlassAutomation.ViewModels.Reports
             _dialogs = dialogs!;
             _reporting = reporting!;
             _database = database!;
+        
+            // ERR-633EEB: run shared initialization on EVERY construction
+            // path. DI selects this (greediest) ctor, so without this call the
+            // parameterless ctor's setup never ran and commands stayed null.
+            InitializeCore();
         }
 
         private readonly IReportingDataService _reportingService;
@@ -139,7 +144,13 @@ namespace ProGlassAutomation.ViewModels.Reports
          : this(
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
             App.ServiceProvider?.GetService<IReportingDataService>()!,
-            App.ServiceProvider?.GetService<IDatabaseServices>()!){
+            App.ServiceProvider?.GetService<IDatabaseServices>()!){ }
+
+        // ── Shared initialization (ERR-633EEB) ─────────────────────
+        // Extracted verbatim from the parameterless ctor so both it
+        // and the DI-selected parameterized ctor initialize fully.
+        private void InitializeCore()
+        {
             _reportingService = _reporting ?? new ReportingDataService();
 
             ToggleRailCommand = new RelayCommand(_ => IsRailOpen = !IsRailOpen);
