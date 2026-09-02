@@ -261,7 +261,7 @@ namespace ProGlassAutomation.Services.Reporting
             var pl = piSnap.ProfitLoss;
             if (pl != null && (pl.TotalGlassCost > 0 || pl.TotalProductionCost > 0))
             {
-                decimal rev = pl.NetExVat > 0 ? pl.NetExVat : Math.Round(piEntity.GrandTotalVatInclusive / 1.05m, 2);
+                decimal rev = pl.NetExVat > 0 ? pl.NetExVat : VatCalculator.Round(piEntity.GrandTotalVatInclusive / VatCalculator.VAT_MULTIPLIER);
                 decimal cost = pl.TotalGlassCost + pl.TotalProductionCost;
                 decimal profit = rev - cost;
                 decimal margin = rev == 0 ? 0 : Math.Round(profit / rev * 100, 1);

@@ -22,8 +22,8 @@ namespace ProGlassAutomation.Services.TaxInvoice
     /// </summary>
     public static class InvoiceTotalsCalculator
     {
-        /// <summary>UAE standard VAT rate (5%).</summary>
-        public const decimal VatRate = 0.05m;
+        /// <summary>UAE standard VAT rate (5%). Single source of truth is VatCalculator.</summary>
+        public static decimal VatRate => ProGlassAutomation.Services.Reporting.VatCalculator.VAT_RATE_DECIMAL;
 
         /// <summary>Computed tax-invoice financial totals.</summary>
         public readonly record struct Totals(

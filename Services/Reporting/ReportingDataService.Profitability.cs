@@ -94,7 +94,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var snap = TryDeserializePiSnapshot(pi.FullSnapshotJson);
                 var pl = snap?.ProfitLoss;
                 bool hasCost = pl != null && (pl.TotalGlassCost > 0 || pl.TotalProductionCost > 0);
-                decimal revenue = pl != null && pl.NetExVat > 0 ? pl.NetExVat : Math.Round(pi.GrandTotalVatInclusive / 1.05m, 2);
+                decimal revenue = pl != null && pl.NetExVat > 0 ? pl.NetExVat : VatCalculator.Round(pi.GrandTotalVatInclusive / VatCalculator.VAT_MULTIPLIER);
                 decimal cost = hasCost ? pl!.TotalGlassCost + pl.TotalProductionCost : 0;
                 decimal profit = hasCost ? revenue - cost : 0;
                 decimal margin = revenue == 0 ? 0 : Math.Round(profit / revenue * 100, 1);

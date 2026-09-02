@@ -111,7 +111,8 @@ namespace ProGlassAutomation.Agent.Tools.Read
                     }
                     else
                     {
-                        net = Math.Round(inv.GrandTotalVatInclusive / 1.05m, 2);
+                        net = Services.Reporting.VatCalculator.Round(
+                            inv.GrandTotalVatInclusive / Services.Reporting.VatCalculator.VAT_MULTIPLIER);
                         jobProfit = Math.Round(net - jobCost, 2);
                     }
 

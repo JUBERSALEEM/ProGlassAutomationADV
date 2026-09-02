@@ -524,7 +524,7 @@ namespace ProGlassAutomation.Services.SampleData
 
             decimal discount = 0m;
             decimal afterDiscount = subtotal - discount;
-            decimal vat = Math.Round(afterDiscount * 0.05m, 2);
+            decimal vat = Reporting.VatCalculator.CalculateVatFromSubtotal(afterDiscount);
             decimal grandTotal = afterDiscount + vat;
 
             return new SavedProformaInvoice
@@ -695,7 +695,7 @@ namespace ProGlassAutomation.Services.SampleData
 
             decimal deliveredSubtotal = items.Sum(i => i.Value);
             deliveredSubtotal = Math.Round(deliveredSubtotal, 2);
-            decimal vat = Math.Round(deliveredSubtotal * 0.05m, 2);
+            decimal vat = Reporting.VatCalculator.CalculateVatFromSubtotal(deliveredSubtotal);
             decimal total = deliveredSubtotal + vat;
 
             return new SavedTaxInvoice

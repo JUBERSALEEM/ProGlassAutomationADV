@@ -480,7 +480,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 IsVatApplicable = isVatApplicable,          // BUG-24 fix
                 VatAmount = entity.VatAmount,
                 GrandTotal = entity.GrandTotalVatInclusive,
-                VatPercent = snapshot.Summary?.VatPercent ?? 5m,
+                VatPercent = snapshot.Summary?.VatPercent ?? Reporting.VatCalculator.VAT_RATE_PERCENT,
 
                 PreparedByName = snapshot.PreparedBy?.PreparedByName ?? "",
                 PreparedByDept = snapshot.PreparedBy?.PreparedByDept ?? "",
@@ -758,7 +758,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             public decimal NetSubtotal { get; set; }
             public decimal DiscountAmount { get; set; }
             public bool IsVatApplicable { get; set; }
-            public decimal VatPercent { get; set; } = 5m;
+            public decimal VatPercent { get; set; } = Reporting.VatCalculator.VAT_RATE_PERCENT;
             public decimal VatAmount { get; set; }
             public decimal GrandTotal { get; set; }
             public string PreparedByName { get; set; } = "";

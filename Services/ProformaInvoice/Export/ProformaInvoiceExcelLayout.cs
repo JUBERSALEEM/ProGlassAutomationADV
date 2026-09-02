@@ -141,7 +141,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             bool isVatApplicable = _snapshot.Summary?.IsVatApplicable ?? true;
             if (isVatApplicable)
             {
-                decimal vatPct = _snapshot.Summary?.VatPercent ?? 5m;
+                decimal vatPct = _snapshot.Summary?.VatPercent ?? Reporting.VatCalculator.VAT_RATE_PERCENT;
                 AddField(ws, ref row, $"VAT ({vatPct:0.##}%)",
                     $"AED {_entity.VatAmount:N2}");
             }
