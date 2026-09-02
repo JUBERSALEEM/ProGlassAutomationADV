@@ -105,8 +105,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                StatusMessage = $"PDF export failed: {ex.Message}";
-                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                StatusMessage = $"PDF export failed: {ExceptionMessages.Deep(ex)}";
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapPDFExportFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }

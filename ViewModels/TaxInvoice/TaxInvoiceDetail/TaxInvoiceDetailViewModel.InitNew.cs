@@ -104,8 +104,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Init from DN failed: {ex.Message}";
-                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToImportDNData"), ex.Message),
+                StatusMessage = $"Init from DN failed: {ExceptionMessages.Deep(ex)}";
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToImportDNData"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapImportFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -193,8 +193,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Master import failed: {ex.Message}";
-                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                StatusMessage = $"Master import failed: {ExceptionMessages.Deep(ex)}";
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapImportFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }

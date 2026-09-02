@@ -172,7 +172,7 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
             }
             catch (Exception ex)
             {
-                StatusMessage = $"⚠ Could not load attachments: {ex.Message}";
+                StatusMessage = $"⚠ Could not load attachments: {ExceptionMessages.Deep(ex)}";
             }
         }
 
@@ -294,7 +294,7 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
             }
             catch (Exception ex)
             {
-                StatusMessage = $"⚠ Upload failed: {ex.Message}";
+                StatusMessage = $"⚠ Upload failed: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {

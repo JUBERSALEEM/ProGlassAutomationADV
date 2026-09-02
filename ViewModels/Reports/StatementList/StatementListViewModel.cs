@@ -252,7 +252,7 @@ public StatementListViewModel(IDialogService? dialogs,
                     OnPropertyChanged(nameof(IsEmpty));
                     OnPropertyChanged(nameof(IsListVisible));
 
-                    StatusMessage = $"Error loading statements: {ex.Message}";
+                    StatusMessage = $"Error loading statements: {ExceptionMessages.Deep(ex)}";
                 });
             }
             finally
@@ -357,7 +357,7 @@ public StatementListViewModel(IDialogService? dialogs,
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Delete failed: {ex.Message}";
+                StatusMessage = $"Delete failed: {ExceptionMessages.Deep(ex)}";
             }
         }
     }

@@ -1,5 +1,6 @@
 using ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -78,7 +79,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed:\n{ex.Message}", "Export Error",
+                    MessageBox.Show($"Failed:\n{ExceptionMessages.Deep(ex)}", "Export Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             };
@@ -98,7 +99,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed:\n{ex.Message}", "Export Error",
+                    MessageBox.Show($"Failed:\n{ExceptionMessages.Deep(ex)}", "Export Error",
                         MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             };

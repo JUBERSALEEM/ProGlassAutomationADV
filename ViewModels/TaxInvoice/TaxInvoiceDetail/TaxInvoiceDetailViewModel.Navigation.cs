@@ -94,7 +94,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Switch failed: {ex.Message}";
+                StatusMessage = $"Switch failed: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {

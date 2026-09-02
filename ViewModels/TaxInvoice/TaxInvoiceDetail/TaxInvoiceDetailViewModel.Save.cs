@@ -163,8 +163,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Save failed: {ex.Message}";
-                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ex.Message),
+                StatusMessage = $"Save failed: {ExceptionMessages.Deep(ex)}";
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedToSaveX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }

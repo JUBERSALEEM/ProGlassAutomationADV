@@ -3,6 +3,7 @@ using ProGlassAutomation.Models.Inquiry;
 using ProGlassAutomation.Services.Inquiry;
 using ProGlassAutomation.ViewModels.Inquiry;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -233,7 +234,7 @@ namespace ProGlassAutomation.Views.Inquiry
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, "Could not attach the dropped files: " + ex.Message,
+                MessageBox.Show(this, "Could not attach the dropped files: " + ExceptionMessages.Deep(ex),
                     "Attachment", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }

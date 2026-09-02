@@ -120,7 +120,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapAttachmentError"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -156,7 +156,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ex.Message),
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.FailedX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapRemoveFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }

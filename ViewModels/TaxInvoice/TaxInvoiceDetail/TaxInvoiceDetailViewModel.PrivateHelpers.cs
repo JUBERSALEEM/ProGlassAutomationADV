@@ -389,8 +389,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Issue all failed: {ex.Message}";
-                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.CouldNotIssueInvoicesX"), ex.Message),
+                StatusMessage = $"Issue all failed: {ExceptionMessages.Deep(ex)}";
+                _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.CouldNotIssueInvoicesX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapIssueAllFailed"), MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }

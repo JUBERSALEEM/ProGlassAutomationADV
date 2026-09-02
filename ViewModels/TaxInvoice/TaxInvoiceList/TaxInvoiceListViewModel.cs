@@ -4,6 +4,7 @@ using ProGlassAutomation.Models.TaxInvoice.TaxInvoiceFamily;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Licensing;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -446,7 +447,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 catch (Exception ex)
                 {
                     _dialogs.Show(
-                        string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
+                        string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ExceptionMessages.Deep(ex)),
                         LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                         System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Error);
@@ -507,7 +508,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             catch (Exception ex)
             {
                 HasError = true;
-                ErrorMessage = $"Failed to load invoices: {ex.Message}";
+                ErrorMessage = $"Failed to load invoices: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {

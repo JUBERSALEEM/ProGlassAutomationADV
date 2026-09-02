@@ -334,7 +334,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateMasterInvoice"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateMasterInvoice"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -418,7 +418,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo2"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToConvertDNTo2"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapConvertFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -503,7 +503,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateInvoiceX"), ex.Message),
+                    string.Format(LocalizationService.Instance.T("Msg.FailedToCreateInvoiceX"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapCreateFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

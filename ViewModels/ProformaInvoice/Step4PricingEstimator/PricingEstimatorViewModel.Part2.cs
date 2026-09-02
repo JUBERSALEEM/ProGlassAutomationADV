@@ -109,7 +109,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             catch (Exception ex)
             {
                 Services.Logging.AppLogService.Debug(
-                    $"[Step4.AutoSave] {ex.Message}");
+                    $"[Step4.AutoSave] {ExceptionMessages.Deep(ex)}");
             }
         }
 
@@ -244,7 +244,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
 
-                ApplyStatusMessage = $"✗  Save failed: {ex.Message}";
+                ApplyStatusMessage = $"✗  Save failed: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {
@@ -309,7 +309,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             catch (Exception ex)
             {
                 Services.Logging.AppLogService.Debug(
-                    $"[Step4.CatalogueDetails] {ex.Message}");
+                    $"[Step4.CatalogueDetails] {ExceptionMessages.Deep(ex)}");
                 return (null, 0, 0, 0);
             }
         }
@@ -384,7 +384,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    $"[PricingEstimator] sheet selection not recorded: {ex.Message}");
+                    $"[PricingEstimator] sheet selection not recorded: {ExceptionMessages.Deep(ex)}");
             }
         }
 

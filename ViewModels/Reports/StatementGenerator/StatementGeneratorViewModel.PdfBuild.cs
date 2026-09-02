@@ -217,7 +217,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         {
             if (!HasLastPdf) return;
             try { StatementPdfExporter.OpenPdf(_lastPdfPath); }
-            catch (Exception ex) { StatusMessage = $"Could not open PDF: {ex.Message}"; }
+            catch (Exception ex) { StatusMessage = $"Could not open PDF: {ExceptionMessages.Deep(ex)}"; }
         }
 
         private void CopyLastPdfPathToClipboard()
@@ -228,7 +228,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 Clipboard.SetText(_lastPdfPath);
                 StatusMessage = "PDF path copied to clipboard.";
             }
-            catch (Exception ex) { StatusMessage = $"Could not copy path: {ex.Message}"; }
+            catch (Exception ex) { StatusMessage = $"Could not copy path: {ExceptionMessages.Deep(ex)}"; }
         }
 
     }

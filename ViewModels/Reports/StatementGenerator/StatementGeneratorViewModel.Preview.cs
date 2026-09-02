@@ -90,8 +90,8 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             }
             catch (Exception ex)
             {
-                AppLogService.Warning($"Preview failed: {ex.Message}");
-                StatusMessage = $"Preview failed: {ex.Message}";
+                AppLogService.Warning($"Preview failed: {ExceptionMessages.Deep(ex)}");
+                StatusMessage = $"Preview failed: {ExceptionMessages.Deep(ex)}";
                 PreviewSnapshot = null;
                 ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() => PreviewVM.UpdateFromSnapshot(null));
             }

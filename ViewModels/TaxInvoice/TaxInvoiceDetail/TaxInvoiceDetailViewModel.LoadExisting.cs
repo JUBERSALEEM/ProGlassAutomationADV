@@ -80,7 +80,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Load failed: {ex.Message}";
+                StatusMessage = $"Load failed: {ExceptionMessages.Deep(ex)}";
             }
             finally
             {

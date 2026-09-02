@@ -105,7 +105,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    $"[TaxInvoiceDetailVM] Load family failed: {ex.Message}");
+                    $"[TaxInvoiceDetailVM] Load family failed: {ExceptionMessages.Deep(ex)}");
             }
         }
 

@@ -182,7 +182,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 }
                 catch (Exception ex)
                 {
-                    _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ex.Message),
+                    _dialogs.Show(string.Format(LocalizationService.Instance.T("Msg.DeleteFailedX"), ExceptionMessages.Deep(ex)),
                         LocalizationService.Instance.T("Msg.CapDeleteFailed"), MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }

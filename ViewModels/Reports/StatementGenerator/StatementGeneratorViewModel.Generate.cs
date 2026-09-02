@@ -314,9 +314,9 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Generation failed: {ex.Message}";
+                StatusMessage = $"Generation failed: {ExceptionMessages.Deep(ex)}";
                 LastWorkflowStatusText = "Pipeline Failed";
-                LiveAddLogEntry(LogSeverity.Error, $"› ✗ FATAL ERROR: {ex.Message}");
+                LiveAddLogEntry(LogSeverity.Error, $"› ✗ FATAL ERROR: {ExceptionMessages.Deep(ex)}");
                 LiveAddLogEntry(LogSeverity.Error, $"› {ex.GetType().Name}");
                 AppLogService.Debug($"[StatementGenerator] Generate error: {ex}");
             }
