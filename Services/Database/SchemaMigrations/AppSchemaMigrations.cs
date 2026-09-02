@@ -123,6 +123,37 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                         "CREATE INDEX IF NOT EXISTS IX_Specifications_Category ON Specifications(Category);");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_Specifications_Color ON Specifications(Color);");
+                }),
+
+                // Usage history. A specification is deduped on
+                // GlassType + SpecName, so one row is shared by many
+                // proformas -- a single ProformaId column could only ever
+                // name one of them. This table records every use, plus the
+                // price quoted AT THAT TIME (the spec's own PricePerSqm is
+                // overwritten on each re-apply).
+                new(1002, "Specifications Center: per-proforma usage history", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, """
+                        CREATE TABLE IF NOT EXISTS SpecificationUsages (
+                            Id              INTEGER NOT NULL CONSTRAINT PK_SpecificationUsages PRIMARY KEY AUTOINCREMENT,
+                            SpecificationId INTEGER NOT NULL DEFAULT 0,
+                            SpecName        TEXT    NOT NULL DEFAULT '',
+                            GlassType       TEXT    NULL,
+                            ProformaId      TEXT    NULL,
+                            CustomerName    TEXT    NULL,
+                            ProjectName     TEXT    NULL,
+                            PricePerSqm     TEXT    NULL,
+                            SheetWidthMm    INTEGER NOT NULL DEFAULT 0,
+                            SheetHeightMm   INTEGER NOT NULL DEFAULT 0,
+                            UserName        TEXT    NULL,
+                            UsedAt          TEXT    NOT NULL
+                        );
+                        """);
+
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_SpecificationUsages_SpecificationId ON SpecificationUsages(SpecificationId);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_SpecificationUsages_ProformaId ON SpecificationUsages(ProformaId);");
                 })
             };
 

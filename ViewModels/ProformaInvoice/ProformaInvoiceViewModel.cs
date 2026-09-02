@@ -413,6 +413,28 @@ public ProformaInvoiceViewModel() : this(
 
             CurrentStep = step;
             _furthestStepReached = Math.Max(_furthestStepReached, stepNumber);
+
+            // Publish the invoice's identity for the Specifications Center
+            // usage history. Done on every navigation so that by the time
+            // Step 4 saves a spec, the PI / customer / project are current
+            // no matter which order the user filled them in.
+            //
+            // Ambient rather than injected: Step 4 has no reference to
+            // Steps 1-3, and adding constructor arguments to a DI-resolved
+            // view model is precisely the change that broke construction
+            // during the ERR-633EEB work.
+            try
+            {
+                Services.ProformaInvoice.ActiveInvoiceContext.Set(
+                    Step1VM?.ProformaId,
+                    Step2VM?.CustomerName,
+                    Step3VM?.ProjectIdentifierName);
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    $"[PI.GoToStep] invoice context publish failed: {ex.Message}");
+            }
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = ws.StepNumber < _furthestStepReached;
 

@@ -17,6 +17,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
     {
         public DbSet<SavedSpecification> Specifications { get; set; }
 
+        /// <summary>
+        /// Append-only record of every proforma that used a specification.
+        /// See Models/Specifications/SpecificationUsage.cs.
+        /// </summary>
+        public DbSet<SpecificationUsage> SpecificationUsages { get; set; }
+
         /// <summary>Public accessor used by the schema migration runner.</summary>
         public static string DatabaseFilePath => Path.Combine(
             ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
@@ -65,6 +71,29 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
                 // Index for spec name searches
                 entity.HasIndex(s => s.SpecName);
+            });
+
+            modelBuilder.Entity<SpecificationUsage>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+
+                entity.Property(u => u.SpecName).IsRequired().HasMaxLength(500);
+                entity.Property(u => u.GlassType).HasMaxLength(20);
+                entity.Property(u => u.ProformaId).HasMaxLength(100);
+                entity.Property(u => u.CustomerName).HasMaxLength(300);
+                entity.Property(u => u.ProjectName).HasMaxLength(300);
+                entity.Property(u => u.UserName).HasMaxLength(150);
+
+                // Same TEXT affinity rationale as SavedSpecification.PricePerSqm:
+                // SQLite has no native decimal and NUMERIC degrades to REAL,
+                // losing precision on SQL-side aggregates.
+                entity.Property(u => u.PricePerSqm).HasColumnType("TEXT");
+
+                entity.Property(u => u.UsedAt).IsRequired();
+
+                // "show me every use of this spec, newest first"
+                entity.HasIndex(u => u.SpecificationId);
+                entity.HasIndex(u => u.ProformaId);
             });
         }
     }

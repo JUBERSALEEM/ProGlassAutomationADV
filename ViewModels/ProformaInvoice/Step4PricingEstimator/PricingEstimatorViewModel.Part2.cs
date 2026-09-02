@@ -125,7 +125,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     sheetWidthMm: specW,
                     sheetHeightMm: specH,
                     sheetId: 0,
-                    proformaId: null);
+                    proformaId: Services.ProformaInvoice.ActiveInvoiceContext.ProformaId);
+
+                // USAGE HISTORY: one append-only row per APPLY, so the
+                // Specifications Center can list EVERY proforma that used
+                // this spec. The catalogue row itself is deduped on
+                // GlassType + SpecName, so it cannot carry more than one PI
+                // number on its own.
+                //
+                // Price is captured here because savedSpec.PricePerSqm is
+                // overwritten on the next re-apply -- this is the only
+                // record of what THIS invoice was quoted at.
+                await _specs.RecordUsageAsync(
+                    savedSpec.Id,
+                    specName,
+                    glassType,
+                    Services.ProformaInvoice.ActiveInvoiceContext.ProformaId,
+                    Services.ProformaInvoice.ActiveInvoiceContext.CustomerName,
+                    Services.ProformaInvoice.ActiveInvoiceContext.ProjectName,
+                    rate,
+                    specW,
+                    specH);
 
                 // PHASE G: remember WHICH stock sheet this spec was priced
                 // against, so Step 5 can carry it and Step 9 can cost the

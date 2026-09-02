@@ -162,6 +162,90 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             }
         }
 
+        public async Task RecordUsageAsync(
+            int specId,
+            string specName,
+            string glassType,
+            string? proformaId,
+            string? customerName,
+            string? projectName,
+            decimal pricePerSqm,
+            int sheetWidthMm,
+            int sheetHeightMm)
+        {
+            // Deliberately NOT gated by ReadOnlyGate/OperationGuard.
+            // This is an append-only audit trail written as a side effect of
+            // a save that has already been authorised; blocking it would
+            // leave the catalogue and its history inconsistent. Wrapped so a
+            // history failure can never surface as a save failure.
+            try
+            {
+                using var db = new SpecificationsDbContext();
+
+                db.SpecificationUsages.Add(new SpecificationUsage
+                {
+                    SpecificationId = specId,
+                    SpecName = specName ?? string.Empty,
+                    GlassType = glassType ?? string.Empty,
+                    ProformaId = proformaId ?? string.Empty,
+                    CustomerName = customerName ?? string.Empty,
+                    ProjectName = projectName ?? string.Empty,
+                    PricePerSqm = pricePerSqm,
+                    SheetWidthMm = sheetWidthMm,
+                    SheetHeightMm = sheetHeightMm,
+                    UsedAt = DateTime.Now
+                });
+
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+                SpecCatalogNotifier.NotifyChanged();
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    $"[SpecificationsRepository.RecordUsage] {ex.Message}");
+            }
+        }
+
+        public async Task<List<SpecificationUsage>> GetUsageHistoryAsync(int specId)
+        {
+            try
+            {
+                using var db = new SpecificationsDbContext();
+                return await db.SpecificationUsages
+                    .AsNoTracking()
+                    .Where(u => u.SpecificationId == specId)
+                    .OrderByDescending(u => u.UsedAt)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    $"[SpecificationsRepository.GetUsageHistory] {ex.Message}");
+                return new List<SpecificationUsage>();
+            }
+        }
+
+        public async Task<List<SpecificationUsage>> GetRecentUsageAsync(int limit = 200)
+        {
+            if (limit <= 0) limit = 200;
+
+            try
+            {
+                using var db = new SpecificationsDbContext();
+                return await db.SpecificationUsages
+                    .AsNoTracking()
+                    .OrderByDescending(u => u.UsedAt)
+                    .Take(limit)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    $"[SpecificationsRepository.GetRecentUsage] {ex.Message}");
+                return new List<SpecificationUsage>();
+            }
+        }
+
         public async Task DeleteAsync(int specId)
         {
             ReadOnlyGate.Demand("delete a specification");

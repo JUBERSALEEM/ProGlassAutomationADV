@@ -55,6 +55,38 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
         Task MarkAsUsedAsync(int specId);
 
         /// <summary>
+        /// Appends one usage row recording that <paramref name="specId"/> was
+        /// applied to a proforma, at the price quoted at that moment.
+        ///
+        /// Append-only: a spec used on five invoices has five rows, so the
+        /// Center can list every PI instead of one arbitrary number. Never
+        /// throws -- history is diagnostic, and failing to record it must
+        /// never block the save that already succeeded.
+        /// </summary>
+        Task RecordUsageAsync(
+            int specId,
+            string specName,
+            string glassType,
+            string? proformaId,
+            string? customerName,
+            string? projectName,
+            decimal pricePerSqm,
+            int sheetWidthMm,
+            int sheetHeightMm);
+
+        /// <summary>
+        /// Full usage history for one specification, newest first.
+        /// </summary>
+        Task<List<SpecificationUsage>> GetUsageHistoryAsync(int specId);
+
+        /// <summary>
+        /// Usage rows across all specifications, newest first, capped by
+        /// <paramref name="limit"/> so the Center's activity list cannot be
+        /// slowed down by a large ledger.
+        /// </summary>
+        Task<List<SpecificationUsage>> GetRecentUsageAsync(int limit = 200);
+
+        /// <summary>
         /// Delete a saved spec (user-initiated cleanup).
         /// </summary>
         Task DeleteAsync(int specId);
