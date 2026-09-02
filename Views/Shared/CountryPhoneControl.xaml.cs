@@ -81,7 +81,7 @@ namespace ProGlassAutomation.Views.Shared
             GeoService.Instance.LocationResolved += _ =>
             {
                 if (!_userTouchedCountry)
-                    Dispatcher.Invoke(SelectDefaultCountry);
+                    Dispatcher.BeginInvoke(SelectDefaultCountry);
             };
         }
 

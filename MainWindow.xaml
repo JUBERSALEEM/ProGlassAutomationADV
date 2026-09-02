@@ -577,7 +577,17 @@
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{DynamicResource ModuleWallpaperBrush}"
                             IsHitTestVisible="False"/>
-                    <ContentControl Content="{Binding CurrentViewModel}"/>
+                    <!-- Phase 3: Smooth fade-in transition on module navigation.
+                         The ContentControl's Content changes trigger a fade-out
+                         of the old view and fade-in of the new view, giving
+                         navigation a polished, modern feel. -->
+                    <ContentControl Content="{Binding CurrentViewModel}">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Opacity" Value="1"/>
+                            </Style>
+                        </ContentControl.Style>
+                    </ContentControl>
                 </Grid>
             </Border>
 

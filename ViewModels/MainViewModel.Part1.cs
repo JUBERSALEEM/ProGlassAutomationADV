@@ -498,7 +498,8 @@ namespace ProGlassAutomation.ViewModels
                     var dispatcher = System.Windows.Application.Current?.Dispatcher;
                     if (dispatcher == null) return;
 
-                    dispatcher.Invoke(() =>
+                    // Phase 1 C-1 fix: non-blocking dispatch for storage refresh
+                    dispatcher.BeginInvoke(new Action(() =>
                     {
                         StorageItems.Clear();
                         var loc = Services.Localization.LocalizationService.Instance;
@@ -515,7 +516,7 @@ namespace ProGlassAutomation.ViewModels
                             Services.Localization.LocalizationService.Instance.CurrentLanguage.Code)
                             .Replace("{0}", StorageDisplay);
                         IsStorageRefreshing = false;
-                    });
+                    }));
                 }
                 catch (System.Exception ex)
                 {
@@ -533,12 +534,13 @@ namespace ProGlassAutomation.ViewModels
             });
         }
 
+        // Phase 1 C-1 fix: non-blocking dispatch — was blocking Invoke
         private static void DispatchToUi(Action action)
         {
             var dispatcher = System.Windows.Application.Current?.Dispatcher;
             if (dispatcher == null) return;
             if (dispatcher.CheckAccess()) action();
-            else dispatcher.Invoke(action);
+            else dispatcher.BeginInvoke(action);
         }
 
         private bool _isDarkTheme;
