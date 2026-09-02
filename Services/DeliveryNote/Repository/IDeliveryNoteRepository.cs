@@ -123,6 +123,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         /// <summary>CHAT 19: excludes Master DNs (IsMasterDn=true).</summary>
         Task<List<DeliveryNoteListItem>> GetAllAsync();
 
+        /// <summary>
+        /// Paged query for the God View. Returns a bounded page of results
+        /// plus the total count, so the UI can show "showing X of Y".
+        /// Avoids loading 10K+ records into memory at once.
+        /// </summary>
+        Task<(List<DeliveryNoteListItem> Items, int TotalCount)> GetPagedAsync(
+            int page, int pageSize, string? search = null);
+
         Task<List<DeliveryNoteListItem>> GetByJobOrderIdAsync(string jobOrderId);
 
         /// <summary>CHAT 19: excludes Master DNs from Draft tab.</summary>

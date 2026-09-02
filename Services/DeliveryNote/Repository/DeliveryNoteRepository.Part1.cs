@@ -394,6 +394,40 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .ToListAsync().ConfigureAwait(false);
         }
 
+        public async Task<(List<DeliveryNoteListItem> Items, int TotalCount)> GetPagedAsync(
+            int page, int pageSize, string? search = null)
+        {
+            using var ctx = new DeliveryNotesDbContext();
+
+            var query = ctx.DeliveryNotes
+                .Where(x => !x.IsMasterDn)
+                .AsNoTracking();
+
+            // Apply search filter if provided
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string term = search.Trim();
+                query = query.Where(x =>
+                    (x.DeliveryNoteId != null && x.DeliveryNoteId.Contains(term)) ||
+                    (x.JobOrderId != null && x.JobOrderId.Contains(term)) ||
+                    (x.ProformaId != null && x.ProformaId.Contains(term)) ||
+                    (x.CustomerName != null && x.CustomerName.Contains(term)) ||
+                    (x.ProjectName != null && x.ProjectName.Contains(term)) ||
+                    (x.Status != null && x.Status.Contains(term)));
+            }
+
+            int totalCount = await query.CountAsync().ConfigureAwait(false);
+
+            var items = await query
+                .OrderByDescending(x => x.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(ToListItemProjection)
+                .ToListAsync().ConfigureAwait(false);
+
+            return (items, totalCount);
+        }
+
         public async Task<List<DeliveryNoteListItem>> GetByJobOrderIdAsync(
             string jobOrderId)
         {

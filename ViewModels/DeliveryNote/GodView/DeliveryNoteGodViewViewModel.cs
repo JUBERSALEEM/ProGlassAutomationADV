@@ -91,24 +91,27 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
             });
         }
 
-        /// <summary>Loads every delivery note and recomputes KPIs.</summary>
+        /// <summary>
+        /// Loads delivery notes with progressive pagination.
+        /// First page (500 records) loads instantly; remaining pages
+        /// load in the background and append silently.
+        /// </summary>
         public async Task LoadAsync()
         {
             if (_deliveryNotes == null) return;
 
+            const int PageSize = 500;
             try
             {
                 UiDispatch.Run(() => IsLoading = true);
 
-                var items = await _deliveryNotes.GetAllAsync();
-
-                // PERFORMANCE: sort on background thread (not UI thread).
-                // For 2000+ records, OrderByDescending is measurable.
-                var sorted = items.OrderByDescending(i => i.CreatedAt).ToList();
+                // Load first page immediately
+                var (firstPage, totalCount) = await _deliveryNotes
+                    .GetPagedAsync(1, PageSize);
 
                 UiDispatch.Run(() =>
                 {
-                    _allRows = new ObservableCollection<DeliveryNoteListItem>(sorted);
+                    _allRows = new ObservableCollection<DeliveryNoteListItem>(firstPage);
                     RebuildKpis();
                     ApplyFilter();
                     IsLoading = false;
@@ -117,7 +120,28 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
                 AuditService.Log(
                     AuditSections.DeliveryNote,
                     "God View opened",
-                    $"{_allRows.Count} delivery notes listed");
+                    $"{totalCount} delivery notes total, first {firstPage.Count} loaded");
+
+                // Load remaining pages in background
+                if (totalCount > PageSize)
+                {
+                    int totalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
+                    for (int p = 2; p <= totalPages; p++)
+                    {
+                        var (nextPage, _) = await _deliveryNotes
+                            .GetPagedAsync(p, PageSize);
+
+                        if (nextPage.Count == 0) break;
+
+                        UiDispatch.Run(() =>
+                        {
+                            foreach (var item in nextPage)
+                                _allRows.Add(item);
+                            RebuildKpis();
+                            ApplyFilter();
+                        });
+                    }
+                }
             }
             catch (Exception ex)
             {
