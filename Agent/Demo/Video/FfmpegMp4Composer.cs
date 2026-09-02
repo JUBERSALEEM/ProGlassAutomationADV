@@ -194,6 +194,73 @@ namespace ProGlassAutomation.Agent.Demo.Video
         /// skipped and every captured frame reaches the video.
         /// </para>
         /// </summary>
+        /// <summary>
+        /// Muxes an ALREADY-ENCODED H.264 MP4 with an optional WAV track.
+        ///
+        /// The video is STREAM-COPIED (-c:v copy): the off-thread capture
+        /// pipeline already produced final-quality H.264, so re-encoding it
+        /// would add generation loss and several seconds of CPU for nothing.
+        /// Only the audio is encoded.
+        ///
+        /// With no audio this is a plain file move, which is as fast as the
+        /// save can possibly be.
+        /// </summary>
+        public static async Task<string?> MuxVideoWithAudioAsync(
+            string videoPath, string? wavPath, string mp4Path, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(videoPath) || !File.Exists(videoPath))
+                return null;
+
+            bool hasAudio = !string.IsNullOrWhiteSpace(wavPath) && File.Exists(wavPath);
+
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(mp4Path)!);
+
+                // No audio: nothing to mux. Move the finished file into
+                // place rather than paying for a pointless remux.
+                if (!hasAudio)
+                {
+                    if (!string.Equals(
+                            Path.GetFullPath(videoPath),
+                            Path.GetFullPath(mp4Path),
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        File.Move(videoPath, mp4Path, overwrite: true);
+                    }
+                    return IsValidMp4(mp4Path) ? mp4Path : null;
+                }
+
+                string? ffmpeg = Find();
+                if (ffmpeg == null) return null;
+
+                string packingPath = mp4Path + ".packing.mp4";
+                try { if (File.Exists(packingPath)) File.Delete(packingPath); }
+                catch (Exception ex) { AppLogService.Debug("[Mux] stale packing delete: " + ex.Message); }
+
+                // -shortest: the WAV can outrun the video by a few frames
+                // because audio capture stops fractionally later.
+                string args =
+                    $"-y -i \"{videoPath}\" -i \"{wavPath}\" " +
+                    $"-c:v copy -c:a aac -b:a 320k -ar 48000 " +
+                    $"-shortest -movflags +faststart \"{packingPath}\"";
+
+                string? packed = await RunComposeAsync(ffmpeg, args, packingPath, ct)
+                    .ConfigureAwait(false);
+                if (packed == null) return null;
+
+                File.Move(packingPath, mp4Path, overwrite: true);
+                return IsValidMp4(mp4Path) ? mp4Path : null;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Mux of captured video failed: {ex.Message}",
+                    new LogContext { Module = "Recording", Operation = "MuxVideoWithAudio" });
+                return null;
+            }
+        }
+
         public static async Task<string?> ComposeFrameListAudioAsync(
             System.Collections.Generic.IReadOnlyList<string> frameFiles,
             string? wavPath, string mp4Path,

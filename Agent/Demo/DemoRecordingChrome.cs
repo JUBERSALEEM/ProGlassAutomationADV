@@ -15,6 +15,13 @@ namespace ProGlassAutomation.Agent.Demo
     public static class DemoRecordingChrome
     {
         private static RecordOverlayWindow? _overlay;
+
+        /// <summary>
+        /// Set by the overlay's Closed event. A WPF Window cannot be
+        /// re-Shown after Close() — Show() throws — so the cached instance
+        /// must be discarded, not reused.
+        /// </summary>
+        private static bool _overlayClosed = true;
         private static WindowScreenRecorder? _recorder;
         private static string _kind = "Demo";
 
@@ -158,8 +165,26 @@ namespace ProGlassAutomation.Agent.Demo
 
         private static RecordOverlayWindow Ensure()
         {
-            if (_overlay != null) return _overlay;
+            // A WPF Window cannot be re-Shown once Closed — Show() throws
+            // InvalidOperationException. ShowSaved's auto-dismiss timer
+            // closes the overlay but the cached reference survived, so the
+            // NEXT recording tried to reuse a dead window: the HUD then
+            // failed to appear, or appeared stuck, and the old one was
+            // never released. Detect the closed window and rebuild.
+            if (_overlay != null && !_overlayClosed) return _overlay;
+
             _overlay = new RecordOverlayWindow();
+            _overlayClosed = false;
+
+            // Authoritative signal. Inferring "closed" from IsLoaded /
+            // PresentationSource is unreliable — those look identical for a
+            // window that has merely never been shown — so the window tells
+            // us directly. Also covers the user clicking the HUD's own X.
+            _overlay.Closed += (_, _) =>
+            {
+                _overlayClosed = true;
+                _overlay = null;
+            };
             try
             {
                 var main = Application.Current?.MainWindow;

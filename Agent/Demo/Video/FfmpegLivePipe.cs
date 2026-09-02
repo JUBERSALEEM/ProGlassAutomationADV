@@ -63,7 +63,12 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     RedirectStandardError = true,
                     RedirectStandardOutput = true
                 };
-                var toolResult = ProcessStartGuard.TryStartTool(psi.FileName, psi.Arguments, CorrelationContext.NewId());
+                // PRE-EXISTING BUG: TryStartTool did not redirect stdin, so
+                // p.StandardInput threw and this pipe could never receive a
+                // frame. It only went unnoticed because LivePreviewEncode
+                // defaults to false.
+                var toolResult = ProcessStartGuard.TryStartTool(
+                    psi.FileName, psi.Arguments, CorrelationContext.NewId(), redirectStdIn: true);
                 var p = toolResult.IsSuccess ? toolResult.Value : null;
                 if (p == null) return null;
                 var pipe = new FfmpegLivePipe(videoPath)

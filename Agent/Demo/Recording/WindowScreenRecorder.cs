@@ -69,6 +69,22 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         private string? _liveVideoPath;
         private volatile bool _paused;
 
+        // ── OFF-UI-THREAD CAPTURE (2026-09-02) ───────────────────────
+        // GDI PrintWindow against the app HWND, driven from a background
+        // thread, encoded once as raw BGRA. Replaces the UI-thread
+        // RenderTargetBitmap path that caused the stutter and could not
+        // see popups. See GdiWindowCapture for the full rationale.
+        private FfmpegRawPipe? _rawPipe;
+        private string? _rawVideoPath;
+        private IntPtr _targetHwnd = IntPtr.Zero;
+        private volatile bool _rawActive;
+
+        /// <summary>True when the fast off-thread pipeline produced the video.</summary>
+        public bool RawCaptureActive => _rawActive;
+
+        /// <summary>Final MP4 written directly by the raw pipeline, if any.</summary>
+        public string? RawVideoPath => _rawActive ? _rawVideoPath : null;
+
         public IReadOnlyList<RecordedFrame> Frames
         {
             get { lock (_framesGate) return _frames.ToArray(); }
@@ -165,8 +181,28 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             if (_settings.CaptureMicrophone)
                 MicAudioStarted = _mic.Start(System.IO.Path.Combine(parent, "mic.wav"));
 
+            // Resolve the target HWND ONCE, on the UI thread. After this
+            // the capture loop never touches the dispatcher again — that
+            // is the whole point of the new pipeline.
+            _targetHwnd = ResolveMainWindowHandle();
+            _rawActive = false;
+            _rawVideoPath = null;
+            try { _rawPipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            _rawPipe = null;
+
             var ct = _cts.Token;
-            _loop = Task.Run(() => LoopAsync(framesFolder, ct));
+
+            if (_targetHwnd != IntPtr.Zero)
+            {
+                _rawVideoPath = Path.Combine(parent, "capture.mp4");
+                _loop = Task.Run(() => RawLoopAsync(framesFolder, ct));
+            }
+            else
+            {
+                // No HWND (headless/test): keep the legacy path so
+                // recording degrades instead of disappearing.
+                _loop = Task.Run(() => LoopAsync(framesFolder, ct));
+            }
         }
 
         /// <summary>
@@ -209,6 +245,31 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 await Task.Delay(25).ConfigureAwait(false);
 
             Duration = Elapsed;
+
+            // Finalise the raw encoder FIRST: it holds the actual video.
+            // Bounded so a wedged ffmpeg cannot hold STOP open; +faststart
+            // means even a killed process leaves a playable file.
+            if (_rawPipe != null)
+            {
+                EncodeStage = "Finalising video…";
+                EncodePercent = 45;
+                try
+                {
+                    bool ok = await _rawPipe
+                        .FinishAsync(TimeSpan.FromSeconds(10))
+                        .ConfigureAwait(false);
+
+                    if (!ok) _rawActive = false;
+                }
+                catch (Exception ex)
+                {
+                    _rawActive = false;
+                    AppLogService.Warning(
+                        $"Video finalise failed: {ex.Message}",
+                        new Services.Logging.LogContext { Module = "Recording", Operation = "StopAsync" });
+                }
+            }
+
             try { await _audio.StopAsync().ConfigureAwait(false); }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: loopback is optional: " + ex.Message); }
             try { await _mic.StopAsync().ConfigureAwait(false); }
@@ -339,6 +400,165 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     // grid rather than firing a burst of catch-up captures,
                     // which would only deepen the backlog.
                     long behind = (long)(-wait.Ticks / interval.Ticks);
+                    slot += behind;
+                    Interlocked.Add(ref _droppedFrames, (int)Math.Min(behind, int.MaxValue));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resolves MainWindow's HWND. The ONLY dispatcher touch in the new
+        /// pipeline, done once at start.
+        /// </summary>
+        private static IntPtr ResolveMainWindowHandle()
+        {
+            try
+            {
+                var disp = Application.Current?.Dispatcher;
+                if (disp == null) return IntPtr.Zero;
+
+                return disp.Invoke(() =>
+                {
+                    var w = Application.Current?.MainWindow;
+                    if (w == null) return IntPtr.Zero;
+                    return new System.Windows.Interop.WindowInteropHelper(w).Handle;
+                });
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Could not resolve window handle for capture: {ex.Message}",
+                    new Services.Logging.LogContext { Module = "Recording", Operation = "ResolveHwnd" });
+                return IntPtr.Zero;
+            }
+        }
+
+        /// <summary>
+        /// THE REAL CAPTURE LOOP.
+        ///
+        /// Runs entirely on a background thread: GDI PrintWindow reads the
+        /// window's DWM-composited surface and the bytes go straight into
+        /// x264. The UI thread is never involved, which is what removes the
+        /// stutter, and DWM's surface includes owned popups, dropdowns and
+        /// dialogs — content the old visual-tree render could not see.
+        ///
+        /// Timing is frame-indexed against an absolute grid so it cannot
+        /// drift, and a late frame is repeated rather than dropped: a
+        /// constant-frame-rate stream keeps audio in sync, whereas a
+        /// missing frame silently shortens the video.
+        /// </summary>
+        private async Task RawLoopAsync(string framesFolder, CancellationToken ct)
+        {
+            int fps = Math.Max(1, _settings.Fps);
+            var interval = TimeSpan.FromMilliseconds(1000.0 / fps);
+
+            using var capture = new GdiWindowCapture();
+
+            if (!capture.Prepare(_targetHwnd))
+            {
+                AppLogService.Warning(
+                    "Window capture could not initialise; using legacy path.",
+                    new Services.Logging.LogContext { Module = "Recording", Operation = "RawLoop" });
+                await LoopAsync(framesFolder, ct).ConfigureAwait(false);
+                return;
+            }
+
+            var (outW, outH) = _settings.OutputSize;
+
+            _rawPipe = FfmpegRawPipe.TryStart(
+                _rawVideoPath!, fps,
+                capture.Width, capture.Height,
+                outW, outH,
+                _settings.EncodeCrf);
+
+            if (_rawPipe == null)
+            {
+                AppLogService.Warning(
+                    "Video encoder unavailable; using legacy path.",
+                    new Services.Logging.LogContext { Module = "Recording", Operation = "RawLoop" });
+                await LoopAsync(framesFolder, ct).ConfigureAwait(false);
+                return;
+            }
+
+            _rawActive = true;
+            int srcW = capture.Width, srcH = capture.Height;
+            var buffer = new byte[srcW * 4 * srcH];
+            int frameBytes = buffer.Length;
+
+            var epoch = DateTime.UtcNow;
+            long slot = 0;
+            bool haveFrame = false;
+            int blankStreak = 0;
+
+            while (!ct.IsCancellationRequested)
+            {
+                if (_paused)
+                {
+                    try { await Task.Delay(50, ct).ConfigureAwait(false); }
+                    catch (OperationCanceledException) { break; }
+                    epoch = DateTime.UtcNow - TimeSpan.FromTicks(interval.Ticks * slot);
+                    continue;
+                }
+
+                // Re-prepare only reallocates when the window actually
+                // resized. A size change mid-recording would break the
+                // rawvideo contract (fixed -s), so the stream keeps the
+                // original geometry and the new content is letterboxed by
+                // the scale/pad filter instead of shearing.
+                if (capture.Prepare(_targetHwnd)
+                    && capture.Width == srcW && capture.Height == srcH)
+                {
+                    if (capture.TryCapture(buffer))
+                    {
+                        haveFrame = true;
+                        blankStreak = capture.LastFrameWasBlank ? blankStreak + 1 : 0;
+                    }
+                }
+
+                if (haveFrame)
+                {
+                    // Repeat the previous frame when a capture fails, so
+                    // the stream stays constant-frame-rate.
+                    if (!_rawPipe.WriteFrame(buffer, frameBytes))
+                        break;   // encoder died
+
+                    Interlocked.Increment(ref _encodedFrames);
+                }
+                else
+                {
+                    Interlocked.Increment(ref _droppedFrames);
+                }
+
+                // Persistent black output means the driver ignored
+                // PW_RENDERFULLCONTENT. Bail to the legacy path rather
+                // than hand the user a black video.
+                if (blankStreak > fps * 2)
+                {
+                    AppLogService.Warning(
+                        "Window capture returned blank frames; using legacy path.",
+                        new Services.Logging.LogContext { Module = "Recording", Operation = "RawLoop" });
+
+                    _rawActive = false;
+                    try { await _rawPipe.FinishAsync(TimeSpan.FromSeconds(2)).ConfigureAwait(false); }
+                    catch (Exception ex) { AppLogService.Debug($"[RawLoop] finish: {ex.Message}"); }
+
+                    await LoopAsync(framesFolder, ct).ConfigureAwait(false);
+                    return;
+                }
+
+                slot++;
+                var wait = epoch + TimeSpan.FromTicks(interval.Ticks * slot) - DateTime.UtcNow;
+
+                if (wait > TimeSpan.Zero)
+                {
+                    try { await Task.Delay(wait, ct).ConfigureAwait(false); }
+                    catch (OperationCanceledException) { break; }
+                }
+                else if (-wait > interval)
+                {
+                    // Behind by whole slots: step onto the grid instead of
+                    // firing a catch-up burst that would deepen the backlog.
+                    long behind = -wait.Ticks / interval.Ticks;
                     slot += behind;
                     Interlocked.Add(ref _droppedFrames, (int)Math.Min(behind, int.MaxValue));
                 }
@@ -572,6 +792,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             try { Stop(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             try { _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             try { _pipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { _rawPipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             _audio.Dispose();
             _mic.Dispose();
             try { _encodeSlots.Dispose(); }

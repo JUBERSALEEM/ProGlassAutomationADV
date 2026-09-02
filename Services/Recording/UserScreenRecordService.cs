@@ -123,6 +123,59 @@ namespace ProGlassAutomation.Services.Recording
 
         public bool DemoIsRunning => CreateDemoPackageTool.SharedDirector.IsRunning;
 
+        /// <summary>
+        /// Shared success tail for both the fast (direct-capture) and the
+        /// legacy (frame-compose) paths, so the two cannot drift in what
+        /// they report, clean up or persist.
+        /// </summary>
+        private void FinishSaved(
+            string mp4,
+            WindowScreenRecorder recorder,
+            ScreenRecordSettings rec,
+            string folder)
+        {
+            var info = new FileInfo(mp4);
+            double? probed = FfmpegMp4Composer.TryReadDurationSeconds(mp4);
+
+            if (info.Length <= 0 || (probed.HasValue && probed.Value <= 0))
+            {
+                Fail("MP4 failed size/duration checks.");
+                return;
+            }
+
+            LastMp4Path = mp4;
+            LastFolder = folder;
+
+            string audioNote = (recorder.LiveAudioStarted ? "internal" : "") +
+                (recorder.LiveAudioStarted && recorder.MicAudioStarted ? "+" : "") +
+                (recorder.MicAudioStarted ? "mic" : "");
+            if (string.IsNullOrEmpty(audioNote)) audioNote = "no live audio";
+
+            string durationNote = probed.HasValue
+                ? $"ffprobe {probed.Value:0.00}s"
+                : $"recorder {recorder.Duration.TotalSeconds:0.00}s";
+
+            Status = $"Saved {Path.GetFileName(mp4)} ({info.Length} bytes). {durationNote}.";
+
+            try
+            {
+                File.WriteAllText(Path.Combine(folder, "RESULT.txt"),
+                    "COMPLETED\n" + mp4 + "\n" + durationNote + "\n");
+            }
+            catch (System.Exception ex)
+            {
+                AppLogService.Debug("[UserScreenRecordService] FinishSaved: sidecar is optional: " + ex.Message);
+            }
+
+            DemoRecordingChrome.ShowSaved(
+                mp4,
+                probed.HasValue ? TimeSpan.FromSeconds(probed.Value) : recorder.Duration,
+                EncodedFrames,
+                audioNote);
+
+            CleanupFolderForDemo(folder);
+        }
+
         public string? TryStart(ScreenRecordSettings? settings = null)
         {
             lock (_gate)
@@ -263,6 +316,35 @@ namespace ProGlassAutomation.Services.Recording
                 // whose duration is shorter than real time (fast playback).
                 double totalSecs = Math.Max(1, recorder.Duration.TotalSeconds);
                 double actualFps = Math.Clamp(recorder.EncodedFrames / totalSecs, 1, 60);
+
+                // ── FAST PATH ────────────────────────────────────────
+                // The off-thread capture pipeline already produced a
+                // finished H.264 MP4 while recording. Re-encoding it from
+                // JPEGs would add generation loss AND several seconds of
+                // waiting for no benefit, so mux the audio in (stream-copy
+                // the video) or just adopt the file when there is no audio.
+                if (recorder.RawCaptureActive
+                    && !string.IsNullOrWhiteSpace(recorder.RawVideoPath)
+                    && File.Exists(recorder.RawVideoPath))
+                {
+                    recorder.EncodeStage = "Finishing…";
+                    recorder.EncodePercent = 80;
+                    DemoRecordingChrome.UpdateStage("Finishing…");
+
+                    string? merged = await FfmpegMp4Composer
+                        .MuxVideoWithAudioAsync(recorder.RawVideoPath!, liveMix, mp4, ct)
+                        .ConfigureAwait(false);
+
+                    if (merged != null && FfmpegMp4Composer.IsValidMp4(mp4))
+                    {
+                        FinishSaved(mp4, recorder, rec, folder);
+                        return;
+                    }
+
+                    AppLogService.Warning(
+                        "Direct capture mux failed; falling back to frame compose.",
+                        new LogContext { Module = "Recording", Operation = "StopAsync" });
+                }
 
                 recorder.EncodeStage = "Composing video from captured frames…";
                 recorder.EncodePercent = 60;

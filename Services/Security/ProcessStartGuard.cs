@@ -245,7 +245,24 @@ namespace ProGlassAutomation.Services.Security
 
         // ── Safe start tool (ffmpeg, ffprobe) — UseShellExecute=false ──
 
+        /// <summary>
+        /// Starts a sanitized tool. <paramref name="redirectStdIn"/> opts
+        /// into a writable stdin pipe.
+        ///
+        /// It is OPT-IN rather than always-on deliberately: a redirected
+        /// stdin that nobody writes to leaves the child waiting on a handle
+        /// that never closes, which is a hang. Only streaming callers (the
+        /// raw video pipe) want it.
+        /// </summary>
+        public static Result<Process?> TryStartTool(
+            string toolPath, string args, string? correlationId, bool redirectStdIn)
+            => TryStartToolCore(toolPath, args, correlationId, redirectStdIn);
+
         public static Result<Process?> TryStartTool(string toolPath, string args, string? correlationId = null)
+            => TryStartToolCore(toolPath, args, correlationId, false);
+
+        private static Result<Process?> TryStartToolCore(
+            string toolPath, string args, string? correlationId, bool redirectStdIn)
         {
             var corrId = correlationId ?? CorrelationContext.NewId();
             using var scope = CorrelationContext.BeginScope(corrId);
@@ -293,7 +310,8 @@ namespace ProGlassAutomation.Services.Security
                     UseShellExecute = false, // critical for tools — no shell
                     CreateNoWindow = true,
                     RedirectStandardOutput = true,
-                    RedirectStandardError = true
+                    RedirectStandardError = true,
+                    RedirectStandardInput = redirectStdIn
                 };
 
                 var proc = Process.Start(psi);
