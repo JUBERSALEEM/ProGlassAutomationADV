@@ -452,9 +452,25 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             finally { IsSaving = false; }
         }
 
-        private void OpenAttachment(DnAttachmentRowViewModel row)
+        /// <summary>
+        /// Opens an attachment.
+        ///
+        /// Uses the ASYNC service overload: the synchronous one validates
+        /// with .GetAwaiter().GetResult(), which does file I/O and MIME
+        /// sniffing on the UI thread and visibly stalls the window for a
+        /// large attachment or a network path.
+        /// </summary>
+        private async void OpenAttachment(DnAttachmentRowViewModel row)
         {
-            try { _attachmentService.OpenInDefaultApp(row.FilePath); }
+            try
+            {
+                var result = await _attachmentService
+                    .OpenInDefaultAppAsync(row.FilePath)
+                    .ConfigureAwait(true);
+
+                if (result.IsFailure)
+                    throw new InvalidOperationException(result.Error);
+            }
             catch (Exception ex)
             {
                 _dialogs.Show(

@@ -302,6 +302,38 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
             }
         }
 
+        /// <summary>
+        /// Async form of <see cref="OpenInDefaultAppWithResult"/>.
+        ///
+        /// The synchronous overloads call
+        /// ValidateAttachmentAsync(...).GetAwaiter().GetResult(), which
+        /// performs real file I/O and MIME sniffing. Both are invoked from
+        /// UI click handlers, so on a large attachment or a slow/network
+        /// drive the window stops repainting until the read finishes.
+        ///
+        /// There is no deadlock — the chain uses ConfigureAwait(false)
+        /// throughout — but blocking the UI thread on disk is still a
+        /// stall the user feels. New call sites should await this.
+        ///
+        /// The synchronous overloads are retained so existing callers keep
+        /// working; they are simply no longer the recommended path.
+        /// </summary>
+        public async Task<Result> OpenInDefaultAppAsync(
+            string filePath, string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", "OpenAttachment");
+            using var scope = CorrelationContext.BeginScope(corrId);
+
+            var validationResult = await AttachmentValidationService
+                .ValidateAttachmentAsync(filePath, corrId)
+                .ConfigureAwait(true);   // resume on UI thread: ShellExecute wants it
+
+            if (validationResult.IsFailure)
+                return Result.Fail(validationResult.Error, corrId, null, validationResult.ErrorId);
+
+            return ProcessStartGuard.TryOpenFile(filePath, corrId);
+        }
+
         // Phase 8: New Result-based API for ViewModels
         public Result OpenInDefaultAppWithResult(string filePath, string? correlationId = null)
         {
