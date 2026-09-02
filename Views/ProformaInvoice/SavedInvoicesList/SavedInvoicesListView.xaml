@@ -445,9 +445,19 @@
                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                                   CommandParameter="{Binding PlacementTarget.DataContext,
                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                                        <MenuItem Header="{DynamicResource ProformaInvoice.ExportDossierPdf}"
+                                                                  Command="{Binding PlacementTarget.Tag.ExportDossierPdfCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                  CommandParameter="{Binding PlacementTarget.DataContext,
+                                                                      RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
                                                         <Separator/>
                                                         <MenuItem Header="{DynamicResource ProformaInvoice.ExportDossierInternal}"
                                                                   Command="{Binding PlacementTarget.Tag.ExportInternalDossierCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                  CommandParameter="{Binding PlacementTarget.DataContext,
+                                                                      RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                                        <MenuItem Header="{DynamicResource ProformaInvoice.ExportDossierInternalPdf}"
+                                                                  Command="{Binding PlacementTarget.Tag.ExportInternalDossierPdfCommand,
                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                                   CommandParameter="{Binding PlacementTarget.DataContext,
                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>

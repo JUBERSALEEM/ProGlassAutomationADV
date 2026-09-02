@@ -251,6 +251,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// </summary>
         private async Task ExportDossierAsync(
             SavedInvoiceListItem item, bool includeProfitLoss)
+            => await ExportDossierAsync(item, includeProfitLoss, asPdf: false);
+
+        /// <summary>
+        /// Dossier export. <paramref name="asPdf"/> selects the print/email
+        /// form; Excel is the working form. Both honour the same
+        /// P&amp;L gate, so the format cannot become a way around it.
+        /// </summary>
+        private async Task ExportDossierAsync(
+            SavedInvoiceListItem item, bool includeProfitLoss, bool asPdf)
         {
             if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
                 ProGlassAutomation.Services.Audit.AppPermissions.ProformaExport,
@@ -271,10 +280,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 if (entity == null) return;
 
                 var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
-                var layout = new ProformaDossierExcelLayout(
-                    entity, snapshot, includeProfitLoss);
 
-                var engine = new ExcelExportEngine();
                 var request = new ExportRequest
                 {
                     PromptForLocation = true,
@@ -284,7 +290,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         + (includeProfitLoss ? "_INTERNAL" : "")
                 };
 
-                var result = await engine.ExportAsync(layout, request);
+                ExportResult result;
+                if (asPdf)
+                {
+                    var pdfLayout = new ProformaDossierPdfLayout(
+                        entity, snapshot, includeProfitLoss);
+                    result = await new PdfExportEngine()
+                        .ExportAsync(pdfLayout, request);
+                }
+                else
+                {
+                    var xlLayout = new ProformaDossierExcelLayout(
+                        entity, snapshot, includeProfitLoss);
+                    result = await new ExcelExportEngine()
+                        .ExportAsync(xlLayout, request);
+                }
 
                 LastExportStatus = result.Success
                     ? (includeProfitLoss
