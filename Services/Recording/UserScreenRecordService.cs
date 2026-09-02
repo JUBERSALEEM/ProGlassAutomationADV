@@ -133,7 +133,23 @@ namespace ProGlassAutomation.Services.Recording
                     return "A demo walk is recording this window. Cancel the demo first.";
             }
 
-            FfmpegMp4Composer.InvalidateCache();
+            // START MUST BE INSTANT.
+            //
+            // InvalidateCache() forced FindCore() to re-run on the UI
+            // thread, and when ffmpeg is not in the tools folder FindCore
+            // SPAWNS "ffmpeg -version" twice with a 1.5 s timeout each --
+            // up to 3 seconds of blocking process launches on every START
+            // click. That is the "stop start not instant" delay.
+            //
+            // The cache is only invalidated when the previous lookup FAILED,
+            // which is the single case where re-checking can change the
+            // answer (the user just installed ffmpeg). A successful lookup
+            // is stable for the process lifetime.
+            if (FfmpegMp4Composer.Find() == null)
+            {
+                FfmpegMp4Composer.InvalidateCache();
+            }
+
             if (FfmpegMp4Composer.Find() == null)
             {
                 return "ffmpeg is not installed, so no MP4 can be written. " +

@@ -66,7 +66,18 @@ namespace ProGlassAutomation.Views.Shared
             // (captures, workflow dispatch, animations), so the tick was
             // starved and the elapsed time never visibly advanced.
             // Render priority ticks reliably yet still yields to input.
-            _timer = new DispatcherTimer(DispatcherPriority.Render)
+            // 2026-09-02 — PRIORITY INVERSION FIX.
+            //
+            // Render (7) sits ABOVE Loaded (6), which is the priority the
+            // frame capture posts at. So this once-per-250ms HUD tick --
+            // which only repaints a clock and repositions a small window --
+            // was PREEMPTING the frame captures it exists to report on.
+            //
+            // Loaded matches the capture priority, so the two interleave
+            // fairly instead of the HUD winning every contest. The clock
+            // still updates reliably because Loaded is well above the
+            // Background priority that originally starved it.
+            _timer = new DispatcherTimer(DispatcherPriority.Loaded)
             {
                 Interval = TimeSpan.FromMilliseconds(250)
             };

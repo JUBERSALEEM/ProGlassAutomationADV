@@ -67,7 +67,16 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         /// unsharp chain recovers most of the sharpness at a fraction of the
         /// CPU. Power users recording 4K on a fast machine can re-enable it.
         /// </summary>
-        public bool Supersample { get; set; }
+        public bool Supersample { get; set; } = true;
+
+        /// <summary>
+        /// Draw a synthetic cursor dot into each frame. The OS cursor is not
+        /// part of a RenderTargetBitmap capture, so this is the only way to
+        /// show it — but it costs a per-frame CPU loop over the pixel buffer
+        /// and it is a DOT, not the real pointer shape. Off by default now
+        /// that quality is the priority.
+        /// </summary>
+        public bool DrawCursor { get; set; }
 
         /// <summary>
         /// When true, frames are ALSO piped into a live H.264 encoder during
@@ -104,20 +113,25 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             }
             : OutputSize;
 
-        // 2026-08-25 senior fix — 94–98 was overkill for live capture:
-        // JPEG encoding is the recorder's hot path, and at q96+ each
-        // frame takes 2–3x longer, the pending-encode queue fills and
-        // captures get skipped (laggy, jumpy recordings). 84–88 is
-        // visually indistinguishable for screen content and keeps the
-        // encoder ahead of the capture loop. The final MP4 re-encode at
-        // STOP still uses full-quality x264 (EncodeCrf).
+        // 2026-09-02 — quality restored on explicit instruction ("no matter
+        // the size ... just screen recording should be crispy clear").
+        //
+        // These were dropped to 84-88 to keep the JPEG encoder ahead of the
+        // capture loop. That was treating a symptom: the real bottleneck is
+        // the UI-thread RenderTargetBitmap capture, not JPEG. Lowering
+        // quality cost sharpness on exactly the content screen recording is
+        // for -- small text and thin UI strokes, which are what JPEG
+        // degrades first -- while barely moving the frame budget.
+        //
+        // Encoding runs on the thread pool with a 24-deep queue, so the
+        // extra milliseconds are absorbed there rather than on the UI thread.
         public int JpegQualityFor => Quality switch
         {
-            ScreenRecordQuality.Hd720 => 84,
-            ScreenRecordQuality.FullHd => 86,
-            ScreenRecordQuality.Qhd2K => 87,
-            ScreenRecordQuality.Uhd4K => 88,
-            _ => 86
+            ScreenRecordQuality.Hd720 => 95,
+            ScreenRecordQuality.FullHd => 96,
+            ScreenRecordQuality.Qhd2K => 97,
+            ScreenRecordQuality.Uhd4K => 98,
+            _ => 96
         };
 
         public int EncodeCrf => Quality switch
@@ -126,11 +140,13 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             // already aggressive, nudged one step further for cleaner
             // screen text. Final encode runs once at STOP, so the extra
             // bitrate costs disk, not recording latency.
-            ScreenRecordQuality.Hd720 => 16,
-            ScreenRecordQuality.FullHd => 15,
-            ScreenRecordQuality.Qhd2K => 14,
+            // Lowered further: size is explicitly not a constraint, and
+            // CRF 12-14 is visually lossless for screen content.
+            ScreenRecordQuality.Hd720 => 14,
+            ScreenRecordQuality.FullHd => 13,
+            ScreenRecordQuality.Qhd2K => 12,
             ScreenRecordQuality.Uhd4K => 12,
-            _ => 15
+            _ => 13
         };
 
         public string Summary
@@ -155,6 +171,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             CaptureMicrophone = CaptureMicrophone,
             JpegQuality = JpegQuality,
             Supersample = Supersample,
+            DrawCursor = DrawCursor,
             LivePreviewEncode = LivePreviewEncode
         };
 

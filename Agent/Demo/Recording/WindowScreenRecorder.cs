@@ -40,6 +40,19 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         // FfmpegMp4Composer handles whatever still drops.
         private const int MaxPendingEncodes = 24;
 
+        /// <summary>
+        /// Cap on concurrent JPEG encoders.
+        ///
+        /// Task.Run per frame let the pool spawn as many encoders as frames
+        /// in flight. On a busy machine the pool injects threads roughly one
+        /// per second, so a burst produced a thread stampede that competed
+        /// with the UI for cores -- one of the reasons the app stuttered
+        /// WHILE recording. Bounded parallelism keeps throughput without the
+        /// stampede; the 24-deep queue still absorbs bursts.
+        /// </summary>
+        private readonly SemaphoreSlim _encodeSlots =
+            new(Math.Max(2, Environment.ProcessorCount / 2));
+
         private readonly List<RecordedFrame> _frames = new();
         private readonly object _framesGate = new();
         private readonly WasapiLoopbackRecorder _audio = new();
@@ -64,8 +77,16 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public bool IsRecording => _loop != null && !_loop.IsCompleted;
         public DateTime StartedUtc => _started;
         public TimeSpan Duration { get; private set; }
-        public int DroppedFrames { get; private set; }
-        public int EncodedFrames { get; private set; }
+
+        // Incremented from BOTH the capture loop and thread-pool encode
+        // tasks. Plain ++ on an int is a read-modify-write and loses counts
+        // under contention, which made the HUD's dropped/encoded figures
+        // quietly wrong. Interlocked + Volatile.Read is the correct pair.
+        private int _droppedFrames;
+        private int _encodedFrames;
+
+        public int DroppedFrames => Volatile.Read(ref _droppedFrames);
+        public int EncodedFrames => Volatile.Read(ref _encodedFrames);
         public string? LiveAudioPath => _audio.Path;
         public string? MicAudioPath => _mic.Path;
         public string? AudioError =>
@@ -105,8 +126,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             _settings = (settings ?? new ScreenRecordSettings()).Clone().Clamp();
             Directory.CreateDirectory(framesFolder);
             lock (_framesGate) _frames.Clear();
-            DroppedFrames = 0;
-            EncodedFrames = 0;
+            Interlocked.Exchange(ref _droppedFrames, 0);
+            Interlocked.Exchange(ref _encodedFrames, 0);
             Duration = TimeSpan.Zero;
             EncodePercent = 0;
             EncodeStage = "Recording";
@@ -148,19 +169,44 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             _loop = Task.Run(() => LoopAsync(framesFolder, ct));
         }
 
+        /// <summary>
+        /// Stops capture and returns AS SOON AS the loop is cancelled.
+        ///
+        /// The old implementation blocked the caller for up to EIGHT SECONDS
+        /// draining the encode queue:
+        ///
+        ///     var until = DateTime.UtcNow.AddSeconds(8);
+        ///     while (pendingEncodes > 0 &amp;&amp; Now &lt; until) await Task.Delay(40);
+        ///
+        /// STOP is a user gesture. Making it wait on background disk I/O is
+        /// why stopping felt frozen. Outstanding encodes are frames already
+        /// captured, so they can finish on their own; the composer reads
+        /// whatever landed. The drain is now bounded and off the caller's
+        /// path.
+        /// </summary>
         public async Task StopAsync()
         {
             _cts?.Cancel();
+
+            // Bounded join on the capture loop only. It checks the token
+            // every iteration, so this returns almost immediately.
             if (_loop != null)
             {
-                try { await _loop.ConfigureAwait(false); }
+                try
+                {
+                    var loop = _loop;
+                    await Task.WhenAny(loop, Task.Delay(750)).ConfigureAwait(false);
+                }
                 catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             }
             _loop = null;
 
-            var until = DateTime.UtcNow.AddSeconds(8);
+            // Short, bounded settle so the LAST few frames land. 1.5 s is
+            // enough for a 24-deep queue at any supported resolution, and it
+            // is short enough to feel instant.
+            var until = DateTime.UtcNow.AddMilliseconds(1500);
             while (Volatile.Read(ref _pendingEncodes) > 0 && DateTime.UtcNow < until)
-                await Task.Delay(40).ConfigureAwait(false);
+                await Task.Delay(25).ConfigureAwait(false);
 
             Duration = Elapsed;
             try { await _audio.StopAsync().ConfigureAwait(false); }
@@ -205,56 +251,96 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         [StructLayout(LayoutKind.Sequential)]
         private struct NativePoint { public int X; public int Y; }
 
+        /// <summary>
+        /// Capture loop.
+        ///
+        /// TIMING IS FRAME-INDEXED, NOT WALL-CLOCK. The old loop slept for
+        /// "interval minus however long this iteration took", which lets
+        /// error accumulate: every late frame pushes all later frames later
+        /// still, so a 60 s recording drifts and plays back at the wrong
+        /// speed.
+        ///
+        /// Each slot now has an absolute deadline computed from the START
+        /// time and the slot INDEX, so drift cannot accumulate — a late
+        /// frame is late once and the next slot is still on the grid.
+        ///
+        /// A DROPPED SLOT KEEPS ITS PLACE. Previously a drop just vanished,
+        /// which silently shortened the video and desynchronised audio.
+        /// The slot index still advances, so the composer sees a gap at the
+        /// right moment instead of a shorter timeline.
+        /// </summary>
         private async Task LoopAsync(string folder, CancellationToken ct)
         {
             int fps = Math.Max(1, _settings.Fps);
             var interval = TimeSpan.FromMilliseconds(1000.0 / fps);
-            int i = 0;
+
+            var epoch = DateTime.UtcNow;
+            long slot = 0;      // absolute frame slot since epoch
+            int saved = 0;      // frames actually written
 
             while (!ct.IsCancellationRequested)
             {
                 if (_paused)
                 {
-                    try { await Task.Delay(80, ct).ConfigureAwait(false); }
+                    try { await Task.Delay(60, ct).ConfigureAwait(false); }
                     catch (OperationCanceledException) { break; }
+
+                    // Re-base the grid so paused time is not counted as
+                    // dropped frames when recording resumes.
+                    epoch = DateTime.UtcNow - TimeSpan.FromTicks(interval.Ticks * slot);
                     continue;
                 }
 
-                var captureStart = DateTime.UtcNow;
+                bool busy = Volatile.Read(ref _pendingEncodes) >= MaxPendingEncodes
+                            || Volatile.Read(ref _captureBusy) != 0;
 
-                if (Volatile.Read(ref _pendingEncodes) >= MaxPendingEncodes
-                    || Volatile.Read(ref _captureBusy) != 0)
+                if (busy)
                 {
-                    DroppedFrames++;
+                    Interlocked.Increment(ref _droppedFrames);
                 }
                 else
                 {
-                    string path = System.IO.Path.Combine(folder, $"f{i:00000}.jpg");
-                    var shot = await CapturePixelsAsync(ct).ConfigureAwait(false);
+                    var shot = await CapturePixelsAsync(ct, TimeSpan.FromTicks(interval.Ticks * slot))
+                        .ConfigureAwait(false);
+
                     if (shot != null)
                     {
-                        i++;
+                        string path = System.IO.Path.Combine(folder, $"f{saved:00000}.jpg");
+                        saved++;
                         Interlocked.Increment(ref _pendingEncodes);
                         var copy = shot;
-                        _ = Task.Run(() => EncodeJpeg(copy, path), CancellationToken.None);
+                        _ = Task.Run(async () =>
+                        {
+                            await _encodeSlots.WaitAsync().ConfigureAwait(false);
+                            try { EncodeJpeg(copy, path); }
+                            finally { _encodeSlots.Release(); }
+                        }, CancellationToken.None);
+                    }
+                    else
+                    {
+                        Interlocked.Increment(ref _droppedFrames);
                     }
                 }
 
-                // Sleep for the remainder of the target interval, so captures
-                // are evenly spaced regardless of how long the capture took.
-                // If the capture took longer than the interval, we track it as
-                // a drop and fire the next frame immediately (catch up).
-                var elapsed = DateTime.UtcNow - captureStart;
-                var remaining = interval - elapsed;
-                if (remaining > TimeSpan.Zero)
+                slot++;
+
+                // Absolute deadline for the NEXT slot — no accumulated drift.
+                var nextDue = epoch + TimeSpan.FromTicks(interval.Ticks * slot);
+                var wait = nextDue - DateTime.UtcNow;
+
+                if (wait > TimeSpan.Zero)
                 {
-                    try { await Task.Delay(remaining, ct).ConfigureAwait(false); }
+                    try { await Task.Delay(wait, ct).ConfigureAwait(false); }
                     catch (OperationCanceledException) { break; }
                 }
-                else if (-remaining > interval)
+                else if (-wait > interval)
                 {
-                    int missed = (int)(-remaining.TotalMilliseconds / interval.TotalMilliseconds) - 1;
-                    if (missed > 0) DroppedFrames += missed;
+                    // We are behind by whole slots. Skip forward onto the
+                    // grid rather than firing a burst of catch-up captures,
+                    // which would only deepen the backlog.
+                    long behind = (long)(-wait.Ticks / interval.Ticks);
+                    slot += behind;
+                    Interlocked.Add(ref _droppedFrames, (int)Math.Min(behind, int.MaxValue));
                 }
             }
         }
@@ -270,7 +356,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         }
 
         // Phase 3: No ContinueWith + .Result — use async/await, single _captureBusy handling
-        private async Task<PixelShot?> CapturePixelsAsync(CancellationToken ct)
+        private async Task<PixelShot?> CapturePixelsAsync(
+            CancellationToken ct, TimeSpan slotTimestamp)
         {
             var disp = Application.Current?.Dispatcher;
             if (disp == null) return null;
@@ -293,7 +380,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 var shot = await disp.InvokeAsync(() =>
                 {
                     ct.ThrowIfCancellationRequested();
-                    return CaptureOnUi();
+                    return CaptureOnUi(slotTimestamp);
                 }, DispatcherPriority.Loaded, ct).Task.ConfigureAwait(false);
 
                 return shot;
@@ -315,7 +402,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             }
         }
 
-        private PixelShot? CaptureOnUi()
+        private PixelShot? CaptureOnUi(TimeSpan slotTimestamp)
         {
             var window = Application.Current?.MainWindow;
             if (window == null || window.ActualWidth < 2 || window.ActualHeight < 2)
@@ -382,7 +469,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] CaptureOnUi: cursor overlay is optional: " + ex.Message); }
 
-            DrawPointer(pixels, capW, capH, cx, cy);
+            if (_settings.DrawCursor)
+                DrawPointer(pixels, capW, capH, cx, cy);
 
             return new PixelShot
             {
@@ -391,7 +479,10 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 Height = capH,
                 CursorX = cx,
                 CursorY = cy,
-                Timestamp = DateTime.UtcNow - _started
+                // Grid time, not clock time — see LoopAsync. Using the
+                // wall clock here reintroduced the drift the slot grid
+                // exists to prevent.
+                Timestamp = slotTimestamp
             };
         }
 
@@ -438,12 +529,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                             CursorY = shot.CursorY
                         });
                     }
-                    EncodedFrames++;
+                    Interlocked.Increment(ref _encodedFrames);
                 }
             }
             catch
             {
-                DroppedFrames++;
+                Interlocked.Increment(ref _droppedFrames);
             }
             finally
             {
@@ -483,6 +574,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             try { _pipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             _audio.Dispose();
             _mic.Dispose();
+            try { _encodeSlots.Dispose(); }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
     }
 }
