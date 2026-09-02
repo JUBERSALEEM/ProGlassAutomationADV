@@ -141,7 +141,7 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBox Grid.Column="0"
-                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                                  Style="{StaticResource ModuleListFilterInputStyle}"
                                  ToolTip="{DynamicResource ProformaInvoice.SearchRefCompanyCustomerProject}"/>
 

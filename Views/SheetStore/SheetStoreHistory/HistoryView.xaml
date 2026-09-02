@@ -194,7 +194,7 @@
                         SnapsToDevicePixels="True">
                     <DockPanel>
                         <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                                  BorderThickness="0" Background="Transparent"
                                  VerticalAlignment="Center" FontSize="{StaticResource TextBodyLarge}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"/>

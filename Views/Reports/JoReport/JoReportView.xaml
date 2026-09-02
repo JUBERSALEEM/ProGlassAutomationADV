@@ -116,7 +116,7 @@
                             <!-- Search -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Action.Search}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Width="170" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="JO # / PI #..." ToolTip="{DynamicResource Reports.JoReport.SearchJobOrderProformaCustomer}"/>
+                                <TextBox Width="170" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}" Tag="JO # / PI #..." ToolTip="{DynamicResource Reports.JoReport.SearchJobOrderProformaCustomer}"/>
                             </StackPanel>
 
                             <!-- Date From -->

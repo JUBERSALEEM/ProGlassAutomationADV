@@ -77,7 +77,7 @@
                     Height="38"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center">
-                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                          BorderThickness="0"
                          Background="Transparent"
                          FontSize="{StaticResource TextBodyLarge}"

@@ -139,7 +139,7 @@
                             <!-- Search -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Action.Search}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Width="160" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Invoice # / PI #..." ToolTip="{DynamicResource Reports.TaxInvoiceReport.SearchInvoicePICustomer}"/>
+                                <TextBox Width="160" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}" Tag="Invoice # / PI #..." ToolTip="{DynamicResource Reports.TaxInvoiceReport.SearchInvoicePICustomer}"/>
                             </StackPanel>
 
                             <!-- Date From -->
