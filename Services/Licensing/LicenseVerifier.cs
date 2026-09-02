@@ -469,10 +469,13 @@ namespace ProGlassAutomation.Services.Licensing
             {
                 using var rsa = RSA.Create();
                 rsa.FromXmlString(publicKeyXml);
+                // PSS ONLY — the PKCS#1 v1.5 fallback was a security
+                // gap (widens the acceptance surface for padding oracle
+                // and Bleichenbacher-style attacks). All production and
+                // generator licenses are signed with PSS; no shipped
+                // license uses v1.5.
                 return rsa.VerifyData(message, signature,
-                           HashAlgorithmName.SHA256, RSASignaturePadding.Pss)
-                    || rsa.VerifyData(message, signature,
-                           HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+                           HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
             }
             catch (Exception ex)
             {

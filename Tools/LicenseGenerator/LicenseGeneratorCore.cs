@@ -87,6 +87,19 @@ public static class LicenseGeneratorCore
             if (plan == null)
                 return new LicenseKeyIssueResult { Success = false, Message = "Pick a plan first." };
 
+            // SECURITY: Rate limiter — prevent mass key generation
+            if (!KeyProtection.CheckRateLimit(out string? rateReason))
+            {
+                return new LicenseKeyIssueResult
+                {
+                    Success = false,
+                    Message = rateReason ?? "Rate limit reached."
+                };
+            }
+
+            // SECURITY: Use DPAPI-protected key instead of plain-text const
+            string privateKey = KeyProtection.GetPrivateKey();
+
             var gen = LicenseService.Create(
                 new LicenseRequest
                 {
@@ -98,7 +111,7 @@ public static class LicenseGeneratorCore
                     Features = new List<string> { "*" },
                     DeviceBinding = "Unbound"
                 },
-                ProductionSigningKey.PrivateKeyXml,
+                privateKey,
                 ProductionSigningKey.KeyId);
 
             if (!gen.Success || string.IsNullOrWhiteSpace(gen.LicenseJson))
@@ -136,6 +149,11 @@ public static class LicenseGeneratorCore
             }
 
             DateTime? expires = gen.Document?.ExpiresAtUtc?.ToUniversalTime();
+            string armoredKey = LicenseKeyArmor.Encode(gen.LicenseJson);
+
+            // SECURITY: Audit log every successful key generation
+            KeyProtection.RecordGeneration(plan.Name, armoredKey);
+
             return new LicenseKeyIssueResult
             {
                 Success = true,
@@ -143,7 +161,7 @@ public static class LicenseGeneratorCore
                     "Signed {0} license key · full features · expires {1} (UTC). Send the PGKEY1 block to the customer.",
                     plan.Name,
                     expires?.ToString("yyyy-MM-dd") ?? "never"),
-                ArmoredKey = LicenseKeyArmor.Encode(gen.LicenseJson),
+                ArmoredKey = armoredKey,
                 LicenseJson = gen.LicenseJson,
                 SigningKeyId = gen.KeyId,
                 Document = gen.Document
