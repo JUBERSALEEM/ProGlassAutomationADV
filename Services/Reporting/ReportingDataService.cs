@@ -80,6 +80,18 @@ namespace ProGlassAutomation.Services.Reporting
             ReportingFilter filter, CancellationToken ct = default);
 
         /// <summary>
+        /// Cross-module ORDER-TO-CASH view: Proforma -> Job Order ->
+        /// Delivery -> Tax Invoice -> Paid, with the conversion rate at
+        /// each step so a bottleneck is visible.
+        ///
+        /// Composed from the existing per-module summaries under ONE
+        /// filter, so it can never disagree with the reports it
+        /// summarises.
+        /// </summary>
+        Task<ExecutiveSummary> GetExecutiveSummaryAsync(
+            ReportingFilter filter, CancellationToken ct = default);
+
+        /// <summary>
         /// The Delivery Notes that delivered this exact row (detail panel):
         /// DN #, delivery date, status, quantity delivered in each DN.
         /// </summary>
