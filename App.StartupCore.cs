@@ -767,6 +767,20 @@ namespace ProGlassAutomation
             // until the window is actually in the foreground.
             await BringMainWindowToForegroundAsync(mainWindow);
 
+            // FIRST-LAUNCH LANGUAGE OFFER.
+            //
+            // English is now the launch default everywhere. Previously the
+            // app silently switched to the region's language -- once during
+            // Initialize(), and again when GeoService resolved a second or
+            // two later, flipping the whole UI mid-session. Neither asked.
+            //
+            // Shown here, after the shell is visible and has the foreground,
+            // so it is a modal owned by a real window rather than a dialog
+            // racing the splash. Asked at most ONCE per install: the flag is
+            // written whichever way it is answered, including Escape or the
+            // window's X.
+            await ShowLanguageOfferIfPendingAsync(mainWindow);
+
             // 15) v3 OTA §18 — daily background update check.
             // Fully async + offline-safe; never delays or blocks
             // startup, never affects normal operation (spec §17).
@@ -842,6 +856,76 @@ namespace ProGlassAutomation
         /// is complemented by forcing the Win32 foreground so a full-screen
         /// Topmost splash close cannot leave the shell inactive or behind.
         /// </summary>
+        /// <summary>
+        /// Offers the detected region's language once, on first launch.
+        ///
+        /// LocalizationService.GetPendingRegionalSuggestion() owns every
+        /// "should we ask?" rule; this method owns the UI and the
+        /// persistence. It sets LanguagePromptShown regardless of the
+        /// answer -- "keep English" is a real decision and must silence the
+        /// prompt permanently -- and writes it BEFORE applying the language
+        /// so a failure in the switch cannot cause the question to be asked
+        /// again on the next launch.
+        ///
+        /// Never throws: a first-run nicety must not be able to break
+        /// startup.
+        /// </summary>
+        private static async Task ShowLanguageOfferIfPendingAsync(Window owner)
+        {
+            try
+            {
+                var settings = Config?.Localization;
+                if (settings == null) return;
+
+                var suggested = Services.Localization.LocalizationService
+                    .Instance.GetPendingRegionalSuggestion(settings);
+                if (suggested == null) return;
+
+                // Let the shell finish its first render before stealing
+                // focus with a modal.
+                await Task.Yield();
+
+                var dialog = new Views.Shared.LanguageSuggestionDialog(suggested)
+                {
+                    Owner = owner
+                };
+
+                dialog.ShowDialog();
+
+                // Asked. Never ask again, whichever way it went.
+                settings.LanguagePromptShown = true;
+
+                if (dialog.SwitchRequested)
+                {
+                    settings.Language = suggested.Code;
+                    Services.Localization.LocalizationService.Instance
+                        .ApplyLanguage(suggested.Code, persist: true);
+                }
+
+                Services.AI.AIConfig.ConfigService.Save(Config!);
+
+                AppLogService.Info(
+                    dialog.SwitchRequested
+                        ? $"Language offer accepted: switched to {suggested.Code}."
+                        : "Language offer declined: staying on English.",
+                    new LogContext
+                    {
+                        Module = "Localization",
+                        Operation = "FirstRunLanguageOffer"
+                    });
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"First-run language offer failed: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Localization",
+                        Operation = "FirstRunLanguageOffer"
+                    });
+            }
+        }
+
         private static async Task BringMainWindowToForegroundAsync(Window window)
         {
             try

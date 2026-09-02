@@ -78,16 +78,18 @@ namespace ProGlassAutomation.Services.Localization
             if (LanguageCatalog.Find(requested) == null)
                 requested = LanguageCatalog.Primary.Code;
 
-            // Location hint (GeoService may not have resolved yet — it is
-            // applied again when geo arrives).
-            if (settings.AutoSuggestByRegion &&
-                LanguageCatalog.Find(requested)?.Code == LanguageCatalog.Primary.Code)
-            {
-                var suggested = LanguageCatalog.Suggest(settings.LastKnownCountryIso);
-                if (suggested.Code != LanguageCatalog.Primary.Code)
-                    requested = suggested.Code;
-            }
-
+            // ENGLISH IS THE LAUNCH DEFAULT (2026-09-02).
+            //
+            // This block used to SILENTLY switch the whole app to the
+            // region's language before the first frame -- a user in the UAE
+            // opened the app and found it in Arabic without ever being
+            // asked, and had to hunt through Settings to get back.
+            //
+            // The suggestion is now an OFFER, not an override: startup
+            // always honours the saved/primary language, and
+            // GetPendingRegionalSuggestion() lets the shell ask once, after
+            // the UI is up. A saved choice (settings.Language) is used as-is
+            // and never second-guessed.
             ApplyLanguage(requested, persist: false);
         }
 
@@ -174,27 +176,87 @@ namespace ProGlassAutomation.Services.Localization
         /// </summary>
         public void ApplyRegionalSuggestion(string countryIso)
         {
-            if (_userPicked) return;
-            if (App.Config?.Localization?.AutoSuggestByRegion != true) return;
+            // NO LONGER SWITCHES THE LANGUAGE (2026-09-02).
+            //
+            // This fired when GeoService resolved the country -- typically a
+            // second or two AFTER the window was already on screen -- and
+            // called ApplyLanguage(persist: true). The entire UI would flip
+            // to Arabic/Hindi/Chinese mid-session, with the change written
+            // to config, without the user ever being asked.
+            //
+            // Together with the startup block in Initialize(), that was two
+            // separate silent overrides. English is now the launch default
+            // and the regional language is OFFERED once, by the shell, via
+            // GetPendingRegionalSuggestion().
+            //
+            // All this does now is record the detected country so the offer
+            // can be made. Never switches, never persists a language.
             if (string.IsNullOrWhiteSpace(countryIso)) return;
 
-            var suggested = LanguageCatalog.Suggest(countryIso);
-            if (suggested.Code == _current.Code) return;
-
-            ApplyLanguage(suggested.Code, persist: true);
             try
             {
-                // Remember what geo picked so the switch is visible in
-                // settings, not a surprise in the language box.
-                if (App.Config != null)
-                    ConfigService.Save(App.Config);
+                var settings = App.Config?.Localization;
+                if (settings == null) return;
+
+                if (string.Equals(settings.LastKnownCountryIso, countryIso,
+                        StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                settings.LastKnownCountryIso = countryIso;
+                ConfigService.Save(App.Config!);
             }
-            catch { /* best-effort */ }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    $"[Localization] country record failed: {ex.Message}");
+            }
         }
 
         /// <summary>True while the current language is the automatically
         /// suggested one (user has not overridden it).</summary>
         public bool IsUserPicked => _userPicked;
+
+        /// <summary>
+        /// Returns the language to OFFER the user on first launch, or null
+        /// when no prompt should be shown.
+        ///
+        /// Null (stay silent) when any of these hold:
+        ///   • the prompt has already been shown once — asked and answered,
+        ///     regardless of which way, so it is never asked again;
+        ///   • regional suggestion is switched off in settings;
+        ///   • the user already picked a language this session;
+        ///   • the saved language is not the primary one, i.e. a previous
+        ///     choice is already in force;
+        ///   • no country is known yet, or the region maps to English.
+        ///
+        /// This only READS state. The caller decides whether to prompt, and
+        /// is responsible for setting LanguagePromptShown so the question
+        /// is not repeated.
+        /// </summary>
+        public LanguageInfo? GetPendingRegionalSuggestion(
+            LocalizationSettings? settings)
+        {
+            if (settings == null) return null;
+            if (settings.LanguagePromptShown) return null;
+            if (!settings.AutoSuggestByRegion) return null;
+            if (_userPicked) return null;
+
+            // A saved non-English language means the user is already set up.
+            var saved = LanguageCatalog.Find(settings.Language ?? "");
+            if (saved != null && saved.Code != LanguageCatalog.Primary.Code)
+                return null;
+
+            if (string.IsNullOrWhiteSpace(settings.LastKnownCountryIso))
+                return null;
+
+            // Suggest() is non-nullable: it falls back to Primary when the
+            // country is unknown, so the Primary check below is the real
+            // "nothing to offer" test.
+            var suggested = LanguageCatalog.Suggest(settings.LastKnownCountryIso);
+            if (suggested.Code == LanguageCatalog.Primary.Code) return null;
+
+            return suggested;
+        }
 
         private static ResourceDictionary? LoadDictionary(string code)
         {

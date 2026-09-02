@@ -360,6 +360,18 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// <summary>Last live FX fetch (informational — cache is the
         /// source).</summary>
         public DateTime LastFxFetchUtc { get; set; }
+
+        /// <summary>
+        /// True once the user has been ASKED whether to switch to their
+        /// regional language. Set the first time the prompt is shown and
+        /// never reset, so the question is asked exactly once per install
+        /// regardless of which way it was answered.
+        ///
+        /// Separate from a "user picked a language" flag on purpose:
+        /// answering "keep English" is a real decision and must suppress
+        /// the prompt forever, even though it changes nothing.
+        /// </summary>
+        public bool LanguagePromptShown { get; set; }
     }
 
     public class AppConfig
