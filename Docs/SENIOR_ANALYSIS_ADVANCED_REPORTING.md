@@ -1,7 +1,7 @@
 # Senior Analysis — Advanced Reporting
 
 **Date:** 2026-09-02
-**Status:** Slice 1 SHIPPED (data layer). Slices 2–5 pending.
+**Status:** ALL 5 SLICES SHIPPED. Data layer, on-screen analytics, Excel dossier, PDF dossier, executive summary.
 **Author's note:** You said you're not sure how to implement this and asked me to bring the industry experience. This document is that answer. Read §3 and §7; the rest is supporting detail.
 
 ---
@@ -142,7 +142,17 @@ I am deliberately **not** writing ~2,000 lines of report code in one push. That 
 | **4** | PI Full Dossier — PDF, customer + internal variants | Medium | Print/email ready |
 | **5** | Cross-module executive summary (all modules, one page) | Medium | Management view |
 
-**Start with slice 1+2.** They deliver two of your three asks, reuse aggregates that mostly exist, and add no new document plumbing.
+### All five delivered
+
+| Slice | Commit | What landed |
+|---|---|---|
+| 1 | `9aaa9a3` | `MixRow`, `AgeingBucket`, Jo/Delivery analytics — pure, testable aggregation |
+| 2 | `bfc30c8` | Mix + ageing panels on the JO and Delivery reports; real `OrderedAt` ageing |
+| 3 | `a2dc06a` | PI full dossier, 6-sheet Excel, P&L opt-in |
+| 4 | `74057d1` | PI dossier as PDF, customer + internal variants |
+| 5 | `963b819` | Order-to-cash funnel with per-step conversion and bottleneck flag |
+
+**Remaining balance: 0.**
 
 ---
 
