@@ -147,9 +147,9 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
-        public ICommand DownloadWhisperModelCommand { get; }
-        public ICommand CancelDownloadCommand { get; }
-        public ICommand DeleteWhisperModelCommand { get; }
+        public ICommand DownloadWhisperModelCommand { get; private set; }
+        public ICommand CancelDownloadCommand { get; private set; }
+        public ICommand DeleteWhisperModelCommand { get; private set; }
 
     }
 }

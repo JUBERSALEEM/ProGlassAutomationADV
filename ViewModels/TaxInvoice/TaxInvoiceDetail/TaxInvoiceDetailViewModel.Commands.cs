@@ -39,20 +39,20 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         //  COMMANDS
         // ══════════════════════════════════════════════════════════════════
 
-        public ICommand SaveCommand { get; }
-        public ICommand BackCommand { get; }
-        public ICommand IssueCommand { get; }
-        public ICommand IssueAllCommand { get; }
-        public ICommand MarkPaidCommand { get; }
+        public ICommand SaveCommand { get; private set; }
+        public ICommand BackCommand { get; private set; }
+        public ICommand IssueCommand { get; private set; }
+        public ICommand IssueAllCommand { get; private set; }
+        public ICommand MarkPaidCommand { get; private set; }
 
         /// <summary>v2 §24: shows this invoice's version history.</summary>
-        public ICommand ShowVersionsCommand { get; }
-        public ICommand AddAttachmentCommand { get; }
-        public ICommand RemoveAttachmentCommand { get; }
-        public ICommand AddSpecGroupCommand { get; }
-        public ICommand RemoveSpecGroupCommand { get; }
-        public ICommand RecalculateCommand { get; }
-        public ICommand ExportPdfCommand { get; }
+        public ICommand ShowVersionsCommand { get; private set; }
+        public ICommand AddAttachmentCommand { get; private set; }
+        public ICommand RemoveAttachmentCommand { get; private set; }
+        public ICommand AddSpecGroupCommand { get; private set; }
+        public ICommand RemoveSpecGroupCommand { get; private set; }
+        public ICommand RecalculateCommand { get; private set; }
+        public ICommand ExportPdfCommand { get; private set; }
         // ═══ DETAIL TAB SWITCHER (Overview / Attachments / Family) ═══
         private string _detailTab = "Overview";
         public string DetailTab
@@ -72,15 +72,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public bool IsAttachmentsTab => DetailTab == "Attachments";
         public bool IsFamilyTab => DetailTab == "Family";
 
-        public ICommand SwitchDetailTabCommand { get; }
+        public ICommand SwitchDetailTabCommand { get; private set; }
 
-        public ICommand DeleteCommand { get; }
+        public ICommand DeleteCommand { get; private set; }
 
         /// <summary>
         /// Chat 16: click a family sidebar entry to switch to that invoice.
         /// Reloads invoice + attachments in place.
         /// </summary>
-        public ICommand SelectFamilyMemberCommand { get; }
+        public ICommand SelectFamilyMemberCommand { get; private set; }
 
     }
 }

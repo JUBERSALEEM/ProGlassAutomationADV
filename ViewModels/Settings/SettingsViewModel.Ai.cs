@@ -301,9 +301,9 @@ namespace ProGlassAutomation.ViewModels.Settings
         //  COMMANDS
         // ══════════════════════════════════════════════════════════════
 
-        public ICommand TestGeminiCommand { get; }
-        public ICommand TestGroqCommand { get; }
-        public ICommand TestCohereCommand { get; }
+        public ICommand TestGeminiCommand { get; private set; }
+        public ICommand TestGroqCommand { get; private set; }
+        public ICommand TestCohereCommand { get; private set; }
 
         public ICommand TestAiConnectionCommand => ActiveProvider switch
         {
@@ -313,9 +313,9 @@ namespace ProGlassAutomation.ViewModels.Settings
             _ => TestGeminiCommand
         };
 
-        public ICommand SelectGeminiCommand { get; }
-        public ICommand SelectGroqCommand { get; }
-        public ICommand SelectCohereCommand { get; }
+        public ICommand SelectGeminiCommand { get; private set; }
+        public ICommand SelectGroqCommand { get; private set; }
+        public ICommand SelectCohereCommand { get; private set; }
 
     }
 }

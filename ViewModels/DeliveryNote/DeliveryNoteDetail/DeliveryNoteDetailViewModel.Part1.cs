@@ -556,8 +556,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ? $"Sr {SelectedItemRow.SerialNumber}"
                 : $"{SelectedItemRow.GlassRef} · Sr {SelectedItemRow.SerialNumber}";
 
-        public ICommand ClearSelectionCommand { get; }
-        public ICommand ToggleItemSelectionCommand { get; }
+        public ICommand ClearSelectionCommand { get; private set; }
+        public ICommand ToggleItemSelectionCommand { get; private set; }
 
         private static bool IsOpenForDispatch(string? status) =>
             DeliveryNoteWorkflow.IsOpenForDispatch(status);
@@ -751,7 +751,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ? $"ATTACHMENTS ({_selectedHistoryEntry.AttachmentCount})"
                 : $"ATTACHMENTS ({AttachmentsCount})";
 
-        public ICommand SelectHistoryEntryCommand { get; }
+        public ICommand SelectHistoryEntryCommand { get; private set; }
 
         // ── Attachments ───────────────────────────────────────────────────
 
@@ -795,23 +795,23 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public bool IsOverviewTab => DetailTab == "Overview";
         public bool IsAttachmentsTab => DetailTab == "Attachments";
         public bool IsHistoryTab => DetailTab == "History";
-        public ICommand SwitchDetailTabCommand { get; }
+        public ICommand SwitchDetailTabCommand { get; private set; }
 
-        public ICommand SaveCommand { get; }
+        public ICommand SaveCommand { get; private set; }
 
         /// <summary>v2 §24: shows this delivery note's version history.</summary>
-        public ICommand ShowVersionsCommand { get; }
-        public ICommand BackCommand { get; }
-        public ICommand MakeDnCommand { get; }
-        public ICommand DeleteDnCommand { get; }
-        public ICommand UploadImageCommand { get; }
-        public ICommand UploadPdfCommand { get; }
-        public ICommand OpenAttachmentCommand { get; }
-        public ICommand DeleteAttachmentCommand { get; }
-        public ICommand ExportPdfCommand { get; }
-        public ICommand ExportExcelCommand { get; }
-        public ICommand ExportCsvCommand { get; }
-        public ICommand ConvertToTaxInvoiceCommand { get; }
+        public ICommand ShowVersionsCommand { get; private set; }
+        public ICommand BackCommand { get; private set; }
+        public ICommand MakeDnCommand { get; private set; }
+        public ICommand DeleteDnCommand { get; private set; }
+        public ICommand UploadImageCommand { get; private set; }
+        public ICommand UploadPdfCommand { get; private set; }
+        public ICommand OpenAttachmentCommand { get; private set; }
+        public ICommand DeleteAttachmentCommand { get; private set; }
+        public ICommand ExportPdfCommand { get; private set; }
+        public ICommand ExportExcelCommand { get; private set; }
+        public ICommand ExportCsvCommand { get; private set; }
+        public ICommand ConvertToTaxInvoiceCommand { get; private set; }
 
         /// <summary>
         /// CHAT 19 — SELECT ALL REMAINING.
@@ -819,7 +819,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         /// REMINDER: fills ALL remaining pcs.
         /// Hidden on Master DN.
         /// </summary>
-        public ICommand FillRemainingCommand { get; }
+        public ICommand FillRemainingCommand { get; private set; }
 
         /// <summary>
         /// CHAT 19 — RESET QTY.
@@ -827,19 +827,19 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         /// Companion to FillRemainingCommand — lets user start over.
         /// Hidden on Master DN.
         /// </summary>
-        public ICommand ResetQtyCommand { get; }
+        public ICommand ResetQtyCommand { get; private set; }
 
         /// <summary>
         /// CHAT 19 — shown only on Master DN detail view.
         /// Fires OnRequestCreateDnFromMaster → shell VM creates Draft DN.
         /// </summary>
-        public ICommand CreateNewDnFromMasterCommand { get; }
+        public ICommand CreateNewDnFromMasterCommand { get; private set; }
 
         /// <summary>Master: remaining-only vs original Job Order set.</summary>
-        public ICommand ToggleFullMasterCommand { get; }
+        public ICommand ToggleFullMasterCommand { get; private set; }
 
         /// <summary>Opens the Master DN created from this job order.</summary>
-        public ICommand OpenMasterCommand { get; }
+        public ICommand OpenMasterCommand { get; private set; }
 
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR

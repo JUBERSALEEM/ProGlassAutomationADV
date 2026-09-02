@@ -120,7 +120,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public void GoToPage(string? page)
             => SettingsPage = string.IsNullOrWhiteSpace(page) ? "Appearance" : page;
 
-        public string ConfigFilePath { get; }
+        public string ConfigFilePath { get; private set; }
 
     }
 }
