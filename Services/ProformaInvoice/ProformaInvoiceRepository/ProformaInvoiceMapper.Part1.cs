@@ -724,19 +724,25 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             if (snap.OtherCharges == null) return;
 
-            otherCharges.UseAdvancedAutomation =
-                snap.OtherCharges.UseAdvancedAutomation;
-
-            if (snap.OtherCharges.PredefinedCharges != null)
+            // Begin restore mode to prevent UseAdvancedAutomation setter from
+            // triggering ApplyAdvancedSuggestions. We want to preserve the
+            // saved charge selections, not re-run automation.
+            otherCharges.BeginRestore();
+            try
             {
-                foreach (var cSnap in snap.OtherCharges.PredefinedCharges)
-                {
-                    var row = otherCharges.ChargeRows.FirstOrDefault(
-                        r => r.TemplateKey == cSnap.TemplateKey);
-                    if (row == null) continue;
+                otherCharges.UseAdvancedAutomation =
+                    snap.OtherCharges.UseAdvancedAutomation;
 
-                    row.RestoreIsActive(cSnap.IsActive);
-                    row.Rate = cSnap.Rate;
+                if (snap.OtherCharges.PredefinedCharges != null)
+                {
+                    foreach (var cSnap in snap.OtherCharges.PredefinedCharges)
+                    {
+                        var row = otherCharges.ChargeRows.FirstOrDefault(
+                            r => r.TemplateKey == cSnap.TemplateKey);
+                        if (row == null) continue;
+
+                        row.RestoreIsActive(cSnap.IsActive);
+                        row.Rate = cSnap.Rate;
 
                     // Legacy: SelectedSource restore (pre-Chat 17 invoices)
                     if (!row.IsPolishRow
@@ -874,6 +880,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 }
             }
             otherCharges.CustomChargesSection.RefreshTotal();
+            }
+            finally
+            {
+                otherCharges.EndRestore();
+            }
         }
 
         private static void RestoreTerms(

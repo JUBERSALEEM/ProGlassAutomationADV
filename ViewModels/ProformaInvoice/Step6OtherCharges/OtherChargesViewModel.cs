@@ -54,6 +54,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
         private bool _useAdvancedAutomation = true;
         private bool _isApplyingAdvancedAutomation;
+        private bool _isRestoringSavedState;
 
         /// <summary>
         /// Advanced = Step 4 / Step 5 auto-detect and preselect matching
@@ -70,7 +71,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsManualMode));
                 OnPropertyChanged(nameof(AutomationModeLabel));
-                if (_useAdvancedAutomation)
+                // Only auto-trigger if NOT restoring saved state.
+                // When reopening a saved PI, we want to preserve the saved
+                // charge selections, not re-run automation.
+                if (_useAdvancedAutomation && !_isRestoringSavedState)
                     ApplyAdvancedSuggestions();
             }
         }
@@ -770,6 +774,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             RecalculatePolishRowsImmediate();
             RefreshWastageSelectionSurface();
             RecalculateTotal();
+        }
+
+        /// <summary>
+        /// Begins a restore operation from saved state. While in restore mode,
+        /// UseAdvancedAutomation changes do NOT trigger ApplyAdvancedSuggestions,
+        /// preserving the saved charge selections.
+        /// </summary>
+        public void BeginRestore()
+        {
+            _isRestoringSavedState = true;
+        }
+
+        /// <summary>
+        /// Ends a restore operation. After this, UseAdvancedAutomation changes
+        /// will trigger ApplyAdvancedSuggestions as normal.
+        /// </summary>
+        public void EndRestore()
+        {
+            _isRestoringSavedState = false;
         }
 
         /// <summary>
