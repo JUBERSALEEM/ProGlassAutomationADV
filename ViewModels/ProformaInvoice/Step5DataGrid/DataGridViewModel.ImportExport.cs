@@ -91,7 +91,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 IoStatus = "Import failed.";
                 _dialogs.Show(
-                    "Could not read the cut list.\n\n" + ex.Message +
+                    "Could not read the cut list.\n\n" + ExceptionMessages.Deep(ex) +
                     "\n\nMake sure the file is a valid Excel (.xlsx), CSV or TXT file.",
                     LocalizationService.Instance.T("Msg.CapImportCutList"), MessageBoxButton.OK, MessageBoxImage.Error);
                 return;

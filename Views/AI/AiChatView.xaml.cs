@@ -13,6 +13,7 @@
 
 using ProGlassAutomation.ViewModels.AI;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
@@ -46,7 +47,7 @@ namespace ProGlassAutomation.Views.AI
                 catch (Exception ex)
                 {
                     ProGlassAutomation.Services.Logging.AppLogService.Warning(
-                        $"AiChatView: InitializeComponent warning: {ex.Message}");
+                        $"AiChatView: InitializeComponent warning: {ExceptionMessages.Deep(ex)}");
                 }
             }
 

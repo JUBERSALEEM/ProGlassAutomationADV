@@ -3,6 +3,7 @@ using ProGlassAutomation.Models.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Services.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.ViewModels;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -181,7 +182,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    "Failed to load history:\n\n" + ex.Message,
+                    "Failed to load history:\n\n" + ExceptionMessages.Deep(ex),
                     LocalizationService.Instance.T("Msg.CapError"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally

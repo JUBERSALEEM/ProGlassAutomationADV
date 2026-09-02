@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Utilities;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -97,7 +98,7 @@ namespace ProGlassAutomation.Views.Licensing
             }
             catch (Exception ex)
             {
-                AppLogService.Debug("[LicenseActivationView] View cleanup failed: " + ex.Message);
+                AppLogService.Debug("[LicenseActivationView] View cleanup failed: " + ExceptionMessages.Deep(ex));
             }
         }
 
@@ -269,7 +270,7 @@ namespace ProGlassAutomation.Views.Licensing
             }
             catch (Exception ex)
             {
-                ShowError("Could not read the license key file: " + ex.Message);
+                ShowError("Could not read the license key file: " + ExceptionMessages.Deep(ex));
                 return;
             }
 
@@ -310,7 +311,7 @@ namespace ProGlassAutomation.Views.Licensing
                 }
                 catch (Exception ex)
                 {
-                    ShowError("The license key could not be verified: " + ex.Message);
+                    ShowError("The license key could not be verified: " + ExceptionMessages.Deep(ex));
                     return false;
                 }
             }
@@ -496,7 +497,7 @@ namespace ProGlassAutomation.Views.Licensing
             }
             catch (Exception ex)
             {
-                AppLogService.Debug("[LicenseActivationView] Activation host close failed: " + ex.Message);
+                AppLogService.Debug("[LicenseActivationView] Activation host close failed: " + ExceptionMessages.Deep(ex));
             }
         }
 
@@ -517,7 +518,7 @@ namespace ProGlassAutomation.Views.Licensing
         private void RaiseClosed()
         {
             try { Closed?.Invoke(this, EventArgs.Empty); }
-            catch (Exception ex) { AppLogService.Debug("[LicenseActivationView] RaiseClosed failed: " + ex.Message); }
+            catch (Exception ex) { AppLogService.Debug("[LicenseActivationView] RaiseClosed failed: " + ExceptionMessages.Deep(ex)); }
         }
 
         // ────────────────────────────────────────────────────────────────────

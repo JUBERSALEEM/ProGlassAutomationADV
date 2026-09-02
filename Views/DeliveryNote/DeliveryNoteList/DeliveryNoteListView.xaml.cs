@@ -1,5 +1,6 @@
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -168,7 +169,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                     catch (Exception ex)
                     {
                         MessageBox.Show(
-                            $"Failed to change status:\n\n{ex.Message}",
+                            $"Failed to change status:\n\n{ExceptionMessages.Deep(ex)}",
                             "Update Failed",
                             MessageBoxButton.OK,
                             MessageBoxImage.Error);

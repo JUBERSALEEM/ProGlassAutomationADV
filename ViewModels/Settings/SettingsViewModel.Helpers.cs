@@ -95,7 +95,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 catch (Exception ex)
                 {
                     _dialogs.Show(
-                        "Could not load sample data: " + ex.Message,
+                        "Could not load sample data: " + ExceptionMessages.Deep(ex),
                         LocalizationService.Instance.T("Settings.SampleDATA"), System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                 }
@@ -139,7 +139,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 catch (Exception ex)
                 {
                     _dialogs.Show(
-                        "Could not clear data: " + ex.Message,
+                        "Could not clear data: " + ExceptionMessages.Deep(ex),
                         LocalizationService.Instance.T("Settings.ClearDATA"), System.Windows.MessageBoxButton.OK,
                         System.Windows.MessageBoxImage.Warning);
                 }
@@ -710,7 +710,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     });
 
                 _dialogs.Show(
-                    "Rebuild failed: " + ex.Message +
+                    "Rebuild failed: " + ExceptionMessages.Deep(ex) +
                     "\n\nThe original databases are still in " +
                     "MigrationBackups and have NOT been deleted.",
                     LocalizationService.Instance.T("Msg.CapRebuildFailed"),
@@ -738,12 +738,12 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             if (_disposed) return;
             _disposed = true;
-            try { ThemeManager.ThemeChanged -= _themeChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: ThemeChanged detach failed: " + ex.Message); }
-            try { ThemeManager.UiScaleChanged -= _uiScaleChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UiScaleChanged detach failed: " + ex.Message); }
-            try { Services.Updates.UpdateService.StateChanged -= OnUpdateServiceStateChanged; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UpdateService detach failed: " + ex.Message); }
-            try { TeardownAppearanceSection(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: appearance-section detach failed: " + ex.Message); }
-            try { DisposeThemeStudio(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: theme-studio teardown failed: " + ex.Message); }
-            try { FlushDebouncedSave(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: debounced save flush failed: " + ex.Message); }
+            try { ThemeManager.ThemeChanged -= _themeChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: ThemeChanged detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { ThemeManager.UiScaleChanged -= _uiScaleChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UiScaleChanged detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { Services.Updates.UpdateService.StateChanged -= OnUpdateServiceStateChanged; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UpdateService detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { TeardownAppearanceSection(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: appearance-section detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { DisposeThemeStudio(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: theme-studio teardown failed: " + ExceptionMessages.Deep(ex)); }
+            try { FlushDebouncedSave(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: debounced save flush failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
         }
 
@@ -844,11 +844,11 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // Restart is a convenience — never crash for it, and
                 // never strand the user: on failure the app stays OPEN.
                 ProGlassAutomation.Services.Logging.AppLogService.Warning(
-                    "[SettingsViewModel] Restart failed: " + ex.Message);
+                    "[SettingsViewModel] Restart failed: " + ExceptionMessages.Deep(ex));
                 try
                 {
                     _dialogs.Show(
-                        "Restart failed (" + ex.Message + ").\n" +
+                        "Restart failed (" + ExceptionMessages.Deep(ex) + ").\n" +
                         "Save your work and start the app manually.",
                         LocalizationService.Instance.T("Msg.CapRestartFailed"),
                         System.Windows.MessageBoxButton.OK,

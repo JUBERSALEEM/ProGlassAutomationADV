@@ -1,6 +1,7 @@
 using ProGlassAutomation.Models.Inquiry;
 using ProGlassAutomation.Services.Inquiry;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -76,7 +77,7 @@ namespace ProGlassAutomation.Views.Inquiry
             if (PdfPreview.Visibility == Visibility.Visible)
             {
                 try { PdfPreview.Navigate("about:blank"); }
-                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[InquiryAttachmentPreviewWindow.xaml] OnClosed: browser already torn down: " + ex.Message); }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[InquiryAttachmentPreviewWindow.xaml] OnClosed: browser already torn down: " + ExceptionMessages.Deep(ex)); }
             }
         }
     }

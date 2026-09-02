@@ -144,7 +144,7 @@ namespace ProGlassAutomation.Views.Reports.StatementGenerator.Shell
                 }
                 catch (System.Exception ex)
                 {
-                    AppLogService.Debug($"[Shell] Pipeline auto-run failed: {ex.Message}");
+                    AppLogService.Debug($"[Shell] Pipeline auto-run failed: {ExceptionMessages.Deep(ex)}");
                 }
             }
         }

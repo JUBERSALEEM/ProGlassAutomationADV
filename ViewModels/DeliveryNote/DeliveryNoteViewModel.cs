@@ -130,9 +130,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         {
             if (_disposed) return;
             _disposed = true;
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: DataSeeded detach failed: " + ex.Message); }
-            try { ListVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: ListVM teardown failed: " + ex.Message); }
-            try { ActivityVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: ActivityVM teardown failed: " + ex.Message); }
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: DataSeeded detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { ListVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: ListVM teardown failed: " + ExceptionMessages.Deep(ex)); }
+            try { ActivityVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: ActivityVM teardown failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
         }
 
@@ -355,7 +355,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     catch (Exception ex)
                     {
                         _dialogs.Show(
-                            "Could not open Master DN.\n\n" + ex.Message,
+                            "Could not open Master DN.\n\n" + ExceptionMessages.Deep(ex),
                             LocalizationService.Instance.T("JobOrder.MasterDN"),
                             MessageBoxButton.OK,
                             MessageBoxImage.Warning);

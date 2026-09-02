@@ -576,7 +576,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         {
             if (_disposed) return;
             _disposed = true;
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TaxInvoiceViewModel] Dispose: DataSeeded detach failed: " + ex.Message); }
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TaxInvoiceViewModel] Dispose: DataSeeded detach failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
         }
     }

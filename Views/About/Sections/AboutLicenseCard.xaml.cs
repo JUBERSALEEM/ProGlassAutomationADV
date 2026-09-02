@@ -10,6 +10,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Utilities;
 using System.Windows;
 using System.Windows.Controls;
 using ProGlassAutomation.ViewModels.Licensing;
@@ -42,7 +43,7 @@ namespace ProGlassAutomation.Views.About.Sections
             catch (Exception ex)
             {
                 ProGlassAutomation.Services.Logging.AppLogService.Warning(
-                    "[AboutLicenseCard] License VM unavailable: " + ex.Message);
+                    "[AboutLicenseCard] License VM unavailable: " + ExceptionMessages.Deep(ex));
             }
         }
 
@@ -82,7 +83,7 @@ namespace ProGlassAutomation.Views.About.Sections
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Could not copy to clipboard: " + ex.Message,
+                    "Could not copy to clipboard: " + ExceptionMessages.Deep(ex),
                     title,
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);

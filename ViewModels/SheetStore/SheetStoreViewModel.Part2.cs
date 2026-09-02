@@ -23,6 +23,7 @@ using ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse;
 using ProGlassAutomation.ViewModels.Shared;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -81,7 +82,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
                     await LoadAsync();
                 }
-                catch (Exception ex) { ShowError("Could not delete.\n\n" + ex.Message); }
+                catch (Exception ex) { ShowError("Could not delete.\n\n" + ExceptionMessages.Deep(ex)); }
             }
         }
 
@@ -124,7 +125,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
                     await LoadAsync();
                 }
-                catch (Exception ex) { ShowError("Could not add stock.\n\n" + ex.Message); }
+                catch (Exception ex) { ShowError("Could not add stock.\n\n" + ExceptionMessages.Deep(ex)); }
             }
         }
 
@@ -182,7 +183,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
                     await LoadAsync();
                 }
-                catch (Exception ex) { ShowError(ex.Message); }
+                catch (Exception ex) { ShowError(ExceptionMessages.Deep(ex)); }
             }
         }
 

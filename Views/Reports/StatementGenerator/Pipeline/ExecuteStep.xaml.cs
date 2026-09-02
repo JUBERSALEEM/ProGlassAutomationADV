@@ -23,6 +23,7 @@ using ProGlassAutomation.Models.Statement.Workflow;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -117,7 +118,7 @@ namespace ProGlassAutomation.Views.Reports.StatementGenerator.Pipeline
                 }
                 catch (Exception ex)
                 {
-                    AppLogService.Debug($"[ExecuteStep] ScrollToEnd failed: {ex.Message}");
+                    AppLogService.Debug($"[ExecuteStep] ScrollToEnd failed: {ExceptionMessages.Deep(ex)}");
                 }
             }), DispatcherPriority.Background);
         }

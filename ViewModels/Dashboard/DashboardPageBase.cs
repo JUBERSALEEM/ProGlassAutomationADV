@@ -125,7 +125,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             catch (System.Exception ex)
             {
                 // Teardown must never throw out of Dispose.
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("[DashboardPageBase] DisposeCore failed: " + ex.Message);
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[DashboardPageBase] DisposeCore failed: " + ExceptionMessages.Deep(ex));
             }
 
             GC.SuppressFinalize(this);

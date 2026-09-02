@@ -242,7 +242,7 @@ namespace ProGlassAutomation.ViewModels
                 ProGlassAutomation.Services.AI.AIContext.AiScreenContext.Set(PrettyModuleName(raw), detail);
                 ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentViewModelProvider = () => _currentViewModel;
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] AI screen-context update failed: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] AI screen-context update failed: " + ExceptionMessages.Deep(ex)); }
         }
 
         private static string PrettyModuleName(string raw)
@@ -521,7 +521,7 @@ namespace ProGlassAutomation.ViewModels
                 catch (System.Exception ex)
                 {
                     ProGlassAutomation.Services.Logging.AppLogService.Debug(
-                        "[MainViewModel] Storage breakdown failed: " + ex.Message);
+                        "[MainViewModel] Storage breakdown failed: " + ExceptionMessages.Deep(ex));
                     DispatchToUi(() =>
                     {
                         IsStorageRefreshing = false;
@@ -613,9 +613,9 @@ namespace ProGlassAutomation.ViewModels
             _dialogs = serviceProvider.GetService<IDialogService>() ?? App.Dialogs;
 
             // Try resolve reporting services via DI, fallback to App statics
-            try { _reportingService = serviceProvider.GetService<IReportingDataService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IReportingDataService; using App statics: " + ex.Message); }
-            try { _dashboardMetrics = serviceProvider.GetService<IDashboardMetricsService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IDashboardMetricsService; using App statics: " + ex.Message); }
-            try { _dashboardFilter = serviceProvider.GetService<IDashboardFilterService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IDashboardFilterService; using App statics: " + ex.Message); }
+            try { _reportingService = serviceProvider.GetService<IReportingDataService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IReportingDataService; using App statics: " + ExceptionMessages.Deep(ex)); }
+            try { _dashboardMetrics = serviceProvider.GetService<IDashboardMetricsService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IDashboardMetricsService; using App statics: " + ExceptionMessages.Deep(ex)); }
+            try { _dashboardFilter = serviceProvider.GetService<IDashboardFilterService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IDashboardFilterService; using App statics: " + ExceptionMessages.Deep(ex)); }
 
             // Resolve all module VMs via DI — Phase 5: no `new ViewModel()` 
             //
@@ -959,7 +959,7 @@ namespace ProGlassAutomation.ViewModels
             NewProformaInvoiceCommand = new RelayCommand(_ =>
             {
                 Navigate("ProformaInvoice");
-                try { ProformaInvoiceVM.TriggerNewInvoice(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[MainViewModel] TriggerNewInvoice after navigation failed: " + ex.Message); }
+                try { ProformaInvoiceVM.TriggerNewInvoice(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[MainViewModel] TriggerNewInvoice after navigation failed: " + ExceptionMessages.Deep(ex)); }
             });
             ShowAboutCommand = new RelayCommand(_ => { CurrentModuleKey = "About"; CurrentViewModel = AboutVM; IsMenuOpen = false; });
             ShowSettingsCommand = new RelayCommand(_ => { CurrentModuleKey = "Settings"; CurrentViewModel = SettingsVM; IsMenuOpen = false; });

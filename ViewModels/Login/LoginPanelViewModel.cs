@@ -27,6 +27,7 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
 using ProGlassAutomation.Services.Updates;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -153,7 +154,7 @@ namespace ProGlassAutomation.ViewModels.Login
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    "Could not restore last username: " + ex.Message,
+                    "Could not restore last username: " + ExceptionMessages.Deep(ex),
                     new LogContext { Module = "Auth", Class = nameof(LoginPanelViewModel) });
                 SetFocusTarget("Username");
             }
@@ -295,7 +296,7 @@ namespace ProGlassAutomation.ViewModels.Login
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    "Could not save last username: " + ex.Message,
+                    "Could not save last username: " + ExceptionMessages.Deep(ex),
                     new LogContext { Module = "Auth", Class = nameof(LoginPanelViewModel) });
             }
         }
@@ -334,7 +335,7 @@ namespace ProGlassAutomation.ViewModels.Login
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    "Could not persist skip-login choice: " + ex.Message,
+                    "Could not persist skip-login choice: " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Auth",

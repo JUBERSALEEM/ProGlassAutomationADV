@@ -27,6 +27,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using ProGlassAutomation.Services.Licensing;
@@ -236,7 +237,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 // Whatever the license data looks like, it must never
                 // take the About page down. Previous values remain.
                 ProGlassAutomation.Services.Logging.AppLogService.Warning(
-                    "[LicenseStatusVM] Refresh failed: " + ex.Message);
+                    "[LicenseStatusVM] Refresh failed: " + ExceptionMessages.Deep(ex));
             }
 
             // Whichever properties are bound by callers —

@@ -36,6 +36,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -184,7 +185,7 @@ namespace ProGlassAutomation.Views.Login
             catch (Exception ex)
             {
                 SetBusyState(false, "");
-                ShowError("Could not create administrator: " + ex.Message);
+                ShowError("Could not create administrator: " + ExceptionMessages.Deep(ex));
                 AppLogService.Error(
                     "First-run user creation failed.", ex,
                     new LogContext
@@ -288,12 +289,12 @@ namespace ProGlassAutomation.Views.Login
                 // previous install / user so a future auto-login
                 // attempt cannot pick up someone else's password.
                 try { SecretVault.Remove(LoginPanel.SkipLoginSecretKey); }
-                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[FirstRunSetupPanel.xaml] PersistFirstRunUsername: best effort: " + ex.Message); }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[FirstRunSetupPanel.xaml] PersistFirstRunUsername: best effort: " + ExceptionMessages.Deep(ex)); }
             }
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    "Could not persist first-run username: " + ex.Message,
+                    "Could not persist first-run username: " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Auth",

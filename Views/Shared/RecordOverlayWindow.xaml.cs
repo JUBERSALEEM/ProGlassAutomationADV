@@ -2,6 +2,7 @@ using ProGlassAutomation.Agent.Demo.Recording;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.ViewModels.Shared;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -55,7 +56,7 @@ namespace ProGlassAutomation.Views.Shared
 
             _vm.RequestHide = () =>
             {
-                try { Hide(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                try { Hide(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); }
             };
             _vm.Finalized += () => _timer.Stop();
 
@@ -153,7 +154,7 @@ namespace ProGlassAutomation.Views.Shared
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[RecordOverlay] ExcludeFromCapture: {ex.Message}");
+                AppLogService.Debug($"[RecordOverlay] ExcludeFromCapture: {ExceptionMessages.Deep(ex)}");
             }
         }
 
@@ -198,7 +199,7 @@ namespace ProGlassAutomation.Views.Shared
                     Top = top;
                 }
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[RecordOverlayWindow.xaml] Place: last position is fine: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[RecordOverlayWindow.xaml] Place: last position is fine: " + ExceptionMessages.Deep(ex)); }
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -235,7 +236,7 @@ namespace ProGlassAutomation.Views.Shared
             {
                 // DragMove throws if the button was already released —
                 // expected, not an error (logged so the audit can see it).
-                AppLogService.Debug("[RecordOverlayWindow.xaml] DragMove: " + ex.Message);
+                AppLogService.Debug("[RecordOverlayWindow.xaml] DragMove: " + ExceptionMessages.Deep(ex));
             }
             finally
             {
@@ -250,7 +251,7 @@ namespace ProGlassAutomation.Views.Shared
                 if (d is System.Windows.Controls.Primitives.ButtonBase) return true;
 
                 DependencyObject? parent = null;
-                try { parent = VisualTreeHelper.GetParent(d); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[RecordOverlayWindow.xaml] IsInsideButton: template boundary: " + ex.Message); }
+                try { parent = VisualTreeHelper.GetParent(d); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[RecordOverlayWindow.xaml] IsInsideButton: template boundary: " + ExceptionMessages.Deep(ex)); }
                 if (parent == null && d is FrameworkElement fe && fe.TemplatedParent != null)
                     parent = fe.TemplatedParent;
                 d = parent;

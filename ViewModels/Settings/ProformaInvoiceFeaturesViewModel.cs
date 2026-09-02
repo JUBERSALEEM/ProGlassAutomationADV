@@ -32,6 +32,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Features;
 using ProGlassAutomation.Services.Logging;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Windows.Input;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -109,7 +110,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // resync the file.
                 AppLogService.Warning(
                     "Could not persist Proforma feature flag '" + propertyName +
-                    "': " + ex.Message,
+                    "': " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Settings",
@@ -125,7 +126,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Proforma field visibility changed",
                     propertyName + " → " + (GetType().GetProperty(propertyName)?.GetValue(this) ?? "?"));
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ProformaInvoiceFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ProformaInvoiceFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ExceptionMessages.Deep(ex)); }
 
             // Push the change into the wizard immediately.
             ProformaFieldVisibility.Instance.Refresh();
@@ -168,7 +169,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    "Could not persist bulk Proforma feature-flag change: " + ex.Message,
+                    "Could not persist bulk Proforma feature-flag change: " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Settings",
@@ -184,7 +185,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Proforma field visibility bulk change",
                     "value=" + value);
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ProformaInvoiceFeaturesViewModel] SetAll: audit must not block settings: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ProformaInvoiceFeaturesViewModel] SetAll: audit must not block settings: " + ExceptionMessages.Deep(ex)); }
 
             ProformaFieldVisibility.Instance.Refresh();
             RaiseAll();

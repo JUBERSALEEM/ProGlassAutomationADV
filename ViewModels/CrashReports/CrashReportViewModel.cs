@@ -17,6 +17,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;   // ProcessStartGuard
 using System;
+using ProGlassAutomation.Utilities;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -89,7 +90,7 @@ namespace ProGlassAutomation.ViewModels.CrashReports
                 // Restart is a convenience. If it fails,
                 // the user can close and re-open manually.
                 AppLogService.Debug(
-                    "[CrashDialog] Restart failed: " + ex.Message);
+                    "[CrashDialog] Restart failed: " + ExceptionMessages.Deep(ex));
             }
             finally
             {
@@ -111,7 +112,7 @@ namespace ProGlassAutomation.ViewModels.CrashReports
                 // busy conditions. Never let the dialog
                 // crash because of a clipboard problem.
                 AppLogService.Debug(
-                    "[CrashDialog] Clipboard copy failed: " + ex.Message);
+                    "[CrashDialog] Clipboard copy failed: " + ExceptionMessages.Deep(ex));
             }
         }
 
@@ -147,7 +148,7 @@ namespace ProGlassAutomation.ViewModels.CrashReports
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    "[CrashDialog] Open folder failed: " + ex.Message);
+                    "[CrashDialog] Open folder failed: " + ExceptionMessages.Deep(ex));
             }
         }
     }

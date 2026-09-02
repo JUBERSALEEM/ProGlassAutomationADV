@@ -24,6 +24,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -177,7 +178,7 @@ namespace ProGlassAutomation.ViewModels.About
             {
                 // A scan failure must never take the About page down.
                 AppLogService.Debug(
-                    "[AboutCrashReports] Report scan failed: " + ex.Message);
+                    "[AboutCrashReports] Report scan failed: " + ExceptionMessages.Deep(ex));
             }
         }
 
@@ -213,7 +214,7 @@ namespace ProGlassAutomation.ViewModels.About
             catch (Exception ex)
             {
                 AppLogService.Debug(
-                    "[AboutCrashReports] Open folder failed: " + ex.Message);
+                    "[AboutCrashReports] Open folder failed: " + ExceptionMessages.Deep(ex));
             }
         }
 
@@ -247,7 +248,7 @@ namespace ProGlassAutomation.ViewModels.About
             }
             catch (Exception ex)
             {
-                AppLogService.Debug("[AboutCrashReports] OpenFile failed: " + ex.Message);
+                AppLogService.Debug("[AboutCrashReports] OpenFile failed: " + ExceptionMessages.Deep(ex));
             }
         }
     }

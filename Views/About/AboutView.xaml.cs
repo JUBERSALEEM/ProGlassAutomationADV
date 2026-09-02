@@ -65,7 +65,7 @@ namespace ProGlassAutomation.Views.About
 
             var detail = new TextBlock
             {
-                Text = ex.GetType().Name + ": " + ex.Message +
+                Text = ex.GetType().Name + ": " + ExceptionMessages.Deep(ex) +
                        "\n\nThe exact error is shown here and in the app log " +
                        "(Help → Diagnostics). Nothing else in the app is affected.",
                 TextWrapping = TextWrapping.Wrap,

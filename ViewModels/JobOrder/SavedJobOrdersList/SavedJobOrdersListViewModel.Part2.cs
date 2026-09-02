@@ -169,11 +169,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         {
             if (_disposed) return;
             _disposed = true;
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedJobOrdersListViewModel] Dispose: DataSeeded detach failed: " + ex.Message); }
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedJobOrdersListViewModel] Dispose: DataSeeded detach failed: " + ExceptionMessages.Deep(ex)); }
             // Detach the static lifecycle subscriber too, or this VM stays
             // alive forever and re-runs LoadJobOrdersAsync on every document
             // change across the app even when the list is no longer in use.
-            try { _database.UnsubscribeDocumentsChanged(LoadJobOrdersAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedJobOrdersListViewModel] Dispose: DocumentLifecycle detach failed: " + ex.Message); }
+            try { _database.UnsubscribeDocumentsChanged(LoadJobOrdersAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedJobOrdersListViewModel] Dispose: DocumentLifecycle detach failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
         }
 
@@ -214,7 +214,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             {
                 AppLogService.Debug(
                     "[SavedJobOrdersListViewModel] Delivery-qty map unavailable; rows show 'Not delivered': "
-                    + ex.Message);
+                    + ExceptionMessages.Deep(ex));
             }
             return map;
         }

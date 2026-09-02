@@ -409,7 +409,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             catch (System.Exception ex)
             {
                 // editor stays partially filled — harmless
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("[CompanyCenterViewModel] Company profile partial-fill failed: " + ex.Message);
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[CompanyCenterViewModel] Company profile partial-fill failed: " + ExceptionMessages.Deep(ex));
             }
         }
 

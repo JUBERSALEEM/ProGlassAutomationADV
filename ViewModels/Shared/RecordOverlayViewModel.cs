@@ -247,7 +247,7 @@ namespace ProGlassAutomation.ViewModels.Shared
                         Process.Start(new ProcessStartInfo(dir) { UseShellExecute = true });
                 }
             }
-            catch (Exception ex) { AppLogService.Warning("Suppressed exception: " + ex.Message); }
+            catch (Exception ex) { AppLogService.Warning("Suppressed exception: " + ExceptionMessages.Deep(ex)); }
         }
 
         private void Close()

@@ -17,6 +17,7 @@ using ProGlassAutomation.Agent.Core;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.UI;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -59,7 +60,7 @@ namespace ProGlassAutomation.Views.Settings.Sections
                 }
                 catch (Exception ex)
                 {
-                    AppLogService.Debug($"[SettingsAgentSection] load failed: {ex.Message}");
+                    AppLogService.Debug($"[SettingsAgentSection] load failed: {ExceptionMessages.Deep(ex)}");
                 }
             };
         }

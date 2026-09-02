@@ -331,10 +331,10 @@ public ProformaInvoiceViewModel() : this(
             _disposed = true;
 
             try { Step2VM.PropertyChanged -= OnStep2PropertyChanged; }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
 
             try { Step8VM.AttachmentUploaded -= OnStep8AttachmentUploaded; }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
 
             // Follow-up audit pass (Aug 2026): SavedInvoicesListViewModel
             // is IDisposable and subscribes to static DocumentLifecycle
@@ -343,10 +343,10 @@ public ProformaInvoiceViewModel() : this(
             // tears down cleanly on shutdown / test hosts. Best-effort:
             // a partially-constructed child never blocks teardown.
             try { Step6VM?.Dispose(); }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
 
             try { SavedInvoicesListVM?.Dispose(); }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
 
             GC.SuppressFinalize(this);
         }

@@ -87,7 +87,7 @@ namespace ProGlassAutomation.Views.Login
             }
             catch (System.Exception ex)
             {
-                ShowError("Could not reset password: " + ex.Message);
+                ShowError("Could not reset password: " + ExceptionMessages.Deep(ex));
             }
             finally
             {

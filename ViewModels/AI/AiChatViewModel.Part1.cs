@@ -348,7 +348,7 @@ public AiChatViewModel(
                     catch (Exception ex)
                     {
                         AppLogService.Warning(
-                            "[AiChatVM] Greeting failed: " + ex.Message);
+                            "[AiChatVM] Greeting failed: " + ExceptionMessages.Deep(ex));
                     }
                 }
             });

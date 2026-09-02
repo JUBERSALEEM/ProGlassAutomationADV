@@ -610,7 +610,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
             catch (Exception ex)
             {
-                ShowError("Export failed.\n\n" + ex.Message);
+                ShowError("Export failed.\n\n" + ExceptionMessages.Deep(ex));
             }
         }
 
@@ -643,7 +643,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
             catch (Exception ex)
             {
-                ShowError("Excel export failed.\n\n" + ex.Message);
+                ShowError("Excel export failed.\n\n" + ExceptionMessages.Deep(ex));
             }
         }
 
@@ -676,7 +676,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
             catch (Exception ex)
             {
-                ShowError("PDF export failed.\n\n" + ex.Message);
+                ShowError("PDF export failed.\n\n" + ExceptionMessages.Deep(ex));
             }
         }
 
@@ -699,7 +699,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
             catch (Exception ex)
             {
-                ShowError("Could not read CSV file.\n\n" + ex.Message);
+                ShowError("Could not read CSV file.\n\n" + ExceptionMessages.Deep(ex));
                 return;
             }
 
@@ -797,7 +797,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
             catch (Exception ex)
             {
-                ShowError("Import failed partway.\n\n" + ex.Message);
+                ShowError("Import failed partway.\n\n" + ExceptionMessages.Deep(ex));
                 await LoadAsync();
             }
         }
@@ -837,7 +837,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
                     await LoadAsync();
                 }
-                catch (Exception ex) { ShowError("Could not add glass sheet.\n\n" + ex.Message); }
+                catch (Exception ex) { ShowError("Could not add glass sheet.\n\n" + ExceptionMessages.Deep(ex)); }
             }
         }
 
@@ -904,7 +904,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
                     await LoadAsync();
                 }
-                catch (Exception ex) { ShowError("Could not update.\n\n" + ex.Message); }
+                catch (Exception ex) { ShowError("Could not update.\n\n" + ExceptionMessages.Deep(ex)); }
             }
         }
     }

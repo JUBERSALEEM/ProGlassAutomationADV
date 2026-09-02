@@ -88,7 +88,7 @@ namespace ProGlassAutomation.Views.Login
             }
             catch (System.Exception ex)
             {
-                ShowError("Could not change password: " + ex.Message);
+                ShowError("Could not change password: " + ExceptionMessages.Deep(ex));
                 PasswordBox_Reset();
             }
             finally

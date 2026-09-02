@@ -101,7 +101,7 @@ namespace ProGlassAutomation.ViewModels
                     if (svc != null) return svc;
                 }
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[MainViewModel] DI resolve failed; falling back to Activator: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[MainViewModel] DI resolve failed; falling back to Activator: " + ExceptionMessages.Deep(ex)); }
             // Fallback — during migration, allow `new` if DI not ready
             try { return Activator.CreateInstance<T>(); } catch { return null!; }
         }
@@ -303,19 +303,19 @@ namespace ProGlassAutomation.ViewModels
         {
             if (_disposed) return;
             _disposed = true;
-            try { if (_connectivityHandler != null && _connectivity != null) _connectivity.ConnectivityChanged -= _connectivityHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: connectivity detach failed: " + ex.Message); }
-            try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: user-changed detach failed: " + ex.Message); }
-            try { _clockTimer?.Stop(); _clockTimer = null; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: clock timer stop failed: " + ex.Message); }
+            try { if (_connectivityHandler != null && _connectivity != null) _connectivity.ConnectivityChanged -= _connectivityHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: connectivity detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: user-changed detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { _clockTimer?.Stop(); _clockTimer = null; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: clock timer stop failed: " + ExceptionMessages.Deep(ex)); }
             // Work-A-2: dispose the shell VMs so their child module VMs (ListVM,
             // DetailVM, ActivityVM) detach their static-event subscriptions
             // (DocumentLifecycle, SampleData.DataSeeded,
             // AuditService.ActivityLogged) — without this they leak and keep
             // firing after the module is no longer in use.
-            try { InquiryVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: InquiryVM teardown failed: " + ex.Message); }
-            try { JobOrderVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: JobOrderVM teardown failed: " + ex.Message); }
-            try { DeliveryNoteVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: DeliveryNoteVM teardown failed: " + ex.Message); }
-            try { ProformaInvoiceVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: ProformaInvoiceVM teardown failed: " + ex.Message); }
-            try { TaxInvoiceVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: TaxInvoiceVM teardown failed: " + ex.Message); }
+            try { InquiryVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: InquiryVM teardown failed: " + ExceptionMessages.Deep(ex)); }
+            try { JobOrderVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: JobOrderVM teardown failed: " + ExceptionMessages.Deep(ex)); }
+            try { DeliveryNoteVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: DeliveryNoteVM teardown failed: " + ExceptionMessages.Deep(ex)); }
+            try { ProformaInvoiceVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: ProformaInvoiceVM teardown failed: " + ExceptionMessages.Deep(ex)); }
+            try { TaxInvoiceVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: TaxInvoiceVM teardown failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
         }
     }

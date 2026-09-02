@@ -18,6 +18,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Features;
 using ProGlassAutomation.Services.Logging;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Windows.Input;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -75,7 +76,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 AppLogService.Warning(
                     "Could not persist Delivery Note feature flag '" + propertyName +
-                    "': " + ex.Message,
+                    "': " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Settings",
@@ -91,7 +92,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Delivery Note field visibility changed",
                     propertyName + " → " + (GetType().GetProperty(propertyName)?.GetValue(this) ?? "?"));
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[DeliveryNoteFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[DeliveryNoteFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ExceptionMessages.Deep(ex)); }
 
             DeliveryNoteFieldVisibility.Instance.Refresh();
             OnPropertyChanged(propertyName);
@@ -113,7 +114,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    "Could not persist bulk Delivery Note feature-flag change: " + ex.Message,
+                    "Could not persist bulk Delivery Note feature-flag change: " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Settings",
@@ -129,7 +130,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Delivery Note field visibility bulk change",
                     "value=" + value);
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[DeliveryNoteFeaturesViewModel] SetAll: audit must not block settings: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[DeliveryNoteFeaturesViewModel] SetAll: audit must not block settings: " + ExceptionMessages.Deep(ex)); }
 
             DeliveryNoteFieldVisibility.Instance.Refresh();
             RaiseAll();

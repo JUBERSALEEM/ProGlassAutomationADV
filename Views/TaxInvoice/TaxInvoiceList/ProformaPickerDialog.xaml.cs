@@ -1,4 +1,5 @@
 ﻿using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -84,7 +85,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
             }
             catch (Exception ex)
             {
-                ShowError($"Failed to load Proforma Invoices:\n{ex.Message}");
+                ShowError($"Failed to load Proforma Invoices:\n{ExceptionMessages.Deep(ex)}");
             }
         }
 

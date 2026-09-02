@@ -36,6 +36,7 @@ using ProGlassAutomation.Services.Security;
 using ProGlassAutomation.Services.Updates;
 using ProGlassAutomation.Views.Login;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -365,7 +366,7 @@ namespace ProGlassAutomation.Views.Splash
                 // Never block entry because the marker could not be written -
                 // the user did accept. They will simply be asked again.
                 AppLogService.Warning(
-                    "Could not record terms acceptance: " + ex.Message,
+                    "Could not record terms acceptance: " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Startup",
@@ -461,14 +462,14 @@ namespace ProGlassAutomation.Views.Splash
                         "Auto sign-in failed for saved user '" + username +
                         "': " + error + ". Clearing saved credentials.",
                         new LogContext { Module = "Auth", Class = nameof(SplashView) });
-                    try { SecretVault.Remove(LoginPanel.SkipLoginSecretKey); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[SplashView] Clearing stale skip-login credential failed: " + ex.Message); }
+                    try { SecretVault.Remove(LoginPanel.SkipLoginSecretKey); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[SplashView] Clearing stale skip-login credential failed: " + ExceptionMessages.Deep(ex)); }
                     try
                     {
                         cfg.SkipLoginUntilUpdate = false;
                         cfg.SkipLoginBoundVersion = "";
                         ConfigService.Save(cfg);
                     }
-                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[SplashView] Skip-login reset persist failed: " + ex.Message); }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[SplashView] Skip-login reset persist failed: " + ExceptionMessages.Deep(ex)); }
                     return false;
                 }
 
@@ -490,7 +491,7 @@ namespace ProGlassAutomation.Views.Splash
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    "Auto sign-in threw: " + ex.Message,
+                    "Auto sign-in threw: " + ExceptionMessages.Deep(ex),
                     new LogContext { Module = "Auth", Class = nameof(SplashView) });
                 return false;
             }
@@ -564,7 +565,7 @@ namespace ProGlassAutomation.Views.Splash
             // controls in an inactive window ignore Focus(). Without this
             // the caret never lands in the field, so typing/Enter does
             // nothing until the user clicks.
-            try { Activate(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView.xaml] RunLoginAsync: window may be closing: " + ex.Message); }
+            try { Activate(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView.xaml] RunLoginAsync: window may be closing: " + ExceptionMessages.Deep(ex)); }
 
             // Focus now, then re-arm once the fade + layout settle so the
             // caret is guaranteed in the field the moment the page appears.
@@ -649,7 +650,7 @@ namespace ProGlassAutomation.Views.Splash
                     // Best effort — the login form on any
                     // future boot tolerates an empty
                     // pre-filled username.
-                    ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView] Remember-username persist failed: " + ex.Message);
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView] Remember-username persist failed: " + ExceptionMessages.Deep(ex));
                 }
 
                 try
@@ -738,7 +739,7 @@ namespace ProGlassAutomation.Views.Splash
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             });
 
-            try { Activate(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView.xaml] RunFirstRunSetupAsync: window may be closing: " + ex.Message); }
+            try { Activate(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView.xaml] RunFirstRunSetupAsync: window may be closing: " + ExceptionMessages.Deep(ex)); }
             Dispatcher.BeginInvoke(new Action(() => SetupGate.Focus()),
                 DispatcherPriority.Input);
 

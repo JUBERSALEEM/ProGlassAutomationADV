@@ -331,7 +331,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     });
 
                 _dialogs.Show(
-                    "Dossier export failed.\n\n" + ex.Message,
+                    "Dossier export failed.\n\n" + ExceptionMessages.Deep(ex),
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -439,8 +439,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         {
             if (_disposed) return;
             _disposed = true;
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DataSeeded detach failed: " + ex.Message); }
-            try { _database.UnsubscribeDocumentsChanged(LoadInvoicesAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DocumentLifecycle detach failed: " + ex.Message); }
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DataSeeded detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { _database.UnsubscribeDocumentsChanged(LoadInvoicesAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DocumentLifecycle detach failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
         }
 
@@ -487,7 +487,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 // back-link stays disconnected until the user saves
                 // through the wizard; the audit log records why.
                 ProGlassAutomation.Services.Logging.AppLogService.Warning(
-                    "ScrubIdsForDuplicate could not sanitise snapshot: " + ex.Message,
+                    "ScrubIdsForDuplicate could not sanitise snapshot: " + ExceptionMessages.Deep(ex),
                     new ProGlassAutomation.Services.Logging.LogContext
                     {
                         Module = "Proforma",

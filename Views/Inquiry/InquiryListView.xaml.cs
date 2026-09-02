@@ -4,6 +4,7 @@ using ProGlassAutomation.Models.Inquiry;
 using ProGlassAutomation.Services.Inquiry;
 using ProGlassAutomation.ViewModels.Inquiry;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -177,7 +178,7 @@ namespace ProGlassAutomation.Views.Inquiry
             {
                 if (shellNavigate == null || shellVm == null) return;
                 try { shellNavigate.Invoke(shellVm, new object[] { target }); }
-                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[InquiryListView.xaml] WireEditor: shell method may not be available — never crash the editor: " + ex.Message); }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[InquiryListView.xaml] WireEditor: shell method may not be available — never crash the editor: " + ExceptionMessages.Deep(ex)); }
             }
             vm.EditRequested = async record =>
             {

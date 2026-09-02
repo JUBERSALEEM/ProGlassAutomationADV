@@ -17,6 +17,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Features;
 using ProGlassAutomation.Services.Logging;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Windows.Input;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -74,7 +75,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 AppLogService.Warning(
                     "Could not persist Inquiry feature flag '" + propertyName +
-                    "': " + ex.Message,
+                    "': " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Settings",
@@ -90,7 +91,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Inquiry field visibility changed",
                     propertyName + " → " + (GetType().GetProperty(propertyName)?.GetValue(this) ?? "?"));
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[InquiryFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[InquiryFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ExceptionMessages.Deep(ex)); }
 
             InquiryFieldVisibility.Instance.Refresh();
             OnPropertyChanged(propertyName);
@@ -115,7 +116,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    "Could not persist bulk Inquiry feature-flag change: " + ex.Message,
+                    "Could not persist bulk Inquiry feature-flag change: " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Settings",
@@ -131,7 +132,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Inquiry field visibility bulk change",
                     "value=" + value);
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[InquiryFeaturesViewModel] SetAll: audit must not block settings: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[InquiryFeaturesViewModel] SetAll: audit must not block settings: " + ExceptionMessages.Deep(ex)); }
 
             InquiryFieldVisibility.Instance.Refresh();
             RaiseAll();

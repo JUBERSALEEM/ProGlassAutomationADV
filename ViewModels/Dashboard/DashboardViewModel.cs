@@ -13,6 +13,7 @@ using ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard;
 using ProGlassAutomation.ViewModels.Dashboard.Statement;
 using ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
 using System.Windows.Input;
 
@@ -171,7 +172,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         {
             if (_disposed) return;
             _disposed = true;
-            try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DashboardViewModel] Dispose detach failed: " + ex.Message); }
+            try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DashboardViewModel] Dispose detach failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
         }
     }

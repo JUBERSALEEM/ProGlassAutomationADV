@@ -518,7 +518,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
                 AppLogService.Warning(
                     $"Specifications CSV export failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "ExportCsv" });
-                _dialogs?.Error("Export failed.\n\n" + ex.Message, "Specifications");
+                _dialogs?.Error("Export failed.\n\n" + ExceptionMessages.Deep(ex), "Specifications");
             }
         }
 
@@ -568,7 +568,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
                 AppLogService.Warning(
                     $"Specifications Excel export failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "ExportExcel" });
-                _dialogs?.Error("Excel export failed.\n\n" + ex.Message, "Specifications");
+                _dialogs?.Error("Excel export failed.\n\n" + ExceptionMessages.Deep(ex), "Specifications");
             }
         }
 
@@ -605,7 +605,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
                 AppLogService.Warning(
                     $"Specifications PDF export failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "ExportPdf" });
-                _dialogs?.Error("PDF export failed.\n\n" + ex.Message, "Specifications");
+                _dialogs?.Error("PDF export failed.\n\n" + ExceptionMessages.Deep(ex), "Specifications");
             }
         }
 
@@ -652,7 +652,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
                 AppLogService.Warning(
                     $"Specifications CSV import failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "ImportCsv" });
-                _dialogs?.Error("Import failed.\n\n" + ex.Message, "Specifications");
+                _dialogs?.Error("Import failed.\n\n" + ExceptionMessages.Deep(ex), "Specifications");
             }
         }
 

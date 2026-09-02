@@ -665,7 +665,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                     catch (Exception ex)
                     {
                         _dialogs.Show(
-                            "Could not create Master DN.\n\n" + ex.Message,
+                            "Could not create Master DN.\n\n" + ExceptionMessages.Deep(ex),
                             LocalizationService.Instance.T("JobOrder.MasterDN"),
                             MessageBoxButton.OK,
                             MessageBoxImage.Warning);

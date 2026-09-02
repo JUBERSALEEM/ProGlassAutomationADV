@@ -20,6 +20,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Features;
 using ProGlassAutomation.Services.Logging;
 using System;
+using ProGlassAutomation.Utilities;
 using System.Windows.Input;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -77,7 +78,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 AppLogService.Warning(
                     "Could not persist Job Order feature flag '" + propertyName +
-                    "': " + ex.Message,
+                    "': " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Settings",
@@ -93,7 +94,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Job Order field visibility changed",
                     propertyName + " → " + (GetType().GetProperty(propertyName)?.GetValue(this) ?? "?"));
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[JobOrderFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[JobOrderFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ExceptionMessages.Deep(ex)); }
 
             JobOrderFieldVisibility.Instance.Refresh();
             OnPropertyChanged(propertyName);
@@ -117,7 +118,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    "Could not persist bulk Job Order feature-flag change: " + ex.Message,
+                    "Could not persist bulk Job Order feature-flag change: " + ExceptionMessages.Deep(ex),
                     new LogContext
                     {
                         Module = "Settings",
@@ -133,7 +134,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Job Order field visibility bulk change",
                     "value=" + value);
             }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[JobOrderFeaturesViewModel] SetAll: audit must not block settings: " + ex.Message); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[JobOrderFeaturesViewModel] SetAll: audit must not block settings: " + ExceptionMessages.Deep(ex)); }
 
             JobOrderFieldVisibility.Instance.Refresh();
             RaiseAll();
