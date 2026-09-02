@@ -191,6 +191,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public ICommand ExportExcelFromListCommand { get; private set; }
         public ICommand ExportCsvFromListCommand { get; private set; }   // BUG-76
 
+        /// <summary>Full dossier, customer-safe — NO profit &amp; loss.</summary>
+        public ICommand ExportDossierCommand { get; private set; }
+
+        /// <summary>Full dossier INCLUDING profit &amp; loss. Manager/Admin only.</summary>
+        public ICommand ExportInternalDossierCommand { get; private set; }
+
         // v2: quick "today" filter + share the filtered list as Excel
         public ICommand SetTodayFilterCommand { get; private set; }
         public ICommand ExportFilteredExcelCommand { get; private set; }
@@ -270,6 +276,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             // BUG-76: CSV export from list for parity with detail view
             ExportCsvFromListCommand = new RelayCommand(
                 async p => await ExportCsvFromListAsync(p as SavedInvoiceListItem));
+
+            // Full dossier. The customer-safe variant is the plain command;
+            // the P&L one is deliberately separate and separately gated, so
+            // margin can never leave the building by accident.
+            ExportDossierCommand = new RelayCommand(
+                async p => await ExportDossierAsync(p as SavedInvoiceListItem, false));
+            ExportInternalDossierCommand = new RelayCommand(
+                async p => await ExportDossierAsync(p as SavedInvoiceListItem, true));
 
             // v2: one tap → show today's invoices (FromDate/ToDate both today)
             SetTodayFilterCommand = new RelayCommand(_ =>

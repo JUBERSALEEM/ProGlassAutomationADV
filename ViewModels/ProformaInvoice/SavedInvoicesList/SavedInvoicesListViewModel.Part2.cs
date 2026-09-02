@@ -229,6 +229,94 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
         }
 
+        /// <summary>
+        /// FULL DOSSIER export — every section of the invoice in one
+        /// workbook: overview, specifications, cut list, other charges,
+        /// terms, and optionally profit &amp; loss.
+        ///
+        /// <paramref name="includeProfitLoss"/> is the whole safety story
+        /// here. The customer-facing variant is the DEFAULT action; the
+        /// internal one is a separate, explicitly-labelled command. An
+        /// "export everything" button that silently carries cost and
+        /// margin will eventually be emailed to a customer.
+        ///
+        /// The internal variant additionally requires ProformaDelete,
+        /// so a user who may export a quote cannot obtain the margin
+        /// simply by choosing the other button.
+        ///
+        /// ProformaDelete is used as the elevation gate because there is no
+        /// dedicated cost permission and it is granted only to Manager and
+        /// Administrator — Estimator and Sales both hold ProformaExport but
+        /// not this, which is precisely the separation required.
+        /// </summary>
+        private async Task ExportDossierAsync(
+            SavedInvoiceListItem item, bool includeProfitLoss)
+        {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.ProformaExport,
+                "export an invoice dossier"))
+                return;
+
+            if (includeProfitLoss
+                && !ProGlassAutomation.Services.Audit.PermissionService.Require(
+                    ProGlassAutomation.Services.Audit.AppPermissions.ProformaDelete,
+                    "export a dossier including profit and loss"))
+                return;
+
+            if (item == null || _invoices == null) return;
+
+            try
+            {
+                var entity = await _invoices.GetByIdAsync(item.Id);
+                if (entity == null) return;
+
+                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+                var layout = new ProformaDossierExcelLayout(
+                    entity, snapshot, includeProfitLoss);
+
+                var engine = new ExcelExportEngine();
+                var request = new ExportRequest
+                {
+                    PromptForLocation = true,
+                    OpenAfterSave = true,
+                    SuggestedFileName =
+                        $"{entity.ProformaId}_Dossier"
+                        + (includeProfitLoss ? "_INTERNAL" : "")
+                };
+
+                var result = await engine.ExportAsync(layout, request);
+
+                LastExportStatus = result.Success
+                    ? (includeProfitLoss
+                        ? $"✓ Internal dossier exported: {entity.ProformaId}"
+                        : $"✓ Dossier exported: {entity.ProformaId}")
+                    : result.Cancelled ? "" : "✗ Dossier export failed";
+
+                if (!result.Success && !result.Cancelled)
+                    _dialogs.Show(
+                        result.ErrorMessage ?? "Dossier export failed.",
+                        LocalizationService.Instance.T("Msg.CapExportFailed"),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    $"Dossier export failed: {ex.Message}",
+                    new ProGlassAutomation.Services.Logging.LogContext
+                    {
+                        Module = "ProformaInvoice",
+                        Operation = "ExportDossier"
+                    });
+
+                _dialogs.Show(
+                    "Dossier export failed.\n\n" + ex.Message,
+                    LocalizationService.Instance.T("Msg.CapExportFailed"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
         private async Task ExportExcelFromListAsync(SavedInvoiceListItem item)
         {
             if (!ProGlassAutomation.Services.Audit.PermissionService.Require(

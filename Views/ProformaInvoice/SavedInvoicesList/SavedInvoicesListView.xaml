@@ -399,9 +399,61 @@
                                                     ToolTip="{DynamicResource Common.VersionHistory}"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    Margin="4,0,8,0"
+                                                    Margin="4,0,4,0"
                                                     MinWidth="36"
                                                     Tag="&#xE81C;"/>
+
+                                            <!--
+                                                FULL DOSSIER — every section in
+                                                one workbook. Customer-safe: it
+                                                does NOT contain profit & loss.
+                                                The internal variant lives in
+                                                the context menu, deliberately
+                                                one step further away.
+                                            -->
+                                            <Button Style="{StaticResource RowOutlinedButton}"
+                                                    Command="{Binding DataContext.ExportDossierCommand,
+                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="{DynamicResource ProformaInvoice.ExportDossierTip}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,8,0"
+                                                    MinWidth="36"
+                                                    Content="&#xE9F9;"
+                                                    FontFamily="Segoe MDL2 Assets">
+                                                <!--
+                                                    A ContextMenu is its own
+                                                    visual tree, so it cannot
+                                                    reach the UserControl via
+                                                    RelativeSource. The button
+                                                    carries the parent view
+                                                    model in Tag, and the menu
+                                                    reads commands from there
+                                                    while CommandParameter
+                                                    takes the row from
+                                                    PlacementTarget.DataContext.
+                                                -->
+                                                <Button.Tag>
+                                                    <Binding Path="DataContext"
+                                                             RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                </Button.Tag>
+                                                <Button.ContextMenu>
+                                                    <ContextMenu>
+                                                        <MenuItem Header="{DynamicResource ProformaInvoice.ExportDossier}"
+                                                                  Command="{Binding PlacementTarget.Tag.ExportDossierCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                  CommandParameter="{Binding PlacementTarget.DataContext,
+                                                                      RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                                        <Separator/>
+                                                        <MenuItem Header="{DynamicResource ProformaInvoice.ExportDossierInternal}"
+                                                                  Command="{Binding PlacementTarget.Tag.ExportInternalDossierCommand,
+                                                                      RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                                  CommandParameter="{Binding PlacementTarget.DataContext,
+                                                                      RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                                    </ContextMenu>
+                                                </Button.ContextMenu>
+                                            </Button>
                                         </StackPanel>
                                     </Grid>
                                 </Border>

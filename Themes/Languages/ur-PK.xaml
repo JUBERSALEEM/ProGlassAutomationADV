@@ -2490,4 +2490,7 @@
     <sys:String x:Key="Reports.TopColours">TOP COLOURS</sys:String>
     <sys:String x:Key="Reports.TopCustomers">TOP CUSTOMERS</sys:String>
     <sys:String x:Key="Reports.TopSpecifications">TOP SPECIFICATIONS</sys:String>
+    <sys:String x:Key="ProformaInvoice.ExportDossier">Export full dossier</sys:String>
+    <sys:String x:Key="ProformaInvoice.ExportDossierInternal">Export dossier — INTERNAL (includes P&amp;L)</sys:String>
+    <sys:String x:Key="ProformaInvoice.ExportDossierTip">Full dossier: specs, cut list, charges and terms. Right-click for the internal version with profit &amp; loss.</sys:String>
 </ResourceDictionary>
