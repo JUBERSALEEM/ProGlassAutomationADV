@@ -577,11 +577,12 @@
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{DynamicResource ModuleWallpaperBrush}"
                             IsHitTestVisible="False"/>
-                    <!-- Phase 3: Smooth fade-in transition on module navigation.
-                         The ContentControl's Content changes trigger a fade-out
-                         of the old view and fade-in of the new view, giving
+                    <!-- Phase 4: Smooth fade-in transition on module navigation.
+                         ContentTransitionBehavior fades the new view in with a
+                         subtle upward drift (150ms, QuinticEase), giving
                          navigation a polished, modern feel. -->
-                    <ContentControl Content="{Binding CurrentViewModel}">
+                    <ContentControl Content="{Binding CurrentViewModel}"
+                                    behaviors:ContentTransitionBehavior.IsEnabled="True">
                         <ContentControl.Style>
                             <Style TargetType="ContentControl">
                                 <Setter Property="Opacity" Value="1"/>
