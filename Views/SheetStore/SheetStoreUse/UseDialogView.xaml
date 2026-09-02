@@ -18,9 +18,12 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{DynamicResource SheetStore.USEStock}"
-        Width="480" Height="600"
+        Width="480"
+        MinWidth="480"
+        SizeToContent="Height"
+        MaxHeight="600"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="NoResize"
+        ResizeMode="CanResizeWithGrip"
         FontFamily="{DynamicResource AppFontFamily}"
         Background="{DynamicResource WindowBackgroundBrush}">
 
@@ -86,6 +89,74 @@
                     <TextBlock Text="{DynamicResource SheetStore.TrackWhichJobOrderCustomerConsumingSheets}"
                                FontSize="{StaticResource TextCaption}" FontStyle="Italic" Margin="4,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                    <!--
+                        CONSUMPTION TRACEABILITY.
+                        Pre-filled from the invoice being worked on, but
+                        editable: stock is also issued for samples and
+                        remakes that have no live document. These land on
+                        the history row so a Sheet Store report can answer
+                        "which salesman's customer's project consumed how
+                        many sheets".
+                    -->
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   Text="{DynamicResource SheetStore.Customer}"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,4"/>
+                        <TextBlock Grid.Row="0" Grid.Column="2"
+                                   Text="{DynamicResource SheetStore.Project}"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,4"/>
+
+                        <TextBox Grid.Row="1" Grid.Column="0"
+                                 Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32" Padding="10,4" VerticalContentAlignment="Center"
+                                 Background="{DynamicResource MenuHoverBrush}"
+                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                 BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}"/>
+                        <TextBox Grid.Row="1" Grid.Column="2"
+                                 Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32" Padding="10,4" VerticalContentAlignment="Center"
+                                 Background="{DynamicResource MenuHoverBrush}"
+                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                 BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0"
+                                   Text="{DynamicResource SheetStore.Salesman}"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,10,0,4"/>
+                        <TextBlock Grid.Row="2" Grid.Column="2"
+                                   Text="{DynamicResource SheetStore.Pane}"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,10,0,4"/>
+
+                        <TextBox Grid.Row="3" Grid.Column="0"
+                                 Text="{Binding Salesman, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="32" Padding="10,4" VerticalContentAlignment="Center"
+                                 Background="{DynamicResource MenuHoverBrush}"
+                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                 BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}"/>
+                        <ComboBox Grid.Row="3" Grid.Column="2"
+                                  Text="{Binding PanePosition, UpdateSourceTrigger=PropertyChanged}"
+                                  IsEditable="True"
+                                  Height="32" VerticalContentAlignment="Center">
+                            <ComboBoxItem Content="Outer"/>
+                            <ComboBoxItem Content="Inner"/>
+                        </ComboBox>
+                    </Grid>
                 </StackPanel>
             </Border>
 

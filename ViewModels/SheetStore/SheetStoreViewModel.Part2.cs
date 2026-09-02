@@ -164,7 +164,12 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         await _historyRepo.LogAsync(
                             sheet.Id, DescribeSheet(sheet), "Used",
                             $"Consumed {vm.Quantity} sheets.{jobRef} Used: {oldUsed} → {oldUsed + vm.Quantity}. Value: {value:N2} AED.",
-                            vm.Quantity, value);
+                            vm.Quantity, value,
+                            documentReference: vm.JobOrderReference,
+                            customerName: vm.CustomerName,
+                            projectName: vm.ProjectName,
+                            salesman: vm.Salesman,
+                            panePosition: vm.PanePosition);
                     }
                     catch { /* best-effort */ }
                     try

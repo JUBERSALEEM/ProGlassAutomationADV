@@ -34,7 +34,28 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
     {
         // proglass.db (Sheet Store)
         public static IReadOnlyList<SchemaMigration> ProGlass { get; }
-            = new List<SchemaMigration>();
+            = new List<SchemaMigration>
+            {
+                // Sheet consumption traceability. EnsureCreated() only ever
+                // CREATES a missing database, never alters an existing one,
+                // so every install already in the field needs this or EF
+                // would query columns that do not exist.
+                new(1001, "Sheet history: consumption traceability columns", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "SheetHistories", "DocumentReference", "TEXT NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "SheetHistories", "CustomerName",      "TEXT NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "SheetHistories", "ProjectName",       "TEXT NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "SheetHistories", "Salesman",          "TEXT NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "SheetHistories", "PanePosition",      "TEXT NULL");
+
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_SheetHistories_Salesman ON SheetHistories(Salesman);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_SheetHistories_CustomerName ON SheetHistories(CustomerName);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_SheetHistories_DocumentReference ON SheetHistories(DocumentReference);");
+                })
+            };
 
         // joborders.db
         public static IReadOnlyList<SchemaMigration> JobOrders { get; }

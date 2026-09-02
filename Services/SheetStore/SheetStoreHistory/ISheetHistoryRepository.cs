@@ -13,8 +13,20 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
         Task<List<SheetHistory>> GetBySheetIdAsync(int sheetId);
 
         /// <summary>Record a new history entry.</summary>
+        /// <summary>
+        /// Records one sheet movement.
+        ///
+        /// The traceability arguments are OPTIONAL so every existing caller
+        /// compiles unchanged, and so a manual Add/Edit — which has no
+        /// document context — is not forced to invent one.
+        /// </summary>
         Task LogAsync(int sheetId, string sheetDescription, string action, string details,
-                      int quantityChanged = 0, decimal? valueChanged = null);
+                      int quantityChanged = 0, decimal? valueChanged = null,
+                      string? documentReference = null,
+                      string? customerName = null,
+                      string? projectName = null,
+                      string? salesman = null,
+                      string? panePosition = null);
 
         /// <summary>Get most recent timestamp (for "Last Updated" display).</summary>
         Task<System.DateTime?> GetLastUpdatedAsync();

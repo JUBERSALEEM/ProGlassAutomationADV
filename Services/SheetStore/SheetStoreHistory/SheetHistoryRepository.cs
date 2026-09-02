@@ -28,7 +28,12 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
         }
 
         public async Task LogAsync(int sheetId, string sheetDescription, string action, string details,
-                                    int quantityChanged = 0, decimal? valueChanged = null)
+                                    int quantityChanged = 0, decimal? valueChanged = null,
+                                    string? documentReference = null,
+                                    string? customerName = null,
+                                    string? projectName = null,
+                                    string? salesman = null,
+                                    string? panePosition = null)
         {
             using var db = new AppDbContext();
             var entry = new SheetHistory
@@ -40,7 +45,14 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
                 QuantityChanged = quantityChanged,
                 ValueChanged = valueChanged,
                 Timestamp = DateTime.Now,
-                UserName = Environment.UserName
+                UserName = Environment.UserName,
+
+                // Denormalised audit trail — see SheetHistory.
+                DocumentReference = documentReference ?? string.Empty,
+                CustomerName = customerName ?? string.Empty,
+                ProjectName = projectName ?? string.Empty,
+                Salesman = salesman ?? string.Empty,
+                PanePosition = panePosition ?? string.Empty
             };
             db.SheetHistories.Add(entry);
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());

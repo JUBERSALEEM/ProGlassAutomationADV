@@ -34,6 +34,28 @@ namespace ProGlassAutomation.Models.SheetStore.SheetStoreHistory
         [MaxLength(100)]
         public string UserName { get; set; } = Environment.UserName;
 
+        // ═══════════════════════════════════════════════════════════
+        //  CONSUMPTION TRACEABILITY (2026-09-02)
+        //  Answers "which salesman's customer's project consumed how
+        //  many sheets" — impossible today because a Use recorded only
+        //  a quantity and a free-text reference.
+        //
+        //  Denormalised on purpose: a history row is an immutable
+        //  AUDIT record. If the job order is later edited or deleted,
+        //  the sheet was still consumed for that customer on that day,
+        //  and the record must not silently change or vanish.
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>PI or JO number this consumption was booked against.</summary>
+        public string DocumentReference { get; set; } = string.Empty;
+
+        public string CustomerName { get; set; } = string.Empty;
+        public string ProjectName { get; set; } = string.Empty;
+        public string Salesman { get; set; } = string.Empty;
+
+        /// <summary>"Outer" / "Inner" — which pane of the spec consumed it.</summary>
+        public string PanePosition { get; set; } = string.Empty;
+
         public DateTime Timestamp { get; set; } = DateTime.Now;
 
         // ============ DISPLAY HELPERS ============

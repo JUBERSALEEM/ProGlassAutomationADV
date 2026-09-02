@@ -2494,4 +2494,8 @@
     <sys:String x:Key="ProformaInvoice.ExportDossierTip">Full dossier: specs, cut list, charges and terms. Right-click for the internal version with profit &amp; loss.</sys:String>
     <sys:String x:Key="ProformaInvoice.ExportDossierInternalPdf">Export dossier PDF — INTERNAL (includes P&amp;L)</sys:String>
     <sys:String x:Key="ProformaInvoice.ExportDossierPdf">Export full dossier (PDF)</sys:String>
+    <sys:String x:Key="SheetStore.Customer">CUSTOMER</sys:String>
+    <sys:String x:Key="SheetStore.Pane">PANE (OUTER / INNER)</sys:String>
+    <sys:String x:Key="SheetStore.Project">PROJECT</sys:String>
+    <sys:String x:Key="SheetStore.Salesman">SALESMAN</sys:String>
 </ResourceDictionary>
