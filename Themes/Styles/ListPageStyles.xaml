@@ -184,6 +184,8 @@
         <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
         <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
         <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel"/>
+        <Setter Property="VirtualizingPanel.CacheLength" Value="400,800"/>
+        <Setter Property="VirtualizingPanel.CacheLengthUnit" Value="Pixel"/>
         <Setter Property="ItemContainerStyle" Value="{StaticResource ModuleListBoxItemStyle}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>

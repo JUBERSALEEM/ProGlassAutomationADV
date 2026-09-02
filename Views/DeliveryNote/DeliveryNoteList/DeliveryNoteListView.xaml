@@ -545,6 +545,8 @@
                                  ScrollViewer.CanContentScroll="True"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
                             <ListBox.ItemsPanel>
@@ -594,6 +596,8 @@
                                  ScrollViewer.CanContentScroll="True"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
                             <ListBox.ItemsPanel>
@@ -642,6 +646,8 @@
                                  ScrollViewer.CanContentScroll="True"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
                             <ListBox.ItemsPanel>
@@ -743,6 +749,8 @@
                                  ScrollViewer.CanContentScroll="True"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
                             <ListBox.ItemsPanel>
@@ -792,6 +800,8 @@
                                  ScrollViewer.CanContentScroll="True"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
                             <ListBox.ItemsPanel>

@@ -141,7 +141,10 @@
                                       VirtualizingPanel.VirtualizationMode="Recycling">
                             <ItemsControl ItemsSource="{Binding Entries}"
                                           VirtualizingPanel.IsVirtualizing="True"
-                                          VirtualizingPanel.VirtualizationMode="Recycling">
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          VirtualizingPanel.ScrollUnit="Pixel"
+                                          VirtualizingPanel.CacheLength="200,400"
+                                          VirtualizingPanel.CacheLengthUnit="Pixel">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <VirtualizingStackPanel/>

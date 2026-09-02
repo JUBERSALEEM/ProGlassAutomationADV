@@ -589,7 +589,10 @@
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              VirtualizingStackPanel.IsVirtualizing="True"
                              VirtualizingStackPanel.VirtualizationMode="Recycling"
-                             VirtualizingStackPanel.ScrollUnit="Item"
+                             VirtualizingStackPanel.ScrollUnit="Pixel"
+                             VirtualizingStackPanel.CacheLength="400,800"
+                             VirtualizingStackPanel.CacheLengthUnit="Pixel"
+                             ScrollViewer.CanContentScroll="True"
                              MouseDoubleClick="OnRowDoubleClick">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
