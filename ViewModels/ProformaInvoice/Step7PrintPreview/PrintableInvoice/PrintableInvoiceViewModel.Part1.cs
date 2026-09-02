@@ -14,6 +14,7 @@ using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup;
@@ -448,6 +449,76 @@ public PrintableInvoiceViewModel(
                     $"[PI Save] Cross-step validation error: {ExceptionMessages.Deep(valEx)}");
             }
             // ── END CROSS-STEP VALIDATION ──────────────────────────
+
+            // ── DUPLICATE DETECTION ────────────────────────────────
+            // Check if company/client/project already exist in master data.
+            // Show a warning so the user knows existing records will be updated.
+            try
+            {
+                var masterData = App.ServiceProvider?.GetService<IMasterDataRepository>();
+                if (masterData != null)
+                {
+                    var duplicates = new List<string>();
+
+                    // Check company
+                    if (!string.IsNullOrWhiteSpace(Company.CompanyName))
+                    {
+                        var existingCompany = await masterData.FindCompanyByNameAsync(Company.CompanyName);
+                        if (existingCompany != null)
+                        {
+                            duplicates.Add($"• Company '{Company.CompanyName}' already exists and will be updated");
+                        }
+                    }
+
+                    // Check client
+                    if (!string.IsNullOrWhiteSpace(Client.CustomerName))
+                    {
+                        var existingClient = await masterData.FindClientByNameAsync(Client.CustomerName);
+                        if (existingClient != null)
+                        {
+                            duplicates.Add($"• Client '{Client.CustomerName}' already exists and will be updated");
+                        }
+                    }
+
+                    // Check project
+                    if (!string.IsNullOrWhiteSpace(Project.ProjectIdentifierName) && 
+                        !string.IsNullOrWhiteSpace(Client.CustomerName))
+                    {
+                        var existingProject = await masterData.FindProjectByNameAsync(
+                            Project.ProjectIdentifierName, Client.CustomerName);
+                        if (existingProject != null)
+                        {
+                            duplicates.Add($"• Project '{Project.ProjectIdentifierName}' already exists and will be updated");
+                        }
+                    }
+
+                    // Show duplicate warning if any found
+                    if (duplicates.Count > 0)
+                    {
+                        string duplicateMsg = "The following master data records already exist:\n\n" +
+                            string.Join("\n", duplicates) +
+                            "\n\nSaving will UPDATE these existing records with the new information.\n\n" +
+                            "Do you want to proceed?";
+
+                        var proceedWithDuplicates = _dialogs.Show(
+                            duplicateMsg,
+                            "Duplicate Records Detected",
+                            MessageBoxButton.YesNo,
+                            MessageBoxImage.Question);
+
+                        if (proceedWithDuplicates != MessageBoxResult.Yes)
+                            return;
+                    }
+                }
+            }
+            catch (Exception dupEx)
+            {
+                // Duplicate detection failed — log but don't block save.
+                // The upsert logic in the repository will handle duplicates correctly.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                    $"[PI Save] Duplicate detection error: {ExceptionMessages.Deep(dupEx)}");
+            }
+            // ── END DUPLICATE DETECTION ────────────────────────────
 
             // v2 permission gate — the operation itself verifies access.
             if (!ProGlassAutomation.Services.Audit.PermissionService.Require(

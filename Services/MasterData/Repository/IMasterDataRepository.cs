@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/MasterData/Repository/IMasterDataRepository.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 15 — PROJECT REFERENCE PARAMETER ADDED
@@ -77,6 +77,13 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         /// <summary>Delete a company profile by ID.</summary>
         Task DeleteCompanyAsync(int id);
 
+        /// <summary>
+        /// Check if a company with the same name already exists (case-insensitive).
+        /// Returns the existing company if found, null otherwise.
+        /// Used for duplicate detection before save to warn users.
+        /// </summary>
+        Task<SavedCompany?> FindCompanyByNameAsync(string companyName);
+
         // ══════════════════════════════════════════════════════════════════
         //  CLIENTS
         // ══════════════════════════════════════════════════════════════════
@@ -100,6 +107,13 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         /// <summary>Delete a client profile by ID.</summary>
         Task DeleteClientAsync(int id);
+
+        /// <summary>
+        /// Check if a client with the same name already exists (case-insensitive).
+        /// Returns the existing client if found, null otherwise.
+        /// Used for duplicate detection before save to warn users.
+        /// </summary>
+        Task<SavedClient?> FindClientByNameAsync(string customerName);
 
         // ══════════════════════════════════════════════════════════════════
         //  PROJECTS
@@ -130,6 +144,13 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         /// <summary>Delete a project profile by ID.</summary>
         Task DeleteProjectAsync(int id);
+
+        /// <summary>
+        /// Check if a project with the same name already exists for a customer (case-insensitive).
+        /// Returns the existing project if found, null otherwise.
+        /// Used for duplicate detection before save to warn users.
+        /// </summary>
+        Task<SavedProject?> FindProjectByNameAsync(string projectName, string customerName);
 
         // ══════════════════════════════════════════════════════════════════
         //  SALESMEN

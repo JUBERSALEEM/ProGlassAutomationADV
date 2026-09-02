@@ -193,6 +193,20 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
+        public async Task<SavedCompany?> FindCompanyByNameAsync(string companyName)
+        {
+            if (string.IsNullOrWhiteSpace(companyName))
+                return null;
+
+            using var ctx = new MasterDataDbContext();
+            var name = companyName.Trim().ToLower();
+
+            return await ctx.Companies
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.CompanyName.ToLower() == name)
+                .ConfigureAwait(false);
+        }
+
         // ══════════════════════════════════════════════════════════════════
         //  CLIENTS
         // ══════════════════════════════════════════════════════════════════
@@ -280,6 +294,20 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
             ctx.Clients.Remove(entity);
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+        }
+
+        public async Task<SavedClient?> FindClientByNameAsync(string customerName)
+        {
+            if (string.IsNullOrWhiteSpace(customerName))
+                return null;
+
+            using var ctx = new MasterDataDbContext();
+            var name = customerName.Trim().ToLower();
+
+            return await ctx.Clients
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.CustomerName.ToLower() == name)
+                .ConfigureAwait(false);
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -383,6 +411,23 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
             ctx.Projects.Remove(entity);
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+        }
+
+        public async Task<SavedProject?> FindProjectByNameAsync(string projectName, string customerName)
+        {
+            if (string.IsNullOrWhiteSpace(projectName) || string.IsNullOrWhiteSpace(customerName))
+                return null;
+
+            using var ctx = new MasterDataDbContext();
+            var projName = projectName.Trim().ToLower();
+            var custName = customerName.Trim().ToLower();
+
+            return await ctx.Projects
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => 
+                    p.ProjectIdentifierName.ToLower() == projName 
+                    && p.CustomerName.ToLower() == custName)
+                .ConfigureAwait(false);
         }
 
         // ══════════════════════════════════════════════════════════════════
