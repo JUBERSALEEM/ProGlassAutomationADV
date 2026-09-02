@@ -99,7 +99,59 @@
 
 ---
 
-## **Example 4: DGU+LAM (Double Glazing + Laminated) with All Charges**
+## **Example 4B: DGU with Overlap (SQM) — Rare Mode**
+
+### **Spec Name:**
+```
+6mm HD Grey FT Glass + 12mm ASP + 6mm HD Grey FT Glass With Overlap (SQM)
+```
+
+### **Step 5 Sizes:**
+- W1: 1000mm, H1: 2000mm, Qty: 10
+- **SQM1:** 20.00 sqm
+
+### **Step 6 Auto-Charges:**
+
+| Charge | Unit | Qty | Rate | Total | Reason |
+|---|---|---|---|---|---|
+| **Overlap (Sqm)** | SQM | 20.00 | 6.00 | 120.00 | Spec: "With Overlap (SQM)" |
+| **Wastage: HD Grey — outer** | SQM | 20.00 | 0.00 | 0.00 | Colored glass |
+| **Wastage: HD Grey — inner** | SQM | 20.00 | 0.00 | 0.00 | Colored glass |
+
+**Notes:**
+- **NO silicon bed** — SQM mode includes everything in one charge
+- This is the RARE mode for specific customers only
+- Standard mode is Overlap (LM) which includes silicon bed separately
+
+---
+
+## **Example 4C: DGU with Matched Same-Glass Polish (×4)**
+
+### **Spec Name:**
+```
+6mm HD Grey FT Glass + 12mm ASP + 6mm HD Grey FT Glass With All Side Polish
+```
+
+### **Step 5 Sizes:**
+- W1: 1000mm, H1: 2000mm, Qty: 10
+- **LM_COMBINED:** 120.00 lm (both panes: 60 + 60)
+
+### **Step 6 Auto-Charges:**
+
+| Charge | Unit | Qty | Rate | Total | Reason |
+|---|---|---|---|---|---|
+| **Polish — same-glass (2×)** | LM | 120.00 | 6.00 | 720.00 | Both panes HD Grey = ×4 polish |
+| **Wastage: HD Grey — outer** | SQM | 20.00 | 0.00 | 0.00 | Colored glass |
+| **Wastage: HD Grey — inner** | SQM | 20.00 | 0.00 | 0.00 | Colored glass |
+
+**Notes:**
+- Both panes are HD Grey (same color) → POLISH_MATCHED_LAM template
+- Polish is charged ×4 (all 4 edges of both panes)
+- If panes were different colors (HD Grey + Clear) → normal POLISH ×2
+
+---
+
+## **Example 5: DGU+LAM (Double Glazing + Laminated) with All Charges**
 
 ### **Spec Name:**
 ```
@@ -142,8 +194,8 @@
 | Spec Token | Charge Template | When Applied |
 |---|---|---|
 | "U-Insert" | U_INSERT | Always |
-| "Overlap" | OVERLAP / OVERLAP_SQM | Always |
-| "Overlap" + DGU/DGU+LAM | SILICON_BED / SILICON_BED_SQM | **Always separate for DGU** |
+| "Overlap" (not SQM) | OVERLAP + SILICON_BED | **LM mode: both charges for DGU** |
+| "Overlap (SQM)" | OVERLAP_SQM only | **SQM mode: overlap only, NO silicon bed** |
 | "Argon Gas" | ARGON_GAS | Always |
 | "Shutter Bonding" | SHUTTER_BONDING | Always |
 | "Fanhole" | FAN_HOLES | Always |
@@ -152,7 +204,42 @@
 | "Cutout And Holes" | CUTOUT + HOLES | Both charges |
 | "Mitring" / "Beveled" | MITRING | Always |
 | "Sandblasted" / "Frosted" | SANDBLASTING | Always |
-| Polish variants | POLISH | Always (17 types detected) |
+| Polish variants | POLISH or POLISH_MATCHED_LAM | Always (17 types detected) |
+
+---
+
+## **Two Overlap Modes (Important!)**
+
+### **Mode 1: Overlap (LM) — Standard**
+- **Spec:** "With Overlap" or "With Overlap As Per DWG"
+- **Charges:** Overlap (lm) + Silicon Bed (lm) ← **Both separate for DGU**
+- **When:** Most DGU orders
+- **Example:** 10 pieces × 60 LM overlap + 10 pieces × 60 LM silicon bed
+
+### **Mode 2: Overlap (SQM) — Rare (specific customers)**
+- **Spec:** "With Overlap (SQM)"
+- **Charges:** Overlap (sqm) ONLY ← **NO silicon bed**
+- **When:** Rare cases where customer wants area-based pricing
+- **Example:** 10 pieces × 20 SQM overlap (price includes everything)
+
+---
+
+## **Polish ×4 vs ×2 (Same-Glass Matching)**
+
+### **Normal Polish (×2) — Different glass colors**
+- **Spec:** "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass With All Side Polish"
+- **Formula:** `=(W+H)/1000 × 2` (outer + inner, different colors)
+- **Template:** POLISH
+- **LM:** Outer perimeter + Inner perimeter
+
+### **Matched Polish (×4) — Same glass colors**
+- **Spec:** "6mm HD Grey FT Glass + 12mm ASP + 6mm HD Grey FT Glass With All Side Polish"
+- **Formula:** `=(W+H)/1000 × 4` (outer + inner, same color = double polish)
+- **Template:** POLISH_MATCHED_LAM
+- **LM:** Outer perimeter × 2 + Inner perimeter × 2
+- **Why:** Same glass on both sides means all 4 edges need polish
+
+**Auto-detection:** System checks if outer and inner glass colors match. If yes → POLISH_MATCHED_LAM (×4). If no → POLISH (×2).
 
 ---
 
