@@ -2472,4 +2472,8 @@
     <sys:String x:Key="Specifications.ColSpecification">SPECIFICATION</sys:String>
     <sys:String x:Key="Specifications.ColType">TYPE</sys:String>
     <sys:String x:Key="Specifications.ColUsed">USED</sys:String>
+    <sys:String x:Key="Specifications.Height">HEIGHT</sys:String>
+    <sys:String x:Key="Specifications.NoPanes">Could not read glass panes from this specification name.</sys:String>
+    <sys:String x:Key="Specifications.NoSheetMatch">No Sheet Store match for this colour and thickness.</sys:String>
+    <sys:String x:Key="Specifications.Width">WIDTH</sys:String>
 </ResourceDictionary>

@@ -154,6 +154,15 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                         "CREATE INDEX IF NOT EXISTS IX_SpecificationUsages_SpecificationId ON SpecificationUsages(SpecificationId);");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_SpecificationUsages_ProformaId ON SpecificationUsages(ProformaId);");
+                }),
+
+                // Per-pane sheet matches. A DGU is two panes that can be cut
+                // from different stock sizes; the single SheetWidthMm pair
+                // could only ever describe the outer one.
+                new(1003, "Specifications Center: per-pane sheet matches", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(
+                        connection, "Specifications", "PanesJson", "TEXT NULL");
                 })
             };
 

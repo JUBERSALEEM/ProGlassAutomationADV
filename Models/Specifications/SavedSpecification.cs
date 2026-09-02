@@ -97,6 +97,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Specifications
         /// </summary>
         public string? ProformaId { get; set; }
 
+        /// <summary>
+        /// Per-pane sheet matches, serialized as JSON (see SpecPane).
+        ///
+        /// SheetWidthMm/SheetHeightMm above describe only the OUTER pane and
+        /// are kept for the list column and backward compatibility. A DGU has
+        /// two panes that can be cut from DIFFERENT stock sizes, so the
+        /// detail view needs this list rather than a single pair.
+        ///
+        /// Stored as JSON in one column so a three- or four-leaf build needs
+        /// no further migration.
+        /// </summary>
+        public string? PanesJson { get; set; }
+
         /// <summary>True when a Sheet Store size was actually matched.</summary>
         public bool HasSheetMatch => SheetWidthMm > 0 && SheetHeightMm > 0;
 

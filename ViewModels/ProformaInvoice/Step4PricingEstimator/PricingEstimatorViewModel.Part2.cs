@@ -154,6 +154,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 var (specColor, specThicknessMm, specW, specH) =
                     GetCatalogueDetailsForCurrentPanel(glassType);
 
+                // Per-pane sheet matches. The single sheetWidth/Height pair
+                // below describes only the OUTER pane; a DGU's inner leaf can
+                // be a different stock size entirely. Derived from the spec
+                // NAME so every build family works the same way, including
+                // DGU+LAM which has no sheet wiring of its own.
+                string? panesJson = null;
+                try
+                {
+                    var panes = Services.Specifications.SpecPaneResolver
+                        .Parse(specName);
+                    panes = await Services.Specifications.SpecPaneResolver
+                        .MatchSheetsAsync(panes);
+                    panesJson = Services.Specifications.SpecPaneResolver
+                        .Serialize(panes);
+                }
+                catch (Exception paneEx)
+                {
+                    Services.Logging.AppLogService.Debug(
+                        $"[Step4.Panes] {paneEx.Message}");
+                }
+
                 var savedSpec = await _specs.SaveOrUpdateAsync(
                     glassType, specName, rate,
                     category: null,          // Sheet Store category: resolved
@@ -163,7 +184,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     sheetWidthMm: specW,
                     sheetHeightMm: specH,
                     sheetId: 0,
-                    proformaId: Services.ProformaInvoice.ActiveInvoiceContext.ProformaId);
+                    proformaId: Services.ProformaInvoice.ActiveInvoiceContext.ProformaId,
+                    panesJson: panesJson);
 
                 // USAGE HISTORY: one append-only row per APPLY, so the
                 // Specifications Center can list EVERY proforma that used
@@ -271,6 +293,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                               ParseThicknessMm(LamVM.OuterThickness),
                               LamVM.OuterSheetWidthMm,
                               LamVM.OuterSheetHeightMm),
+
+                    // DGU+LAM has colour fields but NO Sheet Store size
+                    // wiring (it has no .SheetStore.cs partial like the
+                    // other three), so there is no size to report here.
+                    // Sizes for this family come from SpecPaneResolver,
+                    // which matches each pane by colour + thickness.
+                    "DGU+LAM" => (DguLamVM.OuterGlassColor,
+                                  ParseThicknessMm(DguLamVM.OuterThickness),
+                                  0, 0),
 
                     _ => (null, 0, 0, 0)
                 };

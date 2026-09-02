@@ -57,7 +57,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 glassType, specName, pricePerSqm,
                 category: null, color: null, thicknessMm: 0,
                 sheetWidthMm: 0, sheetHeightMm: 0, sheetId: 0,
-                proformaId: null);
+                proformaId: null, panesJson: null);
 
         public async Task<SavedSpecification> SaveOrUpdateAsync(
             string glassType,
@@ -69,7 +69,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             int sheetWidthMm,
             int sheetHeightMm,
             int sheetId,
-            string? proformaId)
+            string? proformaId,
+            string? panesJson = null)
         {
             ReadOnlyGate.Demand("save a specification");
             // A-1: service-layer authorization. A saved spec sets the rate
@@ -112,6 +113,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 }
                 if (sheetId > 0)                            existing.SheetId = sheetId;
                 if (!string.IsNullOrWhiteSpace(proformaId)) existing.ProformaId = proformaId;
+                if (!string.IsNullOrWhiteSpace(panesJson)) existing.PanesJson = panesJson;
                 await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 // Tell every open SpecGroup its dropdown is stale. Without
@@ -137,7 +139,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 SheetWidthMm = sheetWidthMm,
                 SheetHeightMm = sheetHeightMm,
                 SheetId = sheetId,
-                ProformaId = proformaId
+                ProformaId = proformaId,
+                PanesJson = panesJson
             };
 
             db.Specifications.Add(newSpec);

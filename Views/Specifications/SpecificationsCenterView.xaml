@@ -430,33 +430,121 @@
                                 BorderThickness="0"/>
                     </Grid>
 
-                    <!-- Sheet Store match — read-only -->
-                    <Border Grid.Row="1"
-                            Background="{DynamicResource GlassSurfaceElevated}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="12,10" Margin="0,0,0,14">
-                        <StackPanel>
-                            <TextBlock Text="{DynamicResource Specifications.MatchedSheet}"
-                                       FontSize="{StaticResource TextBody}"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <TextBlock Text="{Binding SelectedSpec.SheetSizeDisplay}"
-                                       FontSize="{StaticResource TextSection}"
-                                       FontWeight="Bold"
-                                       Margin="0,4,0,0"
-                                       Foreground="{DynamicResource AccentBrush}"/>
-                            <TextBlock FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="0,4,0,0">
-                                <Run Text="{Binding SelectedSpec.Color, Mode=OneWay}"/>
-                                <Run Text="  ·  "/>
-                                <Run Text="{Binding SelectedSpec.ThicknessMm, Mode=OneWay}"/>
-                                <Run Text="mm"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
+                    <!--
+                        PER-PANE SHEET MATCHES (read-only).
+
+                        A specification is not one piece of glass:
+                        "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass"
+                        is TWO panes, and each is cut from its own Sheet Store
+                        sheet — HD Grey may only be stocked as 3210 x 2250
+                        while Clear comes as 3660 x 2440. One width/height on
+                        the spec could only ever describe the outer leaf,
+                        which is why sizes looked missing or wrong.
+
+                        Each pane gets its own box with its glass name and its
+                        own width/height.
+                    -->
+                    <StackPanel Grid.Row="1" Margin="0,0,0,14">
+                        <TextBlock Text="{DynamicResource Specifications.MatchedSheet}"
+                                   FontSize="{StaticResource TextBody}"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,6"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+
+                        <ItemsControl ItemsSource="{Binding Panes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource GlassSurfaceElevated}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Padding="12,10" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding GlassLabel}"
+                                                           FontSize="{StaticResource TextBody}"
+                                                           FontWeight="Bold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding ThicknessDisplay}"
+                                                           FontSize="{StaticResource TextBody}"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            </Grid>
+
+                                            <Grid Margin="0,8,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{DynamicResource Specifications.Width}"
+                                                               FontSize="{StaticResource TextBody}"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding WidthDisplay}"
+                                                               FontSize="{StaticResource TextBodyLarge}"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource AccentBrush}"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{DynamicResource Specifications.Height}"
+                                                               FontSize="{StaticResource TextBody}"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding HeightDisplay}"
+                                                               FontSize="{StaticResource TextBodyLarge}"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource AccentBrush}"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- Explicit miss: never invent a size. -->
+                                            <TextBlock Text="{DynamicResource Specifications.NoSheetMatch}"
+                                                       FontSize="{StaticResource TextBody}"
+                                                       Margin="0,6,0,0"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource WarningBrush}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HasSheet}" Value="False">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Name could not be parsed into panes at all. -->
+                        <TextBlock Text="{DynamicResource Specifications.NoPanes}"
+                                   FontSize="{StaticResource TextBody}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource MutedForegroundBrush}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasPanes}" Value="False">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
 
                     <!-- Usage history + price bands -->
                     <Grid Grid.Row="2">

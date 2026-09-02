@@ -46,7 +46,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             int sheetWidthMm,
             int sheetHeightMm,
             int sheetId,
-            string? proformaId);
+            string? proformaId,
+            string? panesJson = null);
 
         /// <summary>
         /// Increment usage count and update LastUsedAt when a spec is picked

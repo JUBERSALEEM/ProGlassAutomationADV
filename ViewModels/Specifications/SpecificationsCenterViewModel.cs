@@ -97,6 +97,16 @@ namespace ProGlassAutomation.ViewModels.Specifications
         public ObservableCollection<SavedSpecification> Specifications { get; } = new();
         public ObservableCollection<SpecificationUsage> UsageHistory { get; } = new();
 
+        /// <summary>
+        /// Individual glass leaves of the selected spec, each with the Sheet
+        /// Store size it matched. A DGU has two, and they can be different
+        /// stock sizes — which is why a single width/height on the spec was
+        /// never enough.
+        /// </summary>
+        public ObservableCollection<Models.ProformaInvoice.Specifications.SpecPane> Panes { get; } = new();
+
+        public bool HasPanes => Panes.Count > 0;
+
         public ObservableCollection<string> GlassTypeOptions { get; } = new();
         public ObservableCollection<string> ColorOptions { get; } = new();
 
@@ -349,8 +359,27 @@ namespace ProGlassAutomation.ViewModels.Specifications
         {
             SelectedSpec = spec;
             UsageHistory.Clear();
+            Panes.Clear();
+            OnPropertyChanged(nameof(HasPanes));
 
             if (spec == null || _specs == null) return;
+
+            // Resolve the panes first so the sidebar fills in immediately.
+            // Uses stored PanesJson when present and otherwise derives them
+            // from the spec NAME, which is what makes every pre-existing
+            // specification display sizes without a data backfill.
+            try
+            {
+                var panes = await Services.Specifications.SpecPaneResolver
+                    .ResolveAsync(spec);
+
+                foreach (var pane in panes) Panes.Add(pane);
+                OnPropertyChanged(nameof(HasPanes));
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SpecificationsCenter.Panes] {ex.Message}");
+            }
 
             try
             {
