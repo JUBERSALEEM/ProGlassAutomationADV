@@ -218,6 +218,10 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         }
 
         private decimal _overallMarginPercent;
+        /// <summary>
+        /// Cost-based margin: (TotalGross - TotalCost) / TotalCost × 100
+        /// This is the MAIN KPI shown in the portfolio summary.
+        /// </summary>
         public decimal OverallMarginPercent
         {
             get => _overallMarginPercent;
@@ -231,6 +235,25 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         }
 
         public string OverallMarginDisplay => $"{OverallMarginPercent:0.#}%";
+
+        private decimal _overallPriceBasedMarginPercent;
+        /// <summary>
+        /// Price-based margin: (TotalGross - TotalCost) / TotalGross × 100
+        /// This is the SECONDARY KPI shown in the portfolio summary.
+        /// </summary>
+        public decimal OverallPriceBasedMarginPercent
+        {
+            get => _overallPriceBasedMarginPercent;
+            private set
+            {
+                if (_overallPriceBasedMarginPercent == value) return;
+                _overallPriceBasedMarginPercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OverallPriceBasedMarginDisplay));
+            }
+        }
+
+        public string OverallPriceBasedMarginDisplay => $"{OverallPriceBasedMarginPercent:0.#}%";
 
         private decimal _averageMarginPercent;
         /// <summary>
@@ -716,26 +739,34 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             TotalProfit = Math.Round(costedRows.Sum(r => r.Profit), 2);
             LossCount = rows.Count(r => r.IsLoss);
 
-            // Overall portfolio margin uses EXACTLY the Step 9 per-PI
-            // formula applied to the totals:
-            //     Margin% = Profit ÷ NetExVat × 100
-            // Step 9's own margin (ProfitLossStepViewModel) is
-            // Profit / NetExVat * 100 rounded to one decimal; summing
-            // Step 9's net and Step 9's profit first, then applying the
-            // same division, is the portfolio-level equivalent.
+            // Calculate TotalGross from TotalNet (NetExVat × 1.05)
+            // This matches Step 9's GrossVatInclusive calculation
+            decimal totalGross = Math.Round(TotalNet * 1.05m, 2);
+
+            // Overall portfolio margin uses the SAME formulas as Step 9:
+            //
+            // COST-BASED (Main KPI): (TotalGross - TotalCost) / TotalCost × 100
+            //   Example: Cost 3211.80, Revenue 3200
+            //   Margin = (3200 - 3211.80) / 3211.80 × 100 = -0.4%
+            //
+            // PRICE-BASED (Secondary KPI): (TotalGross - TotalCost) / TotalGross × 100
+            //   Example: Cost 3211.80, Revenue 3200
+            //   Margin = (3200 - 3211.80) / 3200 × 100 = -0.4%
             //
             // This is computed from the TOTALS, not averaged from the
             // individual margins — an average of percentages weights tiny
-            // jobs the same as large ones. (Step 9 has no "overall"
-            // concept: it values one PI, and its margin is exactly
-            // Profit ÷ NetExVat — the same division used here.)
+            // jobs the same as large ones.
             //
-            // Edge case: if TotalNet is very small relative to TotalProfit,
-            // the margin can exceed ±100% (e.g., net=10, profit=-121 →
-            // -1210%). This is mathematically correct and matches what
+            // Edge case: if TotalCost is very small relative to TotalProfit,
+            // the cost-based margin can exceed ±100% (e.g., cost=10, profit=121 →
+            // 1210%). This is mathematically correct and matches what
             // Step 9 would show for that single PI.
-            OverallMarginPercent = TotalNet > 0m
-                ? Math.Round((TotalProfit * 100m) / TotalNet, 1)
+            OverallMarginPercent = TotalCost > 0m
+                ? Math.Round(((totalGross - TotalCost) * 100m) / TotalCost, 1)
+                : 0m;
+
+            OverallPriceBasedMarginPercent = totalGross > 0m
+                ? Math.Round(((totalGross - TotalCost) * 100m) / totalGross, 1)
                 : 0m;
 
             // Average Margin %: only the Margin % figures of the displayed

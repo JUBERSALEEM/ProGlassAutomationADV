@@ -516,40 +516,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 // tells the user they are losing money when they are not.
                 IsLoss = gross > 0m && Profit < 0m;
 
-                MarginPercent = NetExVat > 0m
-                    ? Math.Round(Profit / NetExVat * 100m, 1)
-                    : 0m;
-
-                // ── PRICE-BASED PROFIT MARGIN (normal SQM price basis) ─────
+                // ══════════════════════════════════════════════════════════
+                //  COST-BASED MARGIN (Option A - Main KPI)
                 //
-                //  Cost-based measures profit against what the job ACTUALLY
-                //  cost (the sheet-quantity rows shown on the P&L).
-                //  Price-based measures it against the NORMAL per-SQM price
-                //  basis the quote was derived from — (sheet1 + sheet2) ÷
-                //  yield + production (existing QuoteBasisFor) — and the
-                //  customer's actual net selling price:
+                //  Formula: (Gross Revenue - Base Cost) / Base Cost × 100
                 //
-                //    Net Selling Amount   = NetExVat (actual)
-                //    Glass + Prod + ASP   = existing QuoteBasisFor × actual
-                //                            area (per specification)
-                //    U-Insert Cost        = applicable U-insert area × rate
-                //                            (reuses the existing U-insert
-                //                            logic; AED 10/m² comes from the
-                //                            template default — never a
-                //                            hardcoded margin)
-                //    Total Actual Cost    = basis + U-Insert
-                //    Actual Profit        = Net Selling − Total Actual Cost
-                //    Price-Based Margin % = Actual Profit ÷ Net Selling × 100
+                //  Example: Base 160.59, Selling 160, Area 20 SQM
+                //    Total Base Cost = 160.59 × 20 = 3,211.80
+                //    Gross Revenue = 160 × 20 = 3,200
+                //    Margin = (3,200 - 3,211.80) / 3,211.80 × 100 = -0.4%
                 //
-                //  The U-insert is an ADDITIONAL cost inside the selling
-                //  price — it is never subtracted from the price. It is
-                //  re-derived from the spec groups even when its Step 6
-                //  charge row was left inactive, so a job whose quote
-                //  carries a U-Insert extra is never reported with an
-                //  overstated margin. When the normal basis is unavailable
-                //  (no Step 4 panel), the actual P&L rows minus the booked
-                //  U-insert are used instead, so the KPI can never
-                //  UNDERSTATE the cost either.
+                //  Uses GROSS revenue (including VAT), not net.
+                //  Uses BASE COST (with yield factor), not actual P&L rows.
                 // ══════════════════════════════════════════════════════════
                 decimal basisTotal = 0m;
                 foreach (var group in groups)
@@ -575,9 +553,43 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 PriceBasedTotalActualCost = Math.Round(
                     PriceBasedBasisCost + PriceBasedUInsertCost, 2);
-                PriceBasedActualProfit = Math.Round(NetExVat - PriceBasedTotalActualCost, 2);
-                PriceBasedMarginPercent = NetExVat > 0m
-                    ? Math.Round(PriceBasedActualProfit / NetExVat * 100m, 2)
+
+                // Cost-based profit using GROSS revenue (not net)
+                PriceBasedActualProfit = Math.Round(GrossVatInclusive - PriceBasedTotalActualCost, 2);
+
+                // ══════════════════════════════════════════════════════════
+                //  COST-BASED MARGIN (Main KPI - shown in "COST-BASED PROFIT MARGIN" card)
+                //
+                //  Formula: (Gross Revenue - Base Cost) / Base Cost × 100
+                //
+                //  Example: Base 160.59, Selling 160, Area 20 SQM
+                //    Total Base Cost = 160.59 × 20 = 3,211.80
+                //    Gross Revenue = 160 × 20 = 3,200
+                //    Margin = (3,200 - 3,211.80) / 3,211.80 × 100 = -0.4%
+                //
+                //  Uses GROSS revenue (including VAT), not net.
+                //  Uses BASE COST (with yield factor), not actual P&L rows.
+                //  This matches Step 4's margin pattern.
+                // ══════════════════════════════════════════════════════════
+                MarginPercent = PriceBasedTotalActualCost > 0m
+                    ? Math.Round(PriceBasedActualProfit / PriceBasedTotalActualCost * 100m, 2)
+                    : 0m;
+
+                // ══════════════════════════════════════════════════════════
+                //  PRICE-BASED MARGIN (Secondary KPI - shown in "PRICE-BASED PROFIT MARGIN" card)
+                //
+                //  Formula: (Gross Revenue - Base Cost) / Gross Revenue × 100
+                //
+                //  Example: Base 160.59, Selling 160, Area 20 SQM
+                //    Total Base Cost = 160.59 × 20 = 3,211.80
+                //    Gross Revenue = 160 × 20 = 3,200
+                //    Margin = (3,200 - 3,211.80) / 3,200 × 100 = -0.4%
+                //
+                //  Uses GROSS revenue (including VAT), not net.
+                //  Cost-based always shows higher % than price-based for profitable sales.
+                // ══════════════════════════════════════════════════════════
+                PriceBasedMarginPercent = GrossVatInclusive > 0m
+                    ? Math.Round(PriceBasedActualProfit / GrossVatInclusive * 100m, 2)
                     : 0m;
 
                 StatusMessage = BuildStatus(
