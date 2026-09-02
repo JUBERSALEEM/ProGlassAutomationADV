@@ -61,6 +61,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
                 _projectIdentifierName = value;
                 OnPropertyChanged();
                 MarkUserEditedIfNotLoading();
+                RebuildVisibleCards(); // Update suggestions as user types
             }
         }
 
@@ -325,9 +326,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
         {
             SavedProjectCards.Clear();
 
+            // FILTER: Only show cards that match the current ProjectIdentifierName text
+            // If ProjectIdentifierName is empty, show nothing (user hasn't started typing)
+            // If ProjectIdentifierName has text, show matching suggestions
+            var filtered = string.IsNullOrWhiteSpace(ProjectIdentifierName)
+                ? new List<ProjectProfileCard>() // Empty = no suggestions
+                : _allProjectCards
+                    .Where(c => c.ProjectIdentifierName.IndexOf(ProjectIdentifierName, StringComparison.OrdinalIgnoreCase) >= 0)
+                    .ToList();
+
             var visible = _showingAll
-                ? _allProjectCards
-                : _allProjectCards.Take(6).ToList();
+                ? filtered
+                : filtered.Take(6).ToList();
 
             foreach (var card in visible)
                 SavedProjectCards.Add(card);

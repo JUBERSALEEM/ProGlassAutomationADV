@@ -58,6 +58,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 OnPropertyChanged(nameof(CompanyNameValidationMessage));
                 OnPropertyChanged(nameof(HasCompanyNameError));
                 MarkUserEditedIfNotLoading();
+                RebuildVisibleCards(); // Update suggestions as user types
             }
         }
 
@@ -461,9 +462,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         {
             SavedProfiles.Clear();
 
+            // FILTER: Only show cards that match the current CompanyName text
+            // If CompanyName is empty, show nothing (user hasn't started typing)
+            // If CompanyName has text, show matching suggestions
+            var filtered = string.IsNullOrWhiteSpace(CompanyName)
+                ? new List<CompanyProfileCard>() // Empty = no suggestions
+                : _allCompanyCards
+                    .Where(c => c.CompanyName.IndexOf(CompanyName, StringComparison.OrdinalIgnoreCase) >= 0)
+                    .ToList();
+
             var visible = _showingAll
-                ? _allCompanyCards
-                : _allCompanyCards.Take(6).ToList();
+                ? filtered
+                : filtered.Take(6).ToList();
 
             foreach (var card in visible)
                 SavedProfiles.Add(card);

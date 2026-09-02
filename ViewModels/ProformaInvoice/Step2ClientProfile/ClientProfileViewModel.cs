@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/ProformaInvoice/Step2ClientProfile/ClientProfileViewModel.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 15 — ALL FIXES APPLIED
@@ -69,6 +69,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
                 OnPropertyChanged(nameof(CustomerNameValidationMessage));
                 OnPropertyChanged(nameof(HasCustomerNameError));
                 MarkUserEditedIfNotLoading();
+                RebuildVisibleCards(); // Update suggestions as user types
             }
         }
 
@@ -465,9 +466,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
         {
             SavedClientCards.Clear();
 
+            // FILTER: Only show cards that match the current CustomerName text
+            // If CustomerName is empty, show nothing (user hasn't started typing)
+            // If CustomerName has text, show matching suggestions
+            var filtered = string.IsNullOrWhiteSpace(CustomerName)
+                ? new List<ClientProfileCard>() // Empty = no suggestions
+                : _allClientCards
+                    .Where(c => c.CustomerName.IndexOf(CustomerName, StringComparison.OrdinalIgnoreCase) >= 0)
+                    .ToList();
+
             var visible = _showingAll
-                ? _allClientCards
-                : _allClientCards.Take(6).ToList();
+                ? filtered
+                : filtered.Take(6).ToList();
 
             foreach (var card in visible)
                 SavedClientCards.Add(card);
