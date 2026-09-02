@@ -592,7 +592,7 @@ namespace ProGlassAutomation.ViewModels
             }
             catch
             {
-                AiChatVM = new ViewModels.AI.AiChatViewModel(_ai, _speechToText, _textToSpeech);
+                AiChatVM = new ViewModels.AI.AiChatViewModel(_config, _connectivity, _ai, _speechToText, _textToSpeech);
             }
 
             try
