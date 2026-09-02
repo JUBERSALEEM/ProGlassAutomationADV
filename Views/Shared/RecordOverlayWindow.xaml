@@ -11,7 +11,7 @@
         ShowInTaskbar="False"
         Topmost="True"
         ResizeMode="NoResize"
-        SizeToContent="{DynamicResource Shared.Widthandheight}"
+        SizeToContent="WidthAndHeight"
         ShowActivated="False"
         FontFamily="{DynamicResource AppFontFamily}"
         FontWeight="{DynamicResource AppFontWeight}"
