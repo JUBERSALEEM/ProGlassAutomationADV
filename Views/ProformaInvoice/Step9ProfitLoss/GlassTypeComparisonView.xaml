@@ -1,0 +1,394 @@
+<!--
+    Glass Type Comparison View - Separate Tab for Strategic Analysis
+    
+    Shows:
+    - DGU (Double Glazed Unit) profitability
+    - SGU (Single Glazed Unit) profitability
+    - LAM (Laminated) profitability
+    - DGU+LAM (Hybrid) profitability
+    - Best and worst performers
+    - Strategic recommendations
+-->
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.GlassTypeComparisonView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1000">
+    
+    <UserControl.Resources>
+        <!-- Header style -->
+        <Style x:Key="HeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        
+        <!-- Subheader style -->
+        <Style x:Key="SubheaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        
+        <!-- KPI card style -->
+        <Style x:Key="KpiCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+        </Style>
+        
+        <!-- KPI label style -->
+        <Style x:Key="KpiLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        
+        <!-- KPI value style -->
+        <Style x:Key="KpiValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        </Style>
+        
+        <!-- Table header style -->
+        <Style x:Key="TableHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Padding" Value="8,6"/>
+        </Style>
+        
+        <!-- Table cell style -->
+        <Style x:Key="TableCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Padding" Value="8,8"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        
+        <!-- Best performer row style -->
+        <Style x:Key="BestPerformerRowStyle" TargetType="Border">
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsBestPerformer}" Value="True">
+                    <Setter Property="Background" Value="#1000FF00"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsWorstPerformer}" Value="True">
+                    <Setter Property="Background" Value="#10FF0000"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
+        <!-- Recommendation box style -->
+        <Style x:Key="RecommendationBoxStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,16,0,0"/>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="GLASS TYPE COMPARISON" Style="{StaticResource HeaderStyle}"/>
+            <TextBlock Text="Compare profitability across glass types (DGU, SGU, LAM, DGU+LAM) to make strategic decisions about which products to promote." 
+                       Style="{StaticResource SubheaderStyle}"/>
+        </StackPanel>
+        
+        <!-- KPI Cards -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+            <!-- Total Revenue -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+                <StackPanel>
+                    <TextBlock Text="TOTAL REVENUE" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalRevenueDisplay}" Style="{StaticResource KpiValueStyle}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Total Cost -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+                <StackPanel>
+                    <TextBlock Text="TOTAL COST" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalCostDisplay}" Style="{StaticResource KpiValueStyle}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Total Profit -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+                <StackPanel>
+                    <TextBlock Text="TOTAL PROFIT" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalProfitDisplay}" Style="{StaticResource KpiValueStyle}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource KpiValueStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding TotalProfit, Converter={StaticResource DecimalComparisonConverter}, ConverterParameter=0}" Value="LessThan">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+            
+            <!-- Overall Margin -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+                <StackPanel>
+                    <TextBlock Text="OVERALL MARGIN" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding OverallMarginDisplay}" Style="{StaticResource KpiValueStyle}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource KpiValueStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding OverallMarginPercent, Converter={StaticResource DecimalComparisonConverter}, ConverterParameter=0}" Value="LessThan">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+            
+            <!-- Refresh Button -->
+            <Button Content="REFRESH" 
+                    Command="{Binding RefreshCommand}"
+                    Width="120"
+                    Height="40"
+                    Margin="16,0,0,0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource PrimaryButton}"/>
+        </StackPanel>
+        
+        <!-- Glass Type Comparison Table -->
+        <Border Grid.Row="2" 
+                Background="{DynamicResource CardBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Table Header -->
+                <Border Grid.Row="0" 
+                        Background="{DynamicResource AccentBrush}"
+                        CornerRadius="8,8,0,0"
+                        Padding="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="GLASS TYPE" Style="{StaticResource TableHeaderStyle}"/>
+                        <TextBlock Grid.Column="1" Text="JOBS" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="AREA" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="REVENUE" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="COST" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="PROFIT" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="6" Text="MARGIN %" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="7" Text="STATUS" Style="{StaticResource TableHeaderStyle}"/>
+                    </Grid>
+                </Border>
+                
+                <!-- Table Rows -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding GlassTypeRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource BestPerformerRowStyle}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <!-- Glass Type -->
+                                        <TextBlock Grid.Column="0" 
+                                                   Text="{Binding GlassType}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   FontWeight="Bold"/>
+                                        
+                                        <!-- Job Count -->
+                                        <TextBlock Grid.Column="1" 
+                                                   Text="{Binding JobCountDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"/>
+                                        
+                                        <!-- Total Area -->
+                                        <TextBlock Grid.Column="2" 
+                                                   Text="{Binding TotalAreaDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"/>
+                                        
+                                        <!-- Total Revenue -->
+                                        <TextBlock Grid.Column="3" 
+                                                   Text="{Binding TotalRevenueDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"/>
+                                        
+                                        <!-- Total Cost -->
+                                        <TextBlock Grid.Column="4" 
+                                                   Text="{Binding TotalCostDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"/>
+                                        
+                                        <!-- Total Profit -->
+                                        <TextBlock Grid.Column="5" 
+                                                   Text="{Binding TotalProfitDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"
+                                                   FontWeight="SemiBold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsProfitable}" Value="False">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        
+                                        <!-- Margin % -->
+                                        <TextBlock Grid.Column="6" 
+                                                   Text="{Binding MarginDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"
+                                                   FontWeight="Bold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsProfitable}" Value="False">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        
+                                        <!-- Status -->
+                                        <TextBlock Grid.Column="7" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   FontWeight="SemiBold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsBestPerformer}" Value="True">
+                                                            <Setter Property="Text" Value="★ BEST"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsWorstPerformer}" Value="True">
+                                                            <Setter Property="Text" Value="⚠ WORST"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                
+                <!-- Empty State -->
+                <Border Grid.Row="1" 
+                        Visibility="{Binding GlassTypeRows.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Inverted}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Padding="32">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="No glass types found" 
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="Add specifications in Step 5 and press REFRESH to compare glass type profitability."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+        
+        <!-- Recommendation Box -->
+        <Border Grid.Row="3" Style="{StaticResource RecommendationBoxStyle}"
+                Visibility="{Binding Recommendation, Converter={StaticResource StringToVisibilityConverter}}">
+            <StackPanel>
+                <TextBlock Text="STRATEGIC RECOMMENDATION" 
+                           FontSize="12"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource AccentBrush}"
+                           Margin="0,0,0,8"/>
+                <TextBlock Text="{Binding Recommendation}" 
+                           FontSize="13"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="4" Margin="0,8,0,0">
+            <TextBlock Text="{Binding StatusMessage}" 
+                       FontSize="11"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       TextWrapping="Wrap"/>
+        </Border>
+        
+        <!-- Loading Overlay -->
+        <Border Grid.RowSpan="5" 
+                Background="#80000000"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="Analyzing..." 
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,8"/>
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

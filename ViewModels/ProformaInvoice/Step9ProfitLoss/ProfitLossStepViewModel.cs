@@ -119,10 +119,34 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             RecalculateCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(FireRecalculateAsync, "ProfitLoss Recalc"));
 
             Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));
+
+            // Initialize analysis ViewModels
+            ServiceProfitability = new ServiceProfitabilityViewModel(this);
+            SheetProfitability = new SheetProfitabilityViewModel(this);
+            GlassTypeComparison = new GlassTypeComparisonViewModel(this);
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  ANALYSIS VIEWS (Phase 1-3 Implementation)
+        // ══════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Service profitability analysis (Phase 1).
+        /// Breaks down profit by service type (glass, spacer, cutting, tempering, etc.)
         /// </summary>
+        public ServiceProfitabilityViewModel ServiceProfitability { get; }
+
+        /// <summary>
+        /// Sheet profitability analysis (Phase 2).
+        /// Tracks sheet usage, offcuts, and real costs.
+        /// </summary>
+        public SheetProfitabilityViewModel SheetProfitability { get; }
+
+        /// <summary>
+        /// Glass type comparison analysis (Phase 3).
+        /// Compares profitability across DGU, SGU, LAM, DGU+LAM.
+        /// </summary>
+        public GlassTypeComparisonViewModel GlassTypeComparison { get; }
 
     }
 }

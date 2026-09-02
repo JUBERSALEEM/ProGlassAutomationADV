@@ -1,0 +1,412 @@
+<!--
+    Sheet Profitability View - Separate Tab for Sheet Usage Analysis
+    
+    Shows:
+    - Sheets purchased vs sheets used
+    - Offcut analysis (reusable vs waste)
+    - Real cost based on actual usage
+    - Profit impact of offcut reusability
+    - Usage efficiency percentage
+-->
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.SheetProfitabilityView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1000">
+    
+    <UserControl.Resources>
+        <!-- Header style -->
+        <Style x:Key="HeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+        
+        <!-- Subheader style -->
+        <Style x:Key="SubheaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        
+        <!-- KPI card style -->
+        <Style x:Key="KpiCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+        </Style>
+        
+        <!-- KPI label style -->
+        <Style x:Key="KpiLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        
+        <!-- KPI value style -->
+        <Style x:Key="KpiValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        </Style>
+        
+        <!-- Table header style -->
+        <Style x:Key="TableHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Padding" Value="6,6"/>
+        </Style>
+        
+        <!-- Table cell style -->
+        <Style x:Key="TableCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Padding" Value="6,6"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        
+        <!-- Efficient row style -->
+        <Style x:Key="EfficientRowStyle" TargetType="Border">
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsEfficient}" Value="False">
+                    <Setter Property="Background" Value="#10FF8800"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="SHEET PROFITABILITY ANALYSIS" Style="{StaticResource HeaderStyle}"/>
+            <TextBlock Text="Track sheet usage, offcuts, and real costs. Shows the impact of reusable offcuts on profitability." 
+                       Style="{StaticResource SubheaderStyle}"/>
+        </StackPanel>
+        
+        <!-- KPI Cards - Row 1 -->
+        <WrapPanel Grid.Row="1" Margin="0,0,0,8">
+            <!-- Sheets Purchased -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+                <StackPanel>
+                    <TextBlock Text="SHEETS PURCHASED" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalSheetsPurchasedDisplay}" Style="{StaticResource KpiValueStyle}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Total Sheet Area -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+                <StackPanel>
+                    <TextBlock Text="TOTAL SHEET AREA" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalSheetAreaDisplay}" Style="{StaticResource KpiValueStyle}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Used Area -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+                <StackPanel>
+                    <TextBlock Text="USED AREA" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalUsedAreaDisplay}" Style="{StaticResource KpiValueStyle}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Offcut Area -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+                <StackPanel>
+                    <TextBlock Text="OFFCUT AREA" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalOffcutAreaDisplay}" Style="{StaticResource KpiValueStyle}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Reusable Offcuts -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+                <StackPanel>
+                    <TextBlock Text="REUSABLE OFFCUTS" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding ReusableOffcutAreaDisplay}" Style="{StaticResource KpiValueStyle}"
+                               Foreground="{DynamicResource SuccessBrush}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Usage Efficiency -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+                <StackPanel>
+                    <TextBlock Text="USAGE EFFICIENCY" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding UsageEfficiencyDisplay}" Style="{StaticResource KpiValueStyle}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource KpiValueStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding UsageEfficiencyPercent, Converter={StaticResource DecimalComparisonConverter}, ConverterParameter=70}" Value="LessThan">
+                                        <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </WrapPanel>
+        
+        <!-- KPI Cards - Row 2 -->
+        <WrapPanel Grid.Row="1" Margin="0,80,0,16">
+            <!-- Purchase Cost -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+                <StackPanel>
+                    <TextBlock Text="PURCHASE COST" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalPurchaseCostDisplay}" Style="{StaticResource KpiValueStyle}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Reusable Offcut Value -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+                <StackPanel>
+                    <TextBlock Text="REUSABLE VALUE" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding ReusableOffcutValueDisplay}" Style="{StaticResource KpiValueStyle}"
+                               Foreground="{DynamicResource SuccessBrush}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Real Cost -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+                <StackPanel>
+                    <TextBlock Text="REAL COST" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding RealCostDisplay}" Style="{StaticResource KpiValueStyle}"
+                               Foreground="{DynamicResource AccentBrush}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Cost Savings -->
+            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+                <StackPanel>
+                    <TextBlock Text="COST SAVINGS" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding CostSavingsDisplay}" Style="{StaticResource KpiValueStyle}"
+                               Foreground="{DynamicResource SuccessBrush}"/>
+                </StackPanel>
+            </Border>
+            
+            <!-- Refresh Button -->
+            <Button Content="REFRESH" 
+                    Command="{Binding RefreshCommand}"
+                    Width="120"
+                    Height="40"
+                    Margin="16,0,0,0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource PrimaryButton}"/>
+        </WrapPanel>
+        
+        <!-- Sheet Breakdown Table -->
+        <Border Grid.Row="2" 
+                Background="{DynamicResource CardBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Margin="0,0,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <!-- Table Header -->
+                <Border Grid.Row="0" 
+                        Background="{DynamicResource AccentBrush}"
+                        CornerRadius="8,8,0,0"
+                        Padding="6">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="80"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="100"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Grid.Column="0" Text="SPEC" Style="{StaticResource TableHeaderStyle}"/>
+                        <TextBlock Grid.Column="1" Text="GLASS TYPE" Style="{StaticResource TableHeaderStyle}"/>
+                        <TextBlock Grid.Column="2" Text="SHEET SIZE" Style="{StaticResource TableHeaderStyle}"/>
+                        <TextBlock Grid.Column="3" Text="SHEETS" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="TOTAL" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="USED" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="6" Text="OFFCUT" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="7" Text="REUSABLE" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="8" Text="PURCHASE" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="9" Text="REAL COST" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="10" Text="EFFICIENCY" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                    </Grid>
+                </Border>
+                
+                <!-- Table Rows -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding SheetBreakdown}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource EfficientRowStyle}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="100"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <!-- Spec Name -->
+                                        <TextBlock Grid.Column="0" 
+                                                   Text="{Binding SpecName}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   FontWeight="SemiBold"/>
+                                        
+                                        <!-- Glass Type -->
+                                        <TextBlock Grid.Column="1" 
+                                                   Text="{Binding GlassType}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   TextWrapping="Wrap"/>
+                                        
+                                        <!-- Sheet Size -->
+                                        <TextBlock Grid.Column="2" 
+                                                   Text="{Binding SheetSize}" 
+                                                   Style="{StaticResource TableCellStyle}"/>
+                                        
+                                        <!-- Sheets Purchased -->
+                                        <TextBlock Grid.Column="3" 
+                                                   Text="{Binding SheetsPurchasedDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"/>
+                                        
+                                        <!-- Total Sheet Area -->
+                                        <TextBlock Grid.Column="4" 
+                                                   Text="{Binding TotalSheetAreaDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"/>
+                                        
+                                        <!-- Used Area -->
+                                        <TextBlock Grid.Column="5" 
+                                                   Text="{Binding UsedAreaDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"/>
+                                        
+                                        <!-- Offcut Area -->
+                                        <TextBlock Grid.Column="6" 
+                                                   Text="{Binding OffcutAreaDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"/>
+                                        
+                                        <!-- Reusable Offcut Area -->
+                                        <TextBlock Grid.Column="7" 
+                                                   Text="{Binding ReusableOffcutAreaDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"
+                                                   Foreground="{DynamicResource SuccessBrush}"/>
+                                        
+                                        <!-- Purchase Cost -->
+                                        <TextBlock Grid.Column="8" 
+                                                   Text="{Binding PurchaseCostDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"/>
+                                        
+                                        <!-- Real Cost -->
+                                        <TextBlock Grid.Column="9" 
+                                                   Text="{Binding RealCostDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                        
+                                        <!-- Usage Efficiency -->
+                                        <TextBlock Grid.Column="10" 
+                                                   Text="{Binding UsageEfficiencyDisplay}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   HorizontalAlignment="Right"
+                                                   FontWeight="Bold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsEfficient}" Value="False">
+                                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                
+                <!-- Empty State -->
+                <Border Grid.Row="1" 
+                        Visibility="{Binding SheetBreakdown.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Inverted}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Padding="32">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="No sheet data found" 
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="Add specifications in Step 5 and press REFRESH to analyze sheet profitability."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="3" Margin="0,8,0,0">
+            <TextBlock Text="{Binding StatusMessage}" 
+                       FontSize="11"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       TextWrapping="Wrap"/>
+        </Border>
+        
+        <!-- Loading Overlay -->
+        <Border Grid.RowSpan="4" 
+                Background="#80000000"
+                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="Analyzing..." 
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,8"/>
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
