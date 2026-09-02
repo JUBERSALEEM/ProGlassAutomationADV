@@ -79,8 +79,6 @@ namespace ProGlassAutomation.ViewModels.Settings
         //  CONSTRUCTOR
         // ══════════════════════════════════════════════════════════════
 
-            Services.Security.AuthSessionService.ClearSavedCredentials());
-
         public SettingsViewModel()
          : this(
             App.ServiceProvider?.GetService<IAiService>()!,

@@ -132,5 +132,6 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// device" affordance in Settings.
         /// </summary>
         public ICommand ForgetThisDeviceCommand { get; } = new Commands.RelayCommand(_ =>
+            Services.Security.AuthSessionService.ClearSavedCredentials());
     }
 }
