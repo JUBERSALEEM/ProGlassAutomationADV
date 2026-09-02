@@ -248,32 +248,32 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                     // 2) Apply theme changes on UI thread
                     SetResetStatus("Applying theme...");
-                    System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                    System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ThemeManager.ApplyTheme(AppTheme.Light);
                     });
 
                     SetResetStatus("Configuring gradients...");
-                    System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                    System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ThemeManager.ApplyGradientPreference(true);
                     });
 
                     SetResetStatus("Setting display density...");
-                    System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                    System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ThemeManager.ApplyDisplayDensity("Compact");
                         ThemeManager.ApplyUiScale(1.0);
                     });
 
                     SetResetStatus("Applying visual theme...");
-                    System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                    System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ApplyVisualTheme();
                     });
 
                     SetResetStatus("Resetting fonts...");
-                    System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                    System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         FontService.ResetToDefault();
                     });
@@ -338,7 +338,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private void SetResetStatus(string message)
         {
-            System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
             {
                 ResetStatusMessage = message;
             });

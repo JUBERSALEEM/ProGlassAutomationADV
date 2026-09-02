@@ -895,7 +895,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 DeliveredTodayCount = delItems.Count(x =>
                     x.DeliveryDate.Date == DateTime.Today);
 
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
             catch (Exception ex)
             {

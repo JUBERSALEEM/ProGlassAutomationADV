@@ -227,7 +227,7 @@ public StatementListViewModel(IDialogService? dialogs,
                     .ToList();
 
                 // FIX L9: all UI state mutations go through Dispatcher
-                Application.Current?.Dispatcher.Invoke(() =>
+                Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     _allRows = rows;
                     _isLoaded = true;
@@ -243,7 +243,7 @@ public StatementListViewModel(IDialogService? dialogs,
             }
             catch (Exception ex)
             {
-                Application.Current?.Dispatcher.Invoke(() =>
+                Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     _isLoaded = true;
 

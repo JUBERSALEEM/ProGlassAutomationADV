@@ -122,7 +122,7 @@ namespace ProGlassAutomation.Agent.UI
                 _input = value ?? "";
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CanSend));
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 
@@ -139,7 +139,7 @@ namespace ProGlassAutomation.Agent.UI
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CanSend));
                 OnPropertyChanged(nameof(StatusText));
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 
@@ -164,7 +164,7 @@ namespace ProGlassAutomation.Agent.UI
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(StatusText));
                 OnPropertyChanged(nameof(MicButtonText));
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 
@@ -178,7 +178,7 @@ namespace ProGlassAutomation.Agent.UI
                 if (_isSpeaking == value) return;
                 _isSpeaking = value;
                 OnPropertyChanged();
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 

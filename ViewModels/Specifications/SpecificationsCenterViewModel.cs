@@ -138,10 +138,35 @@ namespace ProGlassAutomation.ViewModels.Specifications
         private const string AllFilter = "All";
 
         private string _searchText = "";
+        // Phase 2 H-1 fix: debounced search — avoids rebuilding the filtered
+        // collection on every keystroke. The timer coalesces rapid typing
+        // into a single filter pass after 200ms of inactivity.
+        private System.Windows.Threading.DispatcherTimer? _searchDebounceTimer;
+
         public string SearchText
         {
             get => _searchText;
-            set { if (_searchText == value) return; _searchText = value ?? ""; OnPropertyChanged(); ApplyFilters(); }
+            set
+            {
+                if (_searchText == value) return;
+                _searchText = value ?? "";
+                OnPropertyChanged();
+                // Debounce: wait 200ms after the last keystroke before filtering
+                if (_searchDebounceTimer == null)
+                {
+                    _searchDebounceTimer = new System.Windows.Threading.DispatcherTimer
+                    {
+                        Interval = TimeSpan.FromMilliseconds(200)
+                    };
+                    _searchDebounceTimer.Tick += (_, __) =>
+                    {
+                        _searchDebounceTimer.Stop();
+                        ApplyFilters();
+                    };
+                }
+                _searchDebounceTimer.Stop();
+                _searchDebounceTimer.Start();
+            }
         }
 
         private string _glassTypeFilter = AllFilter;

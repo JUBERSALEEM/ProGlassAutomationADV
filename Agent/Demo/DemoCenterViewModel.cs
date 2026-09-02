@@ -554,7 +554,7 @@ namespace ProGlassAutomation.Agent.Demo
             if (_installingFfmpeg) return;
             IsInstallingFfmpeg = true;
             FfmpegDownloadPercent = 0;
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
 
             try
             {
@@ -601,7 +601,7 @@ namespace ProGlassAutomation.Agent.Demo
                 // the ready state automatically when the files landed.
                 FfmpegMp4Composer.InvalidateCache();
                 RaiseFlags();
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 
@@ -654,7 +654,7 @@ namespace ProGlassAutomation.Agent.Demo
             OnPropertyChanged(nameof(IsSessionRecording));
             OnPropertyChanged(nameof(IsSessionIdle));
             OnPropertyChanged(nameof(SessionRecordStatus));
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
     }
 }

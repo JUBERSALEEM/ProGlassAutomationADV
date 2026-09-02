@@ -502,7 +502,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 OverdueCount = familyVms.Count(f => f.AnyOverdue);
                 TotalInvoicedAmount = familyVms.Sum(f => f.InvoicedTotal);
 
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
             catch (Exception ex)
             {

@@ -116,7 +116,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 OnPropertyChanged(nameof(CurrentCalculationSectionLabel));
                 OnPropertyChanged(nameof(TotalSpecsActive));
                 OnPropertyChanged(nameof(CanRemoveCalculationSection));
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 
@@ -136,7 +136,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 _estimatedRatePerSqm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasCalculatedRate));
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 
@@ -350,7 +350,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             OnPropertyChanged(nameof(CalculationSectionCount));
             OnPropertyChanged(nameof(CanRemoveCalculationSection));
             OnPropertyChanged(nameof(TotalSpecsActive));
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         private void InitializeCalculationSections()
@@ -366,7 +366,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             SpecGroups.Add(group);
             SelectCalculationSection(group, captureCurrent: false);
             OnPropertyChanged(nameof(CalculationSectionCount));
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         private void AddCalculationSection()
@@ -385,7 +385,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             SelectCalculationSection(group, captureCurrent: false);
             OnPropertyChanged(nameof(CalculationSectionCount));
             OnPropertyChanged(nameof(CanRemoveCalculationSection));
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         private void RemoveCalculationSection()
@@ -405,7 +405,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
             OnPropertyChanged(nameof(CalculationSectionCount));
             OnPropertyChanged(nameof(CanRemoveCalculationSection));
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         private void RemoveLastCalculationSection()

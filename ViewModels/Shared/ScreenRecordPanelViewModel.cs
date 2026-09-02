@@ -236,7 +236,7 @@ namespace ProGlassAutomation.ViewModels.Shared
             OnPropertyChanged(nameof(IsIdle));
             OnPropertyChanged(nameof(Status));
             OnPropertyChanged(nameof(LastMp4Text));
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
     }
 }

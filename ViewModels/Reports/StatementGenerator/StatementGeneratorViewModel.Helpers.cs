@@ -157,7 +157,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             OnPropertyChanged(string.Empty);
 
             PreviewSnapshot = null;
-            Application.Current?.Dispatcher.Invoke(() => PreviewVM.UpdateFromSnapshot(null));
+            ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() => PreviewVM.UpdateFromSnapshot(null));
 
             StatusMessage = "Filters cleared.";
         }

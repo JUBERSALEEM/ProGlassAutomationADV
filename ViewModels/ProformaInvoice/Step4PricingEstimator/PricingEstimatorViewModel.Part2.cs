@@ -51,7 +51,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             OnPropertyChanged(nameof(CalculationSectionCount));
             OnPropertyChanged(nameof(CanRemoveCalculationSection));
             OnPropertyChanged(nameof(TotalSpecsActive));
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         private void SelectGlassTypeCard(string? code)

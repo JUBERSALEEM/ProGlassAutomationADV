@@ -58,7 +58,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             StatusMessage = "Loading matching invoices…";
             PreviewSnapshot = null;
 
-            Application.Current?.Dispatcher.Invoke(() => PreviewVM.UpdateFromSnapshot(null));
+            ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() => PreviewVM.UpdateFromSnapshot(null));
 
             try
             {
@@ -73,7 +73,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
                 PreviewSnapshot = snapshot;
 
-                Application.Current?.Dispatcher.Invoke(() => PreviewVM.UpdateFromSnapshot(snapshot));
+                ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() => PreviewVM.UpdateFromSnapshot(snapshot));
 
                 if (snapshot == null)
                 {
@@ -93,7 +93,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 AppLogService.Warning($"Preview failed: {ex.Message}");
                 StatusMessage = $"Preview failed: {ex.Message}";
                 PreviewSnapshot = null;
-                Application.Current?.Dispatcher.Invoke(() => PreviewVM.UpdateFromSnapshot(null));
+                ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() => PreviewVM.UpdateFromSnapshot(null));
             }
             finally
             {

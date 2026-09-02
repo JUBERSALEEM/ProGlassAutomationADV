@@ -176,7 +176,7 @@ public StatementGeneratorViewModel(IDialogService? dialogs,
             {
                 OnPropertyChanged(nameof(IsStep2Complete));
                 OnPropertyChanged(nameof(CanNavigateToStep3));
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             };
 
             PreviewCommand = new RelayCommand(

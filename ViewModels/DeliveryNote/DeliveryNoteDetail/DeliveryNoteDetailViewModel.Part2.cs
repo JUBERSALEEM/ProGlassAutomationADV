@@ -201,7 +201,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             // Phase 6: Delegated to domain service
             Services.DeliveryNote.DeliveryNoteLineService.FillAllRemaining(_itemRows);
             RecalculateTotals();
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -215,7 +215,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             // Phase 6: Delegated to domain service
             Services.DeliveryNote.DeliveryNoteLineService.ResetAllQty(_itemRows);
             RecalculateTotals();
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -447,7 +447,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             await LoadAttachmentsDirectlyAsync(DeliveryNoteId);
 
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         private async Task HealItemPrevQtyAsync(SavedDeliveryNote entity)

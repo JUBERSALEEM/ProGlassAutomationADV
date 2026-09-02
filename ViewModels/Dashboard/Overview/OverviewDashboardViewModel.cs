@@ -298,153 +298,49 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             // ═════════════════════════════════════════════════════════════
             //  💰 SALES CARD — 4 tiles
             // ═════════════════════════════════════════════════════════════
-            SalesTiles = new ObservableCollection<KpiTileModel>
-            {
-                new KpiTileModel
-                {
-                    Icon         = "\uE8EF",
-                    Label        = "Total Sales",
-                    DisplayValue = $"AED {totalSales:N2}",
-                    Accent       = "Green"
-                },
-                new KpiTileModel
-                {
-                    Icon         = "\uE8A5",
-                    Label        = "Invoices",
-                    DisplayValue = totalInvoices.ToString("N0"),
-                    Accent       = "Green"
-                },
-                new KpiTileModel
-                {
-                    Icon         = "\uE787",
-                    Label        = "This Month",
-                    DisplayValue = $"AED {salesMtd:N2}",
-                    Accent       = "Green"
-                },
-                new KpiTileModel
-                {
-                    Icon         = "\uE73E",
-                    Label        = "Approved",
-                    DisplayValue = approvedCount.ToString("N0"),
-                    Accent       = "Green"
-                }
-            };
+            // Phase 1 C-4 fix: update existing collection instead of replacing.
+            // This avoids tearing down and rebuilding every UI container.
+            _salesTiles.Clear();
+            _salesTiles.Add(new KpiTileModel { Icon = "\uE8EF", Label = "Total Sales", DisplayValue = $"AED {totalSales:N2}", Accent = "Green" });
+            _salesTiles.Add(new KpiTileModel { Icon = "\uE8A5", Label = "Invoices", DisplayValue = totalInvoices.ToString("N0"), Accent = "Green" });
+            _salesTiles.Add(new KpiTileModel { Icon = "\uE787", Label = "This Month", DisplayValue = $"AED {salesMtd:N2}", Accent = "Green" });
+            _salesTiles.Add(new KpiTileModel { Icon = "\uE73E", Label = "Approved", DisplayValue = approvedCount.ToString("N0"), Accent = "Green" });
+            OnPropertyChanged(nameof(SalesTiles));
 
             // ═════════════════════════════════════════════════════════════
             //  🏭 PRODUCTION CARD — 4 tiles
             // ═════════════════════════════════════════════════════════════
-            ProductionTiles = new ObservableCollection<KpiTileModel>
-            {
-                new KpiTileModel
-                {
-                    Icon         = "\uE713",
-                    Label        = "In Production",
-                    DisplayValue = jobInProduction.ToString("N0"),
-                    Accent       = "Blue"
-                },
-                new KpiTileModel
-                {
-                    Icon         = jobOverdue > 0 ? "\uE7BA" : "\uE73E",
-                    Label        = "Overdue",
-                    DisplayValue = jobOverdue.ToString("N0"),
-                    Accent       = jobOverdue > 0 ? "Red" : "Blue",
-                    IsAlert      = jobOverdue > 0
-                },
-                new KpiTileModel
-                {
-                    Icon         = "\uE730",
-                    Label        = "Completed MTD",
-                    DisplayValue = jobCompletedMtd.ToString("N0"),
-                    Accent       = "Blue"
-                },
-                new KpiTileModel
-                {
-                    Icon         = "\uE8FD",
-                    Label        = "Total Jobs",
-                    DisplayValue = totalJobs.ToString("N0"),
-                    Accent       = "Blue"
-                }
-            };
+            // Phase 1 C-4: update existing collection
+            _productionTiles.Clear();
+            _productionTiles.Add(new KpiTileModel { Icon = "\uE713", Label = "In Production", DisplayValue = jobInProduction.ToString("N0"), Accent = "Blue" });
+            _productionTiles.Add(new KpiTileModel { Icon = jobOverdue > 0 ? "\uE7BA" : "\uE73E", Label = "Overdue", DisplayValue = jobOverdue.ToString("N0"), Accent = jobOverdue > 0 ? "Red" : "Blue", IsAlert = jobOverdue > 0 });
+            _productionTiles.Add(new KpiTileModel { Icon = "\uE730", Label = "Completed MTD", DisplayValue = jobCompletedMtd.ToString("N0"), Accent = "Blue" });
+            _productionTiles.Add(new KpiTileModel { Icon = "\uE8FD", Label = "Total Jobs", DisplayValue = totalJobs.ToString("N0"), Accent = "Blue" });
+            OnPropertyChanged(nameof(ProductionTiles));
 
             // ═════════════════════════════════════════════════════════════
             //  🚚 DELIVERY CARD — 5 tiles (comprehensive)
             //  Preparing | Dispatched | Delivered Today | Total Delivered | Pending Balance
             // ═════════════════════════════════════════════════════════════
-            DeliveryTiles = new ObservableCollection<KpiTileModel>
-            {
-                new KpiTileModel
-                {
-                    Icon         = "\uE70F",
-                    Label        = "Preparing",
-                    DisplayValue = dnDraft.ToString("N0"),
-                    Accent       = "Amber"
-                },
-                new KpiTileModel
-                {
-                    Icon         = "\uE806",
-                    Label        = "Dispatched",
-                    DisplayValue = dnDispatched.ToString("N0"),
-                    Accent       = "Amber"
-                },
-                new KpiTileModel
-                {
-                    Icon         = "\uE787",
-                    Label        = "Delivered Today (pcs)",
-                    DisplayValue = dnDeliveredTodayPcs.ToString("N0"),
-                    Accent       = "Green"
-                },
-                new KpiTileModel
-                {
-                    Icon         = "\uE73E",
-                    Label        = "Total Delivered (pcs)",   // FIX-5: NEW comprehensive tile
-                    DisplayValue = dnTotalDeliveredPcs.ToString("N0"),
-                    Accent       = "Green"
-                },
-                new KpiTileModel
-                {
-                    Icon         = dnPendingPcs > 0 ? "\uE9D5" : "\uE73E",
-                    Label        = "Pending Balance (pcs)",
-                    DisplayValue = dnPendingPcs.ToString("N0"),
-                    Accent       = dnPendingPcs > 0 ? "Red" : "Amber",
-                    IsAlert      = dnPendingPcs > 0
-                }
-            };
+            // Phase 1 C-4: update existing collection
+            _deliveryTiles.Clear();
+            _deliveryTiles.Add(new KpiTileModel { Icon = "\uE70F", Label = "Preparing", DisplayValue = dnDraft.ToString("N0"), Accent = "Amber" });
+            _deliveryTiles.Add(new KpiTileModel { Icon = "\uE806", Label = "Dispatched", DisplayValue = dnDispatched.ToString("N0"), Accent = "Amber" });
+            _deliveryTiles.Add(new KpiTileModel { Icon = "\uE787", Label = "Delivered Today (pcs)", DisplayValue = dnDeliveredTodayPcs.ToString("N0"), Accent = "Green" });
+            _deliveryTiles.Add(new KpiTileModel { Icon = "\uE73E", Label = "Total Delivered (pcs)", DisplayValue = dnTotalDeliveredPcs.ToString("N0"), Accent = "Green" });
+            _deliveryTiles.Add(new KpiTileModel { Icon = dnPendingPcs > 0 ? "\uE9D5" : "\uE73E", Label = "Pending Balance (pcs)", DisplayValue = dnPendingPcs.ToString("N0"), Accent = dnPendingPcs > 0 ? "Red" : "Amber", IsAlert = dnPendingPcs > 0 });
+            OnPropertyChanged(nameof(DeliveryTiles));
 
             // ═════════════════════════════════════════════════════════════
             //  📦 INVENTORY CARD — 4 tiles
             // ═════════════════════════════════════════════════════════════
-            InventoryTiles = new ObservableCollection<KpiTileModel>
-            {
-                new KpiTileModel
-                {
-                    Icon         = "\uE8EF",
-                    Label        = "Stock Value",
-                    DisplayValue = $"AED {inventoryValue:N2}",
-                    Accent       = "Red"
-                },
-                new KpiTileModel
-                {
-                    Icon         = lowStock > 0 ? "\uE7BA" : "\uE73E",
-                    Label        = "Low Stock",
-                    DisplayValue = lowStock.ToString("N0"),
-                    Accent       = lowStock > 0 ? "Red" : "Red",
-                    IsAlert      = lowStock > 0
-                },
-                new KpiTileModel
-                {
-                    Icon         = "\uE719",
-                    Label        = "Sheet Types",
-                    DisplayValue = totalSheets.ToString("N0"),
-                    Accent       = "Red"
-                },
-                new KpiTileModel
-                {
-                    Icon         = "\uE7B8",
-                    Label        = "Total Sheets",
-                    DisplayValue = totalStockQty.ToString("N0"),
-                    Accent       = "Red"
-                }
-            };
+            // Phase 1 C-4: update existing collection
+            _inventoryTiles.Clear();
+            _inventoryTiles.Add(new KpiTileModel { Icon = "\uE8EF", Label = "Stock Value", DisplayValue = $"AED {inventoryValue:N2}", Accent = "Red" });
+            _inventoryTiles.Add(new KpiTileModel { Icon = lowStock > 0 ? "\uE7BA" : "\uE73E", Label = "Low Stock", DisplayValue = lowStock.ToString("N0"), Accent = lowStock > 0 ? "Red" : "Red", IsAlert = lowStock > 0 });
+            _inventoryTiles.Add(new KpiTileModel { Icon = "\uE719", Label = "Sheet Types", DisplayValue = totalSheets.ToString("N0"), Accent = "Red" });
+            _inventoryTiles.Add(new KpiTileModel { Icon = "\uE7B8", Label = "Total Sheets", DisplayValue = totalStockQty.ToString("N0"), Accent = "Red" });
+            OnPropertyChanged(nameof(InventoryTiles));
 
             // ═════════════════════════════════════════════════════════════
             //  📈 CHART — Monthly sales, last 6 months
@@ -482,7 +378,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 bar.BarColor = bar.IsHighlight ? "#1D4ED8" : "#3B82F6";
             }
 
-            MonthlySalesBars = new ObservableCollection<ChartBarModel>(rawBars);
+            // Phase 1 C-4: update existing collection instead of replacing
+            _monthlySalesBars.Clear();
+            foreach (var bar in rawBars) _monthlySalesBars.Add(bar);
+            OnPropertyChanged(nameof(MonthlySalesBars));
             HasChartData = anyData;
             ChartTitle = $"{months.First():MMM yyyy} → {months.Last():MMM yyyy}";
             PulseDisplay = $"AED {totalSales:N2}";
@@ -494,37 +393,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             HasOverdueJobs = jobOverdue > 0;
             PendingPcsDisplay = dnPendingPcs.ToString("N0");
 
-            DeliveryMixSlices = new ObservableCollection<ChartSliceModel>
-            {
-                new ChartSliceModel
-                {
-                    Label = "Preparing",
-                    RawValue = dnDraft,
-                    ValueDisplay = $"{dnDraft:N0} notes",
-                    Accent = "Amber"
-                },
-                new ChartSliceModel
-                {
-                    Label = "Dispatched",
-                    RawValue = dnDispatched,
-                    ValueDisplay = $"{dnDispatched:N0} notes",
-                    Accent = "Blue"
-                },
-                new ChartSliceModel
-                {
-                    Label = "Delivered pcs",
-                    RawValue = dnTotalDeliveredPcs,
-                    ValueDisplay = $"{dnTotalDeliveredPcs:N0} pcs",
-                    Accent = "Green"
-                },
-                new ChartSliceModel
-                {
-                    Label = "Pending pcs",
-                    RawValue = dnPendingPcs,
-                    ValueDisplay = $"{dnPendingPcs:N0} pcs",
-                    Accent = dnPendingPcs > 0 ? "Red" : "Amber"
-                }
-            };
+            // Phase 1 C-4: update existing collection
+            _deliveryMixSlices.Clear();
+            _deliveryMixSlices.Add(new ChartSliceModel { Label = "Preparing", RawValue = dnDraft, ValueDisplay = $"{dnDraft:N0} notes", Accent = "Amber" });
+            _deliveryMixSlices.Add(new ChartSliceModel { Label = "Dispatched", RawValue = dnDispatched, ValueDisplay = $"{dnDispatched:N0} notes", Accent = "Blue" });
+            _deliveryMixSlices.Add(new ChartSliceModel { Label = "Delivered pcs", RawValue = dnTotalDeliveredPcs, ValueDisplay = $"{dnTotalDeliveredPcs:N0} pcs", Accent = "Green" });
+            _deliveryMixSlices.Add(new ChartSliceModel { Label = "Pending pcs", RawValue = dnPendingPcs, ValueDisplay = $"{dnPendingPcs:N0} pcs", Accent = dnPendingPcs > 0 ? "Red" : "Amber" });
+            OnPropertyChanged(nameof(DeliveryMixSlices));
 
             // ═════════════════════════════════════════════════════════════
             //  💬 RECENT ACTIVITY — merge all module events
@@ -668,7 +543,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 .Take(20)
                 .ToList();
 
-            RecentActivity = new ObservableCollection<ActivityFeedItem>(merged);
+            // Phase 1 C-4: update existing collection
+            _recentActivity.Clear();
+            foreach (var item in merged) _recentActivity.Add(item);
+            OnPropertyChanged(nameof(RecentActivity));
             HasRecentActivity = merged.Count > 0;
         }
 

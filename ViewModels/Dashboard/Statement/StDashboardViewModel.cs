@@ -153,7 +153,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
 
             if (items == null || items.Count == 0)
             {
-                Application.Current?.Dispatcher.Invoke(() =>
+                Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     RecentStatements.Clear();
                     _totalStatements = 0;
@@ -199,7 +199,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
                 .ToList();
 
             // ── Update UI on dispatcher ───────────────────────────────────
-            Application.Current?.Dispatcher.Invoke(() =>
+            Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
             {
                 RecentStatements.Clear();
                 foreach (var r in recent)

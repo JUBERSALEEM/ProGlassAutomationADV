@@ -92,8 +92,8 @@ namespace ProGlassAutomation.Services.Localization
                 ApplyToConfig();
 
                 if (Application.Current?.Dispatcher != null)
-                    Application.Current.Dispatcher.Invoke(
-                        () => LocationResolved?.Invoke(result));
+                    Application.Current.Dispatcher.BeginInvoke(
+                        new Action(() => LocationResolved?.Invoke(result)));
             }
             catch (Exception ex)
             {

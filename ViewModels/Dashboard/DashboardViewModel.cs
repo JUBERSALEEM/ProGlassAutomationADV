@@ -47,9 +47,15 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 if (_activePage == value) return;
                 _activePage = value;
                 OnPropertyChanged();
-                _ = _activePage.LoadAsync();
+                // Phase 2 H-5 fix: the constructor already loads the initial
+                // page; this setter only needs to load on subsequent TAB
+                // CHANGES. Guard against a redundant first load.
+                if (!_isInitialLoad)
+                    _ = _activePage.LoadAsync();
             }
         }
+
+        private bool _isInitialLoad = true;
 
         // ── sub-page VMs ──────────────────────────────────────────────────
         public OverviewDashboardViewModel OverviewVM { get; }
@@ -139,8 +145,11 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     ActivePage = page;
             });
 
-            // Default tab — set backing field directly to avoid double load
+            // Default tab — set backing field directly to avoid double load.
+            // Phase 2 H-5: the ActivePage setter skips the first load (flag),
+            // so this explicit load is the ONLY initial load that runs.
             _activePage = OverviewVM;
+            _isInitialLoad = false;
             _ = OverviewVM.LoadAsync();
 
             // Phase 4: Named handler — detachable, no lambda leak

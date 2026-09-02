@@ -101,7 +101,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 OnPropertyChanged(nameof(CanGoBack));
                 OnPropertyChanged(nameof(CanGoNext));
                 OnPropertyChanged(nameof(IsLastStep));
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 

@@ -107,7 +107,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Workflow
                 if (_isRunning == value) return;
                 _isRunning = value; OnPropertyChanged();
                 OnPropertyChanged(nameof(IsCompleted));
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 

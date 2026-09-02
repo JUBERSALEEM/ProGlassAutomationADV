@@ -358,7 +358,7 @@ namespace ProGlassAutomation.Services.Localization
         private void NotifyRates()
         {
             if (Application.Current?.Dispatcher != null)
-                Application.Current.Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     OnPropertyChanged(nameof(RatesFetchedUtc));
                     OnPropertyChanged(nameof(RateSource));

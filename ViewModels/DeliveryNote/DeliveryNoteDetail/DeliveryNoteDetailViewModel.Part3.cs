@@ -459,25 +459,30 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         /// with .GetAwaiter().GetResult(), which does file I/O and MIME
         /// sniffing on the UI thread and visibly stalls the window for a
         /// large attachment or a network path.
-        /// </summary>
-        private async void OpenAttachment(DnAttachmentRowViewModel row)
+        /// Phase 1 C-3 fix: async void → SafeFireAndForget (no unhandled crash)
+        private void OpenAttachment(DnAttachmentRowViewModel row)
         {
-            try
-            {
-                var result = await _attachmentService
-                    .OpenInDefaultAppAsync(row.FilePath)
-                    .ConfigureAwait(true);
+            AsyncUtility.SafeFireAndForget(() => OpenAttachmentAsync(row), "DN OpenAttachment");
+        }
 
-                if (result.IsFailure)
-                    throw new InvalidOperationException(result.Error);
-            }
-            catch (Exception ex)
+        private async Task OpenAttachmentAsync(DnAttachmentRowViewModel row)
+        {
+            var result = await _attachmentService
+                .OpenInDefaultAppAsync(row.FilePath)
+                .ConfigureAwait(true);
+
+            if (result.IsFailure)
             {
-                _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.CouldNotOpenFileX"), ex.Message),
-                    LocalizationService.Instance.T("Msg.CapOpenFailed"),
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                // SafeFireAndForget will catch this and log it; we show the
+                // dialog ourselves so the user gets a clear explanation.
+                ViewModels.Shared.UiDispatch.Run(() =>
+                {
+                    _dialogs.Show(
+                        string.Format(LocalizationService.Instance.T("Msg.CouldNotOpenFileX"), result.Error),
+                        LocalizationService.Instance.T("Msg.CapOpenFailed"),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                });
             }
         }
 

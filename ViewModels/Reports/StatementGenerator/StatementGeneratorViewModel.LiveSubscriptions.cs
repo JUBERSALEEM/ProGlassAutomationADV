@@ -121,7 +121,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
         private void RecalculateLiveProgress()
         {
-            Application.Current?.Dispatcher.Invoke(() =>
+            ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
             {
                 int totalSteps = LastWorkflowSteps.Count;
                 if (totalSteps == 0)
@@ -168,7 +168,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         {
             if (wf == null) return;
 
-            Application.Current?.Dispatcher.Invoke(() =>
+            ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
             {
                 LastWorkflowStatusText = wf.Outcome switch
                 {

@@ -238,7 +238,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 if (_isLoading == value) return;
                 _isLoading = value;
                 OnPropertyChanged();
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 
@@ -253,7 +253,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 OnPropertyChanged();
                 // [CHAT 22 v3] Notify ALL navigation gates — mid-run is locked
                 NotifyAllNavigationStates();
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 

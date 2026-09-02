@@ -57,7 +57,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             ClearFilters();
             PreviewSnapshot = null;
 
-            Application.Current?.Dispatcher.Invoke(() => PreviewVM.UpdateFromSnapshot(null));
+            ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() => PreviewVM.UpdateFromSnapshot(null));
 
             ResetWorkflowDisplayState();
             NotifyAllNavigationStates();   // [CHAT 22 v3]
@@ -84,7 +84,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             PreviewSnapshot = null;
 
-            Application.Current?.Dispatcher.Invoke(() => PreviewVM.UpdateFromSnapshot(null));
+            ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() => PreviewVM.UpdateFromSnapshot(null));
 
             ResetWorkflowDisplayState();
             NotifyAllNavigationStates();   // [CHAT 22 v3]
@@ -97,7 +97,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
         private void ResetWorkflowDisplayState()
         {
-            Application.Current?.Dispatcher.Invoke(() =>
+            ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
             {
                 LastWorkflowSteps.Clear();
                 ProcessingLog.Clear();
@@ -155,7 +155,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
         private void PrepareForNewWorkflowRun()
         {
-            Application.Current?.Dispatcher.Invoke(() =>
+            ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
             {
                 LastWorkflowSteps.Clear();
                 ProcessingLog.Clear();
@@ -196,7 +196,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
         private void UpdateStatusItemCounts(StatementSnapshot? snapshot)
         {
-            Application.Current?.Dispatcher.Invoke(() =>
+            ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
             {
                 if (snapshot == null || snapshot.InvoiceRows.Count == 0)
                 {
@@ -226,7 +226,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 var projects = await Task.Run(() => _masterData.GetAllProjectsAsync());
                 var salesmen = await Task.Run(() => _masterData.GetAllSalesmenAsync());
 
-                Application.Current?.Dispatcher.Invoke(() =>
+                ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
                 {
                     Companies.Clear();
                     foreach (var c in companies.Select(c => c.CompanyName)

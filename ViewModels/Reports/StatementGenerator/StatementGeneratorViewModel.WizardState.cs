@@ -67,7 +67,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 OnPropertyChanged(nameof(IsStep2Active));
                 OnPropertyChanged(nameof(IsStep3Active));
                 OnPropertyChanged(nameof(IsStep4Active));
-                CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
 
@@ -121,7 +121,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             if (IsLastWorkflowComplete || HasLastPdf)
             {
-                Application.Current?.Dispatcher.Invoke(() =>
+                ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
                 {
                     CurrentStep = 4;
                 });

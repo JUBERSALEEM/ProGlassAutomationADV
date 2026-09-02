@@ -143,11 +143,12 @@ namespace ProGlassAutomation.Commands
         }
 
         /// <summary>
-        /// Manually raises CanExecuteChanged. Call this when your
-        /// CanExecute condition changes outside of WPF's automatic
-        /// CommandManager.InvalidateRequerySuggested() cycle.
+        /// Manually raises CanExecuteChanged using the THROTTLED invalidation
+        /// helper. Multiple calls within 50ms coalesce into a single actual
+        /// requery, preventing the "20 calls per user action" performance
+        /// cliff that the old direct call caused.
         /// </summary>
         public void RaiseCanExecuteChanged() =>
-            CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
     }
 }

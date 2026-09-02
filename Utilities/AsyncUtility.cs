@@ -37,6 +37,78 @@ namespace ProGlassAutomation.Utilities
     /// <summary>Async helper utilities — Phase 3 hardened.</summary>
     public static class AsyncUtility
     {
+        // ══════════════════════════════════════════════════════════════════
+        //  THROTTLED COMMAND MANAGER (Phase 1 — C-2 fix)
+        //
+        //  CommandManager.InvalidateRequerySuggested() forces WPF to
+        //  re-evaluate EVERY CanExecute handler in the visual tree. When
+        //  called 20+ times per user action (property changes, list
+        //  updates, navigation), it becomes a performance killer.
+        //
+        //  This throttled version coalesces multiple calls within a 50ms
+        //  window into a single actual invalidation, reducing the cost
+        //  by 90%+ while keeping commands responsive.
+        // ══════════════════════════════════════════════════════════════════
+
+        private static System.Windows.Threading.DispatcherTimer? _commandThrottleTimer;
+        private static bool _commandInvalidationPending;
+        private static readonly object _commandThrottleLock = new object();
+
+        /// <summary>
+        /// Throttled version of CommandManager.InvalidateRequerySuggested().
+        /// Coalesces multiple calls within 50ms into a single invalidation.
+        /// Safe to call from any thread — dispatches to UI thread automatically.
+        /// </summary>
+        public static void InvalidateCommandsThrottled()
+        {
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            if (dispatcher == null) return;
+
+            if (dispatcher.CheckAccess())
+            {
+                InvalidateCommandsThrottledOnUIThread();
+            }
+            else
+            {
+                dispatcher.BeginInvoke(new Action(InvalidateCommandsThrottledOnUIThread));
+            }
+        }
+
+        private static void InvalidateCommandsThrottledOnUIThread()
+        {
+            lock (_commandThrottleLock)
+            {
+                if (_commandThrottleTimer == null)
+                {
+                    _commandThrottleTimer = new System.Windows.Threading.DispatcherTimer(
+                        System.Windows.Threading.DispatcherPriority.Normal,
+                        System.Windows.Application.Current?.Dispatcher ?? System.Windows.Threading.Dispatcher.CurrentDispatcher)
+                    {
+                        Interval = TimeSpan.FromMilliseconds(50)
+                    };
+                    _commandThrottleTimer.Tick += (_, __) =>
+                    {
+                        lock (_commandThrottleLock)
+                        {
+                            _commandThrottleTimer?.Stop();
+                            if (_commandInvalidationPending)
+                            {
+                                _commandInvalidationPending = false;
+                                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+                            }
+                        }
+                    };
+                }
+
+                _commandInvalidationPending = true;
+
+                if (!_commandThrottleTimer.IsEnabled)
+                {
+                    _commandThrottleTimer.Start();
+                }
+            }
+        }
+
         /// <summary>
         /// The ONE allowed async void in the app (plus WPF event handlers).
         /// Runs work without awaiting, catches and logs any exception with

@@ -344,6 +344,12 @@ namespace ProGlassAutomation.ViewModels
 
         private System.Windows.Threading.DispatcherTimer? _clockTimer;
 
+        // Phase 2 H-3 fix: Only update time when seconds change, date only
+        // on day change. Previously every 1-second tick fired TWO property
+        // changes (date + time) regardless of whether the values actually
+        // changed, causing unnecessary binding re-evaluation in the top bar.
+        private string _lastDateStr = "";
+
         private void StartClock()
         {
             UpdateClock();
@@ -357,8 +363,18 @@ namespace ProGlassAutomation.ViewModels
         private void UpdateClock()
         {
             var now = DateTime.Now;
-            CurrentDateText = now.ToString("ddd, dd MMM yyyy");
-            CurrentTimeText = now.ToString("HH:mm:ss");
+            // Only update time string when seconds actually changed
+            var timeStr = now.ToString("HH:mm:ss");
+            if (timeStr != _currentTimeText)
+                CurrentTimeText = timeStr;
+
+            // Only update date string when the day changes
+            var dateStr = now.ToString("ddd, dd MMM yyyy");
+            if (dateStr != _lastDateStr)
+            {
+                _lastDateStr = dateStr;
+                CurrentDateText = dateStr;
+            }
         }
 
         public void RefreshCurrentUserPublic() => RefreshCurrentUser();

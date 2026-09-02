@@ -179,7 +179,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             {
                 _currentPage = value; OnPropertyChanged();
                 OnPropertyChanged(nameof(CanGoPrevious)); OnPropertyChanged(nameof(CanGoNext));
-                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
         private int _totalPages;
@@ -190,7 +190,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             {
                 _totalPages = value; OnPropertyChanged();
                 OnPropertyChanged(nameof(CanGoNext));
-                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
         public bool CanGoPrevious => CurrentPage > 1;

@@ -334,7 +334,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             // this the Save button only updates when the user moves focus
             // (WPF's default requery cadence is "sometimes"). Every field
             // change can flip CanSave, so we explicitly invalidate.
-            System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             return true;
         }
 
@@ -369,7 +369,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 // loaded would show IsEnabled=false forever otherwise.)
                 OnPropertyChanged(nameof(CanOpenCustomerInMasterData));
                 OnPropertyChanged(nameof(CanViewCustomerHistory));
-                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+                ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
             catch (Exception ex) { SetMessage("Master data unavailable: " + ExceptionMessages.Deep(ex), isError: true); }
         }
@@ -693,7 +693,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             OnPropertyChanged(nameof(PreparedDateText));
             OnPropertyChanged(nameof(SentDateText));
             OnPropertyChanged(nameof(ConfirmedDateText));
-            System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         // ── Close ──────────────────────────────────────────────────────

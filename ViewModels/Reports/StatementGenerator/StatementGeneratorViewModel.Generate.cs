@@ -71,7 +71,9 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             var engine = new StatementWorkflowEngine();
             PrepareForNewWorkflowRun();
 
-            Application.Current?.Dispatcher.Invoke(() =>
+            // Phase 1 C-1 fix: non-blocking dispatch — the background thread
+            // no longer stalls waiting for the UI thread to process this.
+            ViewModels.Shared.UiDispatch.Run(() =>
             {
                 LastWorkflowSteps.Clear();
                 foreach (var step in engine.Steps)
