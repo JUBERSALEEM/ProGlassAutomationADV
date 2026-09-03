@@ -57,6 +57,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public PortfolioWastageAnalysisViewModel PortfolioWastageAnalysis { get; }
         public PortfolioGlassTypeComparisonViewModel PortfolioGlassTypeComparison { get; }
 
+        /// <summary>Detail sidebar VM — loads full P&L breakdown for selected row.</summary>
+        public JobDetailViewModel JobDetail { get; }
+
         public JobProfitabilityViewModel(IProformaInvoiceRepository? invoices)
         {
             _invoices = invoices!;
@@ -65,6 +68,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             PortfolioServiceProfitability = new PortfolioServiceProfitabilityViewModel(_invoices);
             PortfolioWastageAnalysis = new PortfolioWastageAnalysisViewModel(_invoices);
             PortfolioGlassTypeComparison = new PortfolioGlassTypeComparisonViewModel(_invoices);
+
+            // Initialize detail sidebar VM
+            JobDetail = new JobDetailViewModel(_invoices);
 
             // ERR-633EEB: run shared initialization on EVERY construction
             // path. DI selects this (greediest) ctor, so without this call the
@@ -370,6 +376,12 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         /// <summary>Reloads everything from the invoice database.</summary>
         public ICommand RefreshCommand { get; private set; }
 
+        /// <summary>Selects a row and opens the detail sidebar.</summary>
+        public ICommand SelectRowCommand { get; private set; }
+
+        /// <summary>Closes the detail sidebar.</summary>
+        public ICommand CloseDetailCommand { get; private set; }
+
         public JobProfitabilityViewModel()
          : this(
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){ }
@@ -380,6 +392,12 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         private void InitializeCore()
         {
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh"));
+            SelectRowCommand = new RelayCommand(param =>
+            {
+                if (param is JobProfitabilityRow row)
+                    JobDetail.LoadJobDetail(row.ProformaId);
+            });
+            CloseDetailCommand = new RelayCommand(_ => JobDetail.ClearSelection());
 
             Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));
 

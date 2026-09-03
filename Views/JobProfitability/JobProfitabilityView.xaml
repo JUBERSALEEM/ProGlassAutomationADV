@@ -78,7 +78,15 @@
 
     </UserControl.Resources>
 
+    <!-- Two-column layout: main content + detail sidebar -->
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+    <!-- ═══ LEFT: Main Content ═══ -->
+    <Grid Grid.Column="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -438,7 +446,13 @@
                             <DataTemplate>
                                 <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="0,0,0,1"
-                                        Padding="16,10">
+                                        Padding="16,10"
+                                        Cursor="Hand">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick"
+                                                      Command="{Binding DataContext.SelectRowCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                      CommandParameter="{Binding}"/>
+                                    </Border.InputBindings>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="130"/>
@@ -619,6 +633,14 @@
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource MutedForegroundBrush}"/>
         </Border>
+
+    </Grid>
+
+    <!-- ═══ RIGHT: Detail Sidebar ═══ -->
+    <Border Grid.Column="1" Width="400"
+            Visibility="{Binding JobDetail.IsPanelVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+        <local:JobDetailPanel DataContext="{Binding JobDetail}"/>
+    </Border>
 
     </Grid>
 </UserControl>

@@ -404,4 +404,15 @@
 		</Compile>
 	</ItemGroup>
 
+	<ItemGroup>
+		<Page Update="Views\JobProfitability\JobDetailPanel.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\JobProfitability\JobDetailPanel.xaml.cs">
+			<DependentUpon>JobDetailPanel.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
 </Project>
