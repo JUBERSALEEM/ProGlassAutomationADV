@@ -397,8 +397,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
-        /// <summary>Profit amount for overall margin (Revenue - Total Cost with U-insert).</summary>
-        public decimal OverallProfitAmount => PriceBasedActualProfit;
+        /// <summary>Profit amount for overall margin: NetExVat - GlassCost - ProductionCost (actual P&L profit).</summary>
+        public decimal OverallProfitAmount => Profit;
 
         /// <summary>
         /// KPI card display: "AED -212 | -6.2%"

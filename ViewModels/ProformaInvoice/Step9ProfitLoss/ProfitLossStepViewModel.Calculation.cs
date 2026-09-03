@@ -570,20 +570,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     ? Math.Round(baseCostProfit / PriceBasedBasisCost * 100m, 2)
                     : 0m;
 
-                // 2. OVERALL MARGIN (Total Cost with U-insert) ← MOST IMPORTANT
-                //    Formula: (Revenue - Total Cost) / Total Cost × 100
-                //    Shows: Real job profitability (glass + ASP + U-insert)
-                //    Use: Decision making
-                OverallMarginPercent = PriceBasedTotalActualCost > 0m
-                    ? Math.Round(PriceBasedActualProfit / PriceBasedTotalActualCost * 100m, 2)
+                // 2. OVERALL MARGIN (Actual Total Cost) ← MOST IMPORTANT
+                //    Formula: (Revenue - Actual Cost) / Actual Cost × 100
+                //    Uses ACTUAL costs: glass rows + production (spacer, cutting,
+                //    tempering, wastage, U-insert) — NOT the Step 4 basis.
+                //    This is the REAL job profitability for decision making.
+                decimal actualTotalCost = TotalGlassCost + TotalProductionCost;
+                decimal actualProfit = Math.Round(NetExVat - actualTotalCost, 2);
+                OverallMarginPercent = actualTotalCost > 0m
+                    ? Math.Round(actualProfit / actualTotalCost * 100m, 2)
                     : 0m;
 
                 // 3. NET MARGIN (Accounting perspective)
-                //    Formula: (Revenue - Total Cost) / Revenue × 100
-                //    Shows: Profit as % of revenue
-                //    Use: Financial reporting
-                PriceBasedMarginPercent = GrossVatInclusive > 0m
-                    ? Math.Round(PriceBasedActualProfit / GrossVatInclusive * 100m, 2)
+                //    Formula: (Revenue - Actual Cost) / Revenue × 100
+                //    Shows: Profit as % of revenue using actual costs
+                PriceBasedMarginPercent = NetExVat > 0m
+                    ? Math.Round(actualProfit / NetExVat * 100m, 2)
                     : 0m;
 
                 StatusMessage = BuildStatus(
