@@ -44,8 +44,21 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             ServiceBreakdown = new ObservableCollection<PortfolioServiceProfitRow>();
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(RefreshAnalysisAsync, "PortfolioServiceProfit Refresh"));
             
+            // Live sync: re-analyze whenever an invoice is saved/deleted
+            ProformaInvoiceRepository.SavedInvoicesChanged += OnSavedInvoicesChanged;
+            
             // Auto-load on construction
             AsyncUtility.SafeFireAndForget(RefreshAnalysisAsync, "PortfolioServiceProfit InitialLoad");
+        }
+
+        private void OnSavedInvoicesChanged()
+        {
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            if (dispatcher == null || dispatcher.CheckAccess())
+                AsyncUtility.SafeFireAndForget(RefreshAnalysisAsync, "PortfolioServiceProfit LiveSync");
+            else
+                dispatcher.BeginInvoke(new Action(() =>
+                    AsyncUtility.SafeFireAndForget(RefreshAnalysisAsync, "PortfolioServiceProfit LiveSync")));
         }
 
         // ══════════════════════════════════════════════════════════════

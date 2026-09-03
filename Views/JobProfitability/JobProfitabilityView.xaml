@@ -82,6 +82,84 @@
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
 
+        <!-- ═══ MODERN PILL TAB STYLES ═══ -->
+        <Style x:Key="PillTabItemStyle" TargetType="TabItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="18,9"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="{TemplateBinding Margin}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter x:Name="ContentSite"
+                                              ContentSource="Header"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              TextBlock.Foreground="{TemplateBinding Foreground}"
+                                              TextBlock.FontSize="{TemplateBinding FontSize}"
+                                              TextBlock.FontWeight="{TemplateBinding FontWeight}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsSelected" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PillTabControlStyle" TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <!-- Pill tab bar -->
+                            <StackPanel Grid.Row="0"
+                                        IsItemsHost="True"
+                                        Orientation="Horizontal"
+                                        Margin="0,0,0,12"/>
+                            <!-- Tab content -->
+                            <Border Grid.Row="1"
+                                    Background="Transparent"
+                                    BorderThickness="0">
+                                <ContentPresenter ContentSource="SelectedContent"/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
@@ -200,11 +278,10 @@
              TAB CONTROL - 4 Analysis Views
         ══════════════════════════════════════════════════════════════ -->
         <TabControl Grid.Row="1" Margin="20,16,20,0"
-                    Background="Transparent"
-                    BorderThickness="0">
+                    Style="{StaticResource PillTabControlStyle}">
 
             <!-- ═══ TAB 1: P&L Summary (existing content) ═══ -->
-            <TabItem Header="P&amp;L Summary">
+            <TabItem Header="P&amp;L SUMMARY" Style="{StaticResource PillTabItemStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -568,19 +645,22 @@
             </TabItem>
 
             <!-- ═══ TAB 2: Service Profitability ═══ -->
-            <TabItem Header="Service Profitability"
+            <TabItem Header="SERVICE PROFITABILITY"
+                     Style="{StaticResource PillTabItemStyle}"
                      DataContext="{Binding PortfolioServiceProfitability}">
                 <local:PortfolioServiceProfitabilityView/>
             </TabItem>
 
             <!-- ═══ TAB 3: Wastage Analysis ═══ -->
-            <TabItem Header="Wastage Analysis"
+            <TabItem Header="WASTAGE ANALYSIS"
+                     Style="{StaticResource PillTabItemStyle}"
                      DataContext="{Binding PortfolioWastageAnalysis}">
                 <local:PortfolioWastageAnalysisView/>
             </TabItem>
 
             <!-- ═══ TAB 4: Glass Type Comparison ═══ -->
-            <TabItem Header="Glass Type Comparison"
+            <TabItem Header="GLASS TYPE COMPARISON"
+                     Style="{StaticResource PillTabItemStyle}"
                      DataContext="{Binding PortfolioGlassTypeComparison}">
                 <local:PortfolioGlassTypeComparisonView/>
             </TabItem>

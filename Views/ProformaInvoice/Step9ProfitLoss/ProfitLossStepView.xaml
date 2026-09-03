@@ -38,15 +38,79 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
-        <!-- Tab style for analysis views -->
+        <!-- ═══ MODERN PILL TAB STYLES ═══ -->
         <Style x:Key="AnalysisTabStyle" TargetType="TabItem">
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Padding" Value="18,9"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="{TemplateBinding Margin}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter x:Name="ContentSite"
+                                              ContentSource="Header"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              TextBlock.Foreground="{TemplateBinding Foreground}"
+                                              TextBlock.FontSize="{TemplateBinding FontSize}"
+                                              TextBlock.FontWeight="{TemplateBinding FontWeight}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsSelected" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PillTabControlStyle" TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabControl">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" IsItemsHost="True" Orientation="Horizontal" Margin="0,0,0,12"/>
+                            <Border Grid.Row="1" Background="Transparent" BorderThickness="0">
+                                <ContentPresenter ContentSource="SelectedContent"/>
+                            </Border>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </UserControl.Resources>
 
-    <TabControl Margin="0" BorderThickness="0" Background="Transparent">
+    <TabControl Margin="0" Style="{StaticResource PillTabControlStyle}">
         <!-- TAB 1: PROFIT & LOSS (Main View) -->
         <TabItem Header="PROFIT &amp; LOSS" Style="{StaticResource AnalysisTabStyle}">
             <ScrollViewer VerticalScrollBarVisibility="Auto"
