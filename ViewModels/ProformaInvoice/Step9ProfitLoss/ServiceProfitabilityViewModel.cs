@@ -187,6 +187,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     var glassRow = CalculateGlassMargin(specGroup, area);
                     if (glassRow != null)
                     {
+                        glassRow.SpecName = specName;
                         ServiceBreakdown.Add(glassRow);
                         totalCharge += glassRow.Charge;
                         totalProfit += glassRow.Profit;
@@ -196,28 +197,29 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     if (isDguLam)
                     {
                         // DGU+LAM: Spacer + PVB + Cutting + Tempering
-                        AddDguLamServices(specGroup, area, ref totalCharge, ref totalProfit);
+                        AddDguLamServices(specGroup, area, specName, ref totalCharge, ref totalProfit);
                     }
                     else if (isDgu)
                     {
                         // DGU: Spacer only (includes cutting/tempering)
-                        AddDguServices(specGroup, area, ref totalCharge, ref totalProfit);
+                        AddDguServices(specGroup, area, specName, ref totalCharge, ref totalProfit);
                     }
                     else if (isLam)
                     {
                         // LAM: PVB + Cutting + Tempering
-                        AddLamServices(specGroup, area, ref totalCharge, ref totalProfit);
+                        AddLamServices(specGroup, area, specName, ref totalCharge, ref totalProfit);
                     }
                     else
                     {
                         // SGU: Cutting + Tempering
-                        AddSguServices(specGroup, area, ref totalCharge, ref totalProfit);
+                        AddSguServices(specGroup, area, specName, ref totalCharge, ref totalProfit);
                     }
 
                     // Add U-insert if present
                     var uInsertRow = CalculateUInsertService(specGroup, area);
                     if (uInsertRow != null)
                     {
+                        uInsertRow.SpecName = specName;
                         ServiceBreakdown.Add(uInsertRow);
                         totalCharge += uInsertRow.Charge;
                         totalProfit += uInsertRow.Profit;
@@ -303,7 +305,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>
         /// Add DGU services (spacer only).
         /// </summary>
-        private void AddDguServices(SpecCostGroup specGroup, decimal area, ref decimal totalCharge, ref decimal totalProfit)
+        private void AddDguServices(SpecCostGroup specGroup, decimal area, string specName, ref decimal totalCharge, ref decimal totalProfit)
         {
             var spacerRow = specGroup.Rows.FirstOrDefault(r => r.Kind == "Spacer");
             if (spacerRow == null) return;
@@ -318,6 +320,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             var row = new ServiceProfitRow
             {
+                SpecName = specName,
                 ServiceName = "Spacer/ASP Service",
                 Description = "Includes cutting, tempering, and assembly",
                 Area = area,
@@ -336,7 +339,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>
         /// Add SGU services (cutting + tempering).
         /// </summary>
-        private void AddSguServices(SpecCostGroup specGroup, decimal area, ref decimal totalCharge, ref decimal totalProfit)
+        private void AddSguServices(SpecCostGroup specGroup, decimal area, string specName, ref decimal totalCharge, ref decimal totalProfit)
         {
             // Cutting service
             var cuttingRow = specGroup.Rows.FirstOrDefault(r => 
@@ -352,6 +355,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 var row = new ServiceProfitRow
                 {
+                    SpecName = specName,
                     ServiceName = "Cutting Service",
                     Description = "Glass cutting service",
                     Area = area,
@@ -381,6 +385,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 var row = new ServiceProfitRow
                 {
+                    SpecName = specName,
                     ServiceName = "Tempering Service",
                     Description = "Glass tempering service",
                     Area = area,
@@ -400,7 +405,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>
         /// Add LAM services (PVB + cutting + tempering).
         /// </summary>
-        private void AddLamServices(SpecCostGroup specGroup, decimal area, ref decimal totalCharge, ref decimal totalProfit)
+        private void AddLamServices(SpecCostGroup specGroup, decimal area, string specName, ref decimal totalCharge, ref decimal totalProfit)
         {
             // PVB interlayer service
             var pvbRow = specGroup.Rows.FirstOrDefault(r => 
@@ -416,6 +421,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 var row = new ServiceProfitRow
                 {
+                    SpecName = specName,
                     ServiceName = "PVB Interlayer Service",
                     Description = "PVB interlayer material and lamination",
                     Area = area,
@@ -432,16 +438,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
 
             // Cutting and tempering (same as SGU)
-            AddSguServices(specGroup, area, ref totalCharge, ref totalProfit);
+            AddSguServices(specGroup, area, specName, ref totalCharge, ref totalProfit);
         }
 
         /// <summary>
         /// Add DGU+LAM services (spacer + PVB + cutting + tempering).
         /// </summary>
-        private void AddDguLamServices(SpecCostGroup specGroup, decimal area, ref decimal totalCharge, ref decimal totalProfit)
+        private void AddDguLamServices(SpecCostGroup specGroup, decimal area, string specName, ref decimal totalCharge, ref decimal totalProfit)
         {
             // Spacer service
-            AddDguServices(specGroup, area, ref totalCharge, ref totalProfit);
+            AddDguServices(specGroup, area, specName, ref totalCharge, ref totalProfit);
 
             // PVB service
             var pvbRow = specGroup.Rows.FirstOrDefault(r => 
@@ -457,6 +463,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 var row = new ServiceProfitRow
                 {
+                    SpecName = specName,
                     ServiceName = "PVB Interlayer Service",
                     Description = "PVB interlayer material and lamination",
                     Area = area,
@@ -507,6 +514,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
     /// </summary>
     public class ServiceProfitRow : ViewModelBase
     {
+        private string _specName = "";
+        /// <summary>Spec group name this service belongs to (e.g., "DGU 24mm").</summary>
+        public string SpecName
+        {
+            get => _specName;
+            set
+            {
+                if (_specName == value) return;
+                _specName = value ?? "";
+                OnPropertyChanged();
+            }
+        }
+
         private string _serviceName = "";
         public string ServiceName
         {

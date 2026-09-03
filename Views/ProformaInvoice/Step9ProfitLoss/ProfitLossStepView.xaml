@@ -164,7 +164,7 @@
                         <!-- PROFIT — the margin now lives in its own cards
                              (COST-BASED / PRICE-BASED); the mark-up-over-cost
                              line remains as the supplemental existing read. -->
-                        <Border Grid.Column="6" Style="{StaticResource PiKpiCellStyle}" BorderThickness="0">
+                        <Border Grid.Column="7" Style="{StaticResource PiKpiCellStyle}" BorderThickness="0">
                             <StackPanel>
                                 <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding ProfitDisplay}">

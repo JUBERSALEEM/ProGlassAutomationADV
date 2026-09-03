@@ -181,6 +181,7 @@
                         Padding="8">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
                             <ColumnDefinition Width="200"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="100"/>
@@ -190,13 +191,14 @@
                             <ColumnDefinition Width="100"/>
                         </Grid.ColumnDefinitions>
                         
-                        <TextBlock Grid.Column="0" Text="SERVICE" Style="{StaticResource TableHeaderStyle}"/>
-                        <TextBlock Grid.Column="1" Text="DESCRIPTION" Style="{StaticResource TableHeaderStyle}"/>
-                        <TextBlock Grid.Column="2" Text="AREA" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="CHARGE" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="COST" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="PROFIT" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="6" Text="MARGIN %" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="SPEC" Style="{StaticResource TableHeaderStyle}"/>
+                        <TextBlock Grid.Column="1" Text="SERVICE" Style="{StaticResource TableHeaderStyle}"/>
+                        <TextBlock Grid.Column="2" Text="DESCRIPTION" Style="{StaticResource TableHeaderStyle}"/>
+                        <TextBlock Grid.Column="3" Text="AREA" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="CHARGE" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="COST" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="6" Text="PROFIT" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="7" Text="MARGIN %" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
                 
@@ -208,6 +210,7 @@
                                 <Border Style="{StaticResource ProfitableRowStyle}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="140"/>
                                             <ColumnDefinition Width="200"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="100"/>
@@ -217,38 +220,45 @@
                                             <ColumnDefinition Width="100"/>
                                         </Grid.ColumnDefinitions>
                                         
-                                        <!-- Service Name -->
+                                        <!-- Spec Name -->
                                         <TextBlock Grid.Column="0" 
+                                                   Text="{Binding SpecName}" 
+                                                   Style="{StaticResource TableCellStyle}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                        
+                                        <!-- Service Name -->
+                                        <TextBlock Grid.Column="1" 
                                                    Text="{Binding ServiceName}" 
                                                    Style="{StaticResource TableCellStyle}"
                                                    FontWeight="SemiBold"/>
                                         
                                         <!-- Description -->
-                                        <TextBlock Grid.Column="1" 
+                                        <TextBlock Grid.Column="2" 
                                                    Text="{Binding Description}" 
                                                    Style="{StaticResource TableCellStyle}"
                                                    TextWrapping="Wrap"/>
                                         
                                         <!-- Area -->
-                                        <TextBlock Grid.Column="2" 
+                                        <TextBlock Grid.Column="3" 
                                                    Text="{Binding AreaDisplay}" 
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
                                         
                                         <!-- Charge -->
-                                        <TextBlock Grid.Column="3" 
+                                        <TextBlock Grid.Column="4" 
                                                    Text="{Binding ChargeDisplay}" 
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
                                         
                                         <!-- Cost -->
-                                        <TextBlock Grid.Column="4" 
+                                        <TextBlock Grid.Column="5" 
                                                    Text="{Binding CostDisplay}" 
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
                                         
                                         <!-- Profit -->
-                                        <TextBlock Grid.Column="5" 
+                                        <TextBlock Grid.Column="6" 
                                                    Text="{Binding ProfitDisplay}" 
                                                    HorizontalAlignment="Right"
                                                    FontWeight="SemiBold">
@@ -265,7 +275,7 @@
                                         </TextBlock>
                                         
                                         <!-- Margin % -->
-                                        <TextBlock Grid.Column="6" 
+                                        <TextBlock Grid.Column="7" 
                                                    Text="{Binding MarginDisplay}" 
                                                    HorizontalAlignment="Right"
                                                    FontWeight="Bold">
