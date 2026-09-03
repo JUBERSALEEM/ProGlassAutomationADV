@@ -230,6 +230,31 @@
 	</ItemGroup>
 
 	<!-- ═══════════════════════════════════════════════════════════════
+	     Login windows — explicit Page/Compile linkage so the XAML
+	     markup compiler generates InitializeComponent() and x:Name
+	     fields for ForcePasswordChangeWindow and ResetPasswordWindow.
+	═══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Page Update="Views\Login\ForcePasswordChangeWindow.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Login\ForcePasswordChangeWindow.xaml.cs">
+			<DependentUpon>ForcePasswordChangeWindow.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<Page Update="Views\Login\ResetPasswordWindow.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Login\ResetPasswordWindow.xaml.cs">
+			<DependentUpon>ResetPasswordWindow.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════════
 	     Chat 16 — Sales Report + Statement List
 	═══════════════════════════════════════════════════════════════ -->
 	<ItemGroup>
