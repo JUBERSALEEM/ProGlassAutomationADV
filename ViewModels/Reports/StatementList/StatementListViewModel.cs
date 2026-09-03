@@ -240,7 +240,7 @@ public StatementListViewModel(IDialogService? dialogs,
                     StatusMessage = rows.Count == 0
                         ? "No statements found. Click '+ New Statement' to begin."
                         : $"{rows.Count} statement(s) loaded.";
-                });
+                }));
             }
             catch (Exception ex)
             {
@@ -253,7 +253,7 @@ public StatementListViewModel(IDialogService? dialogs,
                     OnPropertyChanged(nameof(IsListVisible));
 
                     StatusMessage = $"Error loading statements: {ExceptionMessages.Deep(ex)}";
-                });
+                }));
             }
             finally
             {

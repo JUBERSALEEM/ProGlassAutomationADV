@@ -163,7 +163,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
                     _isLoaded = true;
                     RebuildBalanceMix();
                     OnPropertyChanged(string.Empty);
-                });
+                }));
                 return;
             }
 
@@ -215,7 +215,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
 
                 // Batch notification — single fire
                 OnPropertyChanged(string.Empty);
-            });
+            }));
         }
 
         private void RebuildBalanceMix()

@@ -378,7 +378,7 @@ public PrintableInvoiceViewModel(
                 // Step 7: Summary
                 GrandTotal = MainSummary?.GrandTotalVatInclusive ?? 0m,
                 VatAmount = MainSummary?.VatAmount ?? 0m,
-                DiscountPercent = 0m // DiscountValue can be % or fixed AED; skip for now
+                DiscountPercent = 0m, // DiscountValue can be % or fixed AED; skip for now
 
                 // Step 9: Profit & Loss
                 ProfitMarginPercent = ProfitLoss?.MarginPercent ?? 0m,

@@ -365,7 +365,7 @@ namespace ProGlassAutomation.Services.Localization
                     OnPropertyChanged(nameof(HasLiveRates));
                     RatesChanged?.Invoke();
                     RefreshAmountBindings();
-                });
+                }));
             else
             {
                 RatesChanged?.Invoke();

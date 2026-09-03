@@ -252,33 +252,33 @@ namespace ProGlassAutomation.ViewModels.Settings
                     System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ThemeManager.ApplyTheme(AppTheme.Light);
-                    });
+                    }));
 
                     SetResetStatus("Configuring gradients...");
                     System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ThemeManager.ApplyGradientPreference(true);
-                    });
+                    }));
 
                     SetResetStatus("Setting display density...");
                     System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ThemeManager.ApplyDisplayDensity("Compact");
                         ThemeManager.ApplyUiScale(1.0);
-                    });
+                    }));
 
                     SetResetStatus("Applying visual theme...");
                     System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ApplyVisualTheme();
-                    });
+                    }));
 
                     SetResetStatus("Resetting fonts...");
                     System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         FontService.ResetToDefault();
-                    });
-                });
+                    }));
+                }));
 
                 // 3) Resync the bound controls on UI thread
                 SetResetStatus("Updating UI...");
@@ -342,7 +342,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
             {
                 ResetStatusMessage = message;
-            });
+            }));
         }
 
         // ── Gradient surfaces (adaptive-theme depth option) ───────────
