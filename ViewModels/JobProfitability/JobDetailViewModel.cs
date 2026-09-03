@@ -21,6 +21,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.ProformaInvoice.TargetPricing;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -35,6 +36,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         {
             _invoices = invoices;
             LineItems = new ObservableCollection<JobDetailLineItem>();
+            TargetSpecs = new ObservableCollection<JobTargetSpecLine>();
             CloseCommand = new RelayCommand(_ => ClearSelection());
         }
 
@@ -110,6 +112,89 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         private int _lineItemCount;
         public int LineItemCount { get => _lineItemCount; set { if (_lineItemCount == value) return; _lineItemCount = value; OnPropertyChanged(); } }
+
+        // ── Target-Price Model (approved KPI) ──────────────────────────
+        // Loaded from the additive snapshot block (SpecTargetSnapshot +
+        // job-level totals). Absent on old snapshots → INCOMPLETE/STALE,
+        // never a fake 0% margin.
+        public ObservableCollection<JobTargetSpecLine> TargetSpecs { get; }
+
+        private bool _hasTargetData;
+        public bool HasTargetData { get => _hasTargetData; set { if (_hasTargetData == value) return; _hasTargetData = value; OnPropertyChanged(); OnPropertyChanged(nameof(TargetPanelVisibility)); } }
+        public System.Windows.Visibility TargetPanelVisibility => HasTargetData ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+
+        private string _targetStatusLabel = "INCOMPLETE";
+        public string TargetStatusLabel { get => _targetStatusLabel; set { if (_targetStatusLabel == value) return; _targetStatusLabel = value ?? "INCOMPLETE"; OnPropertyChanged(); OnPropertyChanged(nameof(IsAboveTarget)); OnPropertyChanged(nameof(IsBelowTarget)); OnPropertyChanged(nameof(IsTargetIncomplete)); OnPropertyChanged(nameof(IsTargetStale)); } }
+        public bool IsAboveTarget => TargetStatusLabel == "ABOVE TARGET";
+        public bool IsBelowTarget => TargetStatusLabel == "BELOW TARGET";
+        public bool IsTargetIncomplete => TargetStatusLabel == "INCOMPLETE";
+        public bool IsTargetStale => TargetStatusLabel == "STALE";
+
+        private decimal _givenPricePerSqm;
+        public decimal GivenPricePerSqm { get => _givenPricePerSqm; set { if (_givenPricePerSqm == value) return; _givenPricePerSqm = value; OnPropertyChanged(); OnPropertyChanged(nameof(GivenPricePerSqmDisplay)); } }
+        public string GivenPricePerSqmDisplay => HasTargetData ? $"AED {GivenPricePerSqm:N2}/m²" : "—";
+
+        private decimal _requiredTargetPerSqm;
+        public decimal RequiredTargetPerSqm { get => _requiredTargetPerSqm; set { if (_requiredTargetPerSqm == value) return; _requiredTargetPerSqm = value; OnPropertyChanged(); OnPropertyChanged(nameof(RequiredTargetPerSqmDisplay)); } }
+        public string RequiredTargetPerSqmDisplay => HasTargetData ? $"AED {RequiredTargetPerSqm:N2}/m²" : "—";
+
+        private decimal _specificationTargetPerSqm;
+        public decimal SpecificationTargetPerSqm { get => _specificationTargetPerSqm; set { if (_specificationTargetPerSqm == value) return; _specificationTargetPerSqm = value; OnPropertyChanged(); OnPropertyChanged(nameof(SpecificationTargetPerSqmDisplay)); } }
+        public string SpecificationTargetPerSqmDisplay => HasTargetData ? $"AED {SpecificationTargetPerSqm:N2}/m²" : "—";
+
+        private decimal _appliedUInsertPerSqm;
+        public decimal AppliedUInsertPerSqm { get => _appliedUInsertPerSqm; set { if (_appliedUInsertPerSqm == value) return; _appliedUInsertPerSqm = value; OnPropertyChanged(); OnPropertyChanged(nameof(AppliedUInsertPerSqmDisplay)); } }
+        public string AppliedUInsertPerSqmDisplay => HasTargetData
+            ? AppliedUInsertPerSqm > 0m ? $"AED {AppliedUInsertPerSqm:N2}/m²" : "—"
+            : "—";
+
+        private decimal _differencePerSqm;
+        public decimal DifferencePerSqm { get => _differencePerSqm; set { if (_differencePerSqm == value) return; _differencePerSqm = value; OnPropertyChanged(); OnPropertyChanged(nameof(DifferencePerSqmDisplay)); } }
+        public string DifferencePerSqmDisplay
+        {
+            get
+            {
+                if (!HasTargetData) return "—";
+                return DifferencePerSqm < 0m
+                    ? $"-AED {Math.Abs(DifferencePerSqm):N2}/m²"
+                    : $"AED {DifferencePerSqm:N2}/m²";
+            }
+        }
+
+        private decimal _givenValue;
+        public decimal GivenValue { get => _givenValue; set { if (_givenValue == value) return; _givenValue = value; OnPropertyChanged(); OnPropertyChanged(nameof(GivenValueDisplay)); } }
+        public string GivenValueDisplay => HasTargetData ? $"AED {GivenValue:N2}" : "—";
+
+        private decimal _requiredTargetValue;
+        public decimal RequiredTargetValue { get => _requiredTargetValue; set { if (_requiredTargetValue == value) return; _requiredTargetValue = value; OnPropertyChanged(); OnPropertyChanged(nameof(RequiredTargetValueDisplay)); } }
+        public string RequiredTargetValueDisplay => HasTargetData ? $"AED {RequiredTargetValue:N2}" : "—";
+
+        private decimal _differenceValue;
+        public decimal DifferenceValue { get => _differenceValue; set { if (_differenceValue == value) return; _differenceValue = value; OnPropertyChanged(); OnPropertyChanged(nameof(DifferenceValueDisplay)); } }
+        public string DifferenceValueDisplay
+        {
+            get
+            {
+                if (!HasTargetData) return "—";
+                return DifferenceValue < 0m
+                    ? $"-AED {Math.Abs(DifferenceValue):N2}"
+                    : $"AED {DifferenceValue:N2}";
+            }
+        }
+
+        private decimal? _targetMarginPercent;
+        public decimal? TargetMarginPercent
+        {
+            get => _targetMarginPercent;
+            set { if (_targetMarginPercent == value) return; _targetMarginPercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(TargetMarginDisplay)); }
+        }
+        public string TargetMarginDisplay => TargetMarginPercent is decimal m ? $"{m:0.##}%" : "—";
+
+        private string _uInsertTreatmentSummary = "";
+        public string UInsertTreatmentSummary { get => _uInsertTreatmentSummary; set { if (_uInsertTreatmentSummary == value) return; _uInsertTreatmentSummary = value ?? ""; OnPropertyChanged(); } }
+
+        private string _targetStatusMessage = "";
+        public string TargetStatusMessage { get => _targetStatusMessage; set { if (_targetStatusMessage == value) return; _targetStatusMessage = value ?? ""; OnPropertyChanged(); } }
 
         // ── Visibility ──────────────────────────────────────────────────
         private bool _isPanelVisible;
@@ -214,6 +299,62 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 }
 
                 LineItemCount = LineItems.Count;
+
+                // ── Target-price model (approved KPI) from snapshot ──
+                // The additive target block lives on the P&L snapshot
+                // (ProfitLossSnapshot.SpecTargets + job-level target totals).
+                TargetSpecs.Clear();
+                if (pl != null && pl.SpecTargets is { Count: > 0 })
+                {
+                    HasTargetData = true;
+
+                    GivenPricePerSqm = pl.TargetAverageGivenPricePerSqm;
+                    SpecificationTargetPerSqm = pl.TargetAverageSpecificationTargetPerSqm;
+                    AppliedUInsertPerSqm = pl.TargetAverageAppliedUInsertPerSqm;
+                    RequiredTargetPerSqm = pl.TargetAverageFinalRequiredTargetPerSqm;
+                    DifferencePerSqm = pl.TargetAverageGivenPricePerSqm - pl.TargetAverageFinalRequiredTargetPerSqm;
+                    GivenValue = pl.TargetTotalGivenValue;
+                    RequiredTargetValue = pl.TargetTotalRequiredValue;
+                    DifferenceValue = pl.TargetTotalDifferenceValue;
+                    TargetMarginPercent = pl.TargetMarginAgainstTargetPercent;
+                    UInsertTreatmentSummary = string.IsNullOrWhiteSpace(pl.TargetUInsertTreatmentSummary)
+                        ? "Not recorded"
+                        : pl.TargetUInsertTreatmentSummary;
+
+                    var parsedStatus = TargetStatusLabelFor(pl, true);
+                    TargetStatusLabel = parsedStatus;
+                    TargetStatusMessage = BuildTargetStatusMessage(pl, parsedStatus);
+
+                    foreach (var t in pl.SpecTargets.Where(t => t != null))
+                    {
+                        TargetSpecs.Add(new JobTargetSpecLine
+                        {
+                            SpecNumber = t.SpecNumber,
+                            SpecName = string.IsNullOrWhiteSpace(t.SpecName) ? $"Spec {t.SpecNumber}" : t.SpecName,
+                            GivenPricePerSqmDisplay = $"AED {t.GivenPricePerSqm:N2}/m²",
+                            SpecificationTargetPerSqmDisplay = $"AED {t.SpecificationTargetPerSqm:N2}/m²",
+                            AppliedUInsertPerSqmDisplay = t.UInsertRatePerSqm > 0m
+                                ? $"AED {t.AppliedUInsertPerSqm:N2}/m² added"
+                                : "no additional U-insert",
+                            FinalRequiredTargetPerSqmDisplay = $"AED {t.FinalRequiredTargetPerSqm:N2}/m²",
+                            DifferencePerSqmDisplay = t.DifferencePerSqm < 0m
+                                ? $"-AED {Math.Abs(t.DifferencePerSqm):N2}/m²"
+                                : $"AED {t.DifferencePerSqm:N2}/m²",
+                            MarginDisplay = t.MarginAgainstTargetPercent is decimal tm ? $"{tm:0.##}%" : "—",
+                            StatusLabel = SpecStatusLabelFor(t),
+                            UInsertNote = BuildUInsertNote(t)
+                        });
+                    }
+                }
+                else
+                {
+                    HasTargetData = false;
+                    TargetStatusLabel = pl != null ? "STALE" : "INCOMPLETE";
+                    TargetStatusMessage = pl != null
+                        ? "This invoice was saved before the target-price model existed. Actual P&L is shown; target KPIs are not available for this job."
+                        : "No stored P&L or target data for this invoice.";
+                }
+
                 StatusMessage = $"{LineItemCount} line item(s) • {CompanyName} • {CustomerName}";
                 IsPanelVisible = true;
             }
@@ -229,6 +370,63 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         {
             IsPanelVisible = false;
             LineItems.Clear();
+            TargetSpecs.Clear();
+        }
+
+        /// <summary>Maps the persisted job-level status to the display label.</summary>
+        private static string TargetStatusLabelFor(ProfitLossSnapshot pl, bool isCosted)
+        {
+            if (pl.TargetMarginAgainstTargetPercent.HasValue
+                && !string.IsNullOrWhiteSpace(pl.TargetStatus)
+                && Enum.TryParse<TargetStatus>(pl.TargetStatus, out var parsed))
+            {
+                return parsed switch
+                {
+                    TargetStatus.AboveTarget => "ABOVE TARGET",
+                    TargetStatus.AtTarget => "AT TARGET",
+                    TargetStatus.BelowTarget => "BELOW TARGET",
+                    _ => parsed.ToString().ToUpperInvariant().Replace("_", " ")
+                };
+            }
+            return isCosted ? "STALE" : "INCOMPLETE";
+        }
+
+        private static string BuildTargetStatusMessage(ProfitLossSnapshot pl, string label)
+        {
+            if (label == "ABOVE TARGET" || label == "AT TARGET" || label == "BELOW TARGET")
+                return $"Step 5 given price is {label.Replace(" TARGET", "").ToLowerInvariant()} the final required target across {pl.TargetValidSpecCount} specification(s).";
+
+            if (label == "INCOMPLETE")
+                return "One or more specifications are missing target inputs (glass rates, ASP rate, yield or Step 5 base price).";
+
+            if (label == "STALE")
+                return "This invoice was saved before the target-price model existed; target KPIs are not available.";
+
+            return "No target-price data recorded for this invoice.";
+        }
+
+        private static string BuildUInsertNote(SpecTargetSnapshot t)
+        {
+            if (t.UInsertRatePerSqm <= 0m)
+                return "Not applicable / included in Step 5 price";
+            return $"Additional AED {t.UInsertRatePerSqm:N2}/m²";
+        }
+
+        private static string SpecStatusLabelFor(SpecTargetSnapshot t)
+        {
+            if (t.MarginAgainstTargetPercent.HasValue
+                && !string.IsNullOrWhiteSpace(t.Status)
+                && Enum.TryParse<TargetStatus>(t.Status, out var parsed))
+            {
+                return parsed switch
+                {
+                    TargetStatus.AboveTarget => "ABOVE TARGET",
+                    TargetStatus.AtTarget => "AT TARGET",
+                    TargetStatus.BelowTarget => "BELOW TARGET",
+                    _ => parsed.ToString().ToUpperInvariant().Replace("_", " ")
+                };
+            }
+            return "INCOMPLETE";
         }
 
         /// <summary>Command to close the detail panel.</summary>
@@ -287,5 +485,27 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public bool IsSpacer { get; set; }
         public bool IsProduction { get; set; }
         public string CalculationNote { get; set; } = "";
+    }
+
+    /// <summary>
+    /// One specification-group row of the target-price result in the
+    /// detail sidebar (approved KPI model).
+    /// </summary>
+    public class JobTargetSpecLine : ViewModelBase
+    {
+        public int SpecNumber { get; set; }
+        public string SpecName { get; set; } = "";
+        public string GivenPricePerSqmDisplay { get; set; } = "";
+        public string SpecificationTargetPerSqmDisplay { get; set; } = "";
+        public string AppliedUInsertPerSqmDisplay { get; set; } = "";
+        public string FinalRequiredTargetPerSqmDisplay { get; set; } = "";
+        public string DifferencePerSqmDisplay { get; set; } = "";
+        public string MarginDisplay { get; set; } = "";
+        public string StatusLabel { get; set; } = "";
+        public string UInsertNote { get; set; } = "";
+
+        public bool IsAboveTarget => StatusLabel == "ABOVE TARGET";
+        public bool IsBelowTarget => StatusLabel == "BELOW TARGET";
+        public bool IsIncomplete => StatusLabel == "INCOMPLETE";
     }
 }

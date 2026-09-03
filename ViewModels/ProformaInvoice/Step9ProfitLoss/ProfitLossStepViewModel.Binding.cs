@@ -60,7 +60,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             _otherChargesVm = otherChargesVm;
             _grossProvider = grossProvider;
 
-            WireLiveRecalculation();
+            // Full subscribe/unsubscribe cycle: Bind() can be re-invoked for a
+            // freshly loaded invoice, and every old handler must be detached
+            // first (see RebindToCurrentSources in ProfitLossStepViewModel.LiveRecalc.cs).
+            RebindToCurrentSources();
         }
 
     }

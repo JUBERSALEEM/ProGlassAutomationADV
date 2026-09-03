@@ -536,6 +536,102 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// deserialise as purchase-costed, which is what they were.
         /// </summary>
         public bool CostAtSellingPrice { get; set; }
+
+        // ────────────────────────────────────────────────────────────────
+        //  TARGET-PRICE MODEL (approved KPI) — ALL ADDITIVE.
+        //
+        //  Invoices saved before this model existed deserialise with empty
+        //  SpecTargets and zero target totals. Consumers must treat that as
+        //  "no target data" (INCOMPLETE / STALE), never as a 0% margin.
+        // ────────────────────────────────────────────────────────────────
+
+        /// <summary>One target-price result per Step 5 specification group.</summary>
+        public List<SpecTargetSnapshot> SpecTargets { get; set; } = new();
+
+        /// <summary>Σ Step 5 given price × area across the job's specs.</summary>
+        public decimal TargetTotalGivenValue { get; set; }
+
+        /// <summary>Σ final required target × area across the job's specs.</summary>
+        public decimal TargetTotalRequiredValue { get; set; }
+
+        public decimal TargetTotalDifferenceValue { get; set; }
+
+        /// <summary>Area-weighted average Step 5 given price (AED/m²).</summary>
+        public decimal TargetAverageGivenPricePerSqm { get; set; }
+
+        /// <summary>Area-weighted average specification target before U-insert (AED/m²).</summary>
+        public decimal TargetAverageSpecificationTargetPerSqm { get; set; }
+
+        /// <summary>Area-weighted average FINAL required target (AED/m²).</summary>
+        public decimal TargetAverageFinalRequiredTargetPerSqm { get; set; }
+
+        /// <summary>Area-weighted average applied U-insert (AED/m²).</summary>
+        public decimal TargetAverageAppliedUInsertPerSqm { get; set; }
+
+        /// <summary>Null when the margin is not calculable.</summary>
+        public decimal? TargetMarginAgainstTargetPercent { get; set; }
+
+        /// <summary>Job-level status (enum name of TargetStatus).</summary>
+        public string TargetStatus { get; set; } = "";
+
+        /// <summary>"Additional", "Included in Step 5 price", "Mixed", …</summary>
+        public string TargetUInsertTreatmentSummary { get; set; } = "";
+
+        public DateTime? TargetCalculatedAtUtc { get; set; }
+
+        public string TargetCalculationVersion { get; set; } = "";
+
+        public int TargetValidSpecCount { get; set; }
+        public int TargetIncompleteSpecCount { get; set; }
+
+        public List<string> TargetWarnings { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Persisted target-price result for ONE specification group. Additive —
+    /// old snapshots simply have none.
+    /// </summary>
+    public class SpecTargetSnapshot
+    {
+        public int SpecNumber { get; set; }
+        public string SpecName { get; set; } = "";
+        public string GlassTypeCode { get; set; } = "";
+
+        /// <summary>Enum name of GlassBuildType ("Dgu", "Sgu", "Lam", "DguLam").</summary>
+        public string BuildType { get; set; } = "";
+
+        public decimal GivenPricePerSqm { get; set; }
+        public decimal AreaSqm { get; set; }
+        public decimal GivenValue { get; set; }
+
+        public decimal OuterGlassRatePerSqm { get; set; }
+        public decimal InnerGlassRatePerSqm { get; set; }
+        public decimal ThirdGlassRatePerSqm { get; set; }
+        public decimal AspRatePerSqm { get; set; }
+        public decimal ProcessingRatePerSqm { get; set; }
+        public decimal YieldFactor { get; set; }
+        public decimal TargetUpliftPercent { get; set; }
+
+        public string FormulaText { get; set; } = "";
+        public decimal SpecificationTargetPerSqm { get; set; }
+
+        /// <summary>Enum name of UInsertTreatment.</summary>
+        public string UInsertTreatment { get; set; } = "";
+        public decimal UInsertRatePerSqm { get; set; }
+        public string UInsertSourceLabel { get; set; } = "";
+        public decimal AppliedUInsertPerSqm { get; set; }
+        public decimal FinalRequiredTargetPerSqm { get; set; }
+
+        public decimal DifferencePerSqm { get; set; }
+        public decimal RequiredTargetValue { get; set; }
+        public decimal DifferenceValue { get; set; }
+
+        public decimal? MarginAgainstTargetPercent { get; set; }
+
+        /// <summary>Enum name of TargetStatus.</summary>
+        public string Status { get; set; } = "";
+
+        public List<string> Warnings { get; set; } = new();
     }
 
     /// <summary>One line of the Profit &amp; Loss breakdown.</summary>

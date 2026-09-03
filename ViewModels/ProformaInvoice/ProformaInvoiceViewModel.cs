@@ -345,6 +345,11 @@ public ProformaInvoiceViewModel() : this(
             try { Step6VM?.Dispose(); }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
 
+            // Step 9 registers live-recalculation handlers on Step 4/5/6
+            // sources through its SubscriptionManager — tear those down too.
+            try { Step9VM?.Dispose(); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
+
             try { SavedInvoicesListVM?.Dispose(); }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
 
@@ -578,6 +583,13 @@ public ProformaInvoiceViewModel() : this(
                 Step3VM.LoadCardsAsync()
             );
             await Step8VM.LoadAsync();
+
+            // Step 9 watches Step 4/5/6 sources for live recalculation.
+            // After a restore those sources were rebuilt, so the Step 9
+            // wiring must be re-subscribed (old handlers detached first) to
+            // guarantee the target KPI follows the loaded invoice.
+            try { Step9VM.RebindToCurrentSources(); }
+            catch (System.Exception ex) { AppLogService.Debug($"[ProformaInvoiceViewModel] Step9 rebind: {ExceptionMessages.Deep(ex)}"); }
 
             // Restore step-completion progress from the snapshot so the
             // operator sees the same completed-step indicators they had

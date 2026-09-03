@@ -29,6 +29,7 @@ using System.Windows.Threading;
 using System.Text.RegularExpressions; // Match still used while production rows read spacer/pvb groups
 using System.Threading.Tasks;
 using System.Windows.Input;
+using ProGlassAutomation.Services.ProformaInvoice.TargetPricing;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 {
@@ -62,7 +63,71 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             foreach (var row in Rows)
                 snap.Rows.Add(row.ToSnapshot());
 
+            // ── Target-price model (additive, backward-compatible) ────────
+            if (JobTargetResult != null)
+            {
+                snap.TargetTotalGivenValue = JobTargetResult.TotalGivenValue;
+                snap.TargetTotalRequiredValue = JobTargetResult.TotalRequiredTargetValue;
+                snap.TargetTotalDifferenceValue = JobTargetResult.TotalDifferenceValue;
+                snap.TargetAverageGivenPricePerSqm = JobTargetResult.AverageGivenPricePerSqm;
+                snap.TargetAverageSpecificationTargetPerSqm = JobTargetResult.AverageSpecificationTargetPerSqm;
+                snap.TargetAverageFinalRequiredTargetPerSqm = JobTargetResult.AverageFinalRequiredTargetPerSqm;
+                snap.TargetAverageAppliedUInsertPerSqm = JobTargetResult.AverageAppliedUInsertPerSqm;
+                snap.TargetMarginAgainstTargetPercent = JobTargetResult.MarginAgainstTargetPercent;
+                snap.TargetStatus = JobTargetResult.Status.ToString();
+                snap.TargetValidSpecCount = JobTargetResult.ValidSpecCount;
+                snap.TargetIncompleteSpecCount = JobTargetResult.IncompleteSpecCount;
+                snap.TargetCalculationVersion = TargetCalculationVersion;
+                snap.TargetCalculatedAtUtc = LastCalculatedAt.HasValue
+                    ? LastCalculatedAt.Value.ToUniversalTime()
+                    : (DateTime?)null;
+                snap.TargetUInsertTreatmentSummary = UInsertSummaryDisplay;
+
+                foreach (var w in JobTargetResult.Warnings)
+                    snap.TargetWarnings.Add(w);
+
+                foreach (var row in TargetSpecsView)
+                {
+                    if (row.Result == null) continue;
+                    snap.SpecTargets.Add(ToSnapshot(row.Result));
+                }
+            }
+
             return snap;
+        }
+
+        private static SpecTargetSnapshot ToSnapshot(SpecTargetPriceResult s)
+        {
+            return new SpecTargetSnapshot
+            {
+                SpecNumber = s.SpecNumber,
+                SpecName = s.SpecName ?? "",
+                GlassTypeCode = s.GlassTypeCode ?? "",
+                BuildType = s.BuildType.ToString(),
+                GivenPricePerSqm = s.GivenPricePerSqm,
+                AreaSqm = s.AreaSqm,
+                GivenValue = s.GivenValue,
+                OuterGlassRatePerSqm = s.OuterGlassRatePerSqm,
+                InnerGlassRatePerSqm = s.InnerGlassRatePerSqm,
+                ThirdGlassRatePerSqm = s.ThirdGlassRatePerSqm,
+                AspRatePerSqm = s.AspRatePerSqm,
+                ProcessingRatePerSqm = s.ProcessingRatePerSqm,
+                YieldFactor = s.YieldFactor,
+                TargetUpliftPercent = s.TargetUpliftPercent,
+                FormulaText = s.FormulaText ?? "",
+                SpecificationTargetPerSqm = s.SpecificationTargetPerSqm,
+                UInsertTreatment = s.UInsertTreatment.ToString(),
+                UInsertRatePerSqm = s.UInsertRatePerSqm,
+                UInsertSourceLabel = s.UInsertSourceLabel ?? "",
+                AppliedUInsertPerSqm = s.AppliedUInsertPerSqm,
+                FinalRequiredTargetPerSqm = s.FinalRequiredTargetPerSqm,
+                DifferencePerSqm = s.DifferencePerSqm,
+                RequiredTargetValue = s.RequiredTargetValue,
+                DifferenceValue = s.DifferenceValue,
+                MarginAgainstTargetPercent = s.MarginAgainstTargetPercent,
+                Status = s.Status.ToString(),
+                Warnings = new List<string>(s.Warnings ?? new List<string>())
+            };
         }
     }
 }

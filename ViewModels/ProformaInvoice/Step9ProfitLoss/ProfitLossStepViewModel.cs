@@ -69,10 +69,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
-using System.Windows.Threading;
-using System.Text.RegularExpressions; // Match still used while production rows read spacer/pvb groups
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
+using System.Text.RegularExpressions; // Match still used while production rows read spacer/pvb groups
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 {
@@ -83,7 +83,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
     // ProfitLossStepViewModel.Rollup.cs, ProfitLossStepViewModel
     // .Serialization.cs) without disturbing this file's audit
     // history. See notes on SpecGroup for the same rationale.
-    public partial class ProfitLossStepViewModel : ViewModelBase
+    public partial class ProfitLossStepViewModel : ViewModelBase, IDisposable
     {
         public string Title { get; } = "PROFIT & LOSS";
 
@@ -118,12 +118,40 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         {
             RecalculateCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(FireRecalculateAsync, "ProfitLoss Recalc"));
 
-            Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));
+            Rows.CollectionChanged += OnRowsCollectionChanged;
 
             // Initialize analysis ViewModels
             ServiceProfitability = new ServiceProfitabilityViewModel(this);
             SheetProfitability = new SheetProfitabilityViewModel(this);
             GlassTypeComparison = new GlassTypeComparisonViewModel(this);
+        }
+
+        private void OnRowsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(HasRows));
+        }
+
+        // ── IDisposable ──────────────────────────────────────────────────
+        // The wizard shell disposes this VM; every event handler registered
+        // on Step 4 / Step 5 / Step 6 sources is detached here so a
+        // short-lived wizard instance cannot leak.
+        private bool _disposed;
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+
+            try { _subscriptions.Dispose(); }
+            catch { /* teardown must never throw */ }
+
+            foreach (var token in _groupSubscriptions.Values.SelectMany(v => v))
+            {
+                try { token.Dispose(); }
+                catch { /* teardown must never throw */ }
+            }
+
+            _groupSubscriptions.Clear();
         }
 
         // ══════════════════════════════════════════════════════════════

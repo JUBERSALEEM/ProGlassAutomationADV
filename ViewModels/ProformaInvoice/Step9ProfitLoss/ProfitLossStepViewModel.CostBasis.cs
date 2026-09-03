@@ -243,6 +243,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (_isBusy == value) return;
                 _isBusy = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(CalculationStateLabel));
+                OnPropertyChanged(nameof(CalculationStatus));
             }
         }
 

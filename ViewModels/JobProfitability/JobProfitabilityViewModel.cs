@@ -37,6 +37,7 @@ using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Models.ProformaInvoice.Common;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -336,6 +337,231 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public string TotalProfitLabel => IsPortfolioLoss ? "TOTAL LOSS" : "TOTAL PROFIT";
         public string LossCountDisplay => $"{LossCount}";
 
+        // ══════════════════════════════════════════════════════════════
+        //  PORTFOLIO — TARGET-PRICE KPIs (approved model)
+        //
+        //  Portfolio margin against target = Σ difference ÷ Σ required target
+        //  Average job margin against target = plain mean of VALID job margins
+        //  (two deliberately different measures — see TargetProfitabilityAggregator)
+        // ══════════════════════════════════════════════════════════════
+
+        private int _confirmedJobCount;
+        public int ConfirmedJobCount
+        {
+            get => _confirmedJobCount;
+            private set
+            {
+                if (_confirmedJobCount == value) return;
+                _confirmedJobCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ConfirmedJobCountDisplay));
+            }
+        }
+
+        public string ConfirmedJobCountDisplay => $"{ConfirmedJobCount}";
+
+        private int _validTargetJobCount;
+        /// <summary>Jobs whose target margin is valid (used by the average).</summary>
+        public int ValidTargetJobCount
+        {
+            get => _validTargetJobCount;
+            private set
+            {
+                if (_validTargetJobCount == value) return;
+                _validTargetJobCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ValidTargetJobCountDisplay));
+            }
+        }
+
+        public string ValidTargetJobCountDisplay => $"{ValidTargetJobCount}";
+
+        private int _incompleteTargetJobCount;
+        public int IncompleteTargetJobCount
+        {
+            get => _incompleteTargetJobCount;
+            private set
+            {
+                if (_incompleteTargetJobCount == value) return;
+                _incompleteTargetJobCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IncompleteTargetJobCountDisplay));
+            }
+        }
+
+        public string IncompleteTargetJobCountDisplay => $"{IncompleteTargetJobCount}";
+
+        private int _staleTargetJobCount;
+        public int StaleTargetJobCount
+        {
+            get => _staleTargetJobCount;
+            private set
+            {
+                if (_staleTargetJobCount == value) return;
+                _staleTargetJobCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(StaleTargetJobCountDisplay));
+            }
+        }
+
+        public string StaleTargetJobCountDisplay => $"{StaleTargetJobCount}";
+
+        private decimal _targetTotalGivenValue;
+        public decimal TargetTotalGivenValue
+        {
+            get => _targetTotalGivenValue;
+            private set
+            {
+                if (_targetTotalGivenValue == value) return;
+                _targetTotalGivenValue = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TargetTotalGivenValueDisplay));
+            }
+        }
+
+        public string TargetTotalGivenValueDisplay => $"AED {TargetTotalGivenValue:N2}";
+
+        private decimal _targetTotalRequiredValue;
+        public decimal TargetTotalRequiredValue
+        {
+            get => _targetTotalRequiredValue;
+            private set
+            {
+                if (_targetTotalRequiredValue == value) return;
+                _targetTotalRequiredValue = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TargetTotalRequiredValueDisplay));
+            }
+        }
+
+        public string TargetTotalRequiredValueDisplay => $"AED {TargetTotalRequiredValue:N2}";
+
+        private decimal _targetTotalDifferenceValue;
+        public decimal TargetTotalDifferenceValue
+        {
+            get => _targetTotalDifferenceValue;
+            private set
+            {
+                if (_targetTotalDifferenceValue == value) return;
+                _targetTotalDifferenceValue = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TargetTotalDifferenceValueDisplay));
+            }
+        }
+
+        public string TargetTotalDifferenceValueDisplay
+        {
+            get
+            {
+                if (_targetTotalDifferenceValue < 0m)
+                    return $"-AED {Math.Abs(_targetTotalDifferenceValue):N2}";
+                return $"AED {_targetTotalDifferenceValue:N2}";
+            }
+        }
+
+        private decimal? _portfolioTargetMarginPercent;
+        /// <summary>Σ difference ÷ Σ required target across jobs with target data.</summary>
+        public decimal? PortfolioTargetMarginPercent
+        {
+            get => _portfolioTargetMarginPercent;
+            private set
+            {
+                if (_portfolioTargetMarginPercent == value) return;
+                _portfolioTargetMarginPercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PortfolioTargetMarginDisplay));
+                OnPropertyChanged(nameof(IsPortfolioTargetBelow));
+                OnPropertyChanged(nameof(HasPortfolioTargetMargin));
+            }
+        }
+
+        public bool HasPortfolioTargetMargin => PortfolioTargetMarginPercent.HasValue;
+
+        public string PortfolioTargetMarginDisplay =>
+            PortfolioTargetMarginPercent switch
+            {
+                null => "—",
+                var m => $"{m.Value:0.##}%"
+            };
+
+        public bool IsPortfolioTargetBelow => (PortfolioTargetMarginPercent ?? 0m) < 0m;
+
+        private decimal? _averageJobTargetMarginPercent;
+        private int _averageJobTargetMarginCount;
+
+        /// <summary>Plain average of the VALID job target margins.</summary>
+        public decimal? AverageJobTargetMarginPercent
+        {
+            get => _averageJobTargetMarginPercent;
+            private set
+            {
+                if (_averageJobTargetMarginPercent == value) return;
+                _averageJobTargetMarginPercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AverageJobTargetMarginDisplay));
+                OnPropertyChanged(nameof(IsAverageJobTargetBelow));
+                OnPropertyChanged(nameof(HasAverageJobTargetMargin));
+            }
+        }
+
+        public bool HasAverageJobTargetMargin => AverageJobTargetMarginPercent.HasValue;
+
+        public int AverageJobTargetMarginCount
+        {
+            get => _averageJobTargetMarginCount;
+            private set
+            {
+                if (_averageJobTargetMarginCount == value) return;
+                _averageJobTargetMarginCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AverageJobTargetMarginCountDisplay));
+            }
+        }
+
+        public string AverageJobTargetMarginCountDisplay => $"{_averageJobTargetMarginCount}";
+
+        public string AverageJobTargetMarginDisplay =>
+            AverageJobTargetMarginPercent switch
+            {
+                null => "—",
+                var m => $"{m.Value:0.##}%"
+            };
+
+        public bool IsAverageJobTargetBelow => (AverageJobTargetMarginPercent ?? 0m) < 0m;
+
+        public string PortfolioStatusLine
+        {
+            get
+            {
+                if (ConfirmedJobCount == 0)
+                    return "No confirmed jobs to analyse.";
+
+                var parts = new List<string>();
+                parts.Add($"{ConfirmedJobCount} confirmed job(s)");
+
+                if (ValidTargetJobCount > 0)
+                    parts.Add($"{ValidTargetJobCount} with a valid target margin");
+                if (IncompleteTargetJobCount > 0)
+                    parts.Add($"{IncompleteTargetJobCount} incomplete");
+                if (StaleTargetJobCount > 0)
+                    parts.Add($"{StaleTargetJobCount} stale (saved before the target model)");
+
+                return string.Join(" · ", parts) + ".";
+            }
+        }
+
+        private bool _hasAnyTargetData;
+        public bool HasAnyTargetData
+        {
+            get => _hasAnyTargetData;
+            private set
+            {
+                if (_hasAnyTargetData == value) return;
+                _hasAnyTargetData = value;
+                OnPropertyChanged();
+            }
+        }
+
         // ── State ─────────────────────────────────────────────────────────
 
         /// <summary>
@@ -517,7 +743,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 // leave the database with their full snapshot blob, then
                 // re-check case-insensitively so a hand-edited value can
                 // never slip in.
-                var invoices = await repo.GetByStatusAsync("Approved")
+                var invoices = await repo.GetByStatusAsync(ProformaInvoiceStatus.Approved)
                     .ConfigureAwait(true);
 
                 _allRows.Clear();
@@ -527,7 +753,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     if (inv == null) continue;
 
                     if (!string.Equals(
-                            inv.Status, "Approved",
+                            inv.Status, ProformaInvoiceStatus.Approved,
                             StringComparison.OrdinalIgnoreCase))
                         continue;
 
@@ -605,6 +831,28 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     decimal profit = costed ? pl!.Profit : 0m;
                     decimal margin = costed ? pl!.MarginPercent : 0m;
 
+                    // ── Target-price model (persisted Step 9 target result) ─
+                    // Saved before the target model existed → SpecTargets is
+                    // empty and totals are zero. That job is STALE (it HAS a
+                    // P&L) or INCOMPLETE (no P&L at all) — never a 0% margin.
+                    bool hasTargetData = pl != null
+                                         && ((pl.SpecTargets != null && pl.SpecTargets.Count > 0)
+                                             || pl.TargetTotalRequiredValue > 0m
+                                             || !string.IsNullOrWhiteSpace(pl.TargetStatus));
+
+                    bool snapshotStale = costed && !hasTargetData;
+
+                    decimal targetGiven = hasTargetData ? pl!.TargetTotalGivenValue : 0m;
+                    decimal targetRequired = hasTargetData ? pl!.TargetTotalRequiredValue : 0m;
+                    decimal targetDifference = hasTargetData ? pl!.TargetTotalDifferenceValue : 0m;
+                    decimal targetGivenPerSqm = hasTargetData ? pl!.TargetAverageGivenPricePerSqm : 0m;
+                    decimal targetRequiredPerSqm = hasTargetData ? pl!.TargetAverageFinalRequiredTargetPerSqm : 0m;
+                    decimal? targetMargin = hasTargetData ? pl!.TargetMarginAgainstTargetPercent : null;
+
+                    string targetStatus = hasTargetData
+                        ? (pl!.TargetStatus ?? "")
+                        : (snapshotStale ? "SnapshotStale" : "CalculationIncomplete");
+
                     _allRows.Add(new JobProfitabilityRow
                     {
                         ProformaId = inv.ProformaId ?? "",
@@ -622,7 +870,19 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         IsLoss = costed && profit < 0m,
                         IsCosted = costed,
                         NeedsRecalculation = costed && integrity.NeedsRecalculation,
-                        RecalculationWarning = integrity.Reason
+                        RecalculationWarning = integrity.Reason,
+                        HasTargetData = hasTargetData,
+                        TargetGivenValue = targetGiven,
+                        TargetRequiredValue = targetRequired,
+                        TargetDifferenceValue = targetDifference,
+                        TargetGivenPerSqm = targetGivenPerSqm,
+                        TargetRequiredPerSqm = targetRequiredPerSqm,
+                        TargetMarginAgainstTargetPercent = targetMargin,
+                        UInsertTreatmentSummary = hasTargetData ? (pl!.TargetUInsertTreatmentSummary ?? "") : "",
+                        TargetStatus = targetStatus,
+                        TargetValidSpecCount = hasTargetData ? pl!.TargetValidSpecCount : 0,
+                        TargetIncompleteSpecCount = hasTargetData ? pl!.TargetIncompleteSpecCount : 0,
+                        IsSnapshotStale = snapshotStale
                     });
                 }
 
@@ -819,7 +1079,49 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 ? Math.Round(costedRows.Average(r => r.OverallMarginPercent != 0m ? r.OverallMarginPercent : r.MarginPercent), 1)
                 : 0m;
 
+            // ── TARGET-PRICE PORTFOLIO KPIs ──────────────────────────────
+            // Valid = the job snapshot carries target data AND a calculable
+            // margin. Incomplete/stale/uncosted jobs are counted but NEVER
+            // averaged or allowed to fake a 0%.
+            var targetRows = rows.Where(r => r.HasTargetData).ToList();
+            var validRows = targetRows.Where(r => r.TargetMarginAgainstTargetPercent.HasValue).ToList();
+
+            ConfirmedJobCount = rows.Count;
+            ValidTargetJobCount = validRows.Count;
+            IncompleteTargetJobCount = rows.Count(r =>
+                (!r.HasTargetData && !r.IsCosted)          // uncosted = incomplete
+                || (r.HasTargetData && !r.TargetMarginAgainstTargetPercent.HasValue));
+            StaleTargetJobCount = rows.Count(r => r.IsSnapshotStale || r.IsTargetStale);
+
+            TargetTotalGivenValue = Math.Round(targetRows.Sum(r => r.TargetGivenValue), 2);
+            TargetTotalRequiredValue = Math.Round(targetRows.Sum(r => r.TargetRequiredValue), 2);
+            TargetTotalDifferenceValue = Math.Round(targetRows.Sum(r => r.TargetDifferenceValue), 2);
+
+            HasAnyTargetData = targetRows.Count > 0;
+
+            // Portfolio margin (value-weighted over target-data jobs) is only
+            // meaningful when EVERY job carries a valid margin; otherwise the
+            // summary says how many jobs are incomplete/stale instead.
+            if (targetRows.Count > 0
+                && targetRows.All(r => r.TargetMarginAgainstTargetPercent.HasValue)
+                && TargetTotalRequiredValue > 0m)
+            {
+                PortfolioTargetMarginPercent = Math.Round(
+                    (TargetTotalGivenValue - TargetTotalRequiredValue)
+                    / TargetTotalRequiredValue * 100m, 2);
+            }
+            else
+            {
+                PortfolioTargetMarginPercent = null;
+            }
+
+            AverageJobTargetMarginCount = validRows.Count;
+            AverageJobTargetMarginPercent = validRows.Count > 0
+                ? Math.Round(validRows.Average(r => r.TargetMarginAgainstTargetPercent!.Value), 2)
+                : (decimal?)null;
+
             OnPropertyChanged(nameof(IsPortfolioLoss));
+            OnPropertyChanged(nameof(PortfolioStatusLine));
         }
 
         private string BuildStatus(List<JobProfitabilityRow> rows)
@@ -843,6 +1145,16 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 basis += $"  ⚠ {stale} job(s) show OVERSTATED profit — costed " +
                          "before the inner-pane fix. Reopen each, recalculate " +
                          "Step 9, then save.";
+            }
+
+            // Target model: a costed job saved before the upgrade has P&L
+            // rows but no target-price block — STALE, not a 0% margin.
+            int targetStale = rows.Count(r => r.IsSnapshotStale);
+            if (targetStale > 0)
+            {
+                basis += $"  ⚠ {targetStale} job(s) were saved before the " +
+                         "target-price model — their target margin is unavailable " +
+                         "until each job is reopened in Step 9 and saved again.";
             }
 
             if (uncosted > 0)

@@ -494,6 +494,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 OnPropertyChanged(nameof(HasSpecGroups));
 
+                // ── Target profitability (approved KPI model) ─────────────
+                // Runs AFTER the actual-cost rows publish: the two models are
+                // independent but share the same Step 5 measurement pass.
+                // The target model must never be able to break the wizard, so
+                // it lives inside this try block and reports through
+                // CalculationWarnings.
+                try
+                {
+                    RebuildTargetResults();
+                }
+                catch (Exception targetEx)
+                {
+                    AppLogService.Debug($"[ProfitLossStepViewModel] Target model failed: {ExceptionMessages.Deep(targetEx)}");
+                }
+
                 // ── Totals ────────────────────────────────────────────────
                 decimal gross = 0m;
                 try { gross = _grossProvider?.Invoke() ?? 0m; }

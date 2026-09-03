@@ -3,18 +3,16 @@
 // PROJECT: ProGlassAutomation
 //
 // JobProfitabilityRow split out of JobProfitabilityViewModel.cs (Phase 11/12 God-VM split) — behaviour unchanged.
+//
+// TARGET-PRICE FIELDS (approved KPI):
+//   Every job row carries the persisted Step 9 target-price result:
+//   given price, final required target, difference and margin against
+//   target — plus an explicit validity state so a job without target data
+//   is reported as INCOMPLETE/STALE instead of a fake 0% margin.
 // ═══════════════════════════════════════════════════════════════════════
 
-using ProGlassAutomation.Commands;
-using ProGlassAutomation.Services.ProformaInvoice;
-using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Input;
+using ProGlassAutomation.Services.ProformaInvoice.TargetPricing;
 
 namespace ProGlassAutomation.ViewModels.JobProfitability
 {
@@ -40,22 +38,17 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         /// <summary>
         /// Overall margin including U-insert: (Gross − Total Cost) / Total Cost × 100.
-        /// This is the REAL job profitability. Defaults to 0 for old snapshots
-        /// that didn't persist it — those fall back to MarginPercent.
+        /// Defaults to 0 for old snapshots that didn't persist it.
         /// </summary>
         public decimal OverallMarginPercent { get; set; }
 
         /// <summary>Net margin: (Gross − Total Cost) / Gross × 100.</summary>
         public decimal NetMarginPercent { get; set; }
 
-        /// <summary>True when this job lost money.</summary>
+        /// <summary>True when this job lost money (actual P&L basis).</summary>
         public bool IsLoss { get; set; }
 
-        /// <summary>
-        /// True when the stored P&amp;L was produced by the pre-fix DGU/LAM
-        /// costing, which dropped the inner pane. The profit shown is
-        /// OVERSTATED until Step 9 is recalculated and saved.
-        /// </summary>
+        /// <summary>True when the stored P&amp;L was produced by the pre-fix DGU/LAM costing.</summary>
         public bool NeedsRecalculation { get; set; }
 
         /// <summary>Why it is flagged. Empty when it is not.</summary>
@@ -63,11 +56,123 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         /// <summary>
         /// False for invoices saved before Step 9 existed (no stored P&amp;L).
-        /// The view greys these out instead of showing a fake 100% margin.
         /// </summary>
         public bool IsCosted { get; set; }
 
-        // ── Display helpers ───────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════
+        //  TARGET-PRICE MODEL — persisted Step 9 target result
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>True when the snapshot contains target-price data.</summary>
+        public bool HasTargetData { get; set; }
+
+        /// <summary>Job total Step 5 given value (Σ given × area).</summary>
+        public decimal TargetGivenValue { get; set; }
+
+        /// <summary>Job total required target value (Σ final target × area).</summary>
+        public decimal TargetRequiredValue { get; set; }
+
+        /// <summary>Job total difference (given value − required value).</summary>
+        public decimal TargetDifferenceValue { get; set; }
+
+        /// <summary>Area-weighted average Step 5 given price (AED/m²).</summary>
+        public decimal TargetGivenPerSqm { get; set; }
+
+        /// <summary>Area-weighted average final required target (AED/m²).</summary>
+        public decimal TargetRequiredPerSqm { get; set; }
+
+        /// <summary>Null when the job margin is not calculable.</summary>
+        public decimal? TargetMarginAgainstTargetPercent { get; set; }
+
+        /// <summary>Aggregate U-insert treatment summary from the job.</summary>
+        public string UInsertTreatmentSummary { get; set; } = "";
+
+        /// <summary>Raw persisted status (enum name).</summary>
+        public string TargetStatus { get; set; } = "";
+
+        /// <summary>How many specifications carried a valid target margin.</summary>
+        public int TargetValidSpecCount { get; set; }
+
+        /// <summary>How many specifications were incomplete/missing inputs.</summary>
+        public int TargetIncompleteSpecCount { get; set; }
+
+        /// <summary>Snapshot has cost data but no target block (saved pre-upgrade).</summary>
+        public bool IsSnapshotStale { get; set; }
+
+        // ── Display helpers (target) ─────────────────────────────────────
+
+        public string GivenPerSqmDisplay => HasTargetData
+            ? $"AED {TargetGivenPerSqm:N2}/m²"
+            : "—";
+
+        public string RequiredPerSqmDisplay => HasTargetData
+            ? $"AED {TargetRequiredPerSqm:N2}/m²"
+            : "—";
+
+        public string DifferenceDisplay
+        {
+            get
+            {
+                if (!HasTargetData) return "—";
+                return TargetDifferenceValue < 0m
+                    ? $"-AED {Math.Abs(TargetDifferenceValue):N2}"
+                    : $"AED {TargetDifferenceValue:N2}";
+            }
+        }
+
+        public string DifferencePerSqmDisplay
+        {
+            get
+            {
+                if (!HasTargetData) return "—";
+                decimal diff = TargetGivenPerSqm - TargetRequiredPerSqm;
+                return diff < 0m
+                    ? $"-AED {Math.Abs(diff):N2}/m²"
+                    : $"AED {diff:N2}/m²";
+            }
+        }
+
+        public string TargetMarginDisplay =>
+            TargetMarginAgainstTargetPercent switch
+            {
+                null => "—",
+                var m => $"{m.Value:0.##}%"
+            };
+
+        /// <summary>Status shown in the row: ABOVE/AT/BELOW TARGET, INCOMPLETE, STALE.</summary>
+        public string TargetStatusLabel
+        {
+            get
+            {
+                if (!HasTargetData)
+                    return IsCosted ? "STALE" : "INCOMPLETE";
+
+                if (TargetMarginAgainstTargetPercent.HasValue
+                    && !string.IsNullOrWhiteSpace(TargetStatus))
+                {
+                    if (Enum.TryParse<TargetStatus>(TargetStatus, out var parsed))
+                    {
+                        return parsed switch
+                        {
+                            TargetStatus.AboveTarget => "ABOVE TARGET",
+                            TargetStatus.AtTarget => "AT TARGET",
+                            TargetStatus.BelowTarget => "BELOW TARGET",
+                            _ => parsed.ToString().ToUpperInvariant().Replace("_", " ")
+                        };
+                    }
+                }
+
+                return IsSnapshotStale ? "STALE" : "INCOMPLETE";
+            }
+        }
+
+        public bool IsAboveTarget => TargetStatusLabel == "ABOVE TARGET";
+        public bool IsBelowTarget => TargetStatusLabel == "BELOW TARGET";
+        public bool IsTargetIncomplete => TargetStatusLabel == "INCOMPLETE";
+        public bool IsTargetStale => TargetStatusLabel == "STALE";
+        public bool HasValidTargetMargin => TargetMarginAgainstTargetPercent.HasValue;
+
+        // ── Display helpers (legacy, kept for reporting) ────────────────
 
         public string IssueDateDisplay => IssueDate == default
             ? "—"
@@ -78,15 +183,14 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public string ProfitDisplay => $"AED {Math.Abs(Profit):N2}";
 
         /// <summary>
-        /// Shows OverallMarginPercent (with U-insert) when available,
-        /// falls back to MarginPercent (cost-based) for old snapshots.
+        /// Legacy margin display (actual P&amp;L) with U-insert preference —
+        /// kept for the reporting tabs.
         /// </summary>
         public string MarginDisplay
         {
             get
             {
                 if (!IsCosted) return "not costed";
-                // Prefer overall margin (includes U-insert); fall back to cost-based
                 var pct = OverallMarginPercent != 0m ? OverallMarginPercent : MarginPercent;
                 return $"{pct:0.#}%";
             }

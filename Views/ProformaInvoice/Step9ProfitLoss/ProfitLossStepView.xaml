@@ -38,16 +38,100 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
+
+        <!-- Target-profitability layout styles (approved KPI redesign) -->
+        <Style x:Key="TgtCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="18,14"/>
+        </Style>
+
+        <Style x:Key="TgtCaptionStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        </Style>
+
+        <Style x:Key="TgtKvLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="TgtKvValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="MaxWidth" Value="190"/>
+        </Style>
+
+        <Style x:Key="TgtPillBase" TargetType="Border">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+        </Style>
+
+        <Style x:Key="TgtMicroLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+        </Style>
+
+        <Style x:Key="TgtMicroValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style x:Key="TgtSectionLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,18,0,8"/>
+        </Style>
+
+        <Style x:Key="TgtSideHeadingStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Margin" Value="0,16,0,8"/>
+        </Style>
+
+        <Style x:Key="TgtSideLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
+
+        <Style x:Key="TgtSideValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="MaxWidth" Value="180"/>
+            <Setter Property="Margin" Value="10,2,0,2"/>
+        </Style>
     </UserControl.Resources>
 
     <TabControl Margin="0" Style="{StaticResource PillTabControlStyle}">
-        <!-- TAB 1: PROFIT & LOSS (Main View) -->
+        <!-- TAB 1: TARGET PROFITABILITY (approved KPI) -->
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="13"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
-                    <TextBlock Text="PROFIT &amp; LOSS" VerticalAlignment="Center"/>
+                    <TextBlock Text="TARGET PROFITABILITY" VerticalAlignment="Center"/>
                 </StackPanel>
             </TabItem.Header>
             <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -57,15 +141,17 @@
                           behaviors:SmoothScrollBehavior.IsEnabled="True">
                 <Border Padding="0">
                     <StackPanel>
+
                 <Border Style="{StaticResource PiStationIdentityStyle}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="09" Style="{StaticResource PiStationCodeStyle}"/>
                         <TextBlock Text="{DynamicResource ProformaInvoice.ProfitLOSS}" Style="{StaticResource PiStationTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.WastageSheetCostQuotedRateCheck}"
+                        <TextBlock Text="Given price vs required target · approved KPI · Step 5 Base Price is the given price"
                                    Style="{StaticResource PiStationHintStyle}"/>
                     </StackPanel>
                 </Border>
 
+                <!-- Controls: wastage + costing basis + recalculate + live state -->
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="160"/>
@@ -98,121 +184,295 @@
                             Command="{Binding RecalculateCommand}"
                             Style="{StaticResource PiFooterPrimaryButton}"
                             VerticalAlignment="Bottom"/>
-                    <TextBlock Grid.Column="5"
-                               Text="{Binding StatusMessage}"
-                               FontSize="{StaticResource TextBody}"
-                               TextWrapping="Wrap"
-                               VerticalAlignment="Bottom"
-                               Margin="16,0,0,8"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    <StackPanel Grid.Column="5" VerticalAlignment="Bottom" Margin="16,0,0,4">
+                        <TextBlock Text="{Binding CalculationStateLabel}"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsRecalculationPending}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasCalculationWarnings}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding LastCalculatedAtDisplay}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                    </StackPanel>
                 </Grid>
 
-                <Border Style="{StaticResource PiMetricStripStyle}" Padding="0,4,0,10">
+                <!-- ═══ TWO PRIMARY KPI CARDS (approved layout) ═══ -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- CARD 1 — REQUIRED TARGET PRICE -->
+                    <Border Grid.Column="0" Style="{StaticResource TgtCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="REQUIRED TARGET PRICE" Style="{StaticResource TgtCaptionStyle}"/>
+                            <TextBlock Text="{Binding RequiredTargetPriceDisplay}"
+                                       FontSize="30" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Margin="0,2,0,10"/>
+                            <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,0,0,10"/>
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Specification target ×1.15" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding SpecificationTargetAverageDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="U-insert treatment" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding UInsertSummaryDisplay}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource TgtKvValueStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasUInsertSummaryWarning}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Basis" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="Area-weighted across specifications"
+                                               Style="{StaticResource TgtKvValueStyle}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- CARD 2 — MARGIN AGAINST TARGET -->
+                    <Border Grid.Column="2">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource TgtCardStyle}">
+                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsTargetBelow}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
+                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="MARGIN AGAINST TARGET" Style="{StaticResource TgtCaptionStyle}" VerticalAlignment="Center"/>
+                                <!-- Status pill -->
+                                <Border Grid.Column="1">
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource TgtPillBase}">
+                                            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsTargetBelow}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding TargetJobStatusLabel}"
+                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                </Border>
+                            </Grid>
+                            <TextBlock Text="{Binding MarginAgainstTargetDisplay}"
+                                       FontSize="30" FontWeight="Bold" Margin="0,2,0,10">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTargetBelow}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,0,0,10"/>
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Given price (Step 5 Base Price)" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding GivenPricePerSqmDisplay}" Style="{StaticResource TgtKvValueStyle}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Final required target" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding RequiredTargetPriceDisplay}" Style="{StaticResource TgtKvValueStyle}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Difference" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding DifferencePerSqmDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ═══ COMPACT CALCULATION SUMMARY ═══ -->
+                <Border Style="{StaticResource TgtCardStyle}" Margin="0,14,0,0">
+                    <StackPanel>
+                        <TextBlock Text="CALCULATION SUMMARY" Style="{StaticResource TgtCaptionStyle}"/>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="GIVEN PRICE SOURCE" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                <TextBlock Text="{Binding GivenPriceSourceLabel}"
+                                           Style="{StaticResource TgtMicroValueStyle}"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="SCOPE" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                <TextBlock Text="{Binding TargetScopeNote}"
+                                           Style="{StaticResource TgtMicroValueStyle}"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="TOTAL GIVEN VALUE" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                <TextBlock Text="{Binding TotalGivenValueDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="TOTAL REQUIRED TARGET VALUE" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                <TextBlock Text="{Binding TotalRequiredTargetValueDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="TOTAL DIFFERENCE" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                <TextBlock Text="{Binding TotalDifferenceValueDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,12,0,10"/>
+                        <TextBlock Text="SPECIFICATION FORMULA" Style="{StaticResource TgtMicroLabelStyle}"/>
+                        <TextBlock FontFamily="Consolas" FontSize="{StaticResource TextBody}"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   TextWrapping="Wrap" Margin="0,2,0,0">
+                            <Run Text="{Binding TargetFormulaSpecLabel, Mode=OneWay}"/><Run Text="  "/>
+                            <Run Text="{Binding TargetFormulaPreview, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Text="{Binding CalculationWarningSummary}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0"
+                                   Foreground="{DynamicResource DangerBrush}"
+                                   Visibility="{Binding HasCalculationWarnings, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <TextBlock Text="{Binding CalculationVersionLabel}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="Per-specification comparison rows, formula detail and the six-section spec inspector live on the GLASS / SPEC COMPARISON tab."
+                           FontSize="{StaticResource TextCaption}"
+                           Foreground="{DynamicResource MutedForegroundBrush}"
+                           TextWrapping="Wrap" Margin="0,12,0,0"/>
+
+                <!-- ═══ ACTUAL COST DETAIL (reference, formula-separated) ═══ -->
+                <TextBlock Text="ACTUAL COST &amp; RATE CHECK — SHEET STORE BASIS" Style="{StaticResource TgtSectionLabel}"/>
+                <TextBlock Text="Actual glass cost comes from the Sheet Store; production from Step 4 rates. Wastage lives only in Sheet Detail and never enters the target KPI above."
+                           FontSize="{StaticResource TextCaption}"
+                           Foreground="{DynamicResource MutedForegroundBrush}"
+                           TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                <Border Style="{StaticResource TgtCardStyle}" Margin="0,0,0,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="1.5*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-
-                        <!-- 1. REVENUE -->
-                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
-                            <StackPanel>
-                                <TextBlock Text="REVENUE (ex-VAT)" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
-                                <TextBlock Text="{Binding GrossDisplay}" FontSize="{StaticResource TextCaption}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- 2. TOTAL COST -->
-                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
-                            <StackPanel>
-                                <TextBlock Text="TOTAL COST" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding TotalCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
-                                <TextBlock FontSize="{StaticResource TextCaption}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
-                                    <Run Text="Glass: "/><Run Text="{Binding GlassCostDisplay, Mode=OneWay}"/>
-                                    <Run Text=" + Prod: "/><Run Text="{Binding ProductionCostDisplay, Mode=OneWay}"/>
-                                </TextBlock>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- 3. PROFIT / LOSS -->
-                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
-                            <StackPanel>
-                                <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding ProfitDisplay}">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
-                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <TextBlock Text="{Binding MarkupDisplay}" FontSize="{StaticResource TextCaption}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- 4. ⭐ OVERALL MARGIN (MOST IMPORTANT) -->
-                        <Border Grid.Column="3" ToolTip="Real job profitability: (Revenue − Total Cost) ÷ Total Cost × 100. Includes glass, ASP, U-insert, and wastage costs.">
-                            <Border.Style>
-                                <Style TargetType="Border" BasedOn="{StaticResource PiKpiCellStyle}">
-                                    <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
-                                    <Setter Property="BorderThickness" Value="2"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                            <StackPanel>
-                                <TextBlock Text="⭐ OVERALL MARGIN" Style="{StaticResource PiKpiCaptionStyle}" FontWeight="Bold"/>
-                                <TextBlock Text="{Binding OverallMarginDisplay}" TextWrapping="Wrap">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
-                                            <Setter Property="FontSize" Value="18"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <TextBlock Text="Revenue − Cost ÷ Cost" FontSize="{StaticResource TextCaption}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- 5. NET MARGIN (secondary) -->
-                        <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}"
-                                ToolTip="Accounting margin: (Revenue − Cost) ÷ Revenue × 100.">
-                            <StackPanel>
-                                <TextBlock Text="NET MARGIN" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding PriceBasedMarginDisplay}" TextWrapping="Wrap">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                                <TextBlock Text="Revenue − Cost ÷ Revenue" FontSize="{StaticResource TextCaption}"
-                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
-                            </StackPanel>
-                        </Border>
+                        <StackPanel>
+                            <TextBlock Text="NET REVENUE (ex-VAT)" Style="{StaticResource TgtMicroLabelStyle}"/>
+                            <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="GLASS + PRODUCTION COST" Style="{StaticResource TgtMicroLabelStyle}"/>
+                            <TextBlock Style="{StaticResource TgtMicroValueStyle}">
+                                <Run Text="{Binding GlassCostDisplay, Mode=OneWay}"/><Run Text=" + "/>
+                                <Run Text="{Binding ProductionCostDisplay, Mode=OneWay}"/>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource TgtMicroLabelStyle}"/>
+                            <TextBlock Text="{Binding ProfitDisplay}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource TgtMicroValueStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Grid.Column="3">
+                            <TextBlock Text="MARGINS (reference)" Style="{StaticResource TgtMicroLabelStyle}"/>
+                            <TextBlock Text="{Binding OverallMarginDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                        </StackPanel>
                     </Grid>
                 </Border>
 
@@ -366,14 +626,13 @@
         </Border>
     </ScrollViewer>
         </TabItem>
-        
         <!-- TAB 2: SERVICE PROFITABILITY (Phase 1) -->
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="13"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
-                    <TextBlock Text="SERVICE" VerticalAlignment="Center"/>
+                    <TextBlock Text="SERVICE DETAIL" VerticalAlignment="Center"/>
                 </StackPanel>
             </TabItem.Header>
             <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -397,7 +656,7 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="13"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
-                    <TextBlock Text="SHEET" VerticalAlignment="Center"/>
+                    <TextBlock Text="SHEET DETAIL" VerticalAlignment="Center"/>
                 </StackPanel>
             </TabItem.Header>
             <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -415,13 +674,13 @@
             </ScrollViewer>
         </TabItem>
         
-        <!-- TAB 4: GLASS TYPE COMPARISON (Phase 3) -->
+        <!-- TAB 4: GLASS / SPEC COMPARISON (per-group rows + six-section spec sidebar) -->
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="13"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
-                    <TextBlock Text="GLASS TYPE" VerticalAlignment="Center"/>
+                    <TextBlock Text="GLASS / SPEC COMPARISON" VerticalAlignment="Center"/>
                 </StackPanel>
             </TabItem.Header>
             <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -429,13 +688,511 @@
                           CanContentScroll="False"
                           PanningMode="VerticalOnly"
                           behaviors:SmoothScrollBehavior.IsEnabled="True">
-                <ContentControl Content="{Binding GlassTypeComparison}">
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <local:GlassTypeComparisonView DataContext="{Binding}"/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="392"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ═══ LEFT: per-group comparison + retained glass-type analysis ═══ -->
+                    <StackPanel Grid.Column="0">
+
+                        <!-- Per-group target comparison -->
+                        <TextBlock Text="PER-GROUP COMPARISON — TARGET MODEL" Style="{StaticResource TgtSectionLabel}"/>
+                        <TextBlock Text="Each Step 5 specification is priced independently (never mixed Base Rates). Click a row to open its full calculation inspector."
+                                   FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                        <Border Style="{StaticResource TgtCardStyle}" Padding="0"
+                                Visibility="{Binding HasTargetSpecs, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Style="{StaticResource PiTableHeaderStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="54"/>
+                                            <ColumnDefinition Width="*" MinWidth="170"/>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="96"/>
+                                            <ColumnDefinition Width="96"/>
+                                            <ColumnDefinition Width="84"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="94"/>
+                                            <ColumnDefinition Width="86"/>
+                                            <ColumnDefinition Width="112"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="SPEC" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="1" Text="GLASS / SPECIFICATION" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="2" Text="AREA" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="3" Text="GIVEN /M²" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="4" Text="SPEC TGT /M²" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="5" Text="U-INSERT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="6" Text="FINAL TGT /M²" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="7" Text="DIFF /M²" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="8" Text="MARGIN" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="9" Text="STATUS" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                    </Grid>
+                                </Border>
+
+                                <ItemsControl Grid.Row="1" ItemsSource="{Binding TargetSpecsView}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                                    BorderThickness="0,0,0,1"
+                                                    Padding="0,8"
+                                                    Cursor="Hand">
+                                                <Border.InputBindings>
+                                                    <MouseBinding MouseAction="LeftClick"
+                                                                  Command="{Binding DataContext.SelectTargetSpecCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                  CommandParameter="{Binding}"/>
+                                                </Border.InputBindings>
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="54"/>
+                                                        <ColumnDefinition Width="*" MinWidth="170"/>
+                                                        <ColumnDefinition Width="70"/>
+                                                        <ColumnDefinition Width="96"/>
+                                                        <ColumnDefinition Width="96"/>
+                                                        <ColumnDefinition Width="84"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="94"/>
+                                                        <ColumnDefinition Width="86"/>
+                                                        <ColumnDefinition Width="112"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Border Grid.Column="0" Width="20" Height="20" CornerRadius="10"
+                                                            Background="{DynamicResource AccentBrush}"
+                                                            VerticalAlignment="Center" HorizontalAlignment="Left">
+                                                        <TextBlock Text="{Binding SpecNumber}"
+                                                                   FontSize="10" FontWeight="Bold"
+                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+
+                                                    <StackPanel Grid.Column="1" Margin="6,0,8,0">
+                                                        <TextBlock Text="{Binding SpecDisplayName}"
+                                                                   Style="{StaticResource PlCellStyle}"
+                                                                   FontWeight="SemiBold"
+                                                                   TextWrapping="Wrap"/>
+                                                        <TextBlock FontSize="{StaticResource TextCaption}"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                   TextTrimming="CharacterEllipsis">
+                                                            <Run Text="{Binding BuildTypeLabel, Mode=OneWay}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <TextBlock Grid.Column="2" Text="{Binding AreaSqmDisplay}"
+                                                               Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding GivenPricePerSqmDisplay}"
+                                                               Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="4" Text="{Binding SpecificationTargetDisplay}"
+                                                               Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="5" Text="{Binding UInsertTreatmentLabel}"
+                                                               Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    <TextBlock Grid.Column="6" Text="{Binding FinalRequiredTargetDisplay}"
+                                                               Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"
+                                                               FontWeight="SemiBold"/>
+                                                    <TextBlock Grid.Column="7" Text="{Binding DifferencePerSqmDisplay}"
+                                                               Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="8" Text="{Binding MarginAgainstTargetDisplay}"
+                                                               HorizontalAlignment="Right">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock" BasedOn="{StaticResource PlCellStyle}">
+                                                                <Setter Property="FontWeight" Value="Bold"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsBelowTarget}" Value="True">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding HasValidMargin}" Value="False">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                        <Setter Property="FontWeight" Value="Normal"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+
+                                                    <Border Grid.Column="9" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border" BasedOn="{StaticResource TgtPillBase}">
+                                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsBelowTarget}" Value="True">
+                                                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsIncomplete}" Value="True">
+                                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsAtTarget}" Value="True">
+                                                                        <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                   FontSize="10" FontWeight="Bold"
+                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </Border>
+
+                        <TextBlock Text="No specifications with measured area yet — add glass rows in Step 5, then press Recalculate."
+                                   FontSize="{StaticResource TextBody}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Margin="0,6,0,0"
+                                   Visibility="{Binding HasTargetSpecs, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                        <!-- Retained glass-type profitability analysis -->
+                        <TextBlock Text="GLASS TYPE PROFITABILITY ANALYSIS" Style="{StaticResource TgtSectionLabel}"/>
+                        <ContentControl Content="{Binding GlassTypeComparison}">
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <local:GlassTypeComparisonView DataContext="{Binding}"/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+                    </StackPanel>
+
+                    <!-- ═══ RIGHT: six-section specification inspector ═══ -->
+                    <Border Grid.Column="2"
+                            Style="{StaticResource TgtCardStyle}"
+                            Padding="0"
+                            VerticalAlignment="Top"
+                            Visibility="{Binding HasSelectedTargetSpec, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Header -->
+                            <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
+                                    CornerRadius="14,14,0,0" Padding="16,12">
+                                <StackPanel DataContext="{Binding SelectedTargetSpec}">
+                                    <TextBlock FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                        <Run Text="{Binding SpecNumberDisplay, Mode=OneWay}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding SpecDisplayName}"
+                                               FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                               Opacity="0.9" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Scrollable six sections -->
+                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          Padding="16,4,16,16">
+                                <StackPanel DataContext="{Binding SelectedTargetSpec}">
+
+                                    <!-- 1 · IDENTITY -->
+                                    <TextBlock Text="1 · IDENTITY" Style="{StaticResource TgtSideHeadingStyle}"/>
+                                    <TextBlock Text="{Binding SpecDisplayName}"
+                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               TextWrapping="Wrap"/>
+                                    <Grid Margin="0,6,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Build" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding BuildTypeLabel}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Glass code" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding GlassTypeCode}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Source rows" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding SourceRowsSummary}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <TextBlock Text="{Binding DimensionsSummary}"
+                                               FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               TextWrapping="Wrap" Margin="0,4,0,0"/>
+
+                                    <!-- 2 · STEP 5 INPUT -->
+                                    <TextBlock Text="2 · STEP 5 INPUT" Style="{StaticResource TgtSideHeadingStyle}"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Given price (Base Price)" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding GivenPricePerSqmDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Measured area" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding AreaSqmDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Given value" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding GivenValueDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <TextBlock Text="The Step 5 Base Price is the given selling price. It never comes from Step 4, the Step 9 calculation, the Sheet Store or a manual field here."
+                                               FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               TextWrapping="Wrap" Margin="0,6,0,0"/>
+
+                                    <!-- 3 · TARGET FORMULA -->
+                                    <TextBlock Text="3 · TARGET FORMULA" Style="{StaticResource TgtSideHeadingStyle}"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Outer glass rate" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding OuterGlassRateDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid Visibility="{Binding HasSecondGlass, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Inner glass rate" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding InnerGlassRateDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid Visibility="{Binding HasThirdGlass, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Third glass rate" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding ThirdGlassRateDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid Visibility="{Binding HasAspRate, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="ASP / spacer rate" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding AspRateDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid Visibility="{Binding HasProcessingRate, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Processing add-ons" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding ProcessingRateDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Yield factor" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding YieldFactorDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Target uplift" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding TargetUpliftDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                            CornerRadius="8" Padding="10,8" Margin="0,8,0,0">
+                                        <TextBlock FontFamily="Consolas" FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   TextWrapping="Wrap" Text="{Binding FormulaText}"/>
+                                    </Border>
+                                    <Grid Margin="0,8,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Specification target (before U-insert)"
+                                                   Style="{StaticResource TgtSideLabelStyle}" FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding SpecificationTargetDisplay}"
+                                                   Style="{StaticResource TgtSideValueStyle}" FontWeight="Bold"/>
+                                    </Grid>
+
+                                    <!-- 4 · U-INSERT -->
+                                    <TextBlock Text="4 · U-INSERT" Style="{StaticResource TgtSideHeadingStyle}"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Treatment" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding UInsertTreatmentLabel}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Applied rate" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding AppliedUInsertDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Source" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding UInsertSourceDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <TextBlock Text="{Binding UInsertTreatmentDetail}"
+                                               FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               TextWrapping="Wrap" Margin="0,6,0,0"/>
+
+                                    <!-- 5 · RESULT -->
+                                    <TextBlock Text="5 · RESULT" Style="{StaticResource TgtSideHeadingStyle}"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Final required target"
+                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding FinalRequiredTargetDisplay}"
+                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                    </Grid>
+                                    <Grid Margin="0,4,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Difference" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding DifferencePerSqmDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Margin against target" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding MarginAgainstTargetDisplay}"
+                                                   Style="{StaticResource TgtSideValueStyle}" FontWeight="Bold"/>
+                                    </Grid>
+                                    <Grid Margin="0,4,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Required value" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding RequiredTargetValueDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Difference value" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding DifferenceValueDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                    </Grid>
+                                    <TextBlock Text="Wastage is never part of this KPI — it lives only in Sheet Detail."
+                                               FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               TextWrapping="Wrap" Margin="0,6,0,0"/>
+
+                                    <!-- 6 · VALIDATION -->
+                                    <TextBlock Text="6 · VALIDATION" Style="{StaticResource TgtSideHeadingStyle}"/>
+                                    <Border HorizontalAlignment="Left">
+                                        <Border.Style>
+                                            <Style TargetType="Border" BasedOn="{StaticResource TgtPillBase}">
+                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsBelowTarget}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsIncomplete}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsAtTarget}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding StatusLabel}"
+                                                   FontSize="10" FontWeight="Bold"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                    </Border>
+                                    <TextBlock Text="{Binding WarningSummary}"
+                                               FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource DangerBrush}"
+                                               TextWrapping="Wrap" Margin="0,8,0,0"
+                                               Visibility="{Binding HasWarnings, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <TextBlock Text="Incomplete or missing inputs are reported as MISSING / INCOMPLETE — the margin is never shown as a misleading 0%."
+                                               FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+
+                    <!-- Sidebar empty state -->
+                    <Border Grid.Column="2"
+                            Style="{StaticResource TgtCardStyle}"
+                            VerticalAlignment="Top"
+                            Padding="20"
+                            Visibility="{Binding HasSelectedTargetSpec, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="26"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       HorizontalAlignment="Center" Margin="0,24,0,12"/>
+                            <TextBlock Text="No specification selected"
+                                       FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Click a specification row to inspect its Step 5 input, target formula, U-insert treatment, result and validation."
+                                       FontSize="{StaticResource TextCaption}"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       TextWrapping="Wrap" TextAlignment="Center"
+                                       HorizontalAlignment="Center" Margin="0,8,0,24"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
             </ScrollViewer>
         </TabItem>
     </TabControl>
