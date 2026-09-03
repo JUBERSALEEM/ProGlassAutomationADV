@@ -120,7 +120,7 @@
             <Border Style="{StaticResource KpiCardStyle}" Width="200">
                 <StackPanel>
                     <TextBlock Text="TOTAL SERVICE PROFIT" Style="{StaticResource KpiLabelStyle}"/>
-                    <TextBlock Text="{Binding TotalServiceProfitDisplay}" Style="{StaticResource KpiValueStyle}">
+                    <TextBlock Text="{Binding TotalServiceProfitDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource KpiValueStyle}">
                                 <Style.Triggers>
@@ -138,7 +138,7 @@
             <Border Style="{StaticResource KpiCardStyle}" Width="200">
                 <StackPanel>
                     <TextBlock Text="OVERALL SERVICE MARGIN" Style="{StaticResource KpiLabelStyle}"/>
-                    <TextBlock Text="{Binding OverallServiceMarginDisplay}" Style="{StaticResource KpiValueStyle}">
+                    <TextBlock Text="{Binding OverallServiceMarginDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource KpiValueStyle}">
                                 <Style.Triggers>

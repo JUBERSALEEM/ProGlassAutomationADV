@@ -146,7 +146,7 @@
             <Border Style="{StaticResource KpiCardStyle}" Width="140">
                 <StackPanel>
                     <TextBlock Text="USAGE EFFICIENCY" Style="{StaticResource KpiLabelStyle}"/>
-                    <TextBlock Text="{Binding UsageEfficiencyDisplay}" Style="{StaticResource KpiValueStyle}">
+                    <TextBlock Text="{Binding UsageEfficiencyDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource KpiValueStyle}">
                                 <Style.Triggers>

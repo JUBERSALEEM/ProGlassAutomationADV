@@ -137,6 +137,7 @@ public static class LicenseService
                 {
                     [signed.Signature.KeyId] = PrivateKeyToPublic(privateKeyXml)
                 },
+                currentFingerprint: doc.DevicePolicy?.Fingerprint,
                 productId: ProductIds.ProGlassAutomation);
 
             if (!selfCheck.IsValid)
