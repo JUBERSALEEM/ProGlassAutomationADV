@@ -163,7 +163,7 @@
                             </Border.Style>
                             <StackPanel>
                                 <TextBlock Text="⭐ OVERALL MARGIN" Style="{StaticResource PiKpiCaptionStyle}" FontWeight="Bold"/>
-                                <TextBlock Text="{Binding OverallMarginDisplay}" Style="{StaticResource PiKpiValueStyle}" TextWrapping="Wrap">
+                                <TextBlock Text="{Binding OverallMarginDisplay}" TextWrapping="Wrap">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
                                             <Style.Triggers>
