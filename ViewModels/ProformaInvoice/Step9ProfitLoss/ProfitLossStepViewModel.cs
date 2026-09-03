@@ -117,6 +117,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public ProfitLossStepViewModel()
         {
             RecalculateCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(FireRecalculateAsync, "ProfitLoss Recalc"));
+            SelectTargetSpecCommand = new RelayCommand(_ => SetSelectedTargetSpec(_));
 
             Rows.CollectionChanged += OnRowsCollectionChanged;
 

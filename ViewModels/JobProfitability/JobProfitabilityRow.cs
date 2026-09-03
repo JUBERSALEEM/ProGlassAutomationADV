@@ -150,13 +150,19 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 if (TargetMarginAgainstTargetPercent.HasValue
                     && !string.IsNullOrWhiteSpace(TargetStatus))
                 {
-                    if (Enum.TryParse<TargetStatus>(TargetStatus, out var parsed))
+                    // NOTE: the row's own string property is ALSO named
+                    // `TargetStatus`, so in this instance context the enum
+                    // must be reached through its full name — a bare
+                    // `TargetStatus.X` would bind to the string property and
+                    // fail with CS1061.
+                    if (Enum.TryParse<ProGlassAutomation.Services.ProformaInvoice.TargetPricing.TargetStatus>(
+                            TargetStatus, out var parsed))
                     {
                         return parsed switch
                         {
-                            TargetStatus.AboveTarget => "ABOVE TARGET",
-                            TargetStatus.AtTarget => "AT TARGET",
-                            TargetStatus.BelowTarget => "BELOW TARGET",
+                            ProGlassAutomation.Services.ProformaInvoice.TargetPricing.TargetStatus.AboveTarget => "ABOVE TARGET",
+                            ProGlassAutomation.Services.ProformaInvoice.TargetPricing.TargetStatus.AtTarget => "AT TARGET",
+                            ProGlassAutomation.Services.ProformaInvoice.TargetPricing.TargetStatus.BelowTarget => "BELOW TARGET",
                             _ => parsed.ToString().ToUpperInvariant().Replace("_", " ")
                         };
                     }

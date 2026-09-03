@@ -47,8 +47,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// Selects a specification row (Tab 4) and opens its six-section
         /// detail sidebar.
         /// </summary>
-        public ICommand SelectTargetSpecCommand { get; } =
-            new RelayCommand(_ => SetSelectedTargetSpec(_));
+        public ICommand SelectTargetSpecCommand { get; }
 
         private void SetSelectedTargetSpec(object? parameter)
         {
