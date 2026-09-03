@@ -320,13 +320,19 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
@@ -339,19 +345,19 @@
                         <TextBlock Text="{DynamicResource SheetStore.TotalInventory}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="2" Margin="0,0,28,0">
+                    <StackPanel Grid.Column="2" Margin="0">
                         <TextBlock Text="{DynamicResource DeliveryNote.Items}" Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding TotalItems}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="3" Margin="0,0,28,0">
+                    <StackPanel Grid.Column="4" Margin="0">
                         <TextBlock Text="{DynamicResource SheetStore.Stock}" Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding TotalStock}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="4" Margin="0,0,28,0">
+                    <StackPanel Grid.Column="6" Margin="0">
                         <TextBlock Text="{DynamicResource SheetStore.BuyingValue}" Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource DangerBrush}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="5" Margin="0,0,28,0">
+                    <StackPanel Grid.Column="8" Margin="0">
                         <TextBlock Text="{DynamicResource SheetStore.SellingValue}" Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
@@ -361,17 +367,17 @@
                         without these the strip cannot answer "is stock
                         turning into revenue, or just sitting on a rack?".
                     -->
-                    <StackPanel Grid.Column="6" Margin="0,0,28,0">
+                    <StackPanel Grid.Column="10" Margin="0">
                         <TextBlock Text="{DynamicResource SheetStore.UsedValue}" Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding TotalUsedValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource WarningBrush}"
                                    ToolTip="{DynamicResource SheetStore.UsedValueTip}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="7" Margin="0,0,28,0">
+                    <StackPanel Grid.Column="12" Margin="0">
                         <TextBlock Text="{DynamicResource SheetStore.BalanceValue}" Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding TotalBalanceValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource InfoBrush}"
                                    ToolTip="{DynamicResource SheetStore.BalanceValueTip}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="8">
+                    <StackPanel Grid.Column="14">
                         <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}" Style="{StaticResource StatLabel}"/>
                         <!--
                             Was TotalProfit (sell minus buy on ALL stock),
@@ -415,19 +421,19 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="36"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="56"/>
-                            <ColumnDefinition Width="78"/>
-                            <ColumnDefinition Width="104"/>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="68"/>
+                            <ColumnDefinition Width="96"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="62"/>
                             <ColumnDefinition Width="66"/>
-                            <ColumnDefinition Width="70"/>
-                            <ColumnDefinition Width="70"/>
-                            <ColumnDefinition Width="88"/>
-                            <ColumnDefinition Width="88"/>
-                            <ColumnDefinition Width="52"/>
-                            <ColumnDefinition Width="52"/>
-                            <ColumnDefinition Width="52"/>
+                            <ColumnDefinition Width="66"/>
+                            <ColumnDefinition Width="84"/>
+                            <ColumnDefinition Width="84"/>
+                            <ColumnDefinition Width="48"/>
+                            <ColumnDefinition Width="48"/>
+                            <ColumnDefinition Width="48"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="#" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="1" Text="{DynamicResource SheetStore.Category}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
@@ -505,19 +511,19 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="36"/>
-                                                <ColumnDefinition Width="150"/>
-                                                <ColumnDefinition Width="56"/>
-                                                <ColumnDefinition Width="78"/>
-                                                <ColumnDefinition Width="104"/>
+                                                <ColumnDefinition Width="140"/>
+                                                <ColumnDefinition Width="50"/>
+                                                <ColumnDefinition Width="68"/>
+                                                <ColumnDefinition Width="96"/>
                                                 <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="62"/>
                                                 <ColumnDefinition Width="66"/>
-                                                <ColumnDefinition Width="70"/>
-                                                <ColumnDefinition Width="70"/>
-                                                <ColumnDefinition Width="88"/>
-                                                <ColumnDefinition Width="88"/>
-                                                <ColumnDefinition Width="52"/>
-                                                <ColumnDefinition Width="52"/>
-                                                <ColumnDefinition Width="52"/>
+                                                <ColumnDefinition Width="66"/>
+                                                <ColumnDefinition Width="84"/>
+                                                <ColumnDefinition Width="84"/>
+                                                <ColumnDefinition Width="48"/>
+                                                <ColumnDefinition Width="48"/>
+                                                <ColumnDefinition Width="48"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="{Binding Id}" FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>

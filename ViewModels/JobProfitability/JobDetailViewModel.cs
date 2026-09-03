@@ -131,8 +131,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             {
                 LineItems.Clear();
 
-                var invoices = await _invoices.GetByStatusAsync("Approved").ConfigureAwait(true);
-                var inv = invoices?.FirstOrDefault(i => i.ProformaId == proformaId);
+                // EFFICIENT: query single invoice by ID, not all approved
+                var inv = await _invoices.GetByProformaIdAsync(proformaId).ConfigureAwait(true);
                 if (inv == null)
                 {
                     StatusMessage = $"Invoice {proformaId} not found.";

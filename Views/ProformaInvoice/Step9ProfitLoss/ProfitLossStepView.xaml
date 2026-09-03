@@ -149,10 +149,31 @@
                                 <TextBlock Text="{Binding CostBasedMarginDisplay}" Style="{StaticResource PiKpiValueStyle}" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="5" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="5" ToolTip="MOST IMPORTANT: Real job profitability including U-insert cost. (Revenue − Total Cost) ÷ Total Cost × 100.">
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource PiKpiCellStyle}">
+                                    <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                                    <Setter Property="BorderThickness" Value="2"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
                             <StackPanel>
-                                <TextBlock Text="OVERALL MARGIN" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding OverallMarginDisplay}" Style="{StaticResource PiKpiValueStyle}" TextWrapping="Wrap"/>
+                                <TextBlock Text="⭐ OVERALL MARGIN" Style="{StaticResource PiKpiCaptionStyle}" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding OverallMarginDisplay}" Style="{StaticResource PiKpiValueStyle}" TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="6" Style="{StaticResource PiKpiCellStyle}">
