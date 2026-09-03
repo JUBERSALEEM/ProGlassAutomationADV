@@ -113,43 +113,56 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="1.5*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="1.3*"/>
                         </Grid.ColumnDefinitions>
+
+                        <!-- 1. REVENUE -->
                         <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="{DynamicResource ProformaInvoice.GrossVATINCL}" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding GrossDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                                <TextBlock Text="REVENUE (ex-VAT)" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                                <TextBlock Text="{Binding GrossDisplay}" FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
+
+                        <!-- 2. TOTAL COST -->
                         <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="{DynamicResource ProformaInvoice.NET105}" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                                <TextBlock Text="TOTAL COST" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding TotalCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                                <TextBlock FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                    <Run Text="Glass: "/><Run Text="{Binding GlassCostDisplay, Mode=OneWay}"/>
+                                    <Run Text=" + Prod: "/><Run Text="{Binding ProductionCostDisplay, Mode=OneWay}"/>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
+
+                        <!-- 3. PROFIT / LOSS -->
                         <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="{DynamicResource ProformaInvoice.GlassCOST}" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding GlassCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                                <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding ProfitDisplay}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
+                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="{Binding MarkupDisplay}" FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource ProformaInvoice.ProductionASPExtras}" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding ProductionCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource ProformaInvoice.COSTBasedProfitMargin}" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding CostBasedMarginDisplay}" Style="{StaticResource PiKpiValueStyle}" TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Grid.Column="5" ToolTip="MOST IMPORTANT: Real job profitability including U-insert cost. (Revenue − Total Cost) ÷ Total Cost × 100.">
+
+                        <!-- 4. ⭐ OVERALL MARGIN (MOST IMPORTANT) -->
+                        <Border Grid.Column="3" ToolTip="Real job profitability: (Revenue − Total Cost) ÷ Total Cost × 100. Includes glass, ASP, U-insert, and wastage costs.">
                             <Border.Style>
                                 <Style TargetType="Border" BasedOn="{StaticResource PiKpiCellStyle}">
                                     <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
@@ -166,6 +179,7 @@
                                 <TextBlock Text="{Binding OverallMarginDisplay}" TextWrapping="Wrap">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
+                                            <Setter Property="FontSize" Value="18"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLoss}" Value="True">
                                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -174,24 +188,19 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
+                                <TextBlock Text="Revenue − Cost ÷ Cost" FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="6" Style="{StaticResource PiKpiCellStyle}">
+
+                        <!-- 5. NET MARGIN (secondary) -->
+                        <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}"
+                                ToolTip="Accounting margin: (Revenue − Cost) ÷ Revenue × 100.">
                             <StackPanel>
-                                <TextBlock Text="{DynamicResource ProformaInvoice.PriceBasedProfitMargin}" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding PriceBasedMarginDisplay}" Style="{StaticResource PiKpiValueStyle}" TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Border>
-                        <!-- PROFIT — the margin now lives in its own cards
-                             (COST-BASED / PRICE-BASED); the mark-up-over-cost
-                             line remains as the supplemental existing read. -->
-                        <Border Grid.Column="7" Style="{StaticResource PiKpiCellStyle}" BorderThickness="0">
-                            <StackPanel>
-                                <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding ProfitDisplay}">
+                                <TextBlock Text="NET MARGIN" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding PriceBasedMarginDisplay}" TextWrapping="Wrap">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
-                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsLoss}" Value="True">
                                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -200,11 +209,8 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
-                                <TextBlock Text="{Binding MarkupDisplay}"
-                                           FontSize="{StaticResource TextCaption}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           Margin="0,2,0,0"
-                                           TextWrapping="Wrap"/>
+                                <TextBlock Text="Revenue − Cost ÷ Revenue" FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0"/>
                             </StackPanel>
                         </Border>
                     </Grid>

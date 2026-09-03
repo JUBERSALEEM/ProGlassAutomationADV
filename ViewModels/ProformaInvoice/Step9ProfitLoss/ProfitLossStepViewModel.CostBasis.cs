@@ -157,6 +157,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _totalGlassCost = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GlassCostDisplay));
+                OnPropertyChanged(nameof(TotalCostDisplay));
                 OnPropertyChanged(nameof(MarkupPercent));
                 OnPropertyChanged(nameof(MarkupDisplay));
             }
@@ -173,6 +174,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _totalProductionCost = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ProductionCostDisplay));
+                OnPropertyChanged(nameof(TotalCostDisplay));
                 OnPropertyChanged(nameof(MarkupPercent));
                 OnPropertyChanged(nameof(MarkupDisplay));
             }
@@ -263,6 +265,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string NetDisplay => $"AED {NetExVat:N2}";
         public string GlassCostDisplay => $"AED {TotalGlassCost:N2}";
         public string ProductionCostDisplay => $"AED {TotalProductionCost:N2}";
+        public string TotalCostDisplay => $"AED {TotalGlassCost + TotalProductionCost:N2}";
         /// <summary>
         /// Math.Abs is correct ONLY because the caption flips to "LOSS",
         /// so "AED 500.00" under a LOSS label reads right and avoids the

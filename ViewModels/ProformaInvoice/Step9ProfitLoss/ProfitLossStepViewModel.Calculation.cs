@@ -588,6 +588,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 StatusMessage = BuildStatus(
                     groups.Count, rows.Count, skipped, gross);
+
+                // ══════════════════════════════════════════════════════════
+                //  AUTO-SYNC: Refresh all 3 analysis sub-tabs after recalc
+                //  so they always show current data without manual refresh.
+                // ══════════════════════════════════════════════════════════
+                try
+                {
+                    ServiceProfitability?.RefreshAnalysis();
+                    SheetProfitability?.RefreshAnalysis();
+                    GlassTypeComparison?.RefreshAnalysis();
+                }
+                catch (Exception syncEx)
+                {
+                    AppLogService.Debug($"[ProfitLossStepViewModel] Sub-tab sync failed: {ExceptionMessages.Deep(syncEx)}");
+                }
             }
             catch (Exception ex)
             {
