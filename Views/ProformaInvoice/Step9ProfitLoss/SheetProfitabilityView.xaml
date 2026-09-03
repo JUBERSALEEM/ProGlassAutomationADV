@@ -228,25 +228,25 @@
                         Padding="6">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="120"/>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="0.8*"/>
+                            <ColumnDefinition Width="0.8*"/>
+                            <ColumnDefinition Width="0.8*"/>
+                            <ColumnDefinition Width="0.8*"/>
+                            <ColumnDefinition Width="0.8*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
                         
                         <TextBlock Grid.Column="0" Text="SPEC" Style="{StaticResource TableHeaderStyle}"/>
                         <TextBlock Grid.Column="1" Text="GLASS TYPE" Style="{StaticResource TableHeaderStyle}"/>
                         <TextBlock Grid.Column="2" Text="SHEET SIZE" Style="{StaticResource TableHeaderStyle}"/>
                         <TextBlock Grid.Column="3" Text="SHEETS" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="TOTAL" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="USED" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="TOTAL SQM" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="USED SQM" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="6" Text="OFFCUT" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="7" Text="WASTAGE" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="8" Text="PURCHASE" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
@@ -262,19 +262,19 @@
                             <DataTemplate>
                                 <Border Style="{StaticResource EfficientRowStyle}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
                                     <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="150"/>
-                                            <ColumnDefinition Width="120"/>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="100"/>
-                                            <ColumnDefinition Width="100"/>
-                                        </Grid.ColumnDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="2*"/>
+                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <ColumnDefinition Width="1.2*"/>
+                                                <ColumnDefinition Width="1*"/>
+                                            </Grid.ColumnDefinitions>
                                         
                                         <!-- Spec Name -->
                                         <TextBlock Grid.Column="0" 
