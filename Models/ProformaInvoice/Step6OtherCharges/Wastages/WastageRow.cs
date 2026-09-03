@@ -372,17 +372,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
                     ? ""
                     : $" ({ColorName.ToUpper()} — {count} sources)";
 
-                string qtyDisplay = SheetQuantity > 1 ? $" × {SheetQuantity} sheets" : "";
-
                 if (UseOptimizationFormula)
                 {
                     if (FormulaPricePerSqm <= 0m || OptimizationPercent <= 0m || SelectedSourceSqm <= 0m)
                         return $"Optimization formula pending input{colorSuffix}";
 
-                    return $"{FormulaPricePerSqm:0.####} ÷ {OptimizationPercent:0.##}% = {Section1Value:N2}  ·  {FormulaPricePerSqm:0.####} ÷ {BaselineOptimizationPercent:0.##}% = {Section2Value:N2}  ·  RATE {BaseResultValue:N2} × {SelectedSourceSqm:0.000} SQM{qtyDisplay} = {ResultAmount:N2} AED{colorSuffix}";
+                    return $"{FormulaPricePerSqm:0.####} ÷ {OptimizationPercent:0.##}% = {Section1Value:N2}  ·  {FormulaPricePerSqm:0.####} ÷ {BaselineOptimizationPercent:0.##}% = {Section2Value:N2}  ·  RATE {BaseResultValue:N2} × {SelectedSourceSqm:0.000} SQM = {ResultAmount:N2} AED{colorSuffix}";
                 }
 
-                return $"{TotalSqm:0.000} SQM × {Rate:0.##} AED{qtyDisplay} = {ResultAmount:N2} AED{colorSuffix}";
+                return $"{TotalSqm:0.000} SQM × {Rate:0.##} AED = {ResultAmount:N2} AED{colorSuffix}";
             }
         }
 
@@ -427,13 +425,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             if (UseOptimizationFormula)
             {
                 RecalculateOptimizationResults();
-                ResultAmount = IsActive ? Math.Round(FinalResultValue * SheetQuantity, 2) : 0m;
+                ResultAmount = IsActive ? Math.Round(FinalResultValue, 2) : 0m;
             }
             else
             {
                 ResetOptimizationResults();
                 RestoreManualRateDisplay();
-                ResultAmount = IsActive ? Math.Round(TotalSqm * Rate * SheetQuantity, 2) : 0m;
+                ResultAmount = IsActive ? Math.Round(TotalSqm * Rate, 2) : 0m;
             }
 
             OnPropertyChanged(nameof(FormulaDisplay));
