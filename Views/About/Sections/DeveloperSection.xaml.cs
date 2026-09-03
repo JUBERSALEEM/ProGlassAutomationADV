@@ -7,6 +7,7 @@
 // Developer section is self-contained and editable on its own).
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.About;
 using System.Diagnostics;
 using System.Windows.Controls;

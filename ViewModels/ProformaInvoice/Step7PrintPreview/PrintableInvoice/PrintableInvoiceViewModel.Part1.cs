@@ -2,6 +2,7 @@
 // FILE: PrintableInvoiceViewModel.Part1.cs (Phase 3.8 split — member census verified)
 // ═══════════════════════════════════════════════════════════════════════
 
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;

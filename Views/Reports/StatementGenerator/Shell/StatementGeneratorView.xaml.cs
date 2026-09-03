@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Views/Reports/StatementGenerator/Shell/StatementGeneratorView.xaml.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Statement Generator — Wizard Shell (Chat 21 v3)
@@ -41,6 +41,7 @@
 
 using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;

@@ -16,6 +16,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Utilities;
 using System.Windows;
 
 namespace ProGlassAutomation.Views.Login

@@ -15,6 +15,7 @@
 // visible instead of a freeze + crash dialog.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Utilities;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;

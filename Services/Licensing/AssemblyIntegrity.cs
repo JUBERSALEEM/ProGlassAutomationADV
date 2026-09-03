@@ -97,7 +97,7 @@ namespace ProGlassAutomation.Services.Licensing
                     return false;
 
                 // Check the licensing library assembly
-                var licAsm = typeof(Licensing.LicenseCrypto).Assembly;
+                var licAsm = typeof(ProGlass.Licensing.LicenseCrypto).Assembly;
                 if (licAsm != mainAsm && !CheckAssembly(licAsm))
                     return false;
 
