@@ -108,7 +108,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private SguParametersViewModel? _sguVm;
         private LamParametersViewModel? _lamVm;   // PHASE J
         private DguLamParametersViewModel? _dguLamVm;   // DGU+LAM hybrid
-        private OtherChargesViewModel? _otherChargesVm;
+        internal OtherChargesViewModel? _otherChargesVm;
         private Func<decimal>? _grossProvider;
 
         // Spec-name grammar lives in PnLSpecParser — one definition for
