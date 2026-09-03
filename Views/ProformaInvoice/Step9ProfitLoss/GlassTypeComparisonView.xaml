@@ -269,7 +269,6 @@
                                         <!-- Total Profit -->
                                         <TextBlock Grid.Column="5" 
                                                    Text="{Binding TotalProfitDisplay}" 
-                                                   Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"
                                                    FontWeight="SemiBold">
                                             <TextBlock.Style>
@@ -287,7 +286,6 @@
                                         <!-- Margin % -->
                                         <TextBlock Grid.Column="6" 
                                                    Text="{Binding MarginDisplay}" 
-                                                   Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"
                                                    FontWeight="Bold">
                                             <TextBlock.Style>
@@ -304,7 +302,6 @@
                                         
                                         <!-- Status -->
                                         <TextBlock Grid.Column="7" 
-                                                   Style="{StaticResource TableCellStyle}"
                                                    FontWeight="SemiBold">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">

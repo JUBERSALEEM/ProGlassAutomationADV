@@ -341,7 +341,6 @@
                                         <!-- Usage Efficiency -->
                                         <TextBlock Grid.Column="10" 
                                                    Text="{Binding UsageEfficiencyDisplay}" 
-                                                   Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"
                                                    FontWeight="Bold">
                                             <TextBlock.Style>

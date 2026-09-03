@@ -250,7 +250,6 @@
                                         <!-- Profit -->
                                         <TextBlock Grid.Column="5" 
                                                    Text="{Binding ProfitDisplay}" 
-                                                   Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"
                                                    FontWeight="SemiBold">
                                             <TextBlock.Style>
@@ -268,7 +267,6 @@
                                         <!-- Margin % -->
                                         <TextBlock Grid.Column="6" 
                                                    Text="{Binding MarginDisplay}" 
-                                                   Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"
                                                    FontWeight="Bold">
                                             <TextBlock.Style>
