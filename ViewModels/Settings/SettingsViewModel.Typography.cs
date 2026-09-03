@@ -278,7 +278,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     {
                         FontService.ResetToDefault();
                     }));
-                }));
+                });
 
                 // 3) Resync the bound controls on UI thread
                 SetResetStatus("Updating UI...");
