@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">NOUVEAU DEPUIS UNE DEMANDE</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">Sous-total net</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">Aucune pièce jointe. Ajoutez des photos du site, des dessins ou des approbations signées — 10 Mo max chacun.</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Aucune ligne chiffrée pour l&#x27;instant. Appuyez sur RECALCULER une fois que l&#x27;étape 5 contient des articles de verre.</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Aucune ligne chiffrée pour l&#x27;instant. Ajoutez des articles de verre à l&#x27;étape 5 — les résultats se mettent à jour automatiquement.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">Aucun client enregistré pour l&#x27;instant.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">Aucune entreprise enregistrée pour l&#x27;instant.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">Aucune facture enregistrée trouvée</sys:String>

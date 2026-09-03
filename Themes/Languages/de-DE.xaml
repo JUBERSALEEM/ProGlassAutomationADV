@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">NEU AUS ANFRAGE</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">Netto-Zwischensumme</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">Keine Anhänge. Fügen Sie Fotos, Zeichnungen oder unterschriebene Genehmigungen hinzu — jeweils max. 10 MB.</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Noch keine kalkulierten Zeilen. Drücken Sie NEU BERECHNEN, sobald Schritt 5 Glaspositionen enthält.</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Noch keine kalkulierten Zeilen. Fügen Sie in Schritt 5 Glaspositionen hinzu — die Ergebnisse aktualisieren sich automatisch.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">Noch keine gespeicherten Kunden.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">Noch keine gespeicherten Unternehmen.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">Keine gespeicherten Rechnungen gefunden</sys:String>

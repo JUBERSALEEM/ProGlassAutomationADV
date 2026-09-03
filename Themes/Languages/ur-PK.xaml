@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">انکوائری سے نیا</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">خالص ذیلی کل</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">کوئی منسلکہ نہیں۔ سائٹ کی تصاویر، ڈرائنگز یا دستخط شدہ منظوریاں شامل کریں — ہر ایک زیادہ سے زیادہ 10 MB۔</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">ابھی کوئی لاگت والی قطار نہیں۔ مرحلہ 5 میں گلاس آئٹمز ہوتے ہی RECALCULATE دبائیں۔</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">ابھی کوئی لاگت والی قطار نہیں۔ مرحلہ 5 میں شیشے کی اشیاء شامل کریں — نتائج خود بخود اپ ڈیٹ ہوں گے۔</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">ابھی کوئی محفوظ کردہ کلائنٹ نہیں۔</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">ابھی کوئی محفوظ شدہ کمپنی نہیں۔</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">کوئی محفوظ شدہ انوائس نہیں ملی</sys:String>

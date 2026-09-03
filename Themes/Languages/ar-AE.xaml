@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">جديد من استفسار</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">الإجمالي الفرعي الصافي</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">لا مرفقات. أضف صور الموقع أو الرسومات أو الموافقات الموقعة — بحد أقصى 10 MB لكل ملف.</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">لا توجد أسطر مسعّرة بعد. اضغط إعادة الحساب بمجرد وجود أصناف زجاج في الخطوة 5.</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">لا توجد أسطر مسعّرة بعد. أضف أصناف الزجاج في الخطوة 5 — ستُحدَّث النتائج تلقائيًا.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">لا يوجد عملاء محفوظون بعد.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">لا توجد شركات محفوظة بعد.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">لا توجد فواتير محفوظة</sys:String>

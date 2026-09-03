@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">ইনকোয়ারি থেকে নতুন</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">নিট সাবটোটাল</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">কোনো অ্যাটাচমেন্ট নেই। সাইটের ছবি, ড্রয়িং বা স্বাক্ষরিত অনুমোদন যোগ করুন — প্রতিটি সর্বোচ্চ ১০ MB।</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">এখনও কোনো খরচ-যুক্ত সারি নেই। ধাপ ৫-এ গ্লাস আইটেম থাকলে রিক্যালকুলেট চাপুন।</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">এখনও কোনো খরচ-যুক্ত সারি নেই। ধাপ ৫-এ গ্লাস আইটেম যোগ করুন — ফলাফল স্বয়ংক্রিয়ভাবে আপডেট হবে।</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">এখনও কোনো সংরক্ষিত ক্লায়েন্ট নেই।</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">এখনও কোনো সংরক্ষিত কোম্পানি নেই।</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">কোনো সংরক্ষিত ইনভয়েস পাওয়া যায়নি</sys:String>

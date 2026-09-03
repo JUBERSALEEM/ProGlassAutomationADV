@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">НОВЫЙ ИЗ ЗАПРОСА</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">Чистый промежуточный итог</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">Нет вложений. Добавьте фото объекта, чертежи или подписанные утверждения — макс. 10 МБ каждое.</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Пока нет рассчитанных строк. Нажмите ПЕРЕСЧИТАТЬ, когда на шаге 5 появятся позиции стекла.</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Пока нет строк с рассчитанной стоимостью. Добавьте позиции стекла на шаге 5 — результаты обновляются автоматически.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">Пока нет сохранённых клиентов.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">Пока нет сохранённых компаний.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">Сохранённых счетов не найдено</sys:String>

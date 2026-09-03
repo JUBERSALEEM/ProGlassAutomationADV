@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">문의에서 새로 만들기</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">순 소계</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">첨부 파일이 없습니다. 현장 사진, 도면 또는 서명된 승인서를 추가하세요 — 각 최대 10MB.</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">아직 원가 계산된 행이 없습니다. 5단계에 유리 항목이 생기면 [재계산]을 누르세요.</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">아직 원가 계산된 행이 없습니다. 5단계에 유리 항목을 추가하세요 — 결과가 자동으로 업데이트됩니다.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">아직 저장된 클라이언트가 없습니다.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">아직 저장된 회사가 없습니다.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">저장된 청구서를 찾을 수 없습니다</sys:String>

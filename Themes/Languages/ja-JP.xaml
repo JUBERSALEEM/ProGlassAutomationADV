@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">問い合わせから新規作成</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">正味小計</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">添付ファイルがありません。現場写真、図面、署名済み承認を追加 — 各最大10MB。</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">まだ原価計算済みの行がありません。ステップ5にガラス項目ができたら[再計算]を押してください。</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">まだ原価計算済みの行がありません。ステップ5にガラス項目を追加してください。結果は自動的に更新されます。</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">まだ保存済みクライアントがありません。</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">まだ保存済み会社がありません。</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">保存済みの請求書が見つかりません</sys:String>

@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">NEW FROM INQUIRY</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">Net subtotal</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">No attachments. Add site photos, drawings or signed approvals — max 10 MB each.</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">No costed lines yet. Press RECALCULATE once Step 5 has glass items.</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">No costed lines yet. Add glass items in Step 5 — results update automatically.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">No saved clients yet.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">No saved companies yet.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">No saved invoices found</sys:String>

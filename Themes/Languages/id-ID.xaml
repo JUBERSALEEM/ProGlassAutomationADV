@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">BARU DARI PERMINTAAN</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">Subtotal bersih</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">Tidak ada lampiran. Tambahkan foto lokasi, gambar, atau persetujuan bertanda tangan — maks. 10 MB per file.</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Belum ada baris berbiaya. Tekan HITUNG ULANG setelah langkah 5 memiliki item kaca.</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Belum ada baris berbiaya. Tambahkan item kaca di langkah 5 — hasil diperbarui otomatis.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">Belum ada klien tersimpan.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">Belum ada perusahaan tersimpan.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">Tidak ada faktur tersimpan yang ditemukan</sys:String>

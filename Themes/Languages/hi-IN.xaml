@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">इन्क्वायरी से नया</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">शुद्ध उप-योग</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">कोई अटैचमेंट नहीं। साइट फ़ोटो, ड्राइंग या हस्ताक्षरित अनुमोदन जोड़ें — प्रत्येक अधिकतम 10 MB।</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">अभी कोई लागत पंक्ति नहीं। चरण 5 में ग्लास आइटम होते ही पुनर्गणना करें दबाएँ।</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">अभी कोई लागत पंक्ति नहीं। चरण 5 में ग्लास आइटम जोड़ें — परिणाम स्वतः अपडेट होंगे।</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">अभी कोई सहेजा गया ग्राहक नहीं।</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">अभी कोई सहेजी गई कंपनी नहीं।</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">कोई सहेजी गई इनवॉइस नहीं मिली</sys:String>

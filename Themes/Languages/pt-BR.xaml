@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">NOVO A PARTIR DE CONSULTA</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">Subtotal líquido</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">Sem anexos. Adicione fotos do local, desenhos ou aprovações assinadas — máx. 10 MB cada.</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Ainda não há linhas com custo. Pressione RECALCULAR assim que a etapa 5 tiver itens de vidro.</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Ainda não há linhas com custo. Adicione itens de vidro na etapa 5 — os resultados são atualizados automaticamente.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">Ainda não há clientes salvos.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">Ainda não há empresas salvas.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">Nenhuma fatura salva encontrada</sys:String>

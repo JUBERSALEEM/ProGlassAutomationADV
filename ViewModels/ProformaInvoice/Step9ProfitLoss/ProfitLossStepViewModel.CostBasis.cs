@@ -84,9 +84,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CostBasisLabel));
 
-                // Switching the basis with stale figures on screen would be
-                // worse than not offering the switch at all.
-                _ = RecalculateAsync();
+                // Step 9 is live: the switch goes through the coalesced,
+                // busy-safe queue like every other source edit. Firing
+                // RecalculateAsync directly here would return immediately
+                // whenever a run was already in flight, silently dropping the
+                // toggle until some unrelated event recalculated again.
+                QueueRecalculate();
             }
         }
 
@@ -110,11 +113,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 OnPropertyChanged();
 
                 // Wastage feeds the sheet count, which feeds every glass
-                // amount and therefore the profit. Editing the box used to
-                // change nothing on screen until the user happened to press
-                // Refresh, so the figures shown did not match the wastage
-                // shown -- the same screen reported two different jobs.
-                _ = RecalculateAsync();
+                // amount and therefore the profit.
+                //
+                // The queue (not a direct RecalculateAsync) is deliberate:
+                // typing "25" sends 2 then 25, and a sheet-store lookup can
+                // still be running from the previous value. The queue
+                // coalesces the burst into one run at the FINAL value and
+                // re-queues when a run is in flight, so the last number the
+                // operator typed is always the number the screen shows.
+                // A direct call would hit `if (IsBusy) return;` mid-typing
+                // and drop the edit -- the classic "I changed 15 to 20 and
+                // nothing happened" report.
+                QueueRecalculate();
             }
         }
 
@@ -248,7 +258,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
-        private string _statusMessage = "Press RECALCULATE to cost this invoice against Sheet Store.";
+        private string _statusMessage = "Waiting for data — results appear and update automatically as you edit Step 4/5/6/7.";
         /// <summary>Human-readable state / warning line under the tiles.</summary>
         public string StatusMessage
         {

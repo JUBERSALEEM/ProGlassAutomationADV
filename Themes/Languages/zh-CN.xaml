@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">从询价新建</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">净小计</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">没有附件。添加现场照片、图纸或已签署的批准书 — 每个最大 10 MB。</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">还没有成本核算行。第 5 步有玻璃项目后按重新计算。</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">还没有成本核算行。在第 5 步添加玻璃项目 — 结果将自动更新。</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">还没有已保存的客户。</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">还没有已保存的公司。</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">未找到已保存的发票</sys:String>

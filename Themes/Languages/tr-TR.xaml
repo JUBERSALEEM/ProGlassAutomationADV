@@ -1199,7 +1199,7 @@
     <sys:String x:Key="ProformaInvoice.NEWInquiry">TALEPTEN YENİ</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">Net ara toplam</sys:String>
     <sys:String x:Key="ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned">Ek yok. Saha fotoğrafları, çizimler veya imzalı onaylar ekleyin — her biri maks. 10 MB.</sys:String>
-    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Henüz maliyetlenmiş satır yok. Adım 5&#x27;te cam kalemleri olduğunda YENİDEN HESAPLA&#x27;ya basın.</sys:String>
+    <sys:String x:Key="ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5">Henüz maliyetlenmiş satır yok. 5. adıma cam öğeleri ekleyin — sonuçlar otomatik güncellenir.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedClientsYet">Henüz kayıtlı müşteri yok.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedCompaniesYet">Henüz kayıtlı şirket yok.</sys:String>
     <sys:String x:Key="ProformaInvoice.NoSavedInvoicesFound">Kayıtlı fatura bulunamadı</sys:String>
