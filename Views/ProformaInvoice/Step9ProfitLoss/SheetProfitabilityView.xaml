@@ -95,7 +95,7 @@
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <TextBlock Text="SHEET PROFITABILITY ANALYSIS" Style="{StaticResource HeaderStyle}"/>
-            <TextBlock Text="Track sheet usage, offcuts, and real costs. Shows the impact of reusable offcuts on profitability." 
+            <TextBlock Text="Track sheet usage, wastage charges from Step 6, and real costs. Shows the impact of wastage on profitability." 
                        Style="{StaticResource SubheaderStyle}"/>
         </StackPanel>
         
@@ -133,12 +133,12 @@
                 </StackPanel>
             </Border>
             
-            <!-- Reusable Offcuts -->
+            <!-- Wastage Area -->
             <Border Style="{StaticResource KpiCardStyle}" Width="140">
                 <StackPanel>
-                    <TextBlock Text="REUSABLE OFFCUTS" Style="{StaticResource KpiLabelStyle}"/>
-                    <TextBlock Text="{Binding ReusableOffcutAreaDisplay}" Style="{StaticResource KpiValueStyle}"
-                               Foreground="{DynamicResource SuccessBrush}"/>
+                    <TextBlock Text="WASTAGE AREA" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding WastageAreaDisplay}" Style="{StaticResource KpiValueStyle}"
+                               Foreground="{DynamicResource WarningBrush}"/>
                 </StackPanel>
             </Border>
             
@@ -171,12 +171,12 @@
                 </StackPanel>
             </Border>
             
-            <!-- Reusable Offcut Value -->
+            <!-- Wastage Charge -->
             <Border Style="{StaticResource KpiCardStyle}" Width="180">
                 <StackPanel>
-                    <TextBlock Text="REUSABLE VALUE" Style="{StaticResource KpiLabelStyle}"/>
-                    <TextBlock Text="{Binding ReusableOffcutValueDisplay}" Style="{StaticResource KpiValueStyle}"
-                               Foreground="{DynamicResource SuccessBrush}"/>
+                    <TextBlock Text="WASTAGE CHARGE" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding WastageChargeDisplay}" Style="{StaticResource KpiValueStyle}"
+                               Foreground="{DynamicResource DangerBrush}"/>
                 </StackPanel>
             </Border>
             
@@ -189,12 +189,12 @@
                 </StackPanel>
             </Border>
             
-            <!-- Cost Savings -->
+            <!-- Wastage Charged to Customer -->
             <Border Style="{StaticResource KpiCardStyle}" Width="180">
                 <StackPanel>
-                    <TextBlock Text="COST SAVINGS" Style="{StaticResource KpiLabelStyle}"/>
-                    <TextBlock Text="{Binding CostSavingsDisplay}" Style="{StaticResource KpiValueStyle}"
-                               Foreground="{DynamicResource SuccessBrush}"/>
+                    <TextBlock Text="WASTAGE CHARGED" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="{Binding WastageChargedToCustomerDisplay}" Style="{StaticResource KpiValueStyle}"
+                               Foreground="{DynamicResource WarningBrush}"/>
                 </StackPanel>
             </Border>
             
@@ -248,7 +248,7 @@
                         <TextBlock Grid.Column="4" Text="TOTAL" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="5" Text="USED" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="6" Text="OFFCUT" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="7" Text="REUSABLE" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="7" Text="WASTAGE" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="8" Text="PURCHASE" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="9" Text="REAL COST" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="10" Text="EFFICIENCY" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
@@ -317,12 +317,12 @@
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
                                         
-                                        <!-- Reusable Offcut Area -->
+                                        <!-- Wastage Area -->
                                         <TextBlock Grid.Column="7" 
-                                                   Text="{Binding ReusableOffcutAreaDisplay}" 
+                                                   Text="{Binding WastageAreaDisplay}" 
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"
-                                                   Foreground="{DynamicResource SuccessBrush}"/>
+                                                   Foreground="{DynamicResource WarningBrush}"/>
                                         
                                         <!-- Purchase Cost -->
                                         <TextBlock Grid.Column="8" 

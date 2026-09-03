@@ -128,37 +128,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string TotalOffcutAreaDisplay => $"{TotalOffcutArea:0.##} SQM";
 
-        private decimal _reusableOffcutArea;
-        /// <summary>Reusable offcut area (SQM).</summary>
-        public decimal ReusableOffcutArea
+        private decimal _wastageArea;
+        /// <summary>Actual wastage area from Step 6 (SQM).</summary>
+        public decimal WastageArea
         {
-            get => _reusableOffcutArea;
+            get => _wastageArea;
             private set
             {
-                if (_reusableOffcutArea == value) return;
-                _reusableOffcutArea = value;
+                if (_wastageArea == value) return;
+                _wastageArea = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(ReusableOffcutAreaDisplay));
+                OnPropertyChanged(nameof(WastageAreaDisplay));
             }
         }
 
-        public string ReusableOffcutAreaDisplay => $"{ReusableOffcutArea:0.##} SQM";
+        public string WastageAreaDisplay => $"{WastageArea:0.##} SQM";
 
-        private decimal _reusableOffcutValue;
-        /// <summary>Value of reusable offcuts (AED).</summary>
-        public decimal ReusableOffcutValue
+        private decimal _wastageCharge;
+        /// <summary>Actual wastage charge from Step 6 (AED).</summary>
+        public decimal WastageCharge
         {
-            get => _reusableOffcutValue;
+            get => _wastageCharge;
             private set
             {
-                if (_reusableOffcutValue == value) return;
-                _reusableOffcutValue = value;
+                if (_wastageCharge == value) return;
+                _wastageCharge = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(ReusableOffcutValueDisplay));
+                OnPropertyChanged(nameof(WastageChargeDisplay));
             }
         }
 
-        public string ReusableOffcutValueDisplay => $"AED {ReusableOffcutValue:N2}";
+        public string WastageChargeDisplay => $"AED {WastageCharge:N2}";
 
         private decimal _totalPurchaseCost;
         /// <summary>Total purchase cost (AED).</summary>
@@ -192,21 +192,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string RealCostDisplay => $"AED {RealCost:N2}";
 
-        private decimal _costSavings;
-        /// <summary>Cost savings from reusable offcuts (AED).</summary>
-        public decimal CostSavings
+        private decimal _wastageChargedToCustomer;
+        /// <summary>Wastage amount charged to customer (AED).</summary>
+        public decimal WastageChargedToCustomer
         {
-            get => _costSavings;
+            get => _wastageChargedToCustomer;
             private set
             {
-                if (_costSavings == value) return;
-                _costSavings = value;
+                if (_wastageChargedToCustomer == value) return;
+                _wastageChargedToCustomer = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(CostSavingsDisplay));
+                OnPropertyChanged(nameof(WastageChargedToCustomerDisplay));
             }
         }
 
-        public string CostSavingsDisplay => $"AED {CostSavings:N2}";
+        public string WastageChargedToCustomerDisplay => $"AED {WastageChargedToCustomer:N2}";
 
         private decimal _usageEfficiencyPercent;
         /// <summary>Sheet usage efficiency percentage.</summary>
@@ -349,14 +349,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             TotalSheetArea = totalSheetAreaForThisRow,
                             UsedArea = usedAreaForThisRow,
                             OffcutArea = totalSheetAreaForThisRow - usedAreaForThisRow,
-                            ReusableOffcutArea = wastageAreaForThisRow, // Now shows ACTUAL wastage area
+                            WastageArea = wastageAreaForThisRow, // ACTUAL wastage area from Step 6
                             WasteOffcutArea = (totalSheetAreaForThisRow - usedAreaForThisRow) - wastageAreaForThisRow,
                             ReusablePercent = totalSheetAreaForThisRow > 0 
                                 ? Math.Round((wastageAreaForThisRow / totalSheetAreaForThisRow) * 100m, 1) 
                                 : 0m,
                             PricePerSqm = pricePerSqm,
                             PurchaseCost = purchaseCostForThisRow,
-                            ReusableOffcutValue = wastageChargeForThisRow, // Now shows ACTUAL wastage charge
+                            WastageCharge = wastageChargeForThisRow, // ACTUAL wastage charge from Step 6
                             RealCost = purchaseCostForThisRow, // Real cost is purchase cost (wastage is charged to customer)
                             UsageEfficiencyPercent = efficiencyPercent,
                             IsEfficient = efficiencyPercent >= 70m
@@ -379,18 +379,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 TotalSheetArea = totalSheetArea;
                 TotalUsedArea = totalUsedArea;
                 TotalOffcutArea = totalSheetArea - totalUsedArea;
-                ReusableOffcutArea = totalWastageArea; // Actual wastage area
-                ReusableOffcutValue = totalWastageChargeAmount; // Actual wastage charge
+                WastageArea = totalWastageArea; // Actual wastage area from Step 6
+                WastageCharge = totalWastageChargeAmount; // Actual wastage charge from Step 6
                 TotalPurchaseCost = totalPurchaseCost;
                 RealCost = totalPurchaseCost; // Real cost is purchase cost
-                CostSavings = totalWastageChargeAmount; // Wastage charged to customer
+                WastageChargedToCustomer = totalWastageChargeAmount; // Wastage charged to customer
                 UsageEfficiencyPercent = totalSheetArea > 0
                     ? Math.Round((totalUsedArea / totalSheetArea) * 100m, 1)
                     : 0m;
 
                 StatusMessage = $"Analysis complete. {SheetBreakdown.Count} sheet type(s) analyzed. " +
                                $"Usage efficiency: {UsageEfficiencyPercent:0.#}%. " +
-                               $"Wastage charged to customer: AED {CostSavings:N2}.";
+                               $"Wastage charged to customer: AED {WastageChargedToCustomer:N2}.";
             }
             catch (Exception ex)
             {
@@ -548,20 +548,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string OffcutAreaDisplay => $"{OffcutArea:0.##} SQM";
 
-        private decimal _reusableOffcutArea;
-        public decimal ReusableOffcutArea
+        private decimal _wastageArea;
+        public decimal WastageArea
         {
-            get => _reusableOffcutArea;
+            get => _wastageArea;
             set
             {
-                if (_reusableOffcutArea == value) return;
-                _reusableOffcutArea = value;
+                if (_wastageArea == value) return;
+                _wastageArea = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(ReusableOffcutAreaDisplay));
+                OnPropertyChanged(nameof(WastageAreaDisplay));
             }
         }
 
-        public string ReusableOffcutAreaDisplay => $"{ReusableOffcutArea:0.##} SQM";
+        public string WastageAreaDisplay => $"{WastageArea:0.##} SQM";
 
         private decimal _wasteOffcutArea;
         public decimal WasteOffcutArea
@@ -623,20 +623,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string PurchaseCostDisplay => $"AED {PurchaseCost:N2}";
 
-        private decimal _reusableOffcutValue;
-        public decimal ReusableOffcutValue
+        private decimal _wastageCharge;
+        public decimal WastageCharge
         {
-            get => _reusableOffcutValue;
+            get => _wastageCharge;
             set
             {
-                if (_reusableOffcutValue == value) return;
-                _reusableOffcutValue = value;
+                if (_wastageCharge == value) return;
+                _wastageCharge = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(ReusableOffcutValueDisplay));
+                OnPropertyChanged(nameof(WastageChargeDisplay));
             }
         }
 
-        public string ReusableOffcutValueDisplay => $"AED {ReusableOffcutValue:N2}";
+        public string WastageChargeDisplay => $"AED {WastageCharge:N2}";
 
         private decimal _realCost;
         public decimal RealCost
