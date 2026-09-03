@@ -28,6 +28,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using ProGlassAutomation.Services.ProformaInvoice.TargetPricing;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -215,107 +216,162 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 var groups = _parentViewModel.SpecGroupsView;
                 if (groups == null || groups.Count == 0)
                 {
+                    ResetSummary();
                     StatusMessage = "No specifications found. Please add specifications in Step 5.";
                     return;
                 }
 
-                // Group specifications by glass type
-                var glassTypeGroups = new Dictionary<string, List<SpecCostGroup>>();
+                // ── REVENUE BASIS (senior-review fix) ────────────────────
+                // Revenue was previously FAKE: every spec was charged cost ×
+                // 1.15, so every glass type always showed ~13% margin no
+                // matter what the customer was actually quoted. Now, when the
+                // target model has run (Step 9 recalculated), each spec is
+                // priced at its REAL Step 5 given value and classified from
+                // the authoritative BuildType — never guessed from text and
+                // never invented when the spec has no costing evidence.
+                //
+                // All-or-nothing basis: if the target result exists we use
+                // actuals for every covered spec and SKIP (with a count) the
+                // few specs the target run did not cover, rather than mixing
+                // real and estimated revenue in one column. Only when no
+                // target data exists at all does the legacy cost × 1.15
+                // estimate remain, explicitly flagged in the status line.
+                var targets = _parentViewModel.JobTargetResult?.Specifications;
+                bool hasTargetModel = targets != null && targets.Count > 0;
+                var targetBySpec = hasTargetModel
+                    ? targets!.Where(t => t.SpecNumber > 0)
+                              .GroupBy(t => t.SpecNumber)
+                              .ToDictionary(g => g.Key, g => g.First())
+                    : new Dictionary<int, SpecTargetPriceResult>();
+
+                var buckets = new Dictionary<string,
+                    (decimal Revenue, decimal Cost, decimal Area, int SpecCount)>();
+
+                int skippedUncosted = 0;
+                int skippedNotCovered = 0;
 
                 foreach (var specGroup in groups)
                 {
-                    var specName = specGroup.SpecName ?? "";
-                    var glassType = DetectGlassType(specName, specGroup);
-                    
-                    if (!glassTypeGroups.ContainsKey(glassType))
+                    var specCost = specGroup.TotalCost;
+                    if (specCost <= 0m)
                     {
-                        glassTypeGroups[glassType] = new List<SpecCostGroup>();
+                        skippedUncosted++; // no Step 9 costing → never invent a 0% row
+                        continue;
                     }
-                    
-                    glassTypeGroups[glassType].Add(specGroup);
+
+                    string bucketKey;
+                    decimal revenue;
+
+                    if (hasTargetModel)
+                    {
+                        if (!targetBySpec.TryGetValue(specGroup.SpecNumber, out var target)
+                            || target == null
+                            || target.GivenValue <= 0m)
+                        {
+                            skippedNotCovered++;
+                            continue;
+                        }
+
+                        bucketKey = BuildTypeKey(
+                            target.BuildType, target.GlassTypeCode, specGroup.SpecName);
+                        revenue = target.GivenValue;
+                    }
+                    else
+                    {
+                        bucketKey = DetectGlassType(specGroup.SpecName, specGroup) ?? "SGU";
+                        revenue = specCost * 1.15m; // legacy estimate basis (flagged below)
+                    }
+
+                    if (!buckets.ContainsKey(bucketKey))
+                        buckets[bucketKey] = (0m, 0m, 0m, 0);
+
+                    var b = buckets[bucketKey];
+                    buckets[bucketKey] = (
+                        b.Revenue + revenue,
+                        b.Cost + specCost,
+                        b.Area + specGroup.CutSqm,
+                        b.SpecCount + 1);
                 }
 
+                // Build the comparison rows (only buckets with real cost)
                 decimal totalRevenue = 0m;
                 decimal totalCost = 0m;
                 decimal totalProfit = 0m;
 
-                // Analyze each glass type
-                foreach (var kvp in glassTypeGroups)
+                foreach (var kvp in buckets)
                 {
-                    var glassType = kvp.Key;
-                    var specGroups = kvp.Value;
-
-                    var revenue = 0m;
-                    var cost = 0m;
-                    var area = 0m;
-                    var jobCount = specGroups.Count;
-
-                    foreach (var specGroup in specGroups)
-                    {
-                        var specArea = specGroup.CutSqm;
-                        area += specArea;
-
-                        // Get total cost from spec group
-                        var specCost = specGroup.TotalCost;
-                        cost += specCost;
-
-                        // Estimate revenue (use parent's gross revenue proportionally)
-                        // In real implementation, this should come from actual quote data
-                        var estimatedRevenue = specCost * 1.15m; // Assume 15% markup as baseline
-                        revenue += estimatedRevenue;
-                    }
+                    var (revenue, cost, area, specCount) = kvp.Value;
+                    if (cost <= 0m) continue;
 
                     var profit = revenue - cost;
-                    var marginPercent = revenue > 0
+                    var marginPercent = revenue > 0m
                         ? Math.Round((profit / revenue) * 100m, 1)
                         : 0m;
 
                     var row = new GlassTypeComparisonRow
                     {
-                        GlassType = glassType,
-                        JobCount = jobCount,
+                        GlassType = kvp.Key,
+                        JobCount = specCount,
                         TotalArea = area,
                         TotalRevenue = revenue,
                         TotalCost = cost,
                         TotalProfit = profit,
                         MarginPercent = marginPercent,
-                        IsProfitable = profit >= 0,
-                        IsBestPerformer = false, // Will be set later
-                        IsWorstPerformer = false // Will be set later
+                        IsProfitable = profit >= 0m,
+                        IsBestPerformer = false,
+                        IsWorstPerformer = false
                     };
 
                     GlassTypeRows.Add(row);
-
                     totalRevenue += revenue;
                     totalCost += cost;
                     totalProfit += profit;
                 }
 
-                // Identify best and worst performers
                 if (GlassTypeRows.Count > 0)
                 {
-                    var bestPerformer = GlassTypeRows.OrderByDescending(r => r.MarginPercent).First();
+                    var bestPerformer = GlassTypeRows
+                        .OrderByDescending(r => r.MarginPercent).First();
                     bestPerformer.IsBestPerformer = true;
                     BestPerformingGlassType = bestPerformer.GlassType;
 
-                    var worstPerformer = GlassTypeRows.OrderBy(r => r.MarginPercent).First();
+                    var worstPerformer = GlassTypeRows
+                        .OrderBy(r => r.MarginPercent).First();
                     worstPerformer.IsWorstPerformer = true;
                     WorstPerformingGlassType = worstPerformer.GlassType;
 
-                    // Generate recommendation
                     Recommendation = GenerateRecommendation(bestPerformer, worstPerformer);
+                }
+                else
+                {
+                    BestPerformingGlassType = "";
+                    WorstPerformingGlassType = "";
+                    Recommendation = "";
                 }
 
                 TotalRevenue = totalRevenue;
                 TotalCost = totalCost;
                 TotalProfit = totalProfit;
-                OverallMarginPercent = totalRevenue > 0
+                OverallMarginPercent = totalRevenue > 0m
                     ? Math.Round((totalProfit / totalRevenue) * 100m, 1)
                     : 0m;
 
-                StatusMessage = $"Analysis complete. {GlassTypeRows.Count} glass type(s) analyzed. " +
-                               $"Best performer: {BestPerformingGlassType} ({GlassTypeRows.FirstOrDefault(r => r.IsBestPerformer)?.MarginPercent:0.#}%). " +
-                               $"Worst performer: {WorstPerformingGlassType} ({GlassTypeRows.FirstOrDefault(r => r.IsWorstPerformer)?.MarginPercent:0.#}%).";
+                // ── Honest status line ───────────────────────────────────
+                string basis = hasTargetModel
+                    ? "Actual Step 5 given prices"
+                    : "ESTIMATED basis (cost × 1.15) — calculate Step 9 to compare real quoted prices";
+                string note = $"{GlassTypeRows.Count} glass type(s) analyzed on {basis}.";
+
+                var gaps = new List<string>();
+                if (skippedUncosted > 0)
+                    gaps.Add($"{skippedUncosted} spec group(s) skipped — no Step 9 cost rows (never shown as 0%)");
+                if (skippedNotCovered > 0)
+                    gaps.Add($"{skippedNotCovered} spec group(s) not covered by the target run — recalculate Step 9");
+
+                if (gaps.Count > 0)
+                    note += "  " + string.Join("; ", gaps) + ".";
+
+                StatusMessage = note;
             }
             catch (Exception ex)
             {
@@ -328,25 +384,63 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
-        /// <summary>
-        /// Detect glass type from spec name.
-        /// </summary>
-        private string DetectGlassType(string specName, SpecCostGroup specGroup)
+        private void ResetSummary()
         {
+            TotalRevenue = 0m;
+            TotalCost = 0m;
+            TotalProfit = 0m;
+            OverallMarginPercent = 0m;
+            BestPerformingGlassType = "";
+            WorstPerformingGlassType = "";
+            Recommendation = "";
+        }
+
+        /// <summary>
+        /// Authoritative build label from the target model; falls back to the
+        /// legacy text detection when the build is Unknown.
+        /// </summary>
+        private static string BuildTypeKey(
+            GlassBuildType buildType, string glassTypeCode, string specName)
+        {
+            string label = buildType switch
+            {
+                GlassBuildType.Sgu => "SGU",
+                GlassBuildType.Dgu => "DGU",
+                GlassBuildType.Lam => "LAM",
+                GlassBuildType.DguLam => "DGU+LAM",
+                _ => ""
+            };
+            if (!string.IsNullOrEmpty(label)) return label;
+
+            string evidence = $"{glassTypeCode ?? ""} {specName ?? ""}";
+            if (evidence.IndexOf("DGU", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "DGU";
+            if (evidence.IndexOf("LAM", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "LAM";
+            return "SGU";
+        }
+
+        /// <summary>
+        /// Legacy text-based classification used ONLY when no target-model
+        /// data exists yet. Spacer/interlayer evidence drives DGU/LAM; a
+        /// single-pane spec without markers defaults to SGU.
+        /// </summary>
+        private static string DetectGlassType(string specName, SpecCostGroup specGroup)
+        {
+            specName ??= "";
+            specGroup ??= new SpecCostGroup();
+            string groupName = specGroup.SpecName ?? "";
+
             var spacerMatch = PnLSpecParser.Spacer(specName);
             bool spacerDetected = spacerMatch.Success;
-
-            bool isDgu =
-                (specGroup.SpecName ?? "").IndexOf("DGU", StringComparison.OrdinalIgnoreCase) >= 0
-                || spacerDetected;
 
             var pvbMatch = PnLSpecParser.Interlayer(specName);
             bool pvbDetected = pvbMatch.Success;
 
-            bool isLam =
-                (specGroup.SpecName ?? "").IndexOf("LAM", StringComparison.OrdinalIgnoreCase) >= 0
-                || pvbDetected;
-
+            bool isDgu = groupName.IndexOf("DGU", StringComparison.OrdinalIgnoreCase) >= 0
+                         || spacerDetected;
+            bool isLam = groupName.IndexOf("LAM", StringComparison.OrdinalIgnoreCase) >= 0
+                         || pvbDetected;
             bool isDguLam = spacerDetected && pvbDetected;
 
             if (isDguLam) return "DGU+LAM";
@@ -355,9 +449,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             return "SGU";
         }
 
-        /// <summary>
-        /// Generate strategic recommendation based on analysis.
-        /// </summary>
         private string GenerateRecommendation(GlassTypeComparisonRow bestPerformer, GlassTypeComparisonRow worstPerformer)
         {
             var recommendations = new List<string>();

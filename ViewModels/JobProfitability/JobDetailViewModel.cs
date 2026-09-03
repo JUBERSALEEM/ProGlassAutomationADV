@@ -333,9 +333,11 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                             SpecName = string.IsNullOrWhiteSpace(t.SpecName) ? $"Spec {t.SpecNumber}" : t.SpecName,
                             GivenPricePerSqmDisplay = $"AED {t.GivenPricePerSqm:N2}/m²",
                             SpecificationTargetPerSqmDisplay = $"AED {t.SpecificationTargetPerSqm:N2}/m²",
-                            AppliedUInsertPerSqmDisplay = t.UInsertRatePerSqm > 0m
-                                ? $"AED {t.AppliedUInsertPerSqm:N2}/m² added"
-                                : "no additional U-insert",
+                            AppliedUInsertPerSqmDisplay = t.AppliedUInsertPerSqm > 0m
+                                ? $"AED {t.AppliedUInsertPerSqm:N2}/m² folded into target"
+                                : t.UInsertRatePerSqm > 0m
+                                    ? "billed separately in Step 6"
+                                    : "no U-insert extra",
                             FinalRequiredTargetPerSqmDisplay = $"AED {t.FinalRequiredTargetPerSqm:N2}/m²",
                             DifferencePerSqmDisplay = t.DifferencePerSqm < 0m
                                 ? $"-AED {Math.Abs(t.DifferencePerSqm):N2}/m²"
@@ -407,9 +409,14 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         private static string BuildUInsertNote(SpecTargetSnapshot t)
         {
-            if (t.UInsertRatePerSqm <= 0m)
-                return "Not applicable / included in Step 5 price";
-            return $"Additional AED {t.UInsertRatePerSqm:N2}/m²";
+            // Approved rule: a folded rate means the U-insert is covered by
+            // the given price (Step 6 toggle OFF); a rate with zero applied
+            // means the Step 6 row bills it separately on top.
+            if (t.AppliedUInsertPerSqm > 0m)
+                return $"Rate AED {t.AppliedUInsertPerSqm:N2}/m² folded into the required target";
+            if (t.UInsertRatePerSqm > 0m)
+                return $"Billed separately in Step 6 at AED {t.UInsertRatePerSqm:N2}/m² (not in target)";
+            return "No U-insert extra recorded";
         }
 
         private static string SpecStatusLabelFor(SpecTargetSnapshot t)

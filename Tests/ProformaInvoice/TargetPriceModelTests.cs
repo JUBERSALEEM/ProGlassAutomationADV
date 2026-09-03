@@ -6,8 +6,16 @@
 // ─────────────────────────────────────────────────────────────────────────
 //  Given selling price   = Step 5 → Specification → Base Price
 //  Specification target  = ((Outer + Inner) ÷ Yield + ASP) × 1.15  (DGU)
-//  Final required target = specification target
-//                          + Step 6 U-insert rate (ONLY when Additional)
+//
+//  U-INSERT ACCOUNTING (operator-confirmed 2026-09 — toggle semantics):
+//    Step 6 U-insert row ACTIVE  ("trigger ON")  → U-insert is billed as
+//        its own Step 6 line on top of the given price. The FINAL REQUIRED
+//        TARGET stays the NORMAL specification target — the rate is kept
+//        display-only and is never folded into the target.
+//    Step 6 U-insert row NOT active ("toggle OFF") → U-insert is covered
+//        inside the Step 5 given price, so the FINAL REQUIRED TARGET
+//        INCLUDES the resolved rate (specification target + rate).
+//
 //  Approved KPI margin   = (Given − Final Required Target)
 //                          ÷ Final Required Target × 100
 //
@@ -16,8 +24,10 @@
 //         + 6mm Clear Low E FT Glass (47)
 //   Step 5 Base Price = AED 160/m²   area ≈ 36.6891 m² (any positive area)
 //   Specification target            = 178.93
-//   Final targets:  included = 178.93 | +7 = 185.93 | +10 = 188.93
-//   Margins:        −10.58%          | −13.95%       | −15.31%
+//   Final targets:  toggle OFF, rate 0  = 178.93
+//                   toggle OFF, rate +7  = 185.93  | rate +10 = 188.93
+//                   toggle ON (any rate) = 178.93 (normal spec target)
+//   Margins:        −10.58% | −13.95% | −15.31% | toggle ON: −10.58%
 //
 // These are PURE model tests: no WPF dispatcher, no database, no Sheet
 // Store, no filesystem. UI auto-sync event tests and repository-level
@@ -74,10 +84,10 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
                 area);
         }
 
-        private static UInsertResolution Included() => new()
+        private static UInsertResolution Included(decimal rate = 0m) => new()
         {
             Treatment = UInsertTreatment.IncludedInStep5Price,
-            RatePerSqm = 0m
+            RatePerSqm = rate
         };
 
         private static UInsertResolution Additional(decimal rate) => new()
@@ -97,16 +107,23 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
             Assert.Equal(178.93m, Math.Round(spec.FinalRequiredTargetPerSqm, 2));
             Assert.Contains("0.85", spec.FormulaText);
             Assert.Contains("1.15", spec.FormulaText);
-            Assert.Equal(TargetStatus.UpToDate, spec.Status);
+
+            // Given 160 vs target 178.93 → −10.58% is a genuine BELOW TARGET
+            // (never an "up to date" — a spec is only UP TO DATE when its
+            // given price sits inside the ±0.005% AT-TARGET tolerance).
+            Assert.Equal(TargetStatus.BelowTarget, spec.Status);
         }
 
         // ── 2/3/4. Final target + approved margins across treatments ─
+        //
+        //  Toggle OFF (IncludedInStep5Price): rate folds INTO the target.
+        //  Toggle ON  (Additional):           target stays the normal
+        //                                     specification target.
 
-        private static void AssertFinalAndMargin(decimal uRate,
+        private static void AssertFinalAndMargin(UInsertResolution resolution,
             decimal expectedFinal, decimal expectedMargin)
         {
             var spec = CalculateDgu();
-            var resolution = uRate > 0m ? Additional(uRate) : Included();
             SpecificationTargetCalculator.ApplyUInsert(spec, resolution);
 
             Assert.Equal(expectedFinal, Math.Round(spec.FinalRequiredTargetPerSqm, 2));
@@ -121,41 +138,77 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         }
 
         [Fact]
-        public void Included_vector_final_178_93_and_margin_minus_10_58()
-            => AssertFinalAndMargin(0m, 178.93m, -10.58m);
+        public void Included_zero_rate_vector_final_178_93_and_margin_minus_10_58()
+            => AssertFinalAndMargin(Included(0m), 178.93m, -10.58m);
 
         [Fact]
-        public void Additional_7_vector_final_185_93_and_margin_minus_13_95()
-            => AssertFinalAndMargin(7m, 185.93m, -13.95m);
+        public void Included_7_vector_final_185_93_and_margin_minus_13_95()
+            => AssertFinalAndMargin(Included(7m), 185.93m, -13.95m);
 
         [Fact]
-        public void Additional_10_vector_final_188_93_and_margin_minus_15_31()
-            => AssertFinalAndMargin(10m, 188.93m, -15.31m);
-
-        // ── 5. U-insert Included leaves the target unchanged ────────
+        public void Included_10_vector_final_188_93_and_margin_minus_15_31()
+            => AssertFinalAndMargin(Included(10m), 188.93m, -15.31m);
 
         [Fact]
-        public void U_insert_included_does_not_change_the_required_target()
+        public void Additional_7_vector_keeps_normal_target_178_93_and_margin_minus_10_58()
+            => AssertFinalAndMargin(Additional(7m), 178.93m, -10.58m);
+
+        [Fact]
+        public void Additional_10_vector_keeps_normal_target_178_93_and_margin_minus_10_58()
+            => AssertFinalAndMargin(Additional(10m), 178.93m, -10.58m);
+
+        // ── 5. Toggle OFF: the rate is folded into the required target ──
+
+        [Fact]
+        public void U_insert_included_rate_is_folded_into_the_required_target()
         {
             var spec = CalculateDgu();
-            SpecificationTargetCalculator.ApplyUInsert(spec, Included());
-
-            Assert.Equal(0m, spec.AppliedUInsertPerSqm);
-            Assert.Equal(spec.SpecificationTargetPerSqm, spec.FinalRequiredTargetPerSqm);
-            Assert.Equal(UInsertTreatment.IncludedInStep5Price, spec.UInsertTreatment);
-        }
-
-        // ── 6. U-insert Additional adds the dynamic rate on top ──────
-
-        [Fact]
-        public void U_insert_additional_adds_rate_above_the_specification_target()
-        {
-            var spec = CalculateDgu();
-            SpecificationTargetCalculator.ApplyUInsert(spec, Additional(7m));
+            SpecificationTargetCalculator.ApplyUInsert(spec, Included(7m));
 
             Assert.Equal(7m, spec.AppliedUInsertPerSqm);
             Assert.Equal(Math.Round(spec.SpecificationTargetPerSqm + 7m, 2),
                 Math.Round(spec.FinalRequiredTargetPerSqm, 2));
+            Assert.Equal(UInsertTreatment.IncludedInStep5Price, spec.UInsertTreatment);
+        }
+
+        [Fact]
+        public void Folded_rate_reclassifies_a_spec_that_flips_above_to_below_target()
+        {
+            // Given 200 vs spec target 178.93 → +11.78% (ABOVE TARGET).
+            // Toggle OFF with a AED 25/m² U-insert covered in the price:
+            // final target 203.93 → −1.93% — the status MUST re-classify
+            // to BELOW TARGET, never stay "above" against the pre-fold
+            // target.
+            var spec = CalculateDgu(given: 200m, area: 10m);
+            Assert.Equal(TargetStatus.AboveTarget, spec.Status);
+
+            SpecificationTargetCalculator.ApplyUInsert(spec, Included(25m));
+
+            Assert.Equal(Math.Round(178.93m + 25m, 2),
+                Math.Round(spec.FinalRequiredTargetPerSqm, 2));
+            Assert.Equal(-1.93m,
+                Math.Round(spec.MarginAgainstTargetPercent!.Value, 2));
+            Assert.Equal(TargetStatus.BelowTarget, spec.Status);
+        }
+
+        // ── 6. Toggle ON: the extra is billed separately — the required
+        //        target stays the NORMAL specification target ─────────
+
+        [Fact]
+        public void U_insert_additional_keeps_normal_target_rate_display_only()
+        {
+            var spec = CalculateDgu();
+            SpecificationTargetCalculator.ApplyUInsert(spec, Additional(7m));
+
+            // Rate is preserved for the Step 6 display…
+            Assert.Equal(7m, spec.UInsertRatePerSqm);
+            // …but is NOT folded into the required target (the Step 6 line
+            // recovers the cost, so the KPI checks the given price against
+            // the normal specification target).
+            Assert.Equal(0m, spec.AppliedUInsertPerSqm);
+            Assert.Equal(Math.Round(spec.SpecificationTargetPerSqm, 2),
+                Math.Round(spec.FinalRequiredTargetPerSqm, 2));
+            Assert.Equal(UInsertTreatment.Additional, spec.UInsertTreatment);
         }
 
         // ── 7. Step 6 resolver: rate is dynamic, never hardcoded ────
@@ -189,6 +242,9 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         [Fact]
         public void Resolver_treats_inactive_u_insert_row_as_included_in_step5_price()
         {
+            // Toggle OFF: the U-insert is covered inside the Step 5 price.
+            // The resolver keeps the rate so the calculator can fold it
+            // into the required target.
             var r = Step6ChargeResolver.ResolveUInsert(new Step6UInsertQuery
             {
                 SpecRequiresUInsert = true,
@@ -198,7 +254,26 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
             });
 
             Assert.Equal(UInsertTreatment.IncludedInStep5Price, r.Treatment);
-            Assert.Equal(0m, r.RatePerSqm);
+            Assert.Equal(7m, r.RatePerSqm);
+        }
+
+        [Fact]
+        public void Resolver_treats_active_u_insert_row_as_separately_billed_additional()
+        {
+            // Toggle ON: the U-insert is billed as its own Step 6 line on
+            // top of the given price — the treatment is Additional and the
+            // rate is resolved (display), but the calculator must NOT fold
+            // it into the required target.
+            var r = Step6ChargeResolver.ResolveUInsert(new Step6UInsertQuery
+            {
+                SpecRequiresUInsert = true,
+                RowExists = true,
+                RowActiveForSpec = true,
+                RowRate = 7m
+            });
+
+            Assert.Equal(UInsertTreatment.Additional, r.Treatment);
+            Assert.Equal(7m, r.RatePerSqm);
         }
 
         [Fact]
@@ -281,7 +356,9 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         public void Multi_group_aggregation_keeps_each_spec_on_its_own_base_rate()
         {
             var specA = CalculateDgu(given: 160m, area: 10m);       // spec target 178.93
-            SpecificationTargetCalculator.ApplyUInsert(specA, Additional(7m)); // final 185.93
+            // Toggle OFF with a rate: U-insert is covered inside the price,
+            // so group A's final required target is 178.93 + 7 = 185.93.
+            SpecificationTargetCalculator.ApplyUInsert(specA, Included(7m)); // final 185.93
 
             // Second independent group: different rates AND different given price.
             var cardB = new SpecificationRateCard
@@ -392,7 +469,9 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         public void Snapshot_target_block_round_trips_through_json()
         {
             var spec = CalculateDgu();
-            SpecificationTargetCalculator.ApplyUInsert(spec, Additional(7m));
+            // Toggle OFF with a rate → final required target includes it
+            // (178.93 + 7 = 185.93). The persisted block must round-trip it.
+            SpecificationTargetCalculator.ApplyUInsert(spec, Included(7m));
 
             var snap = new ProformaInvoiceSnapshot();
             snap.ProfitLoss = new ProfitLossSnapshot
@@ -404,7 +483,7 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
                 TargetAverageFinalRequiredTargetPerSqm = spec.FinalRequiredTargetPerSqm,
                 TargetMarginAgainstTargetPercent = spec.MarginAgainstTargetPercent,
                 TargetStatus = spec.Status.ToString(),
-                TargetUInsertTreatmentSummary = "Additional",
+                TargetUInsertTreatmentSummary = "Included in price — rate folded into target (AED 7.00/m²)",
                 TargetValidSpecCount = 1,
                 TargetIncompleteSpecCount = 0,
                 TargetCalculationVersion = "2.0"
@@ -449,7 +528,8 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
                 Math.Round(back.ProfitLoss.SpecTargets[0].FinalRequiredTargetPerSqm, 2));
             Assert.Equal(spec.MarginAgainstTargetPercent,
                 back.ProfitLoss.SpecTargets[0].MarginAgainstTargetPercent);
-            Assert.Equal("Additional", back.ProfitLoss.TargetUInsertTreatmentSummary);
+            Assert.Equal("Included in price — rate folded into target (AED 7.00/m²)",
+                back.ProfitLoss.TargetUInsertTreatmentSummary);
             Assert.Equal(spec.RequiredTargetValue, back.ProfitLoss.TargetTotalRequiredValue);
         }
 

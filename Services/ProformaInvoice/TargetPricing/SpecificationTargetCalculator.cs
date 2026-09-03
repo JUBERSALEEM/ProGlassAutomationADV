@@ -128,6 +128,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
         /// Applies the resolved U-insert treatment to a calculated spec
         /// result and derives the final target, difference and margin.
         /// Call after <see cref="Calculate"/> on every result.
+        ///
+        /// Approved rule (2026-09): the rate is added into the FINAL REQUIRED
+        /// TARGET only when the U-insert is covered by the Step 5 price
+        /// (Treatment == IncludedInStep5Price — Step 6 toggle OFF). When the
+        /// Step 6 U-insert row is ACTIVE (Treatment == Additional) the extra
+        /// is billed separately, so the target stays the NORMAL specification
+        /// target and the rate is only carried for display.
         /// </summary>
         public static void ApplyUInsert(
             SpecTargetPriceResult result,
@@ -137,16 +144,40 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
             resolution ??= new UInsertResolution();
 
             result.UInsertTreatment = resolution.Treatment;
-            result.UInsertRatePerSqm = resolution.RatePerSqm;
+            result.UInsertRatePerSqm = Math.Max(0m, resolution.RatePerSqm);
             result.UInsertSourceLabel = "Step 6 Other Charges — U-insert";
 
+            // Only the "covered inside the given price" case folds the rate
+            // into the required target. A separately-billed U-insert (Step 6
+            // row active) leaves the target at the normal specification
+            // target — its cost is recovered by the Step 6 charge row.
             result.AppliedUInsertPerSqm =
-                resolution.Treatment == UInsertTreatment.Additional
+                resolution.Treatment == UInsertTreatment.IncludedInStep5Price
                     ? Math.Max(0m, resolution.RatePerSqm)
                     : 0m;
 
             result.FinalRequiredTargetPerSqm = Math.Round(
                 result.SpecificationTargetPerSqm + result.AppliedUInsertPerSqm, 2);
+
+            // A folded rate changes the FINAL target, so a margin status
+            // classified against the plain specification target (in
+            // Calculate) may no longer be true (e.g. AboveTarget can flip to
+            // BelowTarget once +AED X/m² is covered by the price). Reset the
+            // classification so FinalizeValues re-derives it from the final
+            // required target. Special states (missing inputs, unresolved)
+            // are never reset here.
+            bool foldedRateChangedTarget =
+                resolution.Treatment == UInsertTreatment.IncludedInStep5Price
+                && resolution.RatePerSqm > 0m;
+
+            if (foldedRateChangedTarget
+                && result.Status is TargetStatus.BelowTarget
+                                or TargetStatus.AtTarget
+                                or TargetStatus.AboveTarget
+                                or TargetStatus.UpToDate)
+            {
+                result.Status = TargetStatus.UpToDate;
+            }
 
             if (resolution.HasWarning
                 && !result.Warnings.Contains(resolution.Warning, StringComparer.Ordinal))

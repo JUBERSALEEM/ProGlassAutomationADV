@@ -229,7 +229,7 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Applied U-insert" Style="{StaticResource DetailKpiLabel}"/>
+                                        <TextBlock Grid.Column="0" Text="U-insert applied to target" Style="{StaticResource DetailKpiLabel}"/>
                                         <TextBlock Grid.Column="1" Text="{Binding AppliedUInsertPerSqmDisplay}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -399,7 +399,7 @@
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                HorizontalAlignment="Right" Margin="8,2,0,0"/>
 
-                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="U-insert applied" Style="{StaticResource DetailKpiLabel}" Margin="0,2,0,0"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="U-insert rate" Style="{StaticResource DetailKpiLabel}" Margin="0,2,0,0"/>
                                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding AppliedUInsertPerSqmDisplay}"
                                                                FontSize="{StaticResource TextCaption}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"

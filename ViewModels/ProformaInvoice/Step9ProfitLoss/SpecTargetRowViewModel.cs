@@ -149,7 +149,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string UInsertTreatmentLabel => Result?.UInsertTreatment switch
         {
-            UInsertTreatment.Additional => "Additional",
+            UInsertTreatment.Additional => "Additional — Step 6 extra",
             UInsertTreatment.IncludedInStep5Price => "Included in Step 5 price",
             UInsertTreatment.Unresolved => "Unresolved",
             _ => "Not applicable"
@@ -157,16 +157,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string UInsertTreatmentDetail => Result?.UInsertTreatment switch
         {
-            UInsertTreatment.Additional => $"Rate: {UInsertRateDisplay}/m² (added on top of Step 5 price)",
+            // Approved rule: Step 6 row ACTIVE = billed separately, so the
+            // required target stays the NORMAL specification target.
+            UInsertTreatment.Additional =>
+                "Step 6 bills this U-insert as its own charge on top of the given price — " +
+                "the required target stays the normal specification target (rate not added).",
+            // Step 6 row OFF = U-insert covered inside the given price, so
+            // the target includes the rate to verify the base clears it.
             UInsertTreatment.IncludedInStep5Price =>
-                "No extra is added — the Step 5 given price already covers the U-insert.",
-            UInsertTreatment.Unresolved => "Cannot resolve — check Step 6 U-insert configuration.",
+                "The U-insert is covered inside the Step 5 given price — its rate is folded " +
+                "into the final required target.",
+            UInsertTreatment.Unresolved => "Cannot resolve — check the Step 6 U-insert row and its rate.",
             _ => "This specification carries no U-insert extra."
         };
 
         public string UInsertRateDisplay => FormatRate(Result?.UInsertRatePerSqm);
         public string UInsertSourceDisplay => Result?.UInsertSourceLabel ?? "—";
         public string AppliedUInsertDisplay => FormatRate(Result?.AppliedUInsertPerSqm);
+
+        /// <summary>Sidebar caption for the U-insert value row.</summary>
+        public string UInsertAppliedCaption => Result?.UInsertTreatment switch
+        {
+            UInsertTreatment.IncludedInStep5Price => "Rate folded into required target",
+            UInsertTreatment.Additional => "Step 6 extra (excluded from target)",
+            _ => "U-insert rate"
+        };
+
+        /// <summary>
+        /// Sidebar value for the U-insert row. Under the approved rule the
+        /// rate is only folded into the target when the Step 6 toggle is OFF
+        /// (IncludedInStep5Price); an active Step 6 row keeps it out.
+        /// </summary>
+        public string UInsertAppliedValueDisplay => Result?.UInsertTreatment switch
+        {
+            UInsertTreatment.IncludedInStep5Price => AppliedUInsertDisplay,
+            UInsertTreatment.Additional => "Not added — billed separately in Step 6",
+            UInsertTreatment.Unresolved => "Unresolved — check Step 6",
+            _ => "—"
+        };
 
         // ── SECTION 5 — RESULT ──────────────────────────────────────────
 

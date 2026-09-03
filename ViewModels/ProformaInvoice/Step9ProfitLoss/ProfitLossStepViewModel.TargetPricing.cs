@@ -87,7 +87,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string RequiredTargetPriceDisplay => FormatRateCard(JobTargetResult?.AverageFinalRequiredTargetPerSqm);
         public string SpecificationTargetAverageDisplay => FormatRateCard(JobTargetResult?.AverageSpecificationTargetPerSqm);
 
-        /// <summary>"Additional · AED 10.00/m²" / "Included in Step 5 price" / "—".</summary>
+        /// <summary>
+        /// "Included in price · rate folded in (AED x/m²)" / "Additional · Step 6 extra" /
+        /// "Not applicable" / "Mixed" / "Unresolved".
+        ///
+        /// Approved rule: Additional (Step 6 row active) = the extra is billed
+        /// separately and stays OUT of the target; IncludedInStep5Price
+        /// (toggle off) = the rate is folded INTO the final required target.
+        /// </summary>
         public string UInsertSummaryDisplay
         {
             get
@@ -95,36 +102,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 var specs = JobTargetResult?.Specifications?.ToList() ?? new List<SpecTargetPriceResult>();
                 if (specs.Count == 0) return "—";
 
-                var treatments = specs
-                    .Select(s => s.UInsertTreatment)
-                    .Distinct()
-                    .ToList();
+                bool anyAdditional = specs.Any(s => s.UInsertTreatment == UInsertTreatment.Additional);
+                bool anyIncluded = specs.Any(s => s.UInsertTreatment == UInsertTreatment.IncludedInStep5Price);
+                bool anyUnresolved = specs.Any(s => s.UInsertTreatment == UInsertTreatment.Unresolved);
+                bool anyApplicable = specs.Any(s => s.UInsertTreatment == UInsertTreatment.NotApplicable);
 
-                bool anyAdditional = treatments.Contains(UInsertTreatment.Additional);
-                bool anyIncluded = treatments.Contains(UInsertTreatment.IncludedInStep5Price)
-                                   || treatments.Contains(UInsertTreatment.NotApplicable);
-
-                decimal applied = JobTargetResult?.AverageAppliedUInsertPerSqm ?? 0m;
-
-                if (anyAdditional && applied > 0m)
-                {
-                    string rate = anyAdditional
-                        ? $"AED {applied:N2}/m²"
-                        : "";
-                    return $"Additional · {rate}";
-                }
-
-                if (anyAdditional)
-                    return "Additional";
-
-                if (specs.All(s => s.UInsertTreatment == UInsertTreatment.IncludedInStep5Price
-                                   || s.UInsertTreatment == UInsertTreatment.NotApplicable))
-                    return "Included in Step 5 price";
-
-                if (specs.Any(s => s.UInsertTreatment == UInsertTreatment.Unresolved))
+                if (anyUnresolved && specs.Count(s =>
+                        s.UInsertTreatment != UInsertTreatment.Unresolved) == 0)
                     return "Unresolved — check Step 6";
 
-                return "Mixed";
+                if (anyAdditional && anyIncluded)
+                    return "Mixed — some specs bill U-insert separately, some fold it into price";
+
+                if (anyAdditional)
+                    return "Additional — Step 6 extra billed on top (not in target)";
+
+                decimal applied = JobTargetResult?.AverageAppliedUInsertPerSqm ?? 0m;
+                if (anyIncluded)
+                {
+                    return applied > 0m
+                        ? $"Included in price — rate folded into target (AED {applied:N2}/m²)"
+                        : "Included in price — U-insert covered by the given price";
+                }
+
+                if (anyApplicable || specs.Count == 0)
+                    return "Not applicable";
+
+                return "Unresolved — check Step 6";
             }
         }
 

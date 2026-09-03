@@ -258,27 +258,23 @@
                     </ItemsControl>
                 </ScrollViewer>
 
-                <!-- Empty state -->
-                <Border Grid.Row="1" Padding="24,48">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding TotalJobsAnalyzed}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
+                <!-- Empty state: shown whenever there are no rows. The VM
+                     explains the difference between "no confirmed jobs yet"
+                     and "jobs exist but none could be classified from saved
+                     Step 9 data" — it never pretends the table is empty when
+                     Job Profitability Tab 1 has real rows. -->
+                <Border Grid.Row="1" Padding="24,48"
+                        Visibility="{Binding GlassTypeRows.Count, Converter={StaticResource CountToVisibilityConverter}}">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="30"
                                    HorizontalAlignment="Center" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,12"/>
-                        <TextBlock Text="No glass type data available"
+                        <TextBlock Text="{Binding EmptyStateTitle}"
                                    FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="Glass type comparison appears after confirming PIs with glass specifications."
+                        <TextBlock Text="{Binding EmptyStateMessage}"
                                    FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
-                                   Margin="0,4,0,0" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                   Margin="0,4,0,0" Foreground="{DynamicResource MutedForegroundBrush}"
+                                   TextAlignment="Center" TextWrapping="Wrap" MaxWidth="560"/>
                     </StackPanel>
                 </Border>
             </Grid>

@@ -245,43 +245,68 @@ namespace ProGlassAutomation.Tests.Agent
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
-        public void Step9_view_model_exposes_both_margin_kpis()
+        public void Step9_view_model_exposes_margin_and_analysis_properties()
         {
             var root = LocateProjectRoot();
-            var src = File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.cs"));
 
-            Assert.Contains("CostBasedMarginPercent => MarginPercent", src);
-            Assert.Contains("CostBasedMarginDisplay", src);
-            Assert.Contains("MarkupPercent", src);          // kept, NOT the renamed KPI
-            Assert.Contains("MarkupDisplay", src);
-            Assert.Contains("PriceBasedMarginPercent", src);
-            Assert.Contains("PriceBasedMarginDisplay", src);
-            Assert.Contains("PriceBasedActualProfit", src);
-            Assert.Contains("PriceBasedTotalActualCost", src);
-            Assert.Contains("PriceBasedUInsertCost", src);
-            Assert.Contains("PriceBasedBasisCost", src);        // normal SQM basis × area
-            Assert.Contains("QuoteBasisFor", src);              // existing per-SQM basis
-            Assert.Contains("ComputePriceBasedUInsertCost", src);
-            Assert.Contains("uInsertInProduction", src);
-            Assert.Contains("PredefinedChargeTemplates", src);
-            Assert.Contains("ResolveSuggestedChargeRate", src);
+            // The margin math (cost-based = renamed Profit Margin, price-based
+            // = actual-cost margin over revenue) lives in the CostBasis
+            // partial; the shell wires the three analysis sub-tabs.
+            var cost = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.CostBasis.cs"));
+            var shell = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.cs"));
+            var target = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.TargetPricing.cs"));
+            var support = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.CalculationSupport.cs"));
+
+            // Cost-basis margin (kept, renamed KPI)
+            Assert.Contains("CostBasedMarginPercent => MarginPercent", cost);
+            Assert.Contains("CostBasedMarginDisplay", cost);
+            Assert.Contains("MarkupPercent", cost);          // kept, NOT the renamed KPI
+            Assert.Contains("MarkupDisplay", cost);
+            Assert.Contains("PriceBasedMarginPercent", cost);
+            Assert.Contains("PriceBasedMarginDisplay", cost);
+            Assert.Contains("PriceBasedActualProfit", cost);
+            Assert.Contains("PriceBasedTotalActualCost", cost);
+            Assert.Contains("PriceBasedUInsertCost", cost);
+            Assert.Contains("PriceBasedBasisCost", cost);        // normal SQM basis × area
+            Assert.Contains("QuoteBasisFor", cost);              // existing per-SQM basis
+
+            // U-insert actual-cost plumbing (support partial)
+            Assert.Contains("ComputePriceBasedUInsertCost", support);
+            Assert.Contains("uInsertInProduction", support);
+            Assert.Contains("PredefinedChargeTemplates", support);
+            Assert.Contains("ResolveSuggestedChargeRate", support);
+
+            // Approved target-price KPI model (primary Step 9 cards)
+            Assert.Contains("public TargetPriceResult? JobTargetResult", target);
+            Assert.Contains("public string RequiredTargetPriceDisplay", target);
+            Assert.Contains("public string MarginAgainstTargetDisplay", target);
+            Assert.Contains("public string UInsertSummaryDisplay", target);
+            Assert.Contains("SpecificationTargetCalculator", target);
+
+            // Shell wires the three analysis sub-tabs (auto-synced)
+            Assert.Contains("public ServiceProfitabilityViewModel ServiceProfitability", shell);
+            Assert.Contains("public SheetProfitabilityViewModel SheetProfitability", shell);
+            Assert.Contains("public GlassTypeComparisonViewModel GlassTypeComparison", shell);
         }
 
         [Fact]
-        public void Step9_view_renders_both_margin_cards()
+        public void Step9_view_renders_the_target_kpi_cards()
         {
             var root = LocateProjectRoot();
             var src = File.ReadAllText(Path.Combine(root,
                 "Views/ProformaInvoice/Step9ProfitLoss/ProfitLossStepView.xaml"));
 
-            Assert.Contains("COST-BASED PROFIT MARGIN", src);
-            Assert.Contains("PRICE-BASED PROFIT MARGIN", src);
-            Assert.Contains("CostBasedMarginDisplay", src);
-            Assert.Contains("PriceBasedMarginDisplay", src);
-            Assert.Contains("PiKpiCellStyle", src);
-            Assert.Contains("PiKpiCaptionStyle", src);
-            Assert.Contains("PiKpiValueStyle", src);
+            Assert.Contains("REQUIRED TARGET PRICE", src);
+            Assert.Contains("MARGIN AGAINST TARGET", src);
+            Assert.Contains("RequiredTargetPriceDisplay", src);
+            Assert.Contains("MarginAgainstTargetDisplay", src);
+            Assert.Contains("TgtCardStyle", src);
+            Assert.Contains("TgtCaptionStyle", src);
+            Assert.Contains("TargetSpecsView", src);
         }
 
         [Fact]
@@ -297,7 +322,12 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("IsAverageLoss", src);          // colours by the average itself
             Assert.Contains("costedRows.Average", src);
             Assert.Contains("OverallMarginPercent", src);   // untouched
-            Assert.Contains("TotalProfit * 100m) / TotalNet", src);
+            Assert.Contains("OverallMarginPercentDisplay", src);
+
+            // Portfolio overall margin = (gross − total cost) ÷ total cost
+            // (gross = net × 1.05), mirroring the Step 9 formula.
+            Assert.Contains("((totalGross - TotalCost) * 100m) / TotalCost", src);
+            Assert.Contains("TotalNet * 1.05m", src);
         }
 
         [Fact]
@@ -307,8 +337,10 @@ namespace ProGlassAutomation.Tests.Agent
             var src = File.ReadAllText(Path.Combine(root,
                 "Views/JobProfitability/JobProfitabilityView.xaml"));
 
-            Assert.Contains("AVERAGE MARGIN", src);
+            Assert.Contains("AVERAGE JOB MARGIN", src);
             Assert.Contains("AverageMarginDisplay", src);
+            Assert.Contains("OVERALL MARGIN", src);
+            Assert.Contains("NetMarginPercentDisplay", src);
             Assert.Contains("JpTileStyle", src);
             Assert.Contains("JpTileCaptionStyle", src);
             Assert.Contains("JpTileValueStyle", src);

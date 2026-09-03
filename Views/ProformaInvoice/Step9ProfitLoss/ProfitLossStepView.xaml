@@ -1065,8 +1065,8 @@
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Applied rate" Style="{StaticResource TgtSideLabelStyle}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding AppliedUInsertDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                        <TextBlock Grid.Column="0" Text="{Binding UInsertAppliedCaption}" Style="{StaticResource TgtSideLabelStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding UInsertAppliedValueDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
                                     </Grid>
                                     <Grid>
                                         <Grid.ColumnDefinitions>

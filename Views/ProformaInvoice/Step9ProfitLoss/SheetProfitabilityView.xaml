@@ -363,7 +363,7 @@
                 
                 <!-- Empty State -->
                 <Border Grid.Row="1" 
-                        Visibility="{Binding SheetBreakdown.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Inverted}"
+                        Visibility="{Binding SheetBreakdown.Count, Converter={StaticResource CountToVisibilityConverter}}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Padding="32">

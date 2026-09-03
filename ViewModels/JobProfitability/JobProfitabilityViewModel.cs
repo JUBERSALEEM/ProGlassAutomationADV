@@ -189,6 +189,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 _totalNet = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(TotalNetDisplay));
+                OnPropertyChanged(nameof(NetMarginPercentDisplay));
             }
         }
 
@@ -202,6 +203,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 _totalCost = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(TotalCostDisplay));
+                OnPropertyChanged(nameof(OverallMarginPercentDisplay));
             }
         }
 
@@ -248,10 +250,19 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 _overallMarginPercent = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(OverallMarginDisplay));
+                OnPropertyChanged(nameof(OverallMarginPercentDisplay));
             }
         }
 
         public string OverallMarginDisplay => $"AED {TotalProfit:N0} | {OverallMarginPercent:0.#}%";
+
+        /// <summary>
+        /// Cost-based overall margin as a bare percent for the KPI tile.
+        /// "—" (not a fake 0%) when the filtered set has no costed rows.
+        /// </summary>
+        public string OverallMarginPercentDisplay => TotalCost > 0m
+            ? $"{OverallMarginPercent:0.#}%"
+            : "—";
 
         private decimal _overallPriceBasedMarginPercent;
         /// <summary>
@@ -267,10 +278,19 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 _overallPriceBasedMarginPercent = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(OverallPriceBasedMarginDisplay));
+                OnPropertyChanged(nameof(NetMarginPercentDisplay));
             }
         }
 
         public string OverallPriceBasedMarginDisplay => $"{OverallPriceBasedMarginPercent:0.#}% | AED {TotalProfit:N0}";
+
+        /// <summary>
+        /// Net margin (profit ÷ revenue) as a bare percent for the KPI tile.
+        /// "—" (not a fake 0%) when the filtered set has no revenue.
+        /// </summary>
+        public string NetMarginPercentDisplay => TotalNet > 0m
+            ? $"{OverallPriceBasedMarginPercent:0.#}%"
+            : "—";
 
         private decimal _averageMarginPercent;
         /// <summary>
@@ -419,7 +439,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             }
         }
 
-        public string TargetTotalGivenValueDisplay => $"AED {TargetTotalGivenValue:N2}";
+        public string TargetTotalGivenValueDisplay => HasAnyTargetData
+            ? $"AED {TargetTotalGivenValue:N2}"
+            : "—";
 
         private decimal _targetTotalRequiredValue;
         public decimal TargetTotalRequiredValue
@@ -434,7 +456,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             }
         }
 
-        public string TargetTotalRequiredValueDisplay => $"AED {TargetTotalRequiredValue:N2}";
+        public string TargetTotalRequiredValueDisplay => HasAnyTargetData
+            ? $"AED {TargetTotalRequiredValue:N2}"
+            : "—";
 
         private decimal _targetTotalDifferenceValue;
         public decimal TargetTotalDifferenceValue
@@ -453,6 +477,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         {
             get
             {
+                if (!HasAnyTargetData)
+                    return "—";
                 if (_targetTotalDifferenceValue < 0m)
                     return $"-AED {Math.Abs(_targetTotalDifferenceValue):N2}";
                 return $"AED {_targetTotalDifferenceValue:N2}";
@@ -559,6 +585,34 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 if (_hasAnyTargetData == value) return;
                 _hasAnyTargetData = value;
                 OnPropertyChanged();
+
+                // The three target-value cards read HasAnyTargetData so they
+                // can show an honest "—" instead of "AED 0.00" when every job
+                // predates the target model.
+                OnPropertyChanged(nameof(TargetTotalGivenValueDisplay));
+                OnPropertyChanged(nameof(TargetTotalRequiredValueDisplay));
+                OnPropertyChanged(nameof(TargetTotalDifferenceValueDisplay));
+            }
+        }
+
+        /// <summary>
+        /// Explained status line under the target cards: what the two target
+        /// margins actually cover and how many jobs are stale/incomplete.
+        /// </summary>
+        public string TargetDataBasisNote
+        {
+            get
+            {
+                if (ConfirmedJobCount == 0)
+                    return "No confirmed jobs yet.";
+
+                if (!HasAnyTargetData)
+                    return "None of the confirmed jobs carry target-model data yet — reopen each in Step 9 and save (target model v2.0). Actual P&L above is read from the saved Step 9 snapshot.";
+
+                int missing = StaleTargetJobCount + IncompleteTargetJobCount;
+                return missing > 0
+                    ? $"{ValidTargetJobCount} job(s) with a valid target margin; {missing} without (stale/incomplete) excluded from the portfolio target margin."
+                    : $"Portfolio target margin uses {ValidTargetJobCount} job(s) with a valid margin.";
             }
         }
 
@@ -1122,6 +1176,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
             OnPropertyChanged(nameof(IsPortfolioLoss));
             OnPropertyChanged(nameof(PortfolioStatusLine));
+            OnPropertyChanged(nameof(TargetDataBasisNote));
         }
 
         private string BuildStatus(List<JobProfitabilityRow> rows)

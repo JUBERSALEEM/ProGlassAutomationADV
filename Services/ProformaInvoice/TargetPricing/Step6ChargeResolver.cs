@@ -3,20 +3,26 @@
 // PROJECT: ProGlassAutomation
 // MODULE: U-insert treatment + rate resolution (single dedicated resolver)
 //
-// The Step 6 charge-row state is the established application convention for
-// whether a U-insert extra applies to a specification. This resolver reads
-// that state and decides the ACCOUNTING TREATMENT:
+// APPROVED BUSINESS RULE (operator-confirmed 2026-09):
+//   The Step 6 U-insert row toggle decides whether the U-insert extra is
+//   billed SEPARATELY or is expected to be covered BY the Step 5 price:
 //
-//   • U-insert row ACTIVE and targeted at the spec  → ADDITIONAL
-//     Final required target = specification target + resolved U-insert rate.
+//   • Step 6 U-insert row ACTIVE for the spec ("trigger on"):
+//       The U-insert is charged as its own Step 6 line on top of the
+//       given price. The target check compares the Step 5 given price
+//       against the NORMAL specification target — the U-insert must NOT
+//       be added to the target price (its cost is recovered by the
+//       Step 6 charge row).
 //
-//   • Spec carries no U-insert, or the row is NOT active for the spec
-//     → INCLUDED in the Step 5 price (target unchanged). This is never
-//       inferred from the generic automation on/off toggle.
+//   • Step 6 U-insert row NOT active ("toggle off"):
+//       The U-insert is covered inside the Step 5 given/base price.
+//       The FINAL REQUIRED TARGET therefore INCLUDES the U-insert rate
+//       (specification target + rate), so the KPI verifies the base
+//       price really does cover the combined floor.
 //
-// The rate is read dynamically — Step 4 per-spec seed wins, then the Step 6
-// row rate, then the Step 6 template default. AED 7 / AED 10 are never
-// hardcoded here.
+//   The rate is ALWAYS read dynamically — Step 4 per-spec seed wins,
+//   then the Step 6 row rate, then the Step 6 template default.
+//   AED 7 / AED 10 are never hardcoded here.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -77,31 +83,39 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
 
             if (query.RowExists && query.RowActiveForSpec)
             {
+                // "Trigger ON": the U-insert is billed separately in Step 6,
+                // so the TARGET stays the normal specification target. The
+                // resolved rate is kept for display ("Step 6 extra · rate")
+                // but is NOT added into the required target.
                 result.Treatment = UInsertTreatment.Additional;
                 result.RatePerSqm = Math.Max(0m, rate);
 
                 if (result.RatePerSqm <= 0m)
                 {
+                    // Row active but nobody configured a rate — we cannot say
+                    // what the Step 6 extra is worth. Never guess.
                     result.Treatment = UInsertTreatment.Unresolved;
                     result.Warning =
-                        "U-insert is required and its Step 6 row is active, but no rate is available " +
+                        "U-insert is billed as a Step 6 extra but no rate is available " +
                         "(Step 4 seed, Step 6 row rate and template default are all empty).";
                 }
 
                 return result;
             }
 
-            // Spec requires a U-insert but the Step 6 row is not active for
-            // it — the operator is not billing the extra, so the Step 5
-            // price is treated as already covering it.
+            // "Toggle OFF": the U-insert is covered inside the Step 5 price,
+            // so the FINAL REQUIRED TARGET must include the U-insert rate —
+            // the KPI verifies the base price clears spec target + U-insert.
             result.Treatment = UInsertTreatment.IncludedInStep5Price;
-            result.RatePerSqm = 0m;
+            result.RatePerSqm = Math.Max(0m, rate);
 
-            if (!query.RowExists && rate <= 0m)
+            if (result.RatePerSqm <= 0m)
             {
                 result.Treatment = UInsertTreatment.Unresolved;
                 result.Warning =
-                    "U-insert is required but no Step 6 U-insert row exists and no rate is configured.";
+                    "The U-insert is covered by the given price but no rate is configured " +
+                    "(Step 4 seed, Step 6 row rate and template default are all empty), so " +
+                    "the target cannot include it.";
             }
 
             return result;

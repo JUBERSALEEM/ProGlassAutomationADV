@@ -8,8 +8,15 @@
 //   • The SPECIFICATION TARGET is the Step 4 specification formula result
 //     lifted by the approved target uplift (15%):
 //         DGU: ((Outer Glass Rate + Inner Glass Rate) ÷ Yield + ASP Rate) × 1.15
-//   • The FINAL REQUIRED TARGET adds the Step 6 U-insert rate ONLY when the
-//     U-insert is treated as ADDITIONAL to the Step 5 price.
+//   • U-INSERT ACCOUNTING (operator-confirmed 2026-09 — the Step 6 row
+//     toggle decides the treatment):
+//         Toggle ON  (Treatment = Additional): the U-insert is billed as its
+//             own Step 6 line on top of the given price — the FINAL REQUIRED
+//             TARGET stays the NORMAL specification target and the rate is
+//             display-only (never folded in).
+//         Toggle OFF (Treatment = IncludedInStep5Price): the U-insert is
+//             covered inside the Step 5 given price — the FINAL REQUIRED
+//             TARGET INCLUDES the resolved rate (specification target + rate).
 //   • The only approved KPI margin:
 //         Margin Against Target =
 //             (Given Price − Final Required Target) ÷ Final Required Target × 100
@@ -42,8 +49,17 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
     /// <summary>
     /// Accounting treatment of the U-insert extra. Deliberately independent
     /// from the Step 6 automation toggle: automation decides WHICH charge
-    /// rows are suggested; this decides whether the Step 5 given price
-    /// already includes the U-insert or whether it must be added on top.
+    /// rows are suggested; this decides whether the U-insert rate must be
+    /// folded into the FINAL REQUIRED TARGET.
+    ///
+    /// Approved rule (2026-09):
+    ///   • Step 6 U-insert row ACTIVE for the spec (billed as its own
+    ///     Step 6 line)  → <see cref="Additional"/>. The target stays the
+    ///     NORMAL specification target (rate carried for display only).
+    ///   • Step 6 U-insert row NOT active (U-insert covered by the Step 5
+    ///     given price)   → <see cref="IncludedInStep5Price"/>. The rate is
+    ///     ADDED into the final required target so the KPI verifies the base
+    ///     price covers spec target + U-insert.
     /// </summary>
     public enum UInsertTreatment
     {
@@ -51,14 +67,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
         NotApplicable = 0,
 
         /// <summary>
-        /// The Step 5 given Base Price already covers the U-insert — the
-        /// final required target is the specification target unchanged.
+        /// Step 6 U-insert row is NOT active — the U-insert is expected to be
+        /// covered inside the Step 5 given price, so the final required
+        /// target includes the resolved U-insert rate.
         /// </summary>
         IncludedInStep5Price,
 
         /// <summary>
-        /// The U-insert is billed on top of the Step 5 price — the final
-        /// required target is specification target + Step 6 U-insert rate.
+        /// Step 6 U-insert row IS active for this spec — the extra is billed
+        /// separately on top of the given price. The final required target is
+        /// the normal specification target; the rate is display-only.
         /// </summary>
         Additional,
 
@@ -197,7 +215,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
         public decimal UInsertRatePerSqm { get; set; }
         public string UInsertSourceLabel { get; set; } = "";
 
-        /// <summary>U-insert applied on top of the specification target.</summary>
+        /// <summary>
+        /// U-insert rate folded into the required target: the resolved rate
+        /// when the treatment is IncludedInStep5Price (toggle OFF), else 0 —
+        /// a separately billed Step 6 extra never moves the target.
+        /// </summary>
         public decimal AppliedUInsertPerSqm { get; set; }
 
         /// <summary>Specification target + applied U-insert (AED per SQM).</summary>
@@ -253,7 +275,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
         /// <summary>Area-weighted average final required target (AED/m²).</summary>
         public decimal AverageFinalRequiredTargetPerSqm { get; set; }
 
-        /// <summary>Area-weighted average U-insert applied on top (AED/m²).</summary>
+        /// <summary>
+        /// Area-weighted average U-insert rate folded into the required
+        /// target (AED/m²) — zero for specs billed separately in Step 6.
+        /// </summary>
         public decimal AverageAppliedUInsertPerSqm { get; set; }
 
         public decimal? MarginAgainstTargetPercent { get; set; }
