@@ -453,6 +453,13 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         private async Task FireRefreshAsync()
         {
             await LoadAsync().ConfigureAwait(true);
+            // Refresh all 3 portfolio analysis tabs in parallel
+            // so they show the same data as the P&L Summary
+            await Task.WhenAll(
+                PortfolioServiceProfitability.RefreshAnalysisAsync(),
+                PortfolioWastageAnalysis.RefreshAnalysisAsync(),
+                PortfolioGlassTypeComparison.RefreshAnalysisAsync()
+            ).ConfigureAwait(true);
         }
 
         // ══════════════════════════════════════════════════════════════
