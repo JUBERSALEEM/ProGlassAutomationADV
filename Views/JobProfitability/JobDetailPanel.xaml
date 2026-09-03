@@ -263,6 +263,70 @@
                                 </Grid>
                             </Border>
 
+                            <!-- ── 3 MARGINS ── -->
+                            <TextBlock Text="MARGIN ANALYSIS" Style="{StaticResource DetailSectionLabel}"/>
+                            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    BorderThickness="1" CornerRadius="10" Padding="14,10">
+                                <StackPanel>
+                                    <!-- Cost-Based (without U-insert) -->
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Cost-Based (no U-insert)" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            <TextBlock Text="(Revenue − Base Cost) ÷ Base Cost" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding MarginDisplay}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                    </Grid>
+
+                                    <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,2,0,6"/>
+
+                                    <!-- Overall (with U-insert) — MOST IMPORTANT -->
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
+                                                <Run Text="&#x2B50; Overall (with U-insert)"/>
+                                            </TextBlock>
+                                            <TextBlock Text="(Revenue − Total Cost) ÷ Total Cost" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding OverallMarginDisplay}" FontSize="{StaticResource TextTitle}" FontWeight="Bold" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+
+                                    <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,2,0,6"/>
+
+                                    <!-- Net (accounting) -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Text="Net (accounting)" FontSize="{StaticResource TextCaption}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            <TextBlock Text="(Revenue − Total Cost) ÷ Revenue" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding NetMarginDisplay}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
                             <Border Style="{StaticResource DetailDivider}"/>
 
                             <!-- ── P&L LINE ITEMS ── -->

@@ -503,6 +503,22 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// <summary>Profit as a percentage of NetExVat, one decimal.</summary>
         public decimal MarginPercent { get; set; }
 
+        /// <summary>
+        /// Overall margin including U-insert cost:
+        /// (Gross Revenue − Total Cost with U-insert) / Total Cost × 100.
+        /// This is the REAL job profitability for decision-making.
+        /// Defaults to 0 for snapshots saved before this field existed;
+        /// consumers should treat 0 as "unknown" for old snapshots.
+        /// </summary>
+        public decimal OverallMarginPercent { get; set; }
+
+        /// <summary>
+        /// Net margin (accounting perspective):
+        /// (Gross Revenue − Total Cost) / Gross Revenue × 100.
+        /// Defaults to 0 for snapshots saved before this field existed.
+        /// </summary>
+        public decimal NetMarginPercent { get; set; }
+
         /// <summary>Wastage allowance used when sheet counts were computed.</summary>
         public decimal WastagePercent { get; set; }
 

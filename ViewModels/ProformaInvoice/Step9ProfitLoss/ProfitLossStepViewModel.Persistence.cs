@@ -53,6 +53,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 TotalProductionCost = TotalProductionCost,
                 Profit = Profit,
                 MarginPercent = MarginPercent,
+                OverallMarginPercent = OverallMarginPercent,
+                NetMarginPercent = PriceBasedMarginPercent,
                 WastagePercent = WastagePercent,
                 CostAtSellingPrice = CostAtSellingPrice
             };

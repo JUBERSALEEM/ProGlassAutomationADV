@@ -34,7 +34,19 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public decimal TotalCost { get; set; }
 
         public decimal Profit { get; set; }
+
+        /// <summary>Cost-based margin saved by Step 9 (without U-insert).</summary>
         public decimal MarginPercent { get; set; }
+
+        /// <summary>
+        /// Overall margin including U-insert: (Gross − Total Cost) / Total Cost × 100.
+        /// This is the REAL job profitability. Defaults to 0 for old snapshots
+        /// that didn't persist it — those fall back to MarginPercent.
+        /// </summary>
+        public decimal OverallMarginPercent { get; set; }
+
+        /// <summary>Net margin: (Gross − Total Cost) / Gross × 100.</summary>
+        public decimal NetMarginPercent { get; set; }
 
         /// <summary>True when this job lost money.</summary>
         public bool IsLoss { get; set; }
@@ -65,9 +77,20 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public string CostDisplay => $"AED {TotalCost:N2}";
         public string ProfitDisplay => $"AED {Math.Abs(Profit):N2}";
 
-        public string MarginDisplay => IsCosted
-            ? $"{MarginPercent:0.#}%"
-            : "not costed";
+        /// <summary>
+        /// Shows OverallMarginPercent (with U-insert) when available,
+        /// falls back to MarginPercent (cost-based) for old snapshots.
+        /// </summary>
+        public string MarginDisplay
+        {
+            get
+            {
+                if (!IsCosted) return "not costed";
+                // Prefer overall margin (includes U-insert); fall back to cost-based
+                var pct = OverallMarginPercent != 0m ? OverallMarginPercent : MarginPercent;
+                return $"{pct:0.#}%";
+            }
+        }
 
         /// <summary>Customer and project on one line for the compact row.</summary>
         public string CustomerProjectDisplay =>

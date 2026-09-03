@@ -94,6 +94,14 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public decimal MarginPercent { get => _marginPercent; set { if (_marginPercent == value) return; _marginPercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(MarginDisplay)); } }
         public string MarginDisplay => $"{MarginPercent:0.#}%";
 
+        private decimal _overallMarginPercent;
+        public decimal OverallMarginPercent { get => _overallMarginPercent; set { if (_overallMarginPercent == value) return; _overallMarginPercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(OverallMarginDisplay)); } }
+        public string OverallMarginDisplay => $"{OverallMarginPercent:0.#}%";
+
+        private decimal _netMarginPercent;
+        public decimal NetMarginPercent { get => _netMarginPercent; set { if (_netMarginPercent == value) return; _netMarginPercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(NetMarginDisplay)); } }
+        public string NetMarginDisplay => $"{NetMarginPercent:0.#}%";
+
         private string _profitLabel = "PROFIT";
         public string ProfitLabel { get => _profitLabel; set { if (_profitLabel == value) return; _profitLabel = value ?? ""; OnPropertyChanged(); } }
 
@@ -170,6 +178,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     TotalCost = pl.TotalGlassCost + pl.TotalProductionCost;
                     Profit = pl.Profit;
                     MarginPercent = pl.MarginPercent;
+                    OverallMarginPercent = pl.OverallMarginPercent;
+                    NetMarginPercent = pl.NetMarginPercent;
                     ProfitLabel = Profit >= 0 ? "PROFIT" : "LOSS";
                 }
 

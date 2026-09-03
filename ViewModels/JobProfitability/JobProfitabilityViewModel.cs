@@ -395,7 +395,13 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             SelectRowCommand = new RelayCommand(param =>
             {
                 if (param is JobProfitabilityRow row)
-                    JobDetail.LoadJobDetail(row.ProformaId);
+                {
+                    // Toggle: clicking the same row closes the sidebar
+                    if (JobDetail.IsPanelVisible && JobDetail.ProformaId == row.ProformaId)
+                        JobDetail.ClearSelection();
+                    else
+                        JobDetail.LoadJobDetail(row.ProformaId);
+                }
             });
             CloseDetailCommand = new RelayCommand(_ => JobDetail.ClearSelection());
 
@@ -604,6 +610,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         TotalCost = cost,
                         Profit = profit,
                         MarginPercent = margin,
+                        OverallMarginPercent = costed ? pl!.OverallMarginPercent : 0m,
+                        NetMarginPercent = costed ? pl!.NetMarginPercent : 0m,
                         IsLoss = costed && profit < 0m,
                         IsCosted = costed,
                         NeedsRecalculation = costed && integrity.NeedsRecalculation,
@@ -797,14 +805,11 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 ? Math.Round(((totalGross - TotalCost) * 100m) / totalGross, 1)
                 : 0m;
 
-            // Average Margin %: only the Margin % figures of the displayed
-            // VALID rows (costed rows carry a real Step 9 margin; uncosted
-            // rows have no margin and are excluded). Rows are never
-            // weighted by Net/Cost/Profit amount, so this is a plain mean
-            // of percentages. Zero valid rows → "—".
+            // Average Margin %: prefer OverallMarginPercent (with U-insert)
+            // for rows that have it; fall back to MarginPercent for old snapshots.
             AverageMarginCount = costedRows.Count;
             AverageMarginPercent = costedRows.Count > 0
-                ? Math.Round(costedRows.Average(r => r.MarginPercent), 1)
+                ? Math.Round(costedRows.Average(r => r.OverallMarginPercent != 0m ? r.OverallMarginPercent : r.MarginPercent), 1)
                 : 0m;
 
             OnPropertyChanged(nameof(IsPortfolioLoss));
