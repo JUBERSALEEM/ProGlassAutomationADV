@@ -563,6 +563,8 @@
                     </StackPanel>
                 </Border>
             </Grid>
+        </Border>
+                </Grid>
             </TabItem>
 
             <!-- ═══ TAB 2: Service Profitability ═══ -->

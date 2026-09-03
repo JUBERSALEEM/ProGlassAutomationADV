@@ -42,7 +42,7 @@
         
         <!-- KPI card style -->
         <Style x:Key="KpiCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource CardBackgroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
@@ -159,12 +159,12 @@
                     Height="40"
                     Margin="16,0,0,0"
                     VerticalAlignment="Center"
-                    Style="{StaticResource PrimaryButton}"/>
+                    Style="{StaticResource PrimaryPillButton}"/>
         </StackPanel>
         
         <!-- Service Breakdown Table -->
         <Border Grid.Row="2" 
-                Background="{DynamicResource CardBackgroundBrush}"
+                Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
                 CornerRadius="8">

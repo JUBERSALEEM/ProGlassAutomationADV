@@ -67,4 +67,19 @@
     <conv:ResourceKeyToStringConverter      x:Key="ResourceKeyToString"/>
     <conv:WindowInsetConverter              x:Key="WindowInsetConverter"/>
 
+    <!-- ═══ STEP 9 ANALYSIS CONVERTERS ════════════════════════════════ -->
+
+    <!-- Compares a decimal value against a threshold (ConverterParameter).
+         Returns "LessThan", "EqualTo", or "GreaterThan" for DataTrigger matching. -->
+    <conv:DecimalComparisonConverter        x:Key="DecimalComparisonConverter"/>
+
+    <!-- Shows/hides based on string being non-empty.
+         Non-empty → Visible; null/empty → Collapsed. -->
+    <conv:StringToVisibilityConverter       x:Key="StringToVisibilityConverter"/>
+
+    <!-- Shows/hides based on collection count.
+         Default: count=0 → Visible (empty state); count>0 → Collapsed.
+         ConverterParameter="Inverted": reverses the logic. -->
+    <conv:CountToVisibilityConverter        x:Key="CountToVisibilityConverter"/>
+
 </ResourceDictionary>
