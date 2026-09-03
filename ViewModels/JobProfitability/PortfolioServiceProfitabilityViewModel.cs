@@ -43,6 +43,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             
             ServiceBreakdown = new ObservableCollection<PortfolioServiceProfitRow>();
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(RefreshAnalysisAsync, "PortfolioServiceProfit Refresh"));
+            
+            // Auto-load on construction
+            AsyncUtility.SafeFireAndForget(RefreshAnalysisAsync, "PortfolioServiceProfit InitialLoad");
         }
 
         // ══════════════════════════════════════════════════════════════

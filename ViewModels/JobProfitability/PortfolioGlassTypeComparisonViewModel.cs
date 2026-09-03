@@ -43,6 +43,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             
             GlassTypeRows = new ObservableCollection<PortfolioGlassTypeRow>();
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(RefreshAnalysisAsync, "PortfolioGlassType Refresh"));
+            
+            // Auto-load on construction
+            AsyncUtility.SafeFireAndForget(RefreshAnalysisAsync, "PortfolioGlassType InitialLoad");
         }
 
         // ══════════════════════════════════════════════════════════════
