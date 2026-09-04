@@ -130,6 +130,13 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             // Push the change into the wizard immediately.
             ProformaFieldVisibility.Instance.Refresh();
+
+            // Numeric Step 9 default: tell live (unpinned) Step 9 screens to
+            // re-read the margin and recalculate. Bool toggles skip this —
+            // they must not force a price recalculation.
+            if (propertyName == nameof(ExpectedProfitMarginPercent))
+                Services.Features.Step9PricingDefaults.NotifyMarginDefaultChanged();
+
             OnPropertyChanged(propertyName);
         }
 
@@ -336,6 +343,30 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             get => Flags.ShowSiteDeliveryLocation;
             set { if (Flags.ShowSiteDeliveryLocation == value) return; Flags.ShowSiteDeliveryLocation = value; PersistAndNotify(nameof(ShowSiteDeliveryLocation)); }
+        }
+
+        // ── Numeric — Step 9: expected profit margin default ─────────
+
+        /// <summary>
+        /// Company default expected profit margin (%) for the Step 9
+        /// required-target uplift. Unlike the toggles above this is not a
+        /// visibility flag — it is a decimal persisted on the same flags
+        /// object (AppConfig.ProformaInvoiceFields). New proforma invoices
+        /// capture it at creation; Step 4 margin boxes seed from it.
+        /// The live reader is Services.Features.Step9PricingDefaults.
+        /// </summary>
+        public decimal ExpectedProfitMarginPercent
+        {
+            get => Flags.ExpectedProfitMarginPercent;
+            set
+            {
+                if (value < 0m) value = 0m;
+                if (value > 200m) value = 200m;
+                var flags = Flags;
+                if (flags.ExpectedProfitMarginPercent == value) return;
+                flags.ExpectedProfitMarginPercent = value;
+                PersistAndNotify(nameof(ExpectedProfitMarginPercent));
+            }
         }
     }
 }

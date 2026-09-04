@@ -205,6 +205,15 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public bool ShowContractNo { get; set; } = true;
         public bool ShowLpoNumber { get; set; } = true;
         public bool ShowSiteDeliveryLocation { get; set; } = true;
+
+        // ── Step 9: Target pricing default (not a visibility flag) ─
+        // The expected profit margin (%) that Step 9's target uplift
+        // (× 1.15 → × (1 + margin/100)) and Step 4's margin boxes use as
+        // their DEFAULT on new invoices. 15% keeps the approved formula
+        // byte-identical on fresh installs. Saved per invoice at creation
+        // time; see Services.Features.Step9PricingDefaults for the live
+        // runtime mirror.
+        public decimal ExpectedProfitMarginPercent { get; set; } = 15m;
     }
 
     /// <summary>

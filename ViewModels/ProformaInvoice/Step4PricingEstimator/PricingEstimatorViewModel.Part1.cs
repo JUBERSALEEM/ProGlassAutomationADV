@@ -689,6 +689,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 JsonSerializer.Serialize(snapshot)) ?? new Step4PricingSnapshot();
         }
 
+        /// <summary>
+        /// Margin % that Step 4 panels seed when a NEW invoice is started.
+        /// Reads the company default from Settings → Features → Proforma
+        /// Invoice → Step 9 → Profit margin % (15% default), so a settings
+        /// change flows into every new quote's Step 4 margin boxes. Yield
+        /// stays at the per-panel 0.85 — the Step 9 WASTAGE % box drives the
+        /// yield used by the Step 9 target formula, not these rows.
+        /// </summary>
+        private static decimal ExpectedMarginSeedForNewInvoice =>
+            ProGlassAutomation.Services.Features.Step9PricingDefaults.ExpectedProfitMarginPercent;
+
         public void ResetForNewInvoice()
         {
             _isRestoringSnapshot = true;
@@ -705,7 +716,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     SguVM.CuttingCostPerSqm = 15m;
                     SguVM.TemperingCostPerSqm = 25m;
                     SguVM.YieldFactor = 0.85m;
-                    SguVM.TargetMarginPercent = 15m;
+                    SguVM.TargetMarginPercent = ExpectedMarginSeedForNewInvoice;
                     SguVM.SelectedPolishOption = "None (Standard)";
                     SguVM.SheetWidthMm = 0;
                     SguVM.SheetHeightMm = 0;
@@ -732,7 +743,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     DguVM.InnerSheetWidthMm = 0;
                     DguVM.InnerSheetHeightMm = 0;
                     DguVM.YieldFactor = 0.85m;
-                    DguVM.MarginProfitPercent = 15m;
+                    DguVM.MarginProfitPercent = ExpectedMarginSeedForNewInvoice;
                 });
 
                 LamVM.RunWithoutSheetStoreRefresh(() =>
@@ -758,7 +769,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     LamVM.OuterTemperingCost = 25m;
                     LamVM.InnerTemperingCost = 25m;
                     LamVM.YieldFactor = 0.85m;
-                    LamVM.MarginProfitPercent = 15m;
+                    LamVM.MarginProfitPercent = ExpectedMarginSeedForNewInvoice;
                 });
 
                 DguLamVM.OuterThickness = "6mm";
@@ -790,7 +801,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 DguLamVM.LamInnerCuttingCost = 10m;
                 DguLamVM.LamInnerTemperingCost = 10m;
                 DguLamVM.YieldFactor = 0.85m;
-                DguLamVM.MarginProfitPercent = 20m;
+                DguLamVM.MarginProfitPercent = ExpectedMarginSeedForNewInvoice;
 
                 SelectGlassTypeCard("SGU");
                 YieldFactorWarning = "";

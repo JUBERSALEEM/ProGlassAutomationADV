@@ -121,6 +121,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             Rows.CollectionChanged += OnRowsCollectionChanged;
 
+            // Live default: an unpinned invoice follows the Settings → Step 9
+            // expected profit margin whenever it changes.
+            Services.Features.Step9PricingDefaults.MarginDefaultChanged += OnExpectedProfitMarginDefaultChanged;
+
             // Initialize analysis ViewModels
             ServiceProfitability = new ServiceProfitabilityViewModel(this);
             SheetProfitability = new SheetProfitabilityViewModel(this);
@@ -142,6 +146,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         {
             if (_disposed) return;
             _disposed = true;
+
+            try { Services.Features.Step9PricingDefaults.MarginDefaultChanged -= OnExpectedProfitMarginDefaultChanged; }
+            catch { /* teardown must never throw */ }
 
             try { _subscriptions.Dispose(); }
             catch { /* teardown must never throw */ }

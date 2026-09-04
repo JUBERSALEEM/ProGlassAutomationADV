@@ -302,11 +302,39 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.Contains("REQUIRED TARGET PRICE", src);
             Assert.Contains("MARGIN AGAINST TARGET", src);
+            Assert.Contains("EXPECTED PROFIT MARGIN", src);
             Assert.Contains("RequiredTargetPriceDisplay", src);
             Assert.Contains("MarginAgainstTargetDisplay", src);
+            Assert.Contains("ExpectedProfitMarginDisplay", src);
+            Assert.Contains("ExpectedProfitMarginFactorLabel", src);
             Assert.Contains("TgtCardStyle", src);
             Assert.Contains("TgtCaptionStyle", src);
             Assert.Contains("TargetSpecsView", src);
+        }
+
+        [Fact]
+        public void Step9_expected_profit_margin_is_settings_driven_and_live()
+        {
+            var root = LocateProjectRoot();
+
+            // The middle KPI card reads the same expected-profit-margin the
+            // formula uplifts by (15% default → ×1.15), owned by the Settings
+            // Features page (AppConfig → live mirror Step9PricingDefaults).
+            var vmSrc = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.TargetPricing.cs"));
+            Assert.Contains("ExpectedProfitMarginPercent", vmSrc);
+            Assert.Contains("EffectiveYieldFactor", vmSrc);
+            Assert.Contains("1m - (WastagePercent / 100m)", vmSrc);
+
+            var settingsSrc = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections/SettingsFeaturesSection.xaml"));
+            Assert.Contains("STEP 9 · TARGET PRICING", settingsSrc);
+            Assert.Contains("ExpectedProfitMarginPercent", settingsSrc);
+
+            var defaultsSrc = File.ReadAllText(Path.Combine(root,
+                "Services/Features/Step9PricingDefaults.cs"));
+            Assert.Contains("FallbackExpectedProfitMarginPercent = 15m", defaultsSrc);
+            Assert.Contains("MarginDefaultChanged", defaultsSrc);
         }
 
         [Fact]

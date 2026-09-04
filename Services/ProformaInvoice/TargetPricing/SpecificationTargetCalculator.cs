@@ -11,8 +11,12 @@
 //   Specification target (DGU example):
 //     ((Outer Glass Rate + Inner Glass Rate) ÷ Yield Factor + ASP Rate) × 1.15
 //
-// The pre-uplift formula result is NEVER used as the KPI denominator, and
-// wastage never enters this model (it lives exclusively in Sheet Detail).
+// The pre-uplift formula result is NEVER used as the KPI denominator.
+// Yield Factor is supplied by the caller: Step 9 derives it from the
+// WASTAGE % box (yield = 1 − wastage/100), so that box moves the
+// required target exactly as approved. Step 6 wastage CHARGES never
+// enter this model — they are billed production costs in Sheet Detail,
+// not part of the target KPI.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;

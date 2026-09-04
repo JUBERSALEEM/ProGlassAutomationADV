@@ -378,35 +378,59 @@ public ProformaInvoiceViewModel() : this(
             {
                 var section = sections[i];
                 var group = Step5VM.SpecGroups[i];
-                bool matchesCurrentSectionSpec =
-                    !string.IsNullOrWhiteSpace(section.GeneratedSpecName)
-                    && string.Equals(group.SelectedSpecName, section.GeneratedSpecName,
-                        StringComparison.OrdinalIgnoreCase);
-                bool wasLastSynced =
+
+                if (string.IsNullOrWhiteSpace(section.GeneratedSpecName)) continue;
+
+                // A row is "Step-4 owned" when it is still empty, still holds
+                // the spec Step 4 last pushed into it, or already carries the
+                // spec Step 4 currently generates. Once the operator HAND
+                // PICKS a different specification in the Step 5 grid, the row
+                // leaves Step 4 ownership and is never overwritten again.
+                bool isStep4Owned =
                     string.IsNullOrWhiteSpace(group.SelectedSpecName)
-                    || matchesCurrentSectionSpec
                     || string.Equals(group.SelectedSpecName, group.LastSyncedStep4SpecName,
+                        StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(group.SelectedSpecName, section.GeneratedSpecName,
                         StringComparison.OrdinalIgnoreCase);
 
-                if (!string.IsNullOrWhiteSpace(section.SelectedGlassTypeCode)
-                    && (string.IsNullOrWhiteSpace(group.SelectedGlassType)
-                        || wasLastSynced
-                        || string.Equals(group.SelectedGlassType, group.LastSyncedStep4GlassType,
-                            StringComparison.OrdinalIgnoreCase)))
+                bool glassTypeIsStep4Owned =
+                    string.IsNullOrWhiteSpace(group.SelectedGlassType)
+                    || string.Equals(group.SelectedGlassType, group.LastSyncedStep4GlassType,
+                        StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(group.SelectedGlassType, section.SelectedGlassTypeCode,
+                        StringComparison.OrdinalIgnoreCase);
+
+                if (!string.IsNullOrWhiteSpace(section.SelectedGlassTypeCode) && glassTypeIsStep4Owned)
                 {
                     group.SelectedGlassType = section.SelectedGlassTypeCode;
                 }
 
-                if (!string.IsNullOrWhiteSpace(section.GeneratedSpecName) && wasLastSynced)
+                if (isStep4Owned)
                 {
+                    bool specChanged = !string.Equals(
+                        group.SelectedSpecName, section.GeneratedSpecName,
+                        StringComparison.OrdinalIgnoreCase);
+
                     group.SelectedSpecName = section.GeneratedSpecName;
                     group.LastSyncedStep4SpecName = section.GeneratedSpecName;
                     group.LastSyncedStep4GlassType = section.SelectedGlassTypeCode;
 
-                    if (group.ImportedPrice <= 0m && section.EstimatedRatePerSqm > 0m)
-                        group.ImportedPrice = section.EstimatedRatePerSqm;
-                    if (group.BaseRate <= 0m && section.EstimatedRatePerSqm > 0m)
+                    if (section.EstimatedRatePerSqm > 0m)
+                    {
+                        // Step 4 is the source of truth for owned rows: re-
+                        // pricing the DGU/SGU/LAM panel and pressing Continue
+                        // MUST refresh the grid rate (this was the bug — an
+                        // edited Step 4 rate never reached Step 5 because the
+                        // old guard only wrote when BaseRate was still 0).
                         group.BaseRate = section.EstimatedRatePerSqm;
+
+                        // ImportedPrice stays as the FIRST reference price so
+                        // an operator can see the original quote even after a
+                        // re-price; it only moves when the spec itself changed
+                        // or no reference exists yet.
+                        if (specChanged || group.ImportedPrice <= 0m)
+                            group.ImportedPrice = section.EstimatedRatePerSqm;
+                    }
                 }
             }
         }

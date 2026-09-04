@@ -204,11 +204,16 @@
                     </StackPanel>
                 </Grid>
 
-                <!-- ═══ TWO PRIMARY KPI CARDS (approved layout) ═══ -->
+                <!-- ═══ THREE KPI CARDS (approved layout) ═══
+                     Card 1: required target price (formula result)
+                     Card 2: expected profit margin (uplift, Settings-owned)
+                     Card 3: margin against target (red/green status pill) -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
@@ -227,7 +232,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Specification target ×1.15" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="{Binding ExpectedProfitMarginFactorLabel, StringFormat='Specification target {0}'}" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding SpecificationTargetAverageDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"/>
                                 </Grid>
@@ -263,8 +268,46 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- CARD 2 — MARGIN AGAINST TARGET -->
-                    <Border Grid.Column="2">
+                    <!-- CARD 2 — EXPECTED PROFIT MARGIN (middle card).
+                         Shows the default profit margin (15% → ×1.15) that the
+                         required-target formula adds on top of the cost basis.
+                         Settings → Features → Proforma Invoice → Step 9 owns
+                         the company default; an invoice can pin its own value
+                         (captured at creation) via the view-model. -->
+                    <Border Grid.Column="2" Style="{StaticResource TgtCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="EXPECTED PROFIT MARGIN" Style="{StaticResource TgtCaptionStyle}"/>
+                            <TextBlock Text="{Binding ExpectedProfitMarginDisplay}"
+                                       FontSize="30" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Margin="0,2,0,10"/>
+                            <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,0,0,10"/>
+                            <StackPanel>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Uplift applied to cost basis" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding ExpectedProfitMarginFactorLabel}"
+                                               Style="{StaticResource TgtKvValueStyle}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Source" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding ExpectedProfitMarginSourceLabel}"
+                                               Style="{StaticResource TgtKvValueStyle}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- CARD 3 — MARGIN AGAINST TARGET -->
+                    <Border Grid.Column="4">
                         <Border.Style>
                             <Style TargetType="Border" BasedOn="{StaticResource TgtCardStyle}">
                                 <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
@@ -428,7 +471,7 @@
 
                 <!-- ═══ ACTUAL COST DETAIL (reference, formula-separated) ═══ -->
                 <TextBlock Text="ACTUAL COST &amp; RATE CHECK — SHEET STORE BASIS" Style="{StaticResource TgtSectionLabel}"/>
-                <TextBlock Text="Actual glass cost comes from the Sheet Store; production from Step 4 rates. Wastage lives only in Sheet Detail and never enters the target KPI above."
+                <TextBlock Text="Actual glass cost comes from the Sheet Store; production from Step 4 rates. The WASTAGE % box also sets the formula yield (15% → ÷0.85), so it moves the required target; Step 6 wastage charges never enter the target KPI."
                            FontSize="{StaticResource TextCaption}"
                            Foreground="{DynamicResource MutedForegroundBrush}"
                            TextWrapping="Wrap" Margin="0,0,0,10"/>
@@ -1126,7 +1169,7 @@
                                         <TextBlock Grid.Column="0" Text="Difference value" Style="{StaticResource TgtSideLabelStyle}"/>
                                         <TextBlock Grid.Column="1" Text="{Binding DifferenceValueDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
                                     </Grid>
-                                    <TextBlock Text="Wastage is never part of this KPI — it lives only in Sheet Detail."
+                                    <TextBlock Text="The WASTAGE % box sets the formula yield used by the target above (15% → ÷0.85); Step 6 wastage charges are never part of this KPI."
                                                FontSize="{StaticResource TextCaption}"
                                                Foreground="{DynamicResource MutedForegroundBrush}"
                                                TextWrapping="Wrap" Margin="0,6,0,0"/>

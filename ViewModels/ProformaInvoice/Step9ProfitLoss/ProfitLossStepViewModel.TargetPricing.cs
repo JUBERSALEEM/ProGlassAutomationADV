@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
@@ -62,6 +63,72 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public TargetPriceResult? JobTargetResult { get; private set; }
 
         public bool HasJobTarget => JobTargetResult != null;
+
+        // ── EXPECTED PROFIT MARGIN (middle KPI card, approved uplift) ──
+        // The target formula multiplies the pre-uplift specification result
+        // by (1 + margin/100). The margin is the company default captured in
+        // Settings → Features → Proforma Invoice → Step 9 ("Profit margin %",
+        // default 15 → ×1.15). Drafts and invoices saved before the setting
+        // existed auto-adapt to the CURRENT global default (always live);
+        // SetExpectedProfitMarginOverride can pin a per-invoice value when a
+        // saved snapshot is re-hydrated.
+
+        private decimal? _expectedProfitMarginPercent;
+
+        /// <summary>True when this invoice carries its own captured margin
+        /// instead of following the global default live.</summary>
+        public bool HasExpectedProfitMarginOverride => _expectedProfitMarginPercent.HasValue;
+
+        /// <summary>Effective expected profit margin (%) for this invoice.</summary>
+        public decimal ExpectedProfitMarginPercent =>
+            _expectedProfitMarginPercent
+            ?? Services.Features.Step9PricingDefaults.ExpectedProfitMarginPercent;
+
+        /// <summary>Middle KPI card value, e.g. "15%".</summary>
+        public string ExpectedProfitMarginDisplay => $"{ExpectedProfitMarginPercent:0.#}%";
+
+        /// <summary>Factor label, e.g. "×1.15".</summary>
+        public string ExpectedProfitMarginFactorLabel =>
+            $"×{1m + ExpectedProfitMarginPercent / 100m:0.##}";
+
+        /// <summary>Where the middle-card value comes from.</summary>
+        public string ExpectedProfitMarginSourceLabel => HasExpectedProfitMarginOverride
+            ? "Captured for this invoice"
+            : "Company default · Settings → Features → Proforma Invoice → Step 9";
+
+        /// <summary>Pins an invoice-specific expected margin (e.g. the value
+        /// captured when the invoice was created/saved).</summary>
+        public void SetExpectedProfitMarginOverride(decimal percent)
+        {
+            percent = Services.Features.Step9PricingDefaults.ClampPercent(percent);
+            if (_expectedProfitMarginPercent == percent) return;
+            _expectedProfitMarginPercent = percent;
+            OnPropertyChanged(nameof(ExpectedProfitMarginPercent));
+            OnPropertyChanged(nameof(ExpectedProfitMarginDisplay));
+            OnPropertyChanged(nameof(ExpectedProfitMarginFactorLabel));
+            NotifyTargetOutputsChanged();
+        }
+
+        /// <summary>Called when the Settings default changes so an unpinned
+        /// invoice follows the new global value live.</summary>
+        private void OnExpectedProfitMarginDefaultChanged()
+        {
+            if (HasExpectedProfitMarginOverride) return;
+
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            if (dispatcher == null || dispatcher.CheckAccess())
+                RaiseExpectedProfitMarginChangedAndRecalc();
+            else
+                dispatcher.BeginInvoke(new Action(RaiseExpectedProfitMarginChangedAndRecalc));
+        }
+
+        private void RaiseExpectedProfitMarginChangedAndRecalc()
+        {
+            OnPropertyChanged(nameof(ExpectedProfitMarginPercent));
+            OnPropertyChanged(nameof(ExpectedProfitMarginDisplay));
+            OnPropertyChanged(nameof(ExpectedProfitMarginFactorLabel));
+            QueueRecalculate();
+        }
 
         /// <summary>
         /// When the user selects a specification on the target tab the
@@ -344,6 +411,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         private void NotifyTargetOutputsChanged()
         {
+            OnPropertyChanged(nameof(ExpectedProfitMarginPercent));
+            OnPropertyChanged(nameof(ExpectedProfitMarginDisplay));
+            OnPropertyChanged(nameof(ExpectedProfitMarginFactorLabel));
+            OnPropertyChanged(nameof(ExpectedProfitMarginSourceLabel));
             OnPropertyChanged(nameof(RequiredTargetPriceDisplay));
             OnPropertyChanged(nameof(SpecificationTargetAverageDisplay));
             OnPropertyChanged(nameof(UInsertSummaryDisplay));
@@ -397,13 +468,42 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         /// <summary>
+        /// The yield factor used by the specification formula
+        /// ((glass ÷ yield) + add-ons) × (1 + margin/100).
+        ///
+        /// APPROVED LINKAGE (2026-09): the yield IS the cutting-wastage
+        /// allowance — 15% wastage = ÷0.85, 10% = ÷0.90, 25% = ÷0.75.
+        /// It is therefore derived from the Step 9 WASTAGE % box
+        /// (yield = 1 − wastage/100) rather than read from the Step 4
+        /// Yield rows, so the formula the operator watches on Step 9
+        /// moves the moment they edit the box. Step 4's own Yield rows
+        /// keep driving the Step 4 sell-rate preview and are untouched
+        /// by this rule.
+        /// </summary>
+        private decimal EffectiveYieldFactor()
+        {
+            // WastagePercent is clamped to 0–95 by its setter, so the
+            // yield stays within (0.05 … 1.00]; the >0 guard in the
+            // shared calculator therefore never trips for a valid box.
+            decimal yield = 1m - (WastagePercent / 100m);
+            return yield <= 0m ? 0.05m : yield;
+        }
+
+        /// <summary>
         /// Builds the rate card from the bound Step 4 panel of the spec's own
         /// build type (each group is scored against its own glass type, the
         /// same discipline QuoteBasisFor uses for the actual-cost model).
+        /// Yield comes from the Step 9 WASTAGE % box (see
+        /// <see cref="EffectiveYieldFactor"/>); the uplift comes from the
+        /// expected profit margin (Settings default, live for unpinned
+        /// invoices — see <see cref="ExpectedProfitMarginPercent"/>).
         /// </summary>
         private SpecificationRateCard? BuildRateCard(SpecGroup group, GlassBuildType buildType)
         {
             if (group == null) return null;
+
+            decimal yield = EffectiveYieldFactor();
+            decimal upliftPercent = ExpectedProfitMarginPercent;
 
             switch (buildType)
             {
@@ -416,8 +516,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         InnerGlassRatePerSqm = _dguVm.InnerBasePrice,
                         AspRatePerSqm = _dguVm.SpacerPrice,
                         ProcessingRatePerSqm = 0m,
-                        YieldFactor = _dguVm.YieldFactor,
-                        TargetUpliftPercent = SpecificationTargetCalculator.DefaultTargetUpliftPercent
+                        YieldFactor = yield,
+                        TargetUpliftPercent = upliftPercent
                     };
 
                 case GlassBuildType.Sgu:
@@ -429,8 +529,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         InnerGlassRatePerSqm = 0m,
                         AspRatePerSqm = 0m,
                         ProcessingRatePerSqm = _sguVm.CuttingCostPerSqm + _sguVm.TemperingCostPerSqm,
-                        YieldFactor = _sguVm.YieldFactor,
-                        TargetUpliftPercent = SpecificationTargetCalculator.DefaultTargetUpliftPercent
+                        YieldFactor = yield,
+                        TargetUpliftPercent = upliftPercent
                     };
 
                 case GlassBuildType.Lam:
@@ -444,8 +544,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         ProcessingRatePerSqm = _lamVm.PvbMaterialRate
                                                + _lamVm.OuterCuttingCost + _lamVm.InnerCuttingCost
                                                + _lamVm.OuterTemperingCost + _lamVm.InnerTemperingCost,
-                        YieldFactor = _lamVm.YieldFactor,
-                        TargetUpliftPercent = SpecificationTargetCalculator.DefaultTargetUpliftPercent
+                        YieldFactor = yield,
+                        TargetUpliftPercent = upliftPercent
                     };
 
                 case GlassBuildType.DguLam:
@@ -460,8 +560,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         ProcessingRatePerSqm = _dguLamVm.TotalCuttingCost
                                                + _dguLamVm.TotalTemperingCost
                                                + _dguLamVm.InterlayerSellPrice,
-                        YieldFactor = _dguLamVm.YieldFactor,
-                        TargetUpliftPercent = SpecificationTargetCalculator.DefaultTargetUpliftPercent
+                        YieldFactor = yield,
+                        TargetUpliftPercent = upliftPercent
                     };
 
                 default:

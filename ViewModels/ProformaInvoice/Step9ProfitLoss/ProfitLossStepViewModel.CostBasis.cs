@@ -100,8 +100,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         private decimal _wastagePercent = 15m;
         /// <summary>
-        /// Cutting wastage allowance applied to the required area before the
-        /// sheet count is rounded up. User-editable; 15% is the shop default.
+        /// Cutting wastage allowance. Two jobs in one control:
+        ///   1. Area basis — applied to the required SQM before the sheet
+        ///      count is rounded up (SGU priced by required area; Step 6
+        ///      SHEET QTY overrides both when set).
+        ///   2. Formula yield — the specification target divides the glass
+        ///      rates by yield = 1 − wastage/100 (15% → ÷0.85, 10% → ÷0.90,
+        ///      25% → ÷0.75). See ProfitLossStepViewModel.TargetPricing.cs
+        ///      EffectiveYieldFactor().
+        /// User-editable; 15% is the shop default. Clamped to 0–95% so the
+        /// yield can never reach zero or go negative.
         /// </summary>
         public decimal WastagePercent
         {
@@ -109,7 +117,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             set
             {
                 if (_wastagePercent == value) return;
-                _wastagePercent = value < 0m ? 0m : value;
+                _wastagePercent = value < 0m ? 0m : value > 95m ? 95m : value;
                 OnPropertyChanged();
 
                 // Wastage feeds the sheet count, which feeds every glass

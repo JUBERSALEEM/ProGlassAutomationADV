@@ -528,6 +528,46 @@
                     </Border>
                 </UniformGrid>
 
+                <!-- ── STEP 9 · TARGET PRICING ─────────────────────
+                     Numeric default (not a visibility toggle): the expected
+                     profit margin that Step 9's required-target formula uses
+                     (× 1.15 → × (1 + margin/100)). New invoices capture this
+                     value at creation; Step 4 margin boxes seed from it.
+                     Literal text on purpose — the value travels through
+                     AppConfig.ProformaInvoiceFields.ExpectedProfitMarginPercent
+                     and the live mirror Step9PricingDefaults. -->
+                <TextBlock Text="STEP 9 · TARGET PRICING"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"
+                           Margin="0,18,0,0"/>
+
+                <UniformGrid Columns="3" Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8FD;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Profit margin %"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Expected profit margin the Step 9 required-target formula adds (15% default → ×1.15). New invoices start from this and Step 4 margins seed from it."/>
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBox Text="{Binding ExpectedProfitMarginPercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                         Width="88" Padding="8,5"
+                                         FontSize="{StaticResource TextBodyLarge}"
+                                         VerticalAlignment="Center"
+                                         AutomationProperties.Name="Expected profit margin percent"/>
+                                <TextBlock Text="%" FontSize="{StaticResource TextBodyLarge}"
+                                           VerticalAlignment="Center" Margin="6,0,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </UniformGrid>
+
                 </StackPanel>   <!-- close DataContext=ProformaFeatures scope -->
 
                 <!-- ═══════════ INQUIRY FIELD VISIBILITY ═══════════
