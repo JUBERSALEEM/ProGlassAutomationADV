@@ -799,6 +799,143 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         /// <summary>Closes the detail sidebar.</summary>
         public ICommand CloseDetailCommand { get; private set; }
 
+        /// <summary>Returns the top cards to the portfolio aggregate.</summary>
+        public ICommand ClearRowSelectionCommand { get; private set; }
+
+        // ── Selected row ──────────────────────────────────────────────────
+        // The top KPI cards mirror Step 9 for ONE PI. Click a row in the
+        // jobs table and the four cards switch from the portfolio aggregate
+        // to that row's own figures (required target, margin against target,
+        // overall margin). No selection → portfolio aggregate.
+
+        private JobProfitabilityRow? _selectedRow;
+
+        public JobProfitabilityRow? SelectedRow
+        {
+            get => _selectedRow;
+            private set
+            {
+                if (ReferenceEquals(_selectedRow, value)) return;
+                _selectedRow = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasRowSelection));
+                OnPropertyChanged(nameof(SelectionScopeLabel));
+                OnPropertyChanged(nameof(TopScopeSummary));
+                NotifyTopCardsChanged();
+            }
+        }
+
+        public bool HasRowSelection => _selectedRow != null;
+
+        public string SelectionScopeLabel => _selectedRow != null
+            ? $"PI {_selectedRow.ProformaId}"
+            : "All confirmed PIs";
+
+        /// <summary>One line under the KPI cards explaining the current scope.</summary>
+        public string TopScopeSummary => _selectedRow != null
+            ? $"Top cards show {SelectionScopeLabel} — the totals and counts below always cover all {ConfirmedJobCount} confirmed PI(s) shown."
+            : $"Top cards show all {ConfirmedJobCount} confirmed PI(s) — click any row in the list to inspect that PI here.";
+
+        private void SetSelectedRow(JobProfitabilityRow? row)
+        {
+            SelectedRow = row;
+            foreach (var r in Rows)
+                r.IsSelectedRow = ReferenceEquals(r, row);
+        }
+
+        /// <summary>Raises change notifications for every top-card property.</summary>
+        private void NotifyTopCardsChanged()
+        {
+            OnPropertyChanged(nameof(TopRequiredTargetValueDisplay));
+            OnPropertyChanged(nameof(TopRequiredTargetScope));
+            OnPropertyChanged(nameof(TopTargetMarginDisplay));
+            OnPropertyChanged(nameof(TopTargetStatusLabel));
+            OnPropertyChanged(nameof(IsTopTargetBelow));
+            OnPropertyChanged(nameof(HasTopTargetMargin));
+            OnPropertyChanged(nameof(IsTopTargetIncomplete));
+            OnPropertyChanged(nameof(IsTopTargetStale));
+            OnPropertyChanged(nameof(TopOverallMarginDisplay));
+            OnPropertyChanged(nameof(IsTopOverallLoss));
+            OnPropertyChanged(nameof(TopOverallVerdict));
+            OnPropertyChanged(nameof(IsTopOverallAboveBase));
+            OnPropertyChanged(nameof(IsTopOverallBelowBase));
+        }
+
+        // ── Top KPI cards — dynamic (selected PI when a row is clicked) ──
+
+        /// <summary>CARD 1 — required target value.</summary>
+        public string TopRequiredTargetValueDisplay
+        {
+            get
+            {
+                if (SelectedRow != null)
+                    return SelectedRow.HasTargetData
+                        ? $"AED {SelectedRow.TargetRequiredValue:N2}"
+                        : "—";
+                return TargetTotalRequiredValueDisplay;
+            }
+        }
+
+        public string TopRequiredTargetScope => SelectedRow != null
+            ? $"Final required target — {SelectionScopeLabel}"
+            : "Σ final required target — all confirmed PIs";
+
+        /// <summary>CARD 3 — margin against target (the ONLY margin that
+        /// drives Job Profitability; Step 9's approved KPI).</summary>
+        public decimal? TopTargetMarginPercent => SelectedRow != null
+            ? (SelectedRow.HasValidTargetMargin ? SelectedRow.TargetMarginAgainstTargetPercent : (decimal?)null)
+            : PortfolioTargetMarginPercent;
+
+        public string TopTargetMarginDisplay => TopTargetMarginPercent switch
+        {
+            null => "—",
+            var m => $"{m.Value:0.##}%"
+        };
+
+        public string TopTargetStatusLabel => SelectedRow != null
+            ? SelectedRow.TargetStatusLabel
+            : PortfolioTargetStatusLabel;
+
+        public bool IsTopTargetBelow => SelectedRow != null
+            ? SelectedRow.IsBelowTarget
+            : IsPortfolioTargetBelow;
+
+        public bool HasTopTargetMargin => SelectedRow != null
+            ? SelectedRow.HasValidTargetMargin
+            : HasPortfolioTargetMargin;
+
+        public bool IsTopTargetIncomplete => SelectedRow != null
+            ? SelectedRow.IsTargetIncomplete
+            : (!HasPortfolioTargetMargin && ValidTargetJobCount == 0);
+
+        public bool IsTopTargetStale => SelectedRow != null
+            ? SelectedRow.IsTargetStale
+            : (StaleTargetJobCount > 0 && ValidTargetJobCount == 0);
+
+        /// <summary>CARD 4 — overall margin (actual P&amp;L, Σ profit ÷ Σ cost on
+        /// NET revenue ex-VAT). Row-selected = that PI's achieved margin.</summary>
+        public string TopOverallMarginDisplay => SelectedRow != null
+            ? (SelectedRow.IsCosted ? $"{SelectedRow.EffectiveMarginPercent:0.#}%" : "not costed")
+            : OverallMarginPercentDisplay;
+
+        public bool IsTopOverallLoss => SelectedRow != null
+            ? (SelectedRow.IsCosted && SelectedRow.EffectiveMarginPercent < 0m)
+            : IsPortfolioLoss;
+
+        public string TopOverallVerdict => SelectedRow != null
+            ? (SelectedRow.HasBaseMarginComparison
+                ? JobMarginBands.Chip(SelectedRow.EffectiveMarginPercent, SelectedRow.BaseExpectedMarginPercent)
+                : "")
+            : OverallVsBaseVerdict;
+
+        public bool IsTopOverallAboveBase => SelectedRow != null
+            ? SelectedRow.IsMarginAboveBase
+            : OverallVsBaseBand == "AboveBase";
+
+        public bool IsTopOverallBelowBase => SelectedRow != null
+            ? SelectedRow.IsMarginBelowBase
+            : OverallVsBaseBand == "BelowBase";
+
         public JobProfitabilityViewModel()
          : this(
             App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){ }
@@ -813,7 +950,10 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             {
                 if (param is JobProfitabilityRow row)
                 {
-                    // Toggle: clicking the same row closes the sidebar
+                    // Selecting a row drives the TOP KPI CARDS to that PI's
+                    // own Step 9 figures. Clicking the same row again toggles
+                    // the sidebar; the cards keep showing the row.
+                    SetSelectedRow(row);
                     if (JobDetail.IsPanelVisible && JobDetail.ProformaId == row.ProformaId)
                         JobDetail.ClearSelection();
                     else
@@ -821,6 +961,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 }
             });
             CloseDetailCommand = new RelayCommand(_ => JobDetail.ClearSelection());
+            ClearRowSelectionCommand = new RelayCommand(_ => SetSelectedRow(null));
 
             Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));
 
@@ -1061,6 +1202,24 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         ? (pl!.TargetStatus ?? "")
                         : (snapshotStale ? "SnapshotStale" : "CalculationIncomplete");
 
+                    // ── AUTO-CORRECT the margin against target ─────────────
+                    // The authoritative per-PI figure is (given − required) ÷
+                    // required, and the snapshot always stores the two totals
+                    // that derive it. Older builds could persist a stale or
+                    // outdated aggregate margin, so whenever both totals are
+                    // intact we recompute here — fixing the KPI column, the
+                    // top cards and the portfolio average without a data
+                    // migration. Rows without usable totals keep the stored
+                    // value (null = genuinely incomplete → never a fake 0%).
+                    if (hasTargetData && targetGiven > 0m && targetRequired > 0m)
+                    {
+                        targetMargin = Math.Round(
+                            ((targetGiven - targetRequired) * 100m) / targetRequired, 2);
+                        targetStatus = targetMargin.Value > 0.05m ? "AboveTarget"
+                            : targetMargin.Value < -0.05m ? "BelowTarget"
+                            : "AtTarget";
+                    }
+
                     _allRows.Add(new JobProfitabilityRow
                     {
                         ProformaId = inv.ProformaId ?? "",
@@ -1251,8 +1410,15 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
             var result = query.ToList();
 
+            // Keep the row selection valid: if the selected PI is filtered
+            // out, return the top cards to the portfolio scope.
+            if (_selectedRow != null && !result.Contains(_selectedRow))
+                SetSelectedRow(null);
+
             Rows.ClearSilent();
             Rows.AddRangeSilent(result);
+            foreach (var r in Rows)
+                r.IsSelectedRow = ReferenceEquals(r, _selectedRow);
             Rows.RaiseReset();
             OnPropertyChanged(nameof(HasRows));
 
@@ -1383,6 +1549,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             OnPropertyChanged(nameof(BaseExpectedMarginFactorLabel));
             OnPropertyChanged(nameof(HasTargetShortfall));
             OnPropertyChanged(nameof(PortfolioTargetStatusLabel));
+            OnPropertyChanged(nameof(TopScopeSummary));
+            NotifyTopCardsChanged();
         }
 
         private string BuildStatus(List<JobProfitabilityRow> rows)

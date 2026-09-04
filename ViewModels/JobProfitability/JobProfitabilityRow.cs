@@ -187,6 +187,13 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             };
 
         /// <summary>Status shown in the row: ABOVE/AT/BELOW TARGET, INCOMPLETE, STALE.</summary>
+        /// <remarks>
+        /// Derived from the EFFECTIVE margin against target (which the parent
+        /// view-model recomputes from the stored given/required totals on
+        /// load), so a job whose snapshot persisted an outdated aggregate
+        /// margin is auto-corrected instead of re-labelled from the old
+        /// stored status string.
+        /// </remarks>
         public string TargetStatusLabel
         {
             get
@@ -194,25 +201,12 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 if (!HasTargetData)
                     return IsCosted ? "STALE" : "INCOMPLETE";
 
-                if (TargetMarginAgainstTargetPercent.HasValue
-                    && !string.IsNullOrWhiteSpace(TargetStatus))
+                if (TargetMarginAgainstTargetPercent.HasValue)
                 {
-                    // NOTE: the row's own string property is ALSO named
-                    // `TargetStatus`, so in this instance context the enum
-                    // must be reached through its full name — a bare
-                    // `TargetStatus.X` would bind to the string property and
-                    // fail with CS1061.
-                    if (Enum.TryParse<ProGlassAutomation.Services.ProformaInvoice.TargetPricing.TargetStatus>(
-                            TargetStatus, out var parsed))
-                    {
-                        return parsed switch
-                        {
-                            ProGlassAutomation.Services.ProformaInvoice.TargetPricing.TargetStatus.AboveTarget => "ABOVE TARGET",
-                            ProGlassAutomation.Services.ProformaInvoice.TargetPricing.TargetStatus.AtTarget => "AT TARGET",
-                            ProGlassAutomation.Services.ProformaInvoice.TargetPricing.TargetStatus.BelowTarget => "BELOW TARGET",
-                            _ => parsed.ToString().ToUpperInvariant().Replace("_", " ")
-                        };
-                    }
+                    var m = TargetMarginAgainstTargetPercent.Value;
+                    if (m > 0.05m) return "ABOVE TARGET";
+                    if (m < -0.05m) return "BELOW TARGET";
+                    return "AT TARGET";
                 }
 
                 return IsSnapshotStale ? "STALE" : "INCOMPLETE";
@@ -223,7 +217,23 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         public bool IsBelowTarget => TargetStatusLabel == "BELOW TARGET";
         public bool IsTargetIncomplete => TargetStatusLabel == "INCOMPLETE";
         public bool IsTargetStale => TargetStatusLabel == "STALE";
-        public bool HasValidTargetMargin => TargetMarginAgainstTargetPercent.HasValue;
+        public bool HasValidTargetMargin => HasTargetData && TargetMarginAgainstTargetPercent.HasValue;
+
+        // ── Row selection highlight ──────────────────────────────────────
+        private bool _isSelectedRow;
+
+        /// <summary>True when this row is the one shown in the top KPI cards
+        /// (set by JobProfitabilityViewModel on click).</summary>
+        public bool IsSelectedRow
+        {
+            get => _isSelectedRow;
+            set
+            {
+                if (_isSelectedRow == value) return;
+                _isSelectedRow = value;
+                OnPropertyChanged();
+            }
+        }
 
         // ── Display helpers (legacy, kept for reporting) ────────────────
 
