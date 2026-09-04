@@ -122,6 +122,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     companyTrn: company.CompanyTrn ?? "",
                     companyLocation: company.CompanyLocation ?? "",
 
+                    // AUDIT-FIX F-2: Step 1 profile fields enrich the saved
+                    // company record. The repository preserves any stored
+                    // value when the invoice field is blank.
+                    companyLogoPath: company.LogoPath ?? "",
+                    companyRepresentative: company.Representative ?? "",
+                    companyRepresentativeMobile: company.RepresentativeMobile ?? "",
+                    companyEmail: company.CompanyEmail ?? "",
+                    companyAccountNumber: company.AccountNumber ?? "",
+                    companyBankName: company.BankName ?? "",
+
                     customerName: client.CustomerName ?? "",
                     customerTrn: client.CustomerTrn ?? "",
                     customerReferenceCode: client.CustomerReferenceCode ?? "",

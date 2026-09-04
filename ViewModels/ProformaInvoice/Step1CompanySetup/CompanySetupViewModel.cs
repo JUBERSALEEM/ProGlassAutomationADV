@@ -443,6 +443,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                     .ToList();
 
                 RebuildVisibleCards();
+
+                // AUDIT-FIX F-3: adopt the DEFAULT company on a brand-new
+                // invoice. Until now this existed only inside
+                // ShowAllCompaniesCommand (the "view all" button), so a fresh
+                // PI opened with an empty header and zero cards to tap.
+                // Skipped when a name is already set (snapshot restore or
+                // user typing beats the async load) and when the user has
+                // already loaded/touched a profile.
+                if (string.IsNullOrWhiteSpace(CompanyName)
+                    && !_isLoadingProfile
+                    && string.IsNullOrEmpty(LoadedProfileName))
+                {
+                    var def = _allCompanyCards.FirstOrDefault(c => c.IsDefault);
+                    if (def != null) LoadProfile(def);
+                }
             }
             catch (Exception ex)
             {
@@ -462,11 +477,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         {
             SavedProfiles.Clear();
 
-            // FILTER: Only show cards that match the current CompanyName text
-            // If CompanyName is empty, show nothing (user hasn't started typing)
-            // If CompanyName has text, show matching suggestions
+            // FILTER: match against the typed CompanyName.
+            // AUDIT-FIX F-3: while the field is blank, offer the most-used
+            // companies as tappable suggestions instead of showing nothing —
+            // the historical "fresh PI shows zero cards" dead-end.
             var filtered = string.IsNullOrWhiteSpace(CompanyName)
-                ? new List<CompanyProfileCard>() // Empty = no suggestions
+                ? _allCompanyCards
                 : _allCompanyCards
                     .Where(c => c.CompanyName.IndexOf(CompanyName, StringComparison.OrdinalIgnoreCase) >= 0)
                     .ToList();
@@ -526,6 +542,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 LoadedProfileName = profile.CompanyName;
                 Representative = profile.Representative;
                 LogoPath = profile.LogoPath;
+                // AUDIT-FIX F-4: the card carries these from the store and
+                // the XAML binds them, but they were never copied — picking
+                // a company card left mobile/e-mail/bank blank.
+                RepresentativeMobile = profile.RepresentativeMobile;
+                CompanyEmail = profile.CompanyEmail;
+                AccountNumber = profile.AccountNumber;
+                BankName = profile.BankName;
                 CompanyRecordId = profile.Id;
             }
             finally

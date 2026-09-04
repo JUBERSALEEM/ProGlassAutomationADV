@@ -56,11 +56,20 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         // ══════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Upsert a company profile. Matches by CompanyName + CompanyTrn
-        /// (case-insensitive). Updates existing or inserts new.
+        /// Upsert a company profile. Lookup: primary key first (when
+        /// <paramref name="company"/>.Id &gt; 0), then natural key
+        /// CompanyName + CompanyTrn (case-insensitive).
+        /// Updates existing or inserts new.
+        /// <paramref name="preserveUnsetProfileFields"/>: when true (invoice
+        /// auto-save), blank profile fields must not erase stored values and
+        /// IsDefault is left untouched; when false (Company Center editor),
+        /// latest data wins for all fields including IsDefault.
+        /// Throws <see cref="InvalidOperationException"/> when a rename would
+        /// collide with a name+TRN already owned by another company.
         /// Returns the saved/updated entity.
         /// </summary>
-        Task<SavedCompany> SaveOrUpdateCompanyAsync(SavedCompany company);
+        Task<SavedCompany> SaveOrUpdateCompanyAsync(
+            SavedCompany company, bool preserveUnsetProfileFields = false);
 
         /// <summary>
         /// Returns all companies ordered by UsageCount DESC, LastUsedAt DESC.
@@ -198,6 +207,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         /// CHAT 15: projectReference parameter added.
         ///   Descriptive project reference (e.g. "HOUSE FOR IMAD HABIB")
         ///   separate from projectContractNo (short code, e.g. "428 IMAD HABIB").
+        /// AUDIT-FIX F-2: optional company profile parameters added
+        ///   (logo / representative / mobile / email / account / bank) so
+        ///   values typed on the invoice header also enrich the saved
+        ///   company record. Auto-save always uses preserve-on-blank
+        ///   semantics — it can never erase an existing profile value.
         /// </summary>
         Task AutoSaveFromInvoiceAsync(
             // Company fields
@@ -220,6 +234,16 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             string projectContractNo,
             string projectReference,        // CHAT 15: NEW
             string siteDeliveryLocation,
-            string lpoNumber);
+            string lpoNumber,
+
+            // Company profile fields (AUDIT-FIX F-2, optional).
+            // Passed straight from the Step 1 header: non-blank values
+            // enrich the saved company; blanks never erase stored values.
+            string? companyLogoPath = null,
+            string? companyRepresentative = null,
+            string? companyRepresentativeMobile = null,
+            string? companyEmail = null,
+            string? companyAccountNumber = null,
+            string? companyBankName = null);
     }
 }

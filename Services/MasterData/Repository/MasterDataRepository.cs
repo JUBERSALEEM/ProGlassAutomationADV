@@ -113,7 +113,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         //  COMPANIES
         // ══════════════════════════════════════════════════════════════════
 
-        public async Task<SavedCompany> SaveOrUpdateCompanyAsync(SavedCompany company)
+        public async Task<SavedCompany> SaveOrUpdateCompanyAsync(
+            SavedCompany company, bool preserveUnsetProfileFields = false)
         {
             ReadOnlyGate.Demand("save a company");
             // A-1: service-layer authorization. The UI also checks,
@@ -126,7 +127,16 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
             using var ctx = new MasterDataDbContext();
 
-            var existing = await ctx.Companies.FirstOrDefaultAsync(c =>
+            // AUDIT-FIX F-1: lookup order. (1) primary key when the caller
+            // knows it — Company Center edits carry the row Id and may have
+            // RENAMED the company; a name-based lookup would miss the row and
+            // INSERT a duplicate instead of updating it. (2) natural key
+            // Name+TRN otherwise (invoice auto-save / suggestion dedup).
+            SavedCompany? existing = null;
+            if (company.Id > 0)
+                existing = await ctx.Companies
+                    .FirstOrDefaultAsync(c => c.Id == company.Id);
+            existing ??= await ctx.Companies.FirstOrDefaultAsync(c =>
                 c.CompanyName.ToLower() == company.CompanyName.ToLower()
                 && c.CompanyTrn.ToLower() == company.CompanyTrn.ToLower());
 
@@ -134,8 +144,83 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
             if (existing != null)
             {
-                // Update — latest data wins
-                existing.CompanyLocation = company.CompanyLocation;
+                // AUDIT-FIX F-1b: renaming onto a name+TRN pair that another
+                // row already owns would create a hidden duplicate company.
+                // Refuse instead of silently creating it. Only checked when
+                // the identity key actually changes, so saves against
+                // legacy-duplicated data keep working.
+                bool keyChanged =
+                    !string.Equals(existing.CompanyName, company.CompanyName,
+                        StringComparison.OrdinalIgnoreCase)
+                    || !string.Equals(existing.CompanyTrn, company.CompanyTrn,
+                        StringComparison.OrdinalIgnoreCase);
+                if (keyChanged)
+                {
+                    bool clash = await ctx.Companies.AnyAsync(c =>
+                        c.Id != existing.Id
+                        && c.CompanyName.ToLower() == company.CompanyName.ToLower()
+                        && c.CompanyTrn.ToLower() == company.CompanyTrn.ToLower());
+                    if (clash)
+                        throw new InvalidOperationException(
+                            $"Cannot rename \"{existing.CompanyName}\": another saved company " +
+                            $"already uses the name + TRN \"{company.CompanyName}\" / " +
+                            $"\"{company.CompanyTrn}\".");
+                }
+
+                void SetIfProvided(Action<string> set, string? value)
+                {
+                    if (!string.IsNullOrWhiteSpace(value)) set(value.Trim());
+                }
+
+                existing.CompanyName = company.CompanyName?.Trim()
+                    ?? existing.CompanyName;
+                existing.CompanyTrn = company.CompanyTrn?.Trim()
+                    ?? existing.CompanyTrn;
+
+                if (preserveUnsetProfileFields)
+                {
+                    // Invoice auto-save path: a blank header field must never
+                    // erase a stored profile value; a non-blank field
+                    // enriches the record. IsDefault is deliberately untouched
+                    // — defaults are managed explicitly in Company Center.
+                    SetIfProvided(v => existing.CompanyLocation = v,
+                        company.CompanyLocation);
+                    SetIfProvided(v => existing.LogoPath = v, company.LogoPath);
+                    SetIfProvided(v => existing.Representative = v,
+                        company.Representative);
+                    SetIfProvided(v => existing.RepresentativeMobile = v,
+                        company.RepresentativeMobile);
+                    SetIfProvided(v => existing.CompanyEmail = v,
+                        company.CompanyEmail);
+                    SetIfProvided(v => existing.AccountNumber = v,
+                        company.AccountNumber);
+                    SetIfProvided(v => existing.BankName = v,
+                        company.BankName);
+                }
+                else
+                {
+                    // AUDIT-FIX F-1c: explicit editor (Company Center) —
+                    // latest data wins for ALL fields; blank = clear.
+                    // The previous branch copied ONLY CompanyLocation, which
+                    // silently discarded every LogoPath / Representative /
+                    // RepresentativeMobile / CompanyEmail / AccountNumber /
+                    // BankName edit, and also meant the IsDefault toggle (and
+                    // the single-default clearing loop) never persisted:
+                    // multiple rows could look default forever.
+                    existing.CompanyLocation =
+                        company.CompanyLocation?.Trim() ?? "";
+                    existing.LogoPath = company.LogoPath ?? "";
+                    existing.Representative =
+                        company.Representative?.Trim() ?? "";
+                    existing.RepresentativeMobile =
+                        company.RepresentativeMobile?.Trim() ?? "";
+                    existing.CompanyEmail = company.CompanyEmail?.Trim() ?? "";
+                    existing.AccountNumber =
+                        company.AccountNumber?.Trim() ?? "";
+                    existing.BankName = company.BankName?.Trim() ?? "";
+                    existing.IsDefault = company.IsDefault;
+                }
+
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
 
@@ -143,7 +228,9 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 return existing;
             }
 
-            // Insert new
+            // Insert new — clear any caller-supplied key so SQLite assigns
+            // the rowid (a stale Id from a deleted row must not be reused).
+            company.Id = 0;
             company.UsageCount = 1;
             company.CreatedAt = now;
             company.LastUsedAt = now;
@@ -556,7 +643,15 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             string projectContractNo,
             string projectReference,           // CHAT 15: NEW
             string siteDeliveryLocation,
-            string lpoNumber)
+            string lpoNumber,
+
+            // Company profile fields (AUDIT-FIX F-2, optional)
+            string? companyLogoPath = null,
+            string? companyRepresentative = null,
+            string? companyRepresentativeMobile = null,
+            string? companyEmail = null,
+            string? companyAccountNumber = null,
+            string? companyBankName = null)
         {
             ReadOnlyGate.Demand("auto-save master data from an invoice");
             // ── Company ──────────────────────────────────────────────────
@@ -564,12 +659,23 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             {
                 try
                 {
+                    // AUDIT-FIX F-2: forward the Step 1 profile fields so a
+                    // header edit enriches the saved company record. The
+                    // preserve flag guarantees a blank invoice field never
+                    // erases an existing profile value.
                     await SaveOrUpdateCompanyAsync(new SavedCompany
                     {
                         CompanyName = companyName.Trim(),
                         CompanyTrn = (companyTrn ?? "").Trim(),
-                        CompanyLocation = (companyLocation ?? "").Trim()
-                    });
+                        CompanyLocation = (companyLocation ?? "").Trim(),
+                        LogoPath = companyLogoPath ?? "",
+                        Representative = (companyRepresentative ?? "").Trim(),
+                        RepresentativeMobile =
+                            (companyRepresentativeMobile ?? "").Trim(),
+                        CompanyEmail = (companyEmail ?? "").Trim(),
+                        AccountNumber = (companyAccountNumber ?? "").Trim(),
+                        BankName = (companyBankName ?? "").Trim()
+                    }, preserveUnsetProfileFields: true);
                 }
                 catch (Exception ex)
                 {
