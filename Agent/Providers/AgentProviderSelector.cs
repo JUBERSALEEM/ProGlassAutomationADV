@@ -49,6 +49,20 @@ namespace ProGlassAutomation.Agent.Providers
                 // (a) Local-only wins outright.
                 if (settings.LocalOnly) return local;
 
+                // (a2) NO WIRE → NO CLOUD. Consent and a stored key do not
+                // create connectivity: with the network down the cloud
+                // provider would answer every question with a failure, and
+                // the user would read that as "the agent is dead". Failing
+                // inward keeps the privacy rule (data never leaves when it
+                // cannot) and keeps the agent ALIVE: the local knowledge
+                // base determines answer quality, not the last-seen wifi.
+                if (App.Connectivity is { IsOnline: false })
+                {
+                    AppLogService.Debug(
+                        "[AgentProviderSelector] offline — using local provider");
+                    return local;
+                }
+
                 // (b) Consent must be explicit.
                 if (!settings.CloudConsentGiven) return local;
 
@@ -85,6 +99,11 @@ namespace ProGlassAutomation.Agent.Providers
 
                 if (settings.LocalOnly)
                     return "Local-Only mode is ON — nothing leaves this computer.";
+
+                if (App.Connectivity is { IsOnline: false })
+                    return "OFFLINE — answering from the local knowledge base. " +
+                           "Cloud providers resume automatically when the network " +
+                           "returns.";
 
                 if (!settings.CloudConsentGiven)
                     return "Local-Only is off, but cloud use has not been consented " +

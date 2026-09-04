@@ -40,6 +40,15 @@ namespace ProGlassAutomation.Agent.Core
     {
         private static readonly object Gate = new();
         private static bool _built;
+        private static bool _connectivityHooked;
+
+        /// <summary>
+        /// Network went up or down: the next <see cref="Ensure"/> rebuilds
+        /// the composition so reasoning-provider selection re-evaluates
+        /// (offline → local brain, back online → consent-driven provider).
+        /// </summary>
+        private static void OnConnectivityChanged(object? sender, bool isOnline) =>
+            Invalidate();
 
         // ── Collaborators (null until built) ─────────────────────────────
         public static ProGlassAgent? Instance { get; private set; }
@@ -81,8 +90,15 @@ namespace ProGlassAutomation.Agent.Core
             lock (Gate)
             {
                 if (_built) return Instance;
-                _built = true;
 
+                // NOTE: _built is set only AFTER a successful build.
+                // Previously it was set HERE, before the try — so a single
+                // construction failure (e.g. agent.db momentarily locked on
+                // a shared factory PC, or a partial AV scan) permanently
+                // disabled the agent for the rest of the session: every
+                // later Ensure() returned null and the chat read as
+                // "completely dead until restart". A failed build leaves
+                // the host BUILDABLE so the next user action retries.
                 try
                 {
                     var audit = new AgentAuditService();
@@ -155,6 +171,29 @@ namespace ProGlassAutomation.Agent.Core
                         TaskAdapter = null;
                     }
 
+                    // Live-posture maintenance: provider selection bakes
+                    // connectivity in at build time (fail-inward when the
+                    // wire is down). When the network flips, rebuild once
+                    // so the agent re-picks the correct provider instead of
+                    // staying cloud/offline-stale for the whole session.
+                    try
+                    {
+                        if (App.Connectivity != null)
+                        {
+                            // Subscribe once for the process lifetime.
+                            if (!_connectivityHooked)
+                            {
+                                App.Connectivity.ConnectivityChanged += OnConnectivityChanged;
+                                _connectivityHooked = true;
+                            }
+                        }
+                    }
+                    catch (Exception connEx)
+                    {
+                        AppLogService.Debug($"[AgentHost] connectivity hook skipped: {connEx.Message}");
+                    }
+
+                    _built = true;
                     return Instance;
                 }
                 catch (Exception ex)

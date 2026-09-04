@@ -164,3 +164,18 @@ Traced and fixed in two waves; the video chain is now honest end-to-end:
 Screenshots audited in the same pass: already print-grade (quality ladder to 8K / 10240×5760, ≥4× render scale, lossless PNG default, JPEG Q100). No gap worth risking a rewrite over.
 
 Open gate: `dotnet build`/`dotnet test` + a timed 20s smoke record on the Windows dev machine (duration == wall clock; single MP4; YouTube "Stats for nerds" showing vp9/av01 at 2160p60 after upload).
+
+---
+
+## POST-P5 — Offline-agent program (user-directed, 2026-09-04)
+
+The "offline agent is completely dead / says minimum 8 GB" complaint, traced to code:
+
+| # | Root cause (verified) | Fix |
+|---|---|---|
+| 1 | **Cloud-only assistant** — `AiChatViewModel.SendAsync` hard-refused on no-provider / missing key / offline with four guidance strings. A machine without an API key had a fully dead assistant, although the ALWAYS-on-board ProGlass Agent (knowledge base + live-data lookups + navigation + memory + teaching) needed none of that | Fallback triggers added: the same message now routes through `AgentHost.HandleAsync` and the answer is posted with an honest "🏠 Local Brain — offline" provenance tag. Cloud errors mid-call also fall back locally. Admin-off (`IsEnabled=false`) stays a hard stop by design |
+| 2 | **Permanent session poison (bug)** — `AgentHost.Ensure()` set `_built = true` BEFORE the constructor chain, so ONE failed build left `Instance == null` until the APP RESTARTED | `_built` is set only after a successful build; the catch leaves the host buildable so the next action retries |
+| 3 | **Stale provider posture** — provider selection (local vs cloud) was baked at build time; dropping wifi after Ensure kept routing to a dead cloud endpoint and vice-versa | `AgentProviderSelector` now fails inward when `App.Connectivity` reports offline; a connectivity-change hook invalidates the host so the next turn re-selects correctly |
+| 4 | **Misleading hardware advice** — the RAM advisor dead-ended below 8 GB, implying no offline capability existed there; users read it as "agent unsupported" | New 4–8 GB tier (1–3B Q4 candidates, advisory only, never downloads) and the sub-4 GB message now states the knowledge base works on any machine |
+
+Deliberately NOT done (honesty): shipping a local LLM runtime (llama.cpp/Ollama-style) is a new multi-GB dependency decision — advisor text stays advisory and names permissively licensed models only.

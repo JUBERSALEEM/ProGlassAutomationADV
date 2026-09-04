@@ -490,16 +490,31 @@ public AiChatViewModel(
 
             var currentAi = _ai;
 
-            if (currentAi == null)
-            {
-                AddError(
-                    "⚠ No AI provider configured.\n\n" +
-                    "Go to ⚙ Settings → AI Providers and enter " +
-                    "your API key for Gemini, Groq, or Cohere.");
-                return;
-            }
-
-            if (!currentAi.IsEnabled)
+            // ══════════════════════════════════════════════════════════
+            //  2026-09-04 — NEVER DEAD: the LOCAL-BRAIN FALLBACK.
+            //
+            //  The assistant used to be cloud-only: no key, no provider
+            //  or no internet meant four dead-end error strings and a
+            //  chat that did nothing — the "offline agent is completely
+            //  dead" complaint. But this machine ALWAYS has a working,
+            //  offline, zero-download brain on board: the ProGlass Agent
+            //  (knowledge base + live-data lookups + navigation + memory
+            //  + teaching — Agent/Core). Configuration gaps and network
+            //  absence are now FALLBACK TRIGGERS, not failures:
+            //
+            //    no provider / no key / offline
+            //      → the SAME question goes through AgentHost.HandleAsync
+            //      → answer is shown with an honest "🏠 Local (offline)"
+            //        provenance tag instead of a shrug.
+            //
+            //  "AI Assistant disabled by admin" stays a hard stop: an
+            //  explicit off switch is a statement of intent, not a
+            //  missing capability.
+            // ══════════════════════════════════════════════════════════
+            // An explicit OFF switch is a statement of intent, not a
+            // missing capability — it stops the turn BEFORE fallback is
+            // even considered, regardless of provider state.
+            if (currentAi is { IsEnabled: false })
             {
                 AddError(
                     "⚠ AI Assistant is disabled.\n\n" +
@@ -507,21 +522,21 @@ public AiChatViewModel(
                 return;
             }
 
-            if (!currentAi.IsConfigured)
-            {
-                AddError(
-                    $"⚠ {currentAi.ProviderName} API key is missing.\n\n" +
-                    $"Go to ⚙ Settings → AI Providers, enter your " +
-                    $"{currentAi.ProviderName} API key, and click 💾 SAVE & TEST.");
-                return;
-            }
+            bool cloudUnavailable =
+                currentAi == null ||
+                !currentAi.IsConfigured ||
+                (_connectivity != null && !_connectivity.IsOnline);
 
-            if (_connectivity != null && !_connectivity.IsOnline)
+            if (cloudUnavailable)
             {
-                AddError(
-                    "⚠ You appear to be offline.\n\n" +
-                    $"AI requires internet to reach {currentAi.ProviderName}. " +
-                    "Please check your network connection.");
+                string localProbe = CurrentInput.Trim();
+                string reason = currentAi == null
+                    ? "No cloud AI provider is configured"
+                    : !currentAi.IsConfigured
+                        ? $"The {currentAi.ProviderName} API key is missing"
+                        : "This computer is offline";
+
+                await AnswerWithLocalBrainAsync(localProbe, reason);
                 return;
             }
 
@@ -671,6 +686,108 @@ public AiChatViewModel(
         }
 
         // ══════════════════════════════════════════════════════════════
+        //  LOCAL-BRAIN FALLBACK (2026-09-04)
+        //
+        //  The offline/local answer path. Requirements it must satisfy:
+        //   1. Works on ANY PC — no model download, no network, no key.
+        //   2. Never lies: the reply is tagged as coming from the local
+        //      brain, and the reason cloud was skipped is stated.
+        //   3. Never breaks the chat: every failure degrades to the old
+        //      honest guidance, not to silence or a crash.
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Answers via the always-on-board ProGlass Agent
+        /// (knowledge base + live-data lookups + navigation + memory).
+        /// Consumes the input, posts the exchange, and reports provenance.
+        /// Falls back to the legacy guidance only if even the local brain
+        /// cannot start.
+        /// </summary>
+        /// <summary>Entry point for the pre-send guards: consumes the input.</summary>
+        private Task AnswerWithLocalBrainAsync(string userMsg, string reason)
+        {
+            Messages.Add(new ChatMessage { Text = userMsg, IsUser = true });
+            CurrentInput = string.Empty;
+            return AnswerWithLocalBrainCoreAsync(userMsg, reason);
+        }
+
+        private async Task AnswerWithLocalBrainCoreAsync(string userMsg, string reason)
+        {
+            IsBusy = true;
+            StatusMessage = "🏠 Local brain is thinking… (offline mode)";
+            try
+            {
+                var agent = ProGlassAutomation.Agent.Core.AgentHost.Ensure();
+
+                if (agent == null)
+                {
+                    // Even the local brain could not start on this box:
+                    // the chat still must answer with guidance, not death.
+                    AddError(
+                        $"⚠ {reason}, and the local brain failed to start.\n\n" +
+                        "Nothing was changed. Everything else in ProGlass " +
+                        "is unaffected.");
+                    return;
+                }
+
+                try
+                {
+                    await ProGlassAutomation.Agent.Core.AgentHost
+                        .SeedKnowledgeAsync()
+                        .ConfigureAwait(true);
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Debug($"[AiChat] local knowledge seed skipped: {ex.Message}");
+                }
+
+                var response = await agent.HandleAsync(
+                    new ProGlassAutomation.Agent.Core.AgentRequest
+                    {
+                        Text = userMsg,
+                        FromVoice = false,
+                        Username = ProGlassAutomation.Services.Audit
+                            .AuditService.CurrentUsername ?? ""
+                    });
+
+                string message = string.IsNullOrWhiteSpace(response?.Message)
+                    ? "I could not find a local answer for that."
+                    : response!.Message;
+
+                string provenance =
+                    $"🏠 LOCAL BRAIN — {reason}. Answered fully offline " +
+                    "from the on-board knowledge base and live data. ";
+
+                Messages.Add(new ChatMessage
+                {
+                    Text = provenance + "\n\n" + message,
+                    IsUser = false,
+                    ProviderName = "ProGlass Local Brain",
+                    ProviderIcon = "🏠"
+                });
+
+                RememberExchange(userMsg, message, null);
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Ai,
+                    "Question answered offline (local brain)",
+                    userMsg.Length > 120 ? userMsg[..120] + "…" : userMsg);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[AiChat] local-brain fallback failed: {ex.Message}");
+                AddError(
+                    "⚠ Local answering failed too — nothing was changed. " +
+                    "Everything else in ProGlass is unaffected.");
+            }
+            finally
+            {
+                IsBusy = false;
+                StatusMessage = string.Empty;
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════
         //  SHARED RESPONSE FINISH (streaming + one-shot paths)
         // ══════════════════════════════════════════════════════════════
 
@@ -733,11 +850,22 @@ public AiChatViewModel(
             }
             else
             {
+                // 2026-09-04 — cloud errors are no longer dead ends.
+                // Report the failure truthfully, then try the local brain:
+                // on a factory PC (4 GB, no quota, spotty wifi) a failed
+                // cloud call must still produce an answer wherever the
+                // knowledge base or live data can give one.
                 AddError(
                     $"⚠ Error from {providerName}:\n" +
                     $"{errorMessage ?? "Unknown error"}\n\n" +
-                    "Try again or switch providers in ⚙ Settings.",
+                    "Trying the local brain…",
                     providerName);
+
+                ProGlassAutomation.Utilities.AsyncUtility.SafeFireAndForget(
+                    () => AnswerWithLocalBrainCoreAsync(
+                        userMsg,
+                        $"{providerName} failed ({errorMessage ?? "error"})"),
+                    "AiChat local fallback after cloud error");
             }
         }
 

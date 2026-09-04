@@ -116,15 +116,42 @@ namespace ProGlassAutomation.Agent.Rules
                 };
             }
 
+            // 2026-09-04 — the floor tier was a dead end that users read
+            // as "agent needs 8 GB, buy a new PC". That was never true:
+            //   • tiny instruct models (0.5B–3B Q4) run in ~1.5–2.5 GB,
+            //   • the BUILT-IN knowledge base answers offline on ANY
+            //     machine, with no model file at all.
+            // The advice now states both facts honestly instead of
+            // implying the agent is unusable below 8 GB.
+            if (hw.TotalMemoryGb >= 4)
+            {
+                return new ModelRecommendation
+                {
+                    Recommended = true,
+                    Tier = "1–3B Q4 (light)",
+                    Candidates =
+                        "Qwen2.5-0.5B/1.5B-Instruct (Apache-2.0), " +
+                        "Llama-3.2-1B/3B-Instruct (Llama Community License)",
+                    Advice =
+                        $"This machine ({hw.Summary}) suits a light 1–3B Q4 " +
+                        "model such as Qwen2.5-1.5B (Apache-2.0). It is a " +
+                        "recommendation only — nothing downloads itself, and " +
+                        "the agent ALREADY answers offline from the built-in " +
+                        "knowledge base with no model at all."
+                };
+            }
+
             return new ModelRecommendation
             {
                 Recommended = false,
                 Tier = "none",
                 Candidates = "",
                 Advice =
-                    $"This machine ({hw.Summary}) does not have enough memory to " +
-                    "run a local language model comfortably. The agent will keep " +
-                    "using its built-in knowledge base, which needs no model."
+                    $"This machine ({hw.Summary}) is very low on memory, so a " +
+                    "local language MODEL is not recommended. That changes " +
+                    "nothing about the agent: its built-in knowledge base, " +
+                    "lookups, memory and teaching all work offline with no " +
+                    "model, exactly as they do today."
             };
         }
     }
