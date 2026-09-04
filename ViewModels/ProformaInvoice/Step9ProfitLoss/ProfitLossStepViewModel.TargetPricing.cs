@@ -155,8 +155,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string SpecificationTargetAverageDisplay => FormatRateCard(JobTargetResult?.AverageSpecificationTargetPerSqm);
 
         /// <summary>
-        /// "Included in price · rate shown, not added (AED x/m²)" / "Additional · Step 6 extra" /
-        /// "Not applicable" / "Mixed" / "Unresolved".
+        /// Compact one-line value for the KPI card ("Included in given price" /
+        /// "Additional — Step 6 extra" / "Not applicable" / "Mixed" /
+        /// "Unresolved"). The detailed wording lives in
+        /// <see cref="UInsertSummaryDetail"/> (shown as a tooltip), so the
+        /// card row never spills onto a second line.
         ///
         /// Revised rule (2026-09-04): the required target is ALWAYS the
         /// base-price specification target. Additional (Step 6 row active) =
@@ -164,13 +167,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// IncludedInStep5Price (toggle off) = the U-insert is already inside
         /// the given price, so the rate is SHOWN for reference but never
         /// added to the target (adding it would double-count the U-insert).
-        /// </summary>
-        /// <summary>
-        /// Compact one-line value for the KPI card ("Included in given price" /
-        /// "Additional — Step 6 extra" / "Not applicable" / "Mixed" /
-        /// "Unresolved"). The detailed wording lives in
-        /// <see cref="UInsertSummaryDetail"/> (shown as a tooltip), so the
-        /// card row never spills onto a second line.
         /// </summary>
         public string UInsertSummaryDisplay
         {
@@ -244,8 +240,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
-        public bool HasUInsertSummaryWarning =>
-
+        /// <summary>True when any specification's U-insert treatment is unresolved.</summary>
         public bool HasUInsertSummaryWarning =>
             (JobTargetResult?.Specifications?.Any(s => s.UInsertTreatment == UInsertTreatment.Unresolved)
              ?? false);
