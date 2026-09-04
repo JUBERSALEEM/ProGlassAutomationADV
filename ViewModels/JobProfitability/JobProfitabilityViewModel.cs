@@ -1248,19 +1248,24 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             TotalProfit = Math.Round(costedRows.Sum(r => r.Profit), 2);
             LossCount = rows.Count(r => r.IsLoss);
 
-            // Calculate TotalGross from TotalNet (NetExVat × 1.05)
-            // This matches Step 9's GrossVatInclusive calculation
-            decimal totalGross = Math.Round(TotalNet * 1.05m, 2);
-
-            // Overall portfolio margin uses the SAME formulas as Step 9:
+            // Portfolio margins mirror Step 9's REAL job-profitability basis
+            // (Step 9 OverallMarginPercent):
             //
-            // COST-BASED (Main KPI): (TotalGross - TotalCost) / TotalCost × 100
-            //   Example: Cost 3211.80, Revenue 3200
-            //   Margin = (3200 - 3211.80) / 3211.80 × 100 = -0.4%
+            //   OVERALL MARGIN (main): Σ Profit ÷ Σ Total Cost × 100
+            //     each job's Profit = NetExVat − actual total cost (glass +
+            //     production incl. wastage + U-insert). Summing first, then
+            //     dividing, weights big jobs by cost — with one job it equals
+            //     the Step 9 figure exactly.
             //
-            // PRICE-BASED (Secondary KPI): (TotalGross - TotalCost) / TotalGross × 100
-            //   Example: Cost 3211.80, Revenue 3200
-            //   Margin = (3200 - 3211.80) / 3200 × 100 = -0.4%
+            //   NET MARGIN (secondary): Σ Profit ÷ Σ NetExVat × 100
+            //
+            // Deliberately NOT NetExVat × 1.05 (VAT added back): Step 9
+            // measures every margin on NET revenue ex-VAT. Adding the 5% VAT
+            // here inflated the portfolio by ~5 points and contradicted the
+            // per-job margins the MARGIN column shows — the source of the
+            // "overall margin looks wrong" reports. The profit amount used is
+            // the same number the PROFIT tile sums (stored Step 9 Profit), so
+            // Σ Profit ÷ Σ cost reconciles with the rows above it.
             //
             // This is computed from the TOTALS, not averaged from the
             // individual margins — an average of percentages weights tiny
@@ -1271,11 +1276,11 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             // 1210%). This is mathematically correct and matches what
             // Step 9 would show for that single PI.
             OverallMarginPercent = TotalCost > 0m
-                ? Math.Round(((totalGross - TotalCost) * 100m) / TotalCost, 1)
+                ? Math.Round((TotalProfit * 100m) / TotalCost, 1)
                 : 0m;
 
-            OverallPriceBasedMarginPercent = totalGross > 0m
-                ? Math.Round(((totalGross - TotalCost) * 100m) / totalGross, 1)
+            OverallPriceBasedMarginPercent = TotalNet > 0m
+                ? Math.Round((TotalProfit * 100m) / TotalNet, 1)
                 : 0m;
 
             // Average Margin %: prefer OverallMarginPercent (with U-insert)

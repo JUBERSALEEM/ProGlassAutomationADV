@@ -151,56 +151,83 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Controls: wastage + costing basis + live state.
-                     No manual Recalculate button: every edit below and in
-                     Steps 4/5/6/7 auto-queues a recalculation, so the strip
-                     shows live state instead of asking for a manual press. -->
-                <Grid Margin="0,0,0,12">
+                <!-- Controls: one compact settings row — WASTAGE %,
+                     costing basis and the live calculation state. Each option
+                     is a labelled, same-height control so nothing drifts onto
+                     a second row. No manual Recalculate button: every edit in
+                     Steps 4/5/6/7 auto-queues a recalculation. -->
+                <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="160"/>
-                        <ColumnDefinition Width="16"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
+
+                    <!-- Wastage % -->
+                    <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource ProformaInvoice.Wastage2}" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <TextBox Text="{Binding WastagePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource PlInputStyle}"
-                                 ToolTip="{DynamicResource ProformaInvoice.CuttingAllowanceAddedRequiredAreaBefore}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBox Text="{Binding WastagePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource PlInputStyle}"
+                                     Width="84"
+                                     ToolTip="{DynamicResource ProformaInvoice.CuttingAllowanceAddedRequiredAreaBefore}"/>
+                            <TextBlock Text="%"
+                                       FontSize="{StaticResource TextBodyLarge}"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="6,0,0,0"/>
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Grid.Column="2" Orientation="Horizontal"
-                                VerticalAlignment="Bottom" Margin="0,0,0,8">
-                        <ToggleButton Style="{StaticResource PiToggleSwitch}"
-                                      IsChecked="{Binding CostAtSellingPrice}"
-                                      ToolTip="{DynamicResource ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching}"
-                                      AutomationProperties.Name="Cost glass at selling price"/>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.CostGlassSellingPrice}"
-                                   FontSize="{StaticResource TextBody}"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   VerticalAlignment="Center"
-                                   Margin="10,0,0,0"/>
+
+                    <!-- Costing basis -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Cost basis"
+                                   Style="{StaticResource PiFieldLabelStyle}"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,4">
+                            <ToggleButton Style="{StaticResource PiToggleSwitch}"
+                                          IsChecked="{Binding CostAtSellingPrice}"
+                                          ToolTip="{DynamicResource ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching}"
+                                          AutomationProperties.Name="Cost glass at selling price"/>
+                            <TextBlock Text="{DynamicResource ProformaInvoice.CostGlassSellingPrice}"
+                                       FontSize="{StaticResource TextBodyLarge}"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="10,0,0,0"/>
+                        </StackPanel>
                     </StackPanel>
-                    <StackPanel Grid.Column="4" VerticalAlignment="Bottom" Margin="16,0,0,4">
-                        <TextBlock Text="{Binding CalculationStateLabel}"
-                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsRecalculationPending}" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding HasCalculationWarnings}" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                        <TextBlock Text="{Binding LastCalculatedAtDisplay}"
+
+                    <!-- Live calculation state -->
+                    <StackPanel Grid.Column="4" VerticalAlignment="Bottom" Margin="16,0,0,2">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                            <TextBlock Text="{Binding CalculationStateLabel}"
+                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsRecalculationPending}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding HasCalculationWarnings}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Text="{Binding LastCalculatedAtDisplay}"
+                                       FontSize="{StaticResource TextCaption}"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <TextBlock Text="WASTAGE % also sets the formula yield (15% → ÷0.85) for the target below"
                                    FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   HorizontalAlignment="Right"
+                                   TextWrapping="Wrap"
+                                   Margin="0,2,0,0"/>
                     </StackPanel>
                 </Grid>
 

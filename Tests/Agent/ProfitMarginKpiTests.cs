@@ -352,23 +352,35 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("OverallMarginPercent", src);   // untouched
             Assert.Contains("OverallMarginPercentDisplay", src);
 
-            // Portfolio overall margin = (gross − total cost) ÷ total cost
-            // (gross = net × 1.05), mirroring the Step 9 formula.
-            Assert.Contains("((totalGross - TotalCost) * 100m) / TotalCost", src);
-            Assert.Contains("TotalNet * 1.05m", src);
+            // Portfolio overall margin mirrors Step 9's real P&L basis: NET
+            // revenue ex-VAT (Σ Profit ÷ Σ cost), never NetExVat × 1.05 —
+            // adding VAT back inflated the portfolio by ~5 points.
+            Assert.Contains("(TotalProfit * 100m) / TotalCost", src);
+            Assert.Contains("(TotalProfit * 100m) / TotalNet", src);
         }
 
         [Fact]
-        public void Job_profitability_view_renders_the_average_margin_tile()
+        public void Job_profitability_view_renders_the_simplified_summary()
         {
             var root = LocateProjectRoot();
             var src = File.ReadAllText(Path.Combine(root,
                 "Views/JobProfitability/JobProfitabilityView.xaml"));
 
-            Assert.Contains("AVERAGE JOB MARGIN", src);
-            Assert.Contains("AverageMarginDisplay", src);
+            // Kept tiles: the four actual P&L tiles (net/cost/profit/overall
+            // margin) and the two approved target tiles.
+            Assert.Contains("NET REVENUE (EX-VAT)", src);
+            Assert.Contains("TOTAL COST", src);
             Assert.Contains("OVERALL MARGIN", src);
-            Assert.Contains("NetMarginPercentDisplay", src);
+            Assert.Contains("PORTFOLIO MARGIN AGAINST TARGET", src);
+            Assert.Contains("AVERAGE JOB MARGIN AGAINST TARGET", src);
+            Assert.Contains("OverallVsBaseVerdict", src);
+
+            // The crowded legacy tiles were REMOVED from the summary.
+            Assert.DoesNotContain("NetMarginPercentDisplay", src);
+            Assert.DoesNotContain("AverageMarginDisplay", src);
+            Assert.DoesNotContain("LOSS-MAKING JOBS", src);
+
+            // Consistent tile + table styling remains.
             Assert.Contains("JpTileStyle", src);
             Assert.Contains("JpTileCaptionStyle", src);
             Assert.Contains("JpTileValueStyle", src);
@@ -420,12 +432,12 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("OverallVsBaseVerdict", vmSrc);
             Assert.Contains("Margin vs ", vmSrc);
 
-            // View: the two portfolio tiles carry a verdict line and every
-            // row shows a chip under its MARGIN value.
+            // View: the overall-margin tile carries a verdict line, every
+            // row shows a chip under its MARGIN value, and the margin-base
+            // filter + sort controls are present.
             var viewSrc = File.ReadAllText(Path.Combine(root,
                 "Views/JobProfitability/JobProfitabilityView.xaml"));
             Assert.Contains("OverallVsBaseVerdict", viewSrc);
-            Assert.Contains("AverageVsBaseVerdict", viewSrc);
             Assert.Contains("MarginVsBaseChip", viewSrc);
             Assert.Contains("MarginBandFilterOptions", viewSrc);
             Assert.Contains("SortByOptions", viewSrc);
