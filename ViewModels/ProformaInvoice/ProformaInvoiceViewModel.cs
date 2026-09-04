@@ -848,6 +848,76 @@ public ProformaInvoiceViewModel() : this(
                 !string.IsNullOrWhiteSpace(inquiry.ProjectDescription)
                     ? inquiry.ProjectDescription
                     : inquiry.InquiryNumber;
+
+            // ── PHASE 2: import the inquiry's scope of supply (BOQ) into
+            // the data grid. Glass type is written BEFORE the spec name —
+            // the grid's setters clear a type-mismatched name, the same
+            // order the Step 4 handoff itself uses.
+            if (inquiry.LineItems != null && inquiry.LineItems.Count > 0)
+                ImportInquiryBoqIntoDataGrid(inquiry.LineItems);
+        }
+
+        /// <summary>
+        /// PHASE 2 — maps inquiry BOQ rows onto Step 5 spec groups.
+        /// Only rows carrying spec name + dimensions + quantity are
+        /// imported; partial rows stay on the inquiry as notes. Imported
+        /// groups are written OUTSIDE the Step 4 sync guard, so the grid
+        /// marks them manually-owned — the Step 4 → 5 sync never stomps
+        /// a BOQ-imported spec (that is the whole point: these specs came
+        /// from the customer's request, not from a Step 4 panel).
+        /// </summary>
+        private void ImportInquiryBoqIntoDataGrid(
+            System.Collections.Generic.IReadOnlyList<Models.Inquiry.InquiryLineItem> items)
+        {
+            var importable = items
+                .Where(x => x.IsImportable)
+                .OrderBy(x => x.SortOrder)
+                .ToList();
+            if (importable.Count == 0) return;
+
+            Step5VM.EnsureSpecGroupCount(importable.Count);
+
+            for (int i = 0; i < importable.Count; i++)
+            {
+                var item = importable[i];
+                var group = Step5VM.SpecGroups[i];
+
+                // Replace the placeholder row(s) so the group's only content
+                // is the BOQ line — nothing from the blank workspace remains.
+                string normalizedType = NormalizeInquiryGlassType(item.GlassType);
+                if (!string.IsNullOrEmpty(normalizedType))
+                    group.SelectedGlassType = normalizedType;
+                group.SelectedSpecName = (item.SpecName ?? "").Trim();
+                group.OuterGlassColor = (item.OuterGlassColor ?? "").Trim();
+                group.InnerGlassColor = (item.InnerGlassColor ?? "").Trim();
+
+                if (item.RatePerSqm > 0m)
+                {
+                    group.ImportedPrice = item.RatePerSqm;
+                    group.BaseRate = item.RatePerSqm;
+                }
+
+                group.ItemRows.Clear();
+                group.ItemRows.Add(new ViewModels.ProformaInvoice.Step5DataGrid.GlassItemRow
+                {
+                    // W1/H1 then Qty then Rate: every setter recomputes
+                    // derived sqm/value, so dependencies must land first.
+                    W1 = item.WidthMm,
+                    H1 = item.HeightMm,
+                    Qty = item.Qty,
+                    Rate = item.RatePerSqm
+                });
+            }
+        }
+
+        private static string NormalizeInquiryGlassType(string? type)
+        {
+            var t = (type ?? "").Trim();
+            if (t.Equals("DGU+LAM", StringComparison.OrdinalIgnoreCase)) return "DGU+LAM";
+            if (t.Equals("SGU", StringComparison.OrdinalIgnoreCase)) return "SGU";
+            if (t.Equals("DGU", StringComparison.OrdinalIgnoreCase)) return "DGU";
+            if (t.Equals("LAM", StringComparison.OrdinalIgnoreCase)) return "LAM";
+            return "";
         }
 
         public async Task OpenSavedInvoiceAsync(int invoiceId)

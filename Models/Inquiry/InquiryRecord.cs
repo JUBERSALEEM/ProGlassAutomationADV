@@ -58,6 +58,50 @@ namespace ProGlassAutomation.Models.Inquiry
         [MaxLength(50)] public string JobOrderNumber { get; set; } = "";
         public List<InquiryAttachment> Attachments { get; set; } = new();
         public List<InquiryCommunication> Communications { get; set; } = new();
+
+        /// <summary>
+        /// PHASE 2 — Scope-of-supply (bill of quantities) captured at
+        /// inquiry time. ConvertToPi maps each row into a Step 5 spec
+        /// group so quoted shapes are never re-typed by the estimator.
+        /// </summary>
+        public List<InquiryLineItem> LineItems { get; set; } = new();
+    }
+
+    /// <summary>
+    /// ONE scope-of-supply row on an inquiry: the glass build the customer
+    /// asked for, in unit dimensions + quantity, with the rate the
+    /// salesman EXPECTS to sell at (0 = Prices decided later in the PI).
+    /// Deliberately dimension-first (like the PI grid) rather than
+    /// sheet-first (like Step 4): inquiries arrive as "1200 × 1500, 40
+    /// nos, DGU grey/clear" — the estimator picks stock sheets later.
+    /// </summary>
+    [Table("InquiryLineItems")]
+    public sealed class InquiryLineItem
+    {
+        [Key] public long Id { get; set; }
+        public int InquiryId { get; set; }
+        /// <summary>Display + import ordering inside the inquiry.</summary>
+        public int SortOrder { get; set; }
+        /// <summary>SGU / DGU / LAM / DGU+LAM (normalized at import).</summary>
+        [MaxLength(30)] public string GlassType { get; set; } = "";
+        /// <summary>Generated-style spec name or the customer's own text.</summary>
+        [MaxLength(300)] public string SpecName { get; set; } = "";
+        [MaxLength(120)] public string OuterGlassColor { get; set; } = "";
+        [MaxLength(120)] public string InnerGlassColor { get; set; } = "";
+        /// <summary>Unit width, millimetres (maps to grid W1).</summary>
+        public int WidthMm { get; set; }
+        /// <summary>Unit height, millimetres (maps to grid H1).</summary>
+        public int HeightMm { get; set; }
+        public int Qty { get; set; }
+        /// <summary>Salesman's expected sell rate AED/sqm; 0 = not quoted yet.</summary>
+        [Column(TypeName = "TEXT")] public decimal RatePerSqm { get; set; }
+        public string Notes { get; set; } = "";
+        public DateTime CreatedAt { get; set; }
+        public InquiryRecord Inquiry { get; set; } = null!;
+
+        /// <summary>Null when the row cannot produce a grid line.</summary>
+        public bool IsImportable =>
+            !string.IsNullOrWhiteSpace(SpecName) && WidthMm > 0 && HeightMm > 0 && Qty > 0;
     }
 
     [Table("InquiryAttachments")]

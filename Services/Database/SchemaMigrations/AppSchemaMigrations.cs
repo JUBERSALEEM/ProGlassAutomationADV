@@ -97,7 +97,34 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             // rather than mutating 1001, which is the documented baseline
             // for what EnsureCreated should look like after first run.
             new(1002, "Drop legacy Inquiry columns (InquiryDate, etc.) not in the model", connection =>
-                DropLegacyInquiriesColumns(connection))
+                DropLegacyInquiriesColumns(connection)),
+            // PHASE 2 — scope of supply (BOQ) on inquiries.
+            // EnsureCreated only creates missing DATABASE files; any install
+            // that already ran the app has inquiries.db without this table.
+            // Idempotent: CREATE TABLE IF NOT EXISTS + IF NOT EXISTS indexes.
+            new(1003, "Inquiry scope of supply (BOQ line items)", connection =>
+            {
+                SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                    CREATE TABLE IF NOT EXISTS ""InquiryLineItems"" (
+                        ""Id""              INTEGER NOT NULL CONSTRAINT ""PK_InquiryLineItems"" PRIMARY KEY AUTOINCREMENT,
+                        ""InquiryId""       INTEGER NOT NULL,
+                        ""SortOrder""       INTEGER NOT NULL DEFAULT 0,
+                        ""GlassType""       TEXT NOT NULL DEFAULT '',
+                        ""SpecName""        TEXT NOT NULL DEFAULT '',
+                        ""OuterGlassColor"" TEXT NOT NULL DEFAULT '',
+                        ""InnerGlassColor"" TEXT NOT NULL DEFAULT '',
+                        ""WidthMm""         INTEGER NOT NULL DEFAULT 0,
+                        ""HeightMm""        INTEGER NOT NULL DEFAULT 0,
+                        ""Qty""             INTEGER NOT NULL DEFAULT 0,
+                        ""RatePerSqm""      TEXT NOT NULL DEFAULT '0',
+                        ""Notes""           TEXT NOT NULL DEFAULT '',
+                        ""CreatedAt""       TEXT NOT NULL DEFAULT '0001-01-01 00:00:00'
+                    );");
+                SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                    "CREATE INDEX IF NOT EXISTS \"IX_InquiryLineItems_InquiryId\" ON InquiryLineItems(InquiryId);");
+                SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                    "CREATE INDEX IF NOT EXISTS \"IX_InquiryLineItems_InquiryId_SortOrder\" ON InquiryLineItems(InquiryId, SortOrder);");
+            })
         };
 
         // proformainvoices.db

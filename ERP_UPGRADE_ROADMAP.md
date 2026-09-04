@@ -23,14 +23,15 @@ Where the remaining 1.4 points are lost (from the audit):
    **Fix:** 4 nullable provenance fields (`Step4Spacer/InterlayerCost/Cutting/Tempering CostPerSqm`) on `SpecGroupSnapshot` + matching `SpecGroup` VM properties, written at every Step 4 → 5 handoff per build type (SGU cut/temper · DGU spacer · LAM PVB balance + pane-pair processing sums · DGU+LAM spacer + laminator BUY price + three-pane processing sums), mapper round-trip capture+restore, and Step 9 reading group-first with live-panel fallback (legacy invoices byte-for-byte identical behavior).
 **Acceptance met:** after save → close → reopen, every group costs production from ITS OWN quoted inputs; single-section invoices unchanged.
 
-## PHASE 2 — Inquiry BOQ + traceable conversion
-**Goal:** Inquiry becomes a real pre-sales workstation, `QUOTED vs SOLD` becomes comparable.
-1. `InquiryLineItem` entity (group/spec name, glass type, dimensions W×H, qty, wastage hint, notes) + auto-migration (ALTER TABLE pattern already used in this repo).
-2. Repository CRUD + list projection count; lifecycle unchanged.
-3. Inquiry Editor: items grid (Qt designer-style: spec dropdown sourced from specifications catalog).
-4. Conversion: `StartFromInquiryAsync` maps items → Step 5 spec groups *respecting existing ownership markers* (imported rows marked manual so Step 4 sync doesn’t stomp them); PI records `InquiryNumber` provenance (already on entity).
-5. Reverse trace: PI save back-link already exists — reuse.
-**Acceptance:** create inquiry with 3 items → convert → Step 5 shows 3 groups with identical dims/qty; re-convert blocked by existing guard.
+## PHASE 2 — Inquiry BOQ + traceable conversion ✅
+**Goal:** Inquiry becomes a real pre-sales workstation; quoted shapes are never re-typed by the estimator.
+**Landed:**
+1. `InquiryLineItem` entity (build / spec name / colours / W×H mm / qty / expected rate / notes / sort) + nav + cascade; `LineItems` DbSet with indexes.
+2. Migration **1003** (idempotent `CREATE TABLE IF NOT EXISTS InquiryLineItems` + indexes) following the repo's established runner pattern; fresh DBs via `EnsureCreated` automatically.
+3. Repository: `GetDetailAsync` includes the BOQ; atomic replace-all `SaveLineItemsAsync` (permission-gated, communication-entry audit entry); `DuplicateAsync` clones the scope (attachments still stay behind by design).
+4. Editor: "SCOPE OF SUPPLY" card with add/remove grid (Build dropdown limited to SGU/DGU/LAM/DGU+LAM), INPC row wrapper so grid edits mark the form dirty, save hook that is header-safe for roles without InquiryEdit and graph-safe on the create path.
+5. Conversion: `StartFromInquiryAsync` maps importable BOQ rows → Step 5 spec groups written **outside** the Step-4 sync guard (imported specs are manually-owned and survive the Step 4 push), colours/rate/qty/dims carried, one grid line per BOQ row.
+**Acceptance:** create inquiry with 3 BOQ rows → convert → Step 5 shows 3 groups with identical dims/qty/specs; re-convert still blocked by the existing guard; legacy inquiries (no BOQ) convert exactly as before.
 
 ## PHASE 3 — Profitability staleness & re-cost
 **Goal:** report never silently disagrees with the invoice.

@@ -10,6 +10,7 @@ namespace ProGlassAutomation.Services.Inquiry
         public DbSet<InquiryRecord> Inquiries => Set<InquiryRecord>();
         public DbSet<InquiryAttachment> Attachments => Set<InquiryAttachment>();
         public DbSet<InquiryCommunication> Communications => Set<InquiryCommunication>();
+        public DbSet<InquiryLineItem> LineItems => Set<InquiryLineItem>();
         public static string DatabaseFilePath => Path.Combine(AppDataRoot.CurrentFolder, "inquiries.db");
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -36,6 +37,8 @@ namespace ProGlassAutomation.Services.Inquiry
                     .HasForeignKey(x => x.InquiryId).OnDelete(DeleteBehavior.Cascade);
                 e.HasMany(x => x.Communications).WithOne(x => x.Inquiry)
                     .HasForeignKey(x => x.InquiryId).OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(x => x.LineItems).WithOne(x => x.Inquiry)
+                    .HasForeignKey(x => x.InquiryId).OnDelete(DeleteBehavior.Cascade);
             });
             model.Entity<InquiryAttachment>(e =>
             {
@@ -44,6 +47,11 @@ namespace ProGlassAutomation.Services.Inquiry
             model.Entity<InquiryCommunication>(e =>
             {
                 e.HasIndex(x => new { x.InquiryId, x.OccurredAt });
+            });
+            model.Entity<InquiryLineItem>(e =>
+            {
+                e.HasIndex(x => x.InquiryId);
+                e.HasIndex(x => new { x.InquiryId, x.SortOrder });
             });
         }
     }

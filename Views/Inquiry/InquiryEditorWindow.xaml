@@ -511,6 +511,139 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- ══ SCOPE OF SUPPLY (BOQ) · PHASE 2 ═════════════════ -->
+                    <!-- Rows marked importable (spec name + W × H + qty)  -->
+                    <!-- travel into the PI data grid on Convert → so the  -->
+                    <!-- estimator never re-types quoted shapes.           -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Text="SCOPE OF SUPPLY" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                                <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
+                                           VerticalAlignment="Center" Margin="9,0,0,0"/>
+                                <TextBlock Text="converted into the PI data grid — nothing re-typed"
+                                           Margin="9,0,0,0" FontSize="{StaticResource TextXSmall}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            </StackPanel>
+
+                            <DataGrid ItemsSource="{Binding LineItems}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False" CanUserDeleteRows="False"
+                                      GridLinesVisibility="Horizontal"
+                                      HorizontalGridLinesBrush="{DynamicResource DividerBrush}"
+                                      HeadersVisibility="Column" RowHeaderWidth="0"
+                                      MinHeight="120" MaxHeight="260"
+                                      Background="Transparent"
+                                      BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                                      Margin="0,8,0,6">
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Build" Width="86">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <ComboBox SelectedItem="{Binding GlassType, UpdateSourceTrigger=PropertyChanged}"
+                                                          ItemsSource="{Binding DataContext.BoqGlassTypes, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                          IsEditable="False" BorderThickness="0"
+                                                          Background="Transparent" Padding="4,2"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Item / specification" Width="*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding SpecName, UpdateSourceTrigger=PropertyChanged}"
+                                                         BorderThickness="0" Background="Transparent" Padding="4,2"
+                                                         ToolTip="Generated-style spec (e.g. 6 CL FT + 12 AS + 6 CL TPR) or the customer's own wording."/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Outer" Width="84">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}"
+                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Inner" Width="84">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}"
+                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="W mm" Width="64">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding WidthMm, UpdateSourceTrigger=PropertyChanged}"
+                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="H mm" Width="64">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding HeightMm, UpdateSourceTrigger=PropertyChanged}"
+                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Qty" Width="52">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding Qty, UpdateSourceTrigger=PropertyChanged}"
+                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Rate/sqm" Width="74">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding RatePerSqm, UpdateSourceTrigger=PropertyChanged}"
+                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="Notes" Width="110">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
+                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="" Width="30">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Button Content="✕"
+                                                        Command="{Binding DataContext.RemoveLineItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="Transparent" BorderThickness="0"
+                                                        Foreground="{DynamicResource DangerBrush}"
+                                                        FontSize="12" Padding="4,2"/>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <StackPanel Orientation="Horizontal">
+                                <Button Command="{Binding AddLineItemCommand}" Padding="12,6"
+                                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="＋" FontSize="{StaticResource TextBody}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Add BOQ line" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Button>
+                                <TextBlock Text="Rows with a spec name, W × H and quantity convert into the PI grid — others stay as inquiry notes."
+                                           FontSize="{StaticResource TextXSmall}" VerticalAlignment="Center" Margin="12,0,0,0"
+                                           TextWrapping="Wrap" MaxWidth="520"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
                     <!-- Source documents -->
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>

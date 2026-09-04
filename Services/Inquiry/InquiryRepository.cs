@@ -114,7 +114,85 @@ namespace ProGlassAutomation.Services.Inquiry
         public async Task<InquiryRecord?> GetDetailAsync(int id, CancellationToken ct = default)
         {
             await using var db = new InquiryDbContext();
-            return await db.Inquiries.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id, ct).ConfigureAwait(false);
+            // PHASE 2: Include LineItems — the BOQ travels with the record
+            // so the editor edits it and ConvertToPi can import it.
+            return await db.Inquiries.AsNoTracking()
+                .Include(x => x.LineItems)
+                .SingleOrDefaultAsync(x => x.Id == id, ct)
+                .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// PHASE 2 — replace-all persistence for an inquiry's BOQ lines.
+        /// Replace-all (rather than a diff-merge) because the editor owns
+        /// the full list in-memory; deleting a row is a UI action that
+        /// must persist as a deletion too. Single context + one commit:
+        /// a half-saved BOQ (old rows partly gone) is impossible.
+        /// Writes a communication entry so the inquiry's history shows
+        /// who reshaped the scope of supply and when.
+        /// </summary>
+        public async Task SaveLineItemsAsync(
+            int inquiryId,
+            IReadOnlyList<InquiryLineItem> items,
+            string updatedBy,
+            CancellationToken ct = default)
+        {
+            ReadOnlyGate.Demand("save inquiry scope of supply");
+            OperationGuard.Demand(
+                AppPermissions.InquiryEdit, "save inquiry scope of supply");
+            if (inquiryId <= 0) throw new ArgumentException(
+                "Line items belong to a saved inquiry.", nameof(inquiryId));
+            items ??= Array.Empty<InquiryLineItem>();
+
+            await using var db = new InquiryDbContext();
+            var stored = await db.Inquiries
+                .SingleOrDefaultAsync(x => x.Id == inquiryId, ct)
+                .ConfigureAwait(false)
+                ?? throw new InvalidOperationException(
+                    "Inquiry no longer exists. It may have been removed by another user — refresh the register.");
+
+            // ORDER: wipe + insert. If the insert throws, the transaction
+            // rolls the wipe back with it — the caller retains the UI list
+            // and SaveLineItemsAsync may be retried safely.
+            db.LineItems.RemoveRange(
+                db.LineItems.Where(x => x.InquiryId == inquiryId));
+
+            var now = DateTime.Now;
+            int sort = 0;
+            foreach (var item in items)
+            {
+                db.LineItems.Add(new InquiryLineItem
+                {
+                    InquiryId = inquiryId,
+                    SortOrder = ++sort,
+                    GlassType = (item.GlassType ?? "").Trim(),
+                    SpecName = (item.SpecName ?? "").Trim(),
+                    OuterGlassColor = (item.OuterGlassColor ?? "").Trim(),
+                    InnerGlassColor = (item.InnerGlassColor ?? "").Trim(),
+                    WidthMm = item.WidthMm,
+                    HeightMm = item.HeightMm,
+                    Qty = item.Qty,
+                    RatePerSqm = item.RatePerSqm,
+                    Notes = item.Notes ?? "",
+                    CreatedAt = now
+                });
+            }
+
+            stored.UpdatedAt = now;
+            stored.UpdatedBy = updatedBy ?? "";
+            db.Communications.Add(new InquiryCommunication
+            {
+                InquiryId = inquiryId,
+                EventType = "BOQ",
+                Title = $"Scope of supply saved ({sort} item{(sort == 1 ? "" : "s")})",
+                Description = "Scope of supply (BOQ) updated from the inquiry editor.",
+                OccurredAt = now,
+                ActorName = updatedBy ?? ""
+            });
+
+            await SqliteResilience.SaveWithRetryAsync(
+                token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
+            _lifecycle.Invalidate(inquiryId);
         }
 
         public async Task<InquiryRecord> CreateAsync(InquiryRecord inquiry, CancellationToken ct = default)
@@ -401,7 +479,11 @@ namespace ProGlassAutomation.Services.Inquiry
                 AppPermissions.InquiryEdit, "duplicate an inquiry");
 
             await using var db = new InquiryDbContext();
+            // PHASE 2: load LineItems too — a clone carries the scope of
+            // supply (it IS the inquiry, unlike attachments which belong
+            // to the original request thread).
             var source = await db.Inquiries.AsNoTracking()
+                .Include(x => x.LineItems)
                 .SingleOrDefaultAsync(x => x.Id == sourceId, ct).ConfigureAwait(false)
                 ?? throw new InvalidOperationException(
                     $"Inquiry {sourceId} no longer exists. It may have been removed — refresh the register.");
@@ -450,7 +532,26 @@ namespace ProGlassAutomation.Services.Inquiry
                 // conversion flow.
                 ProformaInvoiceId = null,
                 ProformaNumber = "",
-                JobOrderNumber = ""
+                JobOrderNumber = "",
+                // PHASE 2: clone the scope of supply. Fresh Ids/SortOrder;
+                // InquiryId is wired by the navigation on save.
+                LineItems = source.LineItems
+                    .OrderBy(x => x.SortOrder)
+                    .Select(x => new InquiryLineItem
+                    {
+                        SortOrder = x.SortOrder,
+                        GlassType = x.GlassType,
+                        SpecName = x.SpecName,
+                        OuterGlassColor = x.OuterGlassColor,
+                        InnerGlassColor = x.InnerGlassColor,
+                        WidthMm = x.WidthMm,
+                        HeightMm = x.HeightMm,
+                        Qty = x.Qty,
+                        RatePerSqm = x.RatePerSqm,
+                        Notes = x.Notes,
+                        CreatedAt = now
+                    })
+                    .ToList()
                 // Attachments and Communications stay empty — see interface
                 // contract. Re-uploading the relevant source files is the
                 // user's explicit choice for a new request.

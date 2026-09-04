@@ -68,6 +68,42 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ObservableCollection<InquiryAttachment> AttachmentItems { get; } = new();
         public bool HasAttachments => AttachmentItems.Count > 0;
 
+        // ── PHASE 2: Scope of supply (BOQ) ──────────────────────────────
+        // Editable rows — what the customer actually asked for, dimension-
+        // first (like the PI grid). ConvertToPi imports these into Step 5
+        // spec groups so quoted shapes are never re-typed by the estimator.
+        public ObservableCollection<InquiryLineItemRow> LineItems { get; } = new();
+        public bool HasLineItems => LineItems.Count > 0;
+        /// <summary>Glass builds allowed in BOQ rows — mirrors PI builds.</summary>
+        public static IReadOnlyList<string> BoqGlassTypes { get; } =
+            new[] { "SGU", "DGU", "LAM", "DGU+LAM" };
+
+        public ICommand AddLineItemCommand { get; }
+        public ICommand RemoveLineItemCommand { get; }
+
+        private void AddLineItem()
+        {
+            var row = new InquiryLineItemRow();
+            row.DirtyChanged += OnLineItemDirtyChanged;
+            LineItems.Add(row);
+            IsDirty = true;
+            OnPropertyChanged(nameof(HasLineItems));
+        }
+
+        private void RemoveLineItem(object? parameter)
+        {
+            if (parameter is not InquiryLineItemRow row) return;
+            row.DirtyChanged -= OnLineItemDirtyChanged;
+            LineItems.Remove(row);
+            IsDirty = true;
+            OnPropertyChanged(nameof(HasLineItems));
+        }
+
+        private void OnLineItemDirtyChanged(object? sender, EventArgs e)
+        {
+            IsDirty = true;
+        }
+
         public Func<string[]?>? SelectFilesRequested { get; set; }
         public Func<bool>? ConfirmDiscardRequested { get; set; }
         public Func<InquiryAttachment, bool>? ConfirmDeleteRequested { get; set; }
@@ -240,6 +276,20 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             _receivedTime = Record.ReceivedAt == default ? DateTime.Now.TimeOfDay : Record.ReceivedAt.TimeOfDay;
             _valueText = Record.InquiryValue == 0 ? "" : Record.InquiryValue.ToString("N2", CultureInfo.CurrentCulture);
             _isDirty = false;
+
+            // PHASE 2: hydrate the scope of supply. Detail loads Include
+            // LineItems; a fresh record starts empty. Hydration must NOT
+            // mark the form dirty — the event is wired after construction.
+            foreach (var item in (Record.LineItems ?? new List<InquiryLineItem>())
+                     .OrderBy(x => x.SortOrder))
+            {
+                LineItems.Add(InquiryLineItemRow.FromEntity(item));
+            }
+            foreach (var row in LineItems)
+                row.DirtyChanged += OnLineItemDirtyChanged;
+
+            AddLineItemCommand = new RelayCommand(_ => AddLineItem(), _ => !IsBusy);
+            RemoveLineItemCommand = new RelayCommand(p => RemoveLineItem(p), _ => !IsBusy);
 
             SaveCommand = new RelayCommand(async _ => await SaveAndCloseAsync(), _ => CanSave && !IsBusy);
             ChangeStatusCommand = new RelayCommand(async p => await ChangeStatusAsync(p as string), _ => !IsBusy);
@@ -496,9 +546,39 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 return null;
             }
             ApplyToRecord();
-            var saved = Record.Id == 0
+            // PHASE 2: build the scope-of-supply entities once.
+            var boqToPersist = LineItems.Select(r => r.ToEntity()).ToList();
+            // A fresh record must go to CreateAsync HEADER-ONLY: EF would
+            // otherwise graph-insert the rows via the navigation, and the
+            // replace-all call below would then re-write them (doubling
+            // the statements and losing nothing — but doing it twice).
+            var wasNewRecord = Record.Id == 0;
+            Record.LineItems = new List<InquiryLineItem>();
+            // Gates — scope persistence must never break a header save:
+            //   • roles without InquiryEdit can fill the scope but their
+            //     save contract stays "header only" (same as before this
+            //     feature) rather than the whole save erroring out
+            bool persistBoq = App.Inquiries != null
+                && (boqToPersist.Count > 0 || !wasNewRecord)
+                && Services.Audit.PermissionService.Can(
+                    Services.Audit.AppPermissions.InquiryEdit);
+            var saved = wasNewRecord
                 ? await _workflow.CreateAsync(Record)
                 : await _workflow.UpdateAsync(Record);
+            Record.LineItems = boqToPersist;
+            if (persistBoq)
+            {
+                await App.Inquiries!.SaveLineItemsAsync(
+                    saved?.Id ?? Record.Id,
+                    boqToPersist,
+                    Services.Audit.AuditService.CurrentUser?.DisplayName ?? "").ConfigureAwait(false);
+            }
+            else if (boqToPersist.Count > 0)
+            {
+                Services.Logging.AppLogService.Debug(
+                    "[InquiryEditor] scope of supply not persisted — " +
+                    "repository unavailable or InquiryEdit permission missing.");
+            }
             // After a successful save, mirror the new/updated client + salesman
             // back to master data so the next inquiry (and the dropdowns on
             // any open editor) see them. Failures here are non-fatal: the
@@ -717,6 +797,118 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         {
             StatusText = text;
             IsStatusError = isError;
+        }
+    }
+
+    /// <summary>
+    /// PHASE 2 — one editable scope-of-supply row in the inquiry editor.
+    /// INPC wrapper around the persistence entity so grid edits mark the
+    /// form dirty AND re-render (the entity itself is deliberately plain
+    /// for EF use). Raised <see cref="DirtyChanged"/> on any field edit;
+    /// hydration via <see cref="FromEntity"/> never raises it.
+    /// </summary>
+    public sealed class InquiryLineItemRow : ViewModelBase
+    {
+        /// <summary>Raised when any editable field changes.</summary>
+        public event EventHandler? DirtyChanged;
+
+        public static InquiryLineItemRow FromEntity(InquiryLineItem e) => new()
+        {
+            GlassType = e.GlassType,
+            SpecName = e.SpecName,
+            OuterGlassColor = e.OuterGlassColor,
+            InnerGlassColor = e.InnerGlassColor,
+            WidthMm = e.WidthMm,
+            HeightMm = e.HeightMm,
+            Qty = e.Qty,
+            RatePerSqm = e.RatePerSqm,
+            Notes = e.Notes
+        };
+
+        public InquiryLineItem ToEntity() => new()
+        {
+            GlassType = (GlassType ?? "").Trim(),
+            SpecName = (SpecName ?? "").Trim(),
+            OuterGlassColor = (OuterGlassColor ?? "").Trim(),
+            InnerGlassColor = (InnerGlassColor ?? "").Trim(),
+            WidthMm = WidthMm,
+            HeightMm = HeightMm,
+            Qty = Qty,
+            RatePerSqm = RatePerSqm,
+            Notes = Notes ?? ""
+        };
+
+        /// <summary>True when the row can produce a PI grid line.</summary>
+        public bool IsImportable =>
+            !string.IsNullOrWhiteSpace(SpecName) && WidthMm > 0 && HeightMm > 0 && Qty > 0;
+
+        private string _glassType = "SGU";
+        public string GlassType
+        {
+            get => _glassType;
+            set { if (_glassType == value) return; _glassType = value; Notify(); }
+        }
+
+        private string _specName = "";
+        public string SpecName
+        {
+            get => _specName;
+            set { if (_specName == value) return; _specName = value; OnPropertyChanged(nameof(IsImportable)); Notify(); }
+        }
+
+        private string _outerGlassColor = "";
+        public string OuterGlassColor
+        {
+            get => _outerGlassColor;
+            set { if (_outerGlassColor == value) return; _outerGlassColor = value; Notify(); }
+        }
+
+        private string _innerGlassColor = "";
+        public string InnerGlassColor
+        {
+            get => _innerGlassColor;
+            set { if (_innerGlassColor == value) return; _innerGlassColor = value; Notify(); }
+        }
+
+        private int _widthMm;
+        public int WidthMm
+        {
+            get => _widthMm;
+            set { if (_widthMm == value) return; _widthMm = value; OnPropertyChanged(nameof(IsImportable)); Notify(); }
+        }
+
+        private int _heightMm;
+        public int HeightMm
+        {
+            get => _heightMm;
+            set { if (_heightMm == value) return; _heightMm = value; OnPropertyChanged(nameof(IsImportable)); Notify(); }
+        }
+
+        private int _qty = 1;
+        public int Qty
+        {
+            get => _qty;
+            set { if (_qty == value) return; _qty = value; OnPropertyChanged(nameof(IsImportable)); Notify(); }
+        }
+
+        private decimal _ratePerSqm;
+        public decimal RatePerSqm
+        {
+            get => _ratePerSqm;
+            set { if (_ratePerSqm == value) return; _ratePerSqm = value; Notify(); }
+        }
+
+        private string _notes = "";
+        public string Notes
+        {
+            get => _notes;
+            set { if (_notes == value) return; _notes = value; OnPropertyChanged(); DirtyChanged?.Invoke(this, EventArgs.Empty); }
+        }
+
+        private void Notify([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            OnPropertyChanged(name ?? "");
+            DirtyChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }
