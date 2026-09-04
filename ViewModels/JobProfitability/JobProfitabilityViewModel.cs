@@ -631,6 +631,35 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         public bool IsPortfolioTargetBelow => (PortfolioTargetMarginPercent ?? 0m) < 0m;
 
+        // ── Portfolio base-price judgement (Step 9 Card 3 KPI mirror) ────
+
+        private decimal? _portfolioExtraMarginPercent;
+        /// <summary>
+        /// Portfolio margin over the BASE price (value-weighted over the
+        /// filtered jobs) — the Step 9 Card 3 KPI aggregated. Null when not
+        /// every target-data job carries a valid base-price judgement.
+        /// </summary>
+        public decimal? PortfolioExtraMarginPercent
+        {
+            get => _portfolioExtraMarginPercent;
+            private set
+            {
+                if (_portfolioExtraMarginPercent == value) return;
+                _portfolioExtraMarginPercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PortfolioExtraMarginDisplay));
+            }
+        }
+
+        public bool HasPortfolioExtraMargin => PortfolioExtraMarginPercent.HasValue;
+
+        public string PortfolioExtraMarginDisplay =>
+            PortfolioExtraMarginPercent switch
+            {
+                null => "—",
+                var m => $"{m.Value:+0.##;-0.##;0.##}%"
+            };
+
         /// <summary>Pill label for the MARGIN AGAINST TARGET card (Step 9
         /// style): ABOVE / AT / BELOW TARGET, or "—" when no valid margin.</summary>
         public string PortfolioTargetStatusLabel
@@ -693,6 +722,45 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         public bool IsAverageJobTargetBelow => (AverageJobTargetMarginPercent ?? 0m) < 0m;
 
+        // ── Average job margin over the BASE price (Step 9 Card 3 mirror) ─
+
+        private decimal? _averageJobExtraMarginPercent;
+        private int _averageJobExtraMarginCount;
+
+        /// <summary>Plain average of the VALID job margins over the base price.</summary>
+        public decimal? AverageJobExtraMarginPercent
+        {
+            get => _averageJobExtraMarginPercent;
+            private set
+            {
+                if (_averageJobExtraMarginPercent == value) return;
+                _averageJobExtraMarginPercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AverageJobExtraMarginDisplay));
+            }
+        }
+
+        public int AverageJobExtraMarginCount
+        {
+            get => _averageJobExtraMarginCount;
+            private set
+            {
+                if (_averageJobExtraMarginCount == value) return;
+                _averageJobExtraMarginCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AverageJobExtraMarginCountDisplay));
+            }
+        }
+
+        public string AverageJobExtraMarginCountDisplay => $"{_averageJobExtraMarginCount}";
+
+        public string AverageJobExtraMarginDisplay =>
+            AverageJobExtraMarginPercent switch
+            {
+                null => "—",
+                var m => $"{m.Value:+0.##;-0.##;0.##}%"
+            };
+
         public string PortfolioStatusLine
         {
             get
@@ -746,12 +814,12 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     return "No confirmed jobs yet.";
 
                 if (!HasAnyTargetData)
-                    return "None of the confirmed jobs carry target-model data yet — reopen each in Step 9 and save (target model v2.0). Actual P&L above is read from the saved Step 9 snapshot.";
+                    return "None of the confirmed jobs carry target-model data yet — reopen each in Step 9 and save (target model v2.1). Actual P&L above is read from the saved Step 9 snapshot.";
 
                 int missing = StaleTargetJobCount + IncompleteTargetJobCount;
                 return missing > 0
-                    ? $"{ValidTargetJobCount} job(s) with a valid target margin; {missing} without (stale/incomplete) excluded from the portfolio target margin."
-                    : $"Portfolio target margin uses {ValidTargetJobCount} job(s) with a valid margin.";
+                    ? $"{ValidTargetJobCount} job(s) with a valid margin over the base price; {missing} without (stale/incomplete) excluded from the portfolio margin."
+                    : $"Portfolio margin over the base price uses {ValidTargetJobCount} job(s) with a valid judgement.";
             }
         }
 
@@ -883,15 +951,17 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             : "Σ final required target — all confirmed PIs";
 
         /// <summary>CARD 3 — margin against target (the ONLY margin that
-        /// drives Job Profitability; Step 9's approved KPI).</summary>
+        /// drives Job Profitability; Step 9's approved KPI). Judged on the
+        /// GIVEN price against the BASE price — the toggle (Step 6 U-insert
+        /// row active vs inside the given) changes this percentage.</summary>
         public decimal? TopTargetMarginPercent => SelectedRow != null
-            ? (SelectedRow.HasValidTargetMargin ? SelectedRow.TargetMarginAgainstTargetPercent : (decimal?)null)
-            : PortfolioTargetMarginPercent;
+            ? (SelectedRow.HasValidExtraMargin ? SelectedRow.TargetExtraMarginPercent : (decimal?)null)
+            : PortfolioExtraMarginPercent;
 
         public string TopTargetMarginDisplay => TopTargetMarginPercent switch
         {
             null => "—",
-            var m => $"{m.Value:0.##}%"
+            var m => $"{m.Value:+0.##;-0.##;0.##}%"
         };
 
         public string TopTargetStatusLabel => SelectedRow != null
@@ -903,8 +973,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             : IsPortfolioTargetBelow;
 
         public bool HasTopTargetMargin => SelectedRow != null
-            ? SelectedRow.HasValidTargetMargin
-            : HasPortfolioTargetMargin;
+            ? SelectedRow.HasValidExtraMargin
+            : HasPortfolioExtraMargin;
 
         public bool IsTopTargetIncomplete => SelectedRow != null
             ? SelectedRow.IsTargetIncomplete
@@ -1211,6 +1281,11 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     string targetStatus = snapshotStale ? "SnapshotStale" : "CalculationIncomplete";
                     int targetValidCount = 0, targetIncompleteCount = 0;
 
+                    // Base-price judgement (the KPI trigger — mirrors Step 9
+                    // Card 3): extra profit / margin over the BASE price.
+                    decimal targetBaseValue = 0m, targetExtraValue = 0m;
+                    decimal? targetExtraMargin = null, targetExtraPerSqm = null;
+
                     if (hasTargetData)
                     {
                         var rebuilt = TargetSnapshotRecompute.Recompute(pl!.SpecTargets);
@@ -1225,6 +1300,11 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                             targetStatus = rebuilt.Status;
                             targetValidCount = rebuilt.ValidSpecCount;
                             targetIncompleteCount = rebuilt.IncompleteSpecCount;
+
+                            targetBaseValue = rebuilt.TotalBaseValue;
+                            targetExtraValue = rebuilt.TotalExtraValue;
+                            targetExtraMargin = rebuilt.ExtraProfitMarginPercent;
+                            targetExtraPerSqm = rebuilt.AverageExtraProfitPerSqm;
                         }
                         else if (pl.TargetTotalGivenValue > 0m
                                  || pl.TargetTotalRequiredValue > 0m
@@ -1250,6 +1330,27 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                                     : targetMargin.Value < -0.05m ? "BelowTarget"
                                     : "AtTarget";
                             }
+
+                            // Base-price judgement stored by a Step 9 save
+                            // (newer snapshots). Old snapshots without the
+                            // per-spec rows simply have none — never guessed.
+                            // Total area is recovered exactly from the stored
+                            // value + area-weighted average given price.
+                            decimal targetArea = (targetGivenPerSqm > 0m && targetGiven > 0m)
+                                ? targetGiven / targetGivenPerSqm
+                                : 0m;
+                            if (pl.TargetAverageBasePricePerSqm > 0m && targetArea > 0m)
+                            {
+                                targetBaseValue = Math.Round(
+                                    pl.TargetAverageBasePricePerSqm * targetArea, 2);
+                                if (pl.TargetAverageExtraProfitPerSqm.HasValue)
+                                {
+                                    targetExtraValue = Math.Round(
+                                        pl.TargetAverageExtraProfitPerSqm.Value * targetArea, 2);
+                                }
+                            }
+                            targetExtraMargin = pl.TargetExtraProfitMarginPercent;
+                            targetExtraPerSqm = pl.TargetAverageExtraProfitPerSqm;
                         }
                     }
 
@@ -1279,6 +1380,10 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         TargetGivenPerSqm = targetGivenPerSqm,
                         TargetRequiredPerSqm = targetRequiredPerSqm,
                         TargetMarginAgainstTargetPercent = targetMargin,
+                        TargetBaseValue = targetBaseValue,
+                        TargetExtraValue = targetExtraValue,
+                        TargetExtraMarginPercent = targetExtraMargin,
+                        TargetExtraProfitPerSqm = targetExtraPerSqm,
                         UInsertTreatmentSummary = BuildUInsertSummary(pl),
                         TargetStatus = targetStatus,
                         TargetValidSpecCount = hasTargetData ? targetValidCount : 0,
@@ -1568,6 +1673,31 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 ? Math.Round(validRows.Average(r => r.TargetMarginAgainstTargetPercent!.Value), 2)
                 : (decimal?)null;
 
+            // Base-price judgement portfolio aggregates (Step 9 Card 3 KPI).
+            // Value-weighted over the target-data jobs: Σ extra value ÷ Σ base
+            // value. Only meaningful when EVERY target-data job carries a
+            // valid base-price judgement — never a fake 0.
+            var extraRows = targetRows.Where(r => r.HasValidExtraMargin).ToList();
+            decimal portfolioBaseValue = targetRows.Sum(r => Math.Max(0m, r.TargetBaseValue));
+            decimal portfolioExtraValue = targetRows.Sum(r => r.TargetExtraValue);
+
+            if (targetRows.Count > 0
+                && extraRows.Count == targetRows.Count
+                && portfolioBaseValue > 0m)
+            {
+                PortfolioExtraMarginPercent = Math.Round(
+                    portfolioExtraValue / portfolioBaseValue * 100m, 2);
+            }
+            else
+            {
+                PortfolioExtraMarginPercent = null;
+            }
+
+            AverageJobExtraMarginCount = extraRows.Count;
+            AverageJobExtraMarginPercent = extraRows.Count > 0
+                ? Math.Round(extraRows.Average(r => r.TargetExtraMarginPercent!.Value), 2)
+                : (decimal?)null;
+
             OnPropertyChanged(nameof(IsPortfolioLoss));
             OnPropertyChanged(nameof(PortfolioStatusLine));
             OnPropertyChanged(nameof(TargetDataBasisNote));
@@ -1583,6 +1713,10 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             OnPropertyChanged(nameof(HasTargetShortfall));
             OnPropertyChanged(nameof(PortfolioTargetStatusLabel));
             OnPropertyChanged(nameof(TopScopeSummary));
+            OnPropertyChanged(nameof(PortfolioExtraMarginDisplay));
+            OnPropertyChanged(nameof(HasPortfolioExtraMargin));
+            OnPropertyChanged(nameof(AverageJobExtraMarginDisplay));
+            OnPropertyChanged(nameof(AverageJobExtraMarginCountDisplay));
             NotifyTopCardsChanged();
         }
 

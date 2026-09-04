@@ -73,6 +73,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 snap.TargetAverageSpecificationTargetPerSqm = JobTargetResult.AverageSpecificationTargetPerSqm;
                 snap.TargetAverageFinalRequiredTargetPerSqm = JobTargetResult.AverageFinalRequiredTargetPerSqm;
                 snap.TargetAverageAppliedUInsertPerSqm = JobTargetResult.AverageAppliedUInsertPerSqm;
+                snap.TargetAverageBasePricePerSqm = JobTargetResult.AverageBasePricePerSqm;
+                snap.TargetAverageGivenJudgedPerSqm = JobTargetResult.AverageGivenJudgedPerSqm;
+                snap.TargetAverageExtraProfitPerSqm = JobTargetResult.AverageExtraProfitPerSqm;
+                snap.TargetExtraProfitMarginPercent = JobTargetResult.ExtraProfitMarginPercent;
                 snap.TargetMarginAgainstTargetPercent = JobTargetResult.MarginAgainstTargetPercent;
                 snap.TargetStatus = JobTargetResult.Status.ToString();
                 snap.TargetValidSpecCount = JobTargetResult.ValidSpecCount;
@@ -121,6 +125,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 UInsertSourceLabel = s.UInsertSourceLabel ?? "",
                 AppliedUInsertPerSqm = s.AppliedUInsertPerSqm,
                 FinalRequiredTargetPerSqm = s.FinalRequiredTargetPerSqm,
+                BasePricePerSqm = s.BasePricePerSqm,
+                GivenPriceJudgedPerSqm = s.GivenPriceJudgedPerSqm,
+                ExtraProfitPerSqm = s.ExtraProfitPerSqm,
+                ExtraProfitMarginPercent = s.ExtraProfitMarginPercent,
                 DifferencePerSqm = s.DifferencePerSqm,
                 RequiredTargetValue = s.RequiredTargetValue,
                 DifferenceValue = s.DifferenceValue,

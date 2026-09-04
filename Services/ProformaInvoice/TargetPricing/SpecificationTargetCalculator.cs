@@ -3,15 +3,23 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Shared target-price calculation layer
 //
-// THE ONLY APPROVED KPI MARGIN FORMULA:
-//     Margin Against Target =
-//         (Step 5 Given Price − Final Required Target)
-//         ÷ Final Required Target × 100
+// APPROVED KPI MARGIN (2026-09-04 — the BASE price is the trigger):
+//     Base Price (DGU) = (Outer Glass Rate + Inner Glass Rate) ÷ Yield + ASP
+//                        e.g. (25 + 25) ÷ 0.85 + 45 = 103.82
+//     Given judged for the margin =
+//         Given Price                       (U-insert billed separately)
+//         Given Price − U-insert rate       (U-insert inside the given price)
+//     Extra profit vs base (AED/m²) = Given judged − Base Price
+//     Margin against target %        = (Given judged − Base Price)
+//                                      ÷ Base Price × 100
+//   The margin headline is ALWAYS judged on the GIVEN price against the
+//   BASE price — never against the final required target.
 //
-//   Specification target (DGU example):
+//   Specification target (DGU example) — the required-target benchmark:
 //     ((Outer Glass Rate + Inner Glass Rate) ÷ Yield Factor + ASP Rate) × 1.15
+//   The target-based margin (Given vs Final Required Target) is still
+//   computed and still drives the ABOVE/BELOW/AT-TARGET status pills.
 //
-// The pre-uplift formula result is NEVER used as the KPI denominator.
 // Yield Factor is supplied by the caller: Step 9 derives it from the
 // WASTAGE % box (yield = 1 − wastage/100), so that box moves the
 // required target exactly as approved. Step 6 wastage CHARGES never
@@ -121,7 +129,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
             decimal upliftFactor = 1m + result.TargetUpliftPercent / 100m;
 
             decimal preUplift = (glassSum / result.YieldFactor) + addons;
-            result.SpecificationTargetPerSqm = Math.Round(preUplift * upliftFactor, 2);
+
+            // Base price = the pre-uplift formula result (the KPI trigger),
+            // rounded at 2dp exactly as the shop writes it down:
+            //   (25 + 25) ÷ 0.85 + 45 = 103.82 → × 1.15 = 119.39.
+            // The specification target lifts the ROUNDED base price
+            // (103.82 × 1.15 = 119.39) so the written-down numbers on the
+            // card always reconcile with the shop's own arithmetic.
+            decimal basePerSqm = Math.Round(preUplift, 2);
+            result.BasePricePerSqm = basePerSqm;
+            result.SpecificationTargetPerSqm = Math.Round(basePerSqm * upliftFactor, 2);
 
             // Final required target starts as the base-price specification
             // target (the U-insert rate is never folded in — ApplyUInsert
@@ -298,16 +315,32 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 r.DifferencePerSqm = Math.Round(r.GivenPricePerSqm - targetPerSqm, 2);
                 r.DifferenceValue = Math.Round(r.GivenValue - r.RequiredTargetValue, 2);
 
-                if (targetPerSqm > 0m
-                    && r.Status is not (TargetStatus.MissingBasePrice
-                            or TargetStatus.MissingGlassRate
-                            or TargetStatus.MissingAspRate
-                            or TargetStatus.MissingYield
-                            or TargetStatus.MissingUInsertTreatment
-                            or TargetStatus.CalculationIncomplete
-                            or TargetStatus.SnapshotStale))
+                // Given JUDGED for the margin: when the U-insert is covered
+                // INSIDE the given price (IncludedInStep5Price) the customer
+                // pays for it out of the same given price, so only
+                // (given − rate) is really the glass price the margin is
+                // judged on. A separate Step 6 charge (Additional) leaves
+                // the given price untouched.
+                decimal judged = r.GivenPricePerSqm;
+                if (r.UInsertTreatment == UInsertTreatment.IncludedInStep5Price)
+                    judged = Math.Max(0m, judged - Math.Max(0m, r.UInsertRatePerSqm));
+                r.GivenPriceJudgedPerSqm = Math.Round(judged, 2);
+
+                bool marginEligible = r.Status is not (TargetStatus.MissingBasePrice
+                        or TargetStatus.MissingGlassRate
+                        or TargetStatus.MissingAspRate
+                        or TargetStatus.MissingYield
+                        or TargetStatus.MissingUInsertTreatment
+                        or TargetStatus.CalculationIncomplete
+                        or TargetStatus.SnapshotStale);
+
+                if (targetPerSqm > 0m && marginEligible)
                 {
-                    decimal margin = (r.GivenPricePerSqm - targetPerSqm)
+                    // Status margin: judged given vs the required target. The
+                    // judged given nets any U-insert that is covered INSIDE the
+                    // given price, so a toggle-off quotation is judged on the
+                    // price that is really the glass (115, not 125).
+                    decimal margin = (judged - targetPerSqm)
                                      / targetPerSqm * 100m;
                     r.MarginAgainstTargetPercent = Math.Round(margin, 2);
 
@@ -321,12 +354,31 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                                 : TargetStatus.AtTarget;
                     }
                 }
+
+                // Base-price judgement (the KPI trigger): extra profit and
+                // margin are measured from the BASE price, never from the
+                // final required target.
+                if (r.BasePricePerSqm > 0m && marginEligible)
+                {
+                    decimal extra = judged - r.BasePricePerSqm;
+                    r.ExtraProfitPerSqm = Math.Round(extra, 2);
+                    r.ExtraProfitMarginPercent = Math.Round(
+                        extra / r.BasePricePerSqm * 100m, 2);
+                }
+                else
+                {
+                    r.ExtraProfitPerSqm = null;
+                    r.ExtraProfitMarginPercent = null;
+                }
             }
             else
             {
                 r.DifferencePerSqm = 0m;
                 r.DifferenceValue = 0m;
                 r.MarginAgainstTargetPercent = null;
+                r.GivenPriceJudgedPerSqm = 0m;
+                r.ExtraProfitPerSqm = null;
+                r.ExtraProfitMarginPercent = null;
 
                 if (r.Status is TargetStatus.UpToDate
                     or TargetStatus.BelowTarget

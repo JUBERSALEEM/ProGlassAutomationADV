@@ -28,7 +28,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
     public partial class ProfitLossStepViewModel : ViewModelBase
     {
         /// <summary>Version of the target-price calculation model.</summary>
-        public const string TargetCalculationVersion = "2.0";
+        public const string TargetCalculationVersion = "2.1";
 
         // ══════════════════════════════════════════════════════════════
         //  OUTPUTS — TARGET PROFITABILITY
@@ -261,81 +261,95 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             get
             {
                 if (JobTargetResult == null) return "—";
-                decimal diff = (JobTargetResult.AverageGivenPricePerSqm
-                                - JobTargetResult.AverageFinalRequiredTargetPerSqm);
+                // Compare the GIVEN JUDGED price (net of any U-insert that is
+                // inside the given) against the required target, so a toggle-off
+                // quotation reads honestly. Falls back to the raw given when the
+                // base-price judgement is not calculable.
+                decimal given = JobTargetResult.AverageExtraProfitPerSqm.HasValue
+                    ? JobTargetResult.AverageGivenJudgedPerSqm
+                    : JobTargetResult.AverageGivenPricePerSqm;
+                decimal diff = given - JobTargetResult.AverageFinalRequiredTargetPerSqm;
                 return diff < 0m
                     ? $"-AED {Math.Abs(diff):N2}/m²"
                     : $"AED {diff:N2}/m²";
             }
         }
 
-        // ── Card 3 · U-INSERT POLICY + BASE-PRICE VIEW (detail rows) ──
-        // Reference figures that explain the margin on Card 3:
-        //   • base price      = specification formula WITHOUT the 15% uplift
-        //     (e.g. (25+25)÷0.85+45 = 103.82 → target 103.82×1.15 = 119.39)
-        //   • given as quoted = Step 5 given price (includes the U-insert
-        //     only when the Step 6 row is toggled OFF / IncludedInStep5Price)
-        //   • net given       = given minus the included U-insert rate
-        //   • extra profit    = (net given − base) ÷ base — the margin view
-        //     the operator checks when deciding whether to accept a price.
-        // All area-weighted across specifications; informational only — the
-        // main KPI number above stays the given-vs-final-required-target
-        // margin until the toggle policy is confirmed.
+        // ── Card 3 · MARGIN AGAINST TARGET — BASE-PRICE JUDGEMENT ───────
+        // The KPI trigger is the BASE price (the pre-uplift specification
+        // formula: (Outer + Inner) ÷ Yield + ASP, e.g. (25+25)÷0.85+45 =
+        // 103.82 → target 103.82×1.15 = 119.39). The margin is judged on the
+        // GIVEN price against that base — never against the final required
+        // target. The U-insert toggle (the Step 6 row) decides which given
+        // counts:
+        //   • row ACTIVE  (Additional)        → given 125 is the glass price
+        //     → extra profit 125 − 103.82 = +21.18 AED/m² (+20.40%)
+        //   • row OFF     (IncludedInStep5Price) → the U-insert is paid out
+        //     of the same given → judged given 125 − 10 = 115
+        //     → extra profit 115 − 103.82 = +11.18 AED/m² (+10.77%)
+        // All figures below come from the shared aggregate (area-weighted
+        // averages / value-weighted margins) so Step 9 and Job Profitability
+        // always agree.
 
-        public string BasePriceAverageDisplay => FormatRateCard(BasePriceView().Base);
-
-        public string GivenNetOfUInsertDisplay => FormatRateCard(BasePriceView().NetGiven);
-
-        public string IncludedUInsertAverageDisplay =>
-            FormatRateCard(BasePriceView().IncludedUInsert);
-
-        public string ExtraProfitVsBaseDisplay
+        /// <summary>Headline: extra profit over the base price, AED/m².</summary>
+        public string ExtraProfitPerSqmDisplay
         {
             get
             {
-                decimal pct = BasePriceView().ExtraPercent;
-                if (JobTargetResult == null || BasePriceView().Base <= 0m) return "—";
-                return $"{pct:+0.##;-0.##;0.##}%";
+                decimal? extra = JobTargetResult?.AverageExtraProfitPerSqm;
+                if (!extra.HasValue) return "—";
+                return extra.Value < 0m
+                    ? $"-AED {Math.Abs(extra.Value):N2}/m²"
+                    : $"AED {extra.Value:N2}/m²";
             }
         }
 
-        private (decimal Base, decimal NetGiven, decimal IncludedUInsert, decimal ExtraPercent) BasePriceView()
+        public bool IsExtraProfitLoss => (JobTargetResult?.AverageExtraProfitPerSqm ?? 0m) < 0m;
+
+        /// <summary>Caption under the headline: the same judgement as a %.</summary>
+        public string ExtraProfitMarginPercentDisplay
         {
-            var specs = JobTargetResult?.Specifications;
-            if (specs == null || specs.Count == 0) return (0m, 0m, 0m, 0m);
-
-            decimal totalArea = 0m, baseW = 0m, netW = 0m, uW = 0m;
-
-            foreach (var s in specs)
+            get
             {
-                if (s == null || s.AreaSqm <= 0m) continue;
-
-                decimal area = s.AreaSqm;
-                decimal uplift = s.TargetUpliftPercent > 0m ? s.TargetUpliftPercent : 15m;
-                decimal factor = 1m + uplift / 100m;
-                decimal basePerSqm = s.SpecificationTargetPerSqm > 0m
-                    ? s.SpecificationTargetPerSqm / factor
-                    : 0m;
-                decimal given = Math.Max(0m, s.GivenPricePerSqm);
-                decimal uInsert = s.UInsertTreatment == UInsertTreatment.IncludedInStep5Price
-                    ? Math.Max(0m, s.UInsertRatePerSqm)
-                    : 0m;
-
-                totalArea += area;
-                baseW += basePerSqm * area;
-                uW += uInsert * area;
-                netW += Math.Max(0m, given - uInsert) * area;
+                decimal? m = JobTargetResult?.ExtraProfitMarginPercent;
+                return m.HasValue
+                    ? $"{m.Value:+0.##;-0.##;0.##}% over base price"
+                    : "—";
             }
+        }
 
-            if (totalArea <= 0m) return (0m, 0m, 0m, 0m);
+        /// <summary>Area-weighted average base price (pre-uplift formula), AED/m².</summary>
+        public string BasePriceAverageDisplay => FormatRateCard(JobTargetResult?.AverageBasePricePerSqm);
 
-            decimal baseAvg = Math.Round(baseW / totalArea, 2);
-            decimal netAvg = Math.Round(netW / totalArea, 2);
-            decimal uAvg = Math.Round(uW / totalArea, 2);
-            decimal extra = baseAvg > 0m
-                ? Math.Round((netAvg - baseAvg) / baseAvg * 100m, 2)
-                : 0m;
-            return (baseAvg, netAvg, uAvg, extra);
+        /// <summary>Area-weighted average given price as judged for the margin.</summary>
+        public string GivenJudgedAverageDisplay => FormatRateCard(JobTargetResult?.AverageGivenJudgedPerSqm);
+
+        /// <summary>
+        /// Area-weighted average U-insert rate that is covered INSIDE the
+        /// given price (toggle off / IncludedInStep5Price) — the amount the
+        /// judged given is reduced by. Empty when no spec carries an included
+        /// U-insert.
+        /// </summary>
+        public string IncludedUInsertAverageDisplay
+        {
+            get
+            {
+                var specs = JobTargetResult?.Specifications;
+                if (specs == null || specs.Count == 0) return "—";
+
+                decimal totalArea = 0m, uW = 0m;
+                foreach (var s in specs)
+                {
+                    if (s == null || s.AreaSqm <= 0m) continue;
+                    if (s.UInsertTreatment != UInsertTreatment.IncludedInStep5Price) continue;
+                    totalArea += s.AreaSqm;
+                    uW += Math.Max(0m, s.UInsertRatePerSqm) * s.AreaSqm;
+                }
+
+                return totalArea > 0m
+                    ? $"AED {Math.Round(uW / totalArea, 2):N2}/m²"
+                    : "—";
+            }
         }
 
         public string TargetJobStatusLabel => TargetStatusLabel(JobTargetResult?.Status);
@@ -594,9 +608,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             OnPropertyChanged(nameof(GivenPricePerSqmDisplay));
             OnPropertyChanged(nameof(DifferencePerSqmDisplay));
             OnPropertyChanged(nameof(BasePriceAverageDisplay));
-            OnPropertyChanged(nameof(GivenNetOfUInsertDisplay));
+            OnPropertyChanged(nameof(GivenJudgedAverageDisplay));
             OnPropertyChanged(nameof(IncludedUInsertAverageDisplay));
-            OnPropertyChanged(nameof(ExtraProfitVsBaseDisplay));
+            OnPropertyChanged(nameof(ExtraProfitPerSqmDisplay));
+            OnPropertyChanged(nameof(IsExtraProfitLoss));
+            OnPropertyChanged(nameof(ExtraProfitMarginPercentDisplay));
             OnPropertyChanged(nameof(TargetJobStatusLabel));
             OnPropertyChanged(nameof(IsTargetBelow));
             OnPropertyChanged(nameof(IsTargetAbove));

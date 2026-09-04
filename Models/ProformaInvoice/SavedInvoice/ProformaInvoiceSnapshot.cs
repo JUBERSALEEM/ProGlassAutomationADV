@@ -568,6 +568,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// <summary>Area-weighted average applied U-insert (AED/m²).</summary>
         public decimal TargetAverageAppliedUInsertPerSqm { get; set; }
 
+        // ── Base-price judgement (the KPI trigger) ──────────────────────
+        /// <summary>Area-weighted average BASE price (pre-uplift formula, AED/m²).</summary>
+        public decimal TargetAverageBasePricePerSqm { get; set; }
+
+        /// <summary>Area-weighted average GIVEN JUDGED price (AED/m²).</summary>
+        public decimal TargetAverageGivenJudgedPerSqm { get; set; }
+
+        /// <summary>Area-weighted average extra profit over base (AED/m²); null when not calculable.</summary>
+        public decimal? TargetAverageExtraProfitPerSqm { get; set; }
+
+        /// <summary>Job margin over base %; null when not calculable.</summary>
+        public decimal? TargetExtraProfitMarginPercent { get; set; }
+
         /// <summary>Null when the margin is not calculable.</summary>
         public decimal? TargetMarginAgainstTargetPercent { get; set; }
 
@@ -621,6 +634,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string UInsertSourceLabel { get; set; } = "";
         public decimal AppliedUInsertPerSqm { get; set; }
         public decimal FinalRequiredTargetPerSqm { get; set; }
+
+        // ── Base-price judgement (the KPI trigger) ──────────────────────
+        /// <summary>Per-spec BASE price (pre-uplift formula, AED/m²), e.g. 103.82.</summary>
+        public decimal BasePricePerSqm { get; set; }
+
+        /// <summary>Per-spec GIVEN JUDGED price (AED/m²) used for the margin.</summary>
+        public decimal GivenPriceJudgedPerSqm { get; set; }
+
+        /// <summary>Per-spec extra profit over base (AED/m²); null when not calculable.</summary>
+        public decimal? ExtraProfitPerSqm { get; set; }
+
+        /// <summary>Per-spec margin over base %; null when not calculable.</summary>
+        public decimal? ExtraProfitMarginPercent { get; set; }
 
         public decimal DifferencePerSqm { get; set; }
         public decimal RequiredTargetValue { get; set; }

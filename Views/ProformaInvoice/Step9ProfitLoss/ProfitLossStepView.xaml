@@ -146,7 +146,7 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="09" Style="{StaticResource PiStationCodeStyle}"/>
                         <TextBlock Text="{DynamicResource ProformaInvoice.ProfitLOSS}" Style="{StaticResource PiStationTitleStyle}"/>
-                        <TextBlock Text="Given price vs required target · approved KPI · Step 5 Base Price is the given price"
+                        <TextBlock Text="Given price vs base price · approved KPI · Step 5 Base Price is the given price"
                                    Style="{StaticResource PiStationHintStyle}"/>
                     </StackPanel>
                 </Border>
@@ -378,13 +378,15 @@
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                 </Border>
                             </Grid>
-                            <TextBlock Text="{Binding MarginAgainstTargetDisplay}"
-                                       FontSize="30" FontWeight="Bold" Margin="0,2,0,10">
+                            <TextBlock Text="{Binding ExtraProfitPerSqmDisplay}"
+                                       FontSize="30" FontWeight="Bold" Margin="0,2,2,0"
+                                       TextWrapping="Wrap"
+                                       ToolTip="Extra profit over the base price — judged on the given price against the base price, never against the final required target.">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsTargetBelow}" Value="True">
+                                            <DataTrigger Binding="{Binding IsExtraProfitLoss}" Value="True">
                                                 <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
@@ -394,6 +396,10 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
+                            <TextBlock Text="{Binding ExtraProfitMarginPercentDisplay}"
+                                       FontSize="{StaticResource TextBody}"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Margin="0,0,0,10"/>
                             <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,0,0,10"/>
                             <StackPanel>
                                 <Grid>
@@ -409,24 +415,6 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Final required target" Style="{StaticResource TgtKvLabelStyle}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding RequiredTargetPriceDisplay}" Style="{StaticResource TgtKvValueStyle}"/>
-                                </Grid>
-                                <Grid Margin="0,6,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Difference" Style="{StaticResource TgtKvLabelStyle}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding DifferencePerSqmDisplay}"
-                                               Style="{StaticResource TgtKvValueStyle}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                </Grid>
-                                <Grid Margin="0,6,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Base price (no uplift)" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding BasePriceAverageDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"/>
@@ -436,7 +424,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Included U-insert (toggle off)" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="U-insert inside given (toggle off)" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding IncludedUInsertAverageDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
@@ -446,19 +434,31 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Given judged (net of included U-insert)" Style="{StaticResource TgtKvLabelStyle}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding GivenNetOfUInsertDisplay}"
-                                               Style="{StaticResource TgtKvValueStyle}"/>
+                                    <TextBlock Grid.Column="0" Text="Given judged for the margin" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding GivenJudgedAverageDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"
+                                               FontWeight="SemiBold"/>
+                                </Grid>
+                                <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,10,0,8"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Required target price (base + margin %)" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding RequiredTargetPriceDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Extra profit vs base price" Style="{StaticResource TgtKvLabelStyle}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding ExtraProfitVsBaseDisplay}"
+                                    <TextBlock Grid.Column="0" Text="Given judged vs required target" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding DifferencePerSqmDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
-                                               FontWeight="SemiBold"/>
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
                                 </Grid>
                             </StackPanel>
                         </StackPanel>

@@ -40,6 +40,31 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
         public decimal AverageGivenPricePerSqm { get; set; }
         public decimal AverageRequiredPerSqm { get; set; }
 
+        // ── Base-price judgement (the KPI trigger) ─────────────────────
+        /// <summary>Area-weighted average BASE price (pre-uplift formula, AED/m²).</summary>
+        public decimal AverageBasePricePerSqm { get; set; }
+
+        /// <summary>Σ (Base price × area) across the usable rows.</summary>
+        public decimal TotalBaseValue { get; set; }
+
+        /// <summary>Σ ((Given judged − Base price) × area) across the usable rows.</summary>
+        public decimal TotalExtraValue { get; set; }
+
+        /// <summary>Area-weighted average GIVEN JUDGED price (AED/m²).</summary>
+        public decimal AverageGivenJudgedPerSqm { get; set; }
+
+        /// <summary>
+        /// Area-weighted average extra profit over the base price (AED/m²).
+        /// Null when any row cannot be judged (never fake 0).
+        /// </summary>
+        public decimal? AverageExtraProfitPerSqm { get; set; }
+
+        /// <summary>
+        /// Job margin over the base price (value-weighted), mirroring Step 9.
+        /// Null when any row cannot be judged.
+        /// </summary>
+        public decimal? ExtraProfitMarginPercent { get; set; }
+
         /// <summary>Null when any specification row is incomplete.</summary>
         public decimal? MarginAgainstTargetPercent { get; set; }
 
@@ -102,12 +127,27 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
             };
 
             decimal totalArea = 0m, given = 0m, required = 0m;
+            decimal baseW = 0m, judgedW = 0m;
             foreach (var s in usableRows)
             {
                 decimal area = Math.Max(0m, s.AreaSqm);
                 totalArea += area;
                 given += Math.Max(0m, s.GivenPricePerSqm) * area;
                 required += Math.Max(0m, s.SpecificationTargetPerSqm) * area;
+
+                // Base-price judgement (the KPI trigger): recompute the base
+                // price from the stored component rates exactly as Step 9
+                // does — never by dividing the uplifted target back down.
+                decimal basePerSqm = SnapshotBasePricePerSqm(s);
+                decimal judged = Math.Max(0m, s.GivenPricePerSqm);
+                if (string.Equals(s.UInsertTreatment, "IncludedInStep5Price",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    judged = Math.Max(0m, judged - Math.Max(0m, s.UInsertRatePerSqm));
+                }
+
+                baseW += basePerSqm * area;
+                judgedW += judged * area;
             }
 
             result.TotalAreaSqm = Math.Round(totalArea, 2);
@@ -121,12 +161,42 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 ? Math.Round(required / totalArea, 2)
                 : 0m;
 
+            result.AverageBasePricePerSqm = totalArea > 0m
+                ? Math.Round(baseW / totalArea, 2)
+                : 0m;
+            result.AverageGivenJudgedPerSqm = totalArea > 0m
+                ? Math.Round(judgedW / totalArea, 2)
+                : 0m;
+            result.TotalBaseValue = Math.Round(baseW, 2);
+            result.TotalExtraValue = Math.Round(judgedW - baseW, 2);
+
+            // Base-price judgement aggregates. Only when EVERY row is
+            // complete AND carries the component rates needed for the base
+            // price — never a fake 0.
+            if (allComplete
+                && usableRows.Count > 0
+                && baseW > 0m)
+            {
+                result.AverageExtraProfitPerSqm = Math.Round(
+                    (judgedW - baseW) / totalArea, 2);
+                result.ExtraProfitMarginPercent = Math.Round(
+                    (judgedW - baseW) / baseW * 100m, 2);
+            }
+            else
+            {
+                result.AverageExtraProfitPerSqm = null;
+                result.ExtraProfitMarginPercent = null;
+            }
+
             if (allComplete
                 && usableRows.Count > 0
                 && result.TotalRequiredValue > 0m
-                && result.TotalGivenValue > 0m)
+                && judgedW > 0m)
             {
-                decimal margin = (result.TotalGivenValue - result.TotalRequiredValue)
+                // Status margin — judged given (net of any U-insert that is
+                // inside the given price) vs the required target. Raw given
+                // totals stay separate for the GIVEN VALUE displays.
+                decimal margin = (judgedW - result.TotalRequiredValue)
                                  / result.TotalRequiredValue * 100m;
                 result.MarginAgainstTargetPercent = Math.Round(margin, 2);
 
@@ -153,6 +223,37 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Recomputes the BASE price of a saved spec row from its stored
+        /// component rates — the exact pre-uplift formula Step 9 uses:
+        ///   DGU/LAM: (Outer + Inner) ÷ Yield + ASP + processing
+        ///   SGU:      Outer ÷ Yield + processing
+        ///   DGU+LAM:  (Outer + Inner + Third) ÷ Yield + ASP + processing
+        /// Returns 0 when the stored row does not carry the components
+        /// (very old snapshot) so the caller can stay honest.
+        /// </summary>
+        public static decimal SnapshotBasePricePerSqm(SpecTargetSnapshot s)
+        {
+            if (s == null || s.YieldFactor <= 0m) return 0m;
+
+            decimal glass = s.BuildType switch
+            {
+                "Sgu" => s.OuterGlassRatePerSqm,
+                "Dgu" => s.OuterGlassRatePerSqm + s.InnerGlassRatePerSqm,
+                "Lam" => s.OuterGlassRatePerSqm + s.InnerGlassRatePerSqm,
+                "DguLam" => s.OuterGlassRatePerSqm + s.InnerGlassRatePerSqm
+                            + s.ThirdGlassRatePerSqm,
+                _ => 0m
+            };
+
+            if (glass <= 0m) return 0m;
+
+            decimal preUplift = (glass / s.YieldFactor)
+                                + Math.Max(0m, s.AspRatePerSqm)
+                                + Math.Max(0m, s.ProcessingRatePerSqm);
+            return Math.Round(preUplift, 2);
         }
     }
 }

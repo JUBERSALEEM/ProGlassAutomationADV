@@ -374,7 +374,7 @@
                                             </TextBlock.Style>
                                         </TextBlock>
                                         <TextBlock Style="{StaticResource JpFootnoteStyle}">
-                                            <Run Text="Given vs required · Step 9 KPI"/>
+                                            <Run Text="Given judged vs base price · Step 9 KPI"/>
                                         </TextBlock>
                                     </StackPanel>
                                 </Border>
@@ -713,13 +713,14 @@
                                                                 </TextBlock>
 
                                                                 <StackPanel Grid.Column="6" HorizontalAlignment="Right" Margin="0,0,30,0">
-                                                                    <TextBlock Text="{Binding TargetMarginDisplay}"
-                                                                               HorizontalAlignment="Right">
+                                                                    <TextBlock Text="{Binding TargetExtraMarginDisplay}"
+                                                                               HorizontalAlignment="Right"
+                                                                               ToolTip="Margin over the base price — judged on the given price (net of any U-insert inside it).">
                                                                         <TextBlock.Style>
                                                                             <Style TargetType="TextBlock" BasedOn="{StaticResource JpCellStyle}">
                                                                                 <Setter Property="FontWeight" Value="Bold"/>
                                                                                 <Style.Triggers>
-                                                                                    <DataTrigger Binding="{Binding HasValidTargetMargin}" Value="False">
+                                                                                    <DataTrigger Binding="{Binding HasValidExtraMargin}" Value="False">
                                                                                         <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
                                                                                         <Setter Property="FontWeight" Value="Normal"/>
                                                                                     </DataTrigger>

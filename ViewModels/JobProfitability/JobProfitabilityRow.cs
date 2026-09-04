@@ -131,6 +131,45 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         /// <summary>Null when the job margin is not calculable.</summary>
         public decimal? TargetMarginAgainstTargetPercent { get; set; }
 
+        // ── Base-price judgement (the KPI trigger, mirrors Step 9 Card 3) ─
+
+        /// <summary>Σ (Base price × area) — used for the value-weighted portfolio margin.</summary>
+        public decimal TargetBaseValue { get; set; }
+
+        /// <summary>Σ ((Given judged − Base price) × area) — used for the value-weighted portfolio margin.</summary>
+        public decimal TargetExtraValue { get; set; }
+
+        /// <summary>
+        /// Job margin against target over the BASE price (%), mirroring
+        /// Step 9 Card 3: (Given judged − Base) ÷ Base × 100. The toggle
+        /// (Step 6 U-insert row active vs inside the given price) changes
+        /// the GIVEN JUDGED and therefore this percentage.
+        /// </summary>
+        public decimal? TargetExtraMarginPercent { get; set; }
+
+        /// <summary>Area-weighted average extra profit over base (AED/m²).</summary>
+        public decimal? TargetExtraProfitPerSqm { get; set; }
+
+        public bool HasValidExtraMargin => TargetExtraMarginPercent.HasValue;
+
+        public string TargetExtraMarginDisplay =>
+            TargetExtraMarginPercent switch
+            {
+                null => "—",
+                var m => $"{m.Value:+0.##;-0.##;0.##}%"
+            };
+
+        public string TargetExtraProfitPerSqmDisplay
+        {
+            get
+            {
+                if (!TargetExtraProfitPerSqm.HasValue) return "—";
+                return TargetExtraProfitPerSqm.Value < 0m
+                    ? $"-AED {Math.Abs(TargetExtraProfitPerSqm.Value):N2}/m²"
+                    : $"AED {TargetExtraProfitPerSqm.Value:N2}/m²";
+            }
+        }
+
         /// <summary>Aggregate U-insert treatment summary from the job.</summary>
         public string UInsertTreatmentSummary { get; set; } = "";
 

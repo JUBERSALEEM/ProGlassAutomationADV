@@ -325,7 +325,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         GivenValue = rebuilt.TotalGivenValue;
                         RequiredTargetValue = rebuilt.TotalRequiredValue;
                         DifferenceValue = rebuilt.TotalDifferenceValue;
-                        TargetMarginPercent = rebuilt.MarginAgainstTargetPercent;
+                        TargetMarginPercent = rebuilt.ExtraProfitMarginPercent
+                                              ?? rebuilt.MarginAgainstTargetPercent;
                         TargetStatusLabel = TargetStatusLabelFromName(rebuilt.Status);
                         TargetStatusMessage = BuildTargetStatusMessage(rebuilt, TargetStatusLabel);
                         UInsertTreatmentSummary = BuildUInsertSummaryText(pl);
@@ -341,7 +342,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         GivenValue = pl.TargetTotalGivenValue;
                         RequiredTargetValue = pl.TargetTotalRequiredValue;
                         DifferenceValue = pl.TargetTotalDifferenceValue;
-                        TargetMarginPercent = pl.TargetMarginAgainstTargetPercent;
+                        TargetMarginPercent = pl.TargetExtraProfitMarginPercent
+                                              ?? pl.TargetMarginAgainstTargetPercent;
                         TargetStatusLabel = TargetStatusLabelFromName(pl.TargetStatus ?? "");
                         TargetStatusMessage = BuildTargetStatusMessage(pl, TargetStatusLabel);
                         UInsertTreatmentSummary = BuildUInsertSummaryText(pl);
@@ -351,30 +353,52 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     {
                         decimal specGiven = Math.Max(0m, t.GivenPricePerSqm);
                         decimal specTarget = Math.Max(0m, t.SpecificationTargetPerSqm);
+
+                        // Given JUDGED for the margin: stored when Step 9
+                        // saved this spec; self-corrected on read for older
+                        // snapshots (net any U-insert inside the given).
+                        decimal specJudged = t.GivenPriceJudgedPerSqm > 0m
+                            ? t.GivenPriceJudgedPerSqm
+                            : Math.Max(0m, specGiven
+                                - (string.Equals(t.UInsertTreatment, "IncludedInStep5Price",
+                                       StringComparison.OrdinalIgnoreCase)
+                                    ? Math.Max(0m, t.UInsertRatePerSqm)
+                                    : 0m));
+
                         bool complete = specGiven > 0m && specTarget > 0m && t.AreaSqm > 0m
                             && (HasCompleteSpecStatus(t) || t.MarginAgainstTargetPercent.HasValue);
 
-                        decimal? specMargin = complete
-                            ? Math.Round((specGiven - specTarget) / specTarget * 100m, 2)
+                        // Status margin — judged given vs the required target.
+                        decimal? specStatusMargin = complete && specJudged > 0m
+                            ? Math.Round((specJudged - specTarget) / specTarget * 100m, 2)
+                            : (decimal?)null;
+
+                        // Display margin — the Step 9 Card 3 KPI: judged given
+                        // vs the BASE price.
+                        decimal specBase = TargetSnapshotRecompute.SnapshotBasePricePerSqm(t);
+                        decimal? specBaseMargin = complete && specJudged > 0m && specBase > 0m
+                            ? Math.Round((specJudged - specBase) / specBase * 100m, 2)
                             : (decimal?)null;
 
                         TargetSpecs.Add(new JobTargetSpecLine
                         {
                             SpecNumber = t.SpecNumber,
                             SpecName = string.IsNullOrWhiteSpace(t.SpecName) ? $"Spec {t.SpecNumber}" : t.SpecName,
-                            GivenPricePerSqmDisplay = $"AED {specGiven:N2}/m²",
+                            GivenPricePerSqmDisplay = specJudged > 0m && specJudged != specGiven
+                                ? $"AED {specJudged:N2}/m²"
+                                : $"AED {specGiven:N2}/m²",
                             SpecificationTargetPerSqmDisplay = $"AED {specTarget:N2}/m²",
                             AppliedUInsertPerSqmDisplay = t.UInsertRatePerSqm > 0m
                                 ? $"AED {t.UInsertRatePerSqm:N2}/m²"
                                 : "—",
                             FinalRequiredTargetPerSqmDisplay = $"AED {specTarget:N2}/m²",
-                            DifferencePerSqmDisplay = specMargin.HasValue
-                                ? (specGiven - specTarget) < 0m
-                                    ? $"-AED {Math.Abs(specGiven - specTarget):N2}/m²"
-                                    : $"AED {specGiven - specTarget:N2}/m²"
+                            DifferencePerSqmDisplay = specJudged > 0m
+                                ? (specJudged - specTarget) < 0m
+                                    ? $"-AED {Math.Abs(specJudged - specTarget):N2}/m²"
+                                    : $"AED {specJudged - specTarget:N2}/m²"
                                 : "—",
-                            MarginDisplay = specMargin is decimal sm ? $"{sm:0.##}%" : "—",
-                            StatusLabel = specMargin is decimal sv
+                            MarginDisplay = specBaseMargin is decimal sm ? $"{sm:0.##}%" : "—",
+                            StatusLabel = specStatusMargin is decimal sv
                                 ? sv > 0.05m ? "ABOVE TARGET"
                                     : sv < -0.05m ? "BELOW TARGET"
                                     : "AT TARGET"

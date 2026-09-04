@@ -23,9 +23,29 @@
 //             a 103.82 basis judged against a folded 129.39 instead of the
 //             base-price 119.39). The rate is visible on the KPI as
 //             informational only.
-//   • The only approved KPI margin:
-//         Margin Against Target =
-//             (Given Price − Final Required Target) ÷ Final Required Target × 100
+//   • THE KPI TRIGGER IS THE BASE PRICE (approved 2026-09-04): the
+//     pre-uplift specification formula result, computed EXACTLY from the
+//     Step 4 component rates and the Step 9 yield factor — never derived
+//     from example prices:
+//         Base Price (DGU) = (Outer Glass Rate + Inner Glass Rate) ÷ Yield + ASP
+//         e.g. (25 + 25) ÷ 0.85 + 45 = 103.82   →   × 1.15 = 119.39 target
+//   • MARGIN AGAINST TARGET = the toggle-resolved judgement over that base:
+//         Given judged for the margin =
+//             Given Price                        (U-insert billed separately
+//                                                  — Step 6 row ACTIVE)
+//             Given Price − U-insert rate        (U-insert covered INSIDE the
+//                                                  given price — Step 6 row OFF)
+//         Extra profit vs base (AED/m²) = Given judged − Base Price
+//         Margin over base %            = (Given judged − Base Price) ÷ Base Price × 100
+//     Example: given 125 on the 103.82 basis → +21.18 AED/m² (+20.40%) when
+//     the U-insert is a separate Step 6 charge; 125 − 10 = 115 → +11.18
+//     AED/m² (+10.77%) when the U-insert is inside the given. The margin is
+//     judged on the GIVEN price against the BASE price — never against the
+//     final required target (that comparison would read 125 vs 119.39 and
+//     hide the U-insert giveaway entirely).
+//   • The required-target margin (Given vs Final Required Target) is still
+//     computed and still drives the ABOVE/BELOW/AT-TARGET status pills —
+//     it is the status signal, not the KPI headline.
 //
 // These types are deliberately immutable POCOs (no WPF dependency) so the
 // same numbers drive Step 9, the saved invoice snapshot, Job Profitability
@@ -244,6 +264,47 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
         public decimal RequiredTargetValue { get; set; }
         public decimal DifferenceValue { get; set; }
 
+        // ── Base-price judgement (the KPI trigger) ─────────────────────
+        /// <summary>
+        /// Pre-uplift specification formula result, rounded to 2dp — the
+        /// BASE PRICE every margin trigger hangs off. Computed exactly from
+        /// the component rates + yield, never by dividing the uplifted
+        /// target back down:
+        ///   DGU: (Outer + Inner) ÷ Yield + ASP (+ processing),
+        ///   e.g. (25 + 25) ÷ 0.85 + 45 = 103.82 → target 103.82 × 1.15.
+        /// </summary>
+        public decimal BasePricePerSqm { get; set; }
+
+        /// <summary>
+        /// The Step 5 given price as it counts for the margin judgement.
+        /// Equals <see cref="GivenPricePerSqm"/> when the U-insert is billed
+        /// separately (Additional) or is not applicable; equals the given
+        /// price MINUS the U-insert rate when the U-insert is covered inside
+        /// the given price (IncludedInStep5Price — the customer pays for it
+        /// out of the same 125, so only 115 is really the glass price).
+        /// </summary>
+        public decimal GivenPriceJudgedPerSqm { get; set; }
+
+        /// <summary>
+        /// Extra profit over the base price in AED/m²:
+        /// GivenPriceJudgedPerSqm − BasePricePerSqm.
+        /// Null when the margin is NOT calculable (never fake 0).
+        /// Example: 125 − 103.82 = +21.18 (U-insert billed separately);
+        /// 115 − 103.82 = +11.18 (U-insert inside the given price).
+        /// </summary>
+        public decimal? ExtraProfitPerSqm { get; set; }
+
+        /// <summary>
+        /// Margin against target as a percentage over the BASE price:
+        /// (GivenPriceJudgedPerSqm − BasePricePerSqm) ÷ BasePricePerSqm × 100.
+        /// Example: +21.18/103.82 = +20.40% and +11.18/103.82 = +10.77%.
+        /// Null when the margin is NOT calculable.
+        /// </summary>
+        public decimal? ExtraProfitMarginPercent { get; set; }
+
+        public bool HasValidExtraProfit => ExtraProfitPerSqm.HasValue
+                                           && ExtraProfitMarginPercent.HasValue;
+
         /// <summary>Null when the margin is NOT calculable (never fake 0%).</summary>
         public decimal? MarginAgainstTargetPercent { get; set; }
 
@@ -297,6 +358,31 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
         /// </summary>
         public decimal AverageAppliedUInsertPerSqm { get; set; }
 
+        // ── Base-price judgement aggregates (the KPI trigger) ──────────
+
+        /// <summary>Area-weighted average BASE price (pre-uplift formula, AED/m²).</summary>
+        public decimal AverageBasePricePerSqm { get; set; }
+
+        /// <summary>
+        /// Area-weighted average GIVEN JUDGED price (AED/m²): the given price
+        /// net of any U-insert that is covered inside it. This — not the raw
+        /// given — is what the margin KPI compares against the base price.
+        /// </summary>
+        public decimal AverageGivenJudgedPerSqm { get; set; }
+
+        /// <summary>
+        /// Area-weighted average extra profit over the base price (AED/m²).
+        /// Null when ANY specification cannot be judged (never fake 0).
+        /// </summary>
+        public decimal? AverageExtraProfitPerSqm { get; set; }
+
+        /// <summary>
+        /// Job margin against target over the BASE price (value-weighted):
+        /// Σ((Given judged − Base) × Area) ÷ Σ(Base × Area) × 100.
+        /// Null when ANY specification cannot be judged.
+        /// </summary>
+        public decimal? ExtraProfitMarginPercent { get; set; }
+
         public decimal? MarginAgainstTargetPercent { get; set; }
 
         public TargetStatus Status { get; set; } = TargetStatus.CalculationIncomplete;
@@ -337,15 +423,22 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 .Where(s => s != null)
                 .ToList();
 
+            decimal baseW = 0m, judgedW = 0m;
             foreach (var spec in list)
             {
                 result.AddSpec(spec);
-                result.TotalAreaSqm += Math.Max(0m, spec.AreaSqm);
+                decimal area = Math.Max(0m, spec.AreaSqm);
+                result.TotalAreaSqm += area;
                 result.TotalGivenValue += Math.Max(0m, spec.GivenValue);
                 result.TotalSpecificationTargetValue += Math.Max(0m,
-                    Math.Round(Math.Max(0m, spec.SpecificationTargetPerSqm) * Math.Max(0m, spec.AreaSqm), 2));
+                    Math.Round(Math.Max(0m, spec.SpecificationTargetPerSqm) * area, 2));
                 result.TotalRequiredTargetValue += Math.Max(0m, spec.RequiredTargetValue);
                 result.TotalDifferenceValue += Math.Max(0m, spec.DifferenceValue);
+
+                // Base-price judgement (KPI trigger): area-weighted sums of
+                // the per-spec base price and given-judged price.
+                baseW += Math.Max(0m, spec.BasePricePerSqm) * area;
+                judgedW += Math.Max(0m, spec.GivenPriceJudgedPerSqm) * area;
             }
 
             result.TotalGivenValue = Math.Round(result.TotalGivenValue, 2);
@@ -371,11 +464,41 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 : 0m;
 
             if (result.TotalRequiredTargetValue > 0m
+                && judgedW > 0m
                 && list.All(s => s.HasValidMargin))
             {
+                // Status margin — judged given vs required target, value-weighted.
                 result.MarginAgainstTargetPercent = Math.Round(
-                    (result.TotalGivenValue - result.TotalRequiredTargetValue)
+                    (judgedW - result.TotalRequiredTargetValue)
                     / result.TotalRequiredTargetValue * 100m, 2);
+            }
+
+            // Base-price judgement aggregates (the KPI trigger). Only when
+            // EVERY specification carries a valid base-price judgement —
+            // never diluted with a fake 0.
+            bool allExtraValid = list.Count > 0
+                                 && list.All(s => s.HasValidExtraProfit);
+            result.AverageBasePricePerSqm = result.TotalAreaSqm > 0m
+                ? Math.Round(baseW / result.TotalAreaSqm, 2)
+                : 0m;
+            result.AverageGivenJudgedPerSqm = result.TotalAreaSqm > 0m
+                ? Math.Round(judgedW / result.TotalAreaSqm, 2)
+                : 0m;
+
+            if (allExtraValid && result.TotalAreaSqm > 0m)
+            {
+                result.AverageExtraProfitPerSqm = Math.Round(
+                    (judgedW - baseW) / result.TotalAreaSqm, 2);
+                if (baseW > 0m)
+                {
+                    result.ExtraProfitMarginPercent = Math.Round(
+                        (judgedW - baseW) / baseW * 100m, 2);
+                }
+            }
+            else
+            {
+                result.AverageExtraProfitPerSqm = null;
+                result.ExtraProfitMarginPercent = null;
             }
 
             result.ValidSpecCount = list.Count(s => s.HasValidMargin);
