@@ -36,6 +36,20 @@ namespace ProGlassAutomation.Agent.Configuration
 
         /// <summary>Selected cloud provider key: gemini | groq | cohere.</summary>
         public string CloudProvider { get; set; } = "gemini";
+
+        /// <summary>
+        /// Catalog id of the user-installed local model (see
+        /// Agent/Models/LocalModelCatalog). Empty = never installed.
+        /// </summary>
+        public string LocalModelId { get; set; } = "";
+
+        /// <summary>
+        /// When true AND a local model is installed, the local chain uses
+        /// the LLM before the curated knowledge base. Defaults false:
+        /// knowledge-base answering keeps working on its own unless the
+        /// user opts into the model.
+        /// </summary>
+        public bool LocalModelEnabled { get; set; }
     }
 
     /// <summary>Loads and saves agent-settings.json. Never throws.</summary>
@@ -148,6 +162,21 @@ namespace ProGlassAutomation.Agent.Configuration
             lock (Gate)
                 Current.CloudProvider =
                     string.IsNullOrWhiteSpace(provider) ? "gemini" : provider.Trim();
+            Save();
+        }
+
+        /// <summary>
+        /// Records which local model is installed/active. Persisted like
+        /// the privacy posture: the choice must survive a restart exactly
+        /// as the user left it.
+        /// </summary>
+        public static void SetLocalModel(string modelId, bool enabled)
+        {
+            lock (Gate)
+            {
+                Current.LocalModelId = (modelId ?? "").Trim();
+                Current.LocalModelEnabled = enabled;
+            }
             Save();
         }
 

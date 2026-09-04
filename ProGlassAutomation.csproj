@@ -160,6 +160,11 @@
 		     Both packages MUST be the same version.
 		     ═══════════════════════════════════════════════════════════
 		-->
+		<PackageReference Include="LLamaSharp" Version="0.22.0" />
+		<!-- CPU-only backend: no GPU driver requirements (factory PCs ship
+		     stock Intel graphics). Native binaries are bundled by the
+		     backend package and unpacked next to the app automatically. -->
+		<PackageReference Include="LLamaSharp.Backend.Cpu" Version="0.22.0" />
 		<PackageReference Include="Whisper.net" Version="1.7.4" />
 		<PackageReference Include="Velopack" Version="1.2.0" />
 		<PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />

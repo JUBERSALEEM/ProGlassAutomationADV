@@ -38,16 +38,20 @@ namespace ProGlassAutomation.Agent.Providers
         public static IAgentReasoningProvider Select(
             IAgentKnowledge? knowledge,
             IAgentSecurityService security,
-            IAiService? ai)
+            IAiService? ai,
+            ProGlassAutomation.Agent.Models.LocalLlmService? sharedLlm = null)
         {
-            var local = new LocalReasoningProvider(knowledge);
-
             try
             {
                 var settings = AgentConfigurationService.Current;
+                string? llmPath = LocalModelPathInEffect();
+                string llmTitle = LocalModelTitleInEffect();
+
+                IAgentReasoningProvider Local() =>
+                    LocalChain(knowledge, llmPath, llmTitle, sharedLlm);
 
                 // (a) Local-only wins outright.
-                if (settings.LocalOnly) return local;
+                if (settings.LocalOnly) return Local();
 
                 // (a2) NO WIRE → NO CLOUD. Consent and a stored key do not
                 // create connectivity: with the network down the cloud
@@ -60,16 +64,16 @@ namespace ProGlassAutomation.Agent.Providers
                 {
                     AppLogService.Debug(
                         "[AgentProviderSelector] offline — using local provider");
-                    return local;
+                    return Local();
                 }
 
                 // (b) Consent must be explicit.
-                if (!settings.CloudConsentGiven) return local;
+                if (!settings.CloudConsentGiven) return Local();
 
                 // (c) A key must actually be stored for the chosen provider.
                 string key = (settings.CloudProvider ?? "").Trim().ToLowerInvariant();
 
-                if (!AgentSecretStore.HasSecret(key)) return local;
+                if (!AgentSecretStore.HasSecret(key)) return Local();
 
                 return key switch
                 {
@@ -79,15 +83,67 @@ namespace ProGlassAutomation.Agent.Providers
                         new CohereReasoningProvider(ai, security),
                     GeminiReasoningProvider.ProviderKey =>
                         new GeminiReasoningProvider(ai, security),
-                    _ => local
+                    _ => Local()
                 };
             }
             catch (Exception ex)
             {
                 // Selection must never break the agent — fall back inward.
                 AppLogService.Debug($"[AgentProviderSelector] falling back to local: {ex.Message}");
-                return local;
+                return new LocalReasoningProvider(knowledge);
             }
+        }
+
+        /// <summary>
+        /// The local fallback chain, upgraded 2026-09-04:
+        /// installed+enabled TRUSTED GGUF model first (LLM = local
+        /// inference, never a network call), curated knowledge base
+        /// after. If the model file is missing or integrity-flagged,
+        /// the chain silently lands on the knowledge base — nothing
+        /// stops answering.
+        /// </summary>
+        private static IAgentReasoningProvider LocalChain(
+            IAgentKnowledge? knowledge,
+            string? llmModelPath,
+            string llmModelTitle,
+            ProGlassAutomation.Agent.Models.LocalLlmService? sharedLlm)
+        {
+            if (!string.IsNullOrWhiteSpace(llmModelPath) && sharedLlm != null)
+                return new LocalLlmReasoningProvider(sharedLlm, knowledge, llmModelTitle);
+
+            return new LocalReasoningProvider(knowledge);
+        }
+
+        /// <summary>
+        /// The model path that should power the local chain right now,
+        /// or null when the knowledge base carries the chain alone.
+        /// </summary>
+        public static string? LocalModelPathInEffect()
+        {
+            try
+            {
+                var settings = AgentConfigurationService.Current;
+                if (!settings.LocalModelEnabled) return null;
+
+                if (Agent.Models.LocalModelManager.IsInstalled(
+                        settings.LocalModelId, out var path))
+                    return path;
+
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>Display title of the model in effect (for the UI).</summary>
+        public static string LocalModelTitleInEffect()
+        {
+            var settings = AgentConfigurationService.Current;
+            return Agent.Models.LocalModelCatalog
+                       .Find(settings.LocalModelId)?.Title
+                   ?? "local model";
         }
 
         /// <summary>One-line description for the Settings status row.</summary>

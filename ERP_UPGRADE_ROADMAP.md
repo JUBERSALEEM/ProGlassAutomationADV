@@ -179,3 +179,25 @@ The "offline agent is completely dead / says minimum 8 GB" complaint, traced to 
 | 4 | **Misleading hardware advice** — the RAM advisor dead-ended below 8 GB, implying no offline capability existed there; users read it as "agent unsupported" | New 4–8 GB tier (1–3B Q4 candidates, advisory only, never downloads) and the sub-4 GB message now states the knowledge base works on any machine |
 
 Deliberately NOT done (honesty): shipping a local LLM runtime (llama.cpp/Ollama-style) is a new multi-GB dependency decision — advisor text stays advisory and names permissively licensed models only.
+
+---
+
+## POST-P5 — Real local LLM, user-initiated one-click installer (2026-09-04)
+
+What the user asked for, and what was shipped — with the safety contract spelled out:
+
+| Component | Design |
+|---|---|
+| **`Agent/Models/LocalModelCatalog.cs`** | The only allowed list. Entry criteria: freely downloadable (no account/token), Apache-2.0 / MIT only, GGUF. Includes the Chinese offering requested — **Qwen 2.5 (Alibaba, Apache-2.0)** at 0.5B / 1.5B / 3B / 7B, plus Phi 3.5 mini (MIT). Llama/Gemma deliberately excluded (gated downloads; app must not accept licences on the user's behalf) |
+| **`LocalModelManager.cs`** | Download with progress+cancel, disk-space check, `*.part` cleaned on every non-success path, SHA-256 recorded at install (trust-on-first-use), cheap size gate on every access, explicit "Verify integrity" on demand, full uninstall |
+| **`LocalLlmService.cs`** | LLamaSharp (MIT) CPU-only inference: lazy load, 2048-token context, 640-token replies, 6-turn memory, temp 0.4 — bounded for factory PCs; NO network code in the class |
+| **`LocalLlmReasoningProvider.cs`** | `IAgentReasoningProvider` with `IsLocal=true`: knowledge-base grounding passed as system facts; honest degradation to the curated provider on any failure |
+| **Selector local chain** | LocalOnly / offline / no-consent / no-key → installed+enabled model first, knowledge base second. Cloud path unchanged |
+| **Settings → AI & Agent** | New one-click card: recommended badge from `HardwareProbe`, size/RAM/license shown BEFORE install, license opens in the browser, progress + cancel, verify/uninstall, enable toggle. Nothing auto-downloads — ever |
+| **`AgentSettings`** | `LocalModelId` + `LocalModelEnabled` persisted next to the privacy posture |
+| **Tests** | `LocalModelCatalogTests` pins URL/HTTPS/GGUF/license/size/recommendation invariants without touching network or disk |
+| **Packages** | `LLamaSharp 0.22.0` + `LLamaSharp.Backend.Cpu 0.22.0` (mirrors the repo's existing Whisper.net pattern) |
+
+Privacy proof points: models live at `%AppData%/ProGlassAutomation/Agent/models`, never in the repo; download is the ONLY network call in the subsystem and it requires an explicit click; license terms are linked and viewable before install; `Local-Only` toggle and knowledge base remain the default path.
+
+Open gates: `dotnet restore/build`, `dotnet test`, first-run download of the 1.5B model, one offline chat turn on the dev machine.

@@ -139,6 +139,108 @@
                     </StackPanel>
                 </Border>
 
+                <!-- ═══════ ONE-CLICK LOCAL MODEL (offline brain) ═══════
+                     User-initiated installer: catalog-only models (permissive
+                     licences), download on click only, integrity record kept,
+                     deletes fully on uninstall. Literal text on purpose —
+                     this card ships new UI before the 15 locale packs add keys. -->
+                <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                    <StackPanel>
+                        <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                            <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE896;"/>
+                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Offline AI model (install once, works without internet)"/>
+                        </StackPanel>
+
+                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                   TextWrapping="Wrap"
+                                   Text="These models run 100% on this computer after the one-time download — no messages ever leave the machine. Licences are linked before install; only permissive Apache-2.0 / MIT models are offered."/>
+
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" MinWidth="240"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ComboBox ItemsSource="{Binding ModelRows}"
+                                      SelectedItem="{Binding SelectedModel}"
+                                      Height="38"
+                                      FontSize="{StaticResource TextBodyLarge}"
+                                      VerticalContentAlignment="Center" DisplayMemberPath="Title"/>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Margin="10,0,0,0" VerticalAlignment="Center"
+                                           FontSize="{StaticResource TextCaption}"
+                                           Foreground="{StaticResource TextSecondaryBrush}">
+                                    <Run Text="{Binding SelectedModel.SizeText, Mode=OneWay}"/>
+                                    <Run Text=" · "/>
+                                    <Run Text="{Binding SelectedModel.RamText, Mode=OneWay}"/>
+                                    <Run Text=" · License: "/>
+                                    <Run Text="{Binding SelectedModel.LicenseName, Mode=OneWay}"/>
+                                </TextBlock>
+                                <Button Content="License"
+                                        ToolTip="{Binding SelectedModel.LicenseUrl, Mode=OneWay}"
+                                        Margin="8,0,0,0"
+                                        Click="OpenModelLicense_Click"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Margin="0,8,0,0"
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource SettingsTileCaptionStyle}"
+                                   Text="{Binding SelectedModel.Description, Mode=OneWay}"/>
+                        <TextBlock TextWrapping="Wrap"
+                                   Style="{StaticResource SettingsTileFooterHintStyle}"
+                                   Text="{Binding SelectedModel.Badge, Mode=OneWay}"/>
+                        <TextBlock TextWrapping="Wrap"
+                                   Style="{StaticResource SettingsTileCaptionStyle}"
+                                   Text="{Binding SelectedModel.DisplayStatus, Mode=OneWay}"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button Style="{StaticResource SuccessPillButton}"
+                                    Content="Install / Update"
+                                    Tag="&#xE896;"
+                                    Command="{Binding InstallModelCommand}"
+                                    HorizontalAlignment="Left" Padding="20,10"
+                                    Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
+                            <Button Content="Verify integrity"
+                                    Command="{Binding VerifyModelCommand}"
+                                    Margin="10,0,0,0" Padding="16,10"
+                                    Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
+                            <Button Content="Uninstall"
+                                    Command="{Binding UninstallModelCommand}"
+                                    Margin="10,0,0,0" Padding="16,10"
+                                    Visibility="{Binding SelectedModel.IsInstalled, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
+                            <Button Content="Cancel"
+                                    Command="{Binding CancelInstallCommand}"
+                                    Margin="10,0,0,0" Padding="16,10"
+                                    Visibility="{Binding IsModelBusy, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}"/>
+                        </StackPanel>
+
+                        <Grid Margin="0,10,0,0"
+                              Visibility="{Binding IsModelBusy, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay, FallbackValue=Collapsed}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <ProgressBar Minimum="0" Maximum="100" Height="8"
+                                         Value="{Binding ModelProgress, Mode=OneWay}"/>
+                            <TextBlock Grid.Row="1" Margin="0,4,0,0"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="{Binding ModelBusyText, Mode=OneWay}"/>
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <ToggleButton IsChecked="{Binding IsLocalModelEnabled, Mode=TwoWay}"
+                                          Content="Use the local model when answering"
+                                          Command="{Binding ToggleLocalModelCommand}"
+                                          Padding="14,8"/>
+                        </StackPanel>
+
+                        <TextBlock TextWrapping="Wrap"
+                                   Style="{StaticResource SettingsTileFooterHintStyle}"
+                                   Text="Nothing is uploaded — inference is local. Enabling only switches the agent's recognizer for future chat turns."/>
+                    </StackPanel>
+                </Border>
+
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
                 <!-- ═══════ GROUP: PROVIDER CREDENTIALS ═══════ -->

@@ -70,5 +70,29 @@ namespace ProGlassAutomation.Views.Settings.Sections
             _vm.StoreKey(AgentKeyBox.Password);
             AgentKeyBox.Clear();
         }
+
+        /// <summary>
+        /// Opens the selected model's license page in the user's default
+        /// browser. Licence transparency BEFORE install is a firm rule of
+        /// the local-model program — the user must always be able to read
+        /// the terms themselves, not take our word.
+        /// </summary>
+        private void OpenModelLicense_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                string? url = _vm.SelectedModel?.LicenseUrl;
+                if (string.IsNullOrWhiteSpace(url)) return;
+
+                Process.Start(new ProcessStartInfo(url)
+                {
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SettingsAgentSection] open license: {ex.Message}");
+            }
+        }
     }
 }

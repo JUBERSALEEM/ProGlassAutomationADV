@@ -111,6 +111,7 @@ Step 8 Attachments (documents, drawings, approvals)
 | ⚙️ | **Settings** | Appearance, module wallpapers, features, backup/restore, updates, privacy, licensing |
 | 🎬 | **Demo Center** | In-app recording of the main window — **4K/60 defaults** (YouTube's top codec ladder), exact wall-clock duration, BT.709-tagged x264, screen-record engine shared with guided demos |
 | 🤖 | **AI Assistant** | Gemini/Groq/Cohere cloud + **always-offline local brain** (never dead: no key / no network → knowledge base + live-data lookups answer locally, works on 4 GB machines), secrets vault (DPAPI), AI memory, draggable bot |
+| 🧠 | **Offline AI Models** | One-click installer (Settings → AI & Agent): **Qwen 2.5 bilingual CN/EN** 0.5B–7B + Phi 3.5 mini — Apache-2.0/MIT only, SHA-256 recorded, 100% offline inference via llama.cpp |
 
 ---
 

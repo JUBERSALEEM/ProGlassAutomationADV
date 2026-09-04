@@ -18,6 +18,7 @@ using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Agent.Configuration;
 using ProGlassAutomation.Agent.Core;
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Agent.Models;
 using ProGlassAutomation.Agent.Rules;
 using ProGlassAutomation.Agent.Security.Network;
 using ProGlassAutomation.Agent.Security.SecretProtection;
@@ -28,6 +29,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -77,6 +80,58 @@ namespace ProGlassAutomation.Agent.UI
             SettingsFilePath = AgentConfigurationService.SettingsFilePath;
 
             RefreshPrivacyState();
+
+            // ══════════════════════════════════════════════════════
+            //  LOCAL MODEL (one-click offline installer)
+            // ══════════════════════════════════════════════════════
+
+            var hw = HardwareProbe.Read();
+            var recommended = LocalModelCatalog.RecommendFor(hw.TotalMemoryGb);
+
+            ModelRows = new ObservableCollection<ModelRow>(
+                LocalModelCatalog.All.Select(e => new ModelRow
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    SizeText = $"{e.SizeMb:0} MB",
+                    RamText = $"Needs ~{e.MinRamGb}+ GB RAM free",
+                    LicenseName = e.LicenseName,
+                    LicenseUrl = e.LicenseUrl,
+                    IsRecommended = e.Id == recommended.Id,
+                    CatalogEntry = e
+                }));
+
+            _selectedModel =
+                ModelRows.FirstOrDefault(r => r.Id == recommended.Id)
+                ?? ModelRows[0];
+
+            _isLocalModelEnabled =
+                AgentConfigurationService.Current.LocalModelEnabled;
+
+            RefreshModelStatus();
+            OnPropertyChanged(nameof(SelectedModel));
+            OnPropertyChanged(nameof(IsLocalModelEnabled));
+
+            InstallModelCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(InstallSelectedModelAsync, "LocalModel Install"),
+                _ => !IsModelBusy);
+
+            CancelInstallCommand = new RelayCommand(
+                _ => _installCts?.Cancel(),
+                _ => IsModelBusy);
+
+            UninstallModelCommand = new RelayCommand(
+                _ => UninstallSelectedModel(),
+                _ => !IsModelBusy);
+
+            VerifyModelCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(VerifySelectedModelAsync, "LocalModel Verify"),
+                _ => !IsModelBusy);
+
+            ToggleLocalModelCommand = new RelayCommand(
+                _ => ToggleLocalModelEnabled(),
+                _ => !IsModelBusy);
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -227,6 +282,190 @@ namespace ProGlassAutomation.Agent.UI
 
         // ══════════════════════════════════════════════════════════════
         //  COMMANDS
+        // ══════════════════════════════════════════════════════════════
+
+        // ══════════════════════════════════════════════════════════════
+        //  LOCAL MODEL PICKER (one-click offline installer)
+        // ══════════════════════════════════════════════════════════════
+
+        public ObservableCollection<ModelRow> ModelRows { get; }
+
+        private ModelRow? _selectedModel;
+        public ModelRow? SelectedModel
+        {
+            get => _selectedModel;
+            set
+            {
+                if (_selectedModel == value) return;
+                _selectedModel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isLocalModelEnabled;
+        public bool IsLocalModelEnabled
+        {
+            get => _isLocalModelEnabled;
+            private set
+            {
+                if (_isLocalModelEnabled == value) return;
+                _isLocalModelEnabled = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isModelBusy;
+        public bool IsModelBusy
+        {
+            get => _isModelBusy;
+            private set
+            {
+                if (_isModelBusy == value) return;
+                _isModelBusy = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ModelBusyText));
+                AsyncUtility.InvalidateCommandsThrottled();
+            }
+        }
+
+        private double _modelProgress;
+        public double ModelProgress
+        {
+            get => _modelProgress;
+            private set
+            {
+                if (System.Math.Abs(_modelProgress - value) < 0.05) return;
+                _modelProgress = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ModelBusyText));
+            }
+        }
+
+        public string ModelBusyText =>
+            IsModelBusy ? $"Downloading… {_modelProgress:0.0}%" : "";
+
+        public ICommand InstallModelCommand { get; }
+        public ICommand CancelInstallCommand { get; }
+        public ICommand UninstallModelCommand { get; }
+        public ICommand VerifyModelCommand { get; }
+        public ICommand ToggleLocalModelCommand { get; }
+
+        private CancellationTokenSource? _installCts;
+
+        private void RefreshModelStatus()
+        {
+            foreach (var row in ModelRows)
+            {
+                row.IsInstalled = LocalModelManager.IsInstalled(row.Id, out _);
+                row.StatusText = row.IsInstalled ? "ready to load when the agent answers." : "not yet downloaded.";
+            }
+        }
+
+        private async Task InstallSelectedModelAsync()
+        {
+            if (SelectedModel == null) return;
+
+            IsModelBusy = true;
+            ModelProgress = 0;
+            _installCts?.Dispose();
+            _installCts = new CancellationTokenSource();
+
+            try
+            {
+                bool ok = await LocalModelManager.InstallAsync(
+                    SelectedModel.CatalogEntry,
+                    new Progress<double>(v => ModelProgress = v),
+                    _installCts.Token);
+
+                RefreshModelStatus();
+                IsLocalModelEnabled =
+                    AgentConfigurationService.Current.LocalModelEnabled;
+
+                Status = ok
+                    ? $"Installed {SelectedModel.Title}. The local agent now " +
+                      "answers offline from its own model."
+                    : $"Could not install {SelectedModel.Title} — see the log " +
+                      "for why (disk space, network, or a server hiccup).";
+            }
+            catch (OperationCanceledException)
+            {
+                RefreshModelStatus();
+                Status = $"Download of {SelectedModel.Title} cancelled — no " +
+                         "partial file left behind.";
+            }
+            finally
+            {
+                IsModelBusy = false;
+                _installCts?.Dispose();
+                _installCts = null;
+            }
+        }
+
+        private void UninstallSelectedModel()
+        {
+            if (SelectedModel == null) return;
+
+            string? wasEnabled =
+                AgentConfigurationService.Current.LocalModelId;
+
+            bool ok = LocalModelManager.Uninstall(SelectedModel.Id);
+
+            if (ok && wasEnabled == SelectedModel.Id)
+            {
+                // Keep privacy-first: wiping the model flips the chain back
+                // to the curated knowledge base immediately.
+                AgentConfigurationService.SetLocalModel("", false);
+                IsLocalModelEnabled = false;
+            }
+
+            RefreshModelStatus();
+            Status = ok
+                ? $"Removed {SelectedModel.Title}."
+                : $"Could not remove {SelectedModel.Title}.";
+        }
+
+        private async Task VerifySelectedModelAsync()
+        {
+            if (SelectedModel == null) return;
+
+            IsModelBusy = true;
+            try
+            {
+                var (ok, message) = await LocalModelManager.VerifyAsync(
+                    SelectedModel.CatalogEntry, CancellationToken.None);
+                Status = message;
+            }
+            finally
+            {
+                IsModelBusy = false;
+            }
+        }
+
+        private void ToggleLocalModelEnabled()
+        {
+            bool next = !IsLocalModelEnabled;
+
+            if (next &&
+                !LocalModelManager.IsInstalled(
+                    AgentConfigurationService.Current.LocalModelId, out _))
+            {
+                Status = "Install a model first — enabling has nothing to load.";
+                return;
+            }
+
+            AgentConfigurationService.SetLocalModel(
+                AgentConfigurationService.Current.LocalModelId, next);
+
+            IsLocalModelEnabled = next;
+            AgentHost.Invalidate();   // rebuild on the next turn
+
+            Status = next
+                ? "Local model enabled. The answers stay fully offline."
+                : "Local model disabled — answering from the knowledge base.";
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  ORIGINAL COMMANDS
         // ══════════════════════════════════════════════════════════════
 
         public ICommand ToggleLocalOnlyCommand { get; }

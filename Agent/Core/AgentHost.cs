@@ -65,6 +65,9 @@ namespace ProGlassAutomation.Agent.Core
         /// <summary>Multi-step agent task adapter connecting task engine to agent core (Phase 9).</summary>
         public static AgentTaskAdapter? TaskAdapter { get; private set; }
 
+        /// <summary>Guard: the live local-LLM instance (null when knowledge-only).</summary>
+        private static ProGlassAutomation.Agent.Models.LocalLlmService? _sharedLlm;
+
         /// <summary>
         /// Navigation callback, set once by the shell. Assigning it before
         /// Build() lets the agent's navigate tool work; leaving it null
@@ -109,8 +112,18 @@ namespace ProGlassAutomation.Agent.Core
 
                     var permissions = new AgentPermissionService(Confirm, audit);
 
+                    // Shared local-LLM instance: one per composition, lazy
+                    // (no load at build time), disposed on Invalidate so
+                    // native weights never leak when posture changes.
+                    ProGlassAutomation.Agent.Models.LocalLlmService? sharedLlm = null;
+                    string? llmPath = AgentProviderSelector.LocalModelPathInEffect();
+                    if (!string.IsNullOrWhiteSpace(llmPath))
+                        sharedLlm = new ProGlassAutomation.Agent.Models
+                            .LocalLlmService(llmPath);
+                    _sharedLlm = sharedLlm;
+
                     var reasoning = AgentProviderSelector.Select(
-                        knowledge, security, App.Ai);
+                        knowledge, security, App.Ai, sharedLlm);
 
                     var context = new AgentContext
                     {
@@ -235,6 +248,14 @@ namespace ProGlassAutomation.Agent.Core
                 _built = false;
                 // Proper resource cleanup before clearing references.
                 try { Voice?.StopSpeaking(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[AgentHost] Invalidate: best-effort: " + ex.Message); }
+
+                // Free native model weights (up to several GB) before the
+                // provider is dropped — an OS process should not carry a
+                // 2160p video AND a 7B model it no longer uses.
+                try { _sharedLlm?.Dispose(); }
+                catch (Exception ex) { AppLogService.Debug($"[AgentHost] llm dispose: {ex.Message}"); }
+                _sharedLlm = null;
+
                 AI = null;
                 CommandRouter = null;
                 TaskAdapter = null;
