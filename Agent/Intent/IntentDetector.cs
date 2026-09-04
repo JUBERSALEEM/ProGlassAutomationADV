@@ -99,6 +99,20 @@ namespace ProGlassAutomation.Agent.Intent
                      "dgu specification" },
                 "get_reporting"),
 
+            // Draft reviewer must win over search_proforma: "review PI-1045"
+            // / "check my proforma" are REVIEW requests, not document lists.
+            // Placed directly after the central-reporting block (highest
+            // specificity) and before the plain search keys.
+            (new[] { "review proforma", "review my proforma",
+                     "review pi", "review my pi",
+                     "check proforma", "check my proforma",
+                     "check pi", "check my pi",
+                     "mistakes in proforma", "mistakes in pi",
+                     "mistakes in my proforma", "mistakes in my pi",
+                     "any mistakes", "validate proforma",
+                     "audit my proforma", "review the pi" },
+                "review_proforma"),
+
             // Verb-led forms PLUS the bare noun. Soft-correct used to
             // rewrite "customers" → "customer", which then matched nothing.
             (new[] { "search customer", "find customer", "customer named",

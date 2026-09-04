@@ -99,6 +99,8 @@ namespace ProGlassAutomation.Agent.UI
             AddSystem(
                 "Local agent ready. Ask about invoices, jobs, deliveries, " +
                 "customers, stock or recent activity. " +
+                "Say \"review PI-1045\" or \"check my last proforma\" for a " +
+                "rule-based mistake check before you send a document. " +
                 "Teach it with: whenever I say <phrase>, <action>. " +
                 "A taught phrase does nothing until you approve it in " +
                 "Settings > AI & Agent.");

@@ -201,3 +201,26 @@ What the user asked for, and what was shipped — with the safety contract spell
 Privacy proof points: models live at `%AppData%/ProGlassAutomation/Agent/models`, never in the repo; download is the ONLY network call in the subsystem and it requires an explicit click; license terms are linked and viewable before install; `Local-Only` toggle and knowledge base remain the default path.
 
 Open gates: `dotnet restore/build`, `dotnet test`, first-run download of the 1.5B model, one offline chat turn on the dev machine.
+
+---
+
+## POST-P5 — Agent reviewer + self-audit round (2026-09-04)
+
+Self-audit of the same-session agent/LLM work (found by re-reading, before any user report):
+
+| # | Defect found in my own changes | Fix |
+|---|---|---|
+| 1 | `ModelRow` was a plain POCO — after install the OneWay-bound Settings card kept showing "not yet downloaded" (no INPC) | `ModelRow` now derives `ViewModelBase` with notifications for `StatusText`/`IsInstalled` (+`DisplayStatus` cascade) |
+| 2 | Toggle `IsChecked` was TwoWay onto a private-set property — binding write could never succeed, and an enable-guard refusal left the toggle visually flipped | `Mode=OneWay`; the Command is the single mutator |
+| 3 | `ModelParams` numeric params used an int expression against a property whose numeric type moves across LLamaSharp versions — compile risk | literal-only assignments (`ContextSize = 2048`, `GpuLayerCount = 0`); Threads/MainGpu dropped to safe defaults |
+| 4 | `DefaultSamplingPipeline` is in `LLama.Sampling` — missing using | added |
+
+New capability (user-directed), read-only and deterministic:
+
+| Component | What it does |
+|---|---|
+| `Agent/Tools/Read/ReviewProformaTool.cs` | Rule-based senior reviewer over a saved PI's own snapshot: empty customer/company, VAT-on-without-TRN, zero-qty / zero-dimension rows, groups with rows but no price/spec, discount-over-50% and discount-over-total, non-5% VAT, zero grand total with rows, reversed dates, blank prepared-by. Each finding cites rule + step to fix + real value. Never invents, never modifies |
+| Intent detection | "review/check/mistakes in … proforma/PI" routes to the tool before the plain search intents (priority-safe catalog order); empty argument reviews the most recently saved PI |
+| Discoverability | added to `Help()` output and the chat greeting |
+
+What the offline agent can now do, grounded: look up documents/stock/customers/activity, navigate, record demos, change sheet stock behind confirmation, learn approved phrases, remember across sessions, answer offline via knowledge base (and any installed GGUF model), and review a proforma invoice for the mistake classes above.

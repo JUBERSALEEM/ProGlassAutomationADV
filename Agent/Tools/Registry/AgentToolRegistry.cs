@@ -90,6 +90,11 @@ namespace ProGlassAutomation.Agent.Tools.Registry
                 // all answered from the same source the dashboards show.
                 new GetReportingTool(),
 
+                // Draft reviewer (2026-09-04): the assistant's senior
+                // checker. Deterministic rules over the invoice's own
+                // snapshot — never invents, never corrects itself.
+                new ReviewProformaTool(),
+
                 // ── Write (PHASE Q) ───────────────────────────────────
                 //
                 // The FIRST write capability the agent has ever had.

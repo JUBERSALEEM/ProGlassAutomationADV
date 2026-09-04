@@ -26,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LLama;
 using LLama.Common;
+using LLama.Sampling;
 using ProGlassAutomation.Services.Logging;
 
 namespace ProGlassAutomation.Agent.Models
@@ -140,12 +141,15 @@ namespace ProGlassAutomation.Agent.Models
             if (_executor != null) return true;
             try
             {
+                // Literal-only assignments on purpose: LLamaSharp property
+                // numeric types have moved between int/uint across versions;
+                // a literal constant converts to either. Threads/MainGpu are
+                // NOT set — backend defaults are the safe choice (all cores,
+                // CPU backend already selected by the package).
                 var parameters = new ModelParams(_modelPath)
                 {
-                    ContextSize = ContextTokens,
-                    Threads = Math.Max(2, Math.Min(Environment.ProcessorCount, 6)),
-                    MainGpu = 0,
-                    GpuLayerCount = 0   // CPU-only: no driver surprises on OEM boxes
+                    ContextSize = 2048,   // literal
+                    GpuLayerCount = 0     // CPU-only: no driver surprises on OEM boxes
                 };
 
                 _weights = LLamaWeights.LoadFromFile(parameters);

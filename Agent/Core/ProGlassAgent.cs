@@ -178,6 +178,11 @@ namespace ProGlassAutomation.Agent.Core
             sb.AppendLine();
             sb.AppendLine("Record a demo: \"create a proforma invoice demo\".");
             sb.AppendLine();
+            sb.AppendLine("Review a document before you send it:");
+            sb.AppendLine("  \"review PI-1045\" / \"check my last proforma\" — a " +
+                          "rule-based mistake check (missing TRN, zero-qty rows, " +
+                          "unpriced groups, VAT rate, dates) with the step to fix.");
+            sb.AppendLine();
             sb.AppendLine("Teach me a phrase:");
             sb.AppendLine("  \"whenever I say stock check, show me the inventory\"");
             sb.AppendLine("  then \"approve rule 1\" — taught phrases do nothing " +

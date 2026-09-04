@@ -229,7 +229,12 @@
                         </Grid>
 
                         <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <ToggleButton IsChecked="{Binding IsLocalModelEnabled, Mode=TwoWay}"
+                            <!-- OneWay on purpose: the Command is the only
+                                 mutator. TwoWay would try to write the
+                                 private-set property AND leave the toggle
+                                 visually flipped when the enable-guard
+                                 refuses. -->
+                            <ToggleButton IsChecked="{Binding IsLocalModelEnabled, Mode=OneWay}"
                                           Content="Use the local model when answering"
                                           Command="{Binding ToggleLocalModelCommand}"
                                           Padding="14,8"/>
