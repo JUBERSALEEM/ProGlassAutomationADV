@@ -1,8 +1,13 @@
-﻿# Step 7 - Print Preview & Review
+# Step 7 - Summary (Print Preview & Review)
 
-Final step of the Proforma Invoice wizard. Reviews all invoice data,
-computes the financial totals waterfall, and (in future phases) provides
-export/print/save options.
+The financial summary step of the Proforma Invoice wizard. Reviews all
+invoice data, computes the totals waterfall, and provides the print /
+export surface.
+
+> Wizard is 9 steps today: Step 7 (this) → **Step 8 Attachments** →
+> **Step 9 Profit & Loss** (the single pricing engine whose snapshot feeds
+> Job Profitability / Reports — see `Services/ProformaInvoice/` and
+> `ERP_UPGRADE_ROADMAP.md`).
 
 ## Purpose
 

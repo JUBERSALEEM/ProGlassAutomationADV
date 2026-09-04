@@ -1,6 +1,11 @@
-# ProGlassAutomation.Tests — Phase P
+# ProGlassAutomation.Tests
 
-Security test suite for the ProGlass Agent.
+xunit suites for the ProGlass platform: agent security **and** the
+workflow regression net (roadmap Phase 4 — company persistence semantics,
+inquiry→PI conversion, price-basis signal, status vocabulary funnels).
+Folder-per-domain; all suites honor the two documented gate overrides
+(`OperationGuard.Enabled`, `ReadOnlyGate.Enabled`) and restore them in
+`Dispose`.
 
 ## Running
 

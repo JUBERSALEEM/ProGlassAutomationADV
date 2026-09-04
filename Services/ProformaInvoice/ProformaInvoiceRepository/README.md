@@ -1,12 +1,13 @@
-﻿# Proforma Invoice Repository
+# Proforma Invoice Repository
 
 Persistent storage layer for saved proforma invoices.
-Uses a dedicated SQLite database file separate from the main proglass.db
-and specifications.db databases.
+Uses a dedicated SQLite database file separate from the master-data and
+specifications databases.
 
 ## Purpose
 
-The entire wizard state across all 7 steps needs to persist so users can:
+The entire wizard state across all **9 steps** persists as a single JSON
+snapshot (`ProformaInvoiceSnapshot` ⇄ `ProformaInvoiceMapper`), so users can:
 
 1. Save an in-progress proforma and resume later
 2. Load an existing invoice to reuse it as a template

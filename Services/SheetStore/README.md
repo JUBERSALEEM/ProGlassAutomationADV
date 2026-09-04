@@ -1,4 +1,4 @@
-﻿# 📦 Sheet Store Module
+# 📦 Sheet Store Module
 
 Manages raw glass sheet inventory. Foundation of the ProGlass workflow —
 Proforma Invoice, Job Order, and downstream modules pull pricing and
@@ -140,3 +140,15 @@ var categories = await repo.GetCategoriesAsync();
 ---
 
 *Last updated: Phase 2 UI complete.*
+
+---
+
+## ⏱️ Price-version signal (Phase 3, `f6dd157`)
+
+Every write path (`AddAsync`, `UpdateAsync`, `BuyStockAsync`, `UseStockAsync`)
+stamps `GlassSheet.LastUpdated`, and stock deletes change the row count.
+`Services/ProformaInvoice/GlassPriceStamper` folds that into the
+`{max(LastUpdated).Ticks}:{count}` signature persisted with each saved P&L —
+that is what lets Job Profitability flag a quote whose *price basis moved*
+instead of silently recomputing money. Bulk CSV/Excel imports pass through
+the repository, so imports move the stamp just like manual edits.

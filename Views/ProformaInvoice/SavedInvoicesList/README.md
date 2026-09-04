@@ -1,4 +1,4 @@
-﻿# Saved Invoices List — Phase 7.16
+# Saved Invoices List — Phase 7.16
 
 Full-screen module + toolbar dialog for browsing, loading, duplicating,
 and deleting previously saved proforma invoices from proformainvoices.db.
@@ -13,7 +13,7 @@ disk but unreachable from the UI. This module adds:
 - Browse all saved invoices in a searchable table
 - Filter by status, date range, or company/customer/project text search
 - Sort by newest, oldest, highest value, alphabetical
-- Load any invoice → rehydrates the entire wizard (all 7 steps)
+- Load any invoice → rehydrates the entire wizard (all 9 steps incl. Step 8 Attachments + Step 9 P&L)
 - Duplicate an invoice with auto-incremented ID
 - Delete invoices permanently
 - Right-click to change status (Draft → Sent → Approved etc.)
