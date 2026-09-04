@@ -83,11 +83,40 @@ existing net. NOTE — no `dotnet` exists in this sandbox, so green is asserted 
 static verification (balance, symbol existence, existing-implementor greps, API
 shape checks) exactly like the prior phases; run `dotnet test` on the dev machine.
 
-## PHASE 5 — Industrial consistency layer
+## PHASE 5 — Industrial consistency layer ✅ *(landed this turn)*
 **Goal:** one vocabulary, full traceability, predictable errors.
-1. Status vocabulary audit across Inquiry/PI/JO/DN/TI (single Normalize homes already exist — enforce).
-2. Audit-trail coverage: company auto-enrichment events logged (string diff), inquiry conversion logged with item snapshot.
-3. Error surfacing pass: silent-catch audit on money paths (they’re currently log-only by design where safe — document each).
-**Acceptance:** every workflow mutation either (a) logs an audit entry or (b) carries an inline justification comment.
+**Landed (traced per module, no blanket find/replace):**
+1. **Status vocabulary enforced.** Homes verified: Inquiry `InquiryStatuses.Normalize`
+   (already funneled at repo + ChangeStatus), JO enum / DN `DeliveryNoteStatusValues` /
+   TI enum-typed. The one REAL hole closed: PI had constants but NO Normalize —
+   `ProformaInvoiceStatus.Normalize` added (case/spacing canonicalization; unknown
+   values pass through as-typed — corruption is surfaced, never folded to Draft) and
+   `ProformaInvoiceRepository.UpdateAsync` now writes through it. Source-scan
+   enforcement: `Tests/Agent/StatusVocabularySourceTests.cs` failing on any bypass.
+2. **Audit-trail coverage.** New additive section constants `MasterData` / `Inquiry`.
+   `SaveOrUpdateCompanyAsync` now emits field-level diffs via `LogWithChanges`
+   (before-snapshot captured pre-branch; auto-enrichment and Company-Center edits are
+   DISTINCT actions; zero-change saves log nothing → no noise) and logs creations.
+   Inquiry conversion (`StartFromInquiryAsync`) logs to the Inquiry section carrying
+   the imported item snapshot (spec, W×H, qty).
+3. **Error surfacing.** `docs/MONEY_PATH_ERROR_POLICY.md` — full money-path inventory
+   (Step 4/5/6/7/9, mapper, pricing/reporting services), each swallow classed
+   A–D with its justification; policy for new catches; cross-references the
+   executable invariants (staleness signal, status funnel, gate coverage).
+**Acceptance:** every workflow mutation either logs an audit entry (companies,
+conversions, statuses via existing trails) or carries an inline classed justification
+(money-path catches + policy doc).
 
 **Rating earned after each phase:** P1 → 8.8 · P2 → 9.2 · P3 → 9.5 · P4 → 9.7 · P5 → 10.0 (only if each phase’s acceptance holds under local build+test).
+
+**Status 2026-09-04:** all five phases landed and pushed (P1 `0f1a67e` · P2 `c970e98` ·
+P3 `f6dd157` · P4 `a6e4e21` · P5 this commit). Verification performed per phase:
+rename-comment strip + brace/paren balance on every touched file, XAML well-formedness,
+symbol/namespace existence greps, single-implementor audits, behavior-parity reference
+reads on every refactor, and behaviour-change audits on every new/dumped write path.
+That earns **9.7** today. The last **0.3 → 10.0** is deliberately NOT self-awarded:
+it requires `dotnet build` + `dotnet build Tests/…` + `dotnet test` all green on the
+dev machine (no compiler exists in this sandbox) plus a live smoke run
+(company save → enrichment diff visible · BOQ inquiry → converted PI grid ·
+sheet-price edit → stale flag). The gates are written, documented and executable;
+the honest statement is "ready to confirm", not "claimed".

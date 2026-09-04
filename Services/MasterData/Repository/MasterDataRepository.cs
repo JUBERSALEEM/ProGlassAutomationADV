@@ -195,6 +195,22 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 existing.CompanyTrn = company.CompanyTrn?.Trim()
                     ?? existing.CompanyTrn;
 
+                // PHASE 5 — traceability: profile fields are captured
+                // BEFORE the branch applies, so every save yields an exact
+                // field-level diff (the Activity log renders it GitHub-
+                // style). Auto-enrichment and explicit edits are logged as
+                // DISTINCT actions — the path the data took is part of the
+                // trail, not guesswork.
+                string beforeLocation = existing.CompanyLocation;
+                string beforeLogo = existing.LogoPath;
+                string beforeRep = existing.Representative;
+                string beforeRepMobile = existing.RepresentativeMobile;
+                string beforeEmail = existing.CompanyEmail;
+                string beforeAccount = existing.AccountNumber;
+                string beforeBank = existing.BankName;
+                string beforeName = existing.CompanyName;
+                string beforeTrn = existing.CompanyTrn;
+
                 if (preserveUnsetProfileFields)
                 {
                     // Invoice auto-save path: a blank header field must never
@@ -243,6 +259,15 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 existing.LastUsedAt = now;
 
                 await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+
+                // PHASE 5: persistent field-diff trail (fire-and-forget,
+                // never throws — auditing must never block a save).
+                LogCompanyChanges(
+                    existing, preserveUnsetProfileFields,
+                    beforeName, beforeTrn, beforeLocation, beforeLogo,
+                    beforeRep, beforeRepMobile, beforeEmail,
+                    beforeAccount, beforeBank);
+
                 return existing;
             }
 
@@ -255,7 +280,66 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
             ctx.Companies.Add(company);
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+
+            // PHASE 5: creation is part of the trail (fire-and-forget).
+            AuditService.Log(
+                AuditSections.MasterData,
+                "Company created",
+                $"Company \"{company.CompanyName}\" added to master data (TRN {company.CompanyTrn}).",
+                "Company",
+                company.Id.ToString(System.Globalization.CultureInfo.InvariantCulture));
             return company;
+        }
+
+        // ── PHASE 5: persistent change-set trail for company profiles ────
+        //  The Activity log renders these GitHub-style. Only fields whose
+        //  value ACTUALLY changed are recorded; once a profile is complete,
+        //  routine invoice saves emit nothing (no audit noise).
+        private static void LogCompanyChanges(
+            SavedCompany after,
+            bool preserveMode,
+            string beforeName, string beforeTrn,
+            string beforeLocation, string beforeLogo,
+            string beforeRep, string beforeRepMobile,
+            string beforeEmail, string beforeAccount, string beforeBank)
+        {
+            static string Trunc(string s) =>
+                s.Length > 200 ? s.Substring(0, 200) : s;
+
+            static void Add(List<AuditChange> c, string field,
+                string before, string afterValue)
+            {
+                if (!string.Equals(before, afterValue, StringComparison.Ordinal))
+                    c.Add(new AuditChange
+                    {
+                        Field = field,
+                        Before = Trunc(before ?? ""),
+                        After = Trunc(afterValue ?? "")
+                    });
+            }
+
+            var changes = new List<AuditChange>();
+            Add(changes, "Name", beforeName, after.CompanyName);
+            Add(changes, "TRN", beforeTrn, after.CompanyTrn);
+            Add(changes, "Location", beforeLocation, after.CompanyLocation);
+            Add(changes, "Logo", beforeLogo, after.LogoPath);
+            Add(changes, "Representative", beforeRep, after.Representative);
+            Add(changes, "Rep mobile", beforeRepMobile, after.RepresentativeMobile);
+            Add(changes, "Email", beforeEmail, after.CompanyEmail);
+            Add(changes, "Account no.", beforeAccount, after.AccountNumber);
+            Add(changes, "Bank", beforeBank, after.BankName);
+
+            if (changes.Count == 0) return;
+
+            AuditService.LogWithChanges(
+                AuditSections.MasterData,
+                preserveMode
+                    ? "Company profile auto-enriched (invoice save)"
+                    : "Company profile updated",
+                $"Company \"{after.CompanyName}\" — {changes.Count} field(s) changed.",
+                "Company",
+                after.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                changes);
         }
 
         public async Task<List<SavedCompany>> GetAllCompaniesAsync()

@@ -26,5 +26,12 @@ namespace ProGlassAutomation.Services.Audit
         public const string Settings     = "Settings";
         public const string Ai           = "AI Assistant";
         public const string Updates      = "Updates";
+        // PHASE 5 (industrial traceability): events raised by the master
+        // data repository (company profile enrichments) and the inquiry
+        // module (conversion into the PI wizard) had no home — the entries
+        // existed neither as vocabulary nor as trail. Additive constants;
+        // no existing section string changed.
+        public const string MasterData   = "Master Data";
+        public const string Inquiry      = "Inquiry";
     }
 }

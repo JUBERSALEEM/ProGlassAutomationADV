@@ -854,7 +854,29 @@ public ProformaInvoiceViewModel() : this(
             // the grid's setters clear a type-mismatched name, the same
             // order the Step 4 handoff itself uses.
             if (inquiry.LineItems != null && inquiry.LineItems.Count > 0)
+            {
                 ImportInquiryBoqIntoDataGrid(inquiry.LineItems);
+
+                // PHASE 5: conversion is part of the audit trail, carrying
+                // the item snapshot it carried in (fire-and-forget).
+                var converted = Services.ProformaInvoice.InquiryBoqConversion
+                    .ToImportRows(inquiry.LineItems);
+                if (converted.Count > 0)
+                {
+                    var sb = new System.Text.StringBuilder(
+                        $"Inquiry {inquiry.InquiryNumber} opened in the PI wizard — {converted.Count} BOQ line(s): ");
+                    foreach (var r in converted.Take(12))
+                        sb.Append($"{r.SpecName} {r.WidthMm}x{r.HeightMm}x{r.Qty}; ");
+                    if (converted.Count > 12)
+                        sb.Append($"… +{converted.Count - 12} more");
+                    Services.Audit.AuditService.Log(
+                        Services.Audit.AuditSections.Inquiry,
+                        "Inquiry converted to PI",
+                        sb.ToString(),
+                        "Inquiry",
+                        inquiry.InquiryNumber ?? "");
+                }
+            }
         }
 
         /// <summary>

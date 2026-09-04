@@ -305,7 +305,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             existing.CompanyName = invoice.CompanyName;
             existing.CustomerName = invoice.CustomerName;
             existing.ProjectName = invoice.ProjectName;
-            existing.Status = invoice.Status;
+            // PHASE 5: statuses enter the store through the single
+            // normalization home (case/space variants canonicalize; an
+            // unknown value is passed through as-typed, never re-mapped).
+            existing.Status = ProformaInvoiceStatus.Normalize(invoice.Status);
             existing.IssueDate = invoice.IssueDate;
             existing.ValidUntil = invoice.ValidUntil;
             existing.GlassMaterialsSubtotal = invoice.GlassMaterialsSubtotal;

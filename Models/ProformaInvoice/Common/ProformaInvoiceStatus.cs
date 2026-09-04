@@ -19,5 +19,23 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Common
         public const string Rejected = "Rejected";
         public const string Expired = "Expired";
         public const string Cancelled = "Cancelled";
+
+        public static readonly IReadOnlyList<string> All =
+            [Draft, Sent, Approved, Rejected, Expired, Cancelled];
+
+        /// <summary>
+        /// PHASE 5 — single normalize home. Canonicalizes any case/spacing
+        /// variant of a KNOWN status; an UNRECOGNIZED value passes through
+        /// as-typed (never silently re-mapped to Draft — an unexpected
+        /// status is something to surface, not to hide).
+        /// </summary>
+        public static string Normalize(string? value)
+        {
+            string text = value?.Trim() ?? "";
+            foreach (var known in All)
+                if (string.Equals(known, text, StringComparison.OrdinalIgnoreCase))
+                    return known;
+            return text;
+        }
     }
 }
