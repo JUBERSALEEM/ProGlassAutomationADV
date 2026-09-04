@@ -592,11 +592,25 @@ namespace ProGlassAutomation.Services.Recording
                     catch (Exception ex) { AppLogService.Warning($"Cleanup audio: {ex.Message}"); }
                 }
 
-                foreach (var file in new[] { "mixed.wav", "live.wav", "mic.wav", "narration.wav", "live.h264.mp4", "events.json", "director.log", "narration.txt" })
+                // "capture.mp4" is the live H.264 raw-pipe output — its
+                // contents were stream-copied into the final
+                // ScreenRecording_*.mp4 (or MOVED there when there is no
+                // audio). Leaving it behind produced the reported "two
+                // video files" per recording. It is never the deliverable,
+                // so it is always safe to delete once we reach cleanup.
+                // "*.packing.mp4" covers a mux that was interrupted between
+                // compose and rename.
+                foreach (var file in new[] { "mixed.wav", "live.wav", "mic.wav", "narration.wav", "live.h264.mp4", "capture.mp4", "events.json", "director.log", "narration.txt" })
                 {
                     string path = System.IO.Path.Combine(folder, file);
                     try { if (File.Exists(path)) File.Delete(path); }
                     catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[UserScreenRecordService] CleanupFolderForDemo: best-effort: " + ex.Message); }
+                }
+
+                foreach (string packing in Directory.EnumerateFiles(folder, "*.packing.mp4"))
+                {
+                    try { File.Delete(packing); }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[UserScreenRecordService] CleanupFolderForDemo: packing sweep: " + ex.Message); }
                 }
             }
             catch (Exception ex)

@@ -375,6 +375,31 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             int blankStreak = 0;
             bool warnedFallback = false;
 
+            // ── WALL-CLOCK TIME BASE (playback-speed fix) ────────────
+            //
+            // The ffmpeg raw pipe stamps every written frame at exactly
+            // 1/nominal-fps. The loop below, however, paces CAPTURES at
+            // the adaptive (throttled) interval and used to hand the
+            // pipe one frame per iteration — so 20 real seconds recorded
+            // at a throttled 6 captures/s produced ~120 frames, which
+            // ffmpeg then played back at 30fps = a 4-second video of a
+            // 20-second recording. The "video plays too fast" defect.
+            //
+            // The encoder's time base must therefore stay at the NOMINAL
+            // rate and be driven by the wall clock, not by the capture
+            // cadence: after each capture we fill every elapsed nominal
+            // slot with a copy of the latest buffer. Byte-identical dub
+            // frames cost x264 almost nothing (skip macroblocks), keep
+            // the stream constant-frame-rate, and keep DURATION exact
+            // even when the adaptive throttle halves the capture rate.
+            //
+            // `writeEpoch` and `writtenSlots` are a separate timeline
+            // from the pacing `epoch`/`slot` pair on purpose: pacing
+            // decides WHEN to capture (throttled), writing decides WHAT
+            // time the video claims (nominal).
+            var writeEpoch = DateTime.UtcNow;
+            long writtenSlots = 0;
+
             // ── ADAPTIVE THROTTLE (Phase 1 freeze fix) ───────────────
             //
             // PrintWindow BLOCKS on the window's owning thread — our UI
@@ -402,7 +427,15 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 {
                     try { await Task.Delay(50, ct).ConfigureAwait(false); }
                     catch (OperationCanceledException) { break; }
-                    epoch = DateTime.UtcNow - TimeSpan.FromTicks(interval.Ticks * slot);
+                    // Rebase BOTH clocks on resume. The write clock must
+                    // use writtenSlots (nominal timeline) and the pacing
+                    // clock effInterval (what wake-ups are actually
+                    // scheduled with) — using the nominal interval here
+                    // made waits grow by (eff-nominal)*slot, eventually
+                    // freezing the loop for good after any pause taken
+                    // while the throttle was active.
+                    writeEpoch = DateTime.UtcNow - TimeSpan.FromTicks(interval.Ticks * writtenSlots);
+                    epoch = DateTime.UtcNow - TimeSpan.FromTicks(effInterval.Ticks * slot);
                     continue;
                 }
 
@@ -467,12 +500,43 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
                 if (haveFrame)
                 {
-                    // Repeat the previous frame when a capture fails, so
-                    // the stream stays constant-frame-rate.
-                    if (!_rawPipe.WriteFrame(buffer, frameBytes))
-                        break;   // encoder died
+                    // ── Fill the nominal wall-clock timeline ─────────
+                    // One frame per iteration is WRONG once the throttle
+                    // slows captures: the rawvideo demuxer advances time
+                    // by 1/nominal-fps per written frame, so the video
+                    // would play back at nominal/effective speed (the
+                    // 20s -> 3-4s defect). Fill every nominal slot that
+                    // has elapsed with a copy of the LATEST buffer —
+                    // motion is authored at the capture rate, duration
+                    // stays at real time, CFR stays intact for the mux.
+                    long dueSlots = Math.Max(
+                        1,
+                        (DateTime.UtcNow - writeEpoch).Ticks / interval.Ticks);
+                    long pending = dueSlots - writtenSlots;
 
-                    Interlocked.Increment(ref _encodedFrames);
+                    // Bounded catch-up: a multi-second capture stall must
+                    // not dump minutes of duplicates into the pipe. The
+                    // lost wall time in that pathological case is counted
+                    // instead of materialized.
+                    if (pending > fps)
+                    {
+                        Interlocked.Add(ref _droppedFrames,
+                            (int)Math.Min(pending - fps, int.MaxValue));
+                        pending = fps;
+                    }
+
+                    for (long i = 0; i < pending; i++)
+                    {
+                        if (!_rawPipe.WriteFrame(buffer, frameBytes))
+                        {
+                            haveFrame = false;   // encoder died -> break outer loop
+                            break;
+                        }
+                        writtenSlots++;
+                        Interlocked.Increment(ref _encodedFrames);
+                    }
+                    if (!_rawPipe.IsOpen && pending > 0)
+                        break;   // encoder died
                 }
                 else
                 {
