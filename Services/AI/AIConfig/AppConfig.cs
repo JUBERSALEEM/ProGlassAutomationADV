@@ -303,11 +303,22 @@ namespace ProGlassAutomation.Services.AI.AIConfig
     /// </summary>
     public class RecordingPreferences
     {
-        /// <summary>Vertical resolution: 720, 1080, 1440 or 2160.</summary>
-        public int QualityHeight { get; set; } = 1080;
+        /// <summary>
+        /// Vertical resolution: 720, 1080, 1440 or 2160.
+        /// Seed default is 2160 (4K): YouTube assigns the VP9/AV1 codec
+        /// ladder at ≥1440p, which is THE decisive factor for how sharp an
+        /// upload looks after their re-encode. A persistently CHOSEN value
+        /// by a lower end always wins — this only seeds fresh installs.
+        /// </summary>
+        public int QualityHeight { get; set; } = 2160;
 
-        /// <summary>Target frame rate: 30, 40, 50 or 60.</summary>
-        public int Fps { get; set; } = 30;
+        /// <summary>
+        /// Target frame rate: 30, 40, 50 or 60. Seed default 60: YouTube
+        /// gives 2160p60 material its top bitrate tier; the adaptive
+        /// capture throttle still protects UI responsiveness at record
+        /// time, and duration stays exact via the wall-clock time base.
+        /// </summary>
+        public int Fps { get; set; } = 60;
 
         /// <summary>Capture internal system audio via WASAPI loopback.</summary>
         public bool CaptureLiveAudio { get; set; } = true;

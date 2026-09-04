@@ -109,7 +109,7 @@ Step 8 Attachments (documents, drawings, approvals)
 | 👥 | **System Center** | Users, roles (8 built-in), operation-based permissions |
 | 🧰 | **Logs & Activity** | App log + activity log + audit DB with GitHub-style diffs |
 | ⚙️ | **Settings** | Appearance, module wallpapers, features, backup/restore, updates, privacy, licensing |
-| 🎬 | **Demo Center** | In-app recording of the main window (screen-record engine shared with guided demos) |
+| 🎬 | **Demo Center** | In-app recording of the main window — **4K/60 defaults** (YouTube's top codec ladder), exact wall-clock duration, BT.709-tagged x264, screen-record engine shared with guided demos |
 | 🤖 | **AI Assistant** | Current Gemini models, secrets vault (DPAPI), AI memory, draggable bot |
 
 ---

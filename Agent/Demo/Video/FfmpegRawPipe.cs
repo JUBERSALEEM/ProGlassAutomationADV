@@ -101,7 +101,14 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 $"-y -f rawvideo -pix_fmt bgra -s {srcW}x{srcH} -framerate {fps} " +
                 $"-use_wallclock_as_timestamps 0 -i - " +
                 $"-an -vf \"{vf}\" -c:v libx264 -preset veryfast -tune stillimage " +
-                $"-crf {crf} -g {fps} -pix_fmt yuv420p -movflags +faststart " +
+                $"-crf {crf} -g {fps} -pix_fmt yuv420p " +
+                // Explicit BT.709 tagging: screen capture IS sRGB (≈709).
+                // Untagged files leave the primaries to guesswork, and a
+                // 4K upscale interpreted as BT.2020 / flat-range
+                // somewhere in the edit/upload chain is precisely the
+                // "dull, washed" look users report. Tagging is free.
+                $"-color_primaries bt709 -color_trc bt709 -colorspace bt709 " +
+                $"-movflags +faststart " +
                 $"\"{videoPath}\"";
 
             try

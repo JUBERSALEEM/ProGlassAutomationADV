@@ -52,20 +52,38 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
         public static readonly int[] AllowedFps = [30, 40, 50, 60];
 
-        public ScreenRecordQuality Quality { get; set; } = ScreenRecordQuality.FullHd;
-        public int Fps { get; set; } = 30;
+        // 2026-09-04 — default raised to 4K/60 on the user's explicit
+        // quality-first instruction AND the encoding math behind it:
+        //
+        //   1. YOUTUBE CODEC LADDER. Every upload is re-encoded by
+        //      YouTube. 1080p material lands on the low-bitrate AVC1
+        //      ladder (≈2–6 Mbps), which is where fine ERP text and grid
+        //      lines smear ("looks like 3gp" after upload). ≥1440p
+        //      material is assigned the VP9/AV1 ladder at several times
+        //      the bitrate; 2160p60 sits at the very top. Uploading the
+        //      SAME window content as 3840×2160@60 is demonstrably
+        //      sharper on YouTube than uploading it at native 1080p.
+        //   2. COST IS ENCODER-SIDE, NOT UI-SIDE. The GDI blit still
+        //      captures at the window's native size; the scale to 2160p
+        //      happens inside ffmpeg's lanczos filter on its own thread.
+        //      A weak CPU slows ENCODE, which the pipe absorbs; the
+        //      wall-clock time base keeps duration exact regardless.
+        //   3. EVERY SETTING REMAINS AVAILABLE — 720p→2K@30 in two
+        //      clicks for users on small machines.
+        public ScreenRecordQuality Quality { get; set; } = ScreenRecordQuality.Uhd4K;
+        public int Fps { get; set; } = 60;
         public bool CaptureLiveAudio { get; set; } = true;
         public bool CaptureMicrophone { get; set; } = true;
         public int JpegQuality { get; set; } = 98;
 
         /// <summary>
-        /// When true, frames are captured at a supersampled size and
-        /// ffmpeg lanczos-downscales them to the output for extra crispness.
-        /// Defaults to FALSE: supersampling costs up to ~1.8× the pixels per
-        /// frame (RenderTargetBitmap + JPEG + H.264), which is the dominant
-        /// source of recording lag. 1:1 capture with the final lanczos +
-        /// unsharp chain recovers most of the sharpness at a fraction of the
-        /// CPU. Power users recording 4K on a fast machine can re-enable it.
+        /// LEGACY in the current GDI + raw-video pipeline: captured frames
+        /// are the window's physical pixels and the output scale (incl.
+        /// the 2160p upscale that earns YouTube's top codec ladder) is
+        /// ffmpeg's lanczos filter at encode time, so this flag no longer
+        /// changes recording output. It only persists so old configs keep
+        /// round-tripping. <see cref="CaptureSize"/> below shows the
+        /// historical bargain; do not wire it back in without profiling.
         /// </summary>
         public bool Supersample { get; set; } = true;
 
@@ -137,11 +155,14 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public int EncodeCrf => Quality switch
         {
             // Lower CRF = higher quality. Default x264 is ~23; these are
-            // already aggressive, nudged one step further for cleaner
-            // screen text. Final encode runs once at STOP, so the extra
-            // bitrate costs disk, not recording latency.
-            // Lowered further: size is explicitly not a constraint, and
-            // CRF 12-14 is visually lossless for screen content.
+            // already aggressive for cleaner screen text. CRF 12-14 is
+            // visually lossless for screen content — pushing lower buys
+            // size, not sharpness.
+            //
+            // NOTE (2026-09-04 pipeline): CRF feeds the LIVE raw-video
+            // encode (FfmpegRawPipe), not a once-at-stop re-encode, so it
+            // does share CPU with recording. veryfast preset + the
+            // bounded wall-clock frame fill absorb that; quality stays.
             ScreenRecordQuality.Hd720 => 14,
             ScreenRecordQuality.FullHd => 13,
             ScreenRecordQuality.Qhd2K => 12,
@@ -178,7 +199,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public ScreenRecordSettings Clamp()
         {
             if (Qualities.All(q => q.Quality != Quality))
-                Quality = ScreenRecordQuality.FullHd;
+                Quality = ScreenRecordQuality.Uhd4K;
 
             if (Array.IndexOf(AllowedFps, Fps) < 0)
             {

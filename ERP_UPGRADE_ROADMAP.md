@@ -146,3 +146,21 @@ Removed by explicit user direction (reverses F-3/`25618e9` prefill deliberately)
 **Deliberate boundary documented, NOT a gap:** Step 1 edits enrich the module at
 invoice-save (preserve-blank) — never live per keystroke; the module record stays
 authoritative until explicitly selected.
+
+---
+
+## POST-P5 — Recording quality program (user-directed, 2026-09-04)
+
+Traced and fixed in two waves; the video chain is now honest end-to-end:
+
+| # | Defect (traced to code) | Fix |
+|---|---|---|
+| 1 | **Time compression** — raw pipe wrote one frame per loop iteration while the UI-throttle slowed iterations; ffmpeg's `-framerate <nominal>` demuxer stamped every frame at 1/nominal-fps ⇒ 20s real became a 3–4s video | Wall-clock time base: every elapsed nominal slot is filled with a copy of the latest frame (dups encode as near-free skip MBs; CFR intact; duration exact). Catch-up bounded at ~1s/iteration. |
+| 2 | **Two output files** — live pipe wrote `capture.mp4` next to the final `ScreenRecording_*.mp4`; cleanup deleted only `live.h264.mp4`/wavs | Cleanup removes `capture.mp4` + `*.packing.mp4` remnants in success AND failure lanes |
+| 3 | **Pause-under-throttle freeze (latent)** — pacing clock rebased with nominal interval while wake-ups used throttled interval ⇒ waits grew by (eff−nominal)·slot after resume | Pause now rebases BOTH clocks consistently (`effInterval` for pacing, `writtenSlots` for the write timeline) |
+| 4 | **"Blurry like 3gp" on YouTube** — defaults 1080p/30 ⇒ YouTube AVC1 low-bitrate ladder at 1080p smears fine ERP text. Codec-ladder math: ≥1440p gets VP9/AV1 at several× the bitrate; 2160p60 tops the ladder | Defaults raised to **4K/60** across settings class, config seed and Demo Center fallbacks (persisted user choices always win). Upscale to 2160p is ffmpeg-side lanczos, zero UI cost |
+| 5 | **Untagged color space** — editor/YouTube guesswork on untagged 4K can yield the reported "dull/washed" look | BT.709 tagging (`-color_primaries/-trc/-colorspace`) added to the raw-pipe encode |
+
+Screenshots audited in the same pass: already print-grade (quality ladder to 8K / 10240×5760, ≥4× render scale, lossless PNG default, JPEG Q100). No gap worth risking a rewrite over.
+
+Open gate: `dotnet build`/`dotnet test` + a timed 20s smoke record on the Windows dev machine (duration == wall clock; single MP4; YouTube "Stats for nerds" showing vp9/av01 at 2160p60 after upload).

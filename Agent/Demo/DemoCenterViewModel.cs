@@ -73,12 +73,15 @@ namespace ProGlassAutomation.Agent.Demo
             // construction, and the Settings page rebuilds the VM — so
             // the user's quality/fps/audio choices kept resetting.
             var demoPrefs = App.Config?.DemoRecording;
+            // Fallbacks track the shipped default (4K/60 — see
+            // ScreenRecordSettings): explicit stored choices always win,
+            // these only apply when the config has no recorded choice.
             _selectedQuality = ScreenRecordSettings.Qualities.FirstOrDefault(q =>
                 demoPrefs != null && (int)q.Quality == demoPrefs.QualityHeight)
-                ?? ScreenRecordSettings.Qualities[1];
+                ?? ScreenRecordSettings.Qualities[^1];
             _selectedFps = ScreenRecordSettings.FpsOptions.FirstOrDefault(f =>
                 demoPrefs != null && f.Fps == demoPrefs.Fps)
-                ?? ScreenRecordSettings.FpsOptions[0];
+                ?? ScreenRecordSettings.FpsOptions[^1];
             _captureLiveAudio = demoPrefs?.CaptureLiveAudio ?? true;
             _captureMicrophone = demoPrefs?.CaptureMicrophone ?? true;
 
