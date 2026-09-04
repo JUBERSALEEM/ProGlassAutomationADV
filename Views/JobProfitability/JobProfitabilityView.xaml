@@ -92,6 +92,22 @@
             <Setter Property="Margin" Value="2,0,0,0"/>
         </Style>
 
+        <!-- Table header cell -->
+        <Style x:Key="JpHeaderCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- Table data cell -->
+        <Style x:Key="JpCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
         <!-- Small value/count chip in the strip under the KPI cards -->
         <Style x:Key="JpChipStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
