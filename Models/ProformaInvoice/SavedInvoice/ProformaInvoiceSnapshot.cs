@@ -314,6 +314,36 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// </summary>
         public decimal UInsertPricePerSqm { get; set; }
 
+        // ══════════════════════════════════════════════════════════════
+        //  PHASE 1-AUDIT — per-group production-cost provenance.
+        //
+        //  These are the production rates Step 4 quoted for THIS group at
+        //  handoff time (spacer, interlayer, cutting, tempering). Before
+        //  they existed, Step 9 read them from the LIVE Step 4 panel —
+        //  which holds only the currently selected calculation section —
+        //  so a multi-section PI could silently cost every group against
+        //  section 1's production inputs (and a restored PI against
+        //  whatever section the wizard happens to show).
+        //
+        //  Nullable on purpose: groups on invoices saved before these
+        //  fields existed deserialize to null, and Step 9 falls back to
+        //  the live panel exactly as it does today. A group that was
+        //  manually re-spec'd in Step 5 keeps its last-synced values.
+        //
+        //  Semantics by build:
+        //    SGU     → cutting/tempering per-SQM rates
+        //    DGU     → spacer (air-spacer production row)
+        //    LAM     → interlayer = PVB material rate; cutting/tempering
+        //              = the pane-pair rates summed
+        //    DGU+LAM → spacer; interlayer = laminator BUY price
+        //              (InterlayerBuyPrice, never the sell price);
+        //              cutting/tempering = all three panes summed
+        // ══════════════════════════════════════════════════════════════
+        public decimal? Step4SpacerPricePerSqm { get; set; }
+        public decimal? Step4InterlayerCostPerSqm { get; set; }
+        public decimal? Step4CuttingCostPerSqm { get; set; }
+        public decimal? Step4TemperingCostPerSqm { get; set; }
+
         public List<GlassItemRowSnapshot> ItemRows { get; set; } = new();
     }
 

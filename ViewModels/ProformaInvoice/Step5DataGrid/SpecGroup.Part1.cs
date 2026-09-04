@@ -299,6 +299,62 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  PHASE 1-AUDIT — per-group production-cost provenance.
+        //  Written by ApplyStep4PaneAndSheetMetadata at every Step 4 → 5
+        //  handoff; consumed by Step 9's production rows with live-panel
+        //  fallback so single-section invoices behave exactly as before.
+        //  Null = "no Step 4 production rates captured for this group".
+        // ══════════════════════════════════════════════════════════════
+
+        private decimal? _step4SpacerPricePerSqm;
+        public decimal? Step4SpacerPricePerSqm
+        {
+            get => _step4SpacerPricePerSqm;
+            set
+            {
+                if (_step4SpacerPricePerSqm == value) return;
+                _step4SpacerPricePerSqm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal? _step4InterlayerCostPerSqm;
+        public decimal? Step4InterlayerCostPerSqm
+        {
+            get => _step4InterlayerCostPerSqm;
+            set
+            {
+                if (_step4InterlayerCostPerSqm == value) return;
+                _step4InterlayerCostPerSqm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal? _step4CuttingCostPerSqm;
+        public decimal? Step4CuttingCostPerSqm
+        {
+            get => _step4CuttingCostPerSqm;
+            set
+            {
+                if (_step4CuttingCostPerSqm == value) return;
+                _step4CuttingCostPerSqm = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal? _step4TemperingCostPerSqm;
+        public decimal? Step4TemperingCostPerSqm
+        {
+            get => _step4TemperingCostPerSqm;
+            set
+            {
+                if (_step4TemperingCostPerSqm == value) return;
+                _step4TemperingCostPerSqm = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>True when an outer stock sheet was chosen in Step 4.</summary>
         public bool HasOuterSheet =>
             OuterSheetWidthMm > 0 && OuterSheetHeightMm > 0;
@@ -830,6 +886,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             OuterSheetPricePerSqm = 0m;
             InnerSheetPricePerSqm = 0m;
             UInsertPricePerSqm = 0m;
+            // PHASE 1-AUDIT: production-rate provenance resets alongside —
+            // a build switch must never leak section 1's spacer rate into
+            // section 2's SGU group.
+            Step4SpacerPricePerSqm = null;
+            Step4InterlayerCostPerSqm = null;
+            Step4CuttingCostPerSqm = null;
+            Step4TemperingCostPerSqm = null;
 
             switch (glassType)
             {
@@ -841,6 +904,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     OuterSheetWidthMm = sgu.SheetWidthMm;
                     OuterSheetHeightMm = sgu.SheetHeightMm;
                     OuterSheetPricePerSqm = sgu.BasePricePerSqm;
+                    Step4CuttingCostPerSqm = sgu.CuttingCostPerSqm;
+                    Step4TemperingCostPerSqm = sgu.TemperingCostPerSqm;
                     break;
                 }
 
@@ -858,6 +923,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     UInsertPricePerSqm = HasUInsertExtra(dgu.SpacerExtra)
                         ? dgu.UInsertPricePerSqm
                         : 0m;
+                    Step4SpacerPricePerSqm = dgu.SpacerPrice;
                     break;
                 }
 
@@ -872,6 +938,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     InnerSheetHeightMm = lam.InnerSheetHeightMm;
                     OuterSheetPricePerSqm = lam.OuterBasePrice;
                     InnerSheetPricePerSqm = lam.InnerBasePrice;
+                    // LAM's interlayer is the PVB material rate; cutting and
+                    // tempering are stored as the summed pane-pair rates —
+                    // exactly the quantities Step 9's LAM branch adds.
+                    Step4InterlayerCostPerSqm = lam.PvbMaterialRate;
+                    Step4CuttingCostPerSqm =
+                        lam.OuterCuttingCost + lam.InnerCuttingCost;
+                    Step4TemperingCostPerSqm =
+                        lam.OuterTemperingCost + lam.InnerTemperingCost;
                     break;
                 }
 
@@ -885,6 +959,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     // lam inner values independently from this same snapshot.
                     OuterGlassColor = dguLam.LamOuterColor ?? "";
                     InnerGlassColor = dguLam.LamInnerColor ?? "";
+                    // Interlayer is costed at the laminator BUY price — the
+                    // sell spread belongs to the quoted rate, not to cost.
+                    Step4SpacerPricePerSqm = dguLam.SpacerPrice;
+                    Step4InterlayerCostPerSqm = dguLam.InterlayerBuyPrice;
+                    Step4CuttingCostPerSqm =
+                        dguLam.OuterCuttingCost
+                        + dguLam.LamOuterCuttingCost
+                        + dguLam.LamInnerCuttingCost;
+                    Step4TemperingCostPerSqm =
+                        dguLam.OuterTemperingCost
+                        + dguLam.LamOuterTemperingCost
+                        + dguLam.LamInnerTemperingCost;
                     break;
                 }
 

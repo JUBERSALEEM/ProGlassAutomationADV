@@ -256,8 +256,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
         /// <summary>
         /// PHASE G — publishes the chosen stock sheet(s) for this spec into
-        /// SpecSheetRegistry. Only DGU and SGU expose a sheet picker today;
-        /// other panels record nothing and Step 9 falls back as before.
+        /// SpecSheetRegistry. SGU, DGU and LAM hold editable sheet-size
+        /// fields and record here; DGU+LAM prices three panes + interlayer
+        /// directly per SQM (its panel has no sheet-size inputs), so it
+        /// records nothing and downstream steps use its per-SQM pane rates —
+        /// that is a design choice, not a missing switch case.
         /// Never throws — a failure here must not block saving the spec.
         /// </summary>
         /// <summary>

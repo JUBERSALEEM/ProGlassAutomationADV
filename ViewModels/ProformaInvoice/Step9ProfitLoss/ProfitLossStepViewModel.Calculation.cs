@@ -220,7 +220,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         // ══════════════════════════════════════════════════
                         // Zero unless this job was given a spacer charge in
                         // Step 4, in which case no spacer row is produced.
-                        decimal spacerPrice = _dguLamVm?.SpacerPrice ?? 0m;
+                        // PHASE 1-AUDIT: prefer THIS group's quoted rate
+                        // (captured at the Step 4 → 5 handoff). The live
+                        // panel is only a fallback for legacy groups —
+                        // reading it first would silently cost a restored
+                        // or multi-section invoice against whichever
+                        // calculation section Step 4 happens to display.
+                        decimal spacerPrice =
+                            group.Step4SpacerPricePerSqm
+                            ?? _dguLamVm?.SpacerPrice ?? 0m;
 
                         if (spacerPrice > 0m)
                         {
@@ -253,12 +261,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             productionCost += spacerAmount;
                         }
 
-                        decimal interlayerBuy = _dguLamVm?.InterlayerBuyPrice ?? 0m;
+                        // PHASE 1-AUDIT: group-quoted buy cost first.
+                        decimal interlayerBuy =
+                            group.Step4InterlayerCostPerSqm
+                            ?? _dguLamVm?.InterlayerBuyPrice ?? 0m;
 
-                        // All three panes, each at its own rate.
+                        // All three panes, each at its own rate. The group
+                        // provenance stores the same pane-summed totals the
+                        // panel computes (TotalCuttingCost/TotalTemperingCost).
                         decimal lamProcessing =
-                            (_dguLamVm?.TotalCuttingCost ?? 0m) +
-                            (_dguLamVm?.TotalTemperingCost ?? 0m);
+                            (group.Step4CuttingCostPerSqm
+                                ?? _dguLamVm?.TotalCuttingCost ?? 0m) +
+                            (group.Step4TemperingCostPerSqm
+                                ?? _dguLamVm?.TotalTemperingCost ?? 0m);
 
                         decimal lamRate = interlayerBuy + lamProcessing;
 
@@ -315,7 +330,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         //  for DGU, which is why there is no separate
                         //  production line in this branch.
                         // ══════════════════════════════════════════════════
-                        decimal spacerPrice = _dguVm?.SpacerPrice ?? 0m;
+                        // PHASE 1-AUDIT: THIS group's quoted spacer rate
+                        // first; live panel is the legacy fallback only.
+                        decimal spacerPrice =
+                            group.Step4SpacerPricePerSqm
+                            ?? _dguVm?.SpacerPrice ?? 0m;
 
                         if (spacerPrice > 0m && cutSqm > 0m)
                         {
@@ -348,13 +367,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         // material plus cutting and tempering on BOTH panes.
                         // Priced per SQM of laminated area (unlike the DGU
                         // spacer, which is per linear metre of perimeter).
-                        decimal pvbRate = _lamVm?.PvbMaterialRate ?? 0m;
+                        // PHASE 1-AUDIT: THIS group's quoted rates first.
+                        decimal pvbRate =
+                            group.Step4InterlayerCostPerSqm
+                            ?? _lamVm?.PvbMaterialRate ?? 0m;
 
                         decimal processing =
-                            (_lamVm?.OuterCuttingCost ?? 0m) +
-                            (_lamVm?.InnerCuttingCost ?? 0m) +
-                            (_lamVm?.OuterTemperingCost ?? 0m) +
-                            (_lamVm?.InnerTemperingCost ?? 0m);
+                            (group.Step4CuttingCostPerSqm
+                                ?? ((_lamVm?.OuterCuttingCost ?? 0m) +
+                                    (_lamVm?.InnerCuttingCost ?? 0m))) +
+                            (group.Step4TemperingCostPerSqm
+                                ?? ((_lamVm?.OuterTemperingCost ?? 0m) +
+                                    (_lamVm?.InnerTemperingCost ?? 0m)));
 
                         decimal lamRate = pvbRate + processing;
 
@@ -399,8 +423,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         // required SQM, with cutting and tempering broken out
                         // as separate SQM-based charges rather than one merged
                         // production line.
-                        decimal cuttingRate = _sguVm?.CuttingCostPerSqm ?? 0m;
-                        decimal temperingRate = _sguVm?.TemperingCostPerSqm ?? 0m;
+                        // PHASE 1-AUDIT: THIS group's quoted rates first.
+                        decimal cuttingRate =
+                            group.Step4CuttingCostPerSqm
+                            ?? _sguVm?.CuttingCostPerSqm ?? 0m;
+                        decimal temperingRate =
+                            group.Step4TemperingCostPerSqm
+                            ?? _sguVm?.TemperingCostPerSqm ?? 0m;
 
                         if (cuttingRate > 0m)
                         {

@@ -371,7 +371,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     InnerSheetHeightMm = group.InnerSheetHeightMm,
                     OuterSheetPricePerSqm = group.OuterSheetPricePerSqm,
                     InnerSheetPricePerSqm = group.InnerSheetPricePerSqm,
-                    UInsertPricePerSqm = group.UInsertPricePerSqm
+                    UInsertPricePerSqm = group.UInsertPricePerSqm,
+
+                    // PHASE 1-AUDIT: persist the production rates this group
+                    // was QUOTED with, so Step 9 re-costs a restored or
+                    // multi-section invoice against each group's own inputs.
+                    Step4SpacerPricePerSqm = group.Step4SpacerPricePerSqm,
+                    Step4InterlayerCostPerSqm = group.Step4InterlayerCostPerSqm,
+                    Step4CuttingCostPerSqm = group.Step4CuttingCostPerSqm,
+                    Step4TemperingCostPerSqm = group.Step4TemperingCostPerSqm
                 };
 
                 foreach (var row in group.ItemRows)
@@ -696,6 +704,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     OuterSheetPricePerSqm = gSnap.OuterSheetPricePerSqm,
                     InnerSheetPricePerSqm = gSnap.InnerSheetPricePerSqm,
                     UInsertPricePerSqm = gSnap.UInsertPricePerSqm,
+
+                    // PHASE 1-AUDIT: restore production-rate provenance.
+                    // Old invoices have nulls here; Step 9 then reads the
+                    // live Step 4 panel exactly as it did before this change.
+                    Step4SpacerPricePerSqm = gSnap.Step4SpacerPricePerSqm,
+                    Step4InterlayerCostPerSqm = gSnap.Step4InterlayerCostPerSqm,
+                    Step4CuttingCostPerSqm = gSnap.Step4CuttingCostPerSqm,
+                    Step4TemperingCostPerSqm = gSnap.Step4TemperingCostPerSqm
 
                 };
 
