@@ -366,19 +366,32 @@ namespace ProGlassAutomation.Tests.Agent
             var src = File.ReadAllText(Path.Combine(root,
                 "Views/JobProfitability/JobProfitabilityView.xaml"));
 
-            // Kept tiles: the four actual P&L tiles (net/cost/profit/overall
-            // margin) and the two approved target tiles.
-            Assert.Contains("NET REVENUE (EX-VAT)", src);
-            Assert.Contains("TOTAL COST", src);
+            // Exactly the Step-9-style trio + Overall margin:
+            // REQUIRED TARGET VALUE, EXPECTED PROFIT MARGIN,
+            // MARGIN AGAINST TARGET, OVERALL MARGIN.
+            Assert.Contains("REQUIRED TARGET VALUE", src);
+            Assert.Contains("EXPECTED PROFIT MARGIN", src);
+            Assert.Contains("MARGIN AGAINST TARGET", src);
             Assert.Contains("OVERALL MARGIN", src);
-            Assert.Contains("PORTFOLIO MARGIN AGAINST TARGET", src);
-            Assert.Contains("AVERAGE JOB MARGIN AGAINST TARGET", src);
             Assert.Contains("OverallVsBaseVerdict", src);
+            Assert.Contains("PortfolioTargetStatusLabel", src);
+
+            // Value + count strip present with the fixed difference semantics.
+            Assert.Contains("STEP 5 GIVEN VALUE", src);
+            Assert.Contains("TOTAL DIFFERENCE", src);
+            Assert.Contains("VALID / INCOMPLETE / STALE", src);
+            Assert.Contains("HasTargetShortfall", src);
+
+            // One-row filter bar (search/company/customer/salesman/date).
+            Assert.Contains("MarginBandFilterOptions", src);
+            Assert.Contains("SortByOptions", src);
 
             // The crowded legacy tiles were REMOVED from the summary.
             Assert.DoesNotContain("NetMarginPercentDisplay", src);
             Assert.DoesNotContain("AverageMarginDisplay", src);
             Assert.DoesNotContain("LOSS-MAKING JOBS", src);
+            Assert.DoesNotContain("AVERAGE JOB MARGIN AGAINST TARGET", src);
+            Assert.DoesNotContain("NetMarginDisplay", src);
 
             // Consistent tile + table styling remains.
             Assert.Contains("JpTileStyle", src);

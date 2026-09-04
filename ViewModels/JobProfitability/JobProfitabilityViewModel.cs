@@ -173,6 +173,11 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         public string BaseExpectedMarginDisplay => $"{_baseExpectedMarginPercent:0.#}%";
 
+        /// <summary>Uplift factor of the base (15% → ×1.15), shown under the
+        /// required-target card like Step 9 does.</summary>
+        public string BaseExpectedMarginFactorLabel =>
+            $"×{1m + (_baseExpectedMarginPercent / 100m):0.##}";
+
         /// <summary>Filter values: All / Above / At / Below the base.</summary>
         public ObservableCollection<string> MarginBandFilterOptions { get; } = new();
 
@@ -607,6 +612,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 _portfolioTargetMarginPercent = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(PortfolioTargetMarginDisplay));
+                OnPropertyChanged(nameof(PortfolioTargetStatusLabel));
                 OnPropertyChanged(nameof(IsPortfolioTargetBelow));
                 OnPropertyChanged(nameof(HasPortfolioTargetMargin));
             }
@@ -622,6 +628,25 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             };
 
         public bool IsPortfolioTargetBelow => (PortfolioTargetMarginPercent ?? 0m) < 0m;
+
+        /// <summary>Pill label for the MARGIN AGAINST TARGET card (Step 9
+        /// style): ABOVE / AT / BELOW TARGET, or "—" when no valid margin.</summary>
+        public string PortfolioTargetStatusLabel
+        {
+            get
+            {
+                var m = PortfolioTargetMarginPercent;
+                if (!m.HasValue) return "—";
+                if (m.Value < -0.05m) return "BELOW TARGET";
+                if (m.Value > 0.05m) return "ABOVE TARGET";
+                return "AT TARGET";
+            }
+        }
+
+        /// <summary>True when the portfolio is below target: required target
+        /// value exceeds Step 5 given value (a positive shortfall).</summary>
+        public bool HasTargetShortfall =>
+            HasAnyTargetData && TargetTotalDifferenceValue > 0m;
 
         private decimal? _averageJobTargetMarginPercent;
         private int _averageJobTargetMarginCount;
@@ -703,6 +728,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 OnPropertyChanged(nameof(TargetTotalGivenValueDisplay));
                 OnPropertyChanged(nameof(TargetTotalRequiredValueDisplay));
                 OnPropertyChanged(nameof(TargetTotalDifferenceValueDisplay));
+                OnPropertyChanged(nameof(HasTargetShortfall));
             }
         }
 
@@ -1306,7 +1332,19 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
             TargetTotalGivenValue = Math.Round(targetRows.Sum(r => r.TargetGivenValue), 2);
             TargetTotalRequiredValue = Math.Round(targetRows.Sum(r => r.TargetRequiredValue), 2);
-            TargetTotalDifferenceValue = Math.Round(targetRows.Sum(r => r.TargetDifferenceValue), 2);
+
+            // TOTAL DIFFERENCE is derived from the two totals ABOVE it (never
+            // summed from stored per-job differences, which can be 0/missing
+            // in snapshots saved by older builds):
+            //
+            //     difference = required target − Step 5 given value
+            //
+            // e.g. required 5,839.44 − given 5,472.55 → +366.89 (a shortfall
+            // below target). Positive = below target, negative = above target.
+            // The MARGIN AGAINST TARGET card still uses given−required for its
+            // percentage, which is the Step 9 convention.
+            TargetTotalDifferenceValue = Math.Round(
+                TargetTotalRequiredValue - TargetTotalGivenValue, 2);
 
             HasAnyTargetData = targetRows.Count > 0;
 
@@ -1342,6 +1380,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             OnPropertyChanged(nameof(OverallVsBaseVerdict));
             OnPropertyChanged(nameof(BaseExpectedMarginPercent));
             OnPropertyChanged(nameof(BaseExpectedMarginDisplay));
+            OnPropertyChanged(nameof(BaseExpectedMarginFactorLabel));
+            OnPropertyChanged(nameof(HasTargetShortfall));
+            OnPropertyChanged(nameof(PortfolioTargetStatusLabel));
         }
 
         private string BuildStatus(List<JobProfitabilityRow> rows)
