@@ -268,6 +268,15 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Base price (no uplift)" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding BasePriceAverageDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="U-insert treatment" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding UInsertSummaryDisplay}"
                                                ToolTip="{Binding UInsertSummaryDetail}">
@@ -415,8 +424,9 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Base price (no uplift)" Style="{StaticResource TgtKvLabelStyle}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding BasePriceAverageDisplay}"
+                                    <TextBlock Grid.Column="0" Text="{DynamicResource ProformaInvoice.COSTBasedProfitMargin}" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding CostBasedProfitMarginDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">

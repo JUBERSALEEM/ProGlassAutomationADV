@@ -201,6 +201,40 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
             Assert.Equal(10.77m, Math.Round(job.ExtraProfitMarginPercent!.Value, 2));
         }
 
+        [Fact]
+        public void Cost_based_profit_margin_excludes_off_u_insert_and_includes_active_dynamic_rate()
+        {
+            var off = TargetProfitabilityAggregator.AggregateJob(new[]
+            {
+                CalculateUserExample(Included(10m))
+            });
+            var on = TargetProfitabilityAggregator.AggregateJob(new[]
+            {
+                CalculateUserExample(Additional(10m))
+            });
+
+            Assert.True(off.CostBasedProfitMarginPercent.HasValue);
+            Assert.Equal(16.94m, off.CostBasedProfitMarginPercent.Value);
+            Assert.True(on.CostBasedProfitMarginPercent.HasValue);
+            Assert.Equal(8.94m, on.CostBasedProfitMarginPercent.Value);
+        }
+
+        [Fact]
+        public void Cost_based_profit_margin_is_unavailable_for_unresolved_u_insert()
+        {
+            var unresolved = new UInsertResolution
+            {
+                Treatment = UInsertTreatment.Unresolved,
+                Warning = "U-insert cost is unresolved."
+            };
+            var job = TargetProfitabilityAggregator.AggregateJob(new[]
+            {
+                CalculateUserExample(unresolved)
+            });
+
+            Assert.Null(job.CostBasedProfitMarginPercent);
+        }
+
         // ── 2/3/4. Final target + approved margins across treatments ─
         //
         //  Revised rule (2026-09-04): the U-insert rate is NEVER added to

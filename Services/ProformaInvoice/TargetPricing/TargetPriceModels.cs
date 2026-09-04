@@ -383,6 +383,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
         /// </summary>
         public decimal? ExtraProfitMarginPercent { get; set; }
 
+        /// <summary>
+        /// Cost-based profit margin for the target KPI card, calculated as
+        /// (total selling value − total base cost − enabled U-insert cost)
+        /// ÷ total selling value × 100. Only an <see cref="UInsertTreatment.Additional"/>
+        /// U-insert contributes cost; an off/included U-insert does not. Null
+        /// when any specification has incomplete or unresolved cost inputs.
+        /// </summary>
+        public decimal? CostBasedProfitMarginPercent { get; set; }
+
         public decimal? MarginAgainstTargetPercent { get; set; }
 
         public TargetStatus Status { get; set; } = TargetStatus.CalculationIncomplete;
@@ -501,6 +510,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 result.ExtraProfitMarginPercent = null;
             }
 
+            result.CostBasedProfitMarginPercent = CalculateCostBasedProfitMarginPercent(
+                list, result.TotalGivenValue);
+
             result.ValidSpecCount = list.Count(s => s.HasValidMargin);
             result.IncompleteSpecCount = list.Count - result.ValidSpecCount;
 
@@ -511,6 +523,50 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 .ToList();
 
             return result;
+        }
+
+        /// <summary>
+        /// Calculates the cost margin from the same resolved per-spec inputs
+        /// used by the target model. A Step 6 U-insert contributes only while
+        /// its row is active (<see cref="UInsertTreatment.Additional"/>); the
+        /// off/included state intentionally contributes no U-insert cost to
+        /// this KPI. Missing base, selling, area, or active U-insert inputs
+        /// return null so callers never display a fabricated percentage.
+        /// </summary>
+        private static decimal? CalculateCostBasedProfitMarginPercent(
+            IReadOnlyList<SpecTargetPriceResult> specs,
+            decimal totalSellingValue)
+        {
+            if (specs.Count == 0 || totalSellingValue <= 0m)
+                return null;
+
+            decimal totalBaseCost = 0m;
+            decimal totalEnabledUInsertCost = 0m;
+            foreach (var spec in specs)
+            {
+                if (spec.AreaSqm <= 0m
+                    || spec.GivenPricePerSqm <= 0m
+                    || spec.GivenValue <= 0m
+                    || spec.BasePricePerSqm <= 0m
+                    || spec.UInsertTreatment == UInsertTreatment.Unresolved)
+                {
+                    return null;
+                }
+
+                totalBaseCost += spec.BasePricePerSqm * spec.AreaSqm;
+
+                if (spec.UInsertTreatment == UInsertTreatment.Additional)
+                {
+                    if (spec.UInsertRatePerSqm <= 0m)
+                        return null;
+
+                    totalEnabledUInsertCost += spec.UInsertRatePerSqm * spec.AreaSqm;
+                }
+            }
+
+            return Math.Round(
+                (totalSellingValue - totalBaseCost - totalEnabledUInsertCost)
+                / totalSellingValue * 100m, 2);
         }
 
         /// <summary>

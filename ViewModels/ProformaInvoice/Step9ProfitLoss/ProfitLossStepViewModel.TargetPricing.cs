@@ -254,6 +254,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 var m => $"{m.Value:0.##}%"
             };
 
+        /// <summary>
+        /// Cost margin for the target KPI: selling less base cost and any
+        /// active Step 6 U-insert cost, divided by selling. The shared target
+        /// aggregate returns null for incomplete or unresolved inputs.
+        /// </summary>
+        public decimal? CostBasedProfitMarginPercent =>
+            JobTargetResult?.CostBasedProfitMarginPercent;
+
+        public string CostBasedProfitMarginDisplay =>
+            CostBasedProfitMarginPercent switch
+            {
+                null => "—",
+                var margin => $"{margin.Value:0.##}%"
+            };
+
         public string GivenPricePerSqmDisplay => FormatRateCard(JobTargetResult?.AverageGivenPricePerSqm);
 
         public string DifferencePerSqmDisplay
@@ -605,6 +620,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             OnPropertyChanged(nameof(UInsertSummaryDetail));
             OnPropertyChanged(nameof(HasUInsertSummaryWarning));
             OnPropertyChanged(nameof(MarginAgainstTargetDisplay));
+            OnPropertyChanged(nameof(CostBasedProfitMarginPercent));
+            OnPropertyChanged(nameof(CostBasedProfitMarginDisplay));
             OnPropertyChanged(nameof(GivenPricePerSqmDisplay));
             OnPropertyChanged(nameof(DifferencePerSqmDisplay));
             OnPropertyChanged(nameof(BasePriceAverageDisplay));
