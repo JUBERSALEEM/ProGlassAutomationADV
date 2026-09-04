@@ -1383,16 +1383,17 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     }
 
                     // ── PHASE 3: price-basis staleness ─────────────────
-                    //  Report-only. HasMoved is strict: both stamps must be
-                    //  readable AND differ. An empty SAVED stamp (snapshot
-                    //  saved before versioning) is its own state — we never
-                    //  pretend an unreadable basis is fresh.
-                    bool priceBasisStale = costed
-                        && Services.ProformaInvoice.GlassPriceStamper.HasMoved(
-                            pl!.GlassPriceStamp, currentPriceStamp);
-                    bool priceBasisUnstamped = costed
-                        && string.IsNullOrWhiteSpace(pl!.GlassPriceStamp)
-                        && !string.IsNullOrWhiteSpace(currentPriceStamp);
+                    //  Single classification home: GlassPriceStamper.Classify.
+                    //  MOVED + UNCONFIRMED surface; BASIS-UNREADABLE and
+                    //  CURRENT stay silent (never a false alarm).
+                    var basisState = costed
+                        ? Services.ProformaInvoice.GlassPriceStamper.Classify(
+                            pl!.GlassPriceStamp, currentPriceStamp)
+                        : Services.ProformaInvoice.GlassPriceStamper.BasisState.BasisUnreadable;
+                    bool priceBasisStale =
+                        basisState == Services.ProformaInvoice.GlassPriceStamper.BasisState.Moved;
+                    bool priceBasisUnstamped =
+                        basisState == Services.ProformaInvoice.GlassPriceStamper.BasisState.Unconfirmed;
                     bool priceBasisFlagged = priceBasisStale || priceBasisUnstamped;
                     if (priceBasisFlagged) priceBasisStaleJobs++;
 

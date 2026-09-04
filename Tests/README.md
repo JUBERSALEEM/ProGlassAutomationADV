@@ -84,3 +84,20 @@ agent settings, so both are in the non-parallel `AgentSettings`
 collection. They write to the real `agent-settings.json` under
 `%AppData%`, so **run them on a dev machine, not against a configuration
 you care about.**
+
+## Phase 4 — workflow regression net (roadmap)
+
+Three suites pin the contracts every later phase must not regress:
+
+| Suite | What fails if it breaks | Run |
+|---|---|---|
+| `Tests/MasterData/CompanyUpdateSemanticsTests.cs` | REAL repository + EF Core + SQLite (in-memory) tests of `SaveOrUpdateCompanyAsync`: latest-wins vs preserve-on-blank, rename-collision refusal, in-place rename by Id, stale-Id natural-key fallback, caller-Id discard on insert. | `dotnet test --filter FullyQualifiedName~CompanyUpdateSemanticsTests` |
+| `Tests/Inquiry/InquiryBoqConversionTests.cs` | Inquiry→PI scope conversion: DGU+LAM exact-first normalisation, importability contract (spec + W×H + qty), SortOrder stability, unpriced rows never force a zero rate. | `dotnet test --filter FullyQualifiedName~InquiryBoqConversionTests` |
+| `Tests/ProformaInvoice/PriceBasisSignalTests.cs` | Phase 3 staleness signal: full `GlassPriceStamper.Classify` matrix + determinism + fail-safe (unreadable basis = no alarm), `HasMoved`↔`Classify` glue, snapshot wire-format round-trips (staleness fields + Phase 1 production-rate provenance). | `dotnet test --filter FullyQualifiedName~PriceBasisSignalTests` |
+
+Production seams these rely on (additive only — app behaviour unchanged):
+`MasterDataDbContext(DbContextOptions)` + `OnConfiguring` `IsConfigured` guard,
+`MasterDataRepository(Func<MasterDataDbContext>?)` internal factory
+(`InternalsVisibleTo("ProGlassAutomation.Tests")` exposes it),
+and the documented gate overrides `OperationGuard.Enabled` /
+`ReadOnlyGate.Enabled` (both restored in `Dispose`).

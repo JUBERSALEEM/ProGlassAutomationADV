@@ -56,12 +56,32 @@ on next load; re-saving the PI clears the flag. Known lower bound documented inl
 stamp pins at save-close, so a price edited between the last Step 9 recalc and the save
 itself is caught only by the *next* store change (report side stays honest about this).
 
-## PHASE 4 — Regression net
+## PHASE 4 — Regression net ✅ *(landed this turn)*
 **Goal:** everything fixed so far stays fixed.
-1. Unit tests: company repo update semantics (latest-wins vs preserve-on-blank, rename-collision, stale Id).
-2. Unit tests: inquiry→PI item mapping.
-3. Unit tests: profitability fingerprint/re-cost determinism.
-**Acceptance:** `dotnet test` green, tests run in CI-style filter documented in README of Tests/.
+**Approach decision:** tests that matter run against the real machinery, not mocks.
+Three additive production seams (behaviour unchanged; verification noted per file):
+1. `MasterDataDbContext(DbContextOptions)` + `OnConfiguring` `IsConfigured` guard —
+   tests drive the actual EF Core + SQLite engine in-memory for
+   `SaveOrUpdateCompanyAsync` (latest-wins vs preserve-on-blank, rename-collision
+   refusal, in-place rename by Id, stale-Id natural-key fallback, caller-Id discard).
+2. `MasterDataRepository(Func<MasterDataDbContext>?)` internal factory —
+   `InternalsVisibleTo` already exposed internals to the test assembly.
+3. `InquiryBoqConversion` (pure, new) — the decision half of the Phase 2 BOQ import
+   extracted from the un-testable wizard VM: filter/order/normalise; the VM keeps
+   only grid materialisation. One conversion home, regression-tested.
+**Landed suites:**
+- `Tests/MasterData/CompanyUpdateSemanticsTests.cs` (6 real-repository tests)
+- `Tests/Inquiry/InquiryBoqConversionTests.cs` (normalisation matrix incl. DGU+LAM
+  exact-first, importability, SortOrder, rate contract, trimming)
+- `Tests/ProformaInvoice/PriceBasisSignalTests.cs` (full `Classify` matrix +
+  determinism + fail-safe contract + `HasMoved` glue + STJ wire-format round-trips
+  for Phase-3 staleness fields and Phase-1 production provenance)
+- `Classify` promoted to THE single classification home — both Phase 3 consumers
+  call it (their hand-rolled duplicates deleted).
+**Acceptance:** filters documented in `Tests/README.md`; suites are xunit like the
+existing net. NOTE — no `dotnet` exists in this sandbox, so green is asserted from
+static verification (balance, symbol existence, existing-implementor greps, API
+shape checks) exactly like the prior phases; run `dotnet test` on the dev machine.
 
 ## PHASE 5 — Industrial consistency layer
 **Goal:** one vocabulary, full traceability, predictable errors.

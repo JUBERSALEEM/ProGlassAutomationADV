@@ -100,16 +100,18 @@ namespace ProGlassAutomation.Services.Reporting
                 var pl = snap?.ProfitLoss;
                 bool hasCost = pl != null && (pl.TotalGlassCost > 0 || pl.TotalProductionCost > 0);
 
-                // PHASE 3: basis staleness — moved stamps are stale; an
-                // un-stamped (pre-versioning) snapshot is reported as
-                // un-verified, never silently fresh.
-                bool stampMoved = hasCost
-                    && Services.ProformaInvoice.GlassPriceStamper.HasMoved(
-                        pl!.GlassPriceStamp, currentPriceStamp);
-                bool stampUnknown = hasCost
-                    && string.IsNullOrWhiteSpace(pl!.GlassPriceStamp);
-                bool isStaleCost = stampMoved || (stampUnknown
-                    && !string.IsNullOrWhiteSpace(currentPriceStamp));
+                // PHASE 3: basis staleness — single classification home.
+                // A MOVED stamp is stale; an UNCONFIRMED (pre-versioning)
+                // snapshot is reported as un-verified, never silently fresh;
+                // UNREADABLE stays silent (never a false alarm).
+                var basisState = hasCost
+                    ? Services.ProformaInvoice.GlassPriceStamper.Classify(
+                        pl!.GlassPriceStamp, currentPriceStamp)
+                    : Services.ProformaInvoice.GlassPriceStamper.BasisState.BasisUnreadable;
+                bool stampMoved =
+                    basisState == Services.ProformaInvoice.GlassPriceStamper.BasisState.Moved;
+                bool isStaleCost = stampMoved
+                    || basisState == Services.ProformaInvoice.GlassPriceStamper.BasisState.Unconfirmed;
                 string stalenessNote = stampMoved
                     ? "Sheet Store changed after this P&L was computed"
                     : isStaleCost

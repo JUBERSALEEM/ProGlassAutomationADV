@@ -57,12 +57,38 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         /// True only when BOTH stamps are readable AND differ. An unknown
         /// snapshot stamp (pre-versioning save) is handled by the caller
         /// as its own state, because "we don't know" is not "it changed".
+        /// New callers should prefer <see cref="Classify"/> and keep this
+        /// for the simple boolean question only.
         /// </summary>
         public static bool HasMoved(string? savedStamp, string? currentStamp)
+            => Classify(savedStamp, currentStamp) == BasisState.Moved;
+
+        /// <summary>Basis verdict for a saved P&L stamp.</summary>
+        public enum BasisState
         {
-            if (string.IsNullOrWhiteSpace(savedStamp)) return false;
-            if (string.IsNullOrWhiteSpace(currentStamp)) return false;
-            return !string.Equals(savedStamp, currentStamp, StringComparison.Ordinal);
+            /// <summary>Saved stamp matches the live basis.</summary>
+            Current,
+            /// <summary>The sheet store changed AFTER the P&L was pinned.</summary>
+            Moved,
+            /// <summary>No stamp saved (pre-versioning) — never silently fresh.</summary>
+            Unconfirmed,
+            /// <summary>The live basis could not be read — report nothing.</summary>
+            BasisUnreadable
+        }
+
+        /// <summary>
+        /// THE single classification home for basis staleness. Pure and
+        /// deterministic — the same inputs must always give the same
+        /// verdict, and an unreadable LIVE basis always degrades the
+        /// answer to "we don't know", never to a false alarm.
+        /// </summary>
+        public static BasisState Classify(string? savedStamp, string? currentStamp)
+        {
+            if (string.IsNullOrWhiteSpace(currentStamp)) return BasisState.BasisUnreadable;
+            if (string.IsNullOrWhiteSpace(savedStamp)) return BasisState.Unconfirmed;
+            return string.Equals(savedStamp, currentStamp, StringComparison.Ordinal)
+                ? BasisState.Current
+                : BasisState.Moved;
         }
     }
 }

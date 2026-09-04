@@ -865,36 +865,36 @@ public ProformaInvoiceViewModel() : this(
         /// marks them manually-owned — the Step 4 → 5 sync never stomps
         /// a BOQ-imported spec (that is the whole point: these specs came
         /// from the customer's request, not from a Step 4 panel).
+        ///
+        /// PHASE 4: the conversion DECISIONS (filter / order / normalise)
+        /// live in Services.ProformaInvoice.InquiryBoqConversion — pure,
+        /// regression-tested. This method is the grid-touching half only.
         /// </summary>
         private void ImportInquiryBoqIntoDataGrid(
             System.Collections.Generic.IReadOnlyList<Models.Inquiry.InquiryLineItem> items)
         {
-            var importable = items
-                .Where(x => x.IsImportable)
-                .OrderBy(x => x.SortOrder)
-                .ToList();
-            if (importable.Count == 0) return;
+            var rows = Services.ProformaInvoice.InquiryBoqConversion.ToImportRows(items);
+            if (rows.Count == 0) return;
 
-            Step5VM.EnsureSpecGroupCount(importable.Count);
+            Step5VM.EnsureSpecGroupCount(rows.Count);
 
-            for (int i = 0; i < importable.Count; i++)
+            for (int i = 0; i < rows.Count; i++)
             {
-                var item = importable[i];
+                var row = rows[i];
                 var group = Step5VM.SpecGroups[i];
 
                 // Replace the placeholder row(s) so the group's only content
                 // is the BOQ line — nothing from the blank workspace remains.
-                string normalizedType = NormalizeInquiryGlassType(item.GlassType);
-                if (!string.IsNullOrEmpty(normalizedType))
-                    group.SelectedGlassType = normalizedType;
-                group.SelectedSpecName = (item.SpecName ?? "").Trim();
-                group.OuterGlassColor = (item.OuterGlassColor ?? "").Trim();
-                group.InnerGlassColor = (item.InnerGlassColor ?? "").Trim();
+                if (!string.IsNullOrEmpty(row.GlassType))
+                    group.SelectedGlassType = row.GlassType;
+                group.SelectedSpecName = row.SpecName;
+                group.OuterGlassColor = row.OuterGlassColor;
+                group.InnerGlassColor = row.InnerGlassColor;
 
-                if (item.RatePerSqm > 0m)
+                if (row.HasRate)
                 {
-                    group.ImportedPrice = item.RatePerSqm;
-                    group.BaseRate = item.RatePerSqm;
+                    group.ImportedPrice = row.RatePerSqm;
+                    group.BaseRate = row.RatePerSqm;
                 }
 
                 group.ItemRows.Clear();
@@ -902,22 +902,12 @@ public ProformaInvoiceViewModel() : this(
                 {
                     // W1/H1 then Qty then Rate: every setter recomputes
                     // derived sqm/value, so dependencies must land first.
-                    W1 = item.WidthMm,
-                    H1 = item.HeightMm,
-                    Qty = item.Qty,
-                    Rate = item.RatePerSqm
+                    W1 = row.WidthMm,
+                    H1 = row.HeightMm,
+                    Qty = row.Qty,
+                    Rate = row.RatePerSqm
                 });
             }
-        }
-
-        private static string NormalizeInquiryGlassType(string? type)
-        {
-            var t = (type ?? "").Trim();
-            if (t.Equals("DGU+LAM", StringComparison.OrdinalIgnoreCase)) return "DGU+LAM";
-            if (t.Equals("SGU", StringComparison.OrdinalIgnoreCase)) return "SGU";
-            if (t.Equals("DGU", StringComparison.OrdinalIgnoreCase)) return "DGU";
-            if (t.Equals("LAM", StringComparison.OrdinalIgnoreCase)) return "LAM";
-            return "";
         }
 
         public async Task OpenSavedInvoiceAsync(int invoiceId)

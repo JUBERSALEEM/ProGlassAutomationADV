@@ -38,6 +38,19 @@ namespace ProGlassAutomation.Services.MasterData.Database
         public DbSet<SavedProject> Projects { get; set; }
         public DbSet<SavedSalesman> Salesmen { get; set; }
 
+        /// <summary>Production path — self-configures to masterdata.db.</summary>
+        public MasterDataDbContext() { }
+
+        /// <summary>
+        /// PHASE 4 additive seam: externally-configured context so the
+        /// repository's update semantics can be exercised against an
+        /// isolated database (SQLite in-memory) in the regression suite.
+        /// Production behaviour is untouched — the app only ever uses the
+        /// parameterless constructor.
+        /// </summary>
+        public MasterDataDbContext(DbContextOptions<MasterDataDbContext> options)
+            : base(options) { }
+
         // Pure computation — no side effects (matches Chat 12 pattern)
         private static string DbPath
         {
@@ -54,6 +67,10 @@ namespace ProGlassAutomation.Services.MasterData.Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
+            // Externally-configured context (tests inject SQLite in-memory):
+            // options are already complete — never override them.
+            if (options.IsConfigured) return;
+
             // Directory creation runs once per context creation
             var folder = Path.GetDirectoryName(DbPath)!;
             if (!Directory.Exists(folder))

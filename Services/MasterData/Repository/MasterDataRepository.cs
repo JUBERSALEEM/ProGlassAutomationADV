@@ -51,6 +51,22 @@ namespace ProGlassAutomation.Services.MasterData.Repository
     {
         private const int SEARCH_LIMIT = 20;
 
+        // PHASE 4 additive seam: tests inject an isolated-database factory
+        // to exercise SaveOrUpdateCompanyAsync semantics end-to-end (latest
+        // -wins vs preserve-on-blank, rename-collision, stale-Id) without
+        // touching the real masterdata.db. Production callers use the
+        // parameterless ctor — behaviour unchanged.
+        private readonly Func<MasterDataDbContext> _createContext;
+
+        public MasterDataRepository() : this(null) { }
+
+        internal MasterDataRepository(Func<MasterDataDbContext>? contextFactory)
+        {
+            _createContext = contextFactory ?? (() => new MasterDataDbContext());
+        }
+
+        private MasterDataDbContext CreateContext() => _createContext();
+
         public async Task InitializeAsync()
         {
             using var ctx = new MasterDataDbContext();
@@ -125,7 +141,9 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             if (company == null)
                 throw new ArgumentNullException(nameof(company));
 
-            using var ctx = new MasterDataDbContext();
+            // PHASE 4: factory seam (tests inject an isolated database;
+            // production resolves to the self-configuring context).
+            using var ctx = CreateContext();
 
             // AUDIT-FIX F-1: lookup order. (1) primary key when the caller
             // knows it — Company Center edits carry the row Id and may have
