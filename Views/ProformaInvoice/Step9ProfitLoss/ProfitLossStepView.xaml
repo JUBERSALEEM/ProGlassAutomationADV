@@ -475,6 +475,9 @@
                                    TextWrapping="Wrap" Margin="0,2,0,0">
                             <Run Text="{Binding TargetFormulaSpecLabel, Mode=OneWay}"/><Run Text="  "/>
                             <Run Text="{Binding TargetFormulaPreview, Mode=OneWay}"/>
+                            <Run Text="  →  " Foreground="{DynamicResource AccentBrush}"/>
+                            <Run Text="{Binding TargetFormulaStepsText, Mode=OneWay}"
+                                 Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </TextBlock>
                         <TextBlock Text="{Binding CalculationWarningSummary}"
                                    FontSize="{StaticResource TextCaption}"

@@ -99,10 +99,10 @@
                        Style="{StaticResource SubheaderStyle}"/>
         </StackPanel>
         
-        <!-- KPI Cards - Row 1 -->
-        <WrapPanel Grid.Row="1" Margin="0,0,0,8">
+        <!-- KPI Cards - single row (all cards side by side) -->
+        <WrapPanel Grid.Row="1" Margin="0,0,0,16">
             <!-- Sheets Purchased -->
-            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+            <Border Style="{StaticResource KpiCardStyle}" Width="132">
                 <StackPanel>
                     <TextBlock Text="SHEETS PURCHASED" Style="{StaticResource KpiLabelStyle}"/>
                     <TextBlock Text="{Binding TotalSheetsPurchasedDisplay}" Style="{StaticResource KpiValueStyle}"/>
@@ -110,7 +110,7 @@
             </Border>
             
             <!-- Total Sheet Area -->
-            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+            <Border Style="{StaticResource KpiCardStyle}" Width="132">
                 <StackPanel>
                     <TextBlock Text="TOTAL SHEET AREA" Style="{StaticResource KpiLabelStyle}"/>
                     <TextBlock Text="{Binding TotalSheetAreaDisplay}" Style="{StaticResource KpiValueStyle}"/>
@@ -118,7 +118,7 @@
             </Border>
             
             <!-- Used Area -->
-            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+            <Border Style="{StaticResource KpiCardStyle}" Width="132">
                 <StackPanel>
                     <TextBlock Text="USED AREA" Style="{StaticResource KpiLabelStyle}"/>
                     <TextBlock Text="{Binding TotalUsedAreaDisplay}" Style="{StaticResource KpiValueStyle}"/>
@@ -126,7 +126,7 @@
             </Border>
             
             <!-- Offcut Area -->
-            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+            <Border Style="{StaticResource KpiCardStyle}" Width="132">
                 <StackPanel>
                     <TextBlock Text="OFFCUT AREA" Style="{StaticResource KpiLabelStyle}"/>
                     <TextBlock Text="{Binding TotalOffcutAreaDisplay}" Style="{StaticResource KpiValueStyle}"/>
@@ -134,7 +134,7 @@
             </Border>
             
             <!-- Wastage Area -->
-            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+            <Border Style="{StaticResource KpiCardStyle}" Width="132">
                 <StackPanel>
                     <TextBlock Text="WASTAGE AREA" Style="{StaticResource KpiLabelStyle}"/>
                     <TextBlock Text="{Binding WastageAreaDisplay}" Style="{StaticResource KpiValueStyle}"
@@ -143,9 +143,9 @@
             </Border>
             
             <!-- Usage Efficiency -->
-            <Border Style="{StaticResource KpiCardStyle}" Width="140">
+            <Border Style="{StaticResource KpiCardStyle}" Width="132">
                 <StackPanel>
-                    <TextBlock Text="USAGE EFFICIENCY" Style="{StaticResource KpiLabelStyle}"/>
+                    <TextBlock Text="EFFICIENCY" Style="{StaticResource KpiLabelStyle}"/>
                     <TextBlock Text="{Binding UsageEfficiencyDisplay}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource KpiValueStyle}">
@@ -159,12 +159,9 @@
                     </TextBlock>
                 </StackPanel>
             </Border>
-        </WrapPanel>
-        
-        <!-- KPI Cards - Row 2 -->
-        <WrapPanel Grid.Row="1" Margin="0,80,0,16">
+            
             <!-- Purchase Cost -->
-            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+            <Border Style="{StaticResource KpiCardStyle}" Width="164">
                 <StackPanel>
                     <TextBlock Text="PURCHASE COST" Style="{StaticResource KpiLabelStyle}"/>
                     <TextBlock Text="{Binding TotalPurchaseCostDisplay}" Style="{StaticResource KpiValueStyle}"/>
@@ -172,7 +169,7 @@
             </Border>
             
             <!-- Wastage Charge -->
-            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+            <Border Style="{StaticResource KpiCardStyle}" Width="164">
                 <StackPanel>
                     <TextBlock Text="WASTAGE CHARGE" Style="{StaticResource KpiLabelStyle}"/>
                     <TextBlock Text="{Binding WastageChargeDisplay}" Style="{StaticResource KpiValueStyle}"
@@ -181,7 +178,7 @@
             </Border>
             
             <!-- Real Cost -->
-            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+            <Border Style="{StaticResource KpiCardStyle}" Width="164">
                 <StackPanel>
                     <TextBlock Text="REAL COST" Style="{StaticResource KpiLabelStyle}"/>
                     <TextBlock Text="{Binding RealCostDisplay}" Style="{StaticResource KpiValueStyle}"
@@ -190,7 +187,7 @@
             </Border>
             
             <!-- Wastage Charged to Customer -->
-            <Border Style="{StaticResource KpiCardStyle}" Width="180">
+            <Border Style="{StaticResource KpiCardStyle}" Width="164">
                 <StackPanel>
                     <TextBlock Text="WASTAGE CHARGED" Style="{StaticResource KpiLabelStyle}"/>
                     <TextBlock Text="{Binding WastageChargedToCustomerDisplay}" Style="{StaticResource KpiValueStyle}"
@@ -201,9 +198,9 @@
             <!-- Refresh Button -->
             <Button Content="REFRESH" 
                     Command="{Binding RefreshCommand}"
-                    Width="120"
+                    Width="110"
                     Height="40"
-                    Margin="16,0,0,0"
+                    Margin="14,0,0,8"
                     VerticalAlignment="Center"
                     Style="{StaticResource PrimaryPillButton}"/>
         </WrapPanel>
@@ -228,8 +225,8 @@
                         Padding="6">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="1.4*"/>
+                            <ColumnDefinition Width="2.6*"/>
                             <ColumnDefinition Width="1.2*"/>
                             <ColumnDefinition Width="0.8*"/>
                             <ColumnDefinition Width="0.8*"/>
@@ -241,8 +238,8 @@
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
                         
-                        <TextBlock Grid.Column="0" Text="SPEC" Style="{StaticResource TableHeaderStyle}"/>
-                        <TextBlock Grid.Column="1" Text="GLASS TYPE" Style="{StaticResource TableHeaderStyle}"/>
+                        <TextBlock Grid.Column="0" Text="GLASS TYPE" Style="{StaticResource TableHeaderStyle}"/>
+                        <TextBlock Grid.Column="1" Text="SPECIFICATION" Style="{StaticResource TableHeaderStyle}"/>
                         <TextBlock Grid.Column="2" Text="SHEET SIZE" Style="{StaticResource TableHeaderStyle}"/>
                         <TextBlock Grid.Column="3" Text="SHEETS" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="4" Text="TOTAL SQM" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
@@ -260,11 +257,12 @@
                     <ItemsControl ItemsSource="{Binding SheetBreakdown}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource EfficientRowStyle}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+                                <Border Style="{StaticResource EfficientRowStyle}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1"
+                                        ToolTip="{Binding GlassType}">
                                     <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="2*"/>
-                                                <ColumnDefinition Width="1.5*"/>
+                                                <ColumnDefinition Width="1.4*"/>
+                                                <ColumnDefinition Width="2.6*"/>
                                                 <ColumnDefinition Width="1.2*"/>
                                                 <ColumnDefinition Width="0.8*"/>
                                                 <ColumnDefinition Width="0.8*"/>
@@ -276,16 +274,24 @@
                                                 <ColumnDefinition Width="1*"/>
                                             </Grid.ColumnDefinitions>
                                         
-                                        <!-- Spec Name -->
-                                        <TextBlock Grid.Column="0" 
-                                                   Text="{Binding SpecName}" 
-                                                   Style="{StaticResource TableCellStyle}"
-                                                   FontWeight="SemiBold"/>
+                                        <!-- Glass Type (build family + pane identity) -->
+                                        <StackPanel Grid.Column="0" Margin="2,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding GlassTypeLabel}"
+                                                       Style="{StaticResource TableCellStyle}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource AccentBrush}"/>
+                                            <TextBlock Text="{Binding PaneNote}"
+                                                       FontSize="10"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Margin="6,-2,6,2"/>
+                                        </StackPanel>
                                         
-                                        <!-- Glass Type -->
-                                        <TextBlock Grid.Column="1" 
-                                                   Text="{Binding GlassType}" 
+                                        <!-- Specification (full spec, kept fully visible) -->
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding SpecName}"
                                                    Style="{StaticResource TableCellStyle}"
+                                                   FontWeight="SemiBold"
                                                    TextWrapping="Wrap"/>
                                         
                                         <!-- Sheet Size -->

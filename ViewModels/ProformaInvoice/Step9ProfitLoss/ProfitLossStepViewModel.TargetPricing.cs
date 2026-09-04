@@ -298,6 +298,65 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 ? $"SPEC {n}"
                 : "";
 
+        /// <summary>
+        /// The formula worked out stage-by-stage on one line, e.g.
+        /// "94 → ÷ 0.85 = 110.59 → + 45 = 155.59 → × 1.15 = 178.93".
+        /// The symbolic formula stays in <see cref="TargetFormulaPreview"/>;
+        /// this chain shows the running value after every step so the card
+        /// row reads as a calculation, not just an expression.
+        /// </summary>
+        public string TargetFormulaStepsText
+        {
+            get
+            {
+                var s = JobTargetResult?.Specifications?.FirstOrDefault(
+                            x => !string.IsNullOrWhiteSpace(x.FormulaText))
+                        ?? JobTargetResult?.Specifications?.FirstOrDefault();
+                if (s == null || s.YieldFactor <= 0m) return "";
+                return BuildFormulaSteps(s);
+            }
+        }
+
+        private static string BuildFormulaSteps(SpecTargetPriceResult s)
+        {
+            if (s.YieldFactor <= 0m) return "";
+
+            decimal glassSum = s.BuildType switch
+            {
+                GlassBuildType.Dgu or GlassBuildType.Lam =>
+                    s.OuterGlassRatePerSqm + s.InnerGlassRatePerSqm,
+                GlassBuildType.DguLam =>
+                    s.OuterGlassRatePerSqm + s.InnerGlassRatePerSqm + s.ThirdGlassRatePerSqm,
+                _ => s.OuterGlassRatePerSqm
+            };
+
+            var steps = new List<string> { FmtSteps(glassSum) };
+
+            decimal running = Math.Round(glassSum / s.YieldFactor, 2);
+            steps.Add($"÷ {FmtSteps(s.YieldFactor)} = {FmtSteps(running)}");
+
+            if (s.AspRatePerSqm > 0m)
+            {
+                running = Math.Round(running + s.AspRatePerSqm, 2);
+                steps.Add($"+ {FmtSteps(s.AspRatePerSqm)} = {FmtSteps(running)}");
+            }
+
+            if (s.ProcessingRatePerSqm > 0m)
+            {
+                running = Math.Round(running + s.ProcessingRatePerSqm, 2);
+                steps.Add($"+ {FmtSteps(s.ProcessingRatePerSqm)} = {FmtSteps(running)}");
+            }
+
+            decimal uplift = s.TargetUpliftPercent > 0m ? s.TargetUpliftPercent : 15m;
+            decimal factor = 1m + uplift / 100m;
+            steps.Add($"× {FmtSteps(factor)} = {FmtSteps(Math.Round(running * factor, 2))}");
+
+            return string.Join("  →  ", steps);
+        }
+
+        private static string FmtSteps(decimal value) =>
+            value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+
         /// <summary>"N specification group(s)" when more than one spec is present.</summary>
         public string TargetScopeNote
         {
@@ -471,6 +530,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             OnPropertyChanged(nameof(IsTargetIncomplete));
             OnPropertyChanged(nameof(TargetFormulaPreview));
             OnPropertyChanged(nameof(TargetFormulaSpecLabel));
+            OnPropertyChanged(nameof(TargetFormulaStepsText));
             OnPropertyChanged(nameof(TargetScopeNote));
             OnPropertyChanged(nameof(TotalGivenValueDisplay));
             OnPropertyChanged(nameof(TotalRequiredTargetValueDisplay));

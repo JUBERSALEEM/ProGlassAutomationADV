@@ -579,20 +579,20 @@
                                              row keeps a comfortable minimum and a
                                              horizontal scrollbar appears only when
                                              really needed. -->
-                                        <Grid MinWidth="1030">
+                                        <Grid MinWidth="1040">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
-<ColumnDefinition Width="104"/>
+<ColumnDefinition Width="100"/>
                                                 <ColumnDefinition Width="*" MinWidth="150"/>
                                                 <ColumnDefinition Width="92"/>
-                                                <ColumnDefinition Width="118"/>
-                                                <ColumnDefinition Width="118"/>
-                                                <ColumnDefinition Width="118"/>
-                                                <ColumnDefinition Width="160"/>
-                                                <ColumnDefinition Width="148"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="176"/>
+                                                <ColumnDefinition Width="156"/>
                                                     </Grid.ColumnDefinitions>
 
                                             <!-- header -->
@@ -602,14 +602,14 @@
                                                     Padding="12,7">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
-<ColumnDefinition Width="104"/>
+<ColumnDefinition Width="100"/>
                                                 <ColumnDefinition Width="*" MinWidth="150"/>
                                                 <ColumnDefinition Width="92"/>
-                                                <ColumnDefinition Width="118"/>
-                                                <ColumnDefinition Width="118"/>
-                                                <ColumnDefinition Width="118"/>
-                                                <ColumnDefinition Width="160"/>
-                                                <ColumnDefinition Width="148"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="176"/>
+                                                <ColumnDefinition Width="156"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" Text="PROFORMA" Style="{StaticResource JpHeaderCellStyle}"/>
                                                     <TextBlock Grid.Column="1" Text="CUSTOMER / PROJECT" Style="{StaticResource JpHeaderCellStyle}"/>
@@ -647,14 +647,14 @@
                                                             </Border.InputBindings>
                                                             <Grid>
                                                                 <Grid.ColumnDefinitions>
-<ColumnDefinition Width="104"/>
+<ColumnDefinition Width="100"/>
                                                 <ColumnDefinition Width="*" MinWidth="150"/>
                                                 <ColumnDefinition Width="92"/>
-                                                <ColumnDefinition Width="118"/>
-                                                <ColumnDefinition Width="118"/>
-                                                <ColumnDefinition Width="118"/>
-                                                <ColumnDefinition Width="160"/>
-                                                <ColumnDefinition Width="148"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="176"/>
+                                                <ColumnDefinition Width="156"/>
                                                     </Grid.ColumnDefinitions>
 
                                                                 <TextBlock Grid.Column="0"
@@ -667,10 +667,12 @@
                                                                     <TextBlock Text="{Binding CustomerName}"
                                                                                Style="{StaticResource JpCellStyle}"
                                                                                FontWeight="SemiBold"
+                                                                               MaxWidth="340"
                                                                                TextTrimming="CharacterEllipsis"/>
                                                                     <TextBlock Text="{Binding ProjectName}"
                                                                                FontSize="{StaticResource TextCaption}"
                                                                                Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                               MaxWidth="340"
                                                                                TextTrimming="CharacterEllipsis"
                                                                                Margin="0,1,0,0"/>
                                                                 </StackPanel>
@@ -710,7 +712,7 @@
                                                                     </TextBlock.Style>
                                                                 </TextBlock>
 
-                                                                <StackPanel Grid.Column="6" HorizontalAlignment="Right" Margin="0,0,18,0">
+                                                                <StackPanel Grid.Column="6" HorizontalAlignment="Right" Margin="0,0,30,0">
                                                                     <TextBlock Text="{Binding TargetMarginDisplay}"
                                                                                HorizontalAlignment="Right">
                                                                         <TextBlock.Style>
@@ -730,7 +732,7 @@
                                                                     </TextBlock>
                                                                 </StackPanel>
 
-                                                                <Border Grid.Column="7" HorizontalAlignment="Left" Margin="2,0,0,0">
+                                                                <Border Grid.Column="7" HorizontalAlignment="Left" Margin="10,0,0,0">
                                                                     <Border.Style>
                                                                         <Style TargetType="Border" BasedOn="{StaticResource JpStatusPill}">
                                                                             <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>

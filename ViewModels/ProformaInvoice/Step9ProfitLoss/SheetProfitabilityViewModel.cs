@@ -293,6 +293,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     var area = specGroup.CutSqm;
                     if (area <= 0) continue;
 
+                    // Build family of this specification ("SGU"/"DGU"/"LAMINATION"/
+                    // "DGU+LAMINATION") — every sheet row of the spec shares it.
+                    var glassFamilyLabel = FamilyLabelFor(specName);
+
                     // Get glass rows from this spec
                     var glassRows = specGroup.Rows.Where(r => r.Kind == "Glass").ToList();
                     
@@ -344,6 +348,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         {
                             SpecName = specName,
                             GlassType = glassRow.Description ?? "Glass",
+                            GlassTypeLabel = glassFamilyLabel,
+                            PaneNote = PaneNoteFrom(glassRow.Description),
                             SheetSize = $"{sheetWidth} × {sheetHeight} mm",
                             SheetSqm = sheetSqm,
                             SheetsPurchased = sheetsPurchased,
@@ -431,6 +437,41 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             return result;
         }
+
+        /// <summary>
+        /// Build family shown in the GLASS TYPE column: "SGU", "DGU",
+        /// "LAMINATION" or "DGU+LAMINATION". Spacer/interlayer evidence in
+        /// the spec name drives DGU / LAM / DGU+LAM; anything without a
+        /// marker (or a named spec the wizard cannot parse) defaults to SGU,
+        /// exactly like the Glass Type Comparison analysis.
+        /// </summary>
+        private static string FamilyLabelFor(string specName)
+        {
+            specName ??= "";
+            bool dgu = PnLSpecParser.Spacer(specName).Success
+                       || specName.IndexOf("DGU", StringComparison.OrdinalIgnoreCase) >= 0;
+            bool lam = PnLSpecParser.Interlayer(specName).Success
+                       || specName.IndexOf("LAM", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            if (dgu && lam) return "DGU+LAMINATION";
+            if (dgu) return "DGU";
+            if (lam) return "LAMINATION";
+            return "SGU";
+        }
+
+        /// <summary>
+        /// Short pane identity from the full row description, e.g.
+        /// "Outer pane · 6mm HD Grey · 8.64 sqm …" → "Outer pane · 6mm HD Grey".
+        /// </summary>
+        private static string PaneNoteFrom(string? description)
+        {
+            if (string.IsNullOrWhiteSpace(description)) return "";
+            var parts = description.Split(
+                new[] { " · " }, StringSplitOptions.RemoveEmptyEntries);
+            return parts.Length >= 2
+                ? $"{parts[0].Trim()} · {parts[1].Trim()}"
+                : description.Trim();
+        }
     }
 
     /// <summary>
@@ -458,6 +499,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 if (_glassType == value) return;
                 _glassType = value ?? "";
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Build family of the specification this sheet belongs to:
+        /// "SGU", "DGU", "LAMINATION" or "DGU+LAMINATION". Kept as its own
+        /// column so the first thing a reader sees is what the unit is.
+        /// </summary>
+        private string _glassTypeLabel = "";
+        public string GlassTypeLabel
+        {
+            get => _glassTypeLabel;
+            set
+            {
+                if (_glassTypeLabel == value) return;
+                _glassTypeLabel = value ?? "";
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Short pane identity, e.g. "Outer pane · 6mm HD Grey".</summary>
+        private string _paneNote = "";
+        public string PaneNote
+        {
+            get => _paneNote;
+            set
+            {
+                if (_paneNote == value) return;
+                _paneNote = value ?? "";
                 OnPropertyChanged();
             }
         }
