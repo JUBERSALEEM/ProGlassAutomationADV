@@ -385,13 +385,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 _showingAll = true;
                 RebuildVisibleCards();
 
-                // Phase 1: the DEFAULT company pre-fills a new invoice.
-                if (string.IsNullOrWhiteSpace(CompanyName))
-                {
-                    var def = _allCompanyCards
-                        .FirstOrDefault(c => c.IsDefault);
-                    if (def != null) LoadProfile(def);
-                }
+                // 2026-09-04: default-company prefill REMOVED — the mark
+                // mechanism no longer exists anywhere. Step 1 is
+                // hard-connected to the Company module: the company that
+                // lands on an invoice is exactly and only the one the user
+                // picks (or the one restored with the invoice's snapshot).
                 OnPropertyChanged(nameof(HasMoreCompanies));
             });
 
@@ -434,7 +432,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                         CompanyEmail = c.CompanyEmail ?? "",
                         AccountNumber = c.AccountNumber ?? "",
                         BankName = c.BankName ?? "",
-                        IsDefault = c.IsDefault,
+                        // 2026-09-04: IsDefault no longer mapped — the
+                        // default-mark mechanism is removed product-wide.
                         // E-FIX: DateTime is non-nullable — check against default
                         LastUsed = c.LastUsedAt != default(DateTime)
                                         ? c.LastUsedAt.ToString("dd MMM yyyy")
@@ -444,20 +443,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 
                 RebuildVisibleCards();
 
-                // AUDIT-FIX F-3: adopt the DEFAULT company on a brand-new
-                // invoice. Until now this existed only inside
-                // ShowAllCompaniesCommand (the "view all" button), so a fresh
-                // PI opened with an empty header and zero cards to tap.
-                // Skipped when a name is already set (snapshot restore or
-                // user typing beats the async load) and when the user has
-                // already loaded/touched a profile.
-                if (string.IsNullOrWhiteSpace(CompanyName)
-                    && !_isLoadingProfile
-                    && string.IsNullOrEmpty(LoadedProfileName))
-                {
-                    var def = _allCompanyCards.FirstOrDefault(c => c.IsDefault);
-                    if (def != null) LoadProfile(def);
-                }
+                // 2026-09-04 (reverses F-3 by explicit user direction):
+                // default-company adoption REMOVED. A new invoice no
+                // longer inherits a module-marked "default" — with the
+                // complete field-level hard link to the Company module,
+                // the selected company is the only authority; a silent
+                // inherited default could put the WRONG legal entity on a
+                // money document without anyone noticing.
             }
             catch (Exception ex)
             {

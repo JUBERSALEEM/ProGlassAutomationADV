@@ -120,3 +120,29 @@ dev machine (no compiler exists in this sandbox) plus a live smoke run
 (company save → enrichment diff visible · BOQ inquiry → converted PI grid ·
 sheet-price edit → stale flag). The gates are written, documented and executable;
 the honest statement is "ready to confirm", not "claimed".
+
+## POST-P5 — Step 1 ⇄ Company module: single-authority hard link (user-directed)
+**Field-level gap audit (traced 2026-09-04, no blind additions):**
+| Direction | Mapping | Coverage |
+|---|---|---|
+| Company → Step 1 (`LoadProfile`/card click) | name, TRN, location, rep, rep mobile, email, account, bank | **8/8 ✓** (F-4 fix) |
+| Module editor surface (Company Center) | all 9 inputs incl. logo | **9/9 ✓** |
+| Step 1 → module write-back (`AutoSaveFromInvoice` on PI save) | all 8, preserve-blank (never erases profile) | **8/8 ✓** |
+| Snapshot round-trip (`CompanySnapshot`) | full header | **8/8 ✓** |
+| Sheet-store mutation stamping (P3 signal) incl. CSV/Excel bulk import | all 4 repo write paths + delete via count drift | **airtight ✓** |
+**Conclusion: no field was missing — nothing needed adding to the module.**
+**What WAS wrong and is now fixed:** a second, silent authority — the
+**DEFAULT mark** (Company Center checkbox + card badge + Step 1 auto-prefill +
+single-default clearing loop). With the field-level link complete, the mark could
+put the WRONG legal entity on a new money document without anyone choosing it.
+Removed by explicit user direction (reverses F-3/`25618e9` prefill deliberately):
+- XAML: editor checkbox + card badge gone (annotated in place).
+- VM: `IsDefaultCompany` + clearing loop + audit Compare("Default") + default-first
+  ordering + both Step 1 prefill blocks removed.
+- Repository: `existing.IsDefault = company.IsDefault` no longer written; column
+  kept for storage compatibility (no destructive migration), legacy values inert.
+- Consumers updated in the same pass: demo workflow, card DTOs, regression tests
+  (now pin "mark is ignored").
+**Deliberate boundary documented, NOT a gap:** Step 1 edits enrich the module at
+invoice-save (preserve-blank) — never live per keystroke; the module record stays
+authoritative until explicitly selected.

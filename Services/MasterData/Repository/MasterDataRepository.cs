@@ -252,7 +252,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                     existing.AccountNumber =
                         company.AccountNumber?.Trim() ?? "";
                     existing.BankName = company.BankName?.Trim() ?? "";
-                    existing.IsDefault = company.IsDefault;
+                    // 2026-09-04: IsDefault is no longer WRITTEN anywhere —
+                    // the default-mark mechanism (checkbox, badge, Step 1
+                    // prefill, clearing loop) is removed. The column stays
+                    // for storage compatibility (no destructive migration);
+                    // legacy values are inert — nothing reads them.
                 }
 
                 existing.UsageCount += 1;

@@ -40,7 +40,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         public string CompanyLocation { get; set; } = "";
         public string LogoPath { get; set; } = "";
         public string Representative { get; set; } = "";
-        public bool IsDefault { get; set; }
+        // IsDefault removed 2026-09-04 (default-mark mechanism deleted).
         public int UsageCount { get; set; }
 
         private bool _isSelected;
@@ -76,7 +76,10 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         private string _email = "";
         private string _account = "";
         private string _bank = "";
-        private bool _isDefault;
+        // 2026-09-04: `_isDefault` / IsDefaultCompany REMOVED — the
+        // mark-to-use-in-invoice authority is gone; Step 1 selection is the
+        // only way a company lands on an invoice. The DB column is kept
+        // (storage-compat, inert); see repository notes.
         private string _status = "";
 
         public string EditorTitle => _editingId == 0
@@ -127,11 +130,6 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         {
             get => _bank;
             set { _bank = value; OnPropertyChanged(); }
-        }
-        public bool IsDefaultCompany
-        {
-            get => _isDefault;
-            set { _isDefault = value; OnPropertyChanged(); }
         }
         public string Status
         {
@@ -201,25 +199,15 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         CompanyEmail = CompanyEmail.Trim(),
                         AccountNumber = AccountNumber.Trim(),
                         BankName = BankName.Trim(),
-                        IsDefault = IsDefaultCompany,
                         UsageCount = 1,
                         LastUsedAt = DateTime.Now,
                         CreatedAt = DateTime.Now
                     };
 
-                    // Enforce single default company.
-                    if (entity.IsDefault)
-                    {
-                        foreach (var c in await _masterData
-                            .GetAllCompaniesAsync())
-                        {
-                            if (c.Id != entity.Id && c.IsDefault)
-                            {
-                                c.IsDefault = false;
-                                await _masterData.SaveOrUpdateCompanyAsync(c);
-                            }
-                        }
-                    }
+                    // 2026-09-04: entity has no IsDefault assignment — the
+                    // mark mechanism (single-default clearing loop) is
+                    // removed with the checkbox. Step 1 selection is the
+                    // only authority for "which company is this invoice".
 
                     // PHASE D: capture the BEFORE state so the audit
                     // entry can carry a real field-level diff. Read before
@@ -329,10 +317,6 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             Compare("Email", before.CompanyEmail, after.CompanyEmail);
             Compare("Account", before.AccountNumber, after.AccountNumber);
             Compare("Bank", before.BankName, after.BankName);
-            Compare("Default",
-                before.IsDefault ? "Yes" : "No",
-                after.IsDefault ? "Yes" : "No");
-
             return changes;
         }
 
@@ -345,9 +329,10 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
 
             try
             {
+                // 2026-09-04: default-first ordering removed with the mark —
+                // plain most-used-first (repository's canonical order).
                 foreach (var c in (await _masterData.GetAllCompaniesAsync())
-                    .OrderByDescending(x => x.IsDefault)
-                    .ThenByDescending(x => x.UsageCount))
+                    .OrderByDescending(x => x.UsageCount))
                 {
                     _companies.Add(new CompanyCard
                     {
@@ -357,7 +342,6 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         CompanyLocation = c.CompanyLocation,
                         LogoPath = c.LogoPath ?? "",
                         Representative = c.Representative ?? "",
-                        IsDefault = c.IsDefault,
                         UsageCount = c.UsageCount
                     });
                 }
@@ -380,7 +364,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             CompanyEmail = "";
             AccountNumber = "";
             BankName = "";
-            IsDefaultCompany = card?.IsDefault ?? false;
+            // mark-to-use-in-invoice removed 2026-09-04: no IsDefault hydration.
             OnPropertyChanged(nameof(EditorTitle));
 
             // When editing, hydrate the remaining profile fields.

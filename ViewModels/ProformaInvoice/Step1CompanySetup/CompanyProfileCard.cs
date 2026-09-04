@@ -31,7 +31,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         public string CompanyEmail { get; set; } = "";
         public string AccountNumber { get; set; } = "";
         public string BankName { get; set; } = "";
-        public bool IsDefault { get; set; }
+        // IsDefault removed 2026-09-04: default-mark mechanism deleted;
+        // Step 1 loads a company only when the user picks it (or it is
+        // restored from a saved invoice's snapshot).
 
         /// <summary>
         /// Privacy-safe TRN display — "100**********003".

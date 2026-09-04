@@ -38,8 +38,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 DemoWalk.BeatMs, ct).ConfigureAwait(false);
 
             var card = await WpfUiDriver.OnUiAsync(() =>
-                cc.Companies.FirstOrDefault(c => c.IsDefault)
-                ?? cc.Companies.FirstOrDefault(), ct).ConfigureAwait(false);
+                cc.Companies.FirstOrDefault(), ct).ConfigureAwait(false);
 
             if (card != null)
             {
@@ -66,7 +65,6 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 cc.CompanyEmail = "accounts@gulffacade.ae";
                 cc.BankName = "Mashreq Bank";
                 cc.AccountNumber = "AE120330001234567890123";
-                cc.IsDefaultCompany = false;
                 cc.ReasonNote = "Second letterhead for Dubai-site quotations.";
                 return true;
             }, ct).ConfigureAwait(false);

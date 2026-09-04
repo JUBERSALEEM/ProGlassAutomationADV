@@ -79,7 +79,8 @@ namespace ProGlassAutomation.Tests.MasterData
         private MasterDataDbContext CreateContext() => new(_options);
         private MasterDataRepository CreateRepository() => new(() => CreateContext());
 
-        // ── 1. explicit editor: latest data wins, blank clears ───────────
+        // ── 1. explicit editor: latest data wins, blank clears; the
+        //    default-mark is ignored (mechanism removed 2026-09-04) ──────
         [Fact]
         public async Task ExplicitEdit_ThenLatestWins_AndBlankClearsProfileFields()
         {
@@ -100,13 +101,15 @@ namespace ProGlassAutomation.Tests.MasterData
                 CompanyTrn = "100000000000001",
                 CompanyLocation = "",            // blank = clear
                 Representative = " New Rep ",    // trimmed + stored
-                IsDefault = true
+                IsDefault = true                 // MUST be ignored — the mark
+                                               // mechanism is gone; Step 1
+                                               // selection is the only authority
             });
 
             Assert.Equal(created.Id, updated.Id);
             Assert.Equal("", updated.CompanyLocation);
             Assert.Equal("New Rep", updated.Representative);
-            Assert.True(updated.IsDefault);
+            Assert.False(updated.IsDefault);     // never persisted since removal
             Assert.Equal(2, updated.UsageCount);
 
             using var verify = CreateContext();
@@ -132,7 +135,8 @@ namespace ProGlassAutomation.Tests.MasterData
                 CompanyTrn = "200000000000002",
                 CompanyLocation = "",   // header field empty on the invoice
                 CompanyEmail = "info@beta.example", // new info → enriches
-                IsDefault = true        // auto-save must NOT manage defaults
+                IsDefault = true        // ignored either way: the default-mark
+                                        // mechanism was removed 2026-09-04
             }, preserveUnsetProfileFields: true);
 
             Assert.Equal(created.Id, after.Id);

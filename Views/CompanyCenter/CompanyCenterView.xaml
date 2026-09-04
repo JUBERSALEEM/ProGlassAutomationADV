@@ -132,23 +132,10 @@
 
                                     <StackPanel Grid.Column="2"
                                                 VerticalAlignment="Center">
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
-                                                Visibility="Collapsed">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsDefault}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                            <TextBlock Text="{DynamicResource CompanyCenter.Default}" FontSize="{StaticResource TextCaption}"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource AccentBrush}"/>
-                                        </Border>
+                                        <!-- 2026-09-04: the DEFAULT mark was removed by design. A company is used in an
+                                         invoice ONLY by being picked in Step 1 — the wizard is hard-connected to these
+                                         module records, so the silent "mark to use in invoice" authority no longer
+                                         exists (two-authority confusion on money documents eliminated). -->
                                         <Button Style="{StaticResource RowOutlinedButton}"
                                                 Tag="&#xE8E5;" Content="{DynamicResource Action.Edit}"
                                                 Command="{Binding DataContext.SelectCompanyCommand,
@@ -263,10 +250,7 @@
                                            TextTrimming="CharacterEllipsis"
                                            MaxWidth="220"/>
                             </StackPanel>
-                            <CheckBox Content="{DynamicResource CompanyCenter.DefaultCompanyPreFillsNewInvoices}"
-                                      IsChecked="{Binding IsDefaultCompany}"
-                                      HorizontalAlignment="Right"
-                                      VerticalAlignment="Center"/>
+                            <!-- 2026-09-04: mark-to-use-in-invoice checkbox removed (see card-list note above). -->
                         </DockPanel>
 
                         <!-- PHASE D — WHY note recorded with the audit entry -->
