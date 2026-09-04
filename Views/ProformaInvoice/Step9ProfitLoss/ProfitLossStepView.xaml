@@ -422,6 +422,44 @@
                                                Style="{StaticResource TgtKvValueStyle}"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Base price (no uplift)" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding BasePriceAverageDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Included U-insert (toggle off)" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding IncludedUInsertAverageDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Given judged (net of included U-insert)" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding GivenNetOfUInsertDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Extra profit vs base price" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding ExtraProfitVsBaseDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"
+                                               FontWeight="SemiBold"/>
+                                </Grid>
                             </StackPanel>
                         </StackPanel>
                     </Border>

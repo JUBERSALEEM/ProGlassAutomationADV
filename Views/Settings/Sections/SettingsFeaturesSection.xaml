@@ -209,76 +209,6 @@
                 <TextBlock Text="{DynamicResource Settings.ShowHideOptionalFieldsSteps13InvoiceWizard}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <!-- ── STEP 9 · TARGET PRICING ─────────────────────
-                     Numeric default (not a visibility toggle): the expected
-                     profit margin that Step 9's required-target formula uses
-                     (× 1.15 → × (1 + margin/100)). New invoices capture this
-                     value at creation; Step 4 margin boxes seed from it.
-                     Literal text on purpose — the value travels through
-                     AppConfig.ProformaInvoiceFields.ExpectedProfitMarginPercent
-                     and the live mirror Step9PricingDefaults. -->
-                <TextBlock Text="STEP 9 · TARGET PRICING"
-                           Style="{StaticResource SettingsGroupHeaderTextStyle}"
-                           Margin="0,18,0,0"/>
-
-                <UniformGrid Columns="3" Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsTileStyle}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8FD;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Profit margin % — global default"/>
-                            </StackPanel>
-                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Global default expected profit margin applied to every NEW invoice: Step 9's required-target formula adds it (15% default → ×1.15) and Step 4 margin boxes seed from it. Job Profitability judges every job against this base."/>
-                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,0">
-                                <TextBox Text="{Binding ExpectedProfitMarginPercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
-                                         Width="88" Padding="8,5"
-                                         FontSize="{StaticResource TextBodyLarge}"
-                                         VerticalAlignment="Center"
-                                         AutomationProperties.Name="Expected profit margin percent"/>
-                                <TextBlock Text="%" FontSize="{StaticResource TextBodyLarge}"
-                                           VerticalAlignment="Center" Margin="6,0,0,0"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                </UniformGrid>
-
-                <StackPanel Margin="0,0,0,6">
-                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
-                        <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8A5;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BulkActions}"/>
-                            </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="{DynamicResource Settings.FlipOptionalFieldOnceRestoreBoxLayout}"/>
-                            <!-- Full-width action row: buttons stretch evenly
-                                 across the whole card (no left-cramped gap). -->
-                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
-                                <Button Content="{DynamicResource Settings.Enable}"
-                                        Command="{Binding EnableAllCommand}"
-                                        Style="{StaticResource SettingsActionButtonStyle}"
-                                        ToolTip="{DynamicResource Settings.ShowOptionalFieldWizard}"/>
-                                <Button Content="{DynamicResource Settings.HideOptional}"
-                                        Command="{Binding DisableAllOptionalCommand}"
-                                        Style="{StaticResource SettingsActionButtonStyle}"
-                                        ToolTip="{DynamicResource Settings.CollapseOptionalFieldThreeDBRequiredFields}"/>
-                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
-                                        Command="{Binding ResetToDefaultsCommand}"
-                                        Style="{StaticResource SettingsActionButtonStyle}"
-                                        Margin="0"
-                                        ToolTip="{DynamicResource Settings.RestoreBoxLayoutFieldVisible}"/>
-                            </UniformGrid>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
                 <!-- ── STEP 1 · COMPANY ─────────────────────── -->
                 <TextBlock Text="{DynamicResource Settings.STEP1Company}"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
@@ -570,7 +500,80 @@
 
 
 
-                </StackPanel>   <!-- close DataContext=ProformaFeatures scope -->
+                                <!-- ── STEP 9 · TARGET PRICING ─────────────────────
+                     Numeric default (not a visibility toggle): the expected
+                     profit margin that Step 9's required-target formula uses
+                     (× 1.15 → × (1 + margin/100)). New invoices capture this
+                     value at creation; Step 4 margin boxes seed from it.
+                     Literal text on purpose — the value travels through
+                     AppConfig.ProformaInvoiceFields.ExpectedProfitMarginPercent
+                     and the live mirror Step9PricingDefaults. -->
+                <TextBlock Text="STEP 9 · TARGET PRICING"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"
+                           Margin="0,18,0,0"/>
+
+                <UniformGrid Columns="3" Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8FD;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Profit margin % — global default"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Global default expected profit margin applied to every NEW invoice: Step 9's required-target formula adds it (15% default → ×1.15) and Step 4 margin boxes seed from it. Job Profitability judges every job against this base."/>
+                            <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBox Text="{Binding ExpectedProfitMarginPercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource ModernTextBoxStyle}"
+                                         Width="88"
+                                         VerticalAlignment="Center"
+                                         AutomationProperties.Name="Expected profit margin percent"/>
+                                <TextBlock Text="%" FontSize="{StaticResource TextBodyLarge}"
+                                           VerticalAlignment="Center" Margin="6,0,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </UniformGrid>
+
+                <StackPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8A5;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.BulkActions}"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="{DynamicResource Settings.FlipOptionalFieldOnceRestoreBoxLayout}"/>
+                            <!-- Full-width action row: buttons stretch evenly
+                                 across the whole card (no left-cramped gap). -->
+                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
+                                <Button Content="{DynamicResource Settings.Enable}"
+                                        Command="{Binding EnableAllCommand}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        ToolTip="{DynamicResource Settings.ShowOptionalFieldWizard}"/>
+                                <Button Content="{DynamicResource Settings.HideOptional}"
+                                        Command="{Binding DisableAllOptionalCommand}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        ToolTip="{DynamicResource Settings.CollapseOptionalFieldThreeDBRequiredFields}"/>
+                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
+                                        Command="{Binding ResetToDefaultsCommand}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        Margin="0"
+                                        ToolTip="{DynamicResource Settings.RestoreBoxLayoutFieldVisible}"/>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+
+
+
+</StackPanel>   <!-- close DataContext=ProformaFeatures scope -->
 
                 <!-- ═══════════ INQUIRY FIELD VISIBILITY ═══════════
                      Sibling of the Proforma toggles. Re-scopes DataContext

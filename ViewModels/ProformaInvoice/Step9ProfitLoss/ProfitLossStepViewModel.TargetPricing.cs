@@ -269,6 +269,75 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
+        // ── Card 3 · U-INSERT POLICY + BASE-PRICE VIEW (detail rows) ──
+        // Reference figures that explain the margin on Card 3:
+        //   • base price      = specification formula WITHOUT the 15% uplift
+        //     (e.g. (25+25)÷0.85+45 = 103.82 → target 103.82×1.15 = 119.39)
+        //   • given as quoted = Step 5 given price (includes the U-insert
+        //     only when the Step 6 row is toggled OFF / IncludedInStep5Price)
+        //   • net given       = given minus the included U-insert rate
+        //   • extra profit    = (net given − base) ÷ base — the margin view
+        //     the operator checks when deciding whether to accept a price.
+        // All area-weighted across specifications; informational only — the
+        // main KPI number above stays the given-vs-final-required-target
+        // margin until the toggle policy is confirmed.
+
+        public string BasePriceAverageDisplay => FormatRateCard(BasePriceView().Base);
+
+        public string GivenNetOfUInsertDisplay => FormatRateCard(BasePriceView().NetGiven);
+
+        public string IncludedUInsertAverageDisplay =>
+            FormatRateCard(BasePriceView().IncludedUInsert);
+
+        public string ExtraProfitVsBaseDisplay
+        {
+            get
+            {
+                decimal pct = BasePriceView().ExtraPercent;
+                if (JobTargetResult == null || BasePriceView().Base <= 0m) return "—";
+                return $"{pct:+0.##;-0.##;0.##}%";
+            }
+        }
+
+        private (decimal Base, decimal NetGiven, decimal IncludedUInsert, decimal ExtraPercent) BasePriceView()
+        {
+            var specs = JobTargetResult?.Specifications;
+            if (specs == null || specs.Count == 0) return (0m, 0m, 0m, 0m);
+
+            decimal totalArea = 0m, baseW = 0m, netW = 0m, uW = 0m;
+
+            foreach (var s in specs)
+            {
+                if (s == null || s.AreaSqm <= 0m) continue;
+
+                decimal area = s.AreaSqm;
+                decimal uplift = s.TargetUpliftPercent > 0m ? s.TargetUpliftPercent : 15m;
+                decimal factor = 1m + uplift / 100m;
+                decimal basePerSqm = s.SpecificationTargetPerSqm > 0m
+                    ? s.SpecificationTargetPerSqm / factor
+                    : 0m;
+                decimal given = Math.Max(0m, s.GivenPricePerSqm);
+                decimal uInsert = s.UInsertTreatment == UInsertTreatment.IncludedInStep5Price
+                    ? Math.Max(0m, s.UInsertRatePerSqm)
+                    : 0m;
+
+                totalArea += area;
+                baseW += basePerSqm * area;
+                uW += uInsert * area;
+                netW += Math.Max(0m, given - uInsert) * area;
+            }
+
+            if (totalArea <= 0m) return (0m, 0m, 0m, 0m);
+
+            decimal baseAvg = Math.Round(baseW / totalArea, 2);
+            decimal netAvg = Math.Round(netW / totalArea, 2);
+            decimal uAvg = Math.Round(uW / totalArea, 2);
+            decimal extra = baseAvg > 0m
+                ? Math.Round((netAvg - baseAvg) / baseAvg * 100m, 2)
+                : 0m;
+            return (baseAvg, netAvg, uAvg, extra);
+        }
+
         public string TargetJobStatusLabel => TargetStatusLabel(JobTargetResult?.Status);
 
         public bool IsTargetBelow => JobTargetResult?.Status == TargetStatus.BelowTarget;
@@ -524,6 +593,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             OnPropertyChanged(nameof(MarginAgainstTargetDisplay));
             OnPropertyChanged(nameof(GivenPricePerSqmDisplay));
             OnPropertyChanged(nameof(DifferencePerSqmDisplay));
+            OnPropertyChanged(nameof(BasePriceAverageDisplay));
+            OnPropertyChanged(nameof(GivenNetOfUInsertDisplay));
+            OnPropertyChanged(nameof(IncludedUInsertAverageDisplay));
+            OnPropertyChanged(nameof(ExtraProfitVsBaseDisplay));
             OnPropertyChanged(nameof(TargetJobStatusLabel));
             OnPropertyChanged(nameof(IsTargetBelow));
             OnPropertyChanged(nameof(IsTargetAbove));
