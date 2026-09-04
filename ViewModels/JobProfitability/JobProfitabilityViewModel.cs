@@ -544,6 +544,24 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         public string StaleTargetJobCountDisplay => $"{StaleTargetJobCount}";
 
+        /// <summary>
+        /// PHASE 3 — number of LOADED jobs whose P&amp;L basis does not match
+        /// the current Sheet Store signature (or was never pinned). Loaded
+        /// count (not filtered) — a filter must not hide the system signal.
+        /// </summary>
+        private int _priceBasisStaleLoadedCount;
+        public int PriceBasisStaleJobCount
+        {
+            get => _priceBasisStaleLoadedCount;
+            private set
+            {
+                if (_priceBasisStaleLoadedCount == value) return;
+                _priceBasisStaleLoadedCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PortfolioStatusLine));
+            }
+        }
+
         private decimal _targetTotalGivenValue;
         public decimal TargetTotalGivenValue
         {
@@ -777,6 +795,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     parts.Add($"{IncompleteTargetJobCount} incomplete");
                 if (StaleTargetJobCount > 0)
                     parts.Add($"{StaleTargetJobCount} stale (saved before the target model)");
+                // PHASE 3: surface the price-basis drift at portfolio level.
+                if (PriceBasisStaleJobCount > 0)
+                    parts.Add($"{PriceBasisStaleJobCount} priced on an older Sheet Store basis — open & re-save to refresh");
 
                 return string.Join(" · ", parts) + ".";
             }
@@ -1167,6 +1188,13 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 OnPropertyChanged(nameof(BaseExpectedMarginPercent));
                 OnPropertyChanged(nameof(BaseExpectedMarginDisplay));
 
+                // PHASE 3: one basis signature per load — every row's P&L
+                // is judged against the SAME Sheet Store state snapshot.
+                // Empty on failure → the "unknown" path, not false positives.
+                string currentPriceStamp =
+                    Services.ProformaInvoice.GlassPriceStamper.Current();
+                int priceBasisStaleJobs = 0;
+
                 _allRows.Clear();
 
                 foreach (var inv in invoices ?? new List<Models.ProformaInvoice.SavedInvoice.SavedProformaInvoice>())
@@ -1354,6 +1382,38 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         }
                     }
 
+                    // ── PHASE 3: price-basis staleness ─────────────────
+                    //  Report-only. HasMoved is strict: both stamps must be
+                    //  readable AND differ. An empty SAVED stamp (snapshot
+                    //  saved before versioning) is its own state — we never
+                    //  pretend an unreadable basis is fresh.
+                    bool priceBasisStale = costed
+                        && Services.ProformaInvoice.GlassPriceStamper.HasMoved(
+                            pl!.GlassPriceStamp, currentPriceStamp);
+                    bool priceBasisUnstamped = costed
+                        && string.IsNullOrWhiteSpace(pl!.GlassPriceStamp)
+                        && !string.IsNullOrWhiteSpace(currentPriceStamp);
+                    bool priceBasisFlagged = priceBasisStale || priceBasisUnstamped;
+                    if (priceBasisFlagged) priceBasisStaleJobs++;
+
+                    string priceBasisNote;
+                    if (priceBasisStale)
+                    {
+                        string when = pl.ComputedAtUtc.HasValue
+                            ? $" on {pl.ComputedAtUtc.Value.ToLocalTime():dd MMM yyyy}"
+                            : "";
+                        priceBasisNote =
+                            $"Sheet Store changed after this P&L was computed{when}. " +
+                            "Open the PI and re-save — Step 9 re-costs live.";
+                    }
+                    else if (priceBasisUnstamped)
+                    {
+                        priceBasisNote =
+                            "Cost basis not pinned (saved before price-versioning). " +
+                            "Open the PI and re-save to pin it.";
+                    }
+                    else priceBasisNote = "";
+
                     _allRows.Add(new JobProfitabilityRow
                     {
                         ProformaId = inv.ProformaId ?? "",
@@ -1388,9 +1448,13 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         TargetStatus = targetStatus,
                         TargetValidSpecCount = hasTargetData ? targetValidCount : 0,
                         TargetIncompleteSpecCount = hasTargetData ? targetIncompleteCount : 0,
-                        IsSnapshotStale = snapshotStale
+                        IsSnapshotStale = snapshotStale,
+                        IsPriceBasisStale = priceBasisFlagged,
+                        PriceBasisNote = priceBasisNote
                     });
                 }
+
+                PriceBasisStaleJobCount = priceBasisStaleJobs;
 
                 RebuildFilterOptions();
                 ApplyFilters();

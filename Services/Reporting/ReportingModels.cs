@@ -533,6 +533,14 @@ namespace ProGlassAutomation.Services.Reporting
         public int DocumentCount { get; set; }
         public bool HasCostData { get; set; }
         public string CostSource { get; set; } = "";
+
+        /// <summary>
+        /// PHASE 3 — the P&L was priced on a Sheet Store basis that has
+        /// since changed (or was never pinned). Signal only; recovering is
+        /// engine-only (open the PI, Step 9 re-costs, re-save).
+        /// </summary>
+        public bool IsStaleCost { get; set; }
+        public string CostStalenessNote { get; set; } = "";
     }
 
     public class ProfitabilitySummary

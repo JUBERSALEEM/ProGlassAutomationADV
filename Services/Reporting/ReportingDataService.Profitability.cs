@@ -89,11 +89,33 @@ namespace ProGlassAutomation.Services.Reporting
                 .Select(p => new { p.ProformaId, p.CompanyName, p.CustomerName, p.ProjectName, p.GrandTotalVatInclusive, p.Status, p.IssueDate, p.FullSnapshotJson })
                 .ToListAsync(ct).ConfigureAwait(false);
 
+            // PHASE 3: one basis signature per report run — every row is
+            // judged against the same Sheet Store state, never against a
+            // stamp taken mid-load while prices were being edited.
+            string currentPriceStamp = Services.ProformaInvoice.GlassPriceStamper.Current();
+
             foreach (var pi in pis)
             {
                 var snap = TryDeserializePiSnapshot(pi.FullSnapshotJson);
                 var pl = snap?.ProfitLoss;
                 bool hasCost = pl != null && (pl.TotalGlassCost > 0 || pl.TotalProductionCost > 0);
+
+                // PHASE 3: basis staleness — moved stamps are stale; an
+                // un-stamped (pre-versioning) snapshot is reported as
+                // un-verified, never silently fresh.
+                bool stampMoved = hasCost
+                    && Services.ProformaInvoice.GlassPriceStamper.HasMoved(
+                        pl!.GlassPriceStamp, currentPriceStamp);
+                bool stampUnknown = hasCost
+                    && string.IsNullOrWhiteSpace(pl!.GlassPriceStamp);
+                bool isStaleCost = stampMoved || (stampUnknown
+                    && !string.IsNullOrWhiteSpace(currentPriceStamp));
+                string stalenessNote = stampMoved
+                    ? "Sheet Store changed after this P&L was computed"
+                    : isStaleCost
+                        ? "Cost basis not pinned (saved before price-versioning)"
+                        : "";
+
                 decimal revenue = pl != null && pl.NetExVat > 0 ? pl.NetExVat : VatCalculator.Round(pi.GrandTotalVatInclusive / VatCalculator.VAT_MULTIPLIER);
                 decimal cost = hasCost ? pl!.TotalGlassCost + pl.TotalProductionCost : 0;
                 decimal profit = hasCost ? revenue - cost : 0;
@@ -124,7 +146,13 @@ namespace ProGlassAutomation.Services.Reporting
                     Sqm = Math.Round(sqm, 3),
                     DocumentCount = 1,
                     HasCostData = hasCost,
-                    CostSource = hasCost ? (pl!.CostAtSellingPrice ? "Selling price" : "Purchase price") + $" (wastage {pl.WastagePercent}%)" : "Missing — no Step 9 calculation saved"
+                    IsStaleCost = isStaleCost,
+                    CostStalenessNote = stalenessNote,
+                    CostSource = hasCost
+                        ? (pl!.CostAtSellingPrice ? "Selling price" : "Purchase price")
+                          + $" (wastage {pl.WastagePercent}%)"
+                          + (isStaleCost ? " — ⚠ " + stalenessNote : "")
+                        : "Missing — no Step 9 calculation saved"
                 });
             }
 

@@ -342,6 +342,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             if (printable?.ProfitLoss != null)
             {
                 snap.ProfitLoss = printable.ProfitLoss.BuildSnapshot();
+                // PHASE 3: pin the price basis the P&L was computed
+                // against. Must never block or fail a save — the stamper
+                // degrades to an empty signature on any store hiccup.
+                snap.ProfitLoss.ComputedAtUtc = DateTime.UtcNow;
+                snap.ProfitLoss.GlassPriceStamp = GlassPriceStamper.Current();
             }
 
             // Step 5 — spec groups + rows

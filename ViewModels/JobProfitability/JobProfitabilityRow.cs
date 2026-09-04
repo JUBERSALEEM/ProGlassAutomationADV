@@ -185,6 +185,15 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         /// <summary>Snapshot has cost data but no target block (saved pre-upgrade).</summary>
         public bool IsSnapshotStale { get; set; }
 
+        /// <summary>
+        /// PHASE 3 — the Sheet Store price basis moved (or was never
+        /// pinned) after this P&L was computed. Report-only signal; the
+        /// recovery path is engine-only: open the PI, Step 9 recalculates,
+        /// re-save.
+        /// </summary>
+        public bool IsPriceBasisStale { get; set; }
+        public string PriceBasisNote { get; set; } = "";
+
         // ── Display helpers (target) ─────────────────────────────────────
 
         public string GivenPerSqmDisplay => HasTargetData
@@ -294,7 +303,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             {
                 if (!IsCosted) return "not costed";
                 var pct = OverallMarginPercent != 0m ? OverallMarginPercent : MarginPercent;
-                return $"{pct:0.#}%";
+                // PHASE 3: flag — never silently show a margin priced on a
+                // stale (or unknown) Sheet Store basis as if it were fresh.
+                return IsPriceBasisStale ? $"{pct:0.#}% ⚠" : $"{pct:0.#}%";
             }
         }
 

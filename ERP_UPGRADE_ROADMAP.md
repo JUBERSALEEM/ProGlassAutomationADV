@@ -33,12 +33,28 @@ Where the remaining 1.4 points are lost (from the audit):
 5. Conversion: `StartFromInquiryAsync` maps importable BOQ rows → Step 5 spec groups written **outside** the Step-4 sync guard (imported specs are manually-owned and survive the Step 4 push), colours/rate/qty/dims carried, one grid line per BOQ row.
 **Acceptance:** create inquiry with 3 BOQ rows → convert → Step 5 shows 3 groups with identical dims/qty/specs; re-convert still blocked by the existing guard; legacy inquiries (no BOQ) convert exactly as before.
 
-## PHASE 3 — Profitability staleness & re-cost
+## PHASE 3 — Profitability price-basis staleness signal ✅ *(landed this turn)*
 **Goal:** report never silently disagrees with the invoice.
-1. Persist a `ProfitLossFingerprint` (hash of the Step-5/6/7 inputs Step 9 consumed) at save time.
-2. Job Profitability row shows **Stale** badge when report-side recomputation of the fingerprint differs.
-3. One-click "Recalculate" action that recomputes cost rows from the snapshot (pure snapshot → P&L pipeline, no wizard spin-up).
-**Acceptance:** edit a PI’s Step 5 after saving → profitability flags that PI stale → recalc clears it and refreshes margin.
+**Design decision (traced, deliberate):** the planned "one-click snapshot→P&L recompute" was
+**not** built as a reporting-side engine — Step 9 is the single pricing engine, and a second
+implementation inside reporting would drift on the next logic change (the classic
+shadow-calculator defect). The phase lands the honest equivalent: **flag, don't fake**.
+**Landed:**
+1. `GlassPriceStamper` — cheap version signature of the sheet-store basis:
+   `{max(GlassSheets.LastUpdated).Ticks}:{sheetCount}`. Any sheet add/edit/delete flips it.
+2. Mapper pins `ProfitLossSnapshot.GlassPriceStamp` + `ComputedAtUtc` at every save
+   (stamper degrades to `""` on failure — a signal never blocks a save).
+3. Job Profitability: per-row staleness (`⚠` in MARGIN cell + `PriceBasisNote`),
+   pre-versioning snapshots reported as "not pinned" (never silently fresh), portfolio
+   status line counts jobs "priced on an older Sheet Store basis".
+4. Reporting family (`ReportingDataService.Profitability`) mirrors the signal:
+   `IsStaleCost` + `CostStalenessNote` + `CostSource` suffix.
+5. **Recovery (engine-only, by design):** open the PI → Step 9 recalculates live against
+   the current store → re-save re-pins the stamp. One engine, one truth.
+**Acceptance met:** edit a sheet price → Job Profitability flags the costed PIs (`⚠`)
+on next load; re-saving the PI clears the flag. Known lower bound documented inline: the
+stamp pins at save-close, so a price edited between the last Step 9 recalc and the save
+itself is caught only by the *next* store change (report side stays honest about this).
 
 ## PHASE 4 — Regression net
 **Goal:** everything fixed so far stays fixed.

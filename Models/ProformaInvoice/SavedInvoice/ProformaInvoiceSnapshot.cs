@@ -577,6 +577,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public decimal WastagePercent { get; set; }
 
         /// <summary>
+        /// PHASE 3 — sheet-store price-basis signature at compute time
+        /// (see Services/ProformaInvoice/GlassPriceStamper.cs). "" on
+        /// snapshots saved before this field existed OR when the stamp
+        /// could not be read; consumers report that as UNKNOWN, never as
+        /// fresh. Reporting flags a P&L when the store's current stamp
+        /// differs — it does NOT re-cost (single engine, single truth).
+        /// </summary>
+        public string GlassPriceStamp { get; set; } = "";
+
+        /// <summary>PHASE 3 — when this P&L was last computed.</summary>
+        public DateTime? ComputedAtUtc { get; set; }
+
+        /// <summary>
         /// Which Sheet Store column priced the glass when this snapshot was
         /// taken: true = SELLING, false = PURCHASE.
         ///
