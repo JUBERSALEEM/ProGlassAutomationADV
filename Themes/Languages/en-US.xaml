@@ -1113,6 +1113,7 @@
     <sys:String x:Key="ProformaInvoice.CloseWithoutUploading">Close without uploading</sys:String>
     <sys:String x:Key="ProformaInvoice.Color">COLOR</sys:String>
     <sys:String x:Key="ProformaInvoice.Colour">COLOUR</sys:String>
+    <sys:String x:Key="ProformaInvoice.ColourNotDetected">colour not detected</sys:String>
     <sys:String x:Key="ProformaInvoice.Combined">·  Combined</sys:String>
     <sys:String x:Key="ProformaInvoice.ComingPhase720">Coming in Phase 7.20</sys:String>
     <sys:String x:Key="ProformaInvoice.ConfirmInvoiceApproval">Confirm Invoice Approval</sys:String>
@@ -1332,6 +1333,10 @@
     <sys:String x:Key="ProformaInvoice.ValidityDays">Validity days</sys:String>
     <sys:String x:Key="ProformaInvoice.ValueAED">VALUE: AED</sys:String>
     <sys:String x:Key="ProformaInvoice.View">View all (</sys:String>
+    <sys:String x:Key="ProformaInvoice.MultipleColoursSelectedPickDetected">Multiple colours in the selection — choose one from the detected list.</sys:String>
+    <sys:String x:Key="ProformaInvoice.SelectDetectedColour">DETECTED COLOUR ▾</sys:String>
+    <sys:String x:Key="ProformaInvoice.PaneColourMatchesRow">Pane colour matches this row.</sys:String>
+    <sys:String x:Key="ProformaInvoice.PaneColourDiffersFromRow">Pane colour differs from the row colour — review before charging.</sys:String>
     <sys:String x:Key="ProformaInvoice.Wastage">Wastage —</sys:String>
     <sys:String x:Key="ProformaInvoice.Wastage2">WASTAGE %</sys:String>
     <sys:String x:Key="ProformaInvoice.WastageAED">Wastage AED</sys:String>

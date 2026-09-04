@@ -64,7 +64,82 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
                 if (_colorName == next) return;
                 _colorName = next;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(HasColorIdentity));
+                OnPropertyChanged(nameof(MatchesRowColor));
+                OnPropertyChanged(nameof(ConflictsRowColor));
                 RaiseDisplayLabelsChanged();
+            }
+        }
+
+        /// <summary>
+        /// The colour of the wastage row that owns this source. The section
+        /// view-model pushes it down so the picker can flag panes that match
+        /// or contradict the row colour BEFORE the operator charges the
+        /// wrong glass.
+        /// </summary>
+        private string _rowColorName = "";
+        public string RowColorName
+        {
+            get => _rowColorName;
+            set
+            {
+                string next = value ?? "";
+                if (_rowColorName == next) return;
+                _rowColorName = next;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(MatchesRowColor));
+                OnPropertyChanged(nameof(ConflictsRowColor));
+            }
+        }
+
+        /// <summary>True when a real colour was detected for this pane.</summary>
+        public bool HasColorIdentity => !string.IsNullOrWhiteSpace(ColorName);
+
+        /// <summary>This pane's colour matches the owning row's colour.</summary>
+        public bool MatchesRowColor =>
+            !string.IsNullOrWhiteSpace(RowColorName)
+            && !string.IsNullOrWhiteSpace(ColorName)
+            && string.Equals(ColorName.Trim(), RowColorName.Trim(),
+                StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// This pane HAS a detected colour and it contradicts the owning
+        /// row's colour — the classic wrong-charge trap when a bill carries
+        /// two specs in different colours.
+        /// </summary>
+        public bool ConflictsRowColor =>
+            !string.IsNullOrWhiteSpace(RowColorName)
+            && !string.IsNullOrWhiteSpace(ColorName)
+            && !string.Equals(ColorName.Trim(), RowColorName.Trim(),
+                StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// True on the first source of a specification inside the picker so
+        /// the view can render a per-spec group header ("SPEC 1", "SPEC 2")
+        /// above its pane entries.
+        /// </summary>
+        private bool _isFirstOfSpec;
+        public bool IsFirstOfSpec
+        {
+            get => _isFirstOfSpec;
+            set
+            {
+                if (_isFirstOfSpec == value) return;
+                _isFirstOfSpec = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _specHeaderText = "";
+        public string SpecHeaderText
+        {
+            get => _specHeaderText;
+            set
+            {
+                string next = value ?? "";
+                if (_specHeaderText == next) return;
+                _specHeaderText = next;
+                OnPropertyChanged();
             }
         }
 

@@ -427,6 +427,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     IsActive = wastage.IsActive,
                     ColorName = wastage.ColorName ?? "",
                     Rate = wastage.Rate,
+                    IsManuallyAdded = wastage.IsManuallyAdded,
                     UseOptimizationFormula = wastage.UseOptimizationFormula,
                     FormulaPricePerSqm = wastage.FormulaPricePerSqm,
                     OptimizationPercent = wastage.OptimizationPercent,
@@ -827,6 +828,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         IsActive = wSnap.IsActive,
                         ColorName = wSnap.ColorName ?? "",
                         Rate = wSnap.Rate,
+                        // Legacy snapshots predate the flag and default
+                        // false → generated rows, matching the rebuild
+                        // behaviour those invoices always had.
+                        IsManuallyAdded = wSnap.IsManuallyAdded,
                         UseOptimizationFormula = wSnap.UseOptimizationFormula,
                         FormulaPricePerSqm = wSnap.FormulaPricePerSqm,
                         OptimizationPercent = wSnap.OptimizationPercent,

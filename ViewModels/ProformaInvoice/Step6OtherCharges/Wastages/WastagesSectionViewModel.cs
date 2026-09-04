@@ -59,7 +59,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         {
             var row = new WastageRow
             {
-                Rate = 0m
+                Rate = 0m,
+                // Operator-owned from birth: advanced refreshes (which run on
+                // every Step 5 edit) must never silently destroy this row.
+                IsManuallyAdded = true
             };
             SyncSourcesForRow(row);
             AttachRow(row);
@@ -94,12 +97,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         /// </summary>
         public void ApplyAdvancedSuggestions(IEnumerable<AutoWastageSuggestion> suggestions)
         {
+            var materialized = suggestions?.ToList()
+                ?? new List<AutoWastageSuggestion>();
+
+            // ── MANUAL ROWS ARE NEVER REBUILT ────────────────────────────
+            // This refresh runs on EVERY Step 5 keystroke (W/H/Qty edits).
+            // Before this guard, ClearWastageRows() wiped rows the operator
+            // added by hand seconds earlier — silent data loss. Manual rows
+            // stay; only their source lists track the current spec set.
+            var autoRows = WastageRows
+                .Where(r => !r.IsManuallyAdded)
+                .ToList();
+
             // A DGU build has TWO panes — outer and inner — and DGU+LAM has
             // three. Each side is its own wastage row with its own setup
             // SHEET QTY, so same-colour sides must NOT be folded into one
             // row: they were, and Step 9 could only read one quantity for
             // both panes. Rows therefore key on colour + side.
-            var previousRows = WastageRows
+            var previousRows = autoRows
                 .GroupBy(r => WastageRowKey(r.ColorName, RowSideKey(r)),
                     System.StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(
@@ -107,20 +122,38 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     g => g.First(),
                     System.StringComparer.OrdinalIgnoreCase);
 
-            ClearWastageRows();
+            foreach (var row in autoRows)
+                DetachRow(row);
+            foreach (var row in autoRows)
+                WastageRows.Remove(row);
 
-            foreach (var group in suggestions
+            // Manual rows keep their rates and checked panes; their source
+            // lists are re-synced so renamed/removed specs cannot leave
+            // phantom references behind.
+            foreach (var row in WastageRows)
+                SyncSourcesForRow(row);
+
+            foreach (var group in materialized
                 .GroupBy(x => WastageRowKey(
-                        ExtractColorKey(x.DisplayName), x.SourceSideLabel),
+                        SuggestionColour(x), x.SourceSideLabel),
                     System.StringComparer.OrdinalIgnoreCase)
                 .OrderBy(x => x.Key, System.StringComparer.OrdinalIgnoreCase))
             {
                 previousRows.TryGetValue(group.Key, out var previousRow);
 
+                // Colour is STRUCTURED data from the rules engine — never
+                // scraped back out of the human display string. A
+                // colourless suggestion must stay blank instead of
+                // labelling the row "Outer glass wastage".
+                string rowColour = FirstNonBlank(
+                    group.First().ColorName,
+                    ExtractColorKey(group.First().DisplayName));
+
                 var row = new WastageRow
                 {
                     IsActive = previousRow?.IsActive ?? true,
-                    ColorName = ExtractColorKey(group.First().DisplayName),
+                    IsManuallyAdded = false,
+                    ColorName = rowColour,
                     Rate = previousRow?.Rate ?? 0m,
                     UseOptimizationFormula = previousRow?.UseOptimizationFormula ?? true,
                     FormulaPricePerSqm = previousRow?.FormulaPricePerSqm ?? 0m,
@@ -145,6 +178,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
             RecalculateTotal();
         }
+
+        /// <summary>
+        /// The colour a suggestion carries as data. Falls back to the
+        /// legacy display-name scrape only for callers that predate the
+        /// structured field; sentinel labels never become colours.
+        /// </summary>
+        private static string SuggestionColour(AutoWastageSuggestion suggestion) =>
+            FirstNonBlank(suggestion.ColorName, ExtractColorKey(suggestion.DisplayName));
 
         /// <summary>
         /// BUG-16 support: Public entry point for the mapper.
@@ -272,7 +313,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     }, step4Snapshot, effectiveType, isInnerPane: true);
                 }
             }
+
+            // Per-spec picker headers: with two specs the popup lists four+
+            // panes; "SPEC 1" / "SPEC 2" headers stop wrong-spec selections.
+            StampSpecGroupHeaders(row);
             row.ForceRefreshSqm();
+        }
+
+        private static void StampSpecGroupHeaders(WastageRow row)
+        {
+            SpecGroupColorSide? previous = null;
+            foreach (var source in row.AvailableSources)
+            {
+                bool first = previous == null
+                    || previous.SpecNumber != source.SpecNumber;
+                source.IsFirstOfSpec = first;
+                source.SpecHeaderText = first
+                    ? $"SPEC {source.SpecNumber}"
+                    : string.Empty;
+                previous = source;
+            }
         }
 
         private static string SourceSpecName(SpecGroup group) =>
@@ -555,20 +615,42 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     StringComparison.OrdinalIgnoreCase);
         }
 
+        /// <summary>
+        /// Legacy display-name colour scrape, hardened: the rules engine
+        /// writes "Outer glass wastage" style labels when no colour was
+        /// resolved, and those must never be treated as a colour name —
+        /// doing so printed "Wastage — Outer glass wastage" on invoices.
+        /// Structured colour data (AutoWastageSuggestion.ColorName) is the
+        /// primary channel; this is only a compatibility fallback.
+        /// </summary>
+        private static readonly System.Collections.Generic.HashSet<string>
+            GenericWastageDisplayNames = new(System.StringComparer.OrdinalIgnoreCase)
+            {
+                "Outer glass wastage",
+                "Inner glass wastage",
+                "Lam outer glass wastage",
+                "Lam inner glass wastage"
+            };
+
         private static string ExtractColorKey(string? displayName)
         {
             string text = (displayName ?? string.Empty).Trim();
-            if (text.Length == 0) return string.Empty;
+            if (text.Length == 0 || GenericWastageDisplayNames.Contains(text))
+                return string.Empty;
 
             int emDash = text.IndexOf('—');
             if (emDash > 0)
-                return text[..emDash].Trim();
+                text = text[..emDash].Trim();
+            else
+            {
+                int hyphen = text.IndexOf('-');
+                if (hyphen > 0)
+                    text = text[..hyphen].Trim();
+            }
 
-            int hyphen = text.IndexOf('-');
-            if (hyphen > 0)
-                return text[..hyphen].Trim();
-
-            return text;
+            return GenericWastageDisplayNames.Contains(text)
+                ? string.Empty
+                : text;
         }
 
         /// <summary>

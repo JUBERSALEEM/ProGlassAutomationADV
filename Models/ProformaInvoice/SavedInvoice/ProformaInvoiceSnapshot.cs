@@ -414,6 +414,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public decimal Rate { get; set; }
 
         /// <summary>
+        /// True when the operator attached this row by hand instead of the
+        /// advanced engine generating it. Manual rows survive advanced
+        /// refreshes (which rebuild generated rows on every Step 5 edit).
+        /// Absent on legacy snapshots → false → row is treated as generated,
+        /// preserving the historical rebuild behaviour for old invoices.
+        /// </summary>
+        public bool IsManuallyAdded { get; set; }
+
+        /// <summary>
         /// True when the wastage row derives its effective AED/SQM rate from
         /// the optimization formula instead of using the manual Rate field.
         /// </summary>

@@ -1,5 +1,6 @@
 using ProGlassAutomation.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -27,6 +28,24 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             }
         }
 
+        // ── Colour identity ─────────────────────────────────────────────
+        //
+        // The row colour is OPERATOR-OWNED once it is typed, picked from
+        // the detected list, restored from a snapshot or assigned by the
+        // advanced engine. Until then the row auto-imports the colour of
+        // its checked panes, so a freshly added row never stays nameless
+        // when the specification already knows the glass colours.
+        //
+        //   _colorManuallyEdited   — an explicit value was assigned.
+        //   _lastAutoImportedColor — the value the auto-import wrote last;
+        //                            auto-import may replace it while it is
+        //                            still the visible value (pane retargets).
+        //   _isApplyingDetectedColor — re-entrancy guard for the setter.
+        //
+        private bool _colorManuallyEdited;
+        private string _lastAutoImportedColor = "";
+        private bool _isApplyingDetectedColor;
+
         private string _colorName = "";
         public string ColorName
         {
@@ -35,8 +54,267 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             {
                 if (_colorName == value) return;
                 _colorName = value;
+
+                if (!_isApplyingDetectedColor)
+                {
+                    _colorManuallyEdited = !string.IsNullOrWhiteSpace(value);
+                    // A deliberate clear hands the row back to auto-import.
+                    if (!_colorManuallyEdited)
+                        _lastAutoImportedColor = "";
+                }
+
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(FormulaDisplay));
+                PropagateRowColorToSources();
+                ResyncColourPickerSelection();
+
+                // A deliberate clear (or any external colour write) must
+                // reconcile with the checked panes right away: blanking
+                // the box hands the row back to auto-import immediately
+                // instead of waiting for the next source edit. Guarded
+                // against the auto-import's own writes.
+                if (!_isApplyingDetectedColor)
+                    SyncColourStateFromSources();
+            }
+        }
+
+        /// <summary>
+        /// True when the operator attached this row by hand (the + ADD ROW
+        /// command) instead of the advanced engine generating it. Advanced
+        /// refreshes rebuild generated rows on every Step 5 edit; a manual
+        /// row must NEVER be silently destroyed — only its source list is
+        /// re-synced. Persisted in the invoice snapshot.
+        /// </summary>
+        private bool _isManuallyAdded;
+        public bool IsManuallyAdded
+        {
+            get => _isManuallyAdded;
+            set
+            {
+                if (_isManuallyAdded == value) return;
+                _isManuallyAdded = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Every distinct non-blank pane colour detected across all spec
+        /// groups, in spec/side order. Drives the detected-colour picker so
+        /// the operator never has to type a colour the system already knows.
+        /// </summary>
+        public ObservableCollection<string> AvailableColors { get; } = new();
+
+        private bool _hasAvailableColors;
+        public bool HasAvailableColors
+        {
+            get => _hasAvailableColors;
+            private set
+            {
+                if (_hasAvailableColors == value) return;
+                _hasAvailableColors = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// True when the CHECKED panes carry more than one detected colour —
+        /// the row would charge one colour against another pane's SQM.
+        /// Guidance only: the operator's deliberate mix is never blocked.
+        /// </summary>
+        private bool _hasColorConflict;
+        public bool HasColorConflict
+        {
+            get => _hasColorConflict;
+            private set
+            {
+                if (_hasColorConflict == value) return;
+                _hasColorConflict = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// The colour picked from <see cref="AvailableColors"/>. Picking one
+        /// is the fast path for two-spec bills: it names the row and reticks
+        /// the source panes to exactly the panes of that colour — Spec 1
+        /// W1/H1 or W2/H2, Spec 2 W1/H1 or W2/H2 — while panes detected in a
+        /// different colour are unticked so they cannot be charged by
+        /// accident. Colourless panes are left to the operator.
+        /// </summary>
+        private string? _selectedAvailableColor;
+        public string? SelectedAvailableColor
+        {
+            get => _selectedAvailableColor;
+            set
+            {
+                if (string.Equals(_selectedAvailableColor, value, StringComparison.Ordinal))
+                    return;
+                _selectedAvailableColor = value;
+                OnPropertyChanged();
+                if (!string.IsNullOrWhiteSpace(value))
+                    ApplyColourSelection(value.Trim());
+            }
+        }
+
+        private void ApplyColourSelection(string colour)
+        {
+            ColorName = colour;
+
+            foreach (var src in AvailableSources)
+            {
+                string srcColour = (src.ColorName ?? string.Empty).Trim();
+                if (srcColour.Length == 0)
+                    continue; // Colourless panes: operator decides per pane.
+
+                bool matches = string.Equals(
+                    srcColour, colour, StringComparison.OrdinalIgnoreCase);
+                if (src.IsChecked != matches)
+                    src.IsChecked = matches;
+            }
+        }
+
+        /// <summary>
+        /// Auto-imports the row colour from the checked panes when the row
+        /// has no colour of its own yet (or still shows last tick's
+        /// auto-import). Also keeps the colour-conflict flag and the
+        /// detected-colour list current. Runs on every source change.
+        /// </summary>
+        private void SyncColourStateFromSources()
+        {
+            var checkedColours = AvailableSources
+                .Where(s => s.IsChecked)
+                .Select(s => (s.ColorName ?? string.Empty).Trim())
+                .Where(c => c.Length > 0)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            HasColorConflict = checkedColours.Count > 1;
+
+            string current = (_colorName ?? string.Empty).Trim();
+            bool mayAutoImport = current.Length == 0
+                || (!_colorManuallyEdited
+                    && string.Equals(current, _lastAutoImportedColor,
+                        StringComparison.OrdinalIgnoreCase));
+            if (!mayAutoImport)
+                return;
+
+            if (checkedColours.Count == 1)
+            {
+                if (!string.Equals(current, checkedColours[0],
+                        StringComparison.OrdinalIgnoreCase))
+                    SetDetectedColour(checkedColours[0]);
+            }
+            else if (current.Length > 0
+                && string.Equals(current, _lastAutoImportedColor,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                // The selection became ambiguous (or lost all identity):
+                // the auto-imported label no longer describes it — withdraw
+                // the label so the row cannot charge one colour under
+                // another colour's name. Only auto values are withdrawn;
+                // an operator-owned colour is never touched.
+                ClearDetectedColour();
+            }
+        }
+
+        private void SetDetectedColour(string colour)
+        {
+            _lastAutoImportedColor = colour;
+            _isApplyingDetectedColor = true;
+            try
+            {
+                ColorName = colour;
+            }
+            finally
+            {
+                _isApplyingDetectedColor = false;
+            }
+        }
+
+        private void ClearDetectedColour()
+        {
+            _lastAutoImportedColor = "";
+            _isApplyingDetectedColor = true;
+            try
+            {
+                ColorName = "";
+            }
+            finally
+            {
+                _isApplyingDetectedColor = false;
+            }
+        }
+
+        /// <summary>
+        /// Rebuilds the detected-colour list from ALL pane sources (checked
+        /// or not) without churning the collection when nothing changed —
+        /// an open colour picker must not collapse under the operator.
+        /// </summary>
+        private void RefreshAvailableColors()
+        {
+            var colours = new List<string>();
+            foreach (var src in AvailableSources)
+            {
+                string colour = (src.ColorName ?? string.Empty).Trim();
+                if (colour.Length == 0) continue;
+                if (!colours.Contains(colour, StringComparer.OrdinalIgnoreCase))
+                    colours.Add(colour);
+            }
+
+            bool unchanged = colours.SequenceEqual(
+                AvailableColors, StringComparer.Ordinal);
+            if (unchanged)
+                return;
+
+            AvailableColors.Clear();
+            foreach (var colour in colours)
+                AvailableColors.Add(colour);
+            HasAvailableColors = colours.Count > 0;
+
+            ResyncColourPickerSelection();
+        }
+
+        /// <summary>
+        /// Keeps the detected-colour picker honest: when the row colour is
+        /// one of the detected colours it is shown as the selection (the
+        /// picker doubles as a colour indicator); a custom/typed colour
+        /// clears the pick instead of leaving a stale one. The row colour
+        /// itself is never modified here.
+        /// </summary>
+        private void ResyncColourPickerSelection()
+        {
+            string currentRowColour = (_colorName ?? string.Empty).Trim();
+            string? colourMatch = currentRowColour.Length == 0
+                ? null
+                : AvailableColors.FirstOrDefault(c => string.Equals(
+                    c, currentRowColour, StringComparison.OrdinalIgnoreCase));
+
+            if (colourMatch != null)
+            {
+                if (!string.Equals(_selectedAvailableColor, colourMatch,
+                        StringComparison.Ordinal))
+                {
+                    _selectedAvailableColor = colourMatch;
+                    OnPropertyChanged(nameof(SelectedAvailableColor));
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(_selectedAvailableColor))
+            {
+                _selectedAvailableColor = null;
+                OnPropertyChanged(nameof(SelectedAvailableColor));
+            }
+        }
+
+        /// <summary>
+        /// Pushes the row colour into every source so the picker can draw
+        /// match / mismatch badges (SpecGroupColorSide.MatchesRowColor).
+        /// </summary>
+        private void PropagateRowColorToSources()
+        {
+            foreach (var src in AvailableSources)
+            {
+                if (!string.Equals(src.RowColorName, _colorName, StringComparison.Ordinal))
+                    src.RowColorName = _colorName ?? string.Empty;
             }
         }
 
@@ -400,7 +678,12 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             if (e.NewItems != null)
             {
                 foreach (SpecGroupColorSide item in e.NewItems)
+                {
+                    // Colour badges must be right from the first render —
+                    // before any later PropertyChanged arrives.
+                    item.RowColorName = _colorName ?? string.Empty;
                     item.PropertyChanged += OnSourceChanged;
+                }
             }
 
             if (e.OldItems != null)
@@ -456,6 +739,9 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         private void RecalcFromSources()
         {
             TotalSqm = AvailableSources.Where(s => s.IsChecked).Sum(s => s.SqmValue);
+            RefreshAvailableColors();
+            SyncColourStateFromSources();
+            PropagateRowColorToSources();
             RefreshSelectedSourceDefaults();
             OnPropertyChanged(nameof(FormulaDisplay));
             OnPropertyChanged(nameof(SourceSummaryText));

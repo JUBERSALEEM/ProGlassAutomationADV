@@ -28,6 +28,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         public int SpecGroupNumber { get; init; }
         public string SourceSideLabel { get; init; } = "";
         public string DisplayName { get; init; } = "";
+
+        /// <summary>
+        /// The resolved glass colour carried as STRUCTURED data. The wastage
+        /// section used to scrape it back out of the human DisplayName
+        /// ("HD Grey — outer glass wastage"), which produced garbage row
+        /// names like "Outer glass wastage" whenever a colour could not be
+        /// resolved. Empty when no colour identity is known.
+        /// </summary>
+        public string ColorName { get; init; } = "";
+
         public string Reason { get; init; } = "";
     }
 
@@ -220,6 +230,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     {
                         SpecGroupNumber = specGroupNumber,
                         SourceSideLabel = "Outer (W1/H1)",
+                        ColorName = outerColor,
                         DisplayName = string.IsNullOrWhiteSpace(outerColor)
                             ? "Outer glass wastage"
                             : $"{outerColor} — outer glass wastage",
@@ -235,6 +246,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     {
                         SpecGroupNumber = specGroupNumber,
                         SourceSideLabel = "Lam Outer (W2/H2)",
+                        ColorName = lamOuterColor,
                         DisplayName = string.IsNullOrWhiteSpace(lamOuterColor)
                             ? "Lam outer glass wastage"
                             : $"{lamOuterColor} — lam outer glass wastage",
@@ -250,6 +262,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     {
                         SpecGroupNumber = specGroupNumber,
                         SourceSideLabel = "Lam Inner (W2/H2)",
+                        ColorName = lamInnerColor,
                         DisplayName = string.IsNullOrWhiteSpace(lamInnerColor)
                             ? "Lam inner glass wastage"
                             : $"{lamInnerColor} — lam inner glass wastage",
@@ -274,6 +287,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             {
                 SpecGroupNumber = specGroupNumber,
                 SourceSideLabel = "Outer (W1/H1)",
+                ColorName = outerColor,
                 DisplayName = string.IsNullOrWhiteSpace(outerColor)
                     ? "Outer glass wastage"
                     : $"{outerColor} — outer glass wastage",
@@ -288,6 +302,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 {
                     SpecGroupNumber = specGroupNumber,
                     SourceSideLabel = "Inner (W2/H2)",
+                    ColorName = innerColor,
                     DisplayName = string.IsNullOrWhiteSpace(innerColor)
                         ? "Inner glass wastage"
                         : $"{innerColor} — inner glass wastage",

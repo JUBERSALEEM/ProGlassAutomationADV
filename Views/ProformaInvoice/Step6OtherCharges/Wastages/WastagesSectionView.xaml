@@ -133,20 +133,59 @@
                                               HorizontalAlignment="Center"
                                               VerticalAlignment="Center"
                                               AutomationProperties.Name="Wastage on"/>
-                                <Grid Grid.Column="1" Margin="0,0,8,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Text="{Binding ColorName, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource RowInputStyle}"
-                                             Margin="0,0,8,0"/>
-                                    <TextBlock Grid.Column="1"
-                                               Text="{Binding SideDisplay}"
-                                               Style="{StaticResource PiFieldLabelStyle}"
-                                               Foreground="{DynamicResource AccentBrush}"
-                                               VerticalAlignment="Center"/>
-                                </Grid>
+                                <StackPanel Grid.Column="1" Margin="0,0,8,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Text="{Binding ColorName, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource RowInputStyle}"
+                                                 Margin="0,0,8,0"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding SideDisplay}"
+                                                   Style="{StaticResource PiFieldLabelStyle}"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </Grid>
+                                    <!-- Detected-colour quick picker. Lists every pane colour
+                                         resolved from the specs (outer/inner, W1/H1 vs W2/H2);
+                                         picking one names the row and reticks the matching
+                                         panes across all specs. Hidden when upstream colour
+                                         detection has nothing to offer. -->
+                                    <Grid Margin="0,4,0,0"
+                                          Visibility="{Binding HasAvailableColors, Converter={StaticResource BoolToVis}}">
+                                        <ComboBox ItemsSource="{Binding AvailableColors}"
+                                                  SelectedItem="{Binding SelectedAvailableColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  Style="{StaticResource Step4ComboStyle}"
+                                                  Height="26"
+                                                  FontSize="{StaticResource TextCaption}"
+                                                  ToolTip="{DynamicResource ProformaInvoice.SelectDetectedColour}"/>
+                                        <TextBlock Text="{DynamicResource ProformaInvoice.SelectDetectedColour}"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0,28,0"
+                                                   IsHitTestVisible="False">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedAvailableColor}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                    <TextBlock Text="{DynamicResource ProformaInvoice.MultipleColoursSelectedPickDetected}"
+                                               Visibility="{Binding HasColorConflict, Converter={StaticResource BoolToVis}}"
+                                               FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource WarningBrush}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,3,0,0"/>
+                                </StackPanel>
                                 <Grid Grid.Column="2" Margin="0,0,8,0">
                                     <ToggleButton x:Name="SourceToggle"
                                                   Style="{StaticResource SourceToggleButtonStyle}"
@@ -178,46 +217,88 @@
                                                     <ItemsControl ItemsSource="{Binding AvailableSources}">
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
-                                                                <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                                                                          Margin="0,0,0,8"
-                                                                          Cursor="Hand"
-                                                                          ToolTip="{Binding DisplayLabel}">
-                                                                    <!--
-                                                                        Keep pane side + colour in the first visible
-                                                                        line. The old single long DisplayLabel put the
-                                                                        colour after the full spec name, so it was
-                                                                        clipped in this 380px picker and appeared as
-                                                                        only "Outer" / "Inner" to the operator.
-                                                                    -->
-                                                                    <Grid MinWidth="320">
-                                                                        <Grid.ColumnDefinitions>
-                                                                            <ColumnDefinition Width="*"/>
-                                                                            <ColumnDefinition Width="Auto"/>
-                                                                        </Grid.ColumnDefinitions>
-                                                                        <StackPanel Margin="0,0,8,0">
-                                                                            <TextBlock Text="{Binding SourceDisplayLabel}"
-                                                                                       FontSize="{StaticResource TextBody}"
-                                                                                       FontWeight="SemiBold"
-                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                                                       TextTrimming="CharacterEllipsis"/>
-                                                                            <TextBlock Text="{Binding SpecName}"
-                                                                                       FontSize="{StaticResource TextCaption}"
-                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                                                       TextTrimming="CharacterEllipsis"/>
-                                                                        </StackPanel>
-                                                                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                                                                            <TextBlock Text="{Binding SideLabel}"
-                                                                                       FontSize="{StaticResource TextCaption}"
-                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                                                       HorizontalAlignment="Right"/>
-                                                                            <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
-                                                                                       FontSize="{StaticResource TextBody}"
-                                                                                       FontWeight="Bold"
-                                                                                       Foreground="{DynamicResource AccentBrush}"
-                                                                                       HorizontalAlignment="Right"/>
-                                                                        </StackPanel>
-                                                                    </Grid>
-                                                                </CheckBox>
+                                                                <StackPanel>
+                                                                    <!-- Per-spec group header. With two specs the
+                                                                         picker lists four+ panes; operators must see
+                                                                         where SPEC 1 ends and SPEC 2 begins. -->
+                                                                    <TextBlock Text="{Binding SpecHeaderText}"
+                                                                               FontSize="{StaticResource TextCaption}"
+                                                                               FontWeight="Bold"
+                                                                               Foreground="{DynamicResource AccentBrush}"
+                                                                               Margin="0,4,0,6"
+                                                                               Visibility="{Binding IsFirstOfSpec, Converter={StaticResource BoolToVis}}"/>
+                                                                    <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                                              Margin="0,0,0,8"
+                                                                              Cursor="Hand"
+                                                                              ToolTip="{Binding DisplayLabel}">
+                                                                        <!--
+                                                                            Keep pane side + colour in the first visible
+                                                                            line. The old single long DisplayLabel put the
+                                                                            colour after the full spec name, so it was
+                                                                            clipped in this 380px picker and appeared as
+                                                                            only "Outer" / "Inner" to the operator.
+                                                                        -->
+                                                                        <Grid MinWidth="320">
+                                                                            <Grid.ColumnDefinitions>
+                                                                                <ColumnDefinition Width="*"/>
+                                                                                <ColumnDefinition Width="Auto"/>
+                                                                            </Grid.ColumnDefinitions>
+                                                                            <StackPanel Margin="0,0,8,0">
+                                                                                <Grid>
+                                                                                    <Grid.ColumnDefinitions>
+                                                                                        <ColumnDefinition Width="*"/>
+                                                                                        <ColumnDefinition Width="Auto"/>
+                                                                                    </Grid.ColumnDefinitions>
+                                                                                    <TextBlock Text="{Binding SourceDisplayLabel}"
+                                                                                               FontSize="{StaticResource TextBody}"
+                                                                                               FontWeight="SemiBold"
+                                                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                               TextTrimming="CharacterEllipsis"/>
+                                                                                    <!-- Colour badge vs the row colour:
+                                                                                         ✓ same glass, ⚠ different glass.
+                                                                                         Only one can be visible at a time. -->
+                                                                                    <StackPanel Grid.Column="1"
+                                                                                                Orientation="Horizontal"
+                                                                                                VerticalAlignment="Center"
+                                                                                                Margin="6,0,0,0">
+                                                                                        <TextBlock Text="&#x2713;"
+                                                                                                   FontSize="{StaticResource TextCaption}"
+                                                                                                   FontWeight="Bold"
+                                                                                                   Foreground="{DynamicResource SuccessBrush}"
+                                                                                                   ToolTip="{DynamicResource ProformaInvoice.PaneColourMatchesRow}"
+                                                                                                   Visibility="{Binding MatchesRowColor, Converter={StaticResource BoolToVis}}"/>
+                                                                                        <TextBlock Text="&#x26A0;"
+                                                                                                   FontSize="{StaticResource TextCaption}"
+                                                                                                   FontWeight="Bold"
+                                                                                                   Foreground="{DynamicResource WarningBrush}"
+                                                                                                   ToolTip="{DynamicResource ProformaInvoice.PaneColourDiffersFromRow}"
+                                                                                                   Visibility="{Binding ConflictsRowColor, Converter={StaticResource BoolToVis}}"/>
+                                                                                    </StackPanel>
+                                                                                </Grid>
+                                                                                <TextBlock Text="{Binding SpecName}"
+                                                                                           FontSize="{StaticResource TextCaption}"
+                                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                                           TextTrimming="CharacterEllipsis"/>
+                                                                                <TextBlock Text="{DynamicResource ProformaInvoice.ColourNotDetected}"
+                                                                                           FontSize="{StaticResource TextCaption}"
+                                                                                           FontStyle="Italic"
+                                                                                           Foreground="{DynamicResource WarningBrush}"
+                                                                                           Visibility="{Binding HasColorIdentity, Converter={StaticResource InverseBoolToVis}}"/>
+                                                                            </StackPanel>
+                                                                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                                                                <TextBlock Text="{Binding SideLabel}"
+                                                                                           FontSize="{StaticResource TextCaption}"
+                                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                                           HorizontalAlignment="Right"/>
+                                                                                <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
+                                                                                           FontSize="{StaticResource TextBody}"
+                                                                                           FontWeight="Bold"
+                                                                                           Foreground="{DynamicResource AccentBrush}"
+                                                                                           HorizontalAlignment="Right"/>
+                                                                            </StackPanel>
+                                                                        </Grid>
+                                                                    </CheckBox>
+                                                                </StackPanel>
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>
                                                     </ItemsControl>
