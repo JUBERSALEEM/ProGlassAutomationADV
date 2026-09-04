@@ -214,7 +214,10 @@ public ProformaInvoiceViewModel() : this(
             Step3VM = new Step3ProjectSpecs.ProjectSpecsViewModel(_masterData);
 
             Step4VM = new Step4PricingEstimator.PricingEstimatorViewModel(_dialogs, _specs);
-            Step5VM = new Step5DataGrid.DataGridViewModel(_dialogs);
+            // Step 5 must use this wizard's injected specification repository.
+            // Passing only dialogs selected the optional-parameter constructor
+            // with a null repository, leaving every Step 5 catalogue empty.
+            Step5VM = new Step5DataGrid.DataGridViewModel(_dialogs, _specs);
             Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
             Step6VM.BindStep4Pricing(() => Step4VM.CaptureSectionSnapshots());
             Step6VM.BindLaminationEditors(Step4VM.LamVM, Step4VM.DguLamVM);
@@ -369,6 +372,12 @@ public ProformaInvoiceViewModel() : this(
             Step3VM.SetClientFilter(Step2VM.CustomerName);
         }
 
+        /// <summary>
+        /// Transfers Step 4 sections into their corresponding Step 5 groups
+        /// only while a group still mirrors Step 4. A blank Step 5 spec is a
+        /// bootstrap group even when its UI default type is SGU; treating that
+        /// default as a manual choice was the source of DGU-name/SGU-type pairs.
+        /// </summary>
         private void SyncStep5SelectionsFromStep4()
         {
             var sections = Step4VM.CaptureSectionSnapshots();
@@ -379,66 +388,105 @@ public ProformaInvoiceViewModel() : this(
                 var section = sections[i];
                 var group = Step5VM.SpecGroups[i];
 
-                if (string.IsNullOrWhiteSpace(section.GeneratedSpecName)) continue;
+                if (string.IsNullOrWhiteSpace(section.GeneratedSpecName))
+                    continue;
 
-                // A row is "Step-4 owned" when it is still empty, still holds
-                // the spec Step 4 last pushed into it, or already carries the
-                // spec Step 4 currently generates. Once the operator HAND
-                // PICKS a different specification in the Step 5 grid, the row
-                // leaves Step 4 ownership and is never overwritten again.
-                bool isStep4Owned =
-                    string.IsNullOrWhiteSpace(group.SelectedSpecName)
-                    || string.Equals(group.SelectedSpecName, group.LastSyncedStep4SpecName,
+                bool hasNoStep5Spec = string.IsNullOrWhiteSpace(group.SelectedSpecName);
+                bool isFreshBootstrap = hasNoStep5Spec
+                    && !group.HasManualStep5SpecOverride
+                    && !group.HasManualStep5GlassTypeOverride;
+
+                // A spec can be owned independently only until a user picks a
+                // different name. Markers are deliberately checked only when
+                // non-empty: String.Equals("", "") must not accidentally grant
+                // ownership to unrelated restored/manual state.
+                bool specIsStep4Owned = isFreshBootstrap
+                    || (!group.HasManualStep5SpecOverride
+                        && !string.IsNullOrWhiteSpace(group.LastSyncedStep4SpecName)
+                        && string.Equals(group.SelectedSpecName,
+                            group.LastSyncedStep4SpecName,
+                            StringComparison.OrdinalIgnoreCase))
+                    || (!group.HasManualStep5SpecOverride
+                        && string.Equals(group.SelectedSpecName,
+                            section.GeneratedSpecName,
+                            StringComparison.OrdinalIgnoreCase));
+
+                // A matching marker pair also identifies a failed legacy
+                // bootstrap handoff: the old coordinator wrote the incoming
+                // DGU spec marker even when the fresh group's default SGU type
+                // was left unchanged. New manual type/spec edits clear these
+                // markers in SpecGroup, so this recovery path does not reclaim
+                // an operator-owned selection.
+                bool markersConfirmCurrentStep4Selection =
+                    !string.IsNullOrWhiteSpace(group.LastSyncedStep4SpecName)
+                    && !string.IsNullOrWhiteSpace(group.LastSyncedStep4GlassType)
+                    && string.Equals(group.LastSyncedStep4SpecName,
+                        section.GeneratedSpecName,
                         StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(group.SelectedSpecName, section.GeneratedSpecName,
+                    && string.Equals(group.LastSyncedStep4GlassType,
+                        section.SelectedGlassTypeCode,
                         StringComparison.OrdinalIgnoreCase);
 
-                bool glassTypeIsStep4Owned =
-                    string.IsNullOrWhiteSpace(group.SelectedGlassType)
-                    || string.Equals(group.SelectedGlassType, group.LastSyncedStep4GlassType,
-                        StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(group.SelectedGlassType, section.SelectedGlassTypeCode,
-                        StringComparison.OrdinalIgnoreCase);
+                // Fresh groups initialize their dropdown to SGU before Step 4
+                // is consulted. With no selected spec that is a framework
+                // default, not a user-owned glass type, so it must accept an
+                // incoming DGU/LAM/DGU+LAM type.
+                bool glassTypeIsStep4Owned = isFreshBootstrap
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && string.IsNullOrWhiteSpace(group.SelectedGlassType))
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && markersConfirmCurrentStep4Selection)
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && !string.IsNullOrWhiteSpace(group.LastSyncedStep4GlassType)
+                        && string.Equals(group.SelectedGlassType,
+                            group.LastSyncedStep4GlassType,
+                            StringComparison.OrdinalIgnoreCase))
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && string.Equals(group.SelectedGlassType,
+                            section.SelectedGlassTypeCode,
+                            StringComparison.OrdinalIgnoreCase));
 
-                if (!string.IsNullOrWhiteSpace(section.SelectedGlassTypeCode) && glassTypeIsStep4Owned)
-                {
-                    group.SelectedGlassType = section.SelectedGlassTypeCode;
-                }
+                // Type, spec, colours, sheets and rate are one coherent Step 4
+                // selection. Do not update only one part of a manually changed
+                // group: a partial update can recreate the stale type/spec
+                // pairing this coordinator exists to prevent.
+                if (!specIsStep4Owned || !glassTypeIsStep4Owned)
+                    continue;
 
-                if (isStep4Owned)
-                {
-                    bool specChanged = !string.Equals(
-                        group.SelectedSpecName, section.GeneratedSpecName,
-                        StringComparison.OrdinalIgnoreCase);
-
-                    group.SelectedSpecName = section.GeneratedSpecName;
-                    group.LastSyncedStep4SpecName = section.GeneratedSpecName;
-                    group.LastSyncedStep4GlassType = section.SelectedGlassTypeCode;
-
-                    if (section.EstimatedRatePerSqm > 0m)
-                    {
-                        // Step 4 is the source of truth for owned rows: re-
-                        // pricing the DGU/SGU/LAM panel and pressing Continue
-                        // MUST refresh the grid rate (this was the bug — an
-                        // edited Step 4 rate never reached Step 5 because the
-                        // old guard only wrote when BaseRate was still 0).
-                        group.BaseRate = section.EstimatedRatePerSqm;
-
-                        // ImportedPrice stays as the FIRST reference price so
-                        // an operator can see the original quote even after a
-                        // re-price; it only moves when the spec itself changed
-                        // or no reference exists yet.
-                        if (specChanged || group.ImportedPrice <= 0m)
-                            group.ImportedPrice = section.EstimatedRatePerSqm;
-                    }
-                }
+                // Apply in the safe order (type first, spec second) and copy
+                // per-section sheet/U-insert metadata directly. This does not
+                // depend on the asynchronous Step 4 catalog/registry write.
+                // The handoff also records provenance and updates the imported
+                // reference only when its generated spec actually changes.
+                group.ApplyStep4PricingSnapshot(section);
             }
+        }
+
+        /// <summary>
+        /// Runs the Step 4 → Step 5 boundary work before downstream views or
+        /// the silent draft take a snapshot. It is shared by Continue and a
+        /// direct wizard-tab jump that crosses the same boundary.
+        /// </summary>
+        private void PrepareStep5FromStep4()
+        {
+            Step5VM.EnsureSpecGroupCount(Step4VM.CalculationSectionCount);
+            SyncStep5SelectionsFromStep4();
+            Step5VM.EnsureDefaultWorkspace();
+
+            // Catalogue persistence is deliberately non-blocking; Step 5 is
+            // already correct because it received the direct snapshot above.
+            AsyncUtility.SafeFireAndForget(
+                () => Step4VM.AutoSaveCurrentSpecAsync(),
+                "PI Step4 AutoSaveSpec");
         }
 
         private void GoToStep(int stepNumber)
         {
             var step = WizardSteps.FirstOrDefault(s => s.StepNumber == stepNumber);
             if (step == null) return;
+
+            int previousStepNumber = CurrentStepNumber;
+            bool crossesStep4Boundary = previousStepNumber <= 4 && stepNumber >= 5;
 
             CurrentStep = step;
             _furthestStepReached = Math.Max(_furthestStepReached, stepNumber);
@@ -467,16 +515,6 @@ public ProformaInvoiceViewModel() : this(
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = ws.StepNumber < _furthestStepReached;
 
-            // Persist step progress on every navigation so the wizard
-            // state survives an app close or a back-to-list round-trip.
-            // Fire-and-forget: the silent draft never blocks navigation
-            // and never shows dialogs. The PrintableInvoiceViewModel's
-            // SilentDraftSaveAsync already guards against empty data.
-            Step7VM.PrintableInvoice.FurthestStepReached = _furthestStepReached;
-            AsyncUtility.SafeFireAndForget(
-                () => Step7VM.PrintableInvoice.SilentDraftSaveAsync(),
-                $"PI AutoSave Step{stepNumber}");
-
             if (stepNumber == 4)
             {
                 if (Step5VM.TotalSpecGroups > Step4VM.CalculationSectionCount)
@@ -485,38 +523,30 @@ public ProformaInvoiceViewModel() : this(
                 if (!Step4VM.HasRestoredSnapshotState)
                     Step4VM.RefreshSheetStoreData();
             }
-            if (stepNumber == 5)
-            {
-                // AUTO-SAVE ON THE WAY INTO STEP 5.
-                //
-                // Previously a spec only reached the Step 5 dropdown if the
-                // operator remembered to press APPLY in Step 4. Continuing
-                // without it left the dropdown missing the very spec they
-                // had just configured.
-                //
-                // Fire-and-forget deliberately: navigation must not wait on
-                // a database write. The dropdown does not depend on this
-                // completing first -- SpecCatalogNotifier fires when the
-                // save lands and every SpecGroup reloads itself, so the new
-                // entry appears a moment later without a refresh.
-                //
-                // Silent: no-ops when there is nothing valid to save, and a
-                // re-save of an unchanged spec is already an idempotent
-                // update in the repository.
-                AsyncUtility.SafeFireAndForget(
-                    () => Step4VM.AutoSaveCurrentSpecAsync(),
-                    "PI Step4 AutoSaveSpec");
 
-                Step5VM.EnsureSpecGroupCount(Step4VM.CalculationSectionCount);
-                SyncStep5SelectionsFromStep4();
-                Step5VM.EnsureDefaultWorkspace();
-            }
-            if (stepNumber == 6)
+            // Continue and a direct tab jump use the same boundary contract.
+            // This closes the historical hole where jumping from Step 4 to a
+            // later station skipped the Step 5 synchronization altogether.
+            if (crossesStep4Boundary)
+                PrepareStep5FromStep4();
+
+            // A downstream jump still needs the refreshed Step 6 workspace;
+            // otherwise Step 7/9 can see pre-handoff wastage suggestions.
+            if (stepNumber == 6 || (crossesStep4Boundary && stepNumber > 6))
                 Step6VM.RefreshWorkspace();
             if (stepNumber == 8)
                 AsyncUtility.SafeFireAndForget(() => Step8VM.LoadAsync(), "PI Step8 Load");
             if (stepNumber == 9)
                 AsyncUtility.SafeFireAndForget(() => Step9VM.RecalculateAsync(), "PI Step9 Recalc");
+
+            // Build the silent draft only AFTER the Step 4 → Step 5 handoff.
+            // SilentDraftSaveAsync constructs its entity before its first await,
+            // so scheduling it earlier persisted the stale pre-Continue group
+            // selection even though the visible Step 5 UI later looked right.
+            Step7VM.PrintableInvoice.FurthestStepReached = _furthestStepReached;
+            AsyncUtility.SafeFireAndForget(
+                () => Step7VM.PrintableInvoice.SilentDraftSaveAsync(),
+                $"PI AutoSave Step{stepNumber}");
         }
 
         private async Task StartNewInvoiceAsync()

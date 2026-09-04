@@ -184,30 +184,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
         private void SyncLaminationColorsFromStep4()
         {
-            int lamCount = _dataGridVM.SpecGroups.Count(g =>
-                string.Equals(g.SelectedGlassType, "LAM", StringComparison.OrdinalIgnoreCase));
-            int dguLamCount = _dataGridVM.SpecGroups.Count(g =>
-                string.Equals(g.SelectedGlassType, "DGU+LAM", StringComparison.OrdinalIgnoreCase));
-
             foreach (var group in _dataGridVM.SpecGroups)
             {
-                if (string.Equals(group.SelectedGlassType, "LAM", StringComparison.OrdinalIgnoreCase)
-                    && _lamVm != null)
+                string effectiveType = OtherChargeAutomationRules.ResolveEffectiveGlassType(
+                    group.SelectedGlassType, group.SelectedSpecName);
+
+                if (effectiveType == "LAM" && _lamVm != null)
                 {
-                    bool takeLive = lamCount == 1
+                    // The live Step 4 editor is authoritative only for the
+                    // section it currently represents. A manually selected
+                    // Step 5 LAM spec with parsed colours must not be replaced
+                    // by whatever happens to be open in the Step 4 panel.
+                    bool hasNoKnownColors = string.IsNullOrWhiteSpace(group.OuterGlassColor)
+                        && string.IsNullOrWhiteSpace(group.InnerGlassColor);
+                    bool takeLive = hasNoKnownColors
                         || LaminateGlassMatcher.SpecNameMatchesGenerated(
                             group.SelectedSpecName, _lamVm.GeneratedSpecName);
                     if (takeLive)
-                        group.ApplyLaminateColors(_lamVm.OuterGlassColor, _lamVm.InnerGlassColor);
+                        group.ApplyLaminateColors(
+                            _lamVm.OuterGlassColor, _lamVm.InnerGlassColor);
                 }
-                else if (string.Equals(group.SelectedGlassType, "DGU+LAM", StringComparison.OrdinalIgnoreCase)
-                    && _dguLamVm != null)
+                else if (effectiveType == "DGU+LAM" && _dguLamVm != null)
                 {
-                    bool takeLive = dguLamCount == 1
+                    bool hasNoKnownColors = string.IsNullOrWhiteSpace(group.OuterGlassColor)
+                        && string.IsNullOrWhiteSpace(group.InnerGlassColor);
+                    bool takeLive = hasNoKnownColors
                         || LaminateGlassMatcher.SpecNameMatchesGenerated(
                             group.SelectedSpecName, _dguLamVm.GeneratedSpecName);
                     if (takeLive)
-                        group.ApplyLaminateColors(_dguLamVm.LamOuterColor, _dguLamVm.LamInnerColor);
+                        group.ApplyLaminateColors(
+                            _dguLamVm.LamOuterColor, _dguLamVm.LamInnerColor);
                 }
             }
 
@@ -698,6 +704,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 or nameof(SpecGroup.InnerGlassColor))
             {
                 RequestPolishRecalculation();
+                RefreshWastageSelectionSurface();
+            }
+
+            // Step 4 may re-price/re-size the same selected spec. Its name
+            // and type then do not change, but Step 6 still needs to rebuild
+            // source provenance and re-seed the U-insert auto rate.
+            if (e.PropertyName is nameof(SpecGroup.OuterSheetWidthMm)
+                or nameof(SpecGroup.OuterSheetHeightMm)
+                or nameof(SpecGroup.InnerSheetWidthMm)
+                or nameof(SpecGroup.InnerSheetHeightMm)
+                or nameof(SpecGroup.OuterSheetPricePerSqm)
+                or nameof(SpecGroup.InnerSheetPricePerSqm)
+                or nameof(SpecGroup.UInsertPricePerSqm))
+            {
                 RefreshWastageSelectionSurface();
             }
 

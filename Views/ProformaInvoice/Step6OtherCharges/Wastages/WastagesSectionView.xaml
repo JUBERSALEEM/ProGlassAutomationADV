@@ -179,17 +179,44 @@
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
                                                                 <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                                                                          Margin="0,0,0,6"
-                                                                          Cursor="Hand">
-                                                                    <StackPanel Orientation="Horizontal">
-                                                                        <TextBlock Text="{Binding DisplayLabel}"
-                                                                                   FontSize="{StaticResource TextBody}"
-                                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                                        <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
-                                                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                                                   Foreground="{DynamicResource AccentBrush}"
-                                                                                   Margin="10,0,0,0"/>
-                                                                    </StackPanel>
+                                                                          Margin="0,0,0,8"
+                                                                          Cursor="Hand"
+                                                                          ToolTip="{Binding DisplayLabel}">
+                                                                    <!--
+                                                                        Keep pane side + colour in the first visible
+                                                                        line. The old single long DisplayLabel put the
+                                                                        colour after the full spec name, so it was
+                                                                        clipped in this 380px picker and appeared as
+                                                                        only "Outer" / "Inner" to the operator.
+                                                                    -->
+                                                                    <Grid MinWidth="320">
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                        </Grid.ColumnDefinitions>
+                                                                        <StackPanel Margin="0,0,8,0">
+                                                                            <TextBlock Text="{Binding SourceDisplayLabel}"
+                                                                                       FontSize="{StaticResource TextBody}"
+                                                                                       FontWeight="SemiBold"
+                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                       TextTrimming="CharacterEllipsis"/>
+                                                                            <TextBlock Text="{Binding SpecName}"
+                                                                                       FontSize="{StaticResource TextCaption}"
+                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                                       TextTrimming="CharacterEllipsis"/>
+                                                                        </StackPanel>
+                                                                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                                                            <TextBlock Text="{Binding SideLabel}"
+                                                                                       FontSize="{StaticResource TextCaption}"
+                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                                       HorizontalAlignment="Right"/>
+                                                                            <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
+                                                                                       FontSize="{StaticResource TextBody}"
+                                                                                       FontWeight="Bold"
+                                                                                       Foreground="{DynamicResource AccentBrush}"
+                                                                                       HorizontalAlignment="Right"/>
+                                                                        </StackPanel>
+                                                                    </Grid>
                                                                 </CheckBox>
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>

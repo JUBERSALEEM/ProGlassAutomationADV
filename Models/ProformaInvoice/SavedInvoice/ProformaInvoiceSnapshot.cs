@@ -275,8 +275,23 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string GroupName { get; set; } = "";
         public string SelectedGlassType { get; set; } = "";
         public string SelectedSpecName { get; set; } = "";
+
+        // Synchronization provenance is persisted so reopening an invoice
+        // cannot turn a deliberate Step 5 edit back into a Step 4-owned row.
+        // Old snapshots naturally deserialize these additive fields as empty.
+        public string LastSyncedStep4SpecName { get; set; } = "";
+        public string LastSyncedStep4GlassType { get; set; } = "";
+        public bool HasManualStep5SpecOverride { get; set; }
+        public bool HasManualStep5GlassTypeOverride { get; set; }
+
         public string OuterGlassColor { get; set; } = "";
         public string InnerGlassColor { get; set; } = "";
+
+        /// <summary>
+        /// Original Step 4 reference rate shown in Step 5. This is separate
+        /// from BaseRate because operators may subsequently edit BaseRate.
+        /// </summary>
+        public decimal ImportedPrice { get; set; }
         public decimal BaseRate { get; set; }
         public decimal SurchargePercent { get; set; }
 

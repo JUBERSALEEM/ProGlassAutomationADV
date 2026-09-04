@@ -67,7 +67,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public DataGridViewModel(IDialogService? dialogs, ISpecificationsRepository? specs = null)
         {
             _dialogs = dialogs!;
-            _specs = specs!;
+            _specs = specs;
         
             // ERR-633EEB: run shared initialization on EVERY construction
             // path. DI selects this (greediest) ctor, so without this call the
@@ -112,7 +112,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         private readonly IDialogService _dialogs = null!;
 
-        private readonly ISpecificationsRepository _specs = null!;
+        private readonly ISpecificationsRepository? _specs;
+
+        /// <summary>
+        /// Repository used when the mapper reconstructs saved SpecGroups.
+        /// Keeping this on the owning grid avoids falling back to App.Specs
+        /// and preserves the same DI scope used for a new invoice.
+        /// </summary>
+        internal ISpecificationsRepository? SpecificationsRepository => _specs;
 
         public DataGridViewModel() : this(
             App.ServiceProvider?.GetService<IDialogService>() ?? new DialogService(),
@@ -236,8 +243,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 ImportedPrice = 0m,
                 BaseRate = 0m,
                 SurchargePercent = 0m,
-                SelectedGlassType = "SGU",
-                Specifications = _specs
+                // Repository must arrive before SelectedGlassType. The type
+                // setter begins the asynchronous catalogue load immediately.
+                Specifications = _specs,
+                SelectedGlassType = "SGU"
             };
 
             if (!string.IsNullOrWhiteSpace(specName))

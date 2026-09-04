@@ -83,6 +83,12 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
                     return $"{s.ShortLabel} · {s.SqmValue:0.000} sqm";
                 }
 
+                // Keep a short semantic summary for the common two-pane
+                // DGU case. It lets the closed picker still tell the operator
+                // exactly which outer/inner colours are selected.
+                if (checkedSources.Count <= 2)
+                    return $"{string.Join(" + ", checkedSources.Select(s => s.ShortLabel))} · {TotalSqm:0.000} sqm";
+
                 return $"{checkedSources.Count} sources · {TotalSqm:0.000} sqm";
             }
         }
@@ -412,6 +418,12 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             if (e.PropertyName is nameof(SpecGroupColorSide.IsChecked)
                 or nameof(SpecGroupColorSide.SqmValue)
                 or nameof(SpecGroupColorSide.PricePerSqm)
+                or nameof(SpecGroupColorSide.SheetWidthMm)
+                or nameof(SpecGroupColorSide.SheetHeightMm)
+                or nameof(SpecGroupColorSide.SpecNumber)
+                or nameof(SpecGroupColorSide.SpecName)
+                or nameof(SpecGroupColorSide.SideLabel)
+                or nameof(SpecGroupColorSide.ColorName)
                 or null
                 or "")
             {

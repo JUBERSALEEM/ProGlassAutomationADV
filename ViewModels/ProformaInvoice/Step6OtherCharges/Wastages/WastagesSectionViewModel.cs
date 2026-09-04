@@ -181,103 +181,104 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
             foreach (var group in _dataGrid.SpecGroups)
             {
-                var step4Snapshot = ResolveStep4Snapshot(step4Sections, group.GroupNumber);
-
-                // ══════════════════════════════════════════════════════════
-                //  BUILD IS RESOLVED FROM THE SPEC FIRST, TYPE FIELD SECOND —
-                //  the SAME rule OtherChargeAutomationRules uses. Previously
-                //  this method read the raw SelectGlassType text, so a DGU
-                //  whose spec-name variant lacks the spacer token was treated
-                //  as single glazing: the inner wastage source was never
-                //  created and "only outer got auto-selected".
-                // ══════════════════════════════════════════════════════════
-                string type = OtherChargeAutomationRules.ResolveEffectiveGlassType(
+                // Resolve the build from the specification grammar first. A
+                // persisted/default dropdown value can be stale (for example
+                // SGU while the name clearly contains a DGU spacer).
+                string effectiveType = OtherChargeAutomationRules.ResolveEffectiveGlassType(
                     group.SelectedGlassType, group.SelectedSpecName);
+                var step4Snapshot = ResolveStep4Snapshot(
+                    step4Sections, group, effectiveType);
+                string sourceSpecName = SourceSpecName(group);
 
                 // A double-glass build's second pane is the same unit size as
-                // the first (W1/H1) unless the grid carries an explicit
-                // W2/H2 — Step 9 already costs both panes on that area, so
-                // the wastage sources must match instead of silently pricing
-                // only the outer pane.
+                // the first (W1/H1) unless the grid carries an explicit W2/H2.
                 decimal innerSqm = group.FooterTotalSqm2 > 0m
                     ? group.FooterTotalSqm2
                     : group.FooterTotalSqm;
 
-                if (type == "DGU+LAM")
+                if (effectiveType == "DGU+LAM")
                 {
                     var paneColors = ResolveDguLamPaneColors(group, step4Snapshot);
 
                     AddSource(row, checkedIds, new SpecGroupColorSide
                     {
                         SpecNumber = group.GroupNumber,
-                        SpecName = group.GroupName,
+                        SpecName = sourceSpecName,
                         SideLabel = "Outer (W1/H1)",
                         ColorName = paneColors.Outer,
                         SqmValue = group.FooterTotalSqm,
                         SheetWidthMm = group.OuterSheetWidthMm,
                         SheetHeightMm = group.OuterSheetHeightMm,
                         PricePerSqm = group.OuterSheetPricePerSqm
-                    }, step4Snapshot, group.SelectedGlassType, preferInner: false);
+                    }, step4Snapshot, effectiveType, isInnerPane: false);
 
                     AddSource(row, checkedIds, new SpecGroupColorSide
                     {
                         SpecNumber = group.GroupNumber,
-                        SpecName = group.GroupName,
+                        SpecName = sourceSpecName,
                         SideLabel = "Lam Outer (W2/H2)",
                         ColorName = paneColors.LamOuter,
                         SqmValue = innerSqm,
                         SheetWidthMm = group.InnerSheetWidthMm,
                         SheetHeightMm = group.InnerSheetHeightMm,
                         PricePerSqm = group.InnerSheetPricePerSqm
-                    }, step4Snapshot, group.SelectedGlassType, preferInner: true);
+                    }, step4Snapshot, effectiveType, isInnerPane: true);
 
                     AddSource(row, checkedIds, new SpecGroupColorSide
                     {
                         SpecNumber = group.GroupNumber,
-                        SpecName = group.GroupName,
+                        SpecName = sourceSpecName,
                         SideLabel = "Lam Inner (W2/H2)",
                         ColorName = paneColors.LamInner,
                         SqmValue = innerSqm,
                         SheetWidthMm = group.InnerSheetWidthMm,
                         SheetHeightMm = group.InnerSheetHeightMm,
                         PricePerSqm = group.InnerSheetPricePerSqm
-                    }, step4Snapshot, group.SelectedGlassType, preferInner: true);
+                    }, step4Snapshot, effectiveType, isInnerPane: true);
 
                     continue;
                 }
 
+                var twoPaneColors = ResolveTwoPaneColors(
+                    group, step4Snapshot, effectiveType);
+
                 AddSource(row, checkedIds, new SpecGroupColorSide
                 {
                     SpecNumber = group.GroupNumber,
-                    SpecName = group.GroupName,
+                    SpecName = sourceSpecName,
                     SideLabel = "Outer (W1/H1)",
-                    ColorName = group.OuterGlassColor,
+                    ColorName = twoPaneColors.Outer,
                     SqmValue = group.FooterTotalSqm,
                     SheetWidthMm = group.OuterSheetWidthMm,
                     SheetHeightMm = group.OuterSheetHeightMm,
                     PricePerSqm = group.OuterSheetPricePerSqm
-                }, step4Snapshot, group.SelectedGlassType, preferInner: false);
+                }, step4Snapshot, effectiveType, isInnerPane: false);
 
                 // A resolved double-build offers the inner source; so does a
                 // grid that physically carries a W2/H2 column even when the
                 // type field is blank (manual mode must stay usable).
-                if (type is "DGU" or "LAM" || group.FooterTotalSqm2 > 0m)
+                if (effectiveType is "DGU" or "LAM" || group.FooterTotalSqm2 > 0m)
                 {
                     AddSource(row, checkedIds, new SpecGroupColorSide
                     {
                         SpecNumber = group.GroupNumber,
-                        SpecName = group.GroupName,
+                        SpecName = sourceSpecName,
                         SideLabel = "Inner (W2/H2)",
-                        ColorName = group.InnerGlassColor,
+                        ColorName = twoPaneColors.Inner,
                         SqmValue = innerSqm,
                         SheetWidthMm = group.InnerSheetWidthMm,
                         SheetHeightMm = group.InnerSheetHeightMm,
                         PricePerSqm = group.InnerSheetPricePerSqm
-                    }, step4Snapshot, group.SelectedGlassType, preferInner: true);
+                    }, step4Snapshot, effectiveType, isInnerPane: true);
                 }
             }
             row.ForceRefreshSqm();
         }
+
+        private static string SourceSpecName(SpecGroup group) =>
+            !string.IsNullOrWhiteSpace(group.SelectedSpecName)
+                ? group.SelectedSpecName
+                : group.GroupName ?? string.Empty;
 
         public void RefreshTotal() => RecalculateTotal();
 
@@ -286,29 +287,61 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             IReadOnlyCollection<string> checkedIds,
             SpecGroupColorSide source,
             Step4PricingSnapshot? step4Snapshot,
-            string? selectedGlassType,
-            bool preferInner)
+            string effectiveGlassType,
+            bool isInnerPane)
         {
-            ApplyStep4SourceMetadata(source, step4Snapshot, selectedGlassType, preferInner);
+            ApplyStep4SourceMetadata(
+                source, step4Snapshot, effectiveGlassType);
 
             // AUTO-TICK: If this source was previously checked, restore it.
-            // If this is a NEW row (no previous checks) and it's an inner
+            // If this is a NEW row (no previous checks) and it is an inner
             // pane for a double-glass build, auto-tick it so the operator
-            // doesn't miss inner glass wastage.
+            // does not miss inner glass wastage.
             if (checkedIds.Contains($"{source.SpecNumber}-{source.SideLabel}"))
             {
                 source.IsChecked = true;
             }
-            else if (checkedIds.Count == 0 && preferInner)
+            else if (checkedIds.Count == 0 && isInnerPane)
             {
-                // Fresh row with no prior state — auto-tick inner panes
-                // for DGU/LAM/DGU+LAM builds. The outer pane is always
-                // ticked by default; the inner must be too or Step 9
-                // only costs one pane's wastage.
                 source.IsChecked = true;
             }
 
             row.AvailableSources.Add(source);
+        }
+
+        private static (string Outer, string Inner) ResolveTwoPaneColors(
+            SpecGroup group,
+            Step4PricingSnapshot? snapshot,
+            string effectiveGlassType)
+        {
+            var glassMatches = PnLSpecParser.GlassMatches(group.SelectedSpecName);
+            string parsedOuter = glassMatches.Count > 0
+                ? (glassMatches[0].Groups["color"].Value ?? string.Empty).Trim()
+                : string.Empty;
+            string parsedInner = glassMatches.Count > 1
+                ? (glassMatches[^1].Groups["color"].Value ?? string.Empty).Trim()
+                : string.Empty;
+
+            return effectiveGlassType switch
+            {
+                "DGU" => (
+                    FirstNonBlank(parsedOuter, group.OuterGlassColor,
+                        snapshot?.Dgu?.OuterGlassColor),
+                    FirstNonBlank(parsedInner, group.InnerGlassColor,
+                        snapshot?.Dgu?.InnerGlassColor)),
+                "LAM" => (
+                    FirstNonBlank(parsedOuter, group.OuterGlassColor,
+                        snapshot?.Lam?.OuterGlassColor),
+                    FirstNonBlank(parsedInner, group.InnerGlassColor,
+                        snapshot?.Lam?.InnerGlassColor)),
+                "SGU" => (
+                    FirstNonBlank(parsedOuter, group.OuterGlassColor,
+                        snapshot?.Sgu?.GlassColor),
+                    string.Empty),
+                _ => (
+                    FirstNonBlank(parsedOuter, group.OuterGlassColor),
+                    FirstNonBlank(parsedInner, group.InnerGlassColor))
+            };
         }
 
         private static (string Outer, string LamOuter, string LamInner) ResolveDguLamPaneColors(
@@ -316,18 +349,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             Step4PricingSnapshot? snapshot)
         {
             var glassMatches = PnLSpecParser.GlassMatches(group.SelectedSpecName);
-            if (glassMatches.Count >= 3)
-            {
-                return (
-                    (glassMatches[0].Groups["color"].Value ?? string.Empty).Trim(),
-                    (glassMatches[1].Groups["color"].Value ?? string.Empty).Trim(),
-                    (glassMatches[2].Groups["color"].Value ?? string.Empty).Trim());
-            }
+            string parsedOuter = glassMatches.Count > 0
+                ? (glassMatches[0].Groups["color"].Value ?? string.Empty).Trim()
+                : string.Empty;
+            string parsedLamOuter = glassMatches.Count > 1
+                ? (glassMatches[1].Groups["color"].Value ?? string.Empty).Trim()
+                : string.Empty;
+            string parsedLamInner = glassMatches.Count > 2
+                ? (glassMatches[2].Groups["color"].Value ?? string.Empty).Trim()
+                : string.Empty;
 
             return (
-                snapshot?.DguLam.OuterGlassColor?.Trim() ?? string.Empty,
-                snapshot?.DguLam.LamOuterColor?.Trim() ?? group.OuterGlassColor ?? string.Empty,
-                snapshot?.DguLam.LamInnerColor?.Trim() ?? group.InnerGlassColor ?? string.Empty);
+                FirstNonBlank(parsedOuter, snapshot?.DguLam?.OuterGlassColor),
+                FirstNonBlank(parsedLamOuter, group.OuterGlassColor,
+                    snapshot?.DguLam?.LamOuterColor),
+                FirstNonBlank(parsedLamInner, group.InnerGlassColor,
+                    snapshot?.DguLam?.LamInnerColor));
+        }
+
+        private static string FirstNonBlank(params string?[] values)
+        {
+            foreach (var value in values)
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    return value.Trim();
+            }
+
+            return string.Empty;
         }
 
         private void AttachRow(WastageRow row)
@@ -367,79 +415,101 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
         private static Step4PricingSnapshot? ResolveStep4Snapshot(
             IReadOnlyList<Step4PricingSnapshot>? sections,
-            int groupNumber)
+            SpecGroup group,
+            string effectiveGlassType)
         {
-            if (sections == null || groupNumber <= 0 || groupNumber > sections.Count)
+            if (sections == null || group.GroupNumber <= 0
+                || group.GroupNumber > sections.Count)
                 return null;
 
-            return sections[groupNumber - 1];
+            var snapshot = sections[group.GroupNumber - 1];
+            if (snapshot == null
+                || string.IsNullOrWhiteSpace(snapshot.GeneratedSpecName)
+                || string.IsNullOrWhiteSpace(group.SelectedSpecName)
+                || !string.Equals(snapshot.GeneratedSpecName, group.SelectedSpecName,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                // The group was manually pointed at another catalog spec. Do
+                // not leak the indexed Step 4 section's sheet/rate metadata
+                // into that unrelated source.
+                return null;
+            }
+
+            string snapshotType = (snapshot.SelectedGlassTypeCode ?? string.Empty)
+                .Trim().ToUpperInvariant();
+            if (!string.IsNullOrWhiteSpace(snapshotType)
+                && !string.Equals(snapshotType, effectiveGlassType,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return snapshot;
         }
 
         private static void ApplyStep4SourceMetadata(
             SpecGroupColorSide source,
             Step4PricingSnapshot? snapshot,
-            string? selectedGlassType,
-            bool preferInner)
+            string effectiveGlassType)
         {
             if (source == null || snapshot == null)
                 return;
 
-            string type = (selectedGlassType ?? string.Empty).Trim().ToUpperInvariant();
+            string type = (effectiveGlassType ?? string.Empty).Trim().ToUpperInvariant();
             string color = (source.ColorName ?? string.Empty).Trim();
 
             if (type == "SGU")
             {
-                ApplyIfMatch(source, color, snapshot.Sgu.GlassColor,
-                    snapshot.Sgu.SheetWidthMm, snapshot.Sgu.SheetHeightMm,
-                    snapshot.Sgu.BasePricePerSqm);
+                var sgu = snapshot.Sgu ?? new SguPricingPanelSnapshot();
+                ApplyIfMatch(source, color, sgu.GlassColor,
+                    sgu.SheetWidthMm, sgu.SheetHeightMm,
+                    sgu.BasePricePerSqm);
                 return;
             }
 
             if (type == "DGU")
             {
-                ApplyBestMatch(source, color, preferInner,
-                    (snapshot.Dgu.OuterGlassColor, snapshot.Dgu.OuterSheetWidthMm, snapshot.Dgu.OuterSheetHeightMm, snapshot.Dgu.OuterBasePrice),
-                    (snapshot.Dgu.InnerGlassColor, snapshot.Dgu.InnerSheetWidthMm, snapshot.Dgu.InnerSheetHeightMm, snapshot.Dgu.InnerBasePrice));
+                var dgu = snapshot.Dgu ?? new DguPricingPanelSnapshot();
+                bool inner = source.SemanticSideLabel == "Inner";
+                ApplyIfMatch(source, color,
+                    inner ? dgu.InnerGlassColor : dgu.OuterGlassColor,
+                    inner ? dgu.InnerSheetWidthMm : dgu.OuterSheetWidthMm,
+                    inner ? dgu.InnerSheetHeightMm : dgu.OuterSheetHeightMm,
+                    inner ? dgu.InnerBasePrice : dgu.OuterBasePrice);
                 return;
             }
 
             if (type == "LAM")
             {
-                ApplyBestMatch(source, color, preferInner,
-                    (snapshot.Lam.OuterGlassColor, snapshot.Lam.OuterSheetWidthMm, snapshot.Lam.OuterSheetHeightMm, snapshot.Lam.OuterBasePrice),
-                    (snapshot.Lam.InnerGlassColor, snapshot.Lam.InnerSheetWidthMm, snapshot.Lam.InnerSheetHeightMm, snapshot.Lam.InnerBasePrice));
+                var lam = snapshot.Lam ?? new LamPricingPanelSnapshot();
+                bool inner = source.SemanticSideLabel == "Inner";
+                ApplyIfMatch(source, color,
+                    inner ? lam.InnerGlassColor : lam.OuterGlassColor,
+                    inner ? lam.InnerSheetWidthMm : lam.OuterSheetWidthMm,
+                    inner ? lam.InnerSheetHeightMm : lam.OuterSheetHeightMm,
+                    inner ? lam.InnerBasePrice : lam.OuterBasePrice);
                 return;
             }
 
             if (type == "DGU+LAM")
             {
-                ApplyBestMatch(source, color, preferInner,
-                    (snapshot.DguLam.OuterGlassColor, 0, 0, snapshot.DguLam.OuterBasePrice),
-                    (snapshot.DguLam.LamInnerColor, 0, 0, snapshot.DguLam.LamInnerBasePrice),
-                    (snapshot.DguLam.LamOuterColor, 0, 0, snapshot.DguLam.LamOuterBasePrice));
-            }
-        }
+                var dguLam = snapshot.DguLam ?? new DguLamPricingPanelSnapshot();
 
-        private static void ApplyBestMatch(
-            SpecGroupColorSide source,
-            string color,
-            bool preferInner,
-            params (string Color, int Width, int Height, decimal Price)[] candidates)
-        {
-            if (candidates == null || candidates.Length == 0)
-                return;
-
-            var ordered = preferInner && candidates.Length > 1
-                ? candidates.Skip(1).Concat(candidates.Take(1))
-                : candidates.AsEnumerable();
-
-            foreach (var candidate in ordered)
-            {
-                if (!ColorsMatch(color, candidate.Color))
-                    continue;
-
-                ApplyMetadata(source, candidate.Width, candidate.Height, candidate.Price);
-                return;
+                if (source.SemanticSideLabel == "Lam Inner")
+                {
+                    ApplyIfMatch(source, color, dguLam.LamInnerColor,
+                        0, 0, dguLam.LamInnerBasePrice);
+                }
+                else if (source.SemanticSideLabel == "Lam Outer")
+                {
+                    ApplyIfMatch(source, color, dguLam.LamOuterColor,
+                        0, 0, dguLam.LamOuterBasePrice);
+                }
+                else
+                {
+                    ApplyIfMatch(source, color, dguLam.OuterGlassColor,
+                        0, 0, dguLam.OuterBasePrice);
+                }
             }
         }
 
@@ -473,10 +543,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
         private static bool ColorsMatch(string? left, string? right)
         {
-            return string.Equals(
-                (left ?? string.Empty).Trim(),
-                (right ?? string.Empty).Trim(),
-                StringComparison.OrdinalIgnoreCase);
+            string normalizedLeft = (left ?? string.Empty).Trim();
+            string normalizedRight = (right ?? string.Empty).Trim();
+
+            // Empty strings are not a colour match. Treating blank == blank as
+            // a match let an unresolved source borrow arbitrary Step 4 sheet
+            // metadata simply because both sides happened to be empty.
+            return normalizedLeft.Length > 0
+                && normalizedRight.Length > 0
+                && string.Equals(normalizedLeft, normalizedRight,
+                    StringComparison.OrdinalIgnoreCase);
         }
 
         private static string ExtractColorKey(string? displayName)

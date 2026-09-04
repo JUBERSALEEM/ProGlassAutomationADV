@@ -7,6 +7,7 @@ using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid.GrandTotalSummary;
@@ -34,6 +35,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         private bool _allTypeSpecsMerged = false;
         private bool _isAutoSwitchingGlassType = false;
         private bool _isProgrammaticSpecChange = false;
+
+        // A Step 4 handoff changes the type before the name. Do not run the
+        // manual type-switch cleanup in the short interval between those two
+        // assignments, otherwise it can clear/carry the incoming spec.
+        private bool _isSynchronizingFromStep4;
+
+        // Async catalogue reads are deliberately fire-and-forget. A monotonic
+        // token prevents an older type/repository read from adding stale specs
+        // after the user (or the Step 4 coordinator) has selected another type.
+        private int _specLoadGeneration;
+        private ISpecificationsRepository? _specifications;
 
         // ── Group identity ─────────────────────────────────────────────────
 
@@ -117,12 +129,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             : (GroupName ?? $"Spec Group {GroupNumber}");
 
         /// <summary>
-        /// Ephemeral Step 4 → Step 5 background sync markers. Not persisted:
-        /// they only tell the shell whether a group still mirrors the last
-        /// auto-synced Step 4 section or has been manually changed in Step 5.
+        /// Step 4 → Step 5 synchronization markers. They travel with the
+        /// invoice snapshot so a reopened quote retains the same ownership
+        /// boundary: a manual Step 5 edit is never silently reclaimed by
+        /// Step 4 on the next Continue.
         /// </summary>
         public string LastSyncedStep4SpecName { get; set; } = "";
         public string LastSyncedStep4GlassType { get; set; } = "";
+
+        /// <summary>
+        /// Explicit Step 5 intent survives a blank selection too. A manual
+        /// type switch can deliberately clear a mismatched spec, and that
+        /// blank must not be mistaken for a brand-new bootstrap group.
+        /// Persisted alongside the sync markers for reopen safety.
+        /// </summary>
+        public bool HasManualStep5SpecOverride { get; set; }
+        public bool HasManualStep5GlassTypeOverride { get; set; }
 
         private string _outerGlassColor = "";
         /// <summary>Step 4 outer / laminated-outer color for this spec.</summary>
@@ -337,8 +359,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged();
                 UpdatePerimeterFactors();
 
-                if (!_isAutoSwitchingGlassType)
+                if (!_isAutoSwitchingGlassType && !_isSynchronizingFromStep4)
+                {
+                    // An explicit type choice means Step 5 now owns both
+                    // parts of the selection. Clearing the provenance markers
+                    // lets the coordinator distinguish it from a failed old
+                    // bootstrap handoff (DGU name + default SGU type).
+                    LastSyncedStep4GlassType = "";
+                    LastSyncedStep4SpecName = "";
+                    if (!string.IsNullOrWhiteSpace(previous))
+                    {
+                        HasManualStep5GlassTypeOverride = true;
+                        // A manual type switch can clear/carry the name below;
+                        // keep that resulting blank under operator ownership.
+                        HasManualStep5SpecOverride = true;
+                    }
                     ResetSpecSelectionForManualGlassTypeChange(previous, next);
+                }
 
                 _ = LoadSpecsAsync();
             }
@@ -358,6 +395,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         StringComparison.Ordinal)) return;
 
                 _selectedSpecName = newValue;
+
+                if (!_isProgrammaticSpecChange && !_isSynchronizingFromStep4)
+                {
+                    LastSyncedStep4SpecName = "";
+                    HasManualStep5SpecOverride = true;
+                }
+
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SpecDisplayName));
                 RefreshGlassColorsFromSpecName();
@@ -415,6 +459,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged();
 
                 if (_isProgrammaticSpecChange) return;
+
+                if (!string.Equals(newValue, LastSyncedStep4SpecName,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    LastSyncedStep4SpecName = "";
+                    HasManualStep5SpecOverride = true;
+                }
 
                 _filteredSpecsView?.Refresh();
                 IsSpecDropdownOpen =
@@ -475,6 +526,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged();
 
                 if (value == null || _isProgrammaticSpecChange) return;
+
+                if (!string.Equals(value.SpecName, LastSyncedStep4SpecName,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    LastSyncedStep4SpecName = "";
+                    HasManualStep5SpecOverride = true;
+                }
 
                 _isProgrammaticSpecChange = true;
                 try
@@ -705,10 +763,150 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         // ══════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// PHASE G — pulls the Step 4 sheet choice for this spec name out
-        /// of SpecSheetRegistry. Only overwrites when a selection exists,
-        /// so a restored invoice keeps its persisted sheet. Never throws.
+        /// Applies the full, per-section Step 4 selection to an owned Step 5
+        /// group. This is intentionally a direct snapshot handoff instead of
+        /// waiting for SpecSheetRegistry: Step 4's catalogue write is async,
+        /// while Continue must immediately preserve the selected sheets,
+        /// pane prices, colours and U-insert seed for this exact group.
         /// </summary>
+        public void ApplyStep4PricingSnapshot(Step4PricingSnapshot snapshot)
+        {
+            if (snapshot == null) return;
+
+            string glassType = NormalizeSupportedGlassType(snapshot.SelectedGlassTypeCode);
+            bool incomingSpecChangesSelection =
+                !string.IsNullOrWhiteSpace(snapshot.GeneratedSpecName)
+                && !string.Equals(_selectedSpecName, snapshot.GeneratedSpecName,
+                    StringComparison.OrdinalIgnoreCase);
+
+            _isSynchronizingFromStep4 = true;
+            try
+            {
+                HasManualStep5SpecOverride = false;
+                HasManualStep5GlassTypeOverride = false;
+                // Type MUST be assigned before the spec name. The normal
+                // setter protects manual changes by clearing a mismatched name;
+                // the synchronization guard above keeps that behavior from
+                // affecting this atomic Step 4 handoff.
+                if (glassType.Length > 0)
+                    SelectedGlassType = glassType;
+
+                if (!string.IsNullOrWhiteSpace(snapshot.GeneratedSpecName))
+                    SelectedSpecName = snapshot.GeneratedSpecName;
+
+                ApplyStep4PaneAndSheetMetadata(snapshot, glassType);
+            }
+            finally
+            {
+                _isSynchronizingFromStep4 = false;
+            }
+
+            // Keep provenance inside the atomic handoff. Besides avoiding a
+            // transient type/name mismatch, this makes any future caller of
+            // this public method retain Step 4 ownership on the next refresh.
+            LastSyncedStep4SpecName = string.IsNullOrWhiteSpace(snapshot.GeneratedSpecName)
+                ? string.Empty
+                : snapshot.GeneratedSpecName;
+            LastSyncedStep4GlassType = glassType;
+
+            if (snapshot.EstimatedRatePerSqm > 0m)
+            {
+                BaseRate = snapshot.EstimatedRatePerSqm;
+                if (incomingSpecChangesSelection || ImportedPrice <= 0m)
+                    ImportedPrice = snapshot.EstimatedRatePerSqm;
+            }
+        }
+
+        private void ApplyStep4PaneAndSheetMetadata(
+            Step4PricingSnapshot snapshot,
+            string glassType)
+        {
+            // Always clear old provenance first. A group can move from DGU to
+            // SGU/LAM and must never retain a previous inner sheet or U-insert.
+            OuterSheetWidthMm = 0;
+            OuterSheetHeightMm = 0;
+            InnerSheetWidthMm = 0;
+            InnerSheetHeightMm = 0;
+            OuterSheetPricePerSqm = 0m;
+            InnerSheetPricePerSqm = 0m;
+            UInsertPricePerSqm = 0m;
+
+            switch (glassType)
+            {
+                case "SGU":
+                {
+                    var sgu = snapshot.Sgu ?? new SguPricingPanelSnapshot();
+                    OuterGlassColor = sgu.GlassColor ?? "";
+                    InnerGlassColor = "";
+                    OuterSheetWidthMm = sgu.SheetWidthMm;
+                    OuterSheetHeightMm = sgu.SheetHeightMm;
+                    OuterSheetPricePerSqm = sgu.BasePricePerSqm;
+                    break;
+                }
+
+                case "DGU":
+                {
+                    var dgu = snapshot.Dgu ?? new DguPricingPanelSnapshot();
+                    OuterGlassColor = dgu.OuterGlassColor ?? "";
+                    InnerGlassColor = dgu.InnerGlassColor ?? "";
+                    OuterSheetWidthMm = dgu.OuterSheetWidthMm;
+                    OuterSheetHeightMm = dgu.OuterSheetHeightMm;
+                    InnerSheetWidthMm = dgu.InnerSheetWidthMm;
+                    InnerSheetHeightMm = dgu.InnerSheetHeightMm;
+                    OuterSheetPricePerSqm = dgu.OuterBasePrice;
+                    InnerSheetPricePerSqm = dgu.InnerBasePrice;
+                    UInsertPricePerSqm = HasUInsertExtra(dgu.SpacerExtra)
+                        ? dgu.UInsertPricePerSqm
+                        : 0m;
+                    break;
+                }
+
+                case "LAM":
+                {
+                    var lam = snapshot.Lam ?? new LamPricingPanelSnapshot();
+                    OuterGlassColor = lam.OuterGlassColor ?? "";
+                    InnerGlassColor = lam.InnerGlassColor ?? "";
+                    OuterSheetWidthMm = lam.OuterSheetWidthMm;
+                    OuterSheetHeightMm = lam.OuterSheetHeightMm;
+                    InnerSheetWidthMm = lam.InnerSheetWidthMm;
+                    InnerSheetHeightMm = lam.InnerSheetHeightMm;
+                    OuterSheetPricePerSqm = lam.OuterBasePrice;
+                    InnerSheetPricePerSqm = lam.InnerBasePrice;
+                    break;
+                }
+
+                case "DGU+LAM":
+                {
+                    var dguLam = snapshot.DguLam ?? new DguLamPricingPanelSnapshot();
+
+                    // SpecGroup has two colour fields. For the three-pane
+                    // hybrid they deliberately model the laminated pair; the
+                    // Step 6 source builder reads the physical outer/lam outer/
+                    // lam inner values independently from this same snapshot.
+                    OuterGlassColor = dguLam.LamOuterColor ?? "";
+                    InnerGlassColor = dguLam.LamInnerColor ?? "";
+                    break;
+                }
+
+                default:
+                    // A malformed/legacy type should not leave colour data
+                    // from the previously selected build on screen.
+                    OuterGlassColor = "";
+                    InnerGlassColor = "";
+                    break;
+            }
+        }
+
+        private static string NormalizeSupportedGlassType(string? value)
+        {
+            string type = (value ?? "").Trim().ToUpperInvariant();
+            return type is "SGU" or "DGU" or "LAM" or "DGU+LAM" ? type : "";
+        }
+
+        private static bool HasUInsertExtra(string? value) =>
+            !string.IsNullOrWhiteSpace(value)
+            && value.IndexOf("U-INSERT", StringComparison.OrdinalIgnoreCase) >= 0;
+
         public void ApplyLaminateColors(string? outerColor, string? innerColor)
         {
             OuterGlassColor = outerColor ?? "";
@@ -718,31 +916,47 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         /// <summary>
         /// Public entry point for Step 6's RefreshWorkspace to force a
         /// re-extraction of outer/inner glass colors from the current
-        /// spec name. Ensures wastage suggestions always have color data
-        /// even when the spec group was populated before Step 6 opened.
+        /// spec name. A non-empty Step 4 colour is retained when legacy or
+        /// free-typed spec text cannot be parsed; blanking it would erase the
+        /// only reliable outer/inner source identity for wastage.
         /// </summary>
         public void RefreshColorsFromSpecName() => RefreshGlassColorsFromSpecName();
 
         private void RefreshGlassColorsFromSpecName()
         {
-            if (string.Equals(_selectedGlassType, "LAM", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(_selectedGlassType, "DGU+LAM", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(_selectedSpecName))
             {
-                LaminateGlassMatcher.ExtractColorsFromSpecName(
-                    _selectedSpecName, _selectedGlassType,
-                    out string lamOuter, out string lamInner);
-                OuterGlassColor = lamOuter;
-                InnerGlassColor = lamInner;
+                OuterGlassColor = "";
+                InnerGlassColor = "";
                 return;
             }
 
             var panes = PnLSpecParser.GlassMatches(_selectedSpecName);
-            OuterGlassColor = panes.Count > 0
-                ? (panes[0].Groups["color"].Value ?? "").Trim()
-                : "";
-            InnerGlassColor = panes.Count > 1
-                ? (panes[^1].Groups["color"].Value ?? "").Trim()
-                : "";
+            if (panes.Count == 0)
+                return; // Preserve the explicit Step 4 colours for unparseable text.
+
+            string effectiveType = GlassTypeDetector.Detect(_selectedSpecName);
+            if (effectiveType == "Unknown")
+                effectiveType = NormalizeSupportedGlassType(_selectedGlassType);
+
+            // DGU+LAM has three panes. The group fields intentionally represent
+            // the laminated pair; its physical outer pane is retained by the
+            // Step 4 snapshot and resolved separately in the wastage builder.
+            int outerIndex = effectiveType == "DGU+LAM" && panes.Count >= 3 ? 1 : 0;
+            int innerIndex = effectiveType == "DGU+LAM" && panes.Count >= 3
+                ? 2
+                : panes.Count - 1;
+
+            string parsedOuter = (panes[outerIndex].Groups["color"].Value ?? "").Trim();
+            string parsedInner = (panes[innerIndex].Groups["color"].Value ?? "").Trim();
+
+            if (!string.IsNullOrWhiteSpace(parsedOuter))
+                OuterGlassColor = parsedOuter;
+
+            if (panes.Count > 1 && !string.IsNullOrWhiteSpace(parsedInner))
+                InnerGlassColor = parsedInner;
+            else if (effectiveType == "SGU")
+                InnerGlassColor = "";
         }
 
         private void AdoptSheetSelection(string specName)
@@ -790,9 +1004,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         /// <summary>
         /// Injected specifications store (replaces the App-level static).
-        /// Set by DataGridViewModel when it creates the group.
+        /// A restored group receives its repository after its selected type;
+        /// trigger a guarded reload here so that ordering cannot leave the
+        /// Step 5 catalogue permanently empty.
         /// </summary>
-        public ISpecificationsRepository? Specifications { get; set; }
+        public ISpecificationsRepository? Specifications
+        {
+            get => _specifications;
+            set
+            {
+                if (ReferenceEquals(_specifications, value)) return;
+                _specifications = value;
+
+                // Invalidate an in-flight request from a previous repository.
+                _specLoadGeneration++;
+
+                if (_specifications != null
+                    && !string.IsNullOrWhiteSpace(_selectedGlassType))
+                {
+                    _ = LoadSpecsAsync();
+                }
+            }
+        }
 
         // INSTANT CATALOGUE SYNC (2026-09-02).
         //

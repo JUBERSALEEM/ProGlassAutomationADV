@@ -343,6 +343,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     GroupName = group.GroupName ?? "",
                     SelectedGlassType = group.SelectedGlassType ?? "",
                     SelectedSpecName = group.SelectedSpecName ?? "",
+                    LastSyncedStep4SpecName = group.LastSyncedStep4SpecName ?? "",
+                    LastSyncedStep4GlassType = group.LastSyncedStep4GlassType ?? "",
+                    HasManualStep5SpecOverride = group.HasManualStep5SpecOverride,
+                    HasManualStep5GlassTypeOverride = group.HasManualStep5GlassTypeOverride,
+                    ImportedPrice = group.ImportedPrice,
                     OuterGlassColor = group.OuterGlassColor ?? "",
                     InnerGlassColor = group.InnerGlassColor ?? "",
                     BaseRate = group.BaseRate,
@@ -656,8 +661,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 {
                     GroupNumber = gSnap.GroupNumber,
                     GroupName = gSnap.GroupName ?? "",
+                    // Repository first: setting a type triggers the async
+                    // type-filtered catalogue load immediately.
+                    Specifications = dataGrid.SpecificationsRepository,
                     SelectedGlassType = gSnap.SelectedGlassType ?? "",
                     SelectedSpecName = gSnap.SelectedSpecName ?? "",
+                    LastSyncedStep4SpecName = gSnap.LastSyncedStep4SpecName ?? "",
+                    LastSyncedStep4GlassType = gSnap.LastSyncedStep4GlassType ?? "",
+                    HasManualStep5SpecOverride = gSnap.HasManualStep5SpecOverride,
+                    HasManualStep5GlassTypeOverride = gSnap.HasManualStep5GlassTypeOverride,
+                    ImportedPrice = gSnap.ImportedPrice,
                     OuterGlassColor = gSnap.OuterGlassColor ?? "",
                     InnerGlassColor = gSnap.InnerGlassColor ?? "",
                     BaseRate = gSnap.BaseRate,
@@ -673,28 +686,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     InnerSheetPricePerSqm = gSnap.InnerSheetPricePerSqm,
                     UInsertPricePerSqm = gSnap.UInsertPricePerSqm,
 
-                    // Step 5 spec dropdown fix.
-                    //
-                    // SpecGroup.LoadSpecsAsync() bails out immediately if
-                    // Specifications is null:
-                    //
-                    //     if (string.IsNullOrWhiteSpace(_selectedGlassType)
-                    //         || Specifications == null) return;
-                    //
-                    // DataGridViewModel.AddNewSpecGroup() sets it, but THIS
-                    // path -- rebuilding groups when a SAVED invoice is loaded
-                    // -- did not. So on a freshly created quote the Step 5
-                    // dropdown listed the Step 4 / Sheet Store specs, and on a
-                    // reopened quote it was silently EMPTY, with no error
-                    // because the guard just returns.
-                    //
-                    // The mapper is static, so there is no constructor to
-                    // inject into. App.Specs is the same ISpecificationsRepository
-                    // singleton the container holds, resolved once at startup
-                    // (App.StartupCore.cs) -- the same source DataGridViewModel
-                    // uses. Null in unit tests, which just restores the old
-                    // (guarded, non-crashing) behaviour.
-                    Specifications = App.Specs
                 };
 
                 if (gSnap.ItemRows != null && gSnap.ItemRows.Count > 0)

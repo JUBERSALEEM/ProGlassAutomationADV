@@ -30,6 +30,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
+using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -208,11 +209,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
             foreach (var g in _specGroups)
             {
-                bool isDoubleGlass =
-                    g.SelectedGlassType == "DGU" ||
-                    g.SelectedGlassType == "LAM" ||
-                    g.SelectedGlassType == "DGU+LAM";
-                int paneFactor = g.SelectedGlassType == "DGU+LAM"
+                // A spec-name build marker is more reliable than a stale
+                // Step 5 dropdown value during synchronization/reopen. Use
+                // the same resolver as Step 6 automation so the metric strip,
+                // source picker and charge suggestions cannot disagree.
+                string effectiveGlassType =
+                    OtherChargeAutomationRules.ResolveEffectiveGlassType(
+                        g.SelectedGlassType, g.SelectedSpecName);
+                bool isDoubleGlass = effectiveGlassType is "DGU" or "LAM" or "DGU+LAM";
+                int paneFactor = effectiveGlassType == "DGU+LAM"
                     ? 3
                     : isDoubleGlass ? 2 : 1;
 
@@ -229,13 +234,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     // fire PropertyChanged (depends on SpecGroupMetric impl).
                     // Consumers should read values fresh when needed.
                     existing.SpecDisplayName = BuildSpecDisplayName(g);
-                    existing.GlassType = g.SelectedGlassType ?? "";
+                    existing.GlassType = effectiveGlassType;
                     existing.IsDoubleGlass = isDoubleGlass;
                     existing.PaneFactor = paneFactor;
                     existing.OuterGlassColor = g.OuterGlassColor ?? "";
                     existing.InnerGlassColor = g.InnerGlassColor ?? "";
                     existing.IsMatchedSameGlass = LaminateGlassMatcher.IsMatchedSameGlass(
-                        g.SelectedSpecName, g.SelectedGlassType,
+                        g.SelectedSpecName, effectiveGlassType,
                         g.OuterGlassColor, g.InnerGlassColor);
                     existing.Lm1 = System.Math.Round(g.FooterTotalLm1, 2);
                     existing.Lm2 = System.Math.Round(g.FooterTotalLm2, 2);
@@ -251,13 +256,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     {
                         SpecGroupNumber = g.GroupNumber,
                         SpecDisplayName = BuildSpecDisplayName(g),
-                        GlassType = g.SelectedGlassType ?? "",
+                        GlassType = effectiveGlassType,
                         IsDoubleGlass = isDoubleGlass,
                         PaneFactor = paneFactor,
                         OuterGlassColor = g.OuterGlassColor ?? "",
                         InnerGlassColor = g.InnerGlassColor ?? "",
                         IsMatchedSameGlass = LaminateGlassMatcher.IsMatchedSameGlass(
-                            g.SelectedSpecName, g.SelectedGlassType,
+                            g.SelectedSpecName, effectiveGlassType,
                             g.OuterGlassColor, g.InnerGlassColor),
                         Lm1 = System.Math.Round(g.FooterTotalLm1, 2),
                         Lm2 = System.Math.Round(g.FooterTotalLm2, 2),

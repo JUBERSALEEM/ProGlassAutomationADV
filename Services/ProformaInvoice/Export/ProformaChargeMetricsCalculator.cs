@@ -211,15 +211,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 var group = specGroups.FirstOrDefault(g => g.GroupNumber == specNumber);
                 if (group?.ItemRows == null) continue;
 
-                bool isOuter =
-                       parts[1].Contains("Outer", StringComparison.OrdinalIgnoreCase)
-                    || parts[1].Contains("W1", StringComparison.OrdinalIgnoreCase);
+                bool usesOuterDimensions = UsesOuterDimensions(parts[1]);
 
                 foreach (var r in group.ItemRows)
                 {
                     if (r.Qty <= 0) continue;
-                    int w = isOuter ? r.W1 : r.W2;
-                    int h = isOuter ? r.H1 : r.H2;
+                    int w = usesOuterDimensions ? r.W1 : r.W2;
+                    int h = usesOuterDimensions ? r.H1 : r.H2;
                     if (w > 0 && h > 0)
                     {
                         // BUG-22: use shared SqmCalculator
@@ -233,6 +231,27 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ── Private helpers ───────────────────────────────────────────────
+
+        /// <summary>
+        /// Resolves the physical dimensions behind a persisted Step 6
+        /// wastage side key. Both laminated panes deliberately use W2/H2;
+        /// checking for the word "Outer" first incorrectly sent
+        /// "Lam Outer (W2/H2)" through W1/H1 in PDF/Excel exports.
+        /// </summary>
+        private static bool UsesOuterDimensions(string? sideLabel)
+        {
+            string side = (sideLabel ?? string.Empty).Trim();
+            if (side.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0
+                || side.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0
+                || side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0
+                || side.IndexOf("W2", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return false;
+            }
+
+            return side.IndexOf("Outer", StringComparison.OrdinalIgnoreCase) >= 0
+                || side.IndexOf("W1", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
 
         private static decimal CalcPolishSingle(int w, int h, string subType)
         {

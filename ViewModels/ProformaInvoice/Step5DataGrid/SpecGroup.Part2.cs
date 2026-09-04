@@ -548,6 +548,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         public async Task LoadSpecsAsync()
         {
+            // The selected type can change while GetAllAsync is awaiting.
+            // Capture both the type and repository, then refuse to publish a
+            // stale response. Without this guard an older SGU request could
+            // append its results after a Step 4 DGU handoff.
+            int generation = ++_specLoadGeneration;
+            string selectedType = _selectedGlassType;
+            var repository = Specifications;
+
             _specSource.Clear();
             _sourceKeys.Clear();
             _allTypeSpecsMerged = false;
@@ -570,7 +578,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 finally { _isProgrammaticSpecChange = false; }
             }
 
-            if (string.IsNullOrWhiteSpace(_selectedGlassType) || Specifications == null)
+            if (string.IsNullOrWhiteSpace(selectedType) || repository == null)
             {
                 _filteredSpecsView?.Refresh();
                 return;
@@ -578,7 +586,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
             try
             {
-                var specs = await Specifications.GetAllAsync(_selectedGlassType);
+                var specs = await repository.GetAllAsync(selectedType);
+                if (!IsCurrentSpecLoad(generation, selectedType, repository))
+                    return;
+
                 if (specs != null)
                 {
                     foreach (var s in specs)
@@ -590,7 +601,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 }
                 _filteredSpecsView?.Refresh();
 
-                // FIX: After reloading specs, re-select the current spec if
+                // After reloading specs, re-select the current spec if
                 // SelectedSpecName is set but SelectedSpecItem is null or stale.
                 // This happens when a spec is synced from Step 4 before the
                 // auto-save completes, then the catalog reloads with the new spec.
@@ -614,28 +625,45 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[SpecGroup.LoadSpecs] {ExceptionMessages.Deep(ex)}");
+                // A superseded request is no longer relevant; avoid emitting
+                // confusing errors after a valid newer selection is on screen.
+                if (IsCurrentSpecLoad(generation, selectedType, repository))
+                    AppLogService.Debug($"[SpecGroup.LoadSpecs] {ExceptionMessages.Deep(ex)}");
             }
         }
+
+        private bool IsCurrentSpecLoad(
+            int generation,
+            string selectedType,
+            ISpecificationsRepository repository) =>
+            generation == _specLoadGeneration
+            && ReferenceEquals(repository, Specifications)
+            && string.Equals(selectedType, _selectedGlassType,
+                StringComparison.OrdinalIgnoreCase);
 
         public async Task LoadFilteredSpecsAsync() => await LoadSpecsAsync();
         internal void LoadFilteredSpecs() => _ = LoadSpecsAsync();
 
         private async Task LoadAllTypesFallbackAsync()
         {
-            if (_allTypeSpecsMerged || Specifications == null) return;
+            var repository = Specifications;
+            if (_allTypeSpecsMerged || repository == null) return;
+
+            int generation = _specLoadGeneration;
+            string selectedType = _selectedGlassType;
             _allTypeSpecsMerged = true;
 
             try
             {
                 foreach (var type in new[] { "SGU", "DGU", "LAM", "DGU+LAM" })
                 {
-                    if (string.Equals(
-                            type, _selectedGlassType,
+                    if (string.Equals(type, selectedType,
                             StringComparison.OrdinalIgnoreCase))
                         continue;
 
-                    var specs = await Specifications.GetAllAsync(type);
+                    var specs = await repository.GetAllAsync(type);
+                    if (!IsCurrentSpecLoad(generation, selectedType, repository))
+                        return;
                     if (specs == null) continue;
 
                     foreach (var s in specs)
@@ -646,13 +674,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     }
                 }
 
+                if (!IsCurrentSpecLoad(generation, selectedType, repository))
+                    return;
+
                 _filteredSpecsView?.Refresh();
                 IsSpecDropdownOpen =
                     !string.IsNullOrEmpty(_specTypedText) && ViewHasAnyItems();
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[SpecGroup.LoadAllTypesFallback] {ExceptionMessages.Deep(ex)}");
+                if (IsCurrentSpecLoad(generation, selectedType, repository))
+                    AppLogService.Debug($"[SpecGroup.LoadAllTypesFallback] {ExceptionMessages.Deep(ex)}");
             }
         }
 

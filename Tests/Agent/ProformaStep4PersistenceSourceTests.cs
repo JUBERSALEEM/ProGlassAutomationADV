@@ -26,6 +26,8 @@ namespace ProGlassAutomation.Tests.Agent
             string root = LocateProjectRoot();
             string snapshot = File.ReadAllText(Path.Combine(root,
                 "Models/ProformaInvoice/SavedInvoice/ProformaInvoiceSnapshot.cs"));
+            string grid = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.cs"));
             string mapper = ReadFamily(root,
                 "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs");
 
@@ -80,6 +82,43 @@ namespace ProGlassAutomation.Tests.Agent
                 "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs"));
             Assert.Contains("EnsureSpecGroupCount", shell);
             Assert.Contains("EnsureSpecGroupCount", step5);
+        }
+
+        [Fact]
+        public void Step4_handoff_keeps_fresh_defaults_bootstrap_owned_and_persists_manual_overrides()
+        {
+            string root = LocateProjectRoot();
+            string shell = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs"));
+            string specGroup = ReadFamily(root,
+                "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs");
+            string snapshot = File.ReadAllText(Path.Combine(root,
+                "Models/ProformaInvoice/SavedInvoice/ProformaInvoiceSnapshot.cs"));
+            string grid = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.cs"));
+            string mapper = ReadFamily(root,
+                "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs");
+
+            Assert.Contains("isFreshBootstrap", shell);
+            Assert.Contains("HasManualStep5SpecOverride", shell);
+            Assert.Contains("HasManualStep5GlassTypeOverride", shell);
+            Assert.Contains("ApplyStep4PricingSnapshot(section)", shell);
+            Assert.Contains("PrepareStep5FromStep4", shell);
+            Assert.Contains("crossesStep4Boundary", shell);
+            Assert.True(shell.IndexOf("PrepareStep5FromStep4();", StringComparison.Ordinal)
+                < shell.IndexOf("SilentDraftSaveAsync", StringComparison.Ordinal));
+
+            Assert.Contains("HasManualStep5SpecOverride", specGroup);
+            Assert.Contains("HasManualStep5GlassTypeOverride", specGroup);
+            Assert.Contains("_isSynchronizingFromStep4", specGroup);
+            Assert.Contains("ApplyStep4PricingSnapshot", specGroup);
+            Assert.Contains("Specifications = _specs", grid);
+
+            Assert.Contains("HasManualStep5SpecOverride", snapshot);
+            Assert.Contains("HasManualStep5GlassTypeOverride", snapshot);
+            Assert.Contains("ImportedPrice", snapshot);
+            Assert.Contains("HasManualStep5SpecOverride = group.HasManualStep5SpecOverride", mapper);
+            Assert.Contains("Specifications = dataGrid.SpecificationsRepository", mapper);
         }
 
         [Fact]
