@@ -303,47 +303,82 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 // ── Target-price model (approved KPI) from snapshot ──
                 // The additive target block lives on the P&L snapshot
                 // (ProfitLossSnapshot.SpecTargets + job-level target totals).
+                // The aggregate and every per-spec row are REBUILT from the
+                // per-spec rows on the BASE-PRICE specification target: a
+                // U-insert rate that an older build folded into the stored
+                // "final required target" is ignored, so old invoices display
+                // the corrected margin here without any migration.
                 TargetSpecs.Clear();
                 if (pl != null && pl.SpecTargets is { Count: > 0 })
                 {
                     HasTargetData = true;
 
-                    GivenPricePerSqm = pl.TargetAverageGivenPricePerSqm;
-                    SpecificationTargetPerSqm = pl.TargetAverageSpecificationTargetPerSqm;
-                    AppliedUInsertPerSqm = pl.TargetAverageAppliedUInsertPerSqm;
-                    RequiredTargetPerSqm = pl.TargetAverageFinalRequiredTargetPerSqm;
-                    DifferencePerSqm = pl.TargetAverageGivenPricePerSqm - pl.TargetAverageFinalRequiredTargetPerSqm;
-                    GivenValue = pl.TargetTotalGivenValue;
-                    RequiredTargetValue = pl.TargetTotalRequiredValue;
-                    DifferenceValue = pl.TargetTotalDifferenceValue;
-                    TargetMarginPercent = pl.TargetMarginAgainstTargetPercent;
-                    UInsertTreatmentSummary = string.IsNullOrWhiteSpace(pl.TargetUInsertTreatmentSummary)
-                        ? "Not recorded"
-                        : pl.TargetUInsertTreatmentSummary;
-
-                    var parsedStatus = TargetStatusLabelFor(pl, true);
-                    TargetStatusLabel = parsedStatus;
-                    TargetStatusMessage = BuildTargetStatusMessage(pl, parsedStatus);
+                    var rebuilt = TargetSnapshotRecompute.Recompute(pl.SpecTargets);
+                    if (rebuilt != null)
+                    {
+                        GivenPricePerSqm = rebuilt.AverageGivenPricePerSqm;
+                        SpecificationTargetPerSqm = rebuilt.AverageRequiredPerSqm;
+                        RequiredTargetPerSqm = rebuilt.AverageRequiredPerSqm;
+                        AppliedUInsertPerSqm = 0m;
+                        DifferencePerSqm = Math.Round(
+                            rebuilt.AverageGivenPricePerSqm - rebuilt.AverageRequiredPerSqm, 2);
+                        GivenValue = rebuilt.TotalGivenValue;
+                        RequiredTargetValue = rebuilt.TotalRequiredValue;
+                        DifferenceValue = rebuilt.TotalDifferenceValue;
+                        TargetMarginPercent = rebuilt.MarginAgainstTargetPercent;
+                        TargetStatusLabel = TargetStatusLabelFromName(rebuilt.Status);
+                        TargetStatusMessage = BuildTargetStatusMessage(rebuilt, TargetStatusLabel);
+                        UInsertTreatmentSummary = BuildUInsertSummaryText(pl);
+                    }
+                    else
+                    {
+                        GivenPricePerSqm = pl.TargetAverageGivenPricePerSqm;
+                        SpecificationTargetPerSqm = pl.TargetAverageSpecificationTargetPerSqm;
+                        RequiredTargetPerSqm = pl.TargetAverageSpecificationTargetPerSqm;
+                        AppliedUInsertPerSqm = 0m;
+                        DifferencePerSqm = pl.TargetAverageGivenPricePerSqm
+                                           - pl.TargetAverageSpecificationTargetPerSqm;
+                        GivenValue = pl.TargetTotalGivenValue;
+                        RequiredTargetValue = pl.TargetTotalRequiredValue;
+                        DifferenceValue = pl.TargetTotalDifferenceValue;
+                        TargetMarginPercent = pl.TargetMarginAgainstTargetPercent;
+                        TargetStatusLabel = TargetStatusLabelFromName(pl.TargetStatus ?? "");
+                        TargetStatusMessage = BuildTargetStatusMessage(pl, TargetStatusLabel);
+                        UInsertTreatmentSummary = BuildUInsertSummaryText(pl);
+                    }
 
                     foreach (var t in pl.SpecTargets.Where(t => t != null))
                     {
+                        decimal specGiven = Math.Max(0m, t.GivenPricePerSqm);
+                        decimal specTarget = Math.Max(0m, t.SpecificationTargetPerSqm);
+                        bool complete = specGiven > 0m && specTarget > 0m && t.AreaSqm > 0m
+                            && (HasCompleteSpecStatus(t) || t.MarginAgainstTargetPercent.HasValue);
+
+                        decimal? specMargin = complete
+                            ? Math.Round((specGiven - specTarget) / specTarget * 100m, 2)
+                            : (decimal?)null;
+
                         TargetSpecs.Add(new JobTargetSpecLine
                         {
                             SpecNumber = t.SpecNumber,
                             SpecName = string.IsNullOrWhiteSpace(t.SpecName) ? $"Spec {t.SpecNumber}" : t.SpecName,
-                            GivenPricePerSqmDisplay = $"AED {t.GivenPricePerSqm:N2}/m²",
-                            SpecificationTargetPerSqmDisplay = $"AED {t.SpecificationTargetPerSqm:N2}/m²",
-                            AppliedUInsertPerSqmDisplay = t.AppliedUInsertPerSqm > 0m
-                                ? $"AED {t.AppliedUInsertPerSqm:N2}/m² folded into target"
-                                : t.UInsertRatePerSqm > 0m
-                                    ? "billed separately in Step 6"
-                                    : "no U-insert extra",
-                            FinalRequiredTargetPerSqmDisplay = $"AED {t.FinalRequiredTargetPerSqm:N2}/m²",
-                            DifferencePerSqmDisplay = t.DifferencePerSqm < 0m
-                                ? $"-AED {Math.Abs(t.DifferencePerSqm):N2}/m²"
-                                : $"AED {t.DifferencePerSqm:N2}/m²",
-                            MarginDisplay = t.MarginAgainstTargetPercent is decimal tm ? $"{tm:0.##}%" : "—",
-                            StatusLabel = SpecStatusLabelFor(t),
+                            GivenPricePerSqmDisplay = $"AED {specGiven:N2}/m²",
+                            SpecificationTargetPerSqmDisplay = $"AED {specTarget:N2}/m²",
+                            AppliedUInsertPerSqmDisplay = t.UInsertRatePerSqm > 0m
+                                ? $"AED {t.UInsertRatePerSqm:N2}/m²"
+                                : "—",
+                            FinalRequiredTargetPerSqmDisplay = $"AED {specTarget:N2}/m²",
+                            DifferencePerSqmDisplay = specMargin.HasValue
+                                ? (specGiven - specTarget) < 0m
+                                    ? $"-AED {Math.Abs(specGiven - specTarget):N2}/m²"
+                                    : $"AED {specGiven - specTarget:N2}/m²"
+                                : "—",
+                            MarginDisplay = specMargin is decimal sm ? $"{sm:0.##}%" : "—",
+                            StatusLabel = specMargin is decimal sv
+                                ? sv > 0.05m ? "ABOVE TARGET"
+                                    : sv < -0.05m ? "BELOW TARGET"
+                                    : "AT TARGET"
+                                : "INCOMPLETE",
                             UInsertNote = BuildUInsertNote(t)
                         });
                     }
@@ -375,65 +410,99 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             TargetSpecs.Clear();
         }
 
-        /// <summary>Maps the persisted job-level status to the display label.</summary>
-        private static string TargetStatusLabelFor(ProfitLossSnapshot pl, bool isCosted)
-        {
-            if (pl.TargetMarginAgainstTargetPercent.HasValue
-                && !string.IsNullOrWhiteSpace(pl.TargetStatus)
-                && Enum.TryParse<TargetStatus>(pl.TargetStatus, out var parsed))
+        /// <summary>TargetStatus names that mean "fully calculable".</summary>
+        private static readonly System.Collections.Generic.HashSet<string> CompleteSpecStatusNames =
+            new(System.StringComparer.OrdinalIgnoreCase)
             {
-                return parsed switch
-                {
-                    TargetStatus.AboveTarget => "ABOVE TARGET",
-                    TargetStatus.AtTarget => "AT TARGET",
-                    TargetStatus.BelowTarget => "BELOW TARGET",
-                    _ => parsed.ToString().ToUpperInvariant().Replace("_", " ")
-                };
-            }
-            return isCosted ? "STALE" : "INCOMPLETE";
+                "UpToDate", "AboveTarget", "AtTarget", "BelowTarget"
+            };
+
+        private static bool HasCompleteSpecStatus(SpecTargetSnapshot t) =>
+            CompleteSpecStatusNames.Contains(t?.Status ?? "");
+
+        /// <summary>Maps a TargetStatus enum-name to its display label.</summary>
+        private static string TargetStatusLabelFromName(string? statusName)
+        {
+            if (string.IsNullOrWhiteSpace(statusName)) return "INCOMPLETE";
+            return statusName switch
+            {
+                "AboveTarget" => "ABOVE TARGET",
+                "AtTarget" => "AT TARGET",
+                "BelowTarget" => "BELOW TARGET",
+                "SnapshotStale" => "STALE",
+                "CalculationIncomplete" => "INCOMPLETE",
+                _ => statusName.ToUpperInvariant().Replace("_", " ")
+            };
         }
 
-        private static string BuildTargetStatusMessage(ProfitLossSnapshot pl, string label)
+        private static string BuildTargetStatusMessage(RebuiltTargetTotals r, string label)
         {
-            if (label == "ABOVE TARGET" || label == "AT TARGET" || label == "BELOW TARGET")
-                return $"Step 5 given price is {label.Replace(" TARGET", "").ToLowerInvariant()} the final required target across {pl.TargetValidSpecCount} specification(s).";
+            if (label is "ABOVE TARGET" or "AT TARGET" or "BELOW TARGET")
+                return $"Step 5 given price is {label.Replace(" TARGET", "").ToLowerInvariant()} the base-price required target across {r.ValidSpecCount} specification(s). " +
+                       "The U-insert rate is shown separately and is never added to the target.";
 
             if (label == "INCOMPLETE")
-                return "One or more specifications are missing target inputs (glass rates, ASP rate, yield or Step 5 base price).";
+                return "One or more specifications are missing target inputs (glass rates, ASP rate, yield or Step 5 base price) — open the invoice in Step 9 to complete them.";
 
             if (label == "STALE")
                 return "This invoice was saved before the target-price model existed; target KPIs are not available.";
 
-            return "No target-price data recorded for this invoice.";
+            return $"{label} — open this invoice in Step 9 to repair the target calculation, then save.";
+        }
+
+        private static string BuildTargetStatusMessage(ProfitLossSnapshot pl, string label)
+        {
+            if (label is "ABOVE TARGET" or "AT TARGET" or "BELOW TARGET")
+                return $"Step 5 given price is {label.Replace(" TARGET", "").ToLowerInvariant()} the base-price required target across {pl.TargetValidSpecCount} specification(s). " +
+                       "The U-insert rate is shown separately and is never added to the target.";
+
+            if (label == "INCOMPLETE")
+                return "One or more specifications are missing target inputs (glass rates, ASP rate, yield or Step 5 base price) — open the invoice in Step 9 to complete them.";
+
+            if (label == "STALE")
+                return "This invoice was saved before the target-price model existed; target KPIs are not available.";
+
+            return $"{label} — open this invoice in Step 9 to repair the target calculation, then save.";
+        }
+
+        private static string BuildUInsertSummaryText(ProfitLossSnapshot pl)
+        {
+            var rows = pl.SpecTargets?.Where(s => s != null).ToList();
+            if (rows == null || rows.Count == 0)
+                return pl.TargetUInsertTreatmentSummary ?? "";
+
+            int included = rows.Count(s =>
+                string.Equals(s.UInsertTreatment, "IncludedInStep5Price", StringComparison.OrdinalIgnoreCase)
+                && s.UInsertRatePerSqm > 0m);
+            int additional = rows.Count(s =>
+                string.Equals(s.UInsertTreatment, "Additional", StringComparison.OrdinalIgnoreCase));
+
+            if (included > 0 && additional > 0)
+                return "Mixed — U-insert included in some given prices, billed separately for others (rate never added to target)";
+            if (included > 0)
+                return "U-insert included in given price — rate shown, not added to target";
+            if (additional > 0)
+                return "U-insert billed separately as a Step 6 extra — not in target";
+            return "No U-insert extra";
         }
 
         private static string BuildUInsertNote(SpecTargetSnapshot t)
         {
-            // Approved rule: a folded rate means the U-insert is covered by
-            // the given price (Step 6 toggle OFF); a rate with zero applied
-            // means the Step 6 row bills it separately on top.
-            if (t.AppliedUInsertPerSqm > 0m)
-                return $"Rate AED {t.AppliedUInsertPerSqm:N2}/m² folded into the required target";
-            if (t.UInsertRatePerSqm > 0m)
-                return $"Billed separately in Step 6 at AED {t.UInsertRatePerSqm:N2}/m² (not in target)";
-            return "No U-insert extra recorded";
-        }
+            // Revised rule: the U-insert rate is NEVER added to the required
+            // target. IncludedInStep5Price = the given price already covers
+            // it (the rate is shown for reference); Additional = the Step 6
+            // row bills it separately on top of the given price.
+            bool included = string.Equals(
+                t.UInsertTreatment, "IncludedInStep5Price", StringComparison.OrdinalIgnoreCase);
 
-        private static string SpecStatusLabelFor(SpecTargetSnapshot t)
-        {
-            if (t.MarginAgainstTargetPercent.HasValue
-                && !string.IsNullOrWhiteSpace(t.Status)
-                && Enum.TryParse<TargetStatus>(t.Status, out var parsed))
+            if (t.UInsertRatePerSqm > 0m)
             {
-                return parsed switch
-                {
-                    TargetStatus.AboveTarget => "ABOVE TARGET",
-                    TargetStatus.AtTarget => "AT TARGET",
-                    TargetStatus.BelowTarget => "BELOW TARGET",
-                    _ => parsed.ToString().ToUpperInvariant().Replace("_", " ")
-                };
+                return included
+                    ? $"Rate AED {t.UInsertRatePerSqm:N2}/m² is inside the given price — shown for reference, never added to the target"
+                    : $"Billed separately in Step 6 at AED {t.UInsertRatePerSqm:N2}/m² (not in target)";
             }
-            return "INCOMPLETE";
+
+            return "No U-insert extra recorded";
         }
 
         /// <summary>Command to close the detail panel.</summary>

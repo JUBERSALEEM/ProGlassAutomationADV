@@ -288,7 +288,7 @@
 
                                 <!-- CARD 1 — REQUIRED TARGET VALUE -->
                                 <Border Grid.Column="0" Style="{StaticResource JpTileStyle}"
-                                        ToolTip="Sum of the final required target. Click a row to see that PI's own required target.">
+                                        ToolTip="Base-price required target (DGU formula × uplift). A U-insert covered by the given price or billed separately in Step 6 is shown as information and is never added to the target. Click a row to see that PI's own required target.">
                                     <StackPanel>
                                         <TextBlock Text="REQUIRED TARGET VALUE" Style="{StaticResource JpTileCaptionStyle}"/>
                                         <TextBlock Text="{Binding TopRequiredTargetValueDisplay}" FontSize="24"
@@ -579,21 +579,21 @@
                                              row keeps a comfortable minimum and a
                                              horizontal scrollbar appears only when
                                              really needed. -->
-                                        <Grid MinWidth="980">
+                                        <Grid MinWidth="1030">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="118"/>
+<ColumnDefinition Width="104"/>
                                                 <ColumnDefinition Width="*" MinWidth="150"/>
-                                                <ColumnDefinition Width="96"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="122"/>
-                                                <ColumnDefinition Width="124"/>
-                                            </Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="92"/>
+                                                <ColumnDefinition Width="118"/>
+                                                <ColumnDefinition Width="118"/>
+                                                <ColumnDefinition Width="118"/>
+                                                <ColumnDefinition Width="160"/>
+                                                <ColumnDefinition Width="148"/>
+                                                    </Grid.ColumnDefinitions>
 
                                             <!-- header -->
                                             <Border Grid.Row="0" Grid.ColumnSpan="8"
@@ -602,14 +602,14 @@
                                                     Padding="12,7">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="118"/>
-                                                        <ColumnDefinition Width="*" MinWidth="150"/>
-                                                        <ColumnDefinition Width="96"/>
-                                                        <ColumnDefinition Width="100"/>
-                                                        <ColumnDefinition Width="100"/>
-                                                        <ColumnDefinition Width="100"/>
-                                                        <ColumnDefinition Width="122"/>
-                                                        <ColumnDefinition Width="124"/>
+<ColumnDefinition Width="104"/>
+                                                <ColumnDefinition Width="*" MinWidth="150"/>
+                                                <ColumnDefinition Width="92"/>
+                                                <ColumnDefinition Width="118"/>
+                                                <ColumnDefinition Width="118"/>
+                                                <ColumnDefinition Width="118"/>
+                                                <ColumnDefinition Width="160"/>
+                                                <ColumnDefinition Width="148"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0" Text="PROFORMA" Style="{StaticResource JpHeaderCellStyle}"/>
                                                     <TextBlock Grid.Column="1" Text="CUSTOMER / PROJECT" Style="{StaticResource JpHeaderCellStyle}"/>
@@ -647,15 +647,15 @@
                                                             </Border.InputBindings>
                                                             <Grid>
                                                                 <Grid.ColumnDefinitions>
-                                                                    <ColumnDefinition Width="118"/>
-                                                                    <ColumnDefinition Width="*" MinWidth="150"/>
-                                                                    <ColumnDefinition Width="96"/>
-                                                                    <ColumnDefinition Width="100"/>
-                                                                    <ColumnDefinition Width="100"/>
-                                                                    <ColumnDefinition Width="100"/>
-                                                                    <ColumnDefinition Width="122"/>
-                                                                    <ColumnDefinition Width="124"/>
-                                                                </Grid.ColumnDefinitions>
+<ColumnDefinition Width="104"/>
+                                                <ColumnDefinition Width="*" MinWidth="150"/>
+                                                <ColumnDefinition Width="92"/>
+                                                <ColumnDefinition Width="118"/>
+                                                <ColumnDefinition Width="118"/>
+                                                <ColumnDefinition Width="118"/>
+                                                <ColumnDefinition Width="160"/>
+                                                <ColumnDefinition Width="148"/>
+                                                    </Grid.ColumnDefinitions>
 
                                                                 <TextBlock Grid.Column="0"
                                                                            Text="{Binding ProformaId}"
@@ -710,7 +710,7 @@
                                                                     </TextBlock.Style>
                                                                 </TextBlock>
 
-                                                                <StackPanel Grid.Column="6" HorizontalAlignment="Right">
+                                                                <StackPanel Grid.Column="6" HorizontalAlignment="Right" Margin="0,0,18,0">
                                                                     <TextBlock Text="{Binding TargetMarginDisplay}"
                                                                                HorizontalAlignment="Right">
                                                                         <TextBlock.Style>
@@ -730,7 +730,7 @@
                                                                     </TextBlock>
                                                                 </StackPanel>
 
-                                                                <Border Grid.Column="7" HorizontalAlignment="Left">
+                                                                <Border Grid.Column="7" HorizontalAlignment="Left" Margin="2,0,0,0">
                                                                     <Border.Style>
                                                                         <Style TargetType="Border" BasedOn="{StaticResource JpStatusPill}">
                                                                             <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>

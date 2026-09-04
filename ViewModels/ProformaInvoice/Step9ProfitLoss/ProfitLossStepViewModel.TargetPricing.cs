@@ -155,12 +155,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string SpecificationTargetAverageDisplay => FormatRateCard(JobTargetResult?.AverageSpecificationTargetPerSqm);
 
         /// <summary>
-        /// "Included in price · rate folded in (AED x/m²)" / "Additional · Step 6 extra" /
+        /// "Included in price · rate shown, not added (AED x/m²)" / "Additional · Step 6 extra" /
         /// "Not applicable" / "Mixed" / "Unresolved".
         ///
-        /// Approved rule: Additional (Step 6 row active) = the extra is billed
-        /// separately and stays OUT of the target; IncludedInStep5Price
-        /// (toggle off) = the rate is folded INTO the final required target.
+        /// Revised rule (2026-09-04): the required target is ALWAYS the
+        /// base-price specification target. Additional (Step 6 row active) =
+        /// the extra is billed separately and stays out of the target;
+        /// IncludedInStep5Price (toggle off) = the U-insert is already inside
+        /// the given price, so the rate is SHOWN for reference but never
+        /// added to the target (adding it would double-count the U-insert).
+        /// </summary>
+        /// <summary>
+        /// Compact one-line value for the KPI card ("Included in given price" /
+        /// "Additional — Step 6 extra" / "Not applicable" / "Mixed" /
+        /// "Unresolved"). The detailed wording lives in
+        /// <see cref="UInsertSummaryDetail"/> (shown as a tooltip), so the
+        /// card row never spills onto a second line.
         /// </summary>
         public string UInsertSummaryDisplay
         {
@@ -172,32 +182,69 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 bool anyAdditional = specs.Any(s => s.UInsertTreatment == UInsertTreatment.Additional);
                 bool anyIncluded = specs.Any(s => s.UInsertTreatment == UInsertTreatment.IncludedInStep5Price);
                 bool anyUnresolved = specs.Any(s => s.UInsertTreatment == UInsertTreatment.Unresolved);
-                bool anyApplicable = specs.Any(s => s.UInsertTreatment == UInsertTreatment.NotApplicable);
 
                 if (anyUnresolved && specs.Count(s =>
                         s.UInsertTreatment != UInsertTreatment.Unresolved) == 0)
-                    return "Unresolved — check Step 6";
+                    return "Unresolved";
 
                 if (anyAdditional && anyIncluded)
-                    return "Mixed — some specs bill U-insert separately, some fold it into price";
+                    return "Mixed";
+
+                if (anyIncluded)
+                    return "Included in given price";
 
                 if (anyAdditional)
-                    return "Additional — Step 6 extra billed on top (not in target)";
+                    return "Additional";
 
-                decimal applied = JobTargetResult?.AverageAppliedUInsertPerSqm ?? 0m;
-                if (anyIncluded)
-                {
-                    return applied > 0m
-                        ? $"Included in price — rate folded into target (AED {applied:N2}/m²)"
-                        : "Included in price — U-insert covered by the given price";
-                }
-
-                if (anyApplicable || specs.Count == 0)
-                    return "Not applicable";
-
-                return "Unresolved — check Step 6";
+                return "Not applicable";
             }
         }
+
+        /// <summary>
+        /// Full explanation behind the compact <see cref="UInsertSummaryDisplay"/>.
+        /// </summary>
+        public string UInsertSummaryDetail
+        {
+            get
+            {
+                var specs = JobTargetResult?.Specifications?.ToList() ?? new List<SpecTargetPriceResult>();
+                if (specs.Count == 0) return "No U-insert data for this specification.";
+
+                bool anyAdditional = specs.Any(s => s.UInsertTreatment == UInsertTreatment.Additional);
+                bool anyIncluded = specs.Any(s => s.UInsertTreatment == UInsertTreatment.IncludedInStep5Price);
+                bool anyUnresolved = specs.Any(s => s.UInsertTreatment == UInsertTreatment.Unresolved);
+
+                // Area-weighted average of the resolved per-spec rates for
+                // display only — the required target never moves.
+                decimal totalArea = specs.Sum(s => Math.Max(0m, s.AreaSqm));
+                decimal avgRate = totalArea > 0m
+                    ? specs.Sum(s => Math.Max(0m, s.UInsertRatePerSqm) * Math.Max(0m, s.AreaSqm)) / totalArea
+                    : 0m;
+                string rateText = avgRate > 0m ? $" (rate AED {avgRate:N2}/m²)" : "";
+
+                if (anyUnresolved)
+                    return "Unresolved — check the Step 6 U-insert row and its rate.";
+
+                if (anyAdditional && anyIncluded)
+                    return "Mixed — some specifications bill the U-insert separately in Step 6, others include it in the given price." +
+                           " The required target is never changed by the U-insert in either case.";
+
+                if (anyAdditional)
+                    return "Additional — billed as its own Step 6 extra on top of the given price." +
+                           " The required target stays the base-price specification target (rate not added).";
+
+                if (anyIncluded)
+                {
+                    return avgRate > 0m
+                        ? $"Included in the given price{rateText} — the customer's price already covers the U-insert, so the required target stays the base-price specification target (the rate is shown, never added)."
+                        : "Included in the given price — the customer's price already covers the U-insert, so the required target stays the base-price specification target.";
+                }
+
+                return "This specification carries no U-insert extra.";
+            }
+        }
+
+        public bool HasUInsertSummaryWarning =>
 
         public bool HasUInsertSummaryWarning =>
             (JobTargetResult?.Specifications?.Any(s => s.UInsertTreatment == UInsertTreatment.Unresolved)
@@ -418,6 +465,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             OnPropertyChanged(nameof(RequiredTargetPriceDisplay));
             OnPropertyChanged(nameof(SpecificationTargetAverageDisplay));
             OnPropertyChanged(nameof(UInsertSummaryDisplay));
+            OnPropertyChanged(nameof(UInsertSummaryDetail));
             OnPropertyChanged(nameof(HasUInsertSummaryWarning));
             OnPropertyChanged(nameof(MarginAgainstTargetDisplay));
             OnPropertyChanged(nameof(GivenPricePerSqmDisplay));

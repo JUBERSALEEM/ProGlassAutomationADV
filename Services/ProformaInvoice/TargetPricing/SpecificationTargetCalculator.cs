@@ -122,6 +122,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
 
             decimal preUplift = (glassSum / result.YieldFactor) + addons;
             result.SpecificationTargetPerSqm = Math.Round(preUplift * upliftFactor, 2);
+
+            // Final required target starts as the base-price specification
+            // target (the U-insert rate is never folded in — ApplyUInsert
+            // keeps it at this value for both treatments).
+            result.FinalRequiredTargetPerSqm = result.SpecificationTargetPerSqm;
             result.FormulaText = BuildFormulaText(result, buildType, upliftFactor);
 
             FinalizeValues(result);
@@ -133,12 +138,22 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
         /// result and derives the final target, difference and margin.
         /// Call after <see cref="Calculate"/> on every result.
         ///
-        /// Approved rule (2026-09): the rate is added into the FINAL REQUIRED
-        /// TARGET only when the U-insert is covered by the Step 5 price
-        /// (Treatment == IncludedInStep5Price — Step 6 toggle OFF). When the
-        /// Step 6 U-insert row is ACTIVE (Treatment == Additional) the extra
-        /// is billed separately, so the target stays the NORMAL specification
-        /// target and the rate is only carried for display.
+        /// Revised rule (2026-09-04): the U-insert rate is NEVER added into
+        /// the FINAL REQUIRED TARGET. The required target a quotation is
+        /// judged against is always the base-price specification target
+        /// (DGU formula result × uplift, e.g. ((25+25)÷0.85+45)×1.15 =
+        /// AED 119.39/m²) — for BOTH treatments:
+        ///   • Treatment == Additional (Step 6 U-insert row active): the
+        ///     extra is billed as its own Step 6 line, so it never belonged
+        ///     in the target; the rate is carried for display only.
+        ///   • Treatment == IncludedInStep5Price (Step 6 row not active —
+        ///     U-insert given inside the base price): the customer's given
+        ///     price already includes the U-insert, so adding the rate to
+        ///     the required target would DOUBLE-COUNT it and push a
+        ///     genuinely profitable quotation (e.g. given 125 ≈ 20% over a
+        ///     103.82 basis) below target. The base-price target is used
+        ///     unchanged; the U-insert rate stays visible on the KPI as
+        ///     informational only.
         /// </summary>
         public static void ApplyUInsert(
             SpecTargetPriceResult result,
@@ -151,37 +166,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
             result.UInsertRatePerSqm = Math.Max(0m, resolution.RatePerSqm);
             result.UInsertSourceLabel = "Step 6 Other Charges — U-insert";
 
-            // Only the "covered inside the given price" case folds the rate
-            // into the required target. A separately-billed U-insert (Step 6
-            // row active) leaves the target at the normal specification
-            // target — its cost is recovered by the Step 6 charge row.
-            result.AppliedUInsertPerSqm =
-                resolution.Treatment == UInsertTreatment.IncludedInStep5Price
-                    ? Math.Max(0m, resolution.RatePerSqm)
-                    : 0m;
-
-            result.FinalRequiredTargetPerSqm = Math.Round(
-                result.SpecificationTargetPerSqm + result.AppliedUInsertPerSqm, 2);
-
-            // A folded rate changes the FINAL target, so a margin status
-            // classified against the plain specification target (in
-            // Calculate) may no longer be true (e.g. AboveTarget can flip to
-            // BelowTarget once +AED X/m² is covered by the price). Reset the
-            // classification so FinalizeValues re-derives it from the final
-            // required target. Special states (missing inputs, unresolved)
-            // are never reset here.
-            bool foldedRateChangedTarget =
-                resolution.Treatment == UInsertTreatment.IncludedInStep5Price
-                && resolution.RatePerSqm > 0m;
-
-            if (foldedRateChangedTarget
-                && result.Status is TargetStatus.BelowTarget
-                                or TargetStatus.AtTarget
-                                or TargetStatus.AboveTarget
-                                or TargetStatus.UpToDate)
-            {
-                result.Status = TargetStatus.UpToDate;
-            }
+            // Informational only — the required target never moves.
+            result.AppliedUInsertPerSqm = 0m;
+            result.FinalRequiredTargetPerSqm = result.SpecificationTargetPerSqm;
 
             if (resolution.HasWarning
                 && !result.Warnings.Contains(resolution.Warning, StringComparer.Ordinal))

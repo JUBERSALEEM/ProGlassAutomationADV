@@ -373,13 +373,13 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("EXPECTED PROFIT MARGIN", src);
             Assert.Contains("MARGIN AGAINST TARGET", src);
             Assert.Contains("OVERALL MARGIN", src);
-            Assert.Contains("OverallVsBaseVerdict", src);
-            Assert.Contains("PortfolioTargetStatusLabel", src);
+            Assert.Contains("TopOverallVerdict", src);
+            Assert.Contains("TopTargetStatusLabel", src);
 
             // Value + count strip present with the fixed difference semantics.
             Assert.Contains("STEP 5 GIVEN VALUE", src);
             Assert.Contains("TOTAL DIFFERENCE", src);
-            Assert.Contains("VALID / INCOMPLETE / STALE", src);
+            Assert.Contains("VALID · INCOMPLETE · STALE", src);
             Assert.Contains("HasTargetShortfall", src);
 
             // One-row filter bar (search/company/customer/salesman/date).
@@ -445,13 +445,13 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("OverallVsBaseVerdict", vmSrc);
             Assert.Contains("Margin vs ", vmSrc);
 
-            // View: the overall-margin tile carries a verdict line, every
-            // row shows a chip under its MARGIN value, and the margin-base
-            // filter + sort controls are present.
+            // View: the row-scoped OVERALL card carries the achieved-vs-base
+            // verdict, the bottom status line summarises the band counts,
+            // and the margin-base filter + sort controls are present.
             var viewSrc = File.ReadAllText(Path.Combine(root,
                 "Views/JobProfitability/JobProfitabilityView.xaml"));
-            Assert.Contains("OverallVsBaseVerdict", viewSrc);
-            Assert.Contains("MarginVsBaseChip", viewSrc);
+            Assert.Contains("TopOverallVerdict", viewSrc);
+            Assert.Contains("StatusMessage", viewSrc);
             Assert.Contains("MarginBandFilterOptions", viewSrc);
             Assert.Contains("SortByOptions", viewSrc);
         }

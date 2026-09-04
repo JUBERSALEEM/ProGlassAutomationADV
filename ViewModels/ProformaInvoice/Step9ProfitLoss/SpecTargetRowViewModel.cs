@@ -157,16 +157,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string UInsertTreatmentDetail => Result?.UInsertTreatment switch
         {
-            // Approved rule: Step 6 row ACTIVE = billed separately, so the
-            // required target stays the NORMAL specification target.
+            // Revised rule (2026-09-04): Step 6 row ACTIVE = billed
+            // separately, so the required target stays the NORMAL
+            // specification target (rate not added).
             UInsertTreatment.Additional =>
                 "Step 6 bills this U-insert as its own charge on top of the given price — " +
                 "the required target stays the normal specification target (rate not added).",
-            // Step 6 row OFF = U-insert covered inside the given price, so
-            // the target includes the rate to verify the base clears it.
+            // Step 6 row OFF = the given price already covers the U-insert,
+            // so the target stays the base-price specification target; the
+            // rate is shown for reference only (never added — adding it
+            // would double-count the U-insert inside the given price).
             UInsertTreatment.IncludedInStep5Price =>
-                "The U-insert is covered inside the Step 5 given price — its rate is folded " +
-                "into the final required target.",
+                "The U-insert is covered inside the Step 5 given price — the required target " +
+                "stays the base-price specification target; the rate is shown, not added.",
             UInsertTreatment.Unresolved => "Cannot resolve — check the Step 6 U-insert row and its rate.",
             _ => "This specification carries no U-insert extra."
         };
@@ -178,19 +181,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>Sidebar caption for the U-insert value row.</summary>
         public string UInsertAppliedCaption => Result?.UInsertTreatment switch
         {
-            UInsertTreatment.IncludedInStep5Price => "Rate folded into required target",
+            UInsertTreatment.IncludedInStep5Price => "Rate shown, not added to target",
             UInsertTreatment.Additional => "Step 6 extra (excluded from target)",
             _ => "U-insert rate"
         };
 
         /// <summary>
-        /// Sidebar value for the U-insert row. Under the approved rule the
-        /// rate is only folded into the target when the Step 6 toggle is OFF
-        /// (IncludedInStep5Price); an active Step 6 row keeps it out.
+        /// Sidebar value for the U-insert row. Under the revised rule
+        /// (2026-09-04) the rate is NEVER added to the required target for
+        /// either treatment — it is informational only.
         /// </summary>
         public string UInsertAppliedValueDisplay => Result?.UInsertTreatment switch
         {
-            UInsertTreatment.IncludedInStep5Price => AppliedUInsertDisplay,
+            UInsertTreatment.IncludedInStep5Price => "In given price — not added to target",
             UInsertTreatment.Additional => "Not added — billed separately in Step 6",
             UInsertTreatment.Unresolved => "Unresolved — check Step 6",
             _ => "—"

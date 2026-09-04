@@ -37,7 +37,9 @@ using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.ProformaInvoice.TargetPricing;
 using ProGlassAutomation.Models.ProformaInvoice.Common;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -1191,33 +1193,64 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
                     bool snapshotStale = costed && !hasTargetData;
 
-                    decimal targetGiven = hasTargetData ? pl!.TargetTotalGivenValue : 0m;
-                    decimal targetRequired = hasTargetData ? pl!.TargetTotalRequiredValue : 0m;
-                    decimal targetDifference = hasTargetData ? pl!.TargetTotalDifferenceValue : 0m;
-                    decimal targetGivenPerSqm = hasTargetData ? pl!.TargetAverageGivenPricePerSqm : 0m;
-                    decimal targetRequiredPerSqm = hasTargetData ? pl!.TargetAverageFinalRequiredTargetPerSqm : 0m;
-                    decimal? targetMargin = hasTargetData ? pl!.TargetMarginAgainstTargetPercent : null;
+                    // ── REBUILD the per-PI target figures on read ──────────
+                    // The required target is the BASE-PRICE specification
+                    // target — the U-insert rate is never added (a given
+                    // price that already includes the U-insert must not be
+                    // judged against a target that adds it again). Invoices
+                    // saved by older builds that folded the rate in are
+                    // therefore corrected HERE on view, from the persisted
+                    // per-specification rows (SpecificationTargetPerSqm),
+                    // with no data migration. Fall back to the stored
+                    // aggregate only when no per-spec rows exist, and even
+                    // then re-derive the margin from the two totals so a
+                    // stale stored margin cannot survive.
+                    decimal targetGiven = 0m, targetRequired = 0m, targetDifference = 0m;
+                    decimal targetGivenPerSqm = 0m, targetRequiredPerSqm = 0m;
+                    decimal? targetMargin = null;
+                    string targetStatus = snapshotStale ? "SnapshotStale" : "CalculationIncomplete";
+                    int targetValidCount = 0, targetIncompleteCount = 0;
 
-                    string targetStatus = hasTargetData
-                        ? (pl!.TargetStatus ?? "")
-                        : (snapshotStale ? "SnapshotStale" : "CalculationIncomplete");
-
-                    // ── AUTO-CORRECT the margin against target ─────────────
-                    // The authoritative per-PI figure is (given − required) ÷
-                    // required, and the snapshot always stores the two totals
-                    // that derive it. Older builds could persist a stale or
-                    // outdated aggregate margin, so whenever both totals are
-                    // intact we recompute here — fixing the KPI column, the
-                    // top cards and the portfolio average without a data
-                    // migration. Rows without usable totals keep the stored
-                    // value (null = genuinely incomplete → never a fake 0%).
-                    if (hasTargetData && targetGiven > 0m && targetRequired > 0m)
+                    if (hasTargetData)
                     {
-                        targetMargin = Math.Round(
-                            ((targetGiven - targetRequired) * 100m) / targetRequired, 2);
-                        targetStatus = targetMargin.Value > 0.05m ? "AboveTarget"
-                            : targetMargin.Value < -0.05m ? "BelowTarget"
-                            : "AtTarget";
+                        var rebuilt = TargetSnapshotRecompute.Recompute(pl!.SpecTargets);
+                        if (rebuilt != null)
+                        {
+                            targetGiven = rebuilt.TotalGivenValue;
+                            targetRequired = rebuilt.TotalRequiredValue;
+                            targetDifference = rebuilt.TotalDifferenceValue;
+                            targetGivenPerSqm = rebuilt.AverageGivenPricePerSqm;
+                            targetRequiredPerSqm = rebuilt.AverageRequiredPerSqm;
+                            targetMargin = rebuilt.MarginAgainstTargetPercent;
+                            targetStatus = rebuilt.Status;
+                            targetValidCount = rebuilt.ValidSpecCount;
+                            targetIncompleteCount = rebuilt.IncompleteSpecCount;
+                        }
+                        else if (pl.TargetTotalGivenValue > 0m
+                                 || pl.TargetTotalRequiredValue > 0m
+                                 || !string.IsNullOrWhiteSpace(pl.TargetStatus))
+                        {
+                            targetGiven = pl.TargetTotalGivenValue;
+                            targetRequired = pl.TargetTotalRequiredValue;
+                            targetDifference = pl.TargetTotalDifferenceValue;
+                            targetGivenPerSqm = pl.TargetAverageGivenPricePerSqm;
+                            targetRequiredPerSqm = pl.TargetAverageFinalRequiredTargetPerSqm;
+                            targetMargin = pl.TargetMarginAgainstTargetPercent;
+                            targetStatus = pl.TargetStatus ?? targetStatus;
+                            targetValidCount = pl.TargetValidSpecCount;
+                            targetIncompleteCount = pl.TargetIncompleteSpecCount;
+
+                            // Stored totals intact → re-derive margin/status
+                            // (null = genuinely incomplete → never fake 0%).
+                            if (targetGiven > 0m && targetRequired > 0m)
+                            {
+                                targetMargin = Math.Round(
+                                    ((targetGiven - targetRequired) * 100m) / targetRequired, 2);
+                                targetStatus = targetMargin.Value > 0.05m ? "AboveTarget"
+                                    : targetMargin.Value < -0.05m ? "BelowTarget"
+                                    : "AtTarget";
+                            }
+                        }
                     }
 
                     _allRows.Add(new JobProfitabilityRow
@@ -1246,10 +1279,10 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         TargetGivenPerSqm = targetGivenPerSqm,
                         TargetRequiredPerSqm = targetRequiredPerSqm,
                         TargetMarginAgainstTargetPercent = targetMargin,
-                        UInsertTreatmentSummary = hasTargetData ? (pl!.TargetUInsertTreatmentSummary ?? "") : "",
+                        UInsertTreatmentSummary = BuildUInsertSummary(pl),
                         TargetStatus = targetStatus,
-                        TargetValidSpecCount = hasTargetData ? pl!.TargetValidSpecCount : 0,
-                        TargetIncompleteSpecCount = hasTargetData ? pl!.TargetIncompleteSpecCount : 0,
+                        TargetValidSpecCount = hasTargetData ? targetValidCount : 0,
+                        TargetIncompleteSpecCount = hasTargetData ? targetIncompleteCount : 0,
                         IsSnapshotStale = snapshotStale
                     });
                 }
@@ -1610,6 +1643,37 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             }
 
             return basis;
+        }
+
+        /// <summary>
+        /// One-line U-insert summary for a row, rebuilt from the per-spec
+        /// snapshot rows with the revised wording (the rate is never added
+        /// to the required target). Falls back to the stored summary text
+        /// when no per-spec rows exist.
+        /// </summary>
+        private static string BuildUInsertSummary(ProfitLossSnapshot? pl)
+        {
+            if (pl == null) return "";
+
+            if (pl.SpecTargets is { Count: > 0 })
+            {
+                var rows = pl.SpecTargets.Where(s => s != null).ToList();
+                int included = rows.Count(s =>
+                    string.Equals(s.UInsertTreatment, "IncludedInStep5Price", StringComparison.OrdinalIgnoreCase)
+                    && s.UInsertRatePerSqm > 0m);
+                int additional = rows.Count(s =>
+                    string.Equals(s.UInsertTreatment, "Additional", StringComparison.OrdinalIgnoreCase));
+
+                if (included > 0 && additional > 0)
+                    return "Mixed — U-insert included in some given prices, billed separately for others (rate never added to target)";
+                if (included > 0)
+                    return "U-insert included in given price — rate shown, not added to target";
+                if (additional > 0)
+                    return "U-insert billed separately as a Step 6 extra — not in target";
+                return "No U-insert extra";
+            }
+
+            return pl.TargetUInsertTreatmentSummary ?? "";
         }
     }
 }

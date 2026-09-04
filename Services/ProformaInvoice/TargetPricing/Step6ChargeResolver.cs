@@ -3,22 +3,25 @@
 // PROJECT: ProGlassAutomation
 // MODULE: U-insert treatment + rate resolution (single dedicated resolver)
 //
-// APPROVED BUSINESS RULE (operator-confirmed 2026-09):
+// APPROVED BUSINESS RULE (revised 2026-09-04):
 //   The Step 6 U-insert row toggle decides whether the U-insert extra is
-//   billed SEPARATELY or is expected to be covered BY the Step 5 price:
+//   billed SEPARATELY or is covered BY the Step 5 price. Either way the
+//   FINAL REQUIRED TARGET stays the base-price specification target —
+//   the resolved rate never moves the target:
 //
 //   • Step 6 U-insert row ACTIVE for the spec ("trigger on"):
 //       The U-insert is charged as its own Step 6 line on top of the
 //       given price. The target check compares the Step 5 given price
-//       against the NORMAL specification target — the U-insert must NOT
-//       be added to the target price (its cost is recovered by the
-//       Step 6 charge row).
+//       against the NORMAL specification target — the U-insert is NOT
+//       added (its cost is recovered by the Step 6 charge row).
 //
 //   • Step 6 U-insert row NOT active ("toggle off"):
-//       The U-insert is covered inside the Step 5 given/base price.
-//       The FINAL REQUIRED TARGET therefore INCLUDES the U-insert rate
-//       (specification target + rate), so the KPI verifies the base
-//       price really does cover the combined floor.
+//       The U-insert is covered inside the Step 5 given/base price, so
+//       the customer's given price already includes it. Adding the rate
+//       to the required target would double-count it (a 125 all-in given
+//       ≈ 20% over the 103.82 basis would be judged against a folded
+//       129.39 instead of the base-price 119.39). The target stays the
+//       base-price target; the rate is carried for the KPI display only.
 //
 //   The rate is ALWAYS read dynamically — Step 4 per-spec seed wins,
 //   then the Step 6 row rate, then the Step 6 template default.
@@ -103,9 +106,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 return result;
             }
 
-            // "Toggle OFF": the U-insert is covered inside the Step 5 price,
-            // so the FINAL REQUIRED TARGET must include the U-insert rate —
-            // the KPI verifies the base price clears spec target + U-insert.
+            // "Toggle OFF": the U-insert is covered inside the Step 5 price.
+            // The resolved rate is carried so the KPI can SHOW the U-insert
+            // on the card, but the required target itself is never moved
+            // (the given price already includes the U-insert, so adding it
+            // to the target would double-count it).
             result.Treatment = UInsertTreatment.IncludedInStep5Price;
             result.RatePerSqm = Math.Max(0m, rate);
 
@@ -115,7 +120,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 result.Warning =
                     "The U-insert is covered by the given price but no rate is configured " +
                     "(Step 4 seed, Step 6 row rate and template default are all empty), so " +
-                    "the target cannot include it.";
+                    "the U-insert cannot be shown on the KPI.";
             }
 
             return result;
