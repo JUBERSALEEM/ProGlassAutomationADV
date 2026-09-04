@@ -163,6 +163,55 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             "All", "This Week", "This Month", "This Quarter", "This Year", "Last 30 Days", "Last 90 Days"
         };
 
+        // ── Margin vs the company BASE expected margin (Settings default) ──
+
+        private decimal _baseExpectedMarginPercent = 15m;
+
+        /// <summary>Company base expected margin (%) read from Settings
+        /// (Step 9 → Profit margin %) when the list loads.</summary>
+        public decimal BaseExpectedMarginPercent => _baseExpectedMarginPercent;
+
+        public string BaseExpectedMarginDisplay => $"{_baseExpectedMarginPercent:0.#}%";
+
+        /// <summary>Filter values: All / Above / At / Below the base.</summary>
+        public ObservableCollection<string> MarginBandFilterOptions { get; } = new();
+
+        private string _marginBandFilter = AllFilter;
+        public string MarginBandFilter
+        {
+            get => _marginBandFilter;
+            set
+            {
+                if (_marginBandFilter == value) return;
+                _marginBandFilter = value ?? AllFilter;
+                OnPropertyChanged();
+                ApplyFilters();
+            }
+        }
+
+        // ── Sort ─────────────────────────────────────────────────────────
+
+        /// <summary>Sort options for the job table.</summary>
+        public ObservableCollection<string> SortByOptions { get; } = new()
+        {
+            "Date (newest first)",
+            "Margin % (highest first)",
+            "Margin % (lowest first)"
+        };
+
+        private string _sortBy = "Date (newest first)";
+        public string SortBy
+        {
+            get => _sortBy;
+            set
+            {
+                if (_sortBy == value) return;
+                _sortBy = value ?? SortByOptions[0];
+                OnPropertyChanged();
+                ApplyFilters();
+            }
+        }
+
         private string _searchText = "";
         /// <summary>Free text over proforma ID, customer and project.</summary>
         public string SearchText
@@ -344,6 +393,68 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         /// </summary>
         public bool IsAverageLoss => AverageMarginCount > 0
             && AverageMarginPercent < 0m;
+
+        // ── Verdict vs the company BASE expected margin (Settings default) ─
+        // Plain average and value-weighted overall margin, each compared
+        // against the base. This is the reconciliation view: PI1 at 16% and
+        // PI2 at 14% (equal size) must come out at ≈15% AT the base.
+
+        private JobMarginBaseBand AverageVsBaseBandValue => AverageMarginCount > 0
+            ? JobMarginBands.Classify(AverageMarginPercent, _baseExpectedMarginPercent)
+            : JobMarginBaseBand.Unknown;
+
+        /// <summary>String band for XAML triggers: AboveBase / AtBase /
+        /// BelowBase, empty when nothing to compare.</summary>
+        public string AverageVsBaseBand => AverageVsBaseBandValue == JobMarginBaseBand.Unknown
+            ? ""
+            : AverageVsBaseBandValue.ToString();
+
+        /// <summary>One-line verdict under the AVERAGE JOB MARGIN tile.</summary>
+        public string AverageVsBaseVerdict
+        {
+            get
+            {
+                var band = AverageVsBaseBandValue;
+                return band switch
+                {
+                    JobMarginBaseBand.AboveBase =>
+                        $"▲ {AverageMarginPercent:0.#}% — ABOVE the {BaseExpectedMarginDisplay} base",
+                    JobMarginBaseBand.BelowBase =>
+                        $"▼ {AverageMarginPercent:0.#}% — BELOW the {BaseExpectedMarginDisplay} base",
+                    JobMarginBaseBand.AtBase =>
+                        $"＝ {AverageMarginPercent:0.#}% — AT the {BaseExpectedMarginDisplay} base",
+                    _ => ""
+                };
+            }
+        }
+
+        private JobMarginBaseBand OverallVsBaseBandValue => TotalCost > 0m
+            ? JobMarginBands.Classify(OverallMarginPercent, _baseExpectedMarginPercent)
+            : JobMarginBaseBand.Unknown;
+
+        /// <summary>String band for XAML triggers (Overall Margin tile).</summary>
+        public string OverallVsBaseBand => OverallVsBaseBandValue == JobMarginBaseBand.Unknown
+            ? ""
+            : OverallVsBaseBandValue.ToString();
+
+        /// <summary>One-line verdict under the OVERALL MARGIN tile.</summary>
+        public string OverallVsBaseVerdict
+        {
+            get
+            {
+                var band = OverallVsBaseBandValue;
+                return band switch
+                {
+                    JobMarginBaseBand.AboveBase =>
+                        $"▲ {OverallMarginPercent:0.#}% — ABOVE the {BaseExpectedMarginDisplay} base",
+                    JobMarginBaseBand.BelowBase =>
+                        $"▼ {OverallMarginPercent:0.#}% — BELOW the {BaseExpectedMarginDisplay} base",
+                    JobMarginBaseBand.AtBase =>
+                        $"＝ {OverallMarginPercent:0.#}% — AT the {BaseExpectedMarginDisplay} base",
+                    _ => ""
+                };
+            }
+        }
 
         /// <summary>True when the portfolio total is negative.</summary>
         public bool IsPortfolioLoss => TotalProfit < 0m;
@@ -691,6 +802,13 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             SalesmanFilterOptions.Add(AllFilter);
             CustomerFilterOptions.Add(AllFilter);
 
+            // Margin-vs-base filter values are band names (the base % itself
+            // is shown on the page header, live from Settings).
+            MarginBandFilterOptions.Add(AllFilter);
+            MarginBandFilterOptions.Add("Above");
+            MarginBandFilterOptions.Add("At");
+            MarginBandFilterOptions.Add("Below");
+
             // ══════════════════════════════════════════════════════════
             //  LIVE UPDATES
             //
@@ -799,6 +917,16 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 // never slip in.
                 var invoices = await repo.GetByStatusAsync(ProformaInvoiceStatus.Approved)
                     .ConfigureAwait(true);
+
+                // The company base expected margin (%) every row chip and the
+                // portfolio verdict compare against — read live from Settings
+                // (Features → Proforma Invoice → Step 9 → Profit margin %,
+                // 15% default). Change the setting and Refresh the page to
+                // re-judge the whole portfolio against the new base.
+                _baseExpectedMarginPercent =
+                    ProGlassAutomation.Services.Features.Step9PricingDefaults.ExpectedProfitMarginPercent;
+                OnPropertyChanged(nameof(BaseExpectedMarginPercent));
+                OnPropertyChanged(nameof(BaseExpectedMarginDisplay));
 
                 _allRows.Clear();
 
@@ -925,6 +1053,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         IsCosted = costed,
                         NeedsRecalculation = costed && integrity.NeedsRecalculation,
                         RecalculationWarning = integrity.Reason,
+                        BaseExpectedMarginPercent = _baseExpectedMarginPercent,
                         HasTargetData = hasTargetData,
                         TargetGivenValue = targetGiven,
                         TargetRequiredValue = targetRequired,
@@ -1069,9 +1198,32 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     Utilities.SearchHelper.ContainsIgnoreCase(r.ProjectName, term));
             }
 
-            var result = query
-                .OrderByDescending(r => r.IssueDate)
-                .ToList();
+            // Margin vs base band filter. Uncosted jobs match none of the
+            // bands, so picking Above/At/Below naturally keeps only costed
+            // jobs that sit in that band.
+            if (!string.Equals(MarginBandFilter, AllFilter, StringComparison.OrdinalIgnoreCase))
+            {
+                query = MarginBandFilter switch
+                {
+                    "Above" => query.Where(r => r.IsMarginAboveBase),
+                    "Below" => query.Where(r => r.IsMarginBelowBase),
+                    _ => query.Where(r => r.IsMarginAtBase)
+                };
+            }
+
+            // Sort (default: newest first, matching the original behaviour).
+            query = SortBy switch
+            {
+                "Margin % (highest first)" =>
+                    query.OrderByDescending(r => r.IsCosted)
+                         .ThenByDescending(r => r.EffectiveMarginPercent),
+                "Margin % (lowest first)" =>
+                    query.OrderByDescending(r => r.IsCosted)
+                         .ThenBy(r => r.EffectiveMarginPercent),
+                _ => query.OrderByDescending(r => r.IssueDate)
+            };
+
+            var result = query.ToList();
 
             Rows.ClearSilent();
             Rows.AddRangeSilent(result);
@@ -1177,6 +1329,14 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             OnPropertyChanged(nameof(IsPortfolioLoss));
             OnPropertyChanged(nameof(PortfolioStatusLine));
             OnPropertyChanged(nameof(TargetDataBasisNote));
+
+            // Margin-vs-base verdict lines (derived, so raise explicitly).
+            OnPropertyChanged(nameof(AverageVsBaseBand));
+            OnPropertyChanged(nameof(AverageVsBaseVerdict));
+            OnPropertyChanged(nameof(OverallVsBaseBand));
+            OnPropertyChanged(nameof(OverallVsBaseVerdict));
+            OnPropertyChanged(nameof(BaseExpectedMarginPercent));
+            OnPropertyChanged(nameof(BaseExpectedMarginDisplay));
         }
 
         private string BuildStatus(List<JobProfitabilityRow> rows)
@@ -1221,6 +1381,18 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 basis += $" {uncosted} job(s) have no Profit & Loss data, so " +
                          "their cost, profit and margin are blank — open each " +
                          "invoice, visit Step 9 to recalculate, then save.";
+            }
+
+            // Margin vs the company base expected margin (Settings default).
+            // Answers "how are we doing against the 15% plan" at a glance:
+            //   PI1 16% → above, PI2 14% → below, both together → at (≈15%).
+            var costed = rows.Where(r => r.IsCosted).ToList();
+            if (costed.Count > 0)
+            {
+                int above = costed.Count(r => r.IsMarginAboveBase);
+                int at = costed.Count(r => r.IsMarginAtBase);
+                int below = costed.Count(r => r.IsMarginBelowBase);
+                basis += $" Margin vs {BaseExpectedMarginDisplay} base: {above} above · {at} at · {below} below.";
             }
 
             return basis;

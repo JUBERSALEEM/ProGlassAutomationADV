@@ -217,6 +217,48 @@
                     </StackPanel>
                 </Grid>
 
+                <!-- Row 3: Margin vs base filter + sort + base read-out.
+                     The base % is the Settings default (Features → Proforma
+                     Invoice → Step 9 → Profit margin %) — refresh the page
+                     after changing it to re-judge the portfolio. -->
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Style="{StaticResource JpLabelStyle}">
+                            <Run Text="Margin vs "/><Run Text="{Binding BaseExpectedMarginDisplay, Mode=OneWay}"/><Run Text=" base"/>
+                        </TextBlock>
+                        <ComboBox ItemsSource="{Binding MarginBandFilterOptions}"
+                                  SelectedItem="{Binding MarginBandFilter}"
+                                  Style="{StaticResource JpComboStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="Sort by" Style="{StaticResource JpLabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding SortByOptions}"
+                                  SelectedItem="{Binding SortBy}"
+                                  Style="{StaticResource JpComboStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="4" VerticalAlignment="Bottom" Margin="4,0,0,2">
+                        <TextBlock FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="420"
+                                   VerticalAlignment="Center">
+                            <Run Text="Base expected margin: "/><Run Text="{Binding BaseExpectedMarginDisplay, Mode=OneWay}"/>
+                            <Run Text="  — company default from Settings → Features → Proforma Invoice → Step 9."/>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+
             </StackPanel>
         </Border>
 
@@ -332,6 +374,26 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
+                                <!-- Verdict vs the company base expected margin (Settings → Step 9). -->
+                                <TextBlock Text="{Binding OverallVsBaseVerdict}"
+                                           FontSize="{StaticResource TextCaption}"
+                                           FontWeight="Bold"
+                                           Margin="0,4,0,0"
+                                           TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding OverallVsBaseBand}" Value="AboveBase">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding OverallVsBaseBand}" Value="BelowBase">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
                         </Border>
 
@@ -384,6 +446,27 @@
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsAverageLoss}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <!-- Verdict vs the company base expected margin — the
+                                     reconciliation line (16% + 14% equal-size → ≈15% AT base). -->
+                                <TextBlock Text="{Binding AverageVsBaseVerdict}"
+                                           FontSize="{StaticResource TextCaption}"
+                                           FontWeight="Bold"
+                                           Margin="0,4,0,0"
+                                           TextWrapping="Wrap">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding AverageVsBaseBand}" Value="AboveBase">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding AverageVsBaseBand}" Value="BelowBase">
                                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
@@ -704,25 +787,50 @@
                                                             </TextBlock.Style>
                                                         </TextBlock>
 
-                                                        <TextBlock Grid.Column="6"
-                                                                   Text="{Binding MarginDisplay}"
-                                                                   HorizontalAlignment="Right"
-                                                                   ToolTip="{Binding RecalculationWarning}">
-                                                            <TextBlock.Style>
-                                                                <Style TargetType="TextBlock" BasedOn="{StaticResource JpCellStyle}">
-                                                                    <Setter Property="FontWeight" Value="SemiBold"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                                        </DataTrigger>
-                                                                        <DataTrigger Binding="{Binding IsCosted}" Value="False">
-                                                                            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-                                                                            <Setter Property="FontWeight" Value="Normal"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </TextBlock.Style>
-                                                        </TextBlock>
+                                                        <StackPanel Grid.Column="6" HorizontalAlignment="Right">
+                                                            <TextBlock Text="{Binding MarginDisplay}"
+                                                                       HorizontalAlignment="Right"
+                                                                       ToolTip="{Binding RecalculationWarning}">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock" BasedOn="{StaticResource JpCellStyle}">
+                                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding IsCosted}" Value="False">
+                                                                                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                                <Setter Property="FontWeight" Value="Normal"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                            <!-- Chip: achieved margin vs the base expected margin -->
+                                                            <TextBlock Text="{Binding MarginVsBaseChip}"
+                                                                       FontSize="{StaticResource TextCaption}"
+                                                                       FontWeight="Bold"
+                                                                       HorizontalAlignment="Right"
+                                                                       Margin="0,2,0,0"
+                                                                       ToolTip="Achieved margin vs the base expected margin (Settings &gt; Features &gt; Proforma Invoice &gt; Step 9).">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsMarginAboveBase}" Value="True">
+                                                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding IsMarginBelowBase}" Value="True">
+                                                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding HasBaseMarginComparison}" Value="False">
+                                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </StackPanel>
 
                                                         <TextBlock Grid.Column="7"
                                                                    Text="{Binding GivenPerSqmDisplay}"

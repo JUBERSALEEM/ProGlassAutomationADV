@@ -374,6 +374,63 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("JpTileValueStyle", src);
         }
 
+        [Fact]
+        public void Settings_global_profit_margin_tile_sits_at_top_of_proforma_features()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections/SettingsFeaturesSection.xaml"));
+
+            // The global default control exists, is inside the Proforma
+            // scope, and is placed ABOVE the visibility toggles so a user
+            // opening Settings → Features → Proforma Invoice sees it first.
+            Assert.Contains("STEP 9 · TARGET PRICING", src);
+            Assert.Contains("ExpectedProfitMarginPercent", src);
+            Assert.Contains("Profit margin %", src);
+            Assert.Contains("Global default", src);
+            Assert.True(src.IndexOf("STEP 9 · TARGET PRICING", StringComparison.Ordinal)
+                        < src.IndexOf("Settings.BulkActions", StringComparison.Ordinal),
+                "the Profit margin % tile must render before the visibility toggles");
+        }
+
+        [Fact]
+        public void Job_profitability_compares_achieved_margin_to_base_expected_margin()
+        {
+            var root = LocateProjectRoot();
+
+            // Row: banding (Above/At/Below) with a tight tolerance and a
+            // compact chip, judged against the base expected margin %.
+            var rowSrc = File.ReadAllText(Path.Combine(root,
+                "ViewModels/JobProfitability/JobProfitabilityRow.cs"));
+            Assert.Contains("BaseExpectedMarginPercent", rowSrc);
+            Assert.Contains("MarginVsBaseChip", rowSrc);
+            Assert.Contains("IsMarginAboveBase", rowSrc);
+            Assert.Contains("IsMarginBelowBase", rowSrc);
+            Assert.Contains("TolerancePercent = 0.05m", rowSrc);
+            Assert.Contains("EffectiveMarginPercent", rowSrc);
+
+            // ViewModel: base read live from the Settings default, band
+            // filter, sort and the reconciliation verdicts.
+            var vmSrc = File.ReadAllText(Path.Combine(root,
+                "ViewModels/JobProfitability/JobProfitabilityViewModel.cs"));
+            Assert.Contains("Step9PricingDefaults.ExpectedProfitMarginPercent", vmSrc);
+            Assert.Contains("MarginBandFilterOptions", vmSrc);
+            Assert.Contains("SortByOptions", vmSrc);
+            Assert.Contains("AverageVsBaseVerdict", vmSrc);
+            Assert.Contains("OverallVsBaseVerdict", vmSrc);
+            Assert.Contains("Margin vs ", vmSrc);
+
+            // View: the two portfolio tiles carry a verdict line and every
+            // row shows a chip under its MARGIN value.
+            var viewSrc = File.ReadAllText(Path.Combine(root,
+                "Views/JobProfitability/JobProfitabilityView.xaml"));
+            Assert.Contains("OverallVsBaseVerdict", viewSrc);
+            Assert.Contains("AverageVsBaseVerdict", viewSrc);
+            Assert.Contains("MarginVsBaseChip", viewSrc);
+            Assert.Contains("MarginBandFilterOptions", viewSrc);
+            Assert.Contains("SortByOptions", viewSrc);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

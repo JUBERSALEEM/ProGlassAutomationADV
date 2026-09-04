@@ -16,6 +16,53 @@ using ProGlassAutomation.Services.ProformaInvoice.TargetPricing;
 
 namespace ProGlassAutomation.ViewModels.JobProfitability
 {
+    /// <summary>
+    /// Where a job's ACHIEVED margin sits relative to the company's BASE
+    /// expected profit margin (Settings → Features → Proforma Invoice →
+    /// Step 9 → Profit margin %, 15% default). This compares the actual P&amp;L
+    /// margin against the plan — it is deliberately separate from the
+    /// target-PRICE model (given price vs required target).
+    /// </summary>
+    public enum JobMarginBaseBand
+    {
+        /// <summary>Job has no P&amp;L data (not costed) — never classed.</summary>
+        Unknown,
+        AboveBase,
+        AtBase,
+        BelowBase
+    }
+
+    /// <summary>
+    /// Pure banding rules shared by the row chips, the portfolio verdicts and
+    /// the unit tests. A margin within <see cref="TolerancePercent"/> of the
+    /// base counts as AT the base (0.05pp — far tighter than the 0.1pp the UI
+    /// can render, so "15.0% vs 15%" reads as at-base, 15.1% as above).
+    /// </summary>
+    public static class JobMarginBands
+    {
+        public const decimal TolerancePercent = 0.05m;
+
+        public static JobMarginBaseBand Classify(decimal achievedMargin, decimal baseMargin)
+        {
+            if (baseMargin <= 0m) return JobMarginBaseBand.Unknown;
+            if (achievedMargin < baseMargin - TolerancePercent) return JobMarginBaseBand.BelowBase;
+            if (achievedMargin > baseMargin + TolerancePercent) return JobMarginBaseBand.AboveBase;
+            return JobMarginBaseBand.AtBase;
+        }
+
+        /// <summary>Compact chip for a row: ▲ +1.0pp / ▼ -1.0pp / ＝ 15%.</summary>
+        public static string Chip(decimal achievedMargin, decimal baseMargin)
+        {
+            var band = Classify(achievedMargin, baseMargin);
+            if (band == JobMarginBaseBand.Unknown) return "";
+            if (band == JobMarginBaseBand.AtBase) return $"＝ {Math.Round(baseMargin, 1):0.#}%";
+            decimal diff = Math.Round(achievedMargin - baseMargin, 1);
+            return band == JobMarginBaseBand.AboveBase
+                ? $"▲ +{diff:0.0}pp"
+                : $"▼ {diff:0.0}pp";
+        }
+    }
+
     public class JobProfitabilityRow : ViewModelBase
     {
         public string ProformaId { get; set; } = "";
@@ -201,6 +248,40 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 return $"{pct:0.#}%";
             }
         }
+
+        // ── Achieved margin vs the company BASE expected margin ─────────
+        // The base is the Settings default (Step 9 → Profit margin %, 15%)
+        // captured by the parent VM at load time. The achieved margin is the
+        // same number the MARGIN column shows (OverallMarginPercent with the
+        // legacy MarginPercent fallback for pre-U-insert snapshots).
+
+        /// <summary>The company base expected margin (%) this job is judged
+        /// against. Assigned by JobProfitabilityViewModel from the live
+        /// Settings default when the list loads.</summary>
+        public decimal BaseExpectedMarginPercent { get; set; } = 15m;
+
+        /// <summary>The job's effective achieved margin (%) — the number the
+        /// MARGIN column renders and the bands compare.</summary>
+        public decimal EffectiveMarginPercent => IsCosted
+            ? (OverallMarginPercent != 0m ? OverallMarginPercent : MarginPercent)
+            : 0m;
+
+        /// <summary>True when the job has P&amp;L data to compare against the base.</summary>
+        public bool HasBaseMarginComparison => IsCosted;
+
+        public JobMarginBaseBand MarginVsBaseBand => HasBaseMarginComparison
+            ? JobMarginBands.Classify(EffectiveMarginPercent, BaseExpectedMarginPercent)
+            : JobMarginBaseBand.Unknown;
+
+        public bool IsMarginAboveBase => MarginVsBaseBand == JobMarginBaseBand.AboveBase;
+        public bool IsMarginAtBase => MarginVsBaseBand == JobMarginBaseBand.AtBase;
+        public bool IsMarginBelowBase => MarginVsBaseBand == JobMarginBaseBand.BelowBase;
+
+        /// <summary>Compact chip shown under the MARGIN value: ▲ +1.0pp,
+        /// ▼ -1.0pp or ＝ 15%.</summary>
+        public string MarginVsBaseChip => HasBaseMarginComparison
+            ? JobMarginBands.Chip(EffectiveMarginPercent, BaseExpectedMarginPercent)
+            : "";
 
         /// <summary>Customer and project on one line for the compact row.</summary>
         public string CustomerProjectDisplay =>
