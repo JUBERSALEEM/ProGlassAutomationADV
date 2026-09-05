@@ -583,10 +583,16 @@
                                     Background="{StaticResource
                                         CrystalProgressFillBrush}">
                                 <Border.Width>
+                                    <!-- D36 (2026-09-05): {x:Static Member} is NOT
+                                         whitespace-tolerant when split across lines —
+                                         the compiler parses the trailing whitespace as
+                                         part of the type name (MC3050) and every
+                                         crystal TargetType then cascades XDG0008 in
+                                         the designer. x:Static/x:Type must stay on
+                                         ONE line (StaticResource/TemplateBinding may
+                                         wrap). -->
                                     <MultiBinding
-                                        Converter="{x:Static
-                                            crystal:ProgressWidthConverter
-                                                .Instance}">
+                                        Converter="{x:Static crystal:ProgressWidthConverter.Instance}">
                                         <Binding Path="Value"
                                                  RelativeSource="{RelativeSource
                                                      TemplatedParent}" />

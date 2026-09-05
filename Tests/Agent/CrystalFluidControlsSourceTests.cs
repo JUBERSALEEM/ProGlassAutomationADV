@@ -265,6 +265,39 @@ namespace ProGlassAutomation.Tests.Agent
                 "OnUnloaded must stop the blob storyboards.");
         }
 
+        // ── D36: whitespace-sensitive markup extensions never wrap ────
+        [Fact]
+        public void D36_xstatic_and_xtype_never_span_multiple_lines()
+        {
+            // Authored file 10 shipped
+            //   Converter="{x:Static crystal:ProgressWidthConverter"
+            //       ".Instance}"
+            // — the compile error literally reads the padded whitespace
+            // as part of the type name (MC3050) and every crystal
+            // TargetType then cascades XDG0008 in the designer. Root
+            // rule: {x:Static …} and {x:Type …} close on ONE line;
+            // {StaticResource}/{TemplateBinding} may wrap legally.
+            string xaml = Read(ControlsDict);
+
+            Assert.Contains(
+                "Converter=\"{x:Static crystal:ProgressWidthConverter.Instance}\"",
+                xaml, StringComparison.Ordinal);
+
+            foreach (string raw in xaml.Split('\n'))
+            {
+                string line = raw.Trim();
+                foreach (string sig in new[] { "{x:Static ", "{x:Type " })
+                {
+                    int at = line.IndexOf(sig, StringComparison.Ordinal);
+                    if (at < 0) continue;
+                    int close = line.IndexOf('}', at);
+                    Assert.True(close >= 0,
+                        "Whitespace-sensitive markup extension " + sig.Trim('{')
+                        + " wraps onto another line: " + line);
+                }
+            }
+        }
+
         // ── D6/D15: coerces are wired into DP metadata; amplitude is live ──
         [Fact]
         public void D6_coerces_actually_hook_the_metadata()
