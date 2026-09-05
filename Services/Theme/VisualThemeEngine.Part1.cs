@@ -87,7 +87,7 @@ namespace ProGlassAutomation.Services.Theme
             "LiquidPrimaryButtonBrush", "LiquidOverlayBrush",
             "LiquidShadowColor",
 
-            // Glass surface brushes — Ultra Transparent overrides
+            // Glass surface brushes — Crystal Fluid overrides
             // these to the crystal fill; they must be cleaned up
             // when switching back to other families.
             "GlassUltraClearBrush", "GlassSurfaceBrush",

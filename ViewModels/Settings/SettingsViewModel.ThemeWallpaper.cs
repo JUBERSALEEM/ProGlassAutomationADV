@@ -40,7 +40,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         // ══════════════════════════════════════════════════════════════
         //  v2 — VISUAL THEME & WALLPAPER. Family catalogue (2026-09-05):
         //       Normal / Monet / Professional / iOS Liquid Glass /
-        //       Ultra Transparent / Ocean / Industrial White / Grey /
+        //       Crystal Fluid / Ocean / Industrial White / Grey /
         //       Dark. The legacy theme entries were removed in the
         //       2026-08-29 rewrite; saved configs still resolve to iOS
         //       Liquid Glass via the engine's Normalize mapping.

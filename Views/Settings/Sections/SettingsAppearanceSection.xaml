@@ -20,6 +20,7 @@
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAppearanceSection"
              xmlns:sc="clr-namespace:ProGlassAutomation.Views.Settings.Controls"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
@@ -268,9 +269,19 @@
                                 Background="{DynamicResource ElevatedSurfaceBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="1"
-                                Padding="12,10" Margin="0,8,0,0"
+                                Margin="0,8,0,0"
                                 SnapsToDevicePixels="True">
-                            <StackPanel>
+                            <Grid>
+                                <!-- Crystal Fluid M3b: the studio's OWN
+                                     preview is a water reservoir —
+                                     WaterFlow moves the level live
+                                     (§60), the family gate keeps it
+                                     invisible under other families. -->
+                                <crystal:CrystalWater
+                                    WaterEnabled="{DynamicResource CrystalWaterDefaultEnabled}"
+                                    WaterLevel="{Binding StudioWaterLevel01}"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"/>
+                            <StackPanel Padding="12,10">
                                 <TextBlock Text="{DynamicResource Settings.PreviewModuleCard}"
                                            FontWeight="Bold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -319,6 +330,7 @@
                                     </Border>
                                 </UniformGrid>
                             </StackPanel>
+                            </Grid>
                         </Border>
                     </StackPanel>
                 </Border>

@@ -443,7 +443,7 @@ namespace ProGlassAutomation.Services
             // About finally follows custom accents, theme-family swaps
             // and live Settings changes instead of staying fixed to one accent.
             //
-            // SKIP when Ultra Transparent is active — that family uses the
+            // SKIP when Crystal Fluid is active — the family uses the
             // theme XAML values directly (already transparent crystal glass).
             // Overriding them here would repaint every About surface opaque.
             if (VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid)

@@ -681,15 +681,16 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Ultra_transparent_keeps_card_text_readable()
+        public void Crystal_fluid_keeps_card_text_readable()
         {
-            // Ultra Transparent shows the wallpaper behind everything but
-            // must never lose the text on cards: a whisper of card frost
-            // plus a stronger crystal edge (36% white, was 24%).
+            // Crystal Fluid (2026-09-05, replaces Ultra Transparent): the
+            // pale environment shows behind everything, but card text must
+            // never wash out: spec glass frost (.30/.12 whisper on module
+            // surfaces) plus the §11 bright white crystal edge (56%).
             string engine = Engine;
-            Assert.Contains("Color.FromArgb(0x5C, 0xFF, 0xFF, 0xFF)", engine, StringComparison.Ordinal);
+            Assert.Contains("Color.FromArgb(0x8F, 0xFF, 0xFF, 0xFF)", engine, StringComparison.Ordinal);
             Assert.Contains("CARD FROST", engine, StringComparison.Ordinal);
-            Assert.Contains("FrostFill(accent, dark ? 0.14 : 0.12, dark ? 0.07 : 0.06)", engine, StringComparison.Ordinal);
+            Assert.Contains("FrostFill(accent, dark ? 0.16 : 0.30, dark ? 0.08 : 0.12)", engine, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -724,7 +725,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.True(
                 Regex.Matches(engine, "PublishSectionGlass\\(resources").Count >= 5,
                 "PublishSectionGlass must run for LiquidGlass, Monet, " +
-                "Professional, Ocean and Ultra Transparent");
+                "Professional, Ocean and Crystal Fluid");
             Assert.Contains(
                 "resources[\"GlassSurfaceBrush\"] = resources[\"ModuleBackgroundBrush\"]",
                 engine, StringComparison.Ordinal);
@@ -958,19 +959,19 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Ultra_transparent_covers_rail_dialogs_and_sections()
+        public void Crystal_fluid_covers_rail_dialogs_and_sections()
         {
-            // Ultra Transparent used to leave SideMenu/Elevated at the
-            // base-theme fills (opaque cream in Light!), so the settings
-            // rail and popups never actually went transparent — the
-            // section-adoption half of the family was broken. Now a
-            // whisper of frost keeps them glass AND readable.
+            // Crystal Fluid (2026-09-05): the settings rail is a FLOATING
+            // crystal panel (.55/.30 white frost) and dialogs/dropdown
+            // popups sit one shelf stronger (.62/.40), so they stay
+            // readable over the pale environment (§25/§38/§39). Rail and
+            // dialogs are covered by the family, glass AND readable.
             string engine = Engine;
             Assert.Contains(
-                "FrostFill(accent, dark ? 0.18 : 0.16, dark ? 0.10 : 0.08)",
+                "FrostFill(accent, dark ? 0.22 : 0.55, dark ? 0.12 : 0.30)",
                 engine, StringComparison.Ordinal);
             Assert.Contains(
-                "FrostFill(accent, dark ? 0.24 : 0.22, dark ? 0.14 : 0.12)",
+                "FrostFill(accent, dark ? 0.28 : 0.62, dark ? 0.16 : 0.40)",
                 engine, StringComparison.Ordinal);
         }
 

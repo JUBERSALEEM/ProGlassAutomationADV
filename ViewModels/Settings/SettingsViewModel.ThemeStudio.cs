@@ -457,8 +457,17 @@ namespace ProGlassAutomation.ViewModels.Settings
         public double StudioWaterFlow
         {
             get => _studioDraft?.WaterFlow ?? 0;
-            set => StudioSet(v => v.WaterFlow = value);
+            set
+            {
+                StudioSet(v => v.WaterFlow = value);
+                OnPropertyChanged(nameof(StudioWaterLevel01));
+            }
         }
+
+        /// <summary>WaterFlow as a 0..1 fill for the Crystal Water
+        /// preview (spec §60: the studio slider moves the water level
+        /// live). StudioNotifyAllSliders refreshes it with the rest.</summary>
+        public double StudioWaterLevel01 => StudioWaterFlow / 100.0;
 
         // ── Commands ──────────────────────────────────────────────────
 
@@ -641,6 +650,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             OnPropertyChanged(nameof(StudioColorRichness));
             OnPropertyChanged(nameof(StudioTextStrength));
             OnPropertyChanged(nameof(StudioWaterFlow));
+            OnPropertyChanged(nameof(StudioWaterLevel01));
             OnPropertyChanged(nameof(StudioFamilyName));
             OnPropertyChanged(nameof(IsGlassStudioRelevant));
             OnPropertyChanged(nameof(ActiveQuickLookText));

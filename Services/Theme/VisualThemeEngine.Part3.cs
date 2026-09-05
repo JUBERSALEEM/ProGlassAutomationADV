@@ -124,7 +124,7 @@ namespace ProGlassAutomation.Services.Theme
             resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.10, 0.05);
             resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.10, 0.05);
 
-            // ── 6b) CARD/SURFACE FROST (§10/§39/§81) — layered alpha
+            // ── 6b) CARD FROST (§10/§39/§81) — layered alpha
             // white; the environment must stay perceptible, so module
             // surfaces are a whisper while elevated sheets (dialogs,
             // dropdown popups) sit one shelf higher for readability.
