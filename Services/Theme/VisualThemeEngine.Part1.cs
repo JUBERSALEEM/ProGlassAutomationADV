@@ -251,6 +251,15 @@ namespace ProGlassAutomation.Services.Theme
                 _lastWallpaperOpacity = ClampOpacity(wallpaperOpacity);
 
                 ClearOverrides(resources);
+                // PRE-SEED (2026-09-05 — ERR-50472F): ClearOverrides just
+                // opened a window where managed keys are ABSENT. A
+                // template inflating against this dictionary in the same
+                // dispatcher turn then dies with
+                // ResourceReferenceKeyNotFoundException ('DashAmbientBrush'
+                // crashed a customer's app mid-switch). Seeding the
+                // critical set now means every key transitions
+                // old → fallback → family value — never through ABSENT.
+                GuaranteeCriticalResources(resources, silent: true);
                 Current = Normalize(family);
 
                 switch (Current)
@@ -383,6 +392,10 @@ namespace ProGlassAutomation.Services.Theme
                 // Rebuild the family baseline (removes the previous
                 // module's wallpaper layer).
                 ClearOverrides(resources);
+                // PRE-SEED (2026-09-05 — ERR-50472F): never leave the
+                // dictionary with absent keys between teardown and the
+                // family republish — see Apply() for the full rationale.
+                GuaranteeCriticalResources(resources, silent: true);
                 Current = Normalize(appearance?.VisualTheme ?? Normal);
 
                 switch (Current)
@@ -586,7 +599,7 @@ namespace ProGlassAutomation.Services.Theme
         // machine-specific failure is diagnosable instead of invisible.
 
         private static void GuaranteeCriticalResources(
-            ResourceDictionary resources)
+            ResourceDictionary resources, bool silent = false)
         {
             try
             {
@@ -613,15 +626,22 @@ namespace ProGlassAutomation.Services.Theme
 
                     if (present) continue;
 
-                    AppLogService.Warning(
-                        $"Critical theme resource missing — injected " +
-                        $"fallback: {key}",
-                        new LogContext
-                        {
-                            Module = "Themes",
-                            Class = nameof(VisualThemeEngine),
-                            Operation = "GuaranteeCriticalResources"
-                        });
+                    // Silent when pre-seeding (the family painter is
+                    // about to overwrite the seed anyway); loud when the
+                    // FINAL pass finds a hole — that means a family
+                    // painter forgot part of the managed contract.
+                    if (!silent)
+                    {
+                        AppLogService.Warning(
+                            $"Critical theme resource missing — injected " +
+                            $"fallback: {key}",
+                            new LogContext
+                            {
+                                Module = "Themes",
+                                Class = nameof(VisualThemeEngine),
+                                Operation = "GuaranteeCriticalResources"
+                            });
+                    }
 
                     resources[key] = fallback;
                 }

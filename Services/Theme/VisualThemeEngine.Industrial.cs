@@ -116,6 +116,66 @@ namespace ProGlassAutomation.Services.Theme
             // their own palette (they already do via PopupSurfaceBrush).
             resources["PopupSurfaceBrush"] = elevatedBrush;
 
+            // ── FAMILY CONTRACT (2026-09-05, ERR-50472F) ───────────────
+            // ClearOverrides strips EVERY family-managed key from the app
+            // scope before this painter runs. The theme-file statics are
+            // NOT a guaranteed safety net (a machine that can no longer
+            // resolve the merged theme static threw
+            // ResourceReferenceKeyNotFoundException on 'DashAmbientBrush'
+            // mid-switch and crashed the app). Every family MUST
+            // republish the complete managed contract — dashboard, shell,
+            // sidebar, liquid tokens, status tints — from its own
+            // palette. Industrial publishes them all as flat slabs.
+
+            var keylineBrush = new SolidColorBrush(keyline);
+            keylineBrush.Freeze();
+            var transparent = new SolidColorBrush(Colors.Transparent);
+            transparent.Freeze();
+
+            // Dashboard — hero card is a slab; the ambient layer becomes
+            // a whisper of keyline over the module; ambient light blobs
+            // have no place on a factory floor (transparent, not missing).
+            resources["DashLiquidSurfaceBrush"] = elevatedBrush;
+            var ambient = Flat(Blend(keyline, module, dark ? 0.14 : 0.09));
+            resources["DashAmbientBrush"] = ambient;
+            resources["DashAmbientBlob1Brush"] = transparent;
+            resources["DashAmbientBlob2Brush"] = transparent;
+
+            // Shell top strip + sidebar tiles follow the chrome palette.
+            resources["ShellLiquidBrush"] = sideMenuBrush;
+            resources["SidebarCardBrush"] = elevatedBrush;
+
+            // Liquid Glass design tokens → flat industrial equivalents:
+            // no crystal sheen, no reflection, no glow — a visible 1px
+            // keyline is the only edge treatment.
+            resources["LiquidGlassBrush"] = moduleBrush;
+            resources["LiquidGlassSubtleBrush"] = moduleBrush;
+            resources["LiquidGlassStrongBrush"] = elevatedBrush;
+            resources["LiquidEdgeBrush"] = keylineBrush;
+            resources["LiquidInnerHighlightBrush"] = transparent;
+            resources["LiquidReflectionBrush"] = transparent;
+            resources["LiquidControlHoverBrush"] = hoverBrush;
+            resources["LiquidControlPressedBrush"] = Flat(
+                Blend(keyline, hover, 0.35));
+            resources["LiquidControlDisabledBrush"] = Flat(
+                Blend(keyline, module, dark ? 0.22 : 0.14));
+            resources["LiquidFocusBrush"] = Flat(
+                Blend(keyline, elevated, 0.55));
+            resources["LiquidSelectionBrush"] = Flat(
+                Blend(keyline, module, dark ? 0.35 : 0.22));
+            // Primary action: one dependable steel slab per mode.
+            resources["LiquidPrimaryButtonBrush"] = Flat(
+                Blend(keyline, dark ? Colors.White : Colors.Black,
+                    dark ? 0.30 : 0.45));
+            resources["LiquidOverlayBrush"] = Flat(
+                Blend(Colors.Black, windowTop, dark ? 0.35 : 0.15, 0.72));
+            resources["LiquidShadowColor"] = Color.FromArgb(
+                dark ? (byte)0x3D : (byte)0x24, 0, 0, 0);
+
+            // Status chips — matte, desaturated tints: hue kept, theatre
+            // removed (readable next to noisy machinery, on projectors).
+            PublishMatteTints(resources, module, dark);
+
             // The visible 1px card keyline (no shadows, no glow — this is
             // the industrial signature separator).
             ApplyKeyline(resources, keyline);
@@ -130,6 +190,52 @@ namespace ProGlassAutomation.Services.Theme
         {
             var c = ColorConverter.ConvertFromString(hex);
             return c is Color col ? col : Colors.Magenta;
+        }
+
+        /// <summary>Status chips without the glass theatre: the hue at a
+        /// disciplined strength over the module slab — same idea as the
+        /// liquid family's HueFrost, but an OPAQUE matte mix so text and
+        /// boundaries stay contrast-true on shop-floor displays.</summary>
+        private static void PublishMatteTints(
+            ResourceDictionary resources, Color module, bool dark)
+        {
+            double t = dark ? 0.34 : 0.14;
+            resources["TintIndigoBrush"] = Flat(Blend(
+                ParseColor("#6366F1"), module, t));
+            resources["TintBlueBrush"] = Flat(Blend(
+                ParseColor("#3B82F6"), module, t));
+            resources["TintGreenBrush"] = Flat(Blend(
+                ParseColor("#22C55E"), module, t));
+            resources["TintRedBrush"] = Flat(Blend(
+                ParseColor("#EF4444"), module, t));
+            resources["TintAmberBrush"] = Flat(Blend(
+                ParseColor("#F59E0B"), module, t));
+            resources["TintPurpleBrush"] = Flat(Blend(
+                ParseColor("#A855F7"), module, t));
+            resources["TintGrayBrush"] = Flat(Blend(
+                ParseColor("#6B7280"), module, t));
+        }
+
+        /// <summary>Frozen solid brush for a pre-computed colour.</summary>
+        private static SolidColorBrush Flat(Color color)
+        {
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            return brush;
+        }
+
+        /// <summary>OPAQUE colour mix: <paramref name="t"/> parts of
+        /// <paramref name="a"/> over <paramref name="b"/>. Used instead of
+        /// alpha-blended translucency so every industrial surface stays a
+        /// true solid (compositing-free, projector-safe).</summary>
+        private static Color Blend(Color a, Color b, double t, double alpha = 1.0)
+        {
+            if (t < 0) t = 0; else if (t > 1) t = 1;
+            byte Ch(double x, double y) =>
+                (byte)Math.Round(x * t + y * (1.0 - t));
+            return Color.FromArgb(
+                (byte)Math.Round(255.0 * alpha),
+                Ch(a.R, b.R), Ch(a.G, b.G), Ch(a.B, b.B));
         }
     }
 }

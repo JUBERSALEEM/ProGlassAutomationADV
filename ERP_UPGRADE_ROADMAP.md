@@ -517,3 +517,66 @@ HasTimeSpan skip, NaN/Infinity skip,
      outcomes / a final ALL-PROVIDERS-FAILED diagnosis with the exact
      network reason, so "downloads do nothing" is diagnosable in one
      read of the app log.
+
+═══════════════════════════════════════════════════════════════════════
+2026-09-05 (5) — ERR-50472F POSTMORTEM + INDUSTRIAL CONTRACT +
+                 SINGLE-PAINT SWITCHING + PRE-SEED GUARANTEE
+═══════════════════════════════════════════════════════════════════════
+
+CUSTOMER CRASH (ERR-50472F): ResourceReferenceKeyNotFoundException
+'DashAmbientBrush' mid-switch to Industrial Dark. Timeline from the
+crash log: family painted (:298) → integrity net injected a fallback
+(:317) → family painted AGAIN (:548) → a template inflated against the
+half-rebuilt dictionary 9 ms later and killed the app.
+
+PROVEN root cause chain:
+  1. MY Industrial painters published only 9 of the 64-key managed
+     contract (window/module/elevated/side menu/hover/popup/radii/
+     section glass). ClearOverrides strips ALL family-managed keys
+     before a family paints; every other family republishes the full
+     contract — dashboard, shell, sidebar, liquid tokens, status tints.
+     Industrial simply forgot them. Contract violation is mine.
+  2. ThemePipeline.RebuildFamily called Apply() AND THEN ApplyModule(),
+     which rebuilds the family internally — a double teardown/repaint
+     per switch. Second pass re-opened the missing-key window that the
+     first pass's integrity net had just closed.
+  3. WPF detail that turns #1+#2 fatal: a missing DynamicResource
+     inside an INFLATING template (ComingSoonView/dashboard surfaces
+     consume DashAmbientBrush) throws at inflation — on the deferred
+     layout pass AFTER the paint returned, so engine try/catch never
+     saw it. Hence "unhandled UI exception".
+
+FIX SET (this commit):
+  1. Industrial.cs now republishes the COMPLETE managed contract as
+     flat slabs: Dash trio (hero slab / whisper ambient / blobs
+     transparent), ShellLiquidBrush, SidebarCardBrush, all 14 Liquid*
+     tokens (solid equivalents; sheen/reflection transparent), all 7
+     Tint* status chips (matte opaque hue mixes), LiquidShadowColor.
+     Blends are OPAQUE colour maths (Blend+Flat helpers), no alpha
+     theatre — the industrial spec.
+  2. GuaranteeCriticalResources now PRE-SEEDS right after
+     ClearOverrides in BOTH Apply() and ApplyModule() (silent) — keys
+     transition old → fallback → family value, never through ABSENT.
+     The final pass still WARNs loudly: a post-paint miss means a
+     family painter forgot the contract, and the log will name it.
+  3. ThemePipeline.RebuildFamily paints ONCE: the module pass alone
+     (family change flips BuildSceneSignature → real repaint; an
+     identical repeat is skipped). The double teardown — the visible
+     flash/"dull blur" bounce on every switch — is gone. Contract
+     header renumbered to match: ApplyTheme → ApplyModule → accent →
+     outline.
+
+WHY THE SWITCHES LOOKED "DULL/BLURRY": every switch flash-cycled every
+DynamicResource surface through the post-clear gap twice (two renders:
+fallback, family), plus the mode-coupled Light/Dark dictionary swap and
+acrylic backdrop re-derive in between. One paint now, keys never
+absent, scene factory already serves dedicated flat industrial scenes
+(Ledger/Fog/Foundry — verified present).
+
+RESIDUAL (honest): the guarantee net's FindResource proved the merged
+theme-file STATIC did not resolve 'DashAmbientBrush' on the customer's
+machine although DarkTheme.xaml:487 defines it root-level (deferred-
+source quirk after a same-tick dictionary swap is the prime suspect).
+Unproven below the app layer — now MOOT: the app-level contract is
+complete for every family and the pre-seed closes the window even for
+hypothetical future gaps.

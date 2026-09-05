@@ -35,13 +35,14 @@
 //
 //     1. ThemeManager.ApplyTheme      (Light/Dark dictionary swap — only
 //                                      the full flavour, only when asked)
-//     2. VisualThemeEngine.Apply      (family baseline repaint)
-//     3. VisualThemeEngine.ApplyModule(module overlay + wallpaper/scene
-//        overlay; its finally applies the studio profile ONCE on the
-//        fresh family snapshot — the canonical studio hook)
-//     4. ThemeManager.ApplyAccent     (accent family + outline source,
+//     2. VisualThemeEngine.ApplyModule(family baseline + module overlay +
+//        wallpaper/scene overlay in ONE paint — its finally applies the
+//        studio profile ONCE on the fresh family snapshot, the canonical
+//        studio hook; 2026-09-05: previously Apply()+ApplyModule()
+//        double-painted every switch, see ERR-50472F)
+//     3. ThemeManager.ApplyAccent     (accent family + outline source,
 //                                      re-derived from the NEW surfaces)
-//     5. ThemeManager.ReapplyOutlinePreference (user's card-edges choice)
+//     4. ThemeManager.ReapplyOutlinePreference (user's card-edges choice)
 //
 //   NOBODY else runs those layers after this: no duplicate studio
 //   re-apply, no trailing RefreshScene, no second ApplyModule. Services
@@ -98,25 +99,32 @@ namespace ProGlassAutomation.Services.Theme
             {
                 var appearance = App.Config?.Appearance;
 
-                // 2) Family baseline repaint (the engine invalidates its
-                //    own scene cache inside Apply — a real repaint).
-                VisualThemeEngine.Apply(
-                    appearance?.VisualTheme ?? VisualThemeEngine.Normal,
-                    appearance?.WallpaperPath ?? "",
-                    appearance?.WallpaperOpacity ?? 0.85);
-
-                // 3) Module + wallpaper/scene overlay. The engine's
-                //    finally block runs the ONE canonical studio re-apply
-                //    on the fresh family snapshot (OnFamilyApplied).
+                // 2) ONE module pass paints family baseline + module and
+                //    wallpaper/scene layers (ApplyModule rebuilds the
+                //    family internally; its finally block runs the ONE
+                //    canonical studio re-apply on the fresh family
+                //    snapshot — OnFamilyApplied).
+                //
+                //    2026-09-05 (ERR-50472F postmortem): this used to call
+                //    VisualThemeEngine.Apply() FIRST and ApplyModule()
+                //    after — the ENTIRE 64-key dictionary was torn down
+                //    and republished TWICE per switch. That was the
+                //    visible flash/"dull blur" bounce the owner reported,
+                //    and it opened two missing-key windows instead of
+                //    one — the second killed a customer's app when a
+                //    template inflated against the half-rebuilt
+                //    dictionary. Now: a family change flips the scene
+                //    signature, so this pass always repaints for real;
+                //    an identical repeat is skipped — zero churn.
                 VisualThemeEngine.ApplyModule(
                     VisualThemeEngine.LastRequestedModule, appearance);
 
-                // 4) Accent family re-derived from the NEW surfaces —
+                // 3) Accent family re-derived from the NEW surfaces —
                 //    the keyline source must be the post-family surface.
                 ThemeManager.ApplyAccent(
                     ThemeManager.AccentColor, raiseEvent: false);
 
-                // 5) The user's Defined Card Edges choice reads the
+                // 4) The user's Defined Card Edges choice reads the
                 //    freshly derived accent keyline — always last.
                 ThemeManager.ReapplyOutlinePreference();
 
