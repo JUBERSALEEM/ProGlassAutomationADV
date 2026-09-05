@@ -980,27 +980,27 @@
                                    FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <UniformGrid Columns="5">
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioFrostness}"
                             Value="{Binding StudioFrostness, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="Frostness"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioTransparency}"
                             Value="{Binding StudioTransparency, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="Transparency"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioCorners}"
                             Value="{Binding StudioCornerRoundness, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="CornerRoundness"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioShadow}"
                             Value="{Binding StudioShadowIntensity, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="ShadowIntensity"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioBlur}"
                             Value="{Binding StudioBlurIntensity, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
@@ -1019,13 +1019,13 @@
                                    FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <UniformGrid Columns="2">
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioColorRichness}"
                             Value="{Binding StudioColorRichness, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="ColorRichness"
                             ToolTipText="{DynamicResource Settings.StudioColorRichnessHint}"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioTextStrength}"
                             Value="{Binding StudioTextStrength, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
@@ -1039,7 +1039,7 @@
                                    FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <UniformGrid Columns="2">
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioWaterFlow}"
                             Value="{Binding StudioWaterFlow, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
@@ -1058,60 +1058,60 @@
                                    FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <UniformGrid Columns="4">
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioTint}"
                             Value="{Binding StudioGlassTint, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="GlassTint"
                             IsRelevant="{Binding IsGlassStudioRelevant}"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioPadding}"
                             Value="{Binding StudioCardPadding, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="CardPadding"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioSoftness}"
                             Value="{Binding StudioShadowSoftness, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="ShadowSoftness"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioDepth}"
                             Value="{Binding StudioShadowDepth, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="ShadowDepth"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioBorder}"
                             Value="{Binding StudioBorderVisibility, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="BorderVisibility"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioBorderOpacity}"
                             Value="{Binding StudioBorderOpacity, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="BorderOpacity"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioBorderWidth}"
                             Value="{Binding StudioBorderThickness, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="BorderThickness"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioBackground}"
                             Value="{Binding StudioBackgroundVisibility, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="BackgroundVisibility"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioGlow}"
                             Value="{Binding StudioBackgroundGlow, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="BackgroundGlow"
                             IsRelevant="{Binding IsGlassStudioRelevant}"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioHighlight}"
                             Value="{Binding StudioHighlightStrength, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
                             SliderKey="HighlightStrength"
                             IsRelevant="{Binding IsGlassStudioRelevant}"/>
-                            <sc:StudioSlider Margin="0,0,10,6"
+                            <sc:StudioSliderControl Margin="0,0,10,6"
                             Header="{DynamicResource Settings.StudioAnimation}"
                             Value="{Binding StudioAnimationIntensity, Mode=TwoWay}"
                             ResetCommand="{Binding ResetStudioSliderCommand}"
