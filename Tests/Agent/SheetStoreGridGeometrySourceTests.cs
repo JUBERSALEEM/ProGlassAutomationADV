@@ -94,6 +94,18 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Thickness_cell_centers_with_valid_textblock_api()
+        {
+            string view = View();
+
+            // Centered via TextAlignment — WPF TextBlock has NO
+            // "HorizontalTextAlignment"; that bogus attribute (XLS0413 /
+            // MC3072 build break) must never come back.
+            Assert.Contains("TextAlignment=\"Center\"", view);
+            Assert.DoesNotContain("HorizontalTextAlignment", view);
+        }
+
+        [Fact]
         public void Stats_strip_has_no_one_off_gutter()
         {
             string view = View();

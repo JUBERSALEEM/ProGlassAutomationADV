@@ -523,7 +523,7 @@
                                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding Category}"/>
                                             <TextBlock Grid.Column="2" Padding="6,0" Text="{Binding ThicknessDisplay}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
-                                                       HorizontalTextAlignment="Center"/>
+                                                       TextAlignment="Center"/>
                                             <TextBlock Grid.Column="3" Padding="6,0" Text="{Binding Color}" FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding Color}"/>
