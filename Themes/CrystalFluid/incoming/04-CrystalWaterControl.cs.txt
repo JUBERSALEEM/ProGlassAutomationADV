@@ -1,0 +1,641 @@
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+using System.Windows.Threading;
+
+namespace CrystalFluid.Controls
+{
+    /// <summary>
+    /// Renders animated water inside a crystal container.
+    /// Includes water body, surface wave, caustic light, and bubbles.
+    /// Designed for performance: single shared timer, minimal visual tree.
+    /// </summary>
+    public class CrystalWaterControl : Control
+    {
+        #region ── Dependency Properties ──
+
+        public static readonly DependencyProperty WaterLevelProperty =
+            DependencyProperty.Register(
+                nameof(WaterLevel),
+                typeof(double),
+                typeof(CrystalWaterControl),
+                new FrameworkPropertyMetadata(
+                    0.30,
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnWaterLevelChanged,
+                    CoerceWaterLevel));
+
+        public static readonly DependencyProperty WaterEnabledProperty =
+            DependencyProperty.Register(
+                nameof(WaterEnabled),
+                typeof(bool),
+                typeof(CrystalWaterControl),
+                new PropertyMetadata(true, OnWaterEnabledChanged));
+
+        public static readonly DependencyProperty WaterSpeedProperty =
+            DependencyProperty.Register(
+                nameof(WaterSpeed),
+                typeof(double),
+                typeof(CrystalWaterControl),
+                new PropertyMetadata(1.0));
+
+        public static readonly DependencyProperty BubbleEnabledProperty =
+            DependencyProperty.Register(
+                nameof(BubbleEnabled),
+                typeof(bool),
+                typeof(CrystalWaterControl),
+                new PropertyMetadata(true));
+
+        public static readonly DependencyProperty BubbleCountProperty =
+            DependencyProperty.Register(
+                nameof(BubbleCount),
+                typeof(int),
+                typeof(CrystalWaterControl),
+                new PropertyMetadata(3, OnBubbleCountChanged),
+                ValidateBubbleCount);
+
+        public static readonly DependencyProperty CausticsEnabledProperty =
+            DependencyProperty.Register(
+                nameof(CausticsEnabled),
+                typeof(bool),
+                typeof(CrystalWaterControl),
+                new PropertyMetadata(true));
+
+        public static readonly DependencyProperty WaveAmplitudeProperty =
+            DependencyProperty.Register(
+                nameof(WaveAmplitude),
+                typeof(double),
+                typeof(CrystalWaterControl),
+                new PropertyMetadata(3.0));
+
+        public static readonly DependencyProperty ReducedMotionProperty =
+            DependencyProperty.Register(
+                nameof(ReducedMotion),
+                typeof(bool),
+                typeof(CrystalWaterControl),
+                new PropertyMetadata(false, OnReducedMotionChanged));
+
+        public static readonly DependencyProperty CornerRadiusProperty =
+            DependencyProperty.Register(
+                nameof(CornerRadius),
+                typeof(CornerRadius),
+                typeof(CrystalWaterControl),
+                new PropertyMetadata(new CornerRadius(30)));
+
+        #endregion
+
+        #region ── CLR Properties ──
+
+        public double WaterLevel
+        {
+            get => (double)GetValue(WaterLevelProperty);
+            set => SetValue(WaterLevelProperty, value);
+        }
+
+        public bool WaterEnabled
+        {
+            get => (bool)GetValue(WaterEnabledProperty);
+            set => SetValue(WaterEnabledProperty, value);
+        }
+
+        public double WaterSpeed
+        {
+            get => (double)GetValue(WaterSpeedProperty);
+            set => SetValue(WaterSpeedProperty, value);
+        }
+
+        public bool BubbleEnabled
+        {
+            get => (bool)GetValue(BubbleEnabledProperty);
+            set => SetValue(BubbleEnabledProperty, value);
+        }
+
+        public int BubbleCount
+        {
+            get => (int)GetValue(BubbleCountProperty);
+            set => SetValue(BubbleCountProperty, value);
+        }
+
+        public bool CausticsEnabled
+        {
+            get => (bool)GetValue(CausticsEnabledProperty);
+            set => SetValue(CausticsEnabledProperty, value);
+        }
+
+        public double WaveAmplitude
+        {
+            get => (double)GetValue(WaveAmplitudeProperty);
+            set => SetValue(WaveAmplitudeProperty, value);
+        }
+
+        public bool ReducedMotion
+        {
+            get => (bool)GetValue(ReducedMotionProperty);
+            set => SetValue(ReducedMotionProperty, value);
+        }
+
+        public CornerRadius CornerRadius
+        {
+            get => (CornerRadius)GetValue(CornerRadiusProperty);
+            set => SetValue(CornerRadiusProperty, value);
+        }
+
+        #endregion
+
+        #region ── Internal State ──
+
+        private Canvas _waterCanvas;
+        private Border _waterBody;
+        private Border _waterSurfaceLine;
+        private Path _wavePath;
+        private Rectangle _causticLayer;
+        private readonly List<Ellipse> _bubbles = new();
+        private readonly Random _rng = new();
+        private Storyboard _waveStoryboard;
+        private Storyboard _causticStoryboard;
+        private readonly List<Storyboard> _bubbleStoryboards = new();
+        private bool _isLoaded;
+
+        #endregion
+
+        #region ── Constructor ──
+
+        static CrystalWaterControl()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(
+                typeof(CrystalWaterControl),
+                new FrameworkPropertyMetadata(typeof(CrystalWaterControl)));
+        }
+
+        public CrystalWaterControl()
+        {
+            Loaded += OnLoaded;
+            Unloaded += OnUnloaded;
+            IsVisibleChanged += OnVisibilityChanged;
+        }
+
+        #endregion
+
+        #region ── Template ──
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            _waterCanvas = GetTemplateChild("PART_WaterCanvas") as Canvas;
+            _waterBody = GetTemplateChild("PART_WaterBody") as Border;
+            _waterSurfaceLine = GetTemplateChild("PART_SurfaceLine") as Border;
+            _wavePath = GetTemplateChild("PART_WavePath") as Path;
+            _causticLayer = GetTemplateChild("PART_CausticLayer") as Rectangle;
+
+            UpdateWaterLevel(false);
+        }
+
+        #endregion
+
+        #region ── Lifecycle ──
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            _isLoaded = true;
+            BuildBubbles();
+            UpdateWaterLevel(false);
+            StartAnimations();
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            _isLoaded = false;
+            StopAnimations();
+        }
+
+        private void OnVisibilityChanged(object sender,
+            DependencyPropertyChangedEventArgs e)
+        {
+            if ((bool)e.NewValue && _isLoaded)
+                StartAnimations();
+            else
+                StopAnimations();
+        }
+
+        #endregion
+
+        #region ── Property Changed Callbacks ──
+
+        private static object CoerceWaterLevel(DependencyObject d, object value)
+        {
+            double v = (double)value;
+            return Math.Max(0.0, Math.Min(1.0, v));
+        }
+
+        private static void OnWaterLevelChanged(DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            if (d is CrystalWaterControl ctrl && ctrl._isLoaded)
+                ctrl.UpdateWaterLevel(true);
+        }
+
+        private static void OnWaterEnabledChanged(DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            if (d is CrystalWaterControl ctrl)
+            {
+                if ((bool)e.NewValue)
+                {
+                    ctrl.UpdateWaterLevel(false);
+                    ctrl.StartAnimations();
+                }
+                else
+                {
+                    ctrl.StopAnimations();
+                }
+
+                if (ctrl._waterCanvas != null)
+                    ctrl._waterCanvas.Visibility =
+                        (bool)e.NewValue ? Visibility.Visible : Visibility.Collapsed;
+            }
+        }
+
+        private static void OnBubbleCountChanged(DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            if (d is CrystalWaterControl ctrl && ctrl._isLoaded)
+                ctrl.BuildBubbles();
+        }
+
+        private static void OnReducedMotionChanged(DependencyObject d,
+            DependencyPropertyChangedEventArgs e)
+        {
+            if (d is CrystalWaterControl ctrl && ctrl._isLoaded)
+            {
+                ctrl.StopAnimations();
+                if (!(bool)e.NewValue)
+                    ctrl.StartAnimations();
+            }
+        }
+
+        private static bool ValidateBubbleCount(object value)
+        {
+            int v = (int)value;
+            return v >= 0 && v <= 10;
+        }
+
+        #endregion
+
+        #region ── Water Level ──
+
+        private void UpdateWaterLevel(bool animate)
+        {
+            if (_waterBody == null || _waterCanvas == null)
+                return;
+
+            double targetHeight = ActualHeight * WaterLevel;
+
+            if (animate && !ReducedMotion)
+            {
+                var anim = new DoubleAnimation
+                {
+                    To = targetHeight,
+                    Duration = new Duration(TimeSpan.FromSeconds(1.5)),
+                    EasingFunction = new CubicEase
+                    {
+                        EasingMode = EasingMode.EaseInOut
+                    }
+                };
+                _waterBody.BeginAnimation(HeightProperty, anim);
+            }
+            else
+            {
+                _waterBody.BeginAnimation(HeightProperty, null);
+                _waterBody.Height = targetHeight;
+            }
+        }
+
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            UpdateWaterLevel(false);
+            UpdateClip();
+        }
+
+        private void UpdateClip()
+        {
+            if (_waterCanvas == null)
+                return;
+
+            double r = CornerRadius.TopLeft;
+            _waterCanvas.Clip = new RectangleGeometry(
+                new Rect(0, 0, ActualWidth, ActualHeight),
+                r, r);
+        }
+
+        #endregion
+
+        #region ── Animations ──
+
+        private void StartAnimations()
+        {
+            if (!WaterEnabled || ReducedMotion || !_isLoaded || !IsVisible)
+                return;
+
+            StartWaveAnimation();
+            StartCausticAnimation();
+            StartBubbleAnimations();
+        }
+
+        private void StopAnimations()
+        {
+            _waveStoryboard?.Stop();
+            _waveStoryboard = null;
+
+            _causticStoryboard?.Stop();
+            _causticStoryboard = null;
+
+            foreach (var sb in _bubbleStoryboards)
+                sb.Stop();
+            _bubbleStoryboards.Clear();
+        }
+
+        #endregion
+
+        #region ── Wave Animation ──
+
+        private void StartWaveAnimation()
+        {
+            if (_wavePath == null)
+                return;
+
+            double speed = Math.Max(0.1, WaterSpeed);
+            double duration = 9.0 / speed;
+
+            var translateAnim = new DoubleAnimation
+            {
+                From = -3,
+                To = 3,
+                Duration = TimeSpan.FromSeconds(duration),
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever,
+                EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
+            };
+
+            var scaleAnim = new DoubleAnimation
+            {
+                From = 1.0,
+                To = 1.035,
+                Duration = TimeSpan.FromSeconds(duration),
+                AutoReverse = true,
+                RepeatBehavior = RepeatBehavior.Forever,
+                EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
+            };
+
+            var transform = new TransformGroup();
+            var translate = new TranslateTransform();
+            var scale = new ScaleTransform(1, 1);
+            transform.Children.Add(translate);
+            transform.Children.Add(scale);
+            _wavePath.RenderTransform = transform;
+            _wavePath.RenderTransformOrigin = new Point(0.5, 0.5);
+
+            _waveStoryboard = new Storyboard();
+
+            Storyboard.SetTarget(translateAnim, _wavePath);
+            Storyboard.SetTargetProperty(translateAnim,
+                new PropertyPath("RenderTransform.Children[0].X"));
+
+            Storyboard.SetTarget(scaleAnim, _wavePath);
+            Storyboard.SetTargetProperty(scaleAnim,
+                new PropertyPath("RenderTransform.Children[1].ScaleX"));
+
+            _waveStoryboard.Children.Add(translateAnim);
+            _waveStoryboard.Children.Add(scaleAnim);
+            _waveStoryboard.Begin();
+        }
+
+        #endregion
+
+        #region ── Caustic Animation ──
+
+        private void StartCausticAnimation()
+        {
+            if (_causticLayer == null || !CausticsEnabled)
+                return;
+
+            var transform = new TranslateTransform(0, 0);
+            _causticLayer.RenderTransform = transform;
+
+            var anim = new DoubleAnimation
+            {
+                From = 0,
+                To = ActualWidth * 0.5,
+                Duration = TimeSpan.FromSeconds(11),
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+
+            _causticStoryboard = new Storyboard();
+            Storyboard.SetTarget(anim, _causticLayer);
+            Storyboard.SetTargetProperty(anim,
+                new PropertyPath("RenderTransform.X"));
+            _causticStoryboard.Children.Add(anim);
+            _causticStoryboard.Begin();
+        }
+
+        #endregion
+
+        #region ── Bubble System ──
+
+        private void BuildBubbles()
+        {
+            if (_waterCanvas == null)
+                return;
+
+            // Remove existing bubbles
+            foreach (var bubble in _bubbles)
+            {
+                _waterCanvas.Children.Remove(bubble);
+            }
+            _bubbles.Clear();
+
+            foreach (var sb in _bubbleStoryboards)
+                sb.Stop();
+            _bubbleStoryboards.Clear();
+
+            if (!BubbleEnabled || BubbleCount <= 0)
+                return;
+
+            for (int i = 0; i < BubbleCount; i++)
+            {
+                var bubble = CreateBubble();
+                _bubbles.Add(bubble);
+                _waterCanvas.Children.Add(bubble);
+            }
+
+            if (!ReducedMotion && _isLoaded && IsVisible)
+                StartBubbleAnimations();
+        }
+
+        private Ellipse CreateBubble()
+        {
+            double size = 4 + _rng.NextDouble() * 4; // 4-8px
+
+            var bubble = new Ellipse
+            {
+                Width = size,
+                Height = size,
+                Fill = FindBrushResource("CrystalBubbleFillBrush"),
+                Stroke = FindBrushResource("CrystalBubbleBorderBrush"),
+                StrokeThickness = 0.8,
+                Opacity = 0,
+                IsHitTestVisible = false
+            };
+
+            // Random horizontal position
+            double left = _rng.NextDouble() * 0.8 + 0.1; // 10%-90%
+            Canvas.SetLeft(bubble, ActualWidth * left);
+            Canvas.SetBottom(bubble, -10);
+
+            return bubble;
+        }
+
+        private void StartBubbleAnimations()
+        {
+            if (!BubbleEnabled || _bubbles.Count == 0)
+                return;
+
+            for (int i = 0; i < _bubbles.Count; i++)
+            {
+                var bubble = _bubbles[i];
+                double delay = _rng.NextDouble() * 6; // staggered start
+                double duration = 6 + _rng.NextDouble() * 4; // 6-10s
+                double maxRise = ActualHeight * WaterLevel + 20;
+                double horizontalDrift = (_rng.NextDouble() - 0.5) * 40;
+
+                var sb = CreateBubbleStoryboard(
+                    bubble, duration, delay, maxRise, horizontalDrift);
+                _bubbleStoryboards.Add(sb);
+                sb.Begin();
+            }
+        }
+
+        private Storyboard CreateBubbleStoryboard(
+            Ellipse bubble,
+            double durationSecs,
+            double delaySecs,
+            double riseDistance,
+            double drift)
+        {
+            var duration = TimeSpan.FromSeconds(durationSecs);
+            var delay = TimeSpan.FromSeconds(delaySecs);
+
+            var transform = new TransformGroup();
+            transform.Children.Add(new TranslateTransform(0, 0));
+            transform.Children.Add(new ScaleTransform(0.5, 0.5));
+            bubble.RenderTransform = transform;
+            bubble.RenderTransformOrigin = new Point(0.5, 0.5);
+
+            // Rise animation (Y translate, negative = up)
+            var riseAnim = new DoubleAnimation
+            {
+                From = 0,
+                To = -riseDistance,
+                Duration = duration,
+                BeginTime = delay,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+
+            // Horizontal drift
+            var driftAnim = new DoubleAnimation
+            {
+                From = 0,
+                To = drift,
+                Duration = duration,
+                BeginTime = delay,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+
+            // Scale
+            var scaleXAnim = new DoubleAnimation
+            {
+                From = 0.5,
+                To = 1.15,
+                Duration = duration,
+                BeginTime = delay,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+
+            var scaleYAnim = new DoubleAnimation
+            {
+                From = 0.5,
+                To = 1.15,
+                Duration = duration,
+                BeginTime = delay,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+
+            // Opacity: 0 → 0.7 (at 15%) → 0
+            var opacityAnim = new DoubleAnimationUsingKeyFrames
+            {
+                Duration = duration,
+                BeginTime = delay,
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            opacityAnim.KeyFrames.Add(
+                new LinearDoubleKeyFrame(0, KeyTime.FromPercent(0)));
+            opacityAnim.KeyFrames.Add(
+                new LinearDoubleKeyFrame(0.7, KeyTime.FromPercent(0.15)));
+            opacityAnim.KeyFrames.Add(
+                new LinearDoubleKeyFrame(0, KeyTime.FromPercent(1)));
+
+            var sb = new Storyboard();
+
+            Storyboard.SetTarget(riseAnim, bubble);
+            Storyboard.SetTargetProperty(riseAnim,
+                new PropertyPath("RenderTransform.Children[0].Y"));
+
+            Storyboard.SetTarget(driftAnim, bubble);
+            Storyboard.SetTargetProperty(driftAnim,
+                new PropertyPath("RenderTransform.Children[0].X"));
+
+            Storyboard.SetTarget(scaleXAnim, bubble);
+            Storyboard.SetTargetProperty(scaleXAnim,
+                new PropertyPath("RenderTransform.Children[1].ScaleX"));
+
+            Storyboard.SetTarget(scaleYAnim, bubble);
+            Storyboard.SetTargetProperty(scaleYAnim,
+                new PropertyPath("RenderTransform.Children[1].ScaleY"));
+
+            Storyboard.SetTarget(opacityAnim, bubble);
+            Storyboard.SetTargetProperty(opacityAnim,
+                new PropertyPath("Opacity"));
+
+            sb.Children.Add(riseAnim);
+            sb.Children.Add(driftAnim);
+            sb.Children.Add(scaleXAnim);
+            sb.Children.Add(scaleYAnim);
+            sb.Children.Add(opacityAnim);
+
+            return sb;
+        }
+
+        #endregion
+
+        #region ── Helpers ──
+
+        private Brush FindBrushResource(string key)
+        {
+            try
+            {
+                return FindResource(key) as Brush ?? Brushes.Transparent;
+            }
+            catch
+            {
+                return Brushes.Transparent;
+            }
+        }
+
+        #endregion
+    }
+}
