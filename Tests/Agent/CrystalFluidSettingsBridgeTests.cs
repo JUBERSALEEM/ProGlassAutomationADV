@@ -102,6 +102,25 @@ namespace ProGlassAutomation.Tests.Agent
                 .CanWrite, "ReducedMotion is the two-way config-backed axis.");
         }
 
+        // ── 3b. CS8612 freeze: INPC nullability matches the interface ──
+        [Fact]
+        public void Inpc_declarations_match_the_annotated_interface()
+        {
+            // repo convention (LocalizationService, StatCardControl, all
+            // FeatureVisibility classes): both the event and the helper
+            // parameter are nullable — CS8612 must never return.
+            string fac = Read("Services/Theme/CrystalFluidSettings.cs");
+            Assert.Contains(
+                "public event PropertyChangedEventHandler? PropertyChanged;",
+                fac, StringComparison.Ordinal);
+            Assert.Contains(
+                "private void OnPropertyChanged([CallerMemberName] string? name = null)",
+                fac, StringComparison.Ordinal);
+            Assert.DoesNotContain(
+                "public event PropertyChangedEventHandler PropertyChanged;",
+                fac, StringComparison.Ordinal);
+        }
+
         // ── 4. SINGLE NUMBER HOME: engine baselines consume the consts ──
         [Fact]
         public void Engine_baseline_block_consumes_the_baseline_consts()
