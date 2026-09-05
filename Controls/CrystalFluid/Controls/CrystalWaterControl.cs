@@ -693,7 +693,10 @@ namespace ProGlassAutomation.Controls.CrystalFluid
         {
             var duration = new Duration(TimeSpan.FromSeconds(durationSecs));
             var delay = TimeSpan.FromSeconds(delaySecs);
-            double peakOpacity = 0.7 * Math.Max(0.0, Math.Min(1.0, BubbleOpacity));
+            // P3 (absolute BubbleIntensity axis): the token/engine/studio
+            // express the AUTHORED peak opacity directly (baseline 0.70);
+            // no multiplier math here.
+            double peakOpacity = Math.Max(0.0, Math.Min(1.0, BubbleOpacity));
 
             var transform = new TransformGroup();
             transform.Children.Add(new TranslateTransform(0, 0));

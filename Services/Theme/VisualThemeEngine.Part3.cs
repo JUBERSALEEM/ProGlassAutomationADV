@@ -186,13 +186,25 @@ namespace ProGlassAutomation.Services.Theme
             // token, so Theme-Studio Reset provably lands clean (the
             // "reset does nothing" class must stay dead). The studio
             // then writes its mapped values on top (ThemeStudioService).
-            resources["CrystalWaterOpacity"] = 1.0;
-            resources["CrystalWaterSpeed"] = 1.0;
-            resources["CrystalCausticOpacity"] = 1.0;
-            resources["CrystalBubbleOpacity"] = 1.0;
-            resources["CrystalReflectionOpacity"] = 1.0;
+            // Ios-17pm P3: baselines are the AUTHORED values, homed in
+            // CrystalFluidSettings.Baseline* (single number home; XAML
+            // token defaults are pinned equal by the bridge tests).
+            resources["CrystalWaterOpacity"] =
+                CrystalFluidSettings.BaselineWaterOpacity;          // 1.0
+            resources["CrystalWaterSpeed"] =
+                CrystalFluidSettings.BaselineWaterSpeed;            // 1.0
+            resources["CrystalCausticOpacity"] =
+                CrystalFluidSettings.BaselineCausticIntensity;      // 0.70
+            resources["CrystalBubbleOpacity"] =
+                CrystalFluidSettings.BaselineBubbleIntensity;       // 0.70
+            resources["CrystalReflectionOpacity"] =
+                CrystalFluidSettings.BaselineReflectionOpacity;     // 0.80
+            resources["CrystalWaveAmplitude"] =
+                CrystalFluidSettings.BaselineWaveAmplitude;         // 3.0
             resources["CrystalReducedMotion"] =
                 App.Config?.Appearance?.ReducedMotion == true;
+
+            CrystalFluidSettings.NotifyRepainted();
 
             resources["LiquidShadowColor"] = dark
                 ? Color.FromArgb(0xFF, 0x00, 0x04, 0x10)

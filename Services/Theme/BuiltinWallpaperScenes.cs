@@ -47,7 +47,11 @@ namespace ProGlassAutomation.Services.Theme
         public static readonly (string Key, string Label)[] All =
         {
             (VisualThemeEngine.LiquidGlass,      "Aurora"),
-            (VisualThemeEngine.CrystalFluid, "Crystal Fluid"),
+            // Ios-17pm (2026-09-05): authored display name for the Crystal
+            // Fluid family (identity const unchanged — labels are view-only).
+            (VisualThemeEngine.CrystalFluid,
+                VisualThemeEngine.FamilyDisplayName(
+                    VisualThemeEngine.CrystalFluid)),
             (VisualThemeEngine.Ocean,            "Deep Reef"),
             (VisualThemeEngine.Monet,            "Golden Hour"),
             (VisualThemeEngine.Professional,     "Slate Grid"),

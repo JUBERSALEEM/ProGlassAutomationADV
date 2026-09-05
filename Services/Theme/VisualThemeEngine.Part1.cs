@@ -26,6 +26,15 @@ namespace ProGlassAutomation.Services.Theme
         /// (ModePairFor → false). See Themes/CrystalFluid/.</summary>
         public const string CrystalFluid = "Crystal Fluid";
 
+        /// <summary>User-facing family label. Identity strings (the consts)
+        /// are PERSISTED keys — configs, profiles and window state store
+        /// them verbatim, so they can never be renamed in place. Display
+        /// names are a pure view concern and live only here.
+        /// Ios-17pm (2026-09-05) is the authored design-system name for
+        /// the Crystal Fluid family.</summary>
+        public static string FamilyDisplayName(string family) =>
+            family == CrystalFluid ? "Ios-17pm" : family;
+
         /// <summary>LEGACY ALIAS — saved configs / old row references that
         /// still say "Ultra Transparent" land on Crystal Fluid. Do not use
         /// in new code; kept so the retired identity remains RESOLVABLE
@@ -45,6 +54,8 @@ namespace ProGlassAutomation.Services.Theme
             "CrystalWaterOpacity", "CrystalWaterSpeed",
             "CrystalCausticOpacity", "CrystalBubbleOpacity",
             "CrystalReflectionOpacity", "CrystalReducedMotion",
+            // Ios-17pm P3: wave amplitude joined the live axis set.
+            "CrystalWaveAmplitude",
         };
 
         /// <summary>Keys the engine may override (removed on Normal).</summary>

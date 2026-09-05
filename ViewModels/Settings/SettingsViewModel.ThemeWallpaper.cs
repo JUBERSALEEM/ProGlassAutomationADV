@@ -61,7 +61,10 @@ namespace ProGlassAutomation.ViewModels.Settings
                 foreach (var s in ProGlassAutomation.Services.Theme
                              .BuiltinWallpaperScenes.All)
                     if (s.Key == key) { scene = s.Label; break; }
-                Display = key + "  —  " + scene;
+                // Display name (Ios-17pm for Crystal Fluid) — the family
+                // IDENTITY stays the persisted engine const.
+                Display = ProGlassAutomation.Services.Theme.VisualThemeEngine
+                    .FamilyDisplayName(key) + "  —  " + scene;
             }
             /// <summary>Style-immune label (see file header).</summary>
             public override string ToString() => Display;

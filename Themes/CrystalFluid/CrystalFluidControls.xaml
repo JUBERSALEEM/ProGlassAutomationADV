@@ -17,9 +17,9 @@
                positive/danger brush, collapsed when empty).
            D15 WaveAmplitude is live in control code (±amplitude).
            +   Water canvas binds WaterOpacity (D4); water/card styles
-               default WaterOpacity/WaterSpeed/ReducedMotion/BubbleOpacity
-               and corner radii FROM TOKENS via DynamicResource (engine/
-               studio live; local values always win).
+               default WaterOpacity/WaterSpeed/ReducedMotion/BubbleOpacity/
+               WaveAmplitude and corner radii FROM TOKENS via
+               DynamicResource (engine/studio live; local values always win).
            +   Wave fill uses CrystalWaterSurfaceLineBrush (authored
                surface noun — flat #B8FFFFFF bypass tokenized, ends now
                soften into the glass).
@@ -47,6 +47,8 @@
                 Value="{DynamicResource CrystalBubbleOpacity}" />
         <Setter Property="ReducedMotion"
                 Value="{DynamicResource CrystalReducedMotion}" />
+        <Setter Property="WaveAmplitude"
+                Value="{DynamicResource CrystalWaveAmplitude}" />
         <Setter Property="CornerRadius"
                 Value="{DynamicResource CrystalRadiusLarge}" />
         <Setter Property="Template">
@@ -88,11 +90,13 @@
                                     Opacity="0.5"
                                     IsHitTestVisible="False" />
 
-                                <!-- CAUSTIC LAYER -->
+                                <!-- CAUSTIC LAYER (P3: DynamicResource —
+                                     the studio/engine write this key live;
+                                     StaticResource would freeze at inflate) -->
                                 <Rectangle x:Name="PART_CausticLayer"
                                            Fill="{StaticResource
                                                CrystalCausticBrush}"
-                                           Opacity="{StaticResource
+                                           Opacity="{DynamicResource
                                                CrystalCausticOpacity}"
                                            IsHitTestVisible="False" />
                             </Grid>
@@ -211,12 +215,13 @@
                                             ContentTemplate}" />
                                 </DockPanel>
 
-                                <!-- SPECULAR REFLECTION -->
+                                <!-- SPECULAR REFLECTION (P3: dynamic —
+                                     studio HighlightStrength writes live) -->
                                 <Border CornerRadius="{TemplateBinding
                                             CornerRadius}"
                                         Background="{StaticResource
                                             CrystalReflectionBrush}"
-                                        Opacity="{StaticResource
+                                        Opacity="{DynamicResource
                                             CrystalReflectionOpacity}"
                                         IsHitTestVisible="False"
                                         Panel.ZIndex="10" />
@@ -441,12 +446,13 @@
 
                                 </Grid>
 
-                                <!-- REFLECTION -->
+                                <!-- REFLECTION (P3: dynamic — studio
+                                     HighlightStrength writes live) -->
                                 <Border CornerRadius="{TemplateBinding
                                             CornerRadius}"
                                         Background="{StaticResource
                                             CrystalReflectionBrush}"
-                                        Opacity="{StaticResource
+                                        Opacity="{DynamicResource
                                             CrystalReflectionOpacity}"
                                         IsHitTestVisible="False"
                                         Panel.ZIndex="10" />

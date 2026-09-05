@@ -39,11 +39,20 @@
          (style setter) | VisualThemeEngine | ThemeStudioService. -->
     <sys:Double x:Key="CrystalWaterSpeed">1.0</sys:Double>
 
-    <!-- Studio WaterFlow slider + engine override: bubble-layer opacity.
-         (Authored metrics expose CrystalBubbleMaxOpacity=0.70 as the
-         design ceiling; this is the LIVE multiplier.) Consumed by
-         CrystalWater | VisualThemeEngine | ThemeStudioService. -->
-    <sys:Double x:Key="CrystalBubbleOpacity">1.0</sys:Double>
+    <!-- Studio WaterFlow slider + engine override: bubble PEAK opacity —
+         an ABSOLUTE axis (Ios-17pm P3): the authored BubbleIntensity
+         baseline is 0.70 (which also equals the authored design ceiling
+         CrystalBubbleMaxOpacity). Consumed by CrystalWater + the authored
+         CrystalWaterControl (bubble keyframes) | VisualThemeEngine |
+         ThemeStudioService. Single number home:
+         CrystalFluidSettings.BaselineBubbleIntensity. -->
+    <sys:Double x:Key="CrystalBubbleOpacity">0.70</sys:Double>
+
+    <!-- Studio WaterFlow slider + engine override: wave sway amplitude
+         (Ios-17pm P3 axis, authored baseline 3.0 — single number home:
+         CrystalFluidSettings.BaselineWaveAmplitude). Consumed by the
+         authored CrystalWaterControl wave storyboard via style setter. -->
+    <sys:Double x:Key="CrystalWaveAmplitude">3.0</sys:Double>
 
     <!-- §43 reduced motion — global switch; CrystalWater renders a
          STATIC water body when True. Engine-managed; authored

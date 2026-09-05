@@ -424,20 +424,44 @@ namespace ProGlassAutomation.Services.Theme
             foreach (var key in DurationKeys)
                 WriteScaledDuration(resources, key, animScale);
 
-            // ── CRYSTAL FLUID water tokens (2026-09-05 Milestone-3
-            // repoint): WaterFlow is the WATER MASTER — visual weight,
-            // flow speed, caustic and bubble presence move together;
+            // ── CRYSTAL FLUID "Ios-17pm" water tokens (P3 recalibrated):
+            // WaterFlow is the WATER MASTER — visual weight, flow speed,
+            // caustic/bubble presence and wave amplitude move together;
             // HighlightStrength drives the §13 specular reflection.
+            // FULL SLIDER = THE AUTHORED BASELINE (single number home:
+            // CrystalFluidSettings.Baseline*): default family paint and
+            // the studio's top edge now agree on the authored look.
             // These keys are consumed ONLY by Crystal Fluid surfaces,
             // so the other eight families are provably untouched.
             // Family repaint and the switch-cleanup both restore the
             // baselines — these writes never leak across families.
-            resources["CrystalWaterOpacity"] = 0.35 + 0.65 * water;
-            resources["CrystalWaterSpeed"] = 0.60 + 0.80 * water;
-            resources["CrystalCausticOpacity"] = 0.25 + 0.75 * water;
-            resources["CrystalBubbleOpacity"] = 0.25 + 0.75 * water;
+            resources["CrystalWaterOpacity"] =
+                CrystalFluidSettings.FloorWaterOpacity
+                + (CrystalFluidSettings.BaselineWaterOpacity
+                   - CrystalFluidSettings.FloorWaterOpacity) * water;
+            resources["CrystalWaterSpeed"] =
+                CrystalFluidSettings.FloorWaterSpeed
+                + (CrystalFluidSettings.BaselineWaterSpeed
+                   - CrystalFluidSettings.FloorWaterSpeed) * water;
+            resources["CrystalCausticOpacity"] =
+                CrystalFluidSettings.FloorCausticIntensity
+                + (CrystalFluidSettings.BaselineCausticIntensity
+                   - CrystalFluidSettings.FloorCausticIntensity) * water;
+            resources["CrystalBubbleOpacity"] =
+                CrystalFluidSettings.FloorBubbleIntensity
+                + (CrystalFluidSettings.BaselineBubbleIntensity
+                   - CrystalFluidSettings.FloorBubbleIntensity) * water;
+            resources["CrystalWaveAmplitude"] =
+                CrystalFluidSettings.FloorWaveAmplitude
+                + (CrystalFluidSettings.BaselineWaveAmplitude
+                   - CrystalFluidSettings.FloorWaveAmplitude) * water;
+            double highlight = Clamp01(s.HighlightStrength);
             resources["CrystalReflectionOpacity"] =
-                0.15 + 0.85 * Clamp01(s.HighlightStrength);
+                CrystalFluidSettings.FloorReflectionOpacity
+                + (CrystalFluidSettings.BaselineReflectionOpacity
+                   - CrystalFluidSettings.FloorReflectionOpacity) * highlight;
+
+            CrystalFluidSettings.NotifyRepainted();
         }
 
         /// <summary>Resets the ACTIVE profile to its family's defaults.\n        /// 2026-09-05 ROOT-CAUSE FIX ("reset does nothing"): the old code\n        /// only scaled defaults on top of whatever base snapshot happened\n        /// to be current — if that snapshot was taken while studio values\n        /// were already on screen, the defaults could never restore the\n        /// real family look. The reset now re-runs the proven engine chain\n        /// (cache invalidated FIRST, otherwise the idempotence guard skips\n        /// the repaint entirely — that was the second half of the bug),\n        /// the finally hook re-snapshots the truly fresh family state, and\n        /// the defaults land on a base that is provably family-clean.        /// </summary>
