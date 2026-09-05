@@ -120,6 +120,20 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("\"Middle glass wastage\"", wastage);
         }
 
+        [Fact]
+        public void Step1_id_fallback_is_never_silent()
+        {
+            // 2026-09-05 hardening pin: GenerateUniqueProformaIdAsync's
+            // catch path MUST log. A silent fallback turns a repo outage
+            // into an invisible duplicate-id risk on a money document.
+            string root = LocateProjectRoot();
+            string step1 = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step1CompanySetup/CompanySetupViewModel.cs"));
+
+            Assert.Contains("AppLogService.Warning", step1);
+            Assert.Contains("SuggestNextIdAsync failed", step1);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

@@ -512,8 +512,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 string seedId = $"PI-{DateTime.Now.Year}-000";
                 ProformaId = await _invoices.SuggestNextIdAsync(seedId);
             }
-            catch
+            catch (Exception ex)
             {
+                // 2026-09-05 hardening: this catch was SILENT. A repo
+                // failure used to degrade the document number from
+                // DB-verified-unique to a 6-hex random fallback without a
+                // trace — the operator saw nothing and no log line
+                // existed to explain a later duplicate-id report. The
+                // fallback itself stays (a wizard must never die on an
+                // auxiliary lookup), but the degradation is now logged.
+                Services.Logging.AppLogService.Warning(
+                    "[CompanySetupViewModel] SuggestNextIdAsync failed; " +
+                    "falling back to a random 6-hex proforma id: " +
+                    ExceptionMessages.Deep(ex));
                 ProformaId =
                     $"PI-{DateTime.Now.Year}-{Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()}";
             }
