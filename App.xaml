@@ -106,6 +106,17 @@
                     ═══════════════════════════════════════════════════════════════ -->
                 <ResourceDictionary Source="/Views/Reports/StatementGenerator/Styles/WizardStyles.xaml"/>
 
+                <!-- ── DEFAULT LANGUAGE (2026-09-05 — XDG-0001 cleanup).
+                     Language keys (Splash.* / Shell.* / module captions) were
+                     merged ONLY at runtime by LocalizationService, so every
+                     design surface flagged each {DynamicResource <lang.key>}
+                     as "could not be resolved", and any window built before
+                     language init showed nothing. The primary language is
+                     merged here once; LocalizationService.ApplyLanguage now
+                     DETECTS and re-uses this pre-merged instance instead of
+                     stacking a duplicate (see FindMergedBySource). ── -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Languages/en-US.xaml"/>
+
             </ResourceDictionary.MergedDictionaries>
 
             <!-- ═══ GLOBAL FONT (FontService) ══════════════════════════

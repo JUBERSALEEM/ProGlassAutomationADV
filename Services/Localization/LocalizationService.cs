@@ -106,21 +106,33 @@ namespace ProGlassAutomation.Services.Localization
                 var resources = Application.Current?.Resources;
                 if (resources == null) return;
 
-                var next = LoadDictionary(lang.Code);
+                // App.xaml pre-merges the primary language (design-time
+                // resolution of {DynamicResource lang.key}), so ALWAYS look
+                // for an already-merged copy first — never stack a
+                // duplicate dictionary of the same source.
+                var next = FindMergedBySource(resources, lang.Code) ?? LoadDictionary(lang.Code);
                 if (next == null) return;
 
-                // Replace the previously-merged language dictionary.
-                if (_active != null && resources.MergedDictionaries.Contains(_active))
+                // Replace the previously-merged language dictionary —
+                // except when it IS the English fallback (that one stays).
+                if (_active != null && !ReferenceEquals(_active, next)
+                    && !ReferenceEquals(_active, _english)
+                    && resources.MergedDictionaries.Contains(_active))
                     resources.MergedDictionaries.Remove(_active);
 
                 // English always stays merged as the fallback (last = wins,
                 // so the ACTIVE language must be merged AFTER English).
                 if (_english == null)
                 {
-                    _english = LoadDictionary(LanguageCatalog.Primary.Code);
-                    if (_english != null)
+                    _english = FindMergedBySource(resources, LanguageCatalog.Primary.Code)
+                               ?? LoadDictionary(LanguageCatalog.Primary.Code);
+                    if (_english != null && !resources.MergedDictionaries.Contains(_english))
                         resources.MergedDictionaries.Add(_english);
                 }
+                // Move (or add) the active dictionary to the TOP of the
+                // merge order — last merged wins on key collisions.
+                if (resources.MergedDictionaries.Contains(next))
+                    resources.MergedDictionaries.Remove(next);
                 resources.MergedDictionaries.Add(next);
                 _active = next;
 
@@ -256,6 +268,22 @@ namespace ProGlassAutomation.Services.Localization
             if (suggested.Code == LanguageCatalog.Primary.Code) return null;
 
             return suggested;
+        }
+
+        /// <summary>Find an already-merged language dictionary by its source
+        /// path (App.xaml pre-merges the primary language so design surfaces
+        /// resolve language keys). Returns null when not merged yet.</summary>
+        private static ResourceDictionary? FindMergedBySource(ResourceDictionary resources, string code)
+        {
+            var tail = $"Themes/Languages/{code}.xaml";
+            foreach (var dict in resources.MergedDictionaries)
+            {
+                var src = dict.Source?.OriginalString;
+                if (src != null && src.Replace('\\', '/')
+                        .EndsWith(tail, StringComparison.OrdinalIgnoreCase))
+                    return dict;
+            }
+            return null;
         }
 
         private static ResourceDictionary? LoadDictionary(string code)

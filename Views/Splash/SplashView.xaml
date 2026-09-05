@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Splash Screen — industrial glass identity
@@ -38,7 +38,7 @@
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Background="{StaticResource PageBg}"
+        Background="#040B1C"
         ShowInTaskbar="False"
         Topmost="True"
         behaviors:ViewportFitBehavior.DisableZoom="True"
@@ -61,9 +61,16 @@
         <BlurEffect x:Key="HaloBlur" Radius="26" RenderingBias="Performance"/>
 
         <!-- ═══ PALETTE (frozen once) — blueish crystal spectrum ═══ -->
-        
+        <!-- Colors and brushes are SEPARATE resources: GradientStop.Color
+             and DropShadowEffect.Color demand a System.Windows.Media.Color
+             — feeding them a SolidColorBrush is the XDG-0001
+             "incompatible type" class of crash. Colors first, brushes reuse
+             them so the palette stays single-source. -->
+        <Color x:Key="FrostColor">#BFDBFE</Color>
+        <Color x:Key="SplashCeruleanDarkColor">#2563EB</Color>
+
         <SolidColorBrush x:Key="Cerulean" Color="#93C5FD" po:Freeze="True"/>
-        <SolidColorBrush x:Key="Frost"    Color="#BFDBFE" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Frost"    Color="{StaticResource FrostColor}" po:Freeze="True"/>
         <SolidColorBrush x:Key="Ice"      Color="#DBEAFE" po:Freeze="True"/>
 
         <!-- ═══════════════════════════════════════════════════════════
@@ -78,7 +85,7 @@
              navy family; NOTHING inside the splash can morph anymore.
         ═══════════════════════════════════════════════════════════ -->
         <SolidColorBrush x:Key="SplashCerulean"      Color="#60A5FA" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashCeruleanDark"  Color="#2563EB" po:Freeze="True"/>
+        <SolidColorBrush x:Key="SplashCeruleanDark"  Color="{StaticResource SplashCeruleanDarkColor}" po:Freeze="True"/>
         <SolidColorBrush x:Key="SplashCeruleanLite"  Color="#93C5FD" po:Freeze="True"/>
         <SolidColorBrush x:Key="SplashCeruleanDeep"  Color="#1D4ED8" po:Freeze="True"/>
         <SolidColorBrush x:Key="SplashOutline"       Color="#26FFFFFF" po:Freeze="True"/>
@@ -87,8 +94,8 @@
         <SolidColorBrush x:Key="SplashTextPrimary"   Color="#F8FAFC" po:Freeze="True"/>
         <SolidColorBrush x:Key="SplashTextSecondary" Color="#9FB2D8" po:Freeze="True"/>
         <SolidColorBrush x:Key="SplashOnAccent"      Color="#FFFFFF" po:Freeze="True"/>
-        <CornerRadius  x:Key="SplashCorner"          UniformRadius="10" po:Freeze="True"/>
-        <CornerRadius  x:Key="SplashCornerLarge"     UniformRadius="16" po:Freeze="True"/>
+        <CornerRadius  x:Key="SplashCorner">10</CornerRadius>
+        <CornerRadius  x:Key="SplashCornerLarge">16</CornerRadius>
 
 
         <!-- ═══ STAGE — deep blue aurora ═══ -->
@@ -117,7 +124,7 @@
         <LinearGradientBrush x:Key="NameGradient" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Color="#FFFFFF" Offset="0.0"/>
             <GradientStop Color="#BFDBFE" Offset="0.45"/>
-            <GradientStop Color="{StaticResource Frost}" Offset="1.0"/>
+            <GradientStop Color="{StaticResource FrostColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
         <!-- ═══ ICON HALO + CRYSTAL ═══ -->
@@ -137,15 +144,15 @@
 
         <!-- ═══ PROGRESS — luminous ═══ -->
         <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="{StaticResource SplashCeruleanDark}" Offset="0.0"/>
-            <GradientStop Color="{StaticResource Frost}" Offset="0.55"/>
-            <GradientStop Color="{StaticResource Frost}" Offset="1.0"/>
+            <GradientStop Color="{StaticResource SplashCeruleanDarkColor}" Offset="0.0"/>
+            <GradientStop Color="{StaticResource FrostColor}" Offset="0.55"/>
+            <GradientStop Color="{StaticResource FrostColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
         <!-- ═══ CRYSTAL SHADOWS ═══ -->
-        <DropShadowEffect x:Key="IconShadow" Color="{StaticResource SplashCeruleanDark}"
+        <DropShadowEffect x:Key="IconShadow" Color="{StaticResource SplashCeruleanDarkColor}"
                           BlurRadius="48" ShadowDepth="0" Opacity="0.7"/>
-        <DropShadowEffect x:Key="SplashGlow" Color="{StaticResource SplashCeruleanDark}"
+        <DropShadowEffect x:Key="SplashGlow" Color="{StaticResource SplashCeruleanDarkColor}"
                           BlurRadius="20" ShadowDepth="0" Opacity="0.45"/>
 
         <!-- ═══ FROSTED TRUST CHIP (top badges) ═══ -->
@@ -520,7 +527,7 @@
                            HorizontalAlignment="Center"
                            Foreground="{StaticResource SplashTextPrimary}">
                     <TextBlock.Effect>
-                        <DropShadowEffect Color="{StaticResource SplashCeruleanDark}" BlurRadius="14"
+                        <DropShadowEffect Color="{StaticResource SplashCeruleanDarkColor}" BlurRadius="14"
                                           ShadowDepth="0" Opacity="0.6"/>
                     </TextBlock.Effect>
                 </TextBlock>
