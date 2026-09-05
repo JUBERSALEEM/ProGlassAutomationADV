@@ -25,6 +25,7 @@
 // UI/DESIGN ONLY: no formulas, no business logic touched.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Windows;
 using System.Windows.Media;
@@ -122,7 +123,7 @@ namespace ProGlassAutomation.Services.Theme
             AppLogService.Debug(
                 $"[ThemeEngine] Industrial family painted: {familyLabel} " +
                 $"(dark={dark})",
-                new Logging.LogContext { Module = "Themes", Operation = "Industrial" });
+                new LogContext { Module = "Themes", Operation = "Industrial" });
         }
 
         private static Color ParseColor(string hex)

@@ -174,11 +174,14 @@
 
 	<ItemGroup>
 		<Resource Include="favicon.ico" />
-		<Resource Include="Resources/proglass_icon_256.png" />
-		<Resource Include="Resources/Glass3D/sgu-3d.png" />
-		<Resource Include="Resources/Glass3D/dgu-3d.png" />
-		<Resource Include="Resources/Glass3D/lam-3d.png" />
-		<Resource Include="Resources/Glass3D/dgulam-3d.png" />
+		<!-- Windows-native separators: the XAML DESIGNER indexes resources
+		     conservatively and has reported XDG0003 for forward-slash paths
+		     even though runtime packing accepts them (2026-09-05). -->
+		<Resource Include="Resources\proglass_icon_256.png" />
+		<Resource Include="Resources\Glass3D\sgu-3d.png" />
+		<Resource Include="Resources\Glass3D\dgu-3d.png" />
+		<Resource Include="Resources\Glass3D\lam-3d.png" />
+		<Resource Include="Resources\Glass3D\dgulam-3d.png" />
 	</ItemGroup>
 
 	<!--

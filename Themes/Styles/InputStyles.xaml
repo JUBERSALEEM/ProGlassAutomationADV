@@ -121,8 +121,9 @@
     <Style x:Key="ModernEditableComboBoxStyle" TargetType="ComboBox">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+        <!-- Same 2026-09-05 readability fix as the non-editable style. -->
+        <Setter Property="Background" Value="{DynamicResource PopupSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="Padding" Value="12,7"/>
         <Setter Property="Height" Value="34"/>
@@ -217,8 +218,13 @@
     <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+        <!-- 2026-09-05 READABILITY FIX ("dropdowns are whitish, nothing
+             visible"): the closed box used the GLASS WASH (~40% white,
+             theme-dependent) — white text on a white wash in dark theme,
+             a milky unreadable slab everywhere. A dropdown is a CHROME
+             control: solid theme surface + crisp theme keyline, full stop. -->
+        <Setter Property="Background" Value="{DynamicResource PopupSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="Padding" Value="12,7"/>
         <Setter Property="Height" Value="34"/>

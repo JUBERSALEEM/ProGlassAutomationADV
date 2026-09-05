@@ -819,7 +819,9 @@
     <!-- COMBOBOX / DROPDOWN -->
     <Style x:Key="LiquidGlassComboBox" TargetType="ComboBox">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <!-- 2026-09-05: solid readable body — the glass wash made white
+             text sit on a ~40% white wash (the "whitish dropdowns"). -->
+        <Setter Property="Background" Value="{DynamicResource PopupSurfaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="FontSize" Value="14"/>
