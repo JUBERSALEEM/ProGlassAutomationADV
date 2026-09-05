@@ -1,9 +1,7 @@
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Common;
-using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -256,7 +254,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         // ═════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Opens an attachment with the OS default handler.
+        /// Opens an attachment with the OS default handler (async — await this).
         ///
         /// SECURITY (S-9 + Phase 8): UseShellExecute = true asks Windows to run the
         /// file with whatever handler is registered for its extension. For
@@ -280,43 +278,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         ///   - Extension allow-list + MIME sniffing via AttachmentValidationService
         ///   - Size cap double-checked
         ///   - CorrelationId + ErrorId for support
-        /// </summary>
-        [Obsolete("Use OpenInDefaultAppAsync instead. This sync overload blocks the UI thread and uses GetAwaiter().GetResult().")]
-        public void OpenInDefaultApp(string filePath)
-        {
-            var corrId = CorrelationContext.NewIdFor("DeliveryNote", "OpenAttachment");
-            using var scope = CorrelationContext.BeginScope(corrId);
-
-            var validationResult = AttachmentValidationService.ValidateAttachmentAsync(filePath, corrId).GetAwaiter().GetResult();
-            if (validationResult.IsFailure)
-            {
-                AppLogService.Warning($"Attachment open blocked: {validationResult.Error} [{corrId}]",
-                    new LogContext { Module = "Security", Operation = "OpenAttachment", CorrelationId = corrId, Extra = $"Path={filePath}" });
-                throw new InvalidOperationException(validationResult.Error);
-            }
-
-            var result = ProcessStartGuard.TryOpenFile(filePath, corrId);
-            if (result.IsFailure)
-            {
-                throw new InvalidOperationException(result.Error);
-            }
-        }
-
-        /// <summary>
-        /// Async form of <see cref="OpenInDefaultAppWithResult"/>.
         ///
-        /// The synchronous overloads call
-        /// ValidateAttachmentAsync(...).GetAwaiter().GetResult(), which
-        /// performs real file I/O and MIME sniffing. Both are invoked from
-        /// UI click handlers, so on a large attachment or a slow/network
-        /// drive the window stops repainting until the read finishes.
-        ///
-        /// There is no deadlock — the chain uses ConfigureAwait(false)
-        /// throughout — but blocking the UI thread on disk is still a
-        /// stall the user feels. New call sites should await this.
-        ///
-        /// The synchronous overloads are retained so existing callers keep
-        /// working; they are simply no longer the recommended path.
+        /// The legacy synchronous overloads (OpenInDefaultApp /
+        /// OpenInDefaultAppWithResult) were removed 2026-09-06: the only
+        /// caller already awaited this async form, and the sync forms
+        /// blocked the UI thread via GetAwaiter().GetResult().
         /// </summary>
         public async Task<Result> OpenInDefaultAppAsync(
             string filePath, string? correlationId = null)
@@ -328,19 +294,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
                 .ValidateAttachmentAsync(filePath, corrId)
                 .ConfigureAwait(true);   // resume on UI thread: ShellExecute wants it
 
-            if (validationResult.IsFailure)
-                return Result.Fail(validationResult.Error, corrId, null, validationResult.ErrorId);
-
-            return ProcessStartGuard.TryOpenFile(filePath, corrId);
-        }
-
-        [Obsolete("Use OpenInDefaultAppAsync instead. This sync overload blocks the UI thread and uses GetAwaiter().GetResult().")]
-        public Result OpenInDefaultAppWithResult(string filePath, string? correlationId = null)
-        {
-            var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", "OpenAttachment");
-            using var scope = CorrelationContext.BeginScope(corrId);
-
-            var validationResult = AttachmentValidationService.ValidateAttachmentAsync(filePath, corrId).GetAwaiter().GetResult();
             if (validationResult.IsFailure)
                 return Result.Fail(validationResult.Error, corrId, null, validationResult.ErrorId);
 
