@@ -1,0 +1,31 @@
+using System.Windows;
+using System.Windows.Controls;
+
+namespace CrystalFluid.Controls
+{
+    /// <summary>
+    /// A liquid-styled progress bar.
+    /// </summary>
+    public class CrystalProgressBar : ProgressBar
+    {
+        public new static readonly DependencyProperty CornerRadiusProperty =
+            DependencyProperty.Register(
+                nameof(CornerRadius),
+                typeof(CornerRadius),
+                typeof(CrystalProgressBar),
+                new PropertyMetadata(new CornerRadius(99)));
+
+        public new CornerRadius CornerRadius
+        {
+            get => (CornerRadius)GetValue(CornerRadiusProperty);
+            set => SetValue(CornerRadiusProperty, value);
+        }
+
+        static CrystalProgressBar()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(
+                typeof(CrystalProgressBar),
+                new FrameworkPropertyMetadata(typeof(CrystalProgressBar)));
+        }
+    }
+}
