@@ -52,6 +52,11 @@ namespace ProGlassAutomation.Services.Theme
             (VisualThemeEngine.Monet,            "Golden Hour"),
             (VisualThemeEngine.Professional,     "Slate Grid"),
             (VisualThemeEngine.Normal,           "Studio"),
+            // Industrial family — dead-neutral scenes to match the
+            // plain ERP look (2026-09-05).
+            (VisualThemeEngine.IndustrialWhite,  "Ledger"),
+            (VisualThemeEngine.IndustrialGrey,   "Fog"),
+            (VisualThemeEngine.IndustrialDark,   "Foundry"),
         };
 
         /// <summary>Draws the scene for a family. Unknown/empty family →
@@ -74,6 +79,9 @@ namespace ProGlassAutomation.Services.Theme
                 if (f == VisualThemeEngine.Monet)            return GoldenHour(h, s, dark);
                 if (f == VisualThemeEngine.Professional)     return SlateGrid(dark);
                 if (f == VisualThemeEngine.Normal)           return Studio(dark);
+                if (f == VisualThemeEngine.IndustrialWhite)  return Ledger();
+                if (f == VisualThemeEngine.IndustrialGrey)   return Fog();
+                if (f == VisualThemeEngine.IndustrialDark)   return Foundry();
                 return Aurora(h, dark);
             }
             catch
@@ -98,7 +106,31 @@ namespace ProGlassAutomation.Services.Theme
                 (Parse("#123A8C"), 1.00));
         }
 
-        /// <summary>Ultra Transparent — a vertical water column: lit
+        // ── Industrial scenes (2026-09-05) — calm, neutral, factory-safe ──
+
+        /// <summary>Industrial White — paper gradient with a faint grey
+        /// shelf; reads as a clean ledger sheet behind opaque cards.</summary>
+        private static LinearGradientBrush Ledger() => Vertical(
+            (Parse("#EFF2F5"), 0.00),
+            (Parse("#E6EAEE"), 0.52),
+            (Parse("#DBE0E6"), 1.00));
+
+        /// <summary>Industrial Grey — neutral workshop fog; slightly
+        /// darker than the content areas so panels stand off it.</summary>
+        private static LinearGradientBrush Fog() => Vertical(
+            (Parse("#D5D9DD"), 0.00),
+            (Parse("#C7CCD1"), 0.50),
+            (Parse("#B7BDC3"), 1.00));
+
+        /// <summary>Industrial Dark — HMI foundry steel with a very
+        /// low amber glint (kept subtle — spectacle deliberately off).</summary>
+        private static LinearGradientBrush Foundry() => Diagonal(
+            (Parse("#101317"), 0.00),
+            (Parse("#161A1F"), 0.45),
+            (Parse("#232018"), 0.78),
+            (Parse("#1A1E24"), 1.00));
+
+        /// <summary>ULTRA TRANSPARENT — a vertical water column: lit
         /// surface line, aqua body, settled depth ("water fill" mood).</summary>
         private static LinearGradientBrush CrystalSea(bool dark)
         {

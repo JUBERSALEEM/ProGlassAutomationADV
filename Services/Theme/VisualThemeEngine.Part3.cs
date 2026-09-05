@@ -266,6 +266,13 @@ namespace ProGlassAutomation.Services.Theme
                 "Clear" => UltraTransparent,
                 "Crystal" => UltraTransparent,
                 Ocean => Ocean,
+                // Industrial family (2026-09-05): three explicit shade
+                // layouts; bare "Industrial" from older saves → Grey.
+                IndustrialWhite => IndustrialWhite,
+                IndustrialGrey  => IndustrialGrey,
+                IndustrialDark  => IndustrialDark,
+                "Industrial"    => IndustrialGrey,
+                "Factory"       => IndustrialGrey,
                 _ => Normal
             };
         }

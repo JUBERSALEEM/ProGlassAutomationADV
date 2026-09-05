@@ -275,6 +275,18 @@ namespace ProGlassAutomation.Services.Theme
                     case Ocean:
                         ApplyOcean(resources);
                         break;
+
+                    // Industrial family (2026-09-05): plain solid ERP look,
+                    // three shade layouts.
+                    case IndustrialWhite:
+                        ApplyIndustrialWhite(resources);
+                        break;
+                    case IndustrialGrey:
+                        ApplyIndustrialGrey(resources);
+                        break;
+                    case IndustrialDark:
+                        ApplyIndustrialDark(resources);
+                        break;
                 }
 
                 // System-wide wallpaper chrome: paint the window
@@ -390,6 +402,18 @@ namespace ProGlassAutomation.Services.Theme
                         break;
                     case Ocean:
                         ApplyOcean(resources);
+                        break;
+
+                    // Industrial family (2026-09-05): plain solid ERP look,
+                    // three shade layouts.
+                    case IndustrialWhite:
+                        ApplyIndustrialWhite(resources);
+                        break;
+                    case IndustrialGrey:
+                        ApplyIndustrialGrey(resources);
+                        break;
+                    case IndustrialDark:
+                        ApplyIndustrialDark(resources);
                         break;
                 }
 

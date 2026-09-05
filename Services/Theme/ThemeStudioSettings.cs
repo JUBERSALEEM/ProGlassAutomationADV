@@ -203,6 +203,26 @@ namespace ProGlassAutomation.Services.Theme
                                         s.WaterFlow = 0;
                     break;
 
+                // Industrial family (2026-09-05): plain ERP look — nearly
+                // opaque, strong keyline, no water, restrained shadows.
+                // All three shade layouts share the studio profile.
+                case VisualThemeEngine.IndustrialWhite:
+                case VisualThemeEngine.IndustrialGrey:
+                case VisualThemeEngine.IndustrialDark:
+                    s.Frostness = 5; s.Transparency = 5;
+                    s.BlurIntensity = 10; s.GlassTint = 5;
+                    s.CornerRoundness = 15; s.CardPadding = 60;
+                    s.ShadowIntensity = 25; s.ShadowSoftness = 40;
+                    s.ShadowDepth = 20;
+                    s.BorderVisibility = 70; s.BorderOpacity = 65;
+                    s.BorderThickness = 40;
+                    s.BackgroundVisibility = 90; s.BackgroundGlow = 10;
+                    s.HighlightStrength = 20;
+                    s.AnimationIntensity = 35;
+                    s.ColorRichness = 50; s.TextStrength = 70;
+                    s.WaterFlow = 0;
+                    break;
+
                 default: // Normal
                     s.Frostness = 30; s.Transparency = 25;
                     s.BlurIntensity = 35; s.GlassTint = 25;

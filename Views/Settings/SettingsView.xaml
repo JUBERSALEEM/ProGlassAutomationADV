@@ -53,6 +53,10 @@
                  auto-close on page pick — the section then gets the full
                  module width). -->
             <ColumnDefinition Width="Auto"/>
+            <!-- Always-visible rail TAB (2026-09-05): 34px grab-handle that
+                 NEVER disappears — single click opens/closes the rail; no
+                 "open with nothing visible" dead state. -->
+            <ColumnDefinition Width="34"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -376,8 +380,45 @@
              FallbackValue/TargetNullValue=Collapsed means any future
              binding failure hides the page instead of stacking it.
         ═══════════════════════════════════════════════════════════════ -->
+        <!-- ══════════════════════════════════════════════════════════
+             RAIL GRAB-TAB (2026-09-05): the professional open/close
+             affordance — ALWAYS visible, both when the rail is open and
+             after it auto-closes. Chevron flips with the state; single
+             click toggles. No dead "whatever close the rail and it's
+             gone" state anywhere.
+        ══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Column="1"
+                Margin="0,14,0,14"
+                Background="{DynamicResource SideMenuBackgroundBrush}"
+                BorderBrush="{DynamicResource GlassBorderSoft}"
+                BorderThickness="0,1,1,1"
+                CornerRadius="0,10,10,0"
+                SnapsToDevicePixels="True">
+            <Button Command="{Binding ToggleSettingsRailCommand}"
+                    ToolTip="{DynamicResource ToolTip.ToggleMenu}"
+                    Cursor="Hand"
+                    Background="Transparent"
+                    BorderThickness="0">
+                <TextBlock FontFamily="Segoe MDL2 Assets"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="&#xE76B;"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsSettingsRailOpen}" Value="False">
+                                    <Setter Property="Text" Value="&#xE76C;"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Button>
+        </Border>
+
         <!-- ══════════ CONTENT COLUMN (header strip + stacked sections) ══════════ -->
-        <Grid Grid.Column="1">
+        <Grid Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>

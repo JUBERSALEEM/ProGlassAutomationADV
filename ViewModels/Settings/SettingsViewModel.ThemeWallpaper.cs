@@ -45,14 +45,39 @@ namespace ProGlassAutomation.ViewModels.Settings
         //       mapping.
         // ══════════════════════════════════════════════════════════════
 
-        public List<string> VisualThemeOptions { get; } = new()
+        /// <summary>One selectable visual family. Display pairs the family
+        /// name with its built-in wallpaper scene (2026-09-05 owner ask:
+        /// "show which theme comes with which scene"); Key drives the
+        /// SelectedValue binding so the saved config keeps the raw key.</summary>
+        public sealed class VisualThemeOptionRow
         {
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal,
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet,
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.Professional,
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass,
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.UltraTransparent,
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.Ocean
+            public string Key { get; }
+            public string Display { get; }
+            public VisualThemeOptionRow(string key)
+            {
+                Key = key;
+                string scene = "Studio";
+                foreach (var s in ProGlassAutomation.Services.Theme
+                             .BuiltinWallpaperScenes.All)
+                    if (s.Key == key) { scene = s.Label; break; }
+                Display = key + "  —  " + scene;
+            }
+            /// <summary>Style-immune label (see file header).</summary>
+            public override string ToString() => Display;
+        }
+
+        public List<VisualThemeOptionRow> VisualThemeOptions { get; } = new()
+        {
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Professional),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.UltraTransparent),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Ocean),
+            // Industrial family (2026-09-05): plain factory-floor ERP.
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.IndustrialWhite),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.IndustrialGrey),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.IndustrialDark),
         };
 
         public string SelectedVisualTheme
@@ -66,7 +91,35 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 _config.Appearance.VisualTheme = value;
                 SaveConfig();
-                ApplyVisualTheme();
+
+                // 2026-09-05 mode coupling: an industrial LAYOUT promises
+                // its own ink pairing. Industrial Dark auto-engages Dark
+                // mode; White/Grey auto-engage Light — the UI can never
+                // show dark text on a dark card (or vice-versa) after a
+                // family switch. Non-industrial families keep the user's
+                // own Light/Dark choice.
+                bool? modePair = value switch
+                {
+                    ProGlassAutomation.Services.Theme.VisualThemeEngine
+                        .IndustrialDark => true,
+                    ProGlassAutomation.Services.Theme.VisualThemeEngine
+                        .IndustrialWhite => false,
+                    ProGlassAutomation.Services.Theme.VisualThemeEngine
+                        .IndustrialGrey => false,
+                    _ => null,
+                };
+                if (modePair.HasValue)
+                {
+                    // The full pipeline (Light/Dark swap INCLUDED) runs via
+                    // the domain service so the mode change + family change
+                    // land in ONE deterministic rebuild.
+                    ProGlassAutomation.Services.Settings.AppearanceService
+                        .ApplyTheme(modePair.Value);
+                }
+                else
+                {
+                    ApplyVisualTheme();
+                }
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(StudioFamilyName));
 

@@ -221,6 +221,12 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private void InitializeWallpaperStudio()
         {
+            // 2026-09-05 breadcrumb: if the user ever sees "all wallpaper
+            // buttons dead", this status line proving the initializer ran
+            // is the first diagnostic (alongside the AppLog entry).
+            AppLogService.Debug(
+                "[Wallpapers] Studio initialized — commands wired",
+                new LogContext { Module = "Wallpapers", Operation = "Init" });
             FetchWallpaperCommand = new RelayCommand(_ => FetchWallpaperAsync());
             ApplyCachedWallpaperCommand = new RelayCommand(p =>
             {

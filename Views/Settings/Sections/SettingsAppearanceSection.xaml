@@ -531,7 +531,9 @@
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{DynamicResource Settings.NormalMonetProfessionalIosLiquidGlassOcean}"/>
                             <ComboBox ItemsSource="{Binding VisualThemeOptions}"
-                                      SelectedItem="{Binding SelectedVisualTheme}"
+                                      DisplayMemberPath="Display"
+                                      SelectedValuePath="Key"
+                                      SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
                                       HorizontalAlignment="Stretch"
                                       Padding="10,7" FontSize="{StaticResource TextBodyLarge}"/>
                         </StackPanel>

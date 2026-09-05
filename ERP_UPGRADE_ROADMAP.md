@@ -477,3 +477,43 @@ provable from the log.
   DEBUG; turns "looks broken" into "line 27 key X was null".
 - Phase R3: per-family Default profiles table-driven (JSON resource)
   instead of compiled switches — removes the DefaultsFor drift class.
+
+---
+
+## ERR-46877E — OwNEr-VERIFIED CRASH CHAIN (2026-09-05, final)
+
+Crash report stack (owner machine):
+  ThemeStudioService.WriteScaledDuration → TimeSpan.IntervalFromDoubleTicks
+  → OverflowException  ← ThemeStudioService.Apply:391 ← OnFamilyApplied:214
+  ← VisualThemeEngine.ApplyModule:542 (navigation RelayCommand, UNHANDLED)
+
+PROVEN root cause: Duration.Forever is TimeSpan-backed — HasTimeSpan=true,
+TimeSpan.MaxValue. A Forever-class value in the MotionDuration* snapshot,
+multiplied by the Animation Intensity scale (needs ≳1.17×; slider >~67),
+overflows long ticks. All theme files + all Services define finite tokens
+(150/220/380 ms), so provenance is environmental (legacy/outer writer);
+guard therefore makes overflow mathematically impossible rather than
+chasing the source.
+
+Two visible failure modes (why "triggers felt laggy/dead"):
+  • caught path (AppearanceService.ApplyTheme): ~1.06 s "ApplyTheme
+    failed" ERROR flood — studio apply aborted mid-write each pass;
+  • uncaught path (ApplyModule finally → nav RelayCommand): the fatal
+    UI crash report itself.
+
+FIX SET (already in this branch):
+  1. WriteScaledDuration: !
+HasTimeSpan skip, NaN/Infinity skip,
+     base>60 s skip (animation-control tokens are never scaled),
+     output clamped 1 ms–60 s, complete try/catch.
+  2. Every per-key writer (brush/thickness/shadow/text/water) is a
+     guarded unit — one poisoned resource cannot abort a whole studio
+     apply anymore.
+  3. OnFamilyApplied / Restore / OnAccentChanged fully guarded with
+     AppLog warnings — the studio layer can never again take down
+     theme application, boot, or navigation.
+  4. Wallpaper library scan failures now log (no silent empty library);
+     provider pipeline AppLogs fetch start / empty searches / provider
+     outcomes / a final ALL-PROVIDERS-FAILED diagnosis with the exact
+     network reason, so "downloads do nothing" is diagnosable in one
+     read of the app log.
