@@ -70,14 +70,10 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(StudioFamilyName));
 
-                // 2026-09-05 (owner report): "wallpaper not changing as
-                // per changing theme". The ApplyModule overlay covers
-                // every REBUILT scene; this extra refresh guarantees the
-                // theme-linked/pinned scene redraws even on guard-skipped
-                // no-op repaint paths — family switches are now visibly
-                // accompanied by their wallpaper scene, every time.
-                ProGlassAutomation.Services.Theme.WallpaperOrchestrator
-                    .RefreshScene();
+                // 2026-09-05 PIPELINE UNIFICATION: the extra RefreshScene
+                // toggle used to duplicate the module overlay that is
+                // already guaranteed inside RebuildFamily; removed — the
+                // pipeline paints the theme-linked scene exactly once.
                 OnPropertyChanged(nameof(SelectedWallpaperMode));
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
@@ -194,37 +190,13 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private void ApplyVisualTheme()
         {
-            var appearance = _config?.Appearance;
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.Apply(
-                appearance?.VisualTheme ?? "Normal",
-                appearance?.WallpaperPath ?? "",
-                appearance?.WallpaperOpacity ?? 0.85);
-
-            // Re-layer the module on screen (its own wallpaper override
-            // or the system-wide wallpaper) so changes apply instantly.
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.ApplyModule(
-                ProGlassAutomation.Services.Theme.VisualThemeEngine
-                    .LastRequestedModule,
-                appearance);
-
-            // The engine rewrites the surface brushes, and the keyline is
-            // derived FROM a surface, so re-derive the accent family
-            // against the new surfaces before restoring the user's
-            // Defined Card Edges choice on top. Order matters: accent
-            // first (writes OutlineDefaultBrush), toggle second (reads
-            // it).
-            ProGlassAutomation.Services.ThemeManager.ApplyAccent(
-                ProGlassAutomation.Services.ThemeManager.AccentColor,
-                raiseEvent: false);
-            ProGlassAutomation.Services.ThemeManager
-                .ReapplyOutlinePreference();
-
-            // Theme Studio: re-snapshot the family's fresh brushes and
-            // re-apply the user's 0–100 profile on top so switching
-            // families keeps their customization (master prompt §live
-            // apply).
-            ProGlassAutomation.Services.Theme.ThemeStudioService
-                .OnFamilyApplied();
+            // 2026-09-05 PIPELINE UNIFICATION: the hand-rolled 5-step
+            // chain below was one of FOUR competing orderings (family →
+            // module → accent → outline → studio, while AppearanceService
+            // ran accent/outline AFTER studio). One pipeline now: family
+            // → module+overlay → studio once → accent → outline.
+            ProGlassAutomation.Services.Theme.ThemePipeline.RebuildFamily(
+                "family-switch (settings)");
         }
 
     }

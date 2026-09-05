@@ -262,12 +262,12 @@ namespace ProGlassAutomation.Services.Theme
         {
             if (App.Config != null)
                 ConfigService.Save(App.Config);
-            // Repaint through the ONE proven chain (engine → module →
-            // overlay → studio resnapshot → accent re-derive): identical
-            // to Light/Dark ApplyTheme, so the wallpaper modes inherit
-            // every ordering guarantee that chain already encodes.
-            AppearanceService.ApplyTheme(
-                ThemeManager.CurrentTheme == AppTheme.Dark);
+            // 2026-09-05 PIPELINE UNIFICATION: was AppearanceService
+            // .ApplyTheme (pure legacy) — the full theme swap on every
+            // wallpaper click. Only the wallpaper layer + module overlay +
+            // studio re-apply (already inside ApplyModule's finally) is
+            // needed; the unified pipeline paints them exactly once.
+            ThemePipeline.RebuildWallpaperLayer("wallpaper-action");
         }
 
         private static void Audit(string action, string detail)

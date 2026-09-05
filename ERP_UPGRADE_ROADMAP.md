@@ -426,3 +426,54 @@ diagnosis) so the next session's log proves the download path.
   earlier floating overlay button is removed.
 - Drawer behaviour kept: picking a section auto-closes the rail; single
   click opens/closes; ERR-BEFC44 min/max sizing preserved.
+
+---
+
+## 2026-09-05 (4) — SYSTEM-WIDE BUILD: the four-pipeline problem and its unification
+
+### SENIOR ANALYSIS (why "everything in appearance looked broken")
+
+Four services each ran their own copy of the theme pipeline in DIFFERENT
+ORDERS, each believing it was the last step:
+
+1. AppearanceService.ApplyTheme: Theme → Apply → ApplyModule(→finally:
+   scene+studio) → STUDIO AGAIN → accent → outline → RefreshScene
+   (→ ApplyModule AGAIN → finally AGAIN) ⇒ up to 4 repaints/click.
+2. SettingsViewModel.ApplyVisualTheme: Apply → ApplyModule → accent →
+   outline → studio — accent/outline BEFORE studio (opposite of #1).
+3. VisualThemeEngine.ApplyModule finally: scene overlay + studio re-apply.
+4. WallpaperOrchestrator.SaveAndRepaint: → AppearanceService (all of #1).
+
+Any multi-field state (family + studio profile + wallpaper mode + accent)
+landed differently per entry path; some studio base-snapshots were taken
+MID-pipeline (before accent re-derive); a skipped repaint in one place
+was unknown to the rest. Built-in theme picks, presets, text strength,
+scenes, downloads — everything inherited this nondeterminism.
+
+### THE UNIFICATION — Services/Theme/ThemePipeline.cs (NEW)
+One ordered sequence, one writer per layer, public APIs preserved by
+delegation (zero call-site breakage):
+  1 ThemeManager.ApplyTheme      (full flavour only)
+  2 VisualThemeEngine.Apply      (family repaint)
+  3 VisualThemeEngine.ApplyModule(module + wallpaper/scene overlay;
+    finally runs the ONE canonical studio re-apply on fresh snapshot)
+  4 ThemeManager.ApplyAccent     (surface-derived keyline)
+  5 ThemeManager.ReapplyOutlinePreference (user's card edges)
+
+Routed: AppearanceService.ApplyTheme → Rebuild; SettingsViewModel
+.ApplyVisualTheme → RebuildFamily; WallpaperOrchestrator.SaveAndRepaint →
+RebuildWallpaperLayer (family swap was redundant for click actions);
+accent path → RebuildAccentLayer. Slider-level studio tweaks remain
+in-memory by design. Every rebuild AppLogs its reason + effective state
+(family / wallpaper mode / studio active) so future "who repainted?" is
+provable from the log.
+
+### SENIOR RECOMMENDATIONS (next phases, do not batch-blindly)
+- Phase R1: extract the ENGINE's three Apply-family pivots behind
+  an IFamilyPainter registry (each family's paint becomes one file);
+  today Apply+ApplyModule duplicate the switch.
+- Phase R2: visual smoke contract — a tiny in-app "appearance self-test"
+  page that asserts key resources resolve and logs deltas on startup in
+  DEBUG; turns "looks broken" into "line 27 key X was null".
+- Phase R3: per-family Default profiles table-driven (JSON resource)
+  instead of compiled switches — removes the DefaultsFor drift class.

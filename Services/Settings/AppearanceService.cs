@@ -25,24 +25,15 @@ namespace ProGlassAutomation.Services.Settings
             var corrId = correlationId ?? CorrelationContext.NewId();
             try
             {
-                ThemeManager.ApplyTheme(isDark ? AppTheme.Dark : AppTheme.Light);
-                VisualThemeEngine.Apply(
-                    App.Config?.Appearance?.VisualTheme ?? "Normal",
-                    App.Config?.Appearance?.WallpaperPath ?? "",
-                    App.Config?.Appearance?.WallpaperOpacity ?? 0.85);
-
-                // Re-layer the module wallpaper / system wallpaper so the
-                // module surface keeps its picture after the swap (same
-                // ordering the Settings path uses).
-                VisualThemeEngine.ApplyModule(
-                    VisualThemeEngine.LastRequestedModule,
-                    App.Config?.Appearance);
-
-                // Theme Studio: re-snapshot the family's freshly painted
-                // brushes and re-apply the user's 0–100 profile on top.
-                // A Light/Dark toggle or family switch must never drop
-                // the user's customization (master prompt §live apply).
-                ThemeStudioService.OnFamilyApplied();
+                // 2026-09-05 PIPELINE UNIFICATION (senior rewrite): this
+                // method used to run its own 6-step make-it-up chain that
+                // re-entered ApplyModule and the studio re-apply twice
+                // (up to 4 repaints for one toggle — the "every click
+                // looks different" machine). EVERYTHING now funnels
+                // through ThemePipeline — theme swap, family repaint,
+                // module/scene overlay, ONE studio re-apply, accent +
+                // outline re-derivation — in one deterministic order.
+                ThemePipeline.Rebuild(isDark, "theme-toggle (Light/Dark)");
 
                 // Persist the base colour mode so it survives restarts
                 // (the AI-agent path changes theme too, not only the
@@ -53,21 +44,6 @@ namespace ProGlassAutomation.Services.Settings
                         isDark ? "Dark" : "Light";
                     SaveConfig();
                 }
-
-                // Re-derive every accent-dependent surface AGAIN after the
-                // visual family has rebuilt its own module brushes. This is
-                // the same ordering guarantee used by SettingsViewModel:
-                // theme → family surfaces → accent family → outline.
-                ThemeManager.ApplyAccent(ThemeManager.AccentColor, raiseEvent: false);
-                ThemeManager.ReapplyOutlinePreference();
-
-                // Theme-linked wallpaper scenes (2026-09-05): every full
-                // theme apply — Light/Dark toggle, family switch, agent
-                // path — ends by repainting the dynamic scene for the
-                // NOW-active family/theme/accent. The ApplyModule overlay
-                // is the primary hook; this is the belt-and-braces
-                // guarantee that the wallpaper ALWAYS follows the theme.
-                WallpaperOrchestrator.RefreshScene();
 
                 AppLogService.Info($"Theme applied: {(isDark ? "Dark" : "Light")}",
                     new LogContext { Module = "Settings", Operation = "ApplyTheme", CorrelationId = corrId });
