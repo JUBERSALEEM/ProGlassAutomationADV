@@ -59,6 +59,13 @@ namespace ProGlassAutomation.Services.Theme
         public double ColorRichness { get; set; } = 50;
         public double TextStrength { get; set; } = 55;
 
+        /// <summary>0 = flat frost … 100 = strong WATER-FILL: card and
+        /// glass surfaces become liquid crystal — bright specular sheen
+        /// at the top edge, crystal body, a waterline glint, and denser
+        /// colour settled at the bottom like filled water (2026-09-05).
+        /// Default 0 keeps every family exactly as designed.</summary>
+        public double WaterFlow { get; set; } = 0;
+
         public double CornerRoundness { get; set; } = 50;
         public double CardPadding { get; set; } = 50;
 
@@ -107,7 +114,8 @@ namespace ProGlassAutomation.Services.Theme
                 && HighlightStrength == other.HighlightStrength
                 && AnimationIntensity == other.AnimationIntensity
                 && ColorRichness == other.ColorRichness
-                && TextStrength == other.TextStrength;
+                && TextStrength == other.TextStrength
+                && WaterFlow == other.WaterFlow;
         }
 
         // ── Per-family defaults ──────────────────────────────────────
@@ -132,6 +140,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 55;
                     s.AnimationIntensity = 55;
                                         s.ColorRichness = 60; s.TextStrength = 60;
+                                        s.WaterFlow = 45;
                     break;
 
                 case VisualThemeEngine.UltraTransparent:
@@ -146,6 +155,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 60;
                     s.AnimationIntensity = 50;
                                         s.ColorRichness = 55; s.TextStrength = 85;
+                                        s.WaterFlow = 75;
                     break;
 
                 case VisualThemeEngine.Ocean:
@@ -160,6 +170,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 50;
                     s.AnimationIntensity = 50;
                                         s.ColorRichness = 70; s.TextStrength = 60;
+                                        s.WaterFlow = 35;
                     break;
 
                 case VisualThemeEngine.Monet:
@@ -174,6 +185,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 45;
                     s.AnimationIntensity = 50;
                                         s.ColorRichness = 75; s.TextStrength = 60;
+                                        s.WaterFlow = 25;
                     break;
 
                 case VisualThemeEngine.Professional:
@@ -188,6 +200,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 25;
                     s.AnimationIntensity = 30;
                                         s.ColorRichness = 45; s.TextStrength = 70;
+                                        s.WaterFlow = 0;
                     break;
 
                 default: // Normal
@@ -202,6 +215,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 35;
                     s.AnimationIntensity = 45;
                                         s.ColorRichness = 55; s.TextStrength = 55;
+                                        s.WaterFlow = 0;
                     break;
             }
             s.IsCustomized = false;
@@ -227,6 +241,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 60;
                     s.AnimationIntensity = 50;
                                         s.ColorRichness = 65; s.TextStrength = 80;
+                                        s.WaterFlow = 65;
                     break;
 
                 case "LightGlass":        // 🫧 airy, bright glass
@@ -241,6 +256,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 55;
                     s.AnimationIntensity = 55;
                                         s.ColorRichness = 60; s.TextStrength = 70;
+                                        s.WaterFlow = 50;
                     break;
 
                 case "Balanced":          // ❄️ modern default
@@ -255,6 +271,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 45;
                     s.AnimationIntensity = 50;
                                         s.ColorRichness = 60; s.TextStrength = 60;
+                                        s.WaterFlow = 35;
                     break;
 
                 case "Frosted":           // 🌫️ dense readable frost
@@ -269,6 +286,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 45;
                     s.AnimationIntensity = 45;
                                         s.ColorRichness = 55; s.TextStrength = 65;
+                                        s.WaterFlow = 20;
                     break;
 
                 case "RoyalRich":         // 👑 deep saturated 2026 look
@@ -283,6 +301,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 55;
                     s.AnimationIntensity = 50;
                     s.ColorRichness = 90; s.TextStrength = 75;
+                                        s.WaterFlow = 40;
                     break;
 
                 default:                  // 🧊 Dense Glass — max readability
@@ -297,6 +316,7 @@ namespace ProGlassAutomation.Services.Theme
                     s.HighlightStrength = 40;
                     s.AnimationIntensity = 40;
                                         s.ColorRichness = 50; s.TextStrength = 80;
+                                        s.WaterFlow = 5;
                     break;
             }
             s.IsCustomized = true;

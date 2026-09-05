@@ -258,3 +258,19 @@ glass). New **Royal Rich** preset (Richness 90 / Text 75). Old configs upgrade
 invisibly (50/55 defaults = family look). Wallpaper: engine-generated scenes now
 follow richness; user images are dimmed only, never recoloured. UI: new
 COLOUR & TEXT slider group in Settings → Appearance → Theme Studio.
+
+---
+
+## WALLPAPER STUDIO + LIQUID GLASS (2026-09-05)
+
+Honest engineering answer to "include 50 wallpapers": 50 binaries would bloat the
+installer and go stale. The full system instead:
+
+| Component | What it is |
+|---|---|
+| **6 built-in scenes** (`BuiltinWallpaperScenes`) | Code-drawn multi-stop gradients, ONE per family: Aurora (LiquidGlass, accent ribbons), Crystal Sea (UltraTransparent water column), Deep Reef (Ocean), Golden Hour (Monet — 100% derived from the live accent hue), Slate Grid (Professional), Studio (Normal). Resolution-independent (true 4K+), zero assets, and — being plain gradient brushes — they flow through the whole engine (backdrop scale, Colour richness, opacity) |
+| **Theme-linked dynamic mode** (`WallpaperOrchestrator`) | Modes Auto/ThemeLinked/File/Scene persisted in config. ThemeLinked = the scene ALWAYS follows the active family AND redraws on accent change (Golden Hour literally re-derives). Overlay hooks the end of `VisualThemeEngine.ApplyModule` (finally), so module navigation never drops the scene; `ThemeStudioService.UpdateBase` keeps the studio snapshot honest |
+| **Online 4K downloads** (`WallpaperProviderService`) | Keyless providers: Wallhaven public JSON API (SFW, category queries, ≥2560×1440, random page) with Picsum 4K fallback. Streams to `%LocalAppData%\ProGlassAutomation\Wallpapers` with image/* + ≤30 MB validation; local library = instant offline re-apply |
+| **Settings UI** | Wallpaper Studio tile: mode picker, six live-swatch scene buttons, category + Download&apply (busy state), downloaded-library list with one-tap Apply |
+| **Card vs backdrop** | Studio labels now explicit: *Card fill — solid ↔ transparent* and *Backdrop intensity — hidden ↔ solid* (separate axes by design) |
+| **Water-fill liquid glass** (`WaterFlow` 0–100) | New studio axis + GLASS & WATER slider group: five-stop liquid gradient per glass surface — wet specular top edge, airy crystal body, waterline glint at 78%, colour settled at the bottom like filled water. Tint/frost/transparency/richness remain authoritative over the water. Per-family signatures (UltraTransparent 75, LiquidGlass 45, Professional 0). Truth note: WPF cannot GPU-blur backdrops; depth is painted via layered gradients, not blurred |

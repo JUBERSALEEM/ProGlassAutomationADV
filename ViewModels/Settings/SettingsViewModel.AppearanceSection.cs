@@ -122,6 +122,10 @@ namespace ProGlassAutomation.ViewModels.Settings
             // Theme Studio — draft profile + debounced save timer + commands.
             InitializeThemeStudio();
 
+            // Wallpaper Studio (2026-09-05) — modes, built-in scenes,
+            // online 4K downloads and the local library.
+            InitializeWallpaperStudio();
+
             // Sync pickers from service state — direct field writes so a
             // plain re-sync never re-applies (avoids redundant saves).
             var lang = LocalizationService.Instance.CurrentLanguage;

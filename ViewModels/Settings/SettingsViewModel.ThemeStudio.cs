@@ -199,6 +199,15 @@ namespace ProGlassAutomation.ViewModels.Settings
             set => StudioSet(v => v.TextStrength = value);
         }
 
+        /// <summary>0 = flat frost … 100 = strong water-fill: cards turn
+        /// into liquid crystal (wet top sheen, waterline glint, colour
+        /// settled at the bottom like filled water).</summary>
+        public double StudioWaterFlow
+        {
+            get => _studioDraft?.WaterFlow ?? 0;
+            set => StudioSet(v => v.WaterFlow = value);
+        }
+
         // ── Commands ──────────────────────────────────────────────────
 
         private void InitializeThemeStudio()

@@ -2408,7 +2408,7 @@
     <sys:String x:Key="Settings.StudioCustomized">Customized</sys:String>
     <sys:String x:Key="Settings.StudioDefaults">Family defaults</sys:String>
     <sys:String x:Key="Settings.StudioFrostness">Frostness</sys:String>
-    <sys:String x:Key="Settings.StudioTransparency">Transparency</sys:String>
+    <sys:String x:Key="Settings.StudioTransparency">Card fill — solid ↔ transparent</sys:String>
     <sys:String x:Key="Settings.StudioBlur">Blur</sys:String>
     <sys:String x:Key="Settings.StudioTint">Tint</sys:String>
     <sys:String x:Key="Settings.StudioCorners">Corner roundness</sys:String>
@@ -2419,7 +2419,7 @@
     <sys:String x:Key="Settings.StudioBorder">Border visibility</sys:String>
     <sys:String x:Key="Settings.StudioBorderOpacity">Border opacity</sys:String>
     <sys:String x:Key="Settings.StudioBorderWidth">Border thickness</sys:String>
-    <sys:String x:Key="Settings.StudioBackground">Background visibility</sys:String>
+    <sys:String x:Key="Settings.StudioBackground">Backdrop intensity — hidden ↔ solid</sys:String>
     <sys:String x:Key="Settings.StudioGlow">Background glow</sys:String>
     <sys:String x:Key="Settings.StudioHighlight">Highlight</sys:String>
     <sys:String x:Key="Settings.StudioAnimation">Animation intensity</sys:String>
@@ -2428,6 +2428,18 @@
     <sys:String x:Key="Settings.StudioColorRichnessHint">0 = muted pastel … 50 = theme colour … 100 = deep saturated rich — applies to cards, glass, status tints and the wallpaper scene</sys:String>
     <sys:String x:Key="Settings.StudioTextStrength">Text strength</sys:String>
     <sys:String x:Key="Settings.StudioTextStrengthHint">55 = theme ink … 100 = maximum-contrast text (auto-forced whenever cards go near-invisible, so text can never disappear)</sys:String>
+    <sys:String x:Key="Settings.StudioGlassWater">GLASS &amp; WATER</sys:String>
+    <sys:String x:Key="Settings.StudioWaterFlow">Water fill — liquid crystal cards</sys:String>
+    <sys:String x:Key="Settings.StudioWaterFlowHint">0 = flat frosted glass … 100 = strong water fill: wet specular top edge, waterline glint, colour settled at the bottom like filled water</sys:String>
+    <sys:String x:Key="Settings.StudioWaterFlowCaption">Cards turn into liquid crystal: specular sheen on top, glassy body, and colour that settles like water. Frost and Transparency keep full authority over the water.</sys:String>
+    <sys:String x:Key="Settings.WallpaperStudio">Wallpaper Studio</sys:String>
+    <sys:String x:Key="Settings.WallpaperStudioCaption">Dynamic theme-linked scenes that follow the current theme and accent (4K-sharp at any size, drawn in code), six built-in designs, and one-tap downloads from free wallpaper services — saved locally, applied instantly, reused offline.</sys:String>
+    <sys:String x:Key="Settings.WallpaperMode">Wallpaper mode</sys:String>
+    <sys:String x:Key="Settings.WallpaperBuiltin">BUILT-IN THEME SCENES</sys:String>
+    <sys:String x:Key="Settings.WallpaperOnline">DOWNLOAD 4K (INTERNET)</sys:String>
+    <sys:String x:Key="Settings.WallpaperLibrary">DOWNLOADED LIBRARY</sys:String>
+    <sys:String x:Key="Settings.WallpaperFetch">Download &amp; apply 4K</sys:String>
+    <sys:String x:Key="Settings.WallpaperApply">Apply</sys:String>
     <sys:String x:Key="Storage.Title">Storage usage</sys:String>
     <sys:String x:Key="Storage.Subtitle">What&apos;s using your local storage</sys:String>
     <sys:String x:Key="Storage.Total">Total</sys:String>

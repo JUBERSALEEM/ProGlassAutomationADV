@@ -96,6 +96,23 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public double WallpaperOpacity { get; set; } = 0.85;
 
         /// <summary>
+        /// Wallpaper mode (2026-09-05 — Wallpaper Studio).
+        ///   "Auto"        (DEFAULT, migration-safe): a saved WallpaperPath
+        ///                 keeps winning (legacy behavior); with no path the
+        ///                 theme-linked built-in scene shows instead.
+        ///   "ThemeLinked" the dynamic code-drawn scene ALWAYS follows the
+        ///                 active visual family/accent (user opt-in).
+        ///   "File"        the image at WallpaperPath (downloaded or browsed).
+        ///   "Scene"       one pinned built-in scene (BuiltinScene below).
+        /// </summary>
+        public string WallpaperMode { get; set; } = "Auto";
+
+        /// <summary>Pinned built-in scene key (a VisualThemeEngine family
+        /// name from BuiltinWallpaperScenes.All) when WallpaperMode =
+        /// "Scene". Empty = follow the active family.</summary>
+        public string BuiltinScene { get; set; } = "";
+
+        /// <summary>
         /// Per-module wallpapers, keyed by WallpaperModules constants
         /// (e.g. "ProformaInvoice"). Missing entries = no wallpaper.
         /// </summary>

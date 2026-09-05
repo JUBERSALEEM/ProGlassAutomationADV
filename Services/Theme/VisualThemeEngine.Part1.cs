@@ -468,6 +468,14 @@ namespace ProGlassAutomation.Services.Theme
                 // Last line of defense — see GuaranteeCriticalResources.
                 GuaranteeCriticalResources(resources);
 
+                // Theme-linked / pinned built-in wallpaper scene
+                // (2026-09-05 Wallpaper Studio): after EVERY real scene
+                // build — including module-navigation repaints, which is
+                // why the hook lives here — the orchestrator overlays
+                // its code-drawn family scene. No-op in File mode and
+                // before config loads; never throws.
+                WallpaperOrchestrator.OverlayIfLinked(resources);
+
                 // Record the rendered scene LAST (in finally, because the
                 // module-wallpaper branch returns early). A pass that threw
                 // still records: the catch already restored a guaranteed

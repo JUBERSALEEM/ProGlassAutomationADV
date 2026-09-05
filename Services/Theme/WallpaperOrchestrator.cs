@@ -1,0 +1,192 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Services/Theme/WallpaperOrchestrator.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Wallpaper system — mode resolution + dynamic scene overlay
+//         (2026-09-05)
+//
+// THE PIPELINE (where this sits — no engine rewiring):
+//   VisualThemeEngine.Apply / ApplyModule rebuild the family scene and
+//   layer any FILE wallpaper exactly as before (unchanged behavior).
+//   At the very END of ApplyModule (finally block) the engine calls
+//   OverlayIfLinked() here: when the user's mode is "ThemeLinked" or
+//   "Scene", the code-drawn built-in scene is written over
+//   "ModuleWallpaperBrush" — the same resource key every wallpaper-aware
+//   view already binds, so navigation, dashboards and modules all pick
+//   the scene up with zero XAML changes.
+//
+//   Theme Studio then snapshots the overlaid brush (OnFamilyApplied
+//   runs after ApplyModule in both apply chains), so Backdrop
+//   visibility / Colour richness act on whatever is really on screen.
+//   UpdateBase() keeps that snapshot honest when the scene is redrawn
+//   on an accent change without a family rebuild.
+//
+// MODES (AppearanceSettings.WallpaperMode):
+//   Auto        — legacy-safe default: a saved file path wins; with no
+//                 path the theme-linked scene shows.
+//   ThemeLinked — ALWAYS the code-drawn scene of the active family;
+//                 follows family + accent changes (Golden Hour literally
+//                 re-derives from the accent hue).
+//   File        — the image at WallpaperPath (browsed or downloaded).
+//   Scene       — one pinned built-in scene (BuiltinScene key).
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Services.AI.AIConfig;
+using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Settings;
+using System;
+using System.Windows;
+
+namespace ProGlassAutomation.Services.Theme
+{
+    /// <summary>Resolves the wallpaper mode and paints the dynamic
+    /// built-in scenes over the engine's wallpaper key.</summary>
+    public static class WallpaperOrchestrator
+    {
+        public const string ModeAuto = "Auto";
+        public const string ModeThemeLinked = "ThemeLinked";
+        public const string ModeFile = "File";
+        public const string ModeScene = "Scene";
+
+        /// <summary>The mode that is effectively in force, resolving the
+        /// migration-safe "Auto": a legacy saved path behaves as File,
+        /// otherwise the theme-linked dynamic scene is active.</summary>
+        public static string EffectiveMode(AppearanceSettings? a)
+        {
+            if (a == null) return ModeThemeLinked;
+            string mode = a.WallpaperMode ?? ModeAuto;
+            if (mode == ModeAuto)
+            {
+                bool hasFile = !string.IsNullOrWhiteSpace(a.WallpaperPath)
+                            && System.IO.File.Exists(a.WallpaperPath);
+                return hasFile ? ModeFile : ModeThemeLinked;
+            }
+            return mode;
+        }
+
+        /// <summary>
+        /// Called by VisualThemeEngine.ApplyModule at the end of EVERY
+        /// real scene build (including module-navigation repaints), and
+        /// by RefreshScene() on accent changes. No-op for File mode or
+        /// before config is loaded. Never throws into the engine's
+        /// finally block.
+        /// </summary>
+        public static void OverlayIfLinked(ResourceDictionary? resources)
+        {
+            try
+            {
+                if (resources == null) return;
+                var appearance = App.Config?.Appearance;
+                string mode = EffectiveMode(appearance);
+                if (mode != ModeThemeLinked && mode != ModeScene) return;
+
+                string sceneKey = mode == ModeScene
+                    ? (appearance?.BuiltinScene ?? "")
+                    : (VisualThemeEngine.Current ?? VisualThemeEngine.LiquidGlass);
+
+                var scene = BuiltinWallpaperScenes.For(sceneKey);
+                double opacity = Clamp01(appearance?.WallpaperOpacity ?? 0.85);
+                // A scene is ambient scenery, not a page background —
+                // keep the envelope below fully-opaque so the stage's own
+                // gradient glows through by design.
+                scene.Opacity = Math.Min(0.95, Math.Max(0.10, opacity));
+
+                resources["ModuleWallpaperBrush"] = scene;
+                ThemeStudioService.UpdateBase("ModuleWallpaperBrush", scene);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Wallpaper scene overlay skipped: {ex.Message}",
+                    new LogContext { Module = "Wallpapers", Operation = "Overlay" });
+            }
+        }
+
+        /// <summary>Redraws the active scene (accent / Light-Dark base
+        /// changed) without a family rebuild.</summary>
+        public static void RefreshScene()
+        {
+            OverlayIfLinked(Application.Current?.Resources);
+        }
+
+        // ── User actions (Settings → Appearance → Wallpaper Studio) ──
+
+        /// <summary>Theme-linked mode: the dynamic scene follows the
+        /// current theme from now on.</summary>
+        public static void SetThemeLinked()
+        {
+            var appearance = App.Config?.Appearance;
+            if (appearance == null) return;
+            appearance.WallpaperMode = ModeThemeLinked;
+            SaveAndRepaint();
+            Audit("Wallpaper mode", "Theme-linked (dynamic scene)");
+        }
+
+        /// <summary>File mode with an explicit path (browse or freshly
+        /// downloaded): persists and repaints through the full theme
+        /// chain so the image + studio layers all re-derive correctly.</summary>
+        public static void SetFile(string path)
+        {
+            var appearance = App.Config?.Appearance;
+            if (appearance == null) return;
+            if (string.IsNullOrWhiteSpace(path)) return;
+            appearance.WallpaperPath = path;
+            appearance.WallpaperMode = ModeFile;
+            SaveAndRepaint();
+            Audit("Wallpaper applied", System.IO.Path.GetFileName(path));
+        }
+
+        /// <summary>Pins one built-in scene (independent of the active
+        /// family). Empty key = re-follow the active family.</summary>
+        public static void SetScene(string familyKey)
+        {
+            var appearance = App.Config?.Appearance;
+            if (appearance == null) return;
+            appearance.WallpaperMode = string.IsNullOrWhiteSpace(familyKey)
+                ? ModeThemeLinked : ModeScene;
+            appearance.BuiltinScene = familyKey ?? "";
+            SaveAndRepaint();
+            Audit("Wallpaper scene pinned",
+                string.IsNullOrWhiteSpace(familyKey) ? "Follow theme" : familyKey);
+        }
+
+        /// <summary>Clearing the wallpaper returns to the theme-linked
+        /// dynamic scene (instead of a bare stage) — the 2026 default.</summary>
+        public static void ClearToLinked()
+        {
+            var appearance = App.Config?.Appearance;
+            if (appearance == null) return;
+            appearance.WallpaperPath = "";
+            appearance.WallpaperMode = ModeThemeLinked;
+            SaveAndRepaint();
+            Audit("Wallpaper cleared", "Theme-linked scene");
+        }
+
+        // ── Internals ─────────────────────────────────────────────────
+
+        private static void SaveAndRepaint()
+        {
+            if (App.Config != null)
+                ConfigService.Save(App.Config);
+            // Repaint through the ONE proven chain (engine → module →
+            // overlay → studio resnapshot → accent re-derive): identical
+            // to Light/Dark ApplyTheme, so the wallpaper modes inherit
+            // every ordering guarantee that chain already encodes.
+            AppearanceService.ApplyTheme(
+                ThemeManager.CurrentTheme == AppTheme.Dark);
+        }
+
+        private static void Audit(string action, string detail)
+        {
+            try
+            {
+                global::ProGlassAutomation.Services.Audit.AuditService.Log(
+                    global::ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    action, detail);
+            }
+            catch { /* wallpaper audit must never break the UI path */ }
+        }
+
+        private static double Clamp01(double v) =>
+            v < 0 ? 0 : v > 1 ? 1 : v;
+    }
+}

@@ -89,6 +89,11 @@ namespace ProGlassAutomation.Services.Settings
                 // move or family switch).
                 ThemeStudioService.OnAccentChanged();
 
+                // Accent-derived wallpaper scenes (Monet's Golden Hour is
+                // 100% accent-hue; Aurora has accent ribbons) redraw on
+                // the spot when a theme-linked/pinned scene is on screen.
+                WallpaperOrchestrator.RefreshScene();
+
                 if (App.Config?.Appearance != null)
                 {
                     App.Config.Appearance.AccentPreset = string.IsNullOrEmpty(presetKey) ? "GlassBlue" : presetKey;

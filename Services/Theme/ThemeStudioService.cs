@@ -145,6 +145,18 @@ namespace ProGlassAutomation.Services.Theme
             "TintGrayBrush",
         };
 
+        /// <summary>Water-fill keys (2026-09-05) — the surfaces that
+        /// receive the liquid-crystal gradient when WaterFlow > 0.
+        /// They also belong to Surface/Glass groups (scaled first);
+        /// the water pass runs AFTER those and rewrites them into
+        /// layered water gradients.</summary>
+        private static readonly string[] WaterKeys =
+        {
+            "GlassWaterBrush", "GlassCrystalBrush",
+            "LiquidGlassBrush", "LiquidCard",
+            "GlassSurfaceStandard",
+        };
+
         /// <summary>Border keys (BorderVisibility + BorderOpacity).</summary>
         private static readonly string[] BorderKeys =
         {
@@ -210,6 +222,17 @@ namespace ProGlassAutomation.Services.Theme
         {
             if (Active != null && _snapshotTaken)
                 Apply(Active);
+        }
+
+        /// <summary>Refreshes ONE snapshot key (2026-09-05 — Wallpaper
+        /// Studio): the wallpaper orchestrator paints its scene AFTER the
+        /// studio snapshot, so without this the next Apply() would scale
+        /// the stale pre-overlay wallpaper. The orchestrator calls it
+        /// whenever it overlays ModuleWallpaperBrush.</summary>
+        public static void UpdateBase(string key, object value)
+        {
+            if (_snapshotTaken && value != null)
+                _base[key] = value;
         }
 
         /// <summary>
@@ -284,6 +307,25 @@ namespace ProGlassAutomation.Services.Theme
             double hlScale = 0.15 + 0.85 * Clamp01(s.HighlightStrength);
             foreach (var key in HighlightKeys)
                 WriteScaledBrush(resources, key, hlScale);
+
+            // ── WATER-FILL GLASS (2026-09-05 master request): cards
+            // become liquid crystal — top specular sheen, crystal body,
+            // a thin waterline glint, and colour that SETTLES toward the
+            // bottom like filled water. Pure layered-gradient illusion;
+            // WPF has no backdrop blur, so depth is painted, not blurred.
+            double water = Clamp01(s.WaterFlow);
+            if (water > 0.01)
+            {
+                foreach (var key in WaterKeys)
+                {
+                    bool isGlass = Array.IndexOf(GlassKeys, key) >= 0;
+                    double scale = isGlass
+                        ? Math.Min(1.0, surfScale + frostBoost + blurBoost)
+                        : surfScale + frostBoost;
+                    WriteWaterBrush(resources, key, scale,
+                        isGlass ? tint : 0.0, accent, water, satMul, deepLift);
+                }
+            }
 
             // ── TEXT LAYER (2026-09-05). The complaint: "outside-card
             // text is invisible in transparent themes". The five text
@@ -518,6 +560,69 @@ namespace ProGlassAutomation.Services.Theme
             // Fresh instance: DynamicResource subscribers only update on
             // dictionary replacement, never on a mutated shared brush.
             r[key] = new SolidColorBrush(Color.FromArgb(c0.A, c.R, c.G, c.B));
+        }
+
+        /// <summary>
+        /// Builds the liquid-crystal "water fill" gradient for one
+        /// surface key (2026-09-05). Five stops: wet top specular → airy
+        /// crystal body → thin waterline glint → settled dense depth.
+        /// The base colour comes from the family's snapshot (tinted by the
+        /// accent for glass keys, enriched by Colour richness); alpha is
+        /// baked per stop from the same scale maths the flat passes use,
+        /// so Frost/Transparency keep full authority over the water.
+        /// </summary>
+        private static void WriteWaterBrush(
+            ResourceDictionary r, string key, double scale,
+            double tintStrength, Color accent, double water,
+            double satMul, double deepLift)
+        {
+            if (!_base.TryGetValue(key, out var baseVal)) return;
+            if (baseVal is not Brush baseBrush) return;
+
+            Color c0 = DominantColor(baseBrush);
+            if (tintStrength > 0.01 && accent != default)
+                c0 = Blend(c0, accent, tintStrength);
+            // Richness applies to the body colour, never to the white
+            // specular streaks (they must stay pure light).
+            c0 = Enrich(c0, satMul, deepLift);
+
+            double clamped = Math.Clamp(scale, 0.04, 1.0);
+            byte Body(double k) => (byte)Math.Clamp(c0.A * clamped * k, 0, 255);
+            byte Spec(double a) => (byte)Math.Clamp(a * water, 0, 255);
+
+            var deep = ColorMath.Mix(c0, Colors.Black, 0.10 + 0.22 * water);
+
+            var b = new LinearGradientBrush
+            {
+                StartPoint = new Point(0.5, 0),
+                EndPoint = new Point(0.5, 1),
+            };
+            // 1) top edge: wet specular light (the "just filled" look)
+            b.GradientStops.Add(new GradientStop(
+                Color.FromArgb(Spec(70), 255, 255, 255), 0.00));
+            // 2) crystal body — airy, unmistakably glass
+            b.GradientStops.Add(new GradientStop(
+                Color.FromArgb(Body(0.50), c0.R, c0.G, c0.B), 0.10));
+            b.GradientStops.Add(new GradientStop(
+                Color.FromArgb(Body(0.72), c0.R, c0.G, c0.B), 0.55));
+            // 3) waterline glint — the "surface of the water" running
+            //    across the card at ~78% height
+            b.GradientStops.Add(new GradientStop(
+                Color.FromArgb(Spec(54), 255, 255, 255), 0.78));
+            // 4) settled depth — denser coloured water at the floor
+            b.GradientStops.Add(new GradientStop(
+                Color.FromArgb(Body(1.0), deep.R, deep.G, deep.B), 1.00));
+            r[key] = b;
+        }
+
+        /// <summary>Effective colour of any brush: solid colour, or the
+        /// middle stop of a gradient; white as the safe fallback.</summary>
+        private static Color DominantColor(Brush brush)
+        {
+            if (brush is SolidColorBrush solid) return solid.Color;
+            if (brush is GradientBrush grad && grad.GradientStops.Count > 0)
+                return grad.GradientStops[grad.GradientStops.Count / 2].Color;
+            return Colors.White;
         }
 
         private static void WriteScaledThickness(
