@@ -214,6 +214,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             OnPropertyChanged(nameof(ActiveQuickLookText));
             OnPropertyChanged(nameof(IsGlassStudioRelevant));
+            OnPropertyChanged(nameof(IsIndustrialLook));
         }
 
         /// <summary>Reset ONE slider back to the active family's default

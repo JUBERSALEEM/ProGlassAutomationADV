@@ -354,6 +354,24 @@
          DataTrigger on its Is{Page}Page VM property; the template then
          lights the tinted background + accent bar (ControlTemplate
          triggers are the ONLY place TargetName is legal). -->
+    <!-- Phase 3 (2026-09-05): keyboard focus cue for the nav rail —
+         an adorner ring supplied through FocusVisualStyle, so the shared
+         button style needs no template surgery. Bound nav buttons get a
+         visible accent ring on Tab focus (full keyboard traversal). -->
+    <Style x:Key="SettingsNavFocusStyle" TargetType="Control">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Control">
+                    <Border Margin="-3"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            BorderBrush="{DynamicResource AccentBrush}"
+                            BorderThickness="2"
+                            SnapsToDevicePixels="True"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="SettingsNavButtonStyle" TargetType="Button">
         <Setter Property="Cursor"              Value="Hand"/>
         <!-- The springy hover that inspired the app-wide treatment. Now

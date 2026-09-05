@@ -87,12 +87,14 @@
             <Grid>
                 <Border Height="1" VerticalAlignment="Top"
                         Background="{DynamicResource ShellSheenBrush}"
-                        IsHitTestVisible="False"/>
+                        IsHitTestVisible="False"
+                        Visibility="{Binding IsIndustrialLook, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                 <Border Height="14" VerticalAlignment="Top"
                         CornerRadius="14,14,5,5"
                         Background="{DynamicResource GlassTopReflection}"
                         Opacity="0.55"
-                        IsHitTestVisible="False"/>
+                        IsHitTestVisible="False"
+                        Visibility="{Binding IsIndustrialLook, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
             <DockPanel Margin="10,20,10,16">
 
                 <!-- Brand header — 2026-09-05 restyled to the REPORTS-module
@@ -157,204 +159,37 @@
                               HorizontalScrollBarVisibility="Disabled"
                               CanContentScroll="False"
                               PanningMode="VerticalOnly">
-                <StackPanel>
-
-                    <!-- APPEARANCE -->
-                    <Button Command="{Binding SwitchSettingsPageCommand}"
-                            CommandParameter="Appearance">
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsAppearancePage}" Value="True">
-                                        <Setter Property="Tag" Value="Active"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE790;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecAppearance}"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- AI ASSISTANT -->
-                    <Button Command="{Binding SwitchSettingsPageCommand}"
-                            CommandParameter="AI">
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsAiPage}" Value="True">
-                                        <Setter Property="Tag" Value="Active"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE8F2;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecAi}"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- AI & AGENT (PHASE F) -->
-                    <Button Command="{Binding SwitchSettingsPageCommand}"
-                            CommandParameter="Agent">
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsAgentPage}" Value="True">
-                                        <Setter Property="Tag" Value="Active"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE8F2;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecAgent}"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- VOICE -->
-                    <Button Command="{Binding SwitchSettingsPageCommand}"
-                            CommandParameter="Voice">
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsVoicePage}" Value="True">
-                                        <Setter Property="Tag" Value="Active"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE720;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecVoice}"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- UPDATES -->
-                    <Button Command="{Binding SwitchSettingsPageCommand}"
-                            CommandParameter="Updates">
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsUpdatesPage}" Value="True">
-                                        <Setter Property="Tag" Value="Active"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE72C;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecUpdates}"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- DATA & BACKUP -->
-                    <Button Command="{Binding SwitchSettingsPageCommand}"
-                            CommandParameter="Data">
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDataPage}" Value="True">
-                                        <Setter Property="Tag" Value="Active"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE74E;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecData}"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- DEMO CENTER -->
-                    <Button Command="{Binding SwitchSettingsPageCommand}"
-                            CommandParameter="Demo">
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDemoPage}" Value="True">
-                                        <Setter Property="Tag" Value="Active"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE714;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecDemo}"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- FEATURES — per-module UI toggles. Right now it
-                         hosts the Proforma Invoice field-visibility pills
-                         so a non-coder operator can hide fields they
-                         never fill in. -->
-                    <Button Command="{Binding SwitchSettingsPageCommand}"
-                            CommandParameter="Features">
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsFeaturesPage}" Value="True">
-                                        <Setter Property="Tag" Value="Active"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE762;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecFeatures}"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- LICENSE — Settings-level licensing surface
-                         (the old startup License overlay was removed;
-                          this is the ONLY place users see licensing). -->
-                    <Button Command="{Binding SwitchSettingsPageCommand}"
-                            CommandParameter="License">
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsLicensePage}" Value="True">
-                                        <Setter Property="Tag" Value="Active"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE192;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecLicense}"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- ABOUT & HELP -->
-                    <Button Command="{Binding SwitchSettingsPageCommand}"
-                            CommandParameter="About">
-                        <Button.Style>
-                            <Style TargetType="Button"
-                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsAboutPage}" Value="True">
-                                        <Setter Property="Tag" Value="Active"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE946;"/>
-                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="{DynamicResource Settings.SecAbout}"/>
-                        </StackPanel>
-                    </Button>
-
-                </StackPanel>
+                <ItemsControl ItemsSource="{Binding NavRows}"
+                              KeyboardNavigation.TabNavigation="Cycle">
+                    <!-- v3 (2026-09-05 Phase 3): data-driven rail — the
+                         row list in the VM is THE page registry; adding
+                         a page = one NavRows entry + one host line below.
+                         Tab cycles the rail; the keyboard cue is
+                         SettingsNavFocusStyle (accent ring adorner). -->
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.SwitchSettingsPageCommand, ElementName=SettingsRoot}"
+                                    CommandParameter="{Binding Key}">
+                                <Button.Style>
+                                    <Style TargetType="Button"
+                                           BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                        <Setter Property="FocusVisualStyle"
+                                                Value="{StaticResource SettingsNavFocusStyle}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                <Setter Property="Tag" Value="Active"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource NavGlyphStyle}" Text="{Binding Glyph}"/>
+                                    <TextBlock Style="{StaticResource NavLabelStyle}" Text="{Binding Label}"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
                 </ScrollViewer>
             </DockPanel>
             </Grid>
@@ -467,61 +302,71 @@
                                FontSize="{StaticResource TextSection}"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
-                               Text="{Binding SettingsPage}"/>
+                               Text="{Binding ActivePageLabel}"/>
                 </Grid>
             </Border>
 
         <Grid Grid.Row="1">
             <sections:SettingsAppearanceSection
-                Visibility="{Binding DataContext.IsAppearancePage,
+                Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
-                    Converter={StaticResource BoolToVisibilityConverter},
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=Appearance,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsAiSection
-                Visibility="{Binding DataContext.IsAiPage,
+                Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
-                    Converter={StaticResource BoolToVisibilityConverter},
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=Ai,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsAgentSection
-                Visibility="{Binding DataContext.IsAgentPage,
+                Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
-                    Converter={StaticResource BoolToVisibilityConverter},
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=Agent,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsVoiceSection
-                Visibility="{Binding DataContext.IsVoicePage,
+                Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
-                    Converter={StaticResource BoolToVisibilityConverter},
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=Voice,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsUpdatesSection
-                Visibility="{Binding DataContext.IsUpdatesPage,
+                Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
-                    Converter={StaticResource BoolToVisibilityConverter},
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=Updates,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsDataSection
-                Visibility="{Binding DataContext.IsDataPage,
+                Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
-                    Converter={StaticResource BoolToVisibilityConverter},
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=Data,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsDemoSection
                 Panel.ZIndex="2"
-                Visibility="{Binding DataContext.IsDemoPage,
+                Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
-                    Converter={StaticResource BoolToVisibilityConverter},
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=Demo,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsFeaturesSection
-                Visibility="{Binding DataContext.IsFeaturesPage,
+                Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
-                    Converter={StaticResource BoolToVisibilityConverter},
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=Features,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsLicenseSection
-                Visibility="{Binding DataContext.IsLicensePage,
+                Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
-                    Converter={StaticResource BoolToVisibilityConverter},
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=License,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsAboutSection
-                Visibility="{Binding DataContext.IsAboutPage,
+                Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,
-                    Converter={StaticResource BoolToVisibilityConverter},
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=About,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
 
         </Grid>

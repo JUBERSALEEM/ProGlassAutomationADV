@@ -45,19 +45,93 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private string _settingsPage = "Appearance";
 
+        // ══════════════════════════════════════════════════════════════
+        //  v3 — DATA-DRIVEN NAV (2026-09-05 Phase 3). The rail used to
+        //  be ten hand-copied Button blocks in XAML with an IsXPage flag
+        //  each — adding a page meant XAML surgery + a new flag + a new
+        //  notify line. Now the ROW LIST below is the single source of
+        //  truth: the rail is one ItemsControl, page validation reads
+        //  the row keys, and the section header shows a LOCALIZED label
+        //  (it used to print the raw English page key).
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>One rail entry. Labels resolve through the localization
+        /// service at display time and refresh on LanguageChanged.</summary>
+        public sealed class SettingsNavRow : ViewModelBase
+        {
+            public string Key { get; }
+            public string Glyph { get; }
+            public string LabelKey { get; }
+            public string Label => Services.Localization
+                .LocalizationService.Instance.T(LabelKey);
+
+            private bool _isActive;
+            public bool IsActive
+            {
+                get => _isActive;
+                internal set
+                {
+                    if (_isActive == value) return;
+                    _isActive = value;
+                    OnPropertyChanged();
+                }
+            }
+
+            public SettingsNavRow(string key, string glyph, string labelKey)
+            {
+                Key = key; Glyph = glyph; LabelKey = labelKey;
+            }
+
+            internal void RefreshLabel() =>
+                OnPropertyChanged(nameof(Label));
+        }
+
+        /// <summary>The rail pages (single registry). Glyphs preserved from
+        /// the hand-built rail; Agent finally has its own glyph (it used to
+        /// share AI's E8F2 — two identical icons side by side).</summary>
+        public ObservableCollection<SettingsNavRow> NavRows { get; } =
+            CreateNavRows();
+
+        private static ObservableCollection<SettingsNavRow> CreateNavRows()
+        {
+            var rows = new ObservableCollection<SettingsNavRow>
+            {
+                new("Appearance", "\uE790", "Settings.SecAppearance"),
+                new("AI",         "\uE8F2", "Settings.SecAi"),
+                new("Agent",      "\uE9F5", "Settings.SecAgent"),
+                new("Voice",      "\uE720", "Settings.SecVoice"),
+                new("Updates",    "\uE72C", "Settings.SecUpdates"),
+                new("Data",       "\uE74E", "Settings.SecData"),
+                new("Demo",       "\uE714", "Settings.SecDemo"),
+                new("License",    "\uE762", "Settings.SecLicense"),
+                new("Features",   "\uE192", "Settings.SecFeatures"),
+                new("About",      "\uE946", "Settings.SecAbout"),
+            };
+            rows[0].IsActive = true;
+            return rows;
+        }
+
+        /// <summary>Localized title of the active page (content header).</summary>
+        public string ActivePageLabel =>
+            NavRows.FirstOrDefault(r => r.IsActive)?.Label ?? _settingsPage;
+
+        /// <summary>True while an industrial (flat) family is active —
+        /// the rail then renders matte (no sheen/glare layers), keeping
+        /// the settings chrome honest with the family's no-theatre law.</summary>
+        public bool IsIndustrialLook =>
+            ProGlassAutomation.Services.Theme.VisualThemeEngine
+                .IsIndustrial(_config?.Appearance?.VisualTheme ?? "");
+
         /// <summary>Active settings page key (nav rail selection).</summary>
         public string SettingsPage
         {
             get => _settingsPage;
             private set
             {
-                // Guard: an unknown key would collapse every section and
-                // leave the content pane empty — refuse it outright.
-                if (value != "Appearance" && value != "AI" &&
-                    value != "Agent" && value != "Voice" &&
-                    value != "Updates" && value != "Data" &&
-                    value != "Demo" && value != "License" &&
-                    value != "Features" && value != "About")
+                // Guard: the row list IS the page registry — an unknown
+                // key cannot collapse the content pane because it simply
+                // is not a registered row.
+                if (value == null || !NavRows.Any(r => r.Key == value))
                     return;
 
                 if (_settingsPage == value) return;
@@ -69,49 +143,11 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // buttons AND programmatic GoToPage navigation — because it
                 // lives here in the single setter.
                 IsSettingsRailOpen = false;
-                OnPropertyChanged(nameof(IsAppearancePage));
-                OnPropertyChanged(nameof(IsAiPage));
-                OnPropertyChanged(nameof(IsAgentPage));   // PHASE F
-                OnPropertyChanged(nameof(IsVoicePage));
-                OnPropertyChanged(nameof(IsUpdatesPage));
-                OnPropertyChanged(nameof(IsDataPage));
-                OnPropertyChanged(nameof(IsAboutPage));
-                OnPropertyChanged(nameof(IsDemoPage));
-                OnPropertyChanged(nameof(IsLicensePage));
-                OnPropertyChanged(nameof(IsFeaturesPage));
+                foreach (var row in NavRows)
+                    row.IsActive = row.Key == value;
+                OnPropertyChanged(nameof(ActivePageLabel));
             }
         }
-
-        public bool IsAppearancePage => SettingsPage == "Appearance";
-        public bool IsAiPage         => SettingsPage == "AI";
-
-        /// <summary>PHASE F — ProGlass Agent privacy / teaching page.</summary>
-        public bool IsAgentPage      => SettingsPage == "Agent";
-
-        public bool IsVoicePage      => SettingsPage == "Voice";
-        public bool IsUpdatesPage    => SettingsPage == "Updates";
-        public bool IsDataPage       => SettingsPage == "Data";
-        public bool IsAboutPage      => SettingsPage == "About";
-        public bool IsDemoPage       => SettingsPage == "Demo";
-
-        /// <summary>
-        /// License management page (Settings → License).
-        /// Hosts the shared <c>LicenseActivationView</c> so
-        /// the user can start a trial, install a .lic file,
-        /// or inspect their current activation. This is the
-        /// ONLY place in the shell where licensing lives now
-        /// — the old startup licence gate is gone.
-        /// </summary>
-        public bool IsLicensePage    => SettingsPage == "License";
-
-        /// <summary>
-        /// Per-module feature-flag page (Settings → Features).
-        /// Right now it hosts the Proforma Invoice field-visibility
-        /// toggles (Steps 1-3). Future modules with hideable UI can
-        /// plug into the same section so non-coders never need XAML
-        /// edits for minor layout preferences.
-        /// </summary>
-        public bool IsFeaturesPage   => SettingsPage == "Features";
 
         /// <summary>Switches the active settings page (nav rail).</summary>
         public ICommand SwitchSettingsPageCommand { get; private set; }

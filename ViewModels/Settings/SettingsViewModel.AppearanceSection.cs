@@ -168,8 +168,20 @@ namespace ProGlassAutomation.ViewModels.Settings
             curSvc.RatesChanged -= OnAppearanceCurrencyChanged;
         }
 
-        private void OnAppearanceLanguageChanged(object? sender, EventArgs e) =>
+        private void OnAppearanceLanguageChanged(object? sender, EventArgs e)
+        {
             RefreshAppearanceFxStatus();
+
+            // Phase 3: the shell's live-computed labels follow the new
+            // language immediately — nav rows, the content header, the
+            // quick-look caption and the wallpaper status line (each is
+            // a LocalizationService lookup behind a property).
+            foreach (var row in NavRows)
+                row.RefreshLabel();
+            OnPropertyChanged(nameof(ActivePageLabel));
+            OnPropertyChanged(nameof(ActiveQuickLookText));
+            OnPropertyChanged(nameof(WallpaperStatus));
+        }
 
         private void OnAppearanceCurrencyChanged() =>
             RefreshAppearanceFxStatus();

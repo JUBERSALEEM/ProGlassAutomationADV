@@ -89,7 +89,13 @@ VM consumes it; mapping locked by `ModePairFor_OnlyIndustrialCouplesTheMode`.* O
 Evidence: the `switch` mapping IndustrialDark→Dark, White/Grey→Light lives in `ThemeWallpaper.cs:98` instead of beside `VisualThemeEngine.IsIndustrial`. Any future theme with mode pairing forces XAML-VM-layer edits.
 Fix: `VisualThemeEngine.ModePairFor(family) → bool?`; VM consumes.
 
-### F-07 🔵 OPEN — Rail navigation is 10 hand-copied button blocks
+### F-07 🔵 FIXED (Phase 3) — Rail navigation is 10 hand-copied button blocks
+*Resolution: data-driven `NavRows` registry — rail is one ItemsControl,
+page validation reads row keys (the 10-string guard died with it), the
+10 `IsXPage` flags and their 10-line notify farm are gone (host now uses
+EqualityToVisibilityConverter), Agent has its own glyph, and the content
+header shows a localized label instead of the raw English page key.
+Adding a page = 1 row + 1 host line.* Original finding:
 Evidence: `SettingsView.xaml:163–420` — identical Button/Style/DataTrigger/glyph/label blocks per page (~120 lines duplicated; `Agent` and `AI` even share glyph `&#xE8F2;`).
 Impact: adding a page = copy-paste + manual page-flag; the `Is{Page}Page` flag farm (10 OnPropertyChanged calls per switch) grows linearly.
 Fix: data-driven nav list (`SettingsNavItem {Key, Glyph, LabelKey}` in an ItemsControl), page state as `SettingsPage=="X"` converter or computed flag.

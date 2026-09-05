@@ -653,3 +653,35 @@ proper names intentionally kept brand-stable (open owner question).
 VERIFIED pre-push: 19/19 slider rows replaced (0 leftovers), all XAML
 well-formed, every new Settings.* key resolves, C# balanced, command
 + property wiring paths traced to the ctor chain.
+
+═══════════════════════════════════════════════════════════════════════
+2026-09-05 (8) — PHASE 3: SETTINGS SHELL PROFESSIONALIZATION
+═══════════════════════════════════════════════════════════════════════
+
+DATA-DRIVEN NAV (F-07 closed): the rail is now ONE ItemsControl fed by
+the VM's NavRows registry; the ten hand-copied Button blocks (~120 XAML
+lines), the 10-string page guard and the 10-property IsXPage flag farm
+(with its 10-line notify tail) are gone. Host visibility switched to
+EqualityToVisibilityConverter on SettingsPage. Adding a settings page =
+1 NavRows entry + 1 host line. Agent got its own glyph (E9F5; it shared
+AI's). The content header now shows the LOCALIZED page label — it
+printed the raw English key. Nav labels + header + quick-look caption +
+wallpaper status refresh live on LanguageChanged.
+
+INDUSTRIAL-MATTE RAIL: when an industrial family is active the rail's
+glass sheen strip + glare band collapse (IsIndustrialLook, accent layer
+kept) — the settings chrome now honors the family's no-theatre law.
+
+KEYBOARD: Tab cycles the rail; an accent-ring adorner
+(SettingsNavFocusStyle via FocusVisualStyle — no template surgery on
+the shared style) shows focus; Esc closes the open rail from anywhere
+inside the module (PreviewKeyDown).
+
+VISIBLE FAILURE: IsWallpaperFetchError — every terminal outcome of the
+nine wallpaper operations sets it; the status line switches to the
+danger tint + SemiBold on failure instead of hiding as grey success
+text. (Status strings themselves remain English — tracked under F-05.)
+
+VERIFIED pre-push: zero live references to the removed flag farm (one
+stale explanatory comment in SettingsAgentSection remains as history),
+all C# balanced, all XAML well-formed, 10/10 host binds converted.

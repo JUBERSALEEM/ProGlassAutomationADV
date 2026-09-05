@@ -118,6 +118,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(StudioFamilyName));
                 OnPropertyChanged(nameof(IsGlassStudioRelevant));
+                OnPropertyChanged(nameof(IsIndustrialLook));
                 ClearQuickLookUnlessApplying();
                 OnPropertyChanged(nameof(ActiveQuickLookText));
 

@@ -197,6 +197,24 @@ namespace ProGlassAutomation.ViewModels.Settings
             set { _wallpaperFetchStatus = value ?? ""; OnPropertyChanged(); }
         }
 
+        /// <summary>True when the LAST wallpaper operation ended in a
+        /// failure (download/delete/clear/open-folder). Phase 3: failure
+        /// used to be the same grey text as success — the status line now
+        /// goes to the danger tint so a broken download is VISIBLE, not
+        /// just logged. Set at every terminal outcome below; reset on the
+        /// next success.</summary>
+        private bool _isWallpaperFetchError;
+        public bool IsWallpaperFetchError
+        {
+            get => _isWallpaperFetchError;
+            private set
+            {
+                if (_isWallpaperFetchError == value) return;
+                _isWallpaperFetchError = value;
+                OnPropertyChanged();
+            }
+        }
+
         // ── Library ──────────────────────────────────────────────────
 
         /// <summary>Downloaded wallpapers, newest first (text rows — no
@@ -234,6 +252,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     WallpaperOrchestrator.SetFile(path);
                     WallpaperFetchStatus = $"Applied: {Path.GetFileName(path)}";
+                    IsWallpaperFetchError = false;
                     OnPropertyChanged(nameof(SelectedWallpaperMode));
                     OnPropertyChanged(nameof(WallpaperStatus));
                 }
@@ -252,11 +271,13 @@ namespace ProGlassAutomation.ViewModels.Settings
                         WallpaperOrchestrator.SetThemeLinked();
                     RefreshWallpaperLibrary();
                     WallpaperFetchStatus = $"Deleted: {Path.GetFileName(path)}";
+                    IsWallpaperFetchError = false;
                     OnPropertyChanged(nameof(SelectedWallpaperMode));
                 }
                 catch (Exception ex)
                 {
                     WallpaperFetchStatus = $"Delete failed: {ex.Message}";
+                    IsWallpaperFetchError = true;
                 }
             });
             ClearWallpaperLibraryCommand = new RelayCommand(_ =>
@@ -273,10 +294,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                     }
                     RefreshWallpaperLibrary();
                     WallpaperFetchStatus = "Library cleared (the active wallpaper was kept).";
+                    IsWallpaperFetchError = false;
                 }
                 catch (Exception ex)
                 {
                     WallpaperFetchStatus = $"Clear failed: {ex.Message}";
+                    IsWallpaperFetchError = true;
                 }
             });
             OpenWallpaperFolderCommand = new RelayCommand(_ =>
@@ -323,6 +346,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                             new LogContext { Module = "Wallpapers", Operation = "OpenFolder" });
                         WallpaperFetchStatus =
                             $"Open folder failed: {ex2.Message} — the library lives at {dir}";
+                    IsWallpaperFetchError = true;
                     }
                 }
                 if (opened)
@@ -393,6 +417,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     WallpaperFetchStatus =
                         "Download failed — check the internet connection and try again. " +
                         "Details were written to the app log.";
+                    IsWallpaperFetchError = true;
                 }
                 else
                 {
@@ -400,6 +425,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     WallpaperOrchestrator.SetFile(path);
                     WallpaperFetchStatus =
                         $"Downloaded & applied: {Path.GetFileName(path)}";
+                    IsWallpaperFetchError = false;
                     OnPropertyChanged(nameof(SelectedWallpaperMode));
                     OnPropertyChanged(nameof(WallpaperStatus));
                 }
@@ -407,6 +433,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             catch (Exception ex)
             {
                 WallpaperFetchStatus = $"Download failed: {ex.Message}";
+                IsWallpaperFetchError = true;
             }
             finally
             {

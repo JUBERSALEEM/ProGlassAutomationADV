@@ -1190,10 +1190,28 @@
                                          Foreground="{DynamicResource AccentBrush}"
                                          Visibility="{Binding IsWallpaperBusy, Converter={StaticResource BoolToVisibilityConverter}}"/>
                         </StackPanel>
+                        <!-- Phase 3: failure is now VISIBLE — the status
+                             line switches to the danger tint whenever the
+                             last wallpaper operation failed, instead of
+                             hiding behind the same grey as success. -->
                         <TextBlock Text="{Binding WallpaperFetchStatus}"
                                    FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                   TextWrapping="Wrap" Margin="0,0,0,6"/>
+                                   TextWrapping="Wrap" Margin="0,0,0,6">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource TextSecondaryBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsWallpaperFetchError}"
+                                                     Value="True">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource TintRedBrush}"/>
+                                            <Setter Property="FontWeight" Value="SemiBold"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
 
                         <!-- Downloaded library (offline reuse) + management -->
                         <DockPanel Margin="0,4,0,2">
