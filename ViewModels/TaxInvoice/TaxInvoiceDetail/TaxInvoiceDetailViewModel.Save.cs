@@ -73,6 +73,58 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 if (IsNewInvoice)
                 {
+                    // AUDIT P1 (2026-09-05) — LPO reuse warning. Saving a
+                    // NEW invoice whose PO/LPO reference is already used on
+                    // an UNRELATED family (different ProformaId) for the
+                    // same customer is the classic double-billing path.
+                    // Same-family reuse is legitimate (continuation notes on
+                    // one PO), so only cross-family hits warn. Non-blocking:
+                    // a customer may genuinely re-issue a PO; the choice is
+                    // the operator's, the warning is the audit's ask.
+                    string po = (PurchaseOrderNumber ?? "").Trim();
+                    if (po.Length > 0)
+                    {
+                        try
+                        {
+                            var conflicts = await _taxInvoices
+                                .GetByPurchaseOrderAsync(po, CustomerName ?? "");
+                            var crossFamily = conflicts
+                                .Where(c => !string.Equals(
+                                    c.ProformaId ?? "", ProformaId ?? "",
+                                    StringComparison.OrdinalIgnoreCase))
+                                .Take(3)
+                                .ToList();
+                            if (crossFamily.Count > 0)
+                            {
+                                string seen = string.Join(", ",
+                                    crossFamily.Select(c =>
+                                        $"{c.InvoiceNumber} ({c.IssueDate:yyyy-MM-dd})"));
+                                var reuse = _dialogs.Show(
+                                    "The same LPO / PO number '" + po +
+                                    "' already appears on " + seen +
+                                    " for customer '" + (CustomerName ?? "") +
+                                    "'. Continuing may double-bill the same purchase order.\n\n" +
+                                    "Save anyway?",
+                                    LocalizationService.Instance.T("Msg.CapValidation"),
+                                    MessageBoxButton.YesNo,
+                                    MessageBoxImage.Warning);
+                                if (reuse != MessageBoxResult.Yes)
+                                {
+                                    StatusMessage = "Save cancelled — LPO already in use.";
+                                    return;
+                                }
+                            }
+                        }
+                        catch (Exception poEx)
+                        {
+                            // The warning is advisory; it must never block
+                            // a legitimate save path because of a failed
+                            // READ. Log loudly, continue the save.
+                            Services.Logging.AppLogService.Warning(
+                                $"[TI Save] PO-reuse check skipped: {poEx.Message}");
+                        }
+                    }
+
                     int seq = await _taxInvoices
                         .GetNextSequenceNumberAsync(ProformaId);
                     bool hasExisting = await _taxInvoices

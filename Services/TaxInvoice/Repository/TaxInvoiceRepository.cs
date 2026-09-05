@@ -119,6 +119,18 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             return entities.Select(ToListItem).ToList();
         }
 
+        public async Task<List<TaxInvoiceListItem>> GetByPurchaseOrderAsync(
+            string poNumber, string customerName)
+        {
+            using var ctx = new TaxInvoiceDbContext();
+            var entities = await ctx.TaxInvoices
+                .Where(x => x.PurchaseOrderNumber == poNumber
+                         && x.CustomerName == customerName)
+                .OrderByDescending(x => x.IssueDate)
+                .ToListAsync().ConfigureAwait(false);
+            return entities.Select(ToListItem).ToList();
+        }
+
         public async Task<List<TaxInvoiceListItem>> GetDraftAsync() =>
             await GetByStatusAsync("Draft");
 

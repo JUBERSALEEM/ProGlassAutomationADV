@@ -93,6 +93,19 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         Task UpdateAsync(SavedTaxInvoice entity);
         Task DeleteAsync(int id);
 
+        /// <summary>
+        /// Invoices (any family) whose PurchaseOrderNumber equals the given
+        /// LPO/PO reference for the same customer. Used by the save path to
+        /// WARN on a re-used LPO reference (audit P1, 2026-09-05): entering
+        /// the same LPO number on a second, unrelated invoice is how
+        /// double-billing happens at the printer. Same-family reuse
+        /// (continuation invoices of one Proforma) is expected and is
+        /// filtered by the caller, not blocked.
+        /// Non-loading list items only — never entities.
+        /// </summary>
+        Task<List<TaxInvoiceListItem>> GetByPurchaseOrderAsync(
+            string poNumber, string customerName);
+
         // ── Existence checks ──────────────────────────────────────────────
 
         Task<bool> ExistsByInvoiceNumberAsync(string invoiceNumber);
