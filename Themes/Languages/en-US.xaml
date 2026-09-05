@@ -2532,4 +2532,29 @@
     <sys:String x:Key="SheetStore.ExpectedProfitTip">Margin still to be earned on unused stock (balance sell value minus its purchase cost).</sys:String>
     <sys:String x:Key="SheetStore.UsedValue">USED VALUE</sys:String>
     <sys:String x:Key="SheetStore.UsedValueTip">Sell value of stock already consumed.</sys:String>
+    <!-- Phase 2 (2026-09-05) — ERP-first appearance ergonomics: quick
+         looks, live preview, studio slider niceties, wallpaper status. -->
+    <sys:String x:Key="Settings.QuickLooks">Quick looks</sys:String>
+    <sys:String x:Key="Settings.QuickLooksCaption">One coherent look in a single click — the visual family, the studio profile, and (where the look promises it) the Light/Dark mode, applied together.</sys:String>
+    <sys:String x:Key="Settings.LookFactoryFloor">Factory Floor</sys:String>
+    <sys:String x:Key="Settings.LookFactoryFloorDesc">Flat matte industrial theme: solid slabs, a visible 1px keyline on every card, calm motion — readable on projectors and dusty shop-floor monitors.</sys:String>
+    <sys:String x:Key="Settings.LookOffice">Office</sys:String>
+    <sys:String x:Key="Settings.LookOfficeDesc">Bright, crisp Professional surfaces tuned for everyday administrative work.</sys:String>
+    <sys:String x:Key="Settings.LookShowroom">Showroom</sys:String>
+    <sys:String x:Key="Settings.LookShowroomDesc">Balanced iOS Liquid Glass for client meetings, demos and product screenshots.</sys:String>
+    <sys:String x:Key="Settings.CurrentLook">Current look:</sys:String>
+    <sys:String x:Key="Settings.LookCustom">Custom</sys:String>
+    <sys:String x:Key="Settings.PreviewTitle">Live preview</sys:String>
+    <sys:String x:Key="Settings.PreviewCaption">A mini module card painted from the same theme tokens the real screens use — surface, ink, keyline, accent and status chips update live as you change settings.</sys:String>
+    <sys:String x:Key="Settings.PreviewModuleCard">Module card</sys:String>
+    <sys:String x:Key="Settings.PreviewBody">Primary and secondary text on the elevated surface, exactly as real lists and forms will render them.</sys:String>
+    <sys:String x:Key="Settings.PreviewAction">Action</sys:String>
+    <sys:String x:Key="Settings.PreviewOk">OK</sys:String>
+    <sys:String x:Key="Settings.PreviewWarn">Warning</sys:String>
+    <sys:String x:Key="Settings.PreviewErr">Error</sys:String>
+    <sys:String x:Key="Settings.PreviewKeyline">1px keyline</sys:String>
+    <sys:String x:Key="Settings.StudioGlassOnly">(glass layer — inactive on the industrial theme)</sys:String>
+    <sys:String x:Key="Settings.StudioSliderResetTip">Reset this slider to the family's default</sys:String>
+    <sys:String x:Key="Settings.WallpaperNone">No wallpaper set</sys:String>
+    <sys:String x:Key="Settings.WallpaperNamed">Wallpaper: {0}</sys:String>
 </ResourceDictionary>

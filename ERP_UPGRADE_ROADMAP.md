@@ -615,3 +615,41 @@ TESTS (Tests/Theme/ThemeRegistryParityTests.cs — xunit, no WPF host):
   • ModePairFor mapping locked per family
   • DefaultsFor covers all 9 families within the slider domain
   • scene catalogue matches the family catalogue exactly + paints
+
+═══════════════════════════════════════════════════════════════════════
+2026-09-05 (7) — PHASE 2: ERP-FIRST APPEARANCE ERGONOMICS
+═══════════════════════════════════════════════════════════════════════
+
+QUICK LOOKS (≤2 clicks to a coherent appearance):
+  • Factory Floor → Industrial Grey + family-default matte studio +
+    Light mode (self-coupling) — the audience this build serves.
+  • Office → Professional + defaults + Light (mode swapped first via
+    the canonical AppearanceService.ApplyTheme, one extra paint on a
+    discrete click — documented, acceptable).
+  • Showroom → iOS Liquid Glass + Balanced preset (mode untouched).
+  Implementation reuses the PROVEN setters (SelectedVisualTheme /
+  ResetStudioTheme / SelectedStudioPreset) — no third apply path.
+  The look PERSISTS (Appearance.QuickLook) so "Current look" survives
+  restarts; any manual deviation (family/preset/slider/reset) clears
+  it back to Custom via a guarded helper.
+
+THEME STUDIO v1.5:
+  • StudioSliderControl (new): header + NUMERIC READOUT + per-slider
+    reset chip (↺ to the family's own default) replaces 19 hand-pasted
+    label+slider rows; behavior is now uniform by construction.
+  • Glass-only sliders (blur, tint, glow, highlight, water) DIM+LOCK
+    while an industrial family is active — operators are never invited
+    to tune an axis the solid-slab language cannot render
+    (IsGlassStudioRelevant binds a new engine-backed VM property).
+
+LIVE PREVIEW STRIP: mini module card rendered from the SAME tokens
+real screens consume (ElevatedSurface/Primary+Secondary ink/Outline
+keyline/Accent action/Tint status chips) — decide what you see.
+
+LOCALIZATION: 23 new Settings.* keys (en-US fallback-authoritative +
+ar-AE for the plant's audience); wallpaper status localized; family
+proper names intentionally kept brand-stable (open owner question).
+
+VERIFIED pre-push: 19/19 slider rows replaced (0 leftovers), all XAML
+well-formed, every new Settings.* key resolves, C# balanced, command
++ property wiring paths traced to the ctor chain.

@@ -53,6 +53,15 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public ThemeStudioSettings? Studio { get; set; }
 
         /// <summary>
+        /// One-click look applied from the Appearance quick-look row
+        /// (Phase 2): "FactoryFloor" / "Office" / "Showroom" — empty when
+        /// the user has customised anything since. Persisted so the
+        /// "current look" label survives restarts; cleared the moment
+        /// the operator deviates (family, studio, preset edits).
+        /// </summary>
+        public string QuickLook { get; set; } = "";
+
+        /// <summary>
         /// When true, rounded pills and cards draw a strong near-black
         /// definition edge so they stay visually separate from tinted
         /// (Monet) surfaces instead of blending into them.

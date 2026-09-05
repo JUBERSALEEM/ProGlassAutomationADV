@@ -2503,4 +2503,28 @@
     <sys:String x:Key="SheetStore.ExpectedProfitTip">Margin still to be earned on unused stock (balance sell value minus its purchase cost).</sys:String>
     <sys:String x:Key="SheetStore.UsedValue">USED VALUE</sys:String>
     <sys:String x:Key="SheetStore.UsedValueTip">Sell value of stock already consumed.</sys:String>
+    <!-- المرحلة الثانية (2026-09-05) — إطلالات جاهزة ومعاينة حية وأدوات استوديو -->
+    <sys:String x:Key="Settings.QuickLooks">إطلالات جاهزة</sys:String>
+    <sys:String x:Key="Settings.QuickLooksCaption">مظهر متكامل بنقرة واحدة: العائلة البصرية وملف الاستوديو ووضع الإضاءة (حين تتطلبه الإطلالة) يُطبَّقون معًا.</sys:String>
+    <sys:String x:Key="Settings.LookFactoryFloor">أرضية المصنع</sys:String>
+    <sys:String x:Key="Settings.LookFactoryFloorDesc">نمط صناعي مسطّح معتم: أسطح صلبة وخط تحديد واضح بسماكة بكسل واحد وحركة هادئة — مقروء على شاشات الورشة وأجهزة العرض.</sys:String>
+    <sys:String x:Key="Settings.LookOffice">المكتب</sys:String>
+    <sys:String x:Key="Settings.LookOfficeDesc">أسطح احترافية فاتحة ونظيفة للعمل الإداري اليومي.</sys:String>
+    <sys:String x:Key="Settings.LookShowroom">صالة العرض</sys:String>
+    <sys:String x:Key="Settings.LookShowroomDesc">زجاج سائل متوازن وأنيق لاجتماعات العملاء وعروض المنتجات ولقطات الشاشة.</sys:String>
+    <sys:String x:Key="Settings.CurrentLook">الإطلالة الحالية:</sys:String>
+    <sys:String x:Key="Settings.LookCustom">مخصّص</sys:String>
+    <sys:String x:Key="Settings.PreviewTitle">معاينة حيّة</sys:String>
+    <sys:String x:Key="Settings.PreviewCaption">بطاقة مصغّرة مرسومة برموز النمط الحالي نفسه — السطح والحبر والحافة واللون المميز وشرائح الحالة تتحدّث فورًا مع كل تغيير.</sys:String>
+    <sys:String x:Key="Settings.PreviewModuleCard">بطاقة الوحدة</sys:String>
+    <sys:String x:Key="Settings.PreviewBody">نص أساسي وثانوي فوق السطح المرتفع تمامًا كما ستعرضه القوائم والنماذج الحقيقية.</sys:String>
+    <sys:String x:Key="Settings.PreviewAction">إجراء</sys:String>
+    <sys:String x:Key="Settings.PreviewOk">ناجح</sys:String>
+    <sys:String x:Key="Settings.PreviewWarn">تنبيه</sys:String>
+    <sys:String x:Key="Settings.PreviewErr">خطأ</sys:String>
+    <sys:String x:Key="Settings.PreviewKeyline">خط تحديد 1px</sys:String>
+    <sys:String x:Key="Settings.StudioGlassOnly">(طبقة زجاجية — غير فعّالة في النمط الصناعي)</sys:String>
+    <sys:String x:Key="Settings.StudioSliderResetTip">إعادة هذا المنزلق إلى قيمة العائلة الافتراضية</sys:String>
+    <sys:String x:Key="Settings.WallpaperNone">لا توجد خلفية معيّنة</sys:String>
+    <sys:String x:Key="Settings.WallpaperNamed">الخلفية: {0}</sys:String>
 </ResourceDictionary>

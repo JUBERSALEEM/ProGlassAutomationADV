@@ -117,6 +117,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(StudioFamilyName));
+                OnPropertyChanged(nameof(IsGlassStudioRelevant));
+                ClearQuickLookUnlessApplying();
+                OnPropertyChanged(nameof(ActiveQuickLookText));
 
                 // 2026-09-05 PIPELINE UNIFICATION: the extra RefreshScene
                 // toggle used to duplicate the module overlay that is
@@ -278,10 +281,17 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             get
             {
+                // Phase 2 (F-05): the status line was a hard-coded
+                // English string in a 15-language app — localized now,
+                // en-US fallback guaranteed for the other languages.
                 var path = _config?.Appearance?.WallpaperPath ?? "";
                 return string.IsNullOrEmpty(path)
-                    ? "No wallpaper set"
-                    : $"Wallpaper: {System.IO.Path.GetFileName(path)}";
+                    ? Services.Localization.LocalizationService.Instance
+                        .T("Settings.WallpaperNone")
+                    : string.Format(
+                        Services.Localization.LocalizationService.Instance
+                            .T("Settings.WallpaperNamed"),
+                        System.IO.Path.GetFileName(path));
             }
         }
 

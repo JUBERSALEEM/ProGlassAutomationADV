@@ -1,0 +1,80 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Controls/StudioSliderControl.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Theme Studio slider row (Phase 2 — ERP-first ergonomics).
+
+     ONE control replaces the old hand-pasted "label + bare slider"
+     StackPanel used ~19 times in the appearance section:
+       • bold header text (DP-bound, localized by the caller)
+       • numeric readout so an operator can SET A NUMBER, not guess
+       • per-slider reset chip (↺ back to the family's default value)
+       • IsRelevant=False dims+locks glass-theatre sliders when the
+         active family renders them invisible (industrial flat themes)
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Controls.StudioSliderControl"
+             x:Name="Root"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Settings/SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel x:Name="RootPanel" Margin="0,0,10,6">
+        <Grid Margin="0,0,0,1">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock x:Name="HeaderText"
+                           Text="{Binding Header, ElementName=Root}"
+                           FontSize="{StaticResource TextBody}"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+                <TextBlock x:Name="GlassOnlyHint"
+                           Text="{DynamicResource Settings.StudioGlassOnly}"
+                           FontSize="{StaticResource TextCaption}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           FontStyle="Italic"
+                           VerticalAlignment="Center"
+                           Margin="8,0,0,0"
+                           Visibility="Collapsed"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center">
+                <Button x:Name="ResetChip"
+                        Command="{Binding ResetCommand, ElementName=Root}"
+                        CommandParameter="{Binding SliderKey, ElementName=Root}"
+                        ToolTip="{DynamicResource Settings.StudioSliderResetTip}"
+                        Cursor="Hand"
+                        Padding="5,0" Margin="0,0,6,0"
+                        Background="Transparent"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1">
+                    <TextBlock Text="&#xE777;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="10"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </Button>
+                <Border MinWidth="34" Padding="4,0"
+                        CornerRadius="4"
+                        Background="{DynamicResource ElevatedSurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1">
+                    <TextBlock Text="{Binding Value, ElementName=Root, StringFormat={}{0:0}}"
+                               FontSize="{StaticResource TextCaption}"
+                               FontFamily="Consolas"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+            </StackPanel>
+        </Grid>
+        <Slider x:Name="PART_Slider"
+                Style="{StaticResource ModernSliderStyle}"
+                Minimum="0" Maximum="100"
+                Value="{Binding Value, ElementName=Root, Mode=TwoWay}"
+                ToolTip="{Binding ToolTipText, ElementName=Root}"/>
+    </StackPanel>
+</UserControl>

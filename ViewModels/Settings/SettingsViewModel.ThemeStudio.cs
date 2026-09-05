@@ -85,6 +85,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 var preset = ThemeStudioSettings.Preset(value);
                 _studioDraft = preset;
                 _studioActivePreset = value;
+                ClearQuickLookUnlessApplying();
                 StudioApplyAndSettle();
                 AuditService.Log(
                     AuditSections.Settings,
@@ -95,6 +96,200 @@ namespace ProGlassAutomation.ViewModels.Settings
         }
 
         private string _studioActivePreset = "";
+
+        // ── Phase 2: quick looks + per-slider reset + glass relevance ──
+
+        /// <summary>Quick-look keys (persisted in Appearance.QuickLook).</summary>
+        public const string QuickLookFactoryFloor = "FactoryFloor";
+        public const string QuickLookOffice = "Office";
+        public const string QuickLookShowroom = "Showroom";
+
+        public ICommand ApplyQuickLookCommand { get; private set; }
+        public ICommand ResetStudioSliderCommand { get; private set; }
+
+        private bool _applyingQuickLook;
+
+        /// <summary>False while an industrial (flat) family is active:
+        /// the glass-theatre sliders (blur, tint, glow, highlight,
+        /// water) scale values the solid-slab language never renders,
+        /// so the control dims and locks them instead of inviting a
+        /// regression the operator cannot see.</summary>
+        public bool IsGlassStudioRelevant =>
+            !ProGlassAutomation.Services.Theme.VisualThemeEngine
+                .IsIndustrial(StudioFamilyName);
+
+        /// <summary>Localized label of the persisted one-click look
+        /// (or the Custom marker once the operator deviates).</summary>
+        public string ActiveQuickLookText =>
+            LocalizationService.Instance.T(
+                QuickLookLabelKey(_config?.Appearance?.QuickLook ?? ""));
+
+        private static string QuickLookLabelKey(string? look) => look switch
+        {
+            QuickLookFactoryFloor => "Settings.LookFactoryFloor",
+            QuickLookOffice => "Settings.LookOffice",
+            QuickLookShowroom => "Settings.LookShowroom",
+            _ => "Settings.LookCustom",
+        };
+
+        /// <summary>Any manual deviation (family/preset/slider/reset)
+        /// downgrades the persisted look to Custom — unless the change
+        /// came from inside ApplyQuickLook itself.</summary>
+        private void ClearQuickLookUnlessApplying()
+        {
+            if (_applyingQuickLook) return;
+            if (_config?.Appearance == null) return;
+            if (_config.Appearance.QuickLook.Length == 0) return;
+
+            _config.Appearance.QuickLook = "";
+            OnPropertyChanged(nameof(ActiveQuickLookText));
+        }
+
+        /// <summary>One-click coherent looks (Phase 2 — "factory user
+        /// configures in ≤2 clicks"). Each look composes family + studio
+        /// profile + (where promised) colour mode through the PROVEN
+        /// existing flows — quick looks reuse SelectedVisualTheme /
+        /// ResetStudioTheme / SelectedStudioPreset instead of inventing
+        /// a third, subtly different, apply path.</summary>
+        private void ApplyQuickLook(object? parameter)
+        {
+            if (_config?.Appearance == null || parameter is not string look)
+                return;
+
+            string family;
+            string preset;
+            switch (look)
+            {
+                case QuickLookFactoryFloor:
+                    family = ProGlassAutomation.Services.Theme
+                        .VisualThemeEngine.IndustrialGrey;
+                    preset = "";
+                    break;
+                case QuickLookOffice:
+                    family = ProGlassAutomation.Services.Theme
+                        .VisualThemeEngine.Professional;
+                    preset = "";
+                    break;
+                case QuickLookShowroom:
+                    family = ProGlassAutomation.Services.Theme
+                        .VisualThemeEngine.LiquidGlass;
+                    preset = "Balanced";
+                    break;
+                default:
+                    return;
+            }
+
+            _applyingQuickLook = true;
+            try
+            {
+                // Office promises the bright corporate pairing; the
+                // industrial look self-couples via ModePairFor, and the
+                // showroom keeps the user's own mode (glass reads both).
+                if (look == QuickLookOffice &&
+                    ThemeManager.CurrentTheme != AppTheme.Light)
+                {
+                    Services.Settings.AppearanceService.ApplyTheme(
+                        isDark: false);
+                }
+
+                SelectedVisualTheme = family;
+
+                if (preset.Length == 0)
+                    ResetStudioTheme();       // family defaults rule
+                else
+                    SelectedStudioPreset = preset;
+
+                _config.Appearance.QuickLook = look;
+                SaveConfig();
+            }
+            finally
+            {
+                _applyingQuickLook = false;
+            }
+
+            AuditService.Log(
+                AuditSections.Settings,
+                "Quick look applied",
+                LocalizationService.Instance.T(QuickLookLabelKey(look)));
+
+            OnPropertyChanged(nameof(ActiveQuickLookText));
+            OnPropertyChanged(nameof(IsGlassStudioRelevant));
+        }
+
+        /// <summary>Reset ONE slider back to the active family's default
+        /// (the per-slider chip — operators fix their own experiments
+        /// without hunting Reset-All).</summary>
+        private void ResetStudioSlider(object? parameter)
+        {
+            if (_studioDraft == null || parameter is not string key) return;
+
+            var d = ThemeStudioSettings.DefaultsFor(StudioFamilyName);
+            switch (key)
+            {
+                case "Frostness":
+                    _studioDraft.Frostness = d.Frostness;
+                    OnPropertyChanged(nameof(StudioFrostness)); break;
+                case "Transparency":
+                    _studioDraft.Transparency = d.Transparency;
+                    OnPropertyChanged(nameof(StudioTransparency)); break;
+                case "BlurIntensity":
+                    _studioDraft.BlurIntensity = d.BlurIntensity;
+                    OnPropertyChanged(nameof(StudioBlurIntensity)); break;
+                case "GlassTint":
+                    _studioDraft.GlassTint = d.GlassTint;
+                    OnPropertyChanged(nameof(StudioGlassTint)); break;
+                case "CornerRoundness":
+                    _studioDraft.CornerRoundness = d.CornerRoundness;
+                    OnPropertyChanged(nameof(StudioCornerRoundness)); break;
+                case "CardPadding":
+                    _studioDraft.CardPadding = d.CardPadding;
+                    OnPropertyChanged(nameof(StudioCardPadding)); break;
+                case "ShadowIntensity":
+                    _studioDraft.ShadowIntensity = d.ShadowIntensity;
+                    OnPropertyChanged(nameof(StudioShadowIntensity)); break;
+                case "ShadowSoftness":
+                    _studioDraft.ShadowSoftness = d.ShadowSoftness;
+                    OnPropertyChanged(nameof(StudioShadowSoftness)); break;
+                case "ShadowDepth":
+                    _studioDraft.ShadowDepth = d.ShadowDepth;
+                    OnPropertyChanged(nameof(StudioShadowDepth)); break;
+                case "BorderVisibility":
+                    _studioDraft.BorderVisibility = d.BorderVisibility;
+                    OnPropertyChanged(nameof(StudioBorderVisibility)); break;
+                case "BorderOpacity":
+                    _studioDraft.BorderOpacity = d.BorderOpacity;
+                    OnPropertyChanged(nameof(StudioBorderOpacity)); break;
+                case "BorderThickness":
+                    _studioDraft.BorderThickness = d.BorderThickness;
+                    OnPropertyChanged(nameof(StudioBorderThickness)); break;
+                case "BackgroundVisibility":
+                    _studioDraft.BackgroundVisibility = d.BackgroundVisibility;
+                    OnPropertyChanged(nameof(StudioBackgroundVisibility)); break;
+                case "BackgroundGlow":
+                    _studioDraft.BackgroundGlow = d.BackgroundGlow;
+                    OnPropertyChanged(nameof(StudioBackgroundGlow)); break;
+                case "HighlightStrength":
+                    _studioDraft.HighlightStrength = d.HighlightStrength;
+                    OnPropertyChanged(nameof(StudioHighlightStrength)); break;
+                case "AnimationIntensity":
+                    _studioDraft.AnimationIntensity = d.AnimationIntensity;
+                    OnPropertyChanged(nameof(StudioAnimationIntensity)); break;
+                case "ColorRichness":
+                    _studioDraft.ColorRichness = d.ColorRichness;
+                    OnPropertyChanged(nameof(StudioColorRichness)); break;
+                case "TextStrength":
+                    _studioDraft.TextStrength = d.TextStrength;
+                    OnPropertyChanged(nameof(StudioTextStrength)); break;
+                case "WaterFlow":
+                    _studioDraft.WaterFlow = d.WaterFlow;
+                    OnPropertyChanged(nameof(StudioWaterFlow)); break;
+                default:
+                    return;
+            }
+
+            ClearQuickLookUnlessApplying();
+            StudioApplyAndSettle();
+        }
 
         // ── 16 sliders ────────────────────────────────────────────────
 
@@ -223,7 +418,13 @@ namespace ProGlassAutomation.ViewModels.Settings
             ResetStudioThemeCommand = new RelayCommand(_ => ResetStudioTheme());
             ResetStudioAllCommand = new RelayCommand(_ => ResetStudioAll());
 
+            // Phase 2: quick looks + per-slider reset chips.
+            ApplyQuickLookCommand = new RelayCommand(ApplyQuickLook);
+            ResetStudioSliderCommand = new RelayCommand(ResetStudioSlider);
+
             OnPropertyChanged(nameof(StudioFamilyName));
+            OnPropertyChanged(nameof(IsGlassStudioRelevant));
+            OnPropertyChanged(nameof(ActiveQuickLookText));
         }
 
         private void DisposeThemeStudio()
@@ -266,6 +467,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             mutate(_studioDraft);
             _studioActivePreset = ""; // sliders leave the preset identity
             OnPropertyChanged(nameof(SelectedStudioPreset));
+            ClearQuickLookUnlessApplying();
             StudioApplyAndSettle();
         }
 
@@ -300,6 +502,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             _studioDraft = defaults;
             _studioActivePreset = "";
 
+            ClearQuickLookUnlessApplying();
             if (_config?.Appearance != null)
             {
                 _config.Appearance.Studio = null; // family defaults rule
@@ -329,6 +532,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             _studioDraft = ThemeStudioSettings.DefaultsFor(StudioFamilyName);
             _studioActivePreset = "";
+            ClearQuickLookUnlessApplying();
             if (_config?.Appearance != null)
             {
                 _config.Appearance.Studio = null;
@@ -372,6 +576,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             OnPropertyChanged(nameof(StudioTextStrength));
             OnPropertyChanged(nameof(StudioWaterFlow));
             OnPropertyChanged(nameof(StudioFamilyName));
+            OnPropertyChanged(nameof(IsGlassStudioRelevant));
+            OnPropertyChanged(nameof(ActiveQuickLookText));
         }
     }
 }

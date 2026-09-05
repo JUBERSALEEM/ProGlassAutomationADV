@@ -75,7 +75,11 @@ commands lost their pre-pipeline double paint (Apply+ApplyModule → one
 Evidence: `SettingsViewModel.ThemeWallpaper.cs:158` — opacity setter calls `ApplyVisualTheme()` → `RebuildFamily` (full 64-key rebuild + accent + outline) on every drag tick. Save is debounced; the *paint* is not.
 Impact: drag = continuous teardown churn; the exact flash the single-paint fix removed reappears during this one gesture. Fix: route the live tick to `ThemePipeline.RebuildWallpaperLayer` (exists, purpose-built) and run `RebuildFamily` only on capture-complete. 30 min.
 
-### F-05 🟡 OPEN — Appearance surface is not localised in a 15-language app
+### F-05 🟡 PARTIALLY FIXED (Phase 2) — Appearance surface is not localised in a 15-language app
+*Progress: all new Phase-2 surface (quick looks, live preview, studio
+slider niceties) + wallpaper status are localized (en-US authority +
+ar-AE); remaining known gaps are family/scene proper names and studio
+preset names (intentionally brand-stable — review with owners).* Original finding:
 Evidence: 15 language dictionaries (incl. ar-AE, ur-PK), 2,524 strings in en-US — but family picker shows hard-coded English concatenations (`ThemeWallpaper.cs:66` `Display = key + " — " + scene`), `"No wallpaper set"` (:202), studio preset names, rail section labels are localized only where already strung. The audience that bought the Industrial theme is exactly the audience running ar-AE.
 Impact: the headline feature ships English-only. Fix: localize family display names + scene labels + status strings; keep the raw Key internal (already are).
 
@@ -90,7 +94,11 @@ Evidence: `SettingsView.xaml:163–420` — identical Button/Style/DataTrigger/g
 Impact: adding a page = copy-paste + manual page-flag; the `Is{Page}Page` flag farm (10 OnPropertyChanged calls per switch) grows linearly.
 Fix: data-driven nav list (`SettingsNavItem {Key, Glyph, LabelKey}` in an ItemsControl), page state as `SettingsPage=="X"` converter or computed flag.
 
-### F-08 🔵 OPEN — "Reset/Defaults" reachability differs between Studio and family layers
+### F-08 🔵 FIXED (Phase 2, studio scope) — "Reset/Defaults" reachability differs between Studio and family layers
+*Resolution: every studio slider now carries a per-slider reset chip
+(↺ back to the active family's default) via StudioSliderControl +
+ResetStudioSliderCommand; Reset Current/All kept. Per-card resets for
+non-studio tiles remain a Phase-3 item.*
 Evidence: Theme Studio exposes Reset Current / Reset All with audit; family/accent/border/corner prefs scatter "reset" behaviours across individual tiles (border/corner have debounced audits, no per-tile reset). Operators expect one discoverable "restore factory appearance" affordance per card.
 Fix: per-card reset chips bound to DefaultsFor; keep global Reset All.
 
