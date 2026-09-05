@@ -737,6 +737,13 @@ namespace ProGlassAutomation
 
             mainWindow.WindowState = WindowState.Maximized;
             mainWindow.Show();
+
+            // OS window backdrop (2026-09-05): restore a saved Mica/
+            // Acrylic preference (Windows 11 22H2+); silently no-ops for
+            // "Off" or unsupported systems — the painted stage is default.
+            ProGlassAutomation.Services.Theme.WallpaperOrchestrator
+                .ApplyBackdropPreference(mainWindow);
+
             await WaitForWindowReadyAsync(mainWindow);
 
             if (splash.IsVisible)

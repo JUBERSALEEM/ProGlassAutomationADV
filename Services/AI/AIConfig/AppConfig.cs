@@ -112,6 +112,12 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// "Scene". Empty = follow the active family.</summary>
         public string BuiltinScene { get; set; } = "";
 
+        /// <summary>OS window backdrop (2026-09-05, EXPERIMENTAL):
+        /// "Off" (default — the painted liquid-glass stage), "Mica" or
+        /// "Acrylic" (Windows 11 22H2+ DWM-rendered blur behind the app,
+        /// see SystemBackdropService).</summary>
+        public string WindowBackdrop { get; set; } = "Off";
+
         /// <summary>
         /// Per-module wallpapers, keyed by WallpaperModules constants
         /// (e.g. "ProformaInvoice"). Missing entries = no wallpaper.

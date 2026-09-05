@@ -61,6 +61,14 @@ namespace ProGlassAutomation.Services.Settings
                 ThemeManager.ApplyAccent(ThemeManager.AccentColor, raiseEvent: false);
                 ThemeManager.ReapplyOutlinePreference();
 
+                // Theme-linked wallpaper scenes (2026-09-05): every full
+                // theme apply — Light/Dark toggle, family switch, agent
+                // path — ends by repainting the dynamic scene for the
+                // NOW-active family/theme/accent. The ApplyModule overlay
+                // is the primary hook; this is the belt-and-braces
+                // guarantee that the wallpaper ALWAYS follows the theme.
+                WallpaperOrchestrator.RefreshScene();
+
                 AppLogService.Info($"Theme applied: {(isDark ? "Dark" : "Light")}",
                     new LogContext { Module = "Settings", Operation = "ApplyTheme", CorrelationId = corrId });
 

@@ -5,17 +5,21 @@
 // Wallpaper Studio (2026-09-05) — Settings → Appearance.
 //
 //   • WALLPAPER MODE: Theme-linked (dynamic scene follows the current
-//     family/accent) · My file/downloaded · Built-in scene (pinned).
+//     family/accent — the 2026 default) · My file/downloaded · Built-in
+//     scene (pinned).
 //   • BUILT-IN SCENES: six code-drawn, accent-aware gradients, one per
 //     visual family — the swatch in the list IS the live scene brush.
 //   • DOWNLOAD 4K: keyless providers (Wallhaven → Picsum fallback) into
-//     the local library; applying is instant and offline afterwards.
-//   • LIBRARY: everything downloaded so far, newest first; one tap
-//     applies through WallpaperOrchestrator.SetFile (full theme chain).
+//     the local library with STAGE-BY-STAGE status reporting, plus
+//     management: delete one, clear all, open folder, size summary.
+//   • OS WINDOW BACKDROP: experimental Windows 11 Mica/Acrylic via
+//     SystemBackdropService (DWM-rendered behind WPF content).
 //
-// All mutations go through WallpaperOrchestrator, which persists and
-// repaints via the proven AppearanceService.ApplyTheme chain — this VM
-// never touches resource dictionaries directly.
+// ROW CLASSES: every row overrides ToString() on purpose — the app-wide
+// implicit ComboBox style templates items with raw content, so items
+// rendered "ProGlassAutomation.ViewModels…+CategoryRow" typenames
+// (owner report). ToString() guarantees a human label under ANY
+// template, DisplayMemberPath or not.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
@@ -23,6 +27,7 @@ using ProGlassAutomation.Services.Theme;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Input;
@@ -32,11 +37,11 @@ namespace ProGlassAutomation.ViewModels.Settings
 {
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
-        // ── Wallpaper Studio state ────────────────────────────────────
+        // ── Row models ────────────────────────────────────────────────
 
-        /// <summary>One row in the built-in scene list. Preview is the
-        /// LIVE scene brush — it re-derives from accent/theme exactly
-        /// like the wallpaper behind the modules.</summary>
+        /// <summary>One built-in scene row. Preview is the LIVE scene
+        /// brush — it re-derives from accent/theme exactly like the
+        /// wallpaper behind the modules.</summary>
         public sealed class SceneRow
         {
             public string Key { get; }
@@ -48,11 +53,13 @@ namespace ProGlassAutomation.ViewModels.Settings
                 Label = label;
                 Preview = BuiltinWallpaperScenes.For(key);
             }
+            /// <summary>Style-immune label (see file header).</summary>
+            public override string ToString() => Label;
         }
 
-        /// <summary>One online category — a REAL class (ValueTuple
-        /// element names are not CLR properties; ComboBox's
-        /// DisplayMemberPath/SelectedValuePath would show blank rows).</summary>
+        /// <summary>One online category — real class with properties
+        /// AND a style-immune ToString (the owner saw raw typenames in
+        /// the picker when templates ignored DisplayMemberPath).</summary>
         public sealed class CategoryRow
         {
             public string Key { get; }
@@ -62,6 +69,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 Key = key;
                 Label = label;
             }
+            public override string ToString() => Label;
         }
 
         /// <summary>One file in the downloaded library.</summary>
@@ -78,7 +86,10 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ? $"{f.Length / 1048576.0:0.0} MB"
                     : $"{f.Length / 1024.0:0} KB";
             }
+            public override string ToString() => Name;
         }
+
+        // ── Mode ─────────────────────────────────────────────────────
 
         public List<string> WallpaperModeOptions { get; } = new()
         {
@@ -107,9 +118,6 @@ namespace ProGlassAutomation.ViewModels.Settings
                         }
                         else
                         {
-                            // No file yet — stay put and point the user at
-                            // the download row / browse button instead of
-                            // silently swapping the wallpaper out.
                             WallpaperFetchStatus =
                                 "No wallpaper file yet — download a 4K wallpaper below or browse one.";
                         }
@@ -164,6 +172,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             set { _selectedOnlineCategoryKey = value ?? "glass"; OnPropertyChanged(); }
         }
 
+        // ── Busy / status ────────────────────────────────────────────
+
         private bool _isWallpaperBusy;
         public bool IsWallpaperBusy
         {
@@ -186,13 +196,26 @@ namespace ProGlassAutomation.ViewModels.Settings
             set { _wallpaperFetchStatus = value ?? ""; OnPropertyChanged(); }
         }
 
-        /// <summary>Downloaded wallpapers, newest first (cap 30 rows —
-        /// text rows, no 4K thumbnails decoded into memory).</summary>
+        // ── Library ──────────────────────────────────────────────────
+
+        /// <summary>Downloaded wallpapers, newest first (text rows — no
+        /// 4K thumbnails decoded into memory).</summary>
         public ObservableCollection<CachedWallpaperRow> CachedWallpapers { get; } = new();
+
+        private string _wallpaperLibrarySummary = "";
+        public string WallpaperLibrarySummary
+        {
+            get => _wallpaperLibrarySummary;
+            private set { _wallpaperLibrarySummary = value; OnPropertyChanged(); }
+        }
 
         public ICommand FetchWallpaperCommand { get; private set; }
         public ICommand ApplyCachedWallpaperCommand { get; private set; }
+        public ICommand DeleteCachedWallpaperCommand { get; private set; }
+        public ICommand ClearWallpaperLibraryCommand { get; private set; }
+        public ICommand OpenWallpaperFolderCommand { get; private set; }
         public ICommand ApplyBuiltinSceneCommand { get; private set; }
+        public ICommand SetWindowBackdropCommand { get; private set; }
         public ICommand RefreshWallpaperLibraryCommand { get; private set; }
 
         private void InitializeWallpaperStudio()
@@ -208,6 +231,63 @@ namespace ProGlassAutomation.ViewModels.Settings
                     OnPropertyChanged(nameof(WallpaperStatus));
                 }
             });
+            DeleteCachedWallpaperCommand = new RelayCommand(p =>
+            {
+                if (p is not string path || !File.Exists(path)) return;
+                try
+                {
+                    File.Delete(path);
+                    // Deleting the ACTIVE wallpaper falls back to the
+                    // theme-linked scene instead of a broken path.
+                    if (string.Equals(
+                            App.Config?.Appearance?.WallpaperPath, path,
+                            StringComparison.OrdinalIgnoreCase))
+                        WallpaperOrchestrator.SetThemeLinked();
+                    RefreshWallpaperLibrary();
+                    WallpaperFetchStatus = $"Deleted: {Path.GetFileName(path)}";
+                    OnPropertyChanged(nameof(SelectedWallpaperMode));
+                }
+                catch (Exception ex)
+                {
+                    WallpaperFetchStatus = $"Delete failed: {ex.Message}";
+                }
+            });
+            ClearWallpaperLibraryCommand = new RelayCommand(_ =>
+            {
+                try
+                {
+                    var active = App.Config?.Appearance?.WallpaperPath ?? "";
+                    foreach (var f in WallpaperProviderService.Library())
+                    {
+                        if (string.Equals(f.FullName, active,
+                                StringComparison.OrdinalIgnoreCase))
+                            continue; // never delete the live wallpaper
+                        try { f.Delete(); } catch { /* locked file — skip */ }
+                    }
+                    RefreshWallpaperLibrary();
+                    WallpaperFetchStatus = "Library cleared (the active wallpaper was kept).";
+                }
+                catch (Exception ex)
+                {
+                    WallpaperFetchStatus = $"Clear failed: {ex.Message}";
+                }
+            });
+            OpenWallpaperFolderCommand = new RelayCommand(_ =>
+            {
+                try
+                {
+                    Directory.CreateDirectory(WallpaperProviderService.CacheDir);
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = WallpaperProviderService.CacheDir,
+                        UseShellExecute = true,
+                    });
+                }
+                catch (Exception ex)
+                {
+                    WallpaperFetchStatus = $"Open folder failed: {ex.Message}";
+                }
+            });
             ApplyBuiltinSceneCommand = new RelayCommand(p =>
             {
                 if (p is string key)
@@ -219,6 +299,19 @@ namespace ProGlassAutomation.ViewModels.Settings
                     OnPropertyChanged(nameof(WallpaperStatus));
                 }
             });
+            SetWindowBackdropCommand = new RelayCommand(p =>
+            {
+                if (p is string mode)
+                {
+                    WallpaperOrchestrator.SetWindowBackdrop(mode);
+                    WallpaperFetchStatus =
+                        mode == SystemBackdropService.Off
+                            ? "Window backdrop off — painted liquid-glass stage restored."
+                            : SystemBackdropService.IsSupported
+                                ? $"Window backdrop: {mode} (OS-rendered behind the app)."
+                                : $"{mode} needs Windows 11 22H2+; the painted stage was kept.";
+                }
+            });
             RefreshWallpaperLibraryCommand =
                 new RelayCommand(_ => RefreshWallpaperLibrary());
 
@@ -227,29 +320,39 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private void RefreshWallpaperLibrary()
         {
+            var files = WallpaperProviderService.Library();
             CachedWallpapers.Clear();
-            foreach (var f in WallpaperProviderService.Library().Take(30))
+            foreach (var f in files.Take(30))
                 CachedWallpapers.Add(new CachedWallpaperRow(f));
+
+            long bytes = files.Sum(f => f.Length);
+            WallpaperLibrarySummary = files.Count == 0
+                ? "Library is empty — download a 4K wallpaper above."
+                : $"{files.Count} wallpaper(s) · {bytes / 1048576.0:0.0} MB stored in the local library";
         }
 
         /// <summary>Downloads one random 4K wallpaper for the selected
         /// category (Wallhaven → Picsum fallback), adds it to the local
-        /// library, and applies it as the File wallpaper.</summary>
+        /// library, and applies it as the File wallpaper. The provider
+        /// reports every stage into the status line, so a working
+        /// download is VISIBLE while it happens.</summary>
         private async void FetchWallpaperAsync()
         {
             if (_isWallpaperBusy) return;
             IsWallpaperBusy = true;
-            WallpaperFetchStatus = "Contacting wallpaper service…";
             try
             {
                 var path = await WallpaperProviderService
-                    .FetchRandomAsync(_selectedOnlineCategoryKey)
+                    .FetchRandomAsync(
+                        _selectedOnlineCategoryKey,
+                        s => WallpaperFetchStatus = s)
                     .ConfigureAwait(true);
 
                 if (path == null)
                 {
                     WallpaperFetchStatus =
-                        "Download failed — check the internet connection and try again.";
+                        "Download failed — check the internet connection and try again. " +
+                        "Details were written to the app log.";
                 }
                 else
                 {

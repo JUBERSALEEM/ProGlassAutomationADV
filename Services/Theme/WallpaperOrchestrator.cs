@@ -76,6 +76,18 @@ namespace ProGlassAutomation.Services.Theme
             {
                 if (resources == null) return;
                 var appearance = App.Config?.Appearance;
+                if (appearance == null) return;
+
+                // 2026-09-05 factory behavior (owner directive — "as soon
+                // as the user changes the visual theme the wallpaper must
+                // change"): any legacy "Auto" value upgrades to the
+                // theme-linked dynamic scene. A previously picked file
+                // stays on disk untouched and remains one tap away via
+                // "My file / downloaded" — only the ACTIVE mode changes,
+                // exactly what the owner asked for.
+                if ((appearance.WallpaperMode ?? ModeAuto) == ModeAuto)
+                    appearance.WallpaperMode = ModeThemeLinked;
+
                 string mode = EffectiveMode(appearance);
                 if (mode != ModeThemeLinked && mode != ModeScene) return;
 
@@ -106,6 +118,63 @@ namespace ProGlassAutomation.Services.Theme
         public static void RefreshScene()
         {
             OverlayIfLinked(Application.Current?.Resources);
+        }
+
+        // ── OS window backdrop (Windows 11 Mica/Acrylic — EXPERIMENTAL) ──
+
+        /// <summary>Sets the OS-level window backdrop: "Off" (the default
+        /// painted stage), "Mica" or "Acrylic" (Windows 11 22H2+,
+        /// DWM-rendered behind WPF content). Unsupported OS or any
+        /// failure degrades to the painted stage; returning to "Off"
+        /// repaints the normal theme stage via the full ApplyTheme chain
+        /// so nothing visually sticks.</summary>
+        public static void SetWindowBackdrop(string mode)
+        {
+            var appearance = App.Config?.Appearance;
+            if (appearance == null) return;
+            appearance.WindowBackdrop = mode;
+            if (App.Config != null)
+                ConfigService.Save(App.Config);
+
+            var window = Application.Current?.MainWindow;
+            var resources = Application.Current?.Resources;
+            bool applied = SystemBackdropService.Apply(window, mode);
+
+            if (applied
+                && mode != SystemBackdropService.Off
+                && resources != null)
+            {
+                SystemBackdropService.GhostWindowStage(resources);
+                Audit("Window backdrop", mode);
+            }
+            else
+            {
+                // Off (or unsupported): restore the full painted stage.
+                AppearanceService.ApplyTheme(
+                    ThemeManager.CurrentTheme == AppTheme.Dark);
+                Audit("Window backdrop",
+                    mode == SystemBackdropService.Off
+                        ? "Off (painted stage)"
+                        : mode + " unsupported on this Windows — painted stage kept");
+            }
+        }
+
+        /// <summary>Re-applies the saved backdrop preference once the
+        /// main window exists (startup hook, called right after the
+        /// window's first Show()).</summary>
+        public static void ApplyBackdropPreference(Window window)
+        {
+            try
+            {
+                var mode = App.Config?.Appearance?.WindowBackdrop
+                    ?? SystemBackdropService.Off;
+                if (mode == SystemBackdropService.Off) return;
+                var resources = Application.Current?.Resources;
+                if (SystemBackdropService.Apply(window, mode)
+                    && resources != null)
+                    SystemBackdropService.GhostWindowStage(resources);
+            }
+            catch { /* the painted stage is the safe default */ }
         }
 
         // ── User actions (Settings → Appearance → Wallpaper Studio) ──

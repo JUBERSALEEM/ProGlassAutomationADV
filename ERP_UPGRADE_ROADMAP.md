@@ -274,3 +274,20 @@ installer and go stale. The full system instead:
 | **Settings UI** | Wallpaper Studio tile: mode picker, six live-swatch scene buttons, category + Download&apply (busy state), downloaded-library list with one-tap Apply |
 | **Card vs backdrop** | Studio labels now explicit: *Card fill — solid ↔ transparent* and *Backdrop intensity — hidden ↔ solid* (separate axes by design) |
 | **Water-fill liquid glass** (`WaterFlow` 0–100) | New studio axis + GLASS & WATER slider group: five-stop liquid gradient per glass surface — wet specular top edge, airy crystal body, waterline glint at 78%, colour settled at the bottom like filled water. Tint/frost/transparency/richness remain authoritative over the water. Per-family signatures (UltraTransparent 75, LiquidGlass 45, Professional 0). Truth note: WPF cannot GPU-blur backdrops; depth is painted via layered gradients, not blurred |
+
+---
+
+## WALLPAPER STUDIO — FIELD-FIX ROUND (2026-09-05, owner reports)
+
+| Owner report | Root cause (traced in code) | Fix |
+|---|---|---|
+| "Button shows `ProGlassAutomation.ViewModel…` typename" | App-wide IMPLICIT ComboBox style (InputStyles.xaml, ~142 consumers) templates items with raw content — `DisplayMemberPath` honoured or not, `ToString()` of row objects leaked | `ToString()` overrides on SceneRow/CategoryRow/CachedWallpaperRow (style-immune human labels), DisplayMemberPath kept |
+| "Button text height collapsing" | My Padding overrides fought the pill templates' fixed metrics (same defect class as the settings-agent card fix) | All Padding overrides removed from the wallpaper tile — templates own their metrics |
+| "Nothing downloading" | Silent pipeline — failures only reached the log | Stage-by-stage status reporting into the UI (searching → downloading → saved/failed with reason) |
+| "Wallpaper not changing as per changing theme" | `Auto` mode semantics: a legacy picked file pinned the machine to File mode, so family switches never repainted | Factory default is now ThemeLinked (Auto upgrades in place; files stay on disk, one tap away). PLUS two explicit refresh hooks: visual-family setter + every full ApplyTheme chain end ← belt and braces over the ApplyModule overlay |
+| "Use services bypassing the WPF blur limitation" | WPF's retained renderer has no per-card backdrop blur; packages = heavy deps | `SystemBackdropService` — native Windows 11 DWM system backdrop (`DWMWA_SYSTEMBACKDROP_TYPE`: Mica/Acrylic), rendered BY THE OS behind WPF content. Experimental tier; silently degrades to the painted liquid-glass stage (default) |
+| "Proper wallpaper system + download management" | Library had no management | Per-row Delete (active wallpaper protected + falls back to ThemeLinked), Clear-all (keeps active), Open folder, count+MB summary, busy-guarded downloads |
+
+Startup restores the saved OS-backdrop preference right after the first
+window Show(). Verified: XML/braces clean on 10 files, no dup lang keys,
+no padding overrides left, all hooks present.

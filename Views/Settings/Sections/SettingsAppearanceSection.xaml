@@ -399,10 +399,13 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
+                                    <!-- No Padding override: the pill template
+                                         owns its metrics (2026-09-05 lesson —
+                                         overrides collapsed the button text). -->
                                     <Button Style="{StaticResource OutlinedPillButton}"
                                             Command="{Binding DataContext.ApplyBuiltinSceneCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding Key}"
-                                            Margin="0,0,8,8" Padding="10,6">
+                                            Margin="0,0,8,8">
                                         <StackPanel Orientation="Horizontal">
                                             <Rectangle Width="36" Height="20" RadiusX="5" RadiusY="5"
                                                        Fill="{Binding Preview}"/>
@@ -426,7 +429,7 @@
                             <Button Style="{StaticResource SuccessPillButton}"
                                     Command="{Binding FetchWallpaperCommand}"
                                     IsEnabled="{Binding IsWallpaperIdle}"
-                                    Margin="10,0,0,0" Padding="16,7"
+                                    Margin="10,0,0,0"
                                     Content="{DynamicResource Settings.WallpaperFetch}"/>
                             <ProgressBar Width="120" Height="8" Margin="14,0,0,0"
                                          VerticalAlignment="Center" IsIndeterminate="True"
@@ -438,10 +441,26 @@
                                    Foreground="{DynamicResource TextSecondaryBrush}"
                                    TextWrapping="Wrap" Margin="0,0,0,6"/>
 
-                        <!-- Downloaded library (offline reuse) -->
-                        <TextBlock Text="{DynamicResource Settings.WallpaperLibrary}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,4,0,2"
-                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <!-- Downloaded library (offline reuse) + management -->
+                        <DockPanel Margin="0,4,0,2">
+                            <TextBlock Text="{DynamicResource Settings.WallpaperLibrary}"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       VerticalAlignment="Center"/>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Command="{Binding OpenWallpaperFolderCommand}"
+                                        Margin="0,0,6,0"
+                                        Content="{DynamicResource Settings.WallpaperOpenFolder}"/>
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Command="{Binding ClearWallpaperLibraryCommand}"
+                                        Content="{DynamicResource Settings.WallpaperClearAll}"/>
+                            </StackPanel>
+                        </DockPanel>
+                        <TextBlock Text="{Binding WallpaperLibrarySummary}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="0,0,0,4"/>
                         <ScrollViewer MaxHeight="170" VerticalScrollBarVisibility="Auto"
                                       HorizontalScrollBarVisibility="Disabled">
                             <ItemsControl ItemsSource="{Binding CachedWallpapers}">
@@ -449,15 +468,23 @@
                                     <DataTemplate>
                                         <DockPanel Margin="0,1,0,1">
                                             <Button DockPanel.Dock="Right"
+                                                    Style="{StaticResource DangerButton}"
+                                                    Command="{Binding DataContext.DeleteCachedWallpaperCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding FullPath}"
+                                                    FontSize="{StaticResource TextCaption}"
+                                                    VerticalAlignment="Center"
+                                                    Content="✕"/>
+                                            <Button DockPanel.Dock="Right"
                                                     Style="{StaticResource OutlinedPillButton}"
                                                     Command="{Binding DataContext.ApplyCachedWallpaperCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding FullPath}"
-                                                    Padding="12,3" FontSize="{StaticResource TextCaption}"
+                                                    FontSize="{StaticResource TextCaption}"
+                                                    VerticalAlignment="Center" Margin="0,0,6,0"
                                                     Content="{DynamicResource Settings.WallpaperApply}"/>
                                             <TextBlock DockPanel.Dock="Right" Text="{Binding SizeText}"
                                                        FontSize="{StaticResource TextCaption}"
                                                        Foreground="{DynamicResource TextSecondaryBrush}"
-                                                       VerticalAlignment="Center" Margin="10,0"/>
+                                                       VerticalAlignment="Center" Margin="10,0,6,0"/>
                                             <TextBlock Text="{Binding Name}"
                                                        FontSize="{StaticResource TextBody}"
                                                        VerticalAlignment="Center"
@@ -467,6 +494,28 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </ScrollViewer>
+
+                        <!-- OS-level window backdrop (experimental) -->
+                        <TextBlock Text="{DynamicResource Settings.WallpaperBackdrop}"
+                                   FontSize="10" FontWeight="Bold" Margin="0,12,0,2"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Command="{Binding SetWindowBackdropCommand}" CommandParameter="Off"
+                                    Margin="0,0,8,0"
+                                    Content="{DynamicResource Settings.WallpaperBackdropOff}"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Command="{Binding SetWindowBackdropCommand}" CommandParameter="Mica"
+                                    Margin="0,0,8,0"
+                                    Content="{DynamicResource Settings.WallpaperBackdropMica}"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Command="{Binding SetWindowBackdropCommand}" CommandParameter="Acrylic"
+                                    Content="{DynamicResource Settings.WallpaperBackdropAcrylic}"/>
+                        </StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.WallpaperBackdropCaption}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextWrapping="Wrap" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
 

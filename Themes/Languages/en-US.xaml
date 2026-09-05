@@ -2440,6 +2440,13 @@
     <sys:String x:Key="Settings.WallpaperLibrary">DOWNLOADED LIBRARY</sys:String>
     <sys:String x:Key="Settings.WallpaperFetch">Download &amp; apply 4K</sys:String>
     <sys:String x:Key="Settings.WallpaperApply">Apply</sys:String>
+    <sys:String x:Key="Settings.WallpaperOpenFolder">Open folder</sys:String>
+    <sys:String x:Key="Settings.WallpaperClearAll">Clear all</sys:String>
+    <sys:String x:Key="Settings.WallpaperBackdrop">WINDOW BACKDROP — OS-LEVEL BLUR (EXPERIMENTAL)</sys:String>
+    <sys:String x:Key="Settings.WallpaperBackdropOff">Off — painted stage</sys:String>
+    <sys:String x:Key="Settings.WallpaperBackdropMica">Mica (Win 11)</sys:String>
+    <sys:String x:Key="Settings.WallpaperBackdropAcrylic">Acrylic (Win 11)</sys:String>
+    <sys:String x:Key="Settings.WallpaperBackdropCaption">Windows 11 22H2+ renders real blur BEHIND the app via DWM (outside WPF’s renderer — that is how the platform bypasses WPF’s no-blur limit). Needs a translucent stage, so “Off” restores the painted liquid-glass stage at any time. Experimental: falls back silently on older Windows.</sys:String>
     <sys:String x:Key="Storage.Title">Storage usage</sys:String>
     <sys:String x:Key="Storage.Subtitle">What&apos;s using your local storage</sys:String>
     <sys:String x:Key="Storage.Total">Total</sys:String>

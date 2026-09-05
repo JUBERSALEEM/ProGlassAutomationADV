@@ -73,13 +73,16 @@ namespace ProGlassAutomation.Services.Theme
         /// <summary>
         /// Downloads one random wallpaper for a category into the local
         /// library and returns its file path; null on any failure (already
-        /// logged). Never throws past the UI boundary.
+        /// logged). Never throws past the UI boundary. `report` receives
+        /// short UI status lines at every stage so the user can SEE the
+        /// pipeline working (searching → downloading → saved/failed).
         /// </summary>
         public static async Task<string?> FetchRandomAsync(
-            string categoryKey, CancellationToken ct = default)
+            string categoryKey, Action<string>? report = null,
+            CancellationToken ct = default)
         {
             var cat = Categories.FirstOrDefault(c => c.Key == categoryKey);
-            if (cat.Key == null)
+            if (string.IsNullOrEmpty(cat.Key))
                 cat = Categories[0];
 
             try
@@ -89,11 +92,14 @@ namespace ProGlassAutomation.Services.Theme
                 // "Surprise Me" skips Wallhaven entirely.
                 if (cat.Query != "__picsum__")
                 {
+                    report?.Invoke($"Searching Wallhaven for \"{cat.Label}\" 4K wallpapers…");
                     var wallhaven = await TryWallhavenAsync(cat.Query, ct)
                         .ConfigureAwait(false);
                     if (wallhaven != null) return wallhaven;
+                    report?.Invoke("Wallhaven returned nothing — trying the photo service…");
                 }
 
+                report?.Invoke("Fetching a 4K photo wallpaper…");
                 return await TryPicsumAsync(ct).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
@@ -105,6 +111,7 @@ namespace ProGlassAutomation.Services.Theme
                 AppLogService.Warning(
                     $"Wallpaper download failed ({cat.Key}): {ex.Message}",
                     new LogContext { Module = "Wallpapers", Operation = "Fetch" });
+                report?.Invoke($"Download failed: {ex.Message}");
                 return null;
             }
         }

@@ -70,6 +70,16 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(StudioFamilyName));
 
+                // 2026-09-05 (owner report): "wallpaper not changing as
+                // per changing theme". The ApplyModule overlay covers
+                // every REBUILT scene; this extra refresh guarantees the
+                // theme-linked/pinned scene redraws even on guard-skipped
+                // no-op repaint paths — family switches are now visibly
+                // accompanied by their wallpaper scene, every time.
+                ProGlassAutomation.Services.Theme.WallpaperOrchestrator
+                    .RefreshScene();
+                OnPropertyChanged(nameof(SelectedWallpaperMode));
+
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
                     "Visual theme changed", value);
