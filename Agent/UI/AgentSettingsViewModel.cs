@@ -311,8 +311,20 @@ namespace ProGlassAutomation.Agent.UI
                 if (_isLocalModelEnabled == value) return;
                 _isLocalModelEnabled = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(LocalModelToggleText));
             }
         }
+
+        /// <summary>
+        /// 2026-09-04 — the raw WPF ToggleButton looked like a broken
+        /// check-box among the app's glass pills. The toggle is now an
+        /// explicit button whose TEXT states the current posture, so the
+        /// user can read intent and state in one glance.
+        /// </summary>
+        public string LocalModelToggleText =>
+            IsLocalModelEnabled
+                ? "Local model answering — ON (all replies offline)"
+                : "Local model answering — OFF (knowledge base replies)";
 
         private bool _isModelBusy;
         public bool IsModelBusy

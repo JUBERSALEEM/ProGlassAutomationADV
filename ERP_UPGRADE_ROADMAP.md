@@ -224,3 +224,14 @@ New capability (user-directed), read-only and deterministic:
 | Discoverability | added to `Help()` output and the chat greeting |
 
 What the offline agent can now do, grounded: look up documents/stock/customers/activity, navigate, record demos, change sheet stock behind confirmation, learn approved phrases, remember across sessions, answer offline via knowledge base (and any installed GGUF model), and review a proforma invoice for the mistake classes above.
+
+---
+
+## POST-P5 — UI truthfulness round: settings buttons + frozen splash (2026-09-04)
+
+Root causes traced in code, not screenshots:
+
+| Area | Root cause | Fix |
+|---|---|---|
+| Settings → AI & Agent buttons | The new local-model card mixed one styled button (Install) with DEFAULT Win32 unstyled buttons (License/Verify/Uninstall/Cancel) — in a glass-themed app they render as jarring gray chrome, and the raw WPF ToggleButton (styles TargetType Button never apply to ToggleButton) looked like a broken checkbox | Verify/Cancel/License → `OutlinedPillButton`, Uninstall → `DangerButton`, raw ToggleButton replaced by an `OutlinedPillButton` whose TEXT states posture (`Local model answering — ON/OFF`); ProgressBar gains theme `AccentBrush` foreground; local padding overrides removed so pill templates own their metrics |
+| Splash launch recolor | App.xaml startup merges **LightTheme** at t=0 (cream + light accent); `Application_Startup` then constructs SplashView whose Background/orbs/text bound `{DynamicResource WindowBackgroundBrush/AccentBrush/…}` — when the user's saved Dark/Monet/Professional theme engaged mid-boot, the splash visibly flip-flopped into different colors | The splash is now a **frozen brand moment**: a local crystal palette (`SplashCerulean*`, `SplashText*`, `SplashOutline/Pill/Track`, frozen corners) replaces every color/corner DynamicResource; only language strings + font tokens stay dynamic. Verified zero remaining dynamic color/radius refs; XAML well-formed |
