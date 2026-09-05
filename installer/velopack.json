@@ -27,7 +27,6 @@
   "deltaMode": "BestSpeed",
   "packSources": null,
   "zipExclude": [
-    "**/*.pdb",
     "**/TestResults/**",
     "**/appsettings.Development.json"
   ],

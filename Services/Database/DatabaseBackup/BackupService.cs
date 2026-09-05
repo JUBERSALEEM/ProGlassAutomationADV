@@ -4,11 +4,16 @@
 // MODULE: Core — backup & restore (v2 upgrade)
 //
 // v1 backed up only proglass.db. v2 backs up the COMPLETE data set:
-// every SQLite database + config.json into one timestamped "backup set"
-// folder, with retention, verification and safe restore.
+// every SQLite database + config.json + the whitelisted attachment
+// file trees (Inquiries/, ProformaInvoices/, DeliveryNotes/) into one
+// timestamped "backup set" folder, with retention, verification and
+// safe restore. Tax-invoice attachments are blobs inside taxinvoices.db
+// and travel with the *.db copy automatically.
 //
 // Layout:  %AppData%\ProGlassAutomation\Backups\
-//            set_2026-08-14_18-30-00\{ all *.db, config.json }
+//            set_2026-08-14_18-30-00\{ all *.db, config.json,
+//                                       Inquiries\, ProformaInvoices\,
+//                                       DeliveryNotes\ }
 //
 // SAFETY RULES honoured:
 //   • Restore always snapshots the CURRENT state first (pre_restore).
@@ -54,6 +59,25 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
 
         private static readonly string BackupFolder =
             Path.Combine(AppDataFolder, "Backups");
+
+        /// <summary>
+        /// Folder names (direct children of the AppData root) whose FILE
+        /// contents are business data living outside the *.db files:
+        ///   Inquiries\{id}\Attachments\        — inquiry attachments
+        ///   ProformaInvoices\Attachments\      — PI attachments + manifests
+        ///   DeliveryNotes\Attachments\         — DN attachments (Images/PDFs)
+        /// Tax Invoice attachments are blobs inside taxinvoices.db and ride
+        /// the *.db copy; they do not appear here.
+        ///
+        /// AUDIT FIX (2026-09-05, P0): v2 copied only *.db + config.json, so
+        /// every PI/DN/Inquiry attachment file was silently lost on a
+        /// restore. The whitelist is DELIBERATE and static — it is never
+        /// derived from a directory listing, because Backups\ itself is a
+        /// child of AppDataFolder and "copy all subfolders" would recurse
+        /// backups into backups forever.
+        /// </summary>
+        internal static readonly string[] ExtraDataSubfolders =
+            { "Inquiries", "ProformaInvoices", "DeliveryNotes" };
 
         /// <summary>Root folder where backup sets are stored (for the restore drill).</summary>
         public static string GetBackupsFolder() => BackupFolder;
@@ -184,6 +208,60 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                 copied++;
             }
 
+            // Attachment file trees (see ExtraDataSubfolders). Whitelisted,
+            // recursive, per-file fault tolerant — one unreadable file must
+            // never poison the rest of the set.
+            foreach (var sub in ExtraDataSubfolders)
+            {
+                var sourceDir = Path.Combine(AppDataFolder, sub);
+                if (!Directory.Exists(sourceDir)) continue;
+
+                try
+                {
+                    copied += CopyDirectoryTree(
+                        sourceDir, Path.Combine(setFolder, sub));
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Warning(
+                        $"Attachment folder '{sub}' could not be fully backed up: {ex.Message}",
+                        new LogContext { Module = "Backup", Operation = "Copy" });
+                }
+            }
+
+            return copied;
+        }
+
+        /// <summary>
+        /// Copies @src into @dst recursively, creating directories as
+        /// needed. Returns the number of FILES copied; per-file failures
+        /// are logged and skipped rather than aborting the tree.
+        /// </summary>
+        private static int CopyDirectoryTree(string sourceDir, string targetDir)
+        {
+            Directory.CreateDirectory(targetDir);
+            int copied = 0;
+
+            foreach (var file in Directory.GetFiles(sourceDir))
+            {
+                try
+                {
+                    File.Copy(file, Path.Combine(
+                        targetDir, Path.GetFileName(file)), overwrite: true);
+                    copied++;
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Warning(
+                        $"Backup skipped file {file}: {ex.Message}",
+                        new LogContext { Module = "Backup", Operation = "Copy" });
+                }
+            }
+
+            foreach (var subDir in Directory.GetDirectories(sourceDir))
+                copied += CopyDirectoryTree(subDir,
+                    Path.Combine(targetDir, Path.GetFileName(subDir)));
+
             return copied;
         }
 
@@ -203,7 +281,11 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                     .GetDirectories("set_*")
                     .Select(dir =>
                     {
-                        var files = dir.GetFiles();
+                        // AllDirectories: attachment trees (Inquiries/,
+                        // ProformaInvoices/, DeliveryNotes/) inside the set
+                        // are real data that must show up in the reported
+                        // size/file-count (audit P0 fix, 2026-09-05).
+                        var files = dir.GetFiles("*", SearchOption.AllDirectories);
                         return new BackupSetInfo
                         {
                             FolderPath = dir.FullName,
@@ -245,8 +327,11 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                 if (!Directory.Exists(setFolder))
                     return (false, "Backup set not found.");
 
-                var files = new DirectoryInfo(setFolder).GetFiles();
-                if (files.Length == 0)
+                var setDir = new DirectoryInfo(setFolder);
+                var files = setDir.GetFiles();
+                bool hasAttachmentTrees = ExtraDataSubfolders.Any(
+                    sub => Directory.Exists(Path.Combine(setFolder, sub)));
+                if (files.Length == 0 && !hasAttachmentTrees)
                     return (false, "Backup set is empty.");
 
                 // Safety snapshot first — restore can always be undone.
@@ -281,9 +366,36 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                     }
                 }
 
+                // Attachment file trees: restore as a clean replace per
+                // whitelisted folder. Stale files left behind by a partial
+                // restore would be re-resolvable against the restored DB
+                // manifests (the DB is authoritative for what should
+                // exist), so replace-in-place is the predictable choice.
+                foreach (var sub in ExtraDataSubfolders)
+                {
+                    var sourceDir = Path.Combine(setFolder, sub);
+                    if (!Directory.Exists(sourceDir)) continue;
+
+                    try
+                    {
+                        restored += CopyDirectoryTree(
+                            sourceDir, Path.Combine(AppDataFolder, sub));
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Warning(
+                            $"Attachment folder '{sub}' could not be fully restored: {ex.Message}",
+                            new LogContext
+                            {
+                                Module = "Backup",
+                                Operation = "Restore"
+                            });
+                    }
+                }
+
                 AppLogService.Info(
-                    $"Backup set restored: {files[0].Directory?.Name} " +
-                    $"({restored}/{files.Length} files)",
+                    $"Backup set restored: {setDir.Name} " +
+                    $"({restored} files incl. attachment trees)",
                     new LogContext { Module = "Backup", Operation = "Restore" });
 
                 return (true,
