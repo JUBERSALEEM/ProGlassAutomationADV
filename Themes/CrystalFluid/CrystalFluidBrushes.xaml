@@ -309,4 +309,38 @@
     <SolidColorBrush x:Key="CrystalPopupBackgroundBrush"
                      Color="#F0F5FAFF" />
 
+    <!-- ═════════════════════════════════════════════════════════════════
+         INTEGRATION ADDITIONS (Ios-17pm P4a — TOKENIZED SHELL SCENE)
+
+         The authored §22 environment lives HERE, exactly once: the
+         engine's crystal stage (VisualThemeEngine Part3) and the
+         wallpaper scene (BuiltinWallpaperScenes.CrystalFluidScene)
+         READ these tokens with byte-exact literal fallbacks, so a
+         recalibration of the environment is one XAML edit — never a
+         code redeploy. Values are the authored palettes, pinned by
+         Tests/Agent/CrystalFluidShellAdoptionTests.
+         ═════════════════════════════════════════════════════════════════ -->
+    <!-- ENGINE STAGE — the calm backdrop beneath everything
+         (white highlight upper-left → pale cyan lower-right) -->
+    <SolidColorBrush x:Key="CrystalStageTopBrush"
+                     Color="#F8FDFF" />
+    <SolidColorBrush x:Key="CrystalStageLightBrush"
+                     Color="#EDFAFF" />
+    <SolidColorBrush x:Key="CrystalStageBaseBrush"
+                     Color="#DFF5FF" />
+
+    <!-- WALLPAPER SCENE — the 5-stop light choreography painted on top
+         when the crystal scene is active (white light → soft cyan
+         atmosphere → pale blue base/floor) -->
+    <SolidColorBrush x:Key="CrystalSceneTopBrush"
+                     Color="#FDFEFF" />
+    <SolidColorBrush x:Key="CrystalSceneLitBrush"
+                     Color="#F2FAFE" />
+    <SolidColorBrush x:Key="CrystalSceneAtmosphereBrush"
+                     Color="#E6F6FD" />
+    <SolidColorBrush x:Key="CrystalSceneBaseBrush"
+                     Color="#D5F0FB" />
+    <SolidColorBrush x:Key="CrystalSceneFloorBrush"
+                     Color="#DFF5FF" />
+
 </ResourceDictionary>

@@ -48,15 +48,21 @@ namespace ProGlassAutomation.Services.Theme
                 EndPoint = new Point(1, 1),
                 GradientStops =
                 {
+                    // Ios-17pm P4a: stage colours are TOKENIZED
+                    // (CrystalFluidBrushes.xaml, single number home);
+                    // the literals stay as byte-exact fallbacks.
                     new GradientStop(dark
                         ? Color.FromRgb(0x0E, 0x22, 0x30)
-                        : Color.FromRgb(0xF8, 0xFD, 0xFF), 0.0),
+                        : TokenColor(resources, "CrystalStageTopBrush",
+                            Color.FromRgb(0xF8, 0xFD, 0xFF)), 0.0),
                     new GradientStop(dark
                         ? Color.FromRgb(0x0C, 0x1D, 0x2A)
-                        : Color.FromRgb(0xED, 0xFA, 0xFF), 0.45),
+                        : TokenColor(resources, "CrystalStageLightBrush",
+                            Color.FromRgb(0xED, 0xFA, 0xFF)), 0.45),
                     new GradientStop(dark
                         ? Color.FromRgb(0x09, 0x16, 0x22)
-                        : Color.FromRgb(0xDF, 0xF5, 0xFF), 1.0),
+                        : TokenColor(resources, "CrystalStageBaseBrush",
+                            Color.FromRgb(0xDF, 0xF5, 0xFF)), 1.0),
                 }
             };
             stage.Freeze();
@@ -180,6 +186,12 @@ namespace ProGlassAutomation.Services.Theme
             // Crystal Fluid = the water family: card/KPI surfaces that
             // bind CrystalWaterDefaultEnabled render CrystalWater.
             resources["CrystalWaterDefaultEnabled"] = true;
+            // Ios-17pm P4a: the SHELL ambient host in MainWindow (the
+            // authored drifting-light layer) is family-gated through
+            // this resource — Visible under Crystal Fluid, REMOVED at
+            // every family switch (Part1 ×2, beside the water gate) so
+            // no crystal clocks tick under another family.
+            resources["CrystalAmbientHostVisibility"] = Visibility.Visible;
 
             // Token baselines (root-level): a family repaint ALWAYS
             // restores the family truth for every studio-tunable water
@@ -276,6 +288,27 @@ namespace ProGlassAutomation.Services.Theme
         {
             foreach (var key in ManagedKeys)
                 resources.Remove(key);
+        }
+
+        /// <summary>Reads a tokenized brush colour with the authored
+        /// literal as fallback (Ios-17pm P4a). The crystal stage/scene
+        /// gradients live as single-home SolidColorBrush tokens in
+        /// CrystalFluidBrushes.xaml; engine paints consume those tokens
+        /// so future environment recalibrations are ONE XAML edit,
+        /// never a code redeploy. The literal fallback is pinned
+        /// byte-for-byte to the pre-P4a colour, so hosts without merged
+        /// resources render the IDENTICAL stage.</summary>
+        private static Color TokenColor(ResourceDictionary resources,
+            string key, Color fallback)
+        {
+            try
+            {
+                if (resources?.Contains(key) == true &&
+                    resources[key] is SolidColorBrush brush)
+                    return brush.Color;
+            }
+            catch { /* a token lookup must never break a paint */ }
+            return fallback;
         }
 
         private static void SetTranslucent(

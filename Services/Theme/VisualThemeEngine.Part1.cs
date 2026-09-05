@@ -289,6 +289,10 @@ namespace ProGlassAutomation.Services.Theme
                 // every family switch so the static tokens-file
                 // default (False) reigns for non-crystal families.
                 resources.Remove("CrystalWaterDefaultEnabled");
+                // Ios-17pm P4a: family-gated shell ambient host
+                // (MainWindow wallpaper layer) — removed with the
+                // same contract as the water gate.
+                resources.Remove("CrystalAmbientHostVisibility");
                 foreach (var ck in CrystalFluidTokenKeys)
                     resources.Remove(ck);
                 // PRE-SEED (2026-09-05 — ERR-50472F): ClearOverrides just
@@ -437,6 +441,10 @@ namespace ProGlassAutomation.Services.Theme
                 // every family switch so the static tokens-file
                 // default (False) reigns for non-crystal families.
                 resources.Remove("CrystalWaterDefaultEnabled");
+                // Ios-17pm P4a: family-gated shell ambient host
+                // (MainWindow wallpaper layer) — removed with the
+                // same contract as the water gate.
+                resources.Remove("CrystalAmbientHostVisibility");
                 foreach (var ck in CrystalFluidTokenKeys)
                     resources.Remove(ck);
                 // PRE-SEED (2026-09-05 — ERR-50472F): never leave the

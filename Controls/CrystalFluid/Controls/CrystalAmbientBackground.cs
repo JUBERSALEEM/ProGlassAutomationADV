@@ -58,6 +58,27 @@ namespace ProGlassAutomation.Controls.CrystalFluid
             IsHitTestVisible = false;
             Loaded += OnLoaded;
             Unloaded += OnUnloaded;
+            IsVisibleChanged += OnIsVisibleChanged;
+        }
+
+        private void OnIsVisibleChanged(object sender,
+            DependencyPropertyChangedEventArgs e)
+        {
+            if (!_isLoaded) return;
+            if ((bool)e.NewValue)
+            {
+                // back on stage — restart on the current size
+                StopAnimation();
+                StartAnimation();
+            }
+            else
+            {
+                // D35 (Ios-17pm P4a): the shell host collapses via a
+                // family-gated Visibility resource while STAYING loaded
+                // — forever-repeat clocks would keep ticking under the
+                // new family. Collapse holds no clocks.
+                StopAnimation();
+            }
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -144,7 +165,10 @@ namespace ProGlassAutomation.Controls.CrystalFluid
 
         private void StartAnimation()
         {
-            if (ReducedMotion || _blob1 == null || _blob2 == null)
+            // D35: collapsed hosts (family switch via the engine-gated
+            // CrystalAmbientHostVisibility resource) hold no clocks,
+            // regardless of which path calls StartAnimation.
+            if (!IsVisible || ReducedMotion || _blob1 == null || _blob2 == null)
                 return;
 
             double w = ActualWidth > 0 ? ActualWidth : 1400;

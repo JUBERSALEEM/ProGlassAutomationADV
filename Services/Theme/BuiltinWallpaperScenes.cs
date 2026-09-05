@@ -144,11 +144,37 @@ namespace ProGlassAutomation.Services.Theme
         private static LinearGradientBrush CrystalFluidScene(bool dark)
         {
             return Diagonal(
-                (Parse(dark ? "#0E2230" : "#FDFEFF"), 0.00),
-                (Parse(dark ? "#0C1F2C" : "#F2FAFE"), 0.28),
-                (Parse(dark ? "#0A1B28" : "#E6F6FD"), 0.55),
-                (Parse(dark ? "#081722" : "#D5F0FB"), 0.80),
-                (Parse(dark ? "#061320" : "#DFF5FF"), 1.00));
+                (SceneToken("CrystalSceneTopBrush",
+                    Parse(dark ? "#0E2230" : "#FDFEFF")), 0.00),
+                (SceneToken("CrystalSceneLitBrush",
+                    Parse(dark ? "#0C1F2C" : "#F2FAFE")), 0.28),
+                (SceneToken("CrystalSceneAtmosphereBrush",
+                    Parse(dark ? "#0A1B28" : "#E6F6FD")), 0.55),
+                (SceneToken("CrystalSceneBaseBrush",
+                    Parse(dark ? "#081722" : "#D5F0FB")), 0.80),
+                (SceneToken("CrystalSceneFloorBrush",
+                    Parse(dark ? "#061320" : "#DFF5FF")), 1.00));
+        }
+
+        /// <summary>Ios-17pm P4a — the crystal scene's light-mode stops
+        /// are single-home tokens in CrystalFluidBrushes.xaml; the dark
+        /// stops stay defensive literals (the family pairs Light via
+        /// ModePairFor). The literal is a byte-exact fallback so the
+        /// scene renders identically in hosts without merged resources;
+        /// the try/catch mirrors the file's own never-throw contract.
+        /// </summary>
+        private static System.Windows.Media.Color SceneToken(
+            string key, System.Windows.Media.Color fallback)
+        {
+            try
+            {
+                var resources = System.Windows.Application.Current?.Resources;
+                if (resources?.Contains(key) == true &&
+                    resources[key] is System.Windows.Media.SolidColorBrush b)
+                    return b.Color;
+            }
+            catch { /* wallpaper must never take the app down */ }
+            return fallback;
         }
 
         /// <summary>Ocean — teal abyss with a bioluminescent middle
