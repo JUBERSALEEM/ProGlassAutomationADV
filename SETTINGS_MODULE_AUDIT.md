@@ -58,11 +58,20 @@ Fix `924cf0c`: full contract republished as flat slabs (Dash trio, shell, sideba
 Evidence: crash log showed `Industrial family painted` ×2 per switch; `ThemePipeline.RebuildFamily` called `Apply()` then `ApplyModule()` (which rebuilds the family internally).
 Fix `924cf0c`: single ApplyModule pass; scene signature gates real repaints; identical repeats skip.
 
-### F-03 🟡 OPEN — Phantom studio preset "DenseGlass"
+### F-03 🟡 FIXED (Phase 1) — Phantom studio preset "DenseGlass"
+*Resolution: `Preset()` gained an explicit `case "DenseGlass":`; a single
+authoritative `ThemeStudioSettings.PresetNames` registry now feeds the VM
+combo; parity locked by `ThemeRegistryParityTests.EveryRegisteredPreset_
+ProducesADistinctProfile`.* Original finding:
 Evidence: `SettingsViewModel.ThemeStudio.cs:57` lists `DenseGlass` in `StudioPresetOptions`; `ThemeStudioSettings.Preset()` has cases only for Crystal / LightGlass / Balanced / Frosted / RoyalRich (:252–:312). Selecting DenseGlass silently falls to the default arm yet audits "preset applied: DenseGlass".
 Impact: one combo row lies to the operator. Fix: implement the case (dense, low-transparency industrial-ish glass) or drop the row. 15 min.
 
-### F-04 🟡 OPEN — Wallpaper-opacity slider repaints the entire family per tick
+### F-04 🟡 FIXED (Phase 1) — Wallpaper-opacity slider repaints the entire family per tick
+*Resolution: live drag now coalesces to the wallpaper layer (≤ ~8/s +
+trailing pass, `ScheduleLiveWallpaperRepaint`); wallpaper set/clear
+commands lost their pre-pipeline double paint (Apply+ApplyModule → one
+`RebuildWallpaperLayer`); the Light/Dark toggle now runs the canonical
+`ThemePipeline.Rebuild(bool)`.* Original finding:
 Evidence: `SettingsViewModel.ThemeWallpaper.cs:158` — opacity setter calls `ApplyVisualTheme()` → `RebuildFamily` (full 64-key rebuild + accent + outline) on every drag tick. Save is debounced; the *paint* is not.
 Impact: drag = continuous teardown churn; the exact flash the single-paint fix removed reappears during this one gesture. Fix: route the live tick to `ThemePipeline.RebuildWallpaperLayer` (exists, purpose-built) and run `RebuildFamily` only on capture-complete. 30 min.
 
@@ -70,7 +79,9 @@ Impact: drag = continuous teardown churn; the exact flash the single-paint fix r
 Evidence: 15 language dictionaries (incl. ar-AE, ur-PK), 2,524 strings in en-US — but family picker shows hard-coded English concatenations (`ThemeWallpaper.cs:66` `Display = key + " — " + scene`), `"No wallpaper set"` (:202), studio preset names, rail section labels are localized only where already strung. The audience that bought the Industrial theme is exactly the audience running ar-AE.
 Impact: the headline feature ships English-only. Fix: localize family display names + scene labels + status strings; keep the raw Key internal (already are).
 
-### F-06 🔵 OPEN — Mode-coupling map duplicated in the VM
+### F-06 🔵 FIXED (Phase 1) — Mode-coupling map duplicated in the VM
+*Resolution: `VisualThemeEngine.ModePairFor(family)` owns the pairing;
+VM consumes it; mapping locked by `ModePairFor_OnlyIndustrialCouplesTheMode`.* Original finding:
 Evidence: the `switch` mapping IndustrialDark→Dark, White/Grey→Light lives in `ThemeWallpaper.cs:98` instead of beside `VisualThemeEngine.IsIndustrial`. Any future theme with mode pairing forces XAML-VM-layer edits.
 Fix: `VisualThemeEngine.ModePairFor(family) → bool?`; VM consumes.
 
@@ -86,7 +97,10 @@ Fix: per-card reset chips bound to DefaultsFor; keep global Reset All.
 ### F-09 ⚪ NOTE — Startup still paints familly twice (Apply + ApplyModule)
 `App.StartupCore.cs:407` calls `Apply()` pre-window; the first ApplyModule repaints identically. Invisible (window not shown), costs ~ms once. Leave; note only.
 
-### F-10 ⚪ NOTE — Stale narrative comments
+### F-10 ⚪ FIXED (Phase 1) — Stale narrative comments
+*Resolution: ThemeWallpaper header lists the real 9-family catalogue; the
+Industrial.cs keyline comment now truthfully states outlines are accent-
+layer-owned (ApplyKeyline is the documented no-op family marker).*
 `ThemeWallpaper.cs:36-42` header still lists the 5-family catalogue (missing Ultra/Industrial); roadmap files cover history, but in-code headers should be authoritative.
 
 ### Confirmed-strong areas (audited, no action)

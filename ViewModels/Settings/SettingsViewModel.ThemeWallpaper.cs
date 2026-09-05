@@ -38,11 +38,12 @@ namespace ProGlassAutomation.ViewModels.Settings
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         // ══════════════════════════════════════════════════════════════
-        //  v2 — VISUAL THEME & WALLPAPER (Normal / Monet / Professional /
-        //       iOS Liquid Glass / Ocean). The legacy theme entries were
-        //       removed in the 2026-08-29 rewrite; saved configs still
-        //       resolve to iOS Liquid Glass via the engine's Normalize
-        //       mapping.
+        //  v2 — VISUAL THEME & WALLPAPER. Family catalogue (2026-09-05):
+        //       Normal / Monet / Professional / iOS Liquid Glass /
+        //       Ultra Transparent / Ocean / Industrial White / Grey /
+        //       Dark. The legacy theme entries were removed in the
+        //       2026-08-29 rewrite; saved configs still resolve to iOS
+        //       Liquid Glass via the engine's Normalize mapping.
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>One selectable visual family. Display pairs the family
@@ -96,18 +97,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // its own ink pairing. Industrial Dark auto-engages Dark
                 // mode; White/Grey auto-engage Light — the UI can never
                 // show dark text on a dark card (or vice-versa) after a
-                // family switch. Non-industrial families keep the user's
-                // own Light/Dark choice.
-                bool? modePair = value switch
-                {
-                    ProGlassAutomation.Services.Theme.VisualThemeEngine
-                        .IndustrialDark => true,
-                    ProGlassAutomation.Services.Theme.VisualThemeEngine
-                        .IndustrialWhite => false,
-                    ProGlassAutomation.Services.Theme.VisualThemeEngine
-                        .IndustrialGrey => false,
-                    _ => null,
-                };
+                // family switch. The map itself is engine data
+                // (VisualThemeEngine.ModePairFor, Phase-1: it used to be
+                // a hand-written switch here). Non-industrial families
+                // keep the user's own Light/Dark choice.
+                bool? modePair = ProGlassAutomation.Services.Theme
+                    .VisualThemeEngine.ModePairFor(value);
                 if (modePair.HasValue)
                 {
                     // The full pipeline (Light/Dark swap INCLUDED) runs via
@@ -143,10 +138,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (_config == null) return;
 
                 _config.Appearance.WallpaperOpacity = value;
-                // Live preview applies immediately; the config write is
-                // debounced so dragging the slider never hits the disk
-                // on every tick (2026-09-02 perf pass).
-                ApplyVisualTheme();
+                // 2026-09-05 Phase-1 (F-04): this used to repaint the
+                // ENTIRE family — 64-key teardown + accent re-derive —
+                // on every slider tick, recreating the flash class the
+                // single-paint pipeline closed. Now the live preview is
+                // a COALESCED wallpaper-layer repaint (≤ ~8/s during a
+                // drag, trailing pass guaranteed) and the config write
+                // still settles 500 ms after the last tick.
+                ScheduleLiveWallpaperRepaint();
                 ScheduleDebouncedSave();
                 OnPropertyChanged();
             }
@@ -216,7 +215,63 @@ namespace ProGlassAutomation.ViewModels.Settings
         public void FlushDebouncedSave()
         {
             _debouncedSaveTimer?.Stop();
+            if (_wallpaperRepaintTimer?.IsEnabled == true)
+            {
+                // A pending trailing repaint would otherwise fire into a
+                // disposed view model — land the final drag value NOW
+                // (config already holds it).
+                _wallpaperRepaintTimer.Stop();
+                FlushLiveWallpaperRepaint();
+            }
             SaveDebouncedNow();
+        }
+
+        // ── Live wallpaper repaint throttle (2026-09-05 Phase-1, F-04) ──
+
+        private DateTime _lastWallpaperRepaintUtc = DateTime.MinValue;
+        private System.Windows.Threading.DispatcherTimer? _wallpaperRepaintTimer;
+
+        /// <summary>
+        /// Coalesced live repaint for wallpaper slider drags: the first
+        /// tick paints immediately (drag stays live); further ticks
+        /// repaint at most once per 120 ms; a trailing pass guarantees
+        /// the released value is what is on screen. The repaint is the
+        /// wallpaper LAYER only (RebuildWallpaperLayer) — a family-level
+        /// rebuild per tick was the F-04 flash bug.
+        /// </summary>
+        private void ScheduleLiveWallpaperRepaint()
+        {
+            if (_wallpaperRepaintTimer == null)
+            {
+                _wallpaperRepaintTimer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(120)
+                };
+                _wallpaperRepaintTimer.Tick += (_, __) =>
+                {
+                    _wallpaperRepaintTimer?.Stop();
+                    FlushLiveWallpaperRepaint();
+                };
+            }
+
+            var elapsed = DateTime.UtcNow - _lastWallpaperRepaintUtc;
+            if (elapsed >= TimeSpan.FromMilliseconds(120))
+            {
+                FlushLiveWallpaperRepaint();
+            }
+            else if (!_wallpaperRepaintTimer.IsEnabled)
+            {
+                _wallpaperRepaintTimer.Interval =
+                    TimeSpan.FromMilliseconds(120) - elapsed;
+                _wallpaperRepaintTimer.Start();
+            }
+        }
+
+        private void FlushLiveWallpaperRepaint()
+        {
+            _lastWallpaperRepaintUtc = DateTime.UtcNow;
+            ProGlassAutomation.Services.Theme.ThemePipeline
+                .RebuildWallpaperLayer("wallpaper opacity drag (settings)");
         }
 
         public string WallpaperStatus

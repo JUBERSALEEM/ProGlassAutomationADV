@@ -580,3 +580,38 @@ source quirk after a same-tick dictionary swap is the prime suspect).
 Unproven below the app layer — now MOOT: the app-level contract is
 complete for every family and the pre-seed closes the window even for
 hypothetical future gaps.
+
+═══════════════════════════════════════════════════════════════════════
+2026-09-05 (6) — PHASE 1 CORRECTNESS SWEEP (audit-driven)
+═══════════════════════════════════════════════════════════════════════
+
+All four Phase-1 items from SETTINGS_MODULE_AUDIT.md, plus a drift
+class eliminated structurally:
+
+  1. DenseGlass is now a REAL preset (explicit case; the default arm
+     keeps protecting persisted legacy names). Preset drift killed at
+     the root: ThemeStudioSettings.PresetNames is THE registry the VM
+     combo consumes — a phantom preset row cannot exist anymore.
+  2. Opacity-drag churn: WallpaperOpacity live ticks are coalesced to
+     RebuildWallpaperLayer (immediate first paint, ≤ ~8/s during drag,
+     trailing pass on settle, flushed on VM dispose). Set/Clear
+     wallpaper commands lost the pre-pipeline double paint
+     (Apply + raw ApplyModule → one wallpaper-layer rebuild). The
+     Light/Dark toggle now runs canonical ThemePipeline.Rebuild(bool)
+     instead of hand-ordered ApplyTheme+family rebuild.
+  3. Mode coupling is engine data: VisualThemeEngine.ModePairFor —
+     IndustrialDark→Dark, White/Grey→Light, everything else untouched.
+  4. Stale headers corrected (9-family catalogue; industrial keyline
+     comment truthfully attributes outlines to the accent layer).
+
+TESTS (Tests/Theme/ThemeRegistryParityTests.cs — xunit, no WPF host):
+  • ManagedKeys contains every crash-critical brush + radii/ink set
+    (the ERR-50472F class pinned at build time)
+  • accent-owned outlines stay OUT of ManagedKeys (documented
+    anti-regression guard)
+  • CriticalFallbacks covers the never-absent net, both modes
+  • every registered preset produces a DISTINCT profile (phantom
+    presets structurally unshippable)
+  • ModePairFor mapping locked per family
+  • DefaultsFor covers all 9 families within the slider domain
+  • scene catalogue matches the family catalogue exactly + paints

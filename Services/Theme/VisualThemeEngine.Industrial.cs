@@ -46,6 +46,21 @@ namespace ProGlassAutomation.Services.Theme
             family == IndustrialGrey ||
             family == IndustrialDark;
 
+        /// <summary>The Light/Dark mode a family PROMISES by design —
+        /// true = the family only makes sense in Dark, false = Light,
+        /// null = the family respects the user's own mode choice
+        /// (2026-09-05 Phase-1: this map used to live as a hand-written
+        /// switch in the Settings VM — engineering data belongs to the
+        /// engine so any caller, present or future, gets the same
+        /// pairing and mode-mismatched ink is structurally impossible).</summary>
+        public static bool? ModePairFor(string? family) => family switch
+        {
+            IndustrialDark => true,
+            IndustrialWhite => false,
+            IndustrialGrey => false,
+            _ => null,
+        };
+
         private static void ApplyIndustrialWhite(ResourceDictionary r) =>
             ApplyIndustrial(r,
                 windowTop: ParseColor("#F2F4F7"), windowBottom: ParseColor("#E4E7EB"),
@@ -176,8 +191,13 @@ namespace ProGlassAutomation.Services.Theme
             // removed (readable next to noisy machinery, on projectors).
             PublishMatteTints(resources, module, dark);
 
-            // The visible 1px card keyline (no shadows, no glow — this is
-            // the industrial signature separator).
+            // Card outlines: owned by the ACCENT LAYER
+            // (ThemeManager.ApplyAccent writes OutlineBrush/BorderBrush/
+            // DividerBrush after every family paint — ApplyKeyline is a
+            // documented no-op kept only to mark the family at this
+            // point in the sequence). The industrial signature separator
+            // is therefore the same accent-derived 1px keyline the rest
+            // of the product uses — consistent, visible, no glow.
             ApplyKeyline(resources, keyline);
 
             AppLogService.Debug(

@@ -168,15 +168,15 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (_config == null) return;
                 _config.Appearance.WallpaperPath = dialog.FileName;
                 SaveConfig();
-                ApplyVisualTheme();
 
-                // Re-layer the module on screen so the new system-wide
-                // wallpaper is visible immediately.
-                ProGlassAutomation.Services.Theme.VisualThemeEngine
-                    .ApplyModule(
-                        ProGlassAutomation.Services.Theme.VisualThemeEngine
-                            .LastRequestedModule,
-                        _config.Appearance);
+                // 2026-09-05 Phase-1 (F-04 class): this ran ApplyVisualTheme()
+                // AND a second raw ApplyModule() — a double full-dictionary
+                // rebuild left over from the pre-pipeline era. Picking a
+                // wallpaper file is a wallpaper-LAYER change: one
+                // purpose-built rebuild paints family layer + studio
+                // profile exactly once.
+                ProGlassAutomation.Services.Theme.ThemePipeline
+                    .RebuildWallpaperLayer("wallpaper file set (settings)");
 
                 OnPropertyChanged(nameof(WallpaperStatus));
                 OnPropertyChanged(nameof(WallpaperOpacity));
@@ -192,15 +192,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (_config == null) return;
                 _config.Appearance.WallpaperPath = "";
                 SaveConfig();
-                ApplyVisualTheme();
 
-                // Re-layer the module on screen so the removal of the
-                // system-wide wallpaper is visible immediately.
-                ProGlassAutomation.Services.Theme.VisualThemeEngine
-                    .ApplyModule(
-                        ProGlassAutomation.Services.Theme.VisualThemeEngine
-                            .LastRequestedModule,
-                        _config.Appearance);
+                // 2026-09-05 Phase-1 (F-04 class): same pre-pipeline
+                // double-paint removed — one wallpaper-layer rebuild
+                // restores opaque surfaces + typography exactly once.
+                ProGlassAutomation.Services.Theme.ThemePipeline
+                    .RebuildWallpaperLayer("wallpaper cleared (settings)");
 
                 OnPropertyChanged(nameof(WallpaperStatus));
             });

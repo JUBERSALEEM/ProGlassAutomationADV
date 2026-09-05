@@ -48,15 +48,13 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand ResetStudioThemeCommand { get; private set; }
         public ICommand ResetStudioAllCommand { get; private set; }
 
-        public List<string> StudioPresetOptions { get; } = new()
-        {
-            "Crystal",
-            "LightGlass",
-            "Balanced",
-            "Frosted",
-            "DenseGlass",
-            "RoyalRich",
-        };
+        /// <summary>Combo rows come from the ONE authoritative registry
+        /// (ThemeStudioSettings.PresetNames) — 2026-09-05 Phase-1 audit:
+        /// the previous hand-maintained list advertised "DenseGlass"
+        /// while Preset() had no case for it (phantom preset, F-03).
+        /// Drift is now structurally impossible + locked by tests.</summary>
+        public List<string> StudioPresetOptions { get; } =
+            new(ThemeStudioSettings.PresetNames);
 
         /// <summary>Current visual family name (displayed on the tile).</summary>
         public string StudioFamilyName =>

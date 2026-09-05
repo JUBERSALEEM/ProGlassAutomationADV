@@ -227,7 +227,13 @@ namespace ProGlassAutomation.ViewModels.Settings
             get => ThemeManager.CurrentTheme == AppTheme.Dark;
             set
             {
-                ThemeManager.ApplyTheme(value ? AppTheme.Dark : AppTheme.Light);
+                // 2026-09-05 Phase-1: run the CANONICAL full rebuild
+                // (Light/Dark dictionary swap → single family+module
+                // paint → accent → outline) instead of hand-invoking
+                // ThemeManager + a family rebuild — one sequence
+                // everywhere, one reason string in the log.
+                ProGlassAutomation.Services.Theme.ThemePipeline.Rebuild(
+                    value, "mode toggle (settings)");
 
                 // Persist the base colour mode so it restores on the
                 // next launch.
@@ -236,11 +242,6 @@ namespace ProGlassAutomation.ViewModels.Settings
                     _config.Appearance.Theme = value ? "Dark" : "Light";
                     SaveConfig();
                 }
-
-                // Rebuild the visual family (Monet glass, Professional
-                // surfaces, wallpaper layers) against the fresh theme
-                // colours — otherwise derived surfaces stay stale.
-                ApplyVisualTheme();
 
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,

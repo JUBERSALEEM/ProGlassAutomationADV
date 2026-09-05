@@ -244,6 +244,22 @@ namespace ProGlassAutomation.Services.Theme
 
         // ── Presets (centralized profiles, applied on top of ANY family) ──
 
+        /// <summary>THE authoritative preset registry — the Settings VM
+        /// combo lists exactly these names, in this order, and
+        /// <see cref="Preset"/> implements every one of them (2026-09-05
+        /// Phase-1 audit: keep ONE source so a listed preset can never
+        /// again be a phantom that silently falls to the default arm —
+        /// see F-03 in SETTINGS_MODULE_AUDIT.md).</summary>
+        public static IReadOnlyList<string> PresetNames { get; } = new[]
+        {
+            "Crystal",
+            "LightGlass",
+            "Balanced",
+            "Frosted",
+            "DenseGlass",
+            "RoyalRich",
+        };
+
         public static ThemeStudioSettings Preset(string name)
         {
             var s = new ThemeStudioSettings();
@@ -324,7 +340,11 @@ namespace ProGlassAutomation.Services.Theme
                                         s.WaterFlow = 40;
                     break;
 
-                default:                  // 🧊 Dense Glass — max readability
+                case "DenseGlass":        // 🧊 dense glass — max readability
+                default:                  // unknown/persisted-legacy names
+                                          // land here too, but the combo
+                                          // itself only ever lists
+                                          // PresetNames (no more phantoms).
                     s.Frostness = 90; s.Transparency = 15;
                     s.BlurIntensity = 70; s.GlassTint = 40;
                     s.CornerRoundness = 50; s.CardPadding = 50;
