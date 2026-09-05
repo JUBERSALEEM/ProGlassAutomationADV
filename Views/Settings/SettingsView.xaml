@@ -91,31 +91,61 @@
                         IsHitTestVisible="False"/>
             <DockPanel Margin="10,20,10,16">
 
-                <!-- Brand header -->
-                <StackPanel DockPanel.Dock="Top" Margin="14,0,14,12">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="34" Height="34" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Background="{DynamicResource AccentBrush}"
-                                VerticalAlignment="Center">
+                <!-- Brand header — 2026-09-05 restyled to the REPORTS-module
+                     rail design (owner directive: identical visual language):
+                     accent header card with icon tile, two-line title, and
+                     the collapse button INSIDE the header (single click). -->
+                <Border DockPanel.Dock="Top" Margin="4,2,4,10"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Background="{DynamicResource AccentBrush}"
+                        Padding="12,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="38"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Width="38" Height="38"
+                                CornerRadius="10"
+                                Background="{DynamicResource GlassSurfaceElevated}">
                             <TextBlock Text="&#xE713;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="{StaticResource TextTitle}"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       Foreground="{DynamicResource AccentBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
+                                    VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Settings.Title}"
-                                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             <TextBlock Text="{DynamicResource Settings.Subtitle}"
-                                       FontSize="{StaticResource TextCaption}"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       FontSize="{StaticResource TextBody}"
+                                       Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"/>
                         </StackPanel>
-                    </StackPanel>
-                    <Border Height="1" Background="{DynamicResource OutlineBrush}"
-                            Margin="0,14,0,0"/>
-                </StackPanel>
+                        <!-- Collapse rail button (single click — the rail
+                             re-opens from the hamburger in the content
+                             header, exactly like the Reports module). -->
+                        <Button Grid.Column="2"
+                                Width="30" Height="30"
+                                VerticalAlignment="Top"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                ToolTip="{DynamicResource ToolTip.ToggleMenu}"
+                                Command="{Binding ToggleSettingsRailCommand}">
+                            <TextBlock Text="&#xE76B;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource TextBodyLarge}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Button>
+                    </Grid>
+                </Border>
+                <Border DockPanel.Dock="Top" Height="1"
+                        Background="{DynamicResource OutlineBrush}"
+                        Margin="14,0,14,8"/>
 
                 <!-- Nav items — scroll so every page stays reachable on
                      short windows instead of clipping License / About. -->
@@ -346,7 +376,61 @@
              FallbackValue/TargetNullValue=Collapsed means any future
              binding failure hides the page instead of stacking it.
         ═══════════════════════════════════════════════════════════════ -->
+        <!-- ══════════ CONTENT COLUMN (header strip + stacked sections) ══════════ -->
         <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Content header strip (2026-09-05 — Reports-module parity):
+                 hamburger re-opens the auto-closed rail in ONE click; the
+                 current section name sits next to it so the workspace
+                 always announces where you are. -->
+            <Border Grid.Row="0" Margin="14,10,12,0" Padding="14,10"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Background="{DynamicResource ElevatedSurfaceBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0"
+                            Width="38" Height="38"
+                            Cursor="Hand"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            ToolTip="{DynamicResource ToolTip.ToggleMenu}"
+                            Command="{Binding ToggleSettingsRailCommand}">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <StackPanel VerticalAlignment="Center"
+                                            HorizontalAlignment="Center">
+                                    <Border Width="20" Height="2.5" CornerRadius="2"
+                                            Background="{DynamicResource PrimaryForegroundBrush}"
+                                            Margin="0,0,0,4"/>
+                                    <Border Width="20" Height="2.5" CornerRadius="2"
+                                            Background="{DynamicResource PrimaryForegroundBrush}"
+                                            Margin="0,0,0,4"/>
+                                    <Border Width="20" Height="2.5" CornerRadius="2"
+                                            Background="{DynamicResource PrimaryForegroundBrush}"/>
+                                </StackPanel>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                    <TextBlock Grid.Column="1" VerticalAlignment="Center"
+                               Margin="12,0,0,0"
+                               FontSize="{StaticResource TextSection}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               Text="{Binding SettingsPage}"/>
+                </Grid>
+            </Border>
+
+        <Grid Grid.Row="1">
             <sections:SettingsAppearanceSection
                 Visibility="{Binding DataContext.IsAppearancePage,
                     ElementName=SettingsRoot,
@@ -399,49 +483,7 @@
                     Converter={StaticResource BoolToVisibilityConverter},
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
 
-            <!-- Floating menu toggle (2026-09-05 drawer): ONE button for
-                 single-click open AND close. Sits above every section
-                 (ZIndex), always reachable — after the rail auto-closes on
-                 a page pick, this is how the user brings it back to switch
-                 page again. -->
-            <Border Panel.ZIndex="20"
-                    HorizontalAlignment="Left" VerticalAlignment="Top"
-                    Margin="10,10,0,0"
-                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Background="{DynamicResource PopupSurfaceBrush}"
-                    BorderBrush="{DynamicResource GlassBorderBright}"
-                    BorderThickness="1"
-                    Padding="1"
-                    SnapsToDevicePixels="True">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="14" ShadowDepth="2"
-                                      Direction="270" Opacity="0.25"
-                                      Color="#000000"/>
-                </Border.Effect>
-                <Button Command="{Binding DataContext.ToggleSettingsRailCommand,
-                                          ElementName=SettingsRoot}"
-                        Width="40" Height="40"
-                        Cursor="Hand"
-                        ToolTip="{DynamicResource ToolTip.ToggleMenu}"
-                        Background="Transparent"
-                        BorderThickness="0">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <StackPanel VerticalAlignment="Center"
-                                        HorizontalAlignment="Center">
-                                <Border Width="20" Height="2.5" CornerRadius="2"
-                                        Background="{DynamicResource PrimaryForegroundBrush}"
-                                        Margin="0,0,0,4"/>
-                                <Border Width="20" Height="2.5" CornerRadius="2"
-                                        Background="{DynamicResource PrimaryForegroundBrush}"
-                                        Margin="0,0,0,4"/>
-                                <Border Width="20" Height="2.5" CornerRadius="2"
-                                        Background="{DynamicResource PrimaryForegroundBrush}"/>
-                            </StackPanel>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </Border>
+        </Grid>
         </Grid>
     </Grid>
 </UserControl>

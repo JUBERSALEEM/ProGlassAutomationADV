@@ -23,6 +23,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme;
 using System;
 using System.Collections.Generic;
@@ -274,19 +275,52 @@ namespace ProGlassAutomation.ViewModels.Settings
             });
             OpenWallpaperFolderCommand = new RelayCommand(_ =>
             {
+                // 2026-09-05 deep-debug ("Open folder still does nothing"):
+                // ShellExecute on a directory path relies on the shell's
+                // folder handler — hardened PC policies can swallow it with
+                // NO exception (button looks dead). Launch explorer.exe
+                // EXPLICITLY (works regardless of shell handlers), report
+                // success visibly, and fall back to the shell verb only if
+                // the explicit launcher itself throws.
+                bool opened = false;
+                string dir = WallpaperProviderService.CacheDir;
                 try
                 {
-                    Directory.CreateDirectory(WallpaperProviderService.CacheDir);
+                    Directory.CreateDirectory(dir);
                     Process.Start(new ProcessStartInfo
                     {
-                        FileName = WallpaperProviderService.CacheDir,
+                        FileName = "explorer.exe",
+                        Arguments = $"\"{dir}\"",
                         UseShellExecute = true,
                     });
+                    opened = true;
                 }
-                catch (Exception ex)
+                catch (Exception ex1)
                 {
-                    WallpaperFetchStatus = $"Open folder failed: {ex.Message}";
+                    AppLogService.Warning(
+                        $"explorer.exe launch failed, falling back: {ex1.Message}",
+                        new LogContext { Module = "Wallpapers", Operation = "OpenFolder" });
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = dir,
+                            UseShellExecute = true,
+                            Verb = "open",
+                        });
+                        opened = true;
+                    }
+                    catch (Exception ex2)
+                    {
+                        AppLogService.Warning(
+                            $"Open folder failed ({dir}): {ex2.Message}",
+                            new LogContext { Module = "Wallpapers", Operation = "OpenFolder" });
+                        WallpaperFetchStatus =
+                            $"Open folder failed: {ex2.Message} — the library lives at {dir}";
+                    }
                 }
+                if (opened)
+                    WallpaperFetchStatus = $"Library folder opened: {dir}";
             });
             ApplyBuiltinSceneCommand = new RelayCommand(p =>
             {

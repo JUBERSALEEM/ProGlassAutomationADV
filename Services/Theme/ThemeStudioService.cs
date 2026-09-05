@@ -425,16 +425,35 @@ namespace ProGlassAutomation.Services.Theme
                 WriteScaledDuration(resources, key, animScale);
         }
 
-        /// <summary>Resets the ACTIVE profile to its family's defaults.</summary>
+        /// <summary>Resets the ACTIVE profile to its family's defaults.\n        /// 2026-09-05 ROOT-CAUSE FIX ("reset does nothing"): the old code\n        /// only scaled defaults on top of whatever base snapshot happened\n        /// to be current — if that snapshot was taken while studio values\n        /// were already on screen, the defaults could never restore the\n        /// real family look. The reset now re-runs the proven engine chain\n        /// (cache invalidated FIRST, otherwise the idempotence guard skips\n        /// the repaint entirely — that was the second half of the bug),\n        /// the finally hook re-snapshots the truly fresh family state, and\n        /// the defaults land on a base that is provably family-clean.        /// </summary>
         public static ThemeStudioSettings ResetToFamilyDefaults()
         {
             var d = ThemeStudioSettings.DefaultsFor(
                 VisualThemeEngine.Current ?? "Normal");
+
+            // True family rebuild: drop the studio layer view of the world,
+            // force the engine through a REAL repaint (InvalidateSceneCache
+            // clears the de-dup signature, otherwise identical scenes are
+            // skipped and the screen keeps the studio look), then re-apply
+            // the defaults so the in-memory live state matches what the
+            // engine + finally hook just painted.
+            Active = null;
+            _base.Clear();
+            _snapshotTaken = false;
+            VisualThemeEngine.InvalidateSceneCache();
+            AppearanceService.ApplyTheme(
+                ThemeManager.CurrentTheme == AppTheme.Dark,
+                correlationId: null);
             Apply(d);
             return d;
         }
 
-        /// <summary>Drops all customization (family defaults everywhere).</summary>
+        /// <summary>Drops all customization (family defaults everywhere).
+        /// 2026-09-05 ROOT-CAUSE FIX: without InvalidateSceneCache the
+        /// engine's de-dup returned before repainting (same scene), so the
+        /// "reset" changed internal state while the SCREEN kept the old
+        /// studio look — exactly what the owner reported as "Reset All is
+        /// not working".</summary>
         public static void ResetAll()
         {
             Active = null;
@@ -444,7 +463,9 @@ namespace ProGlassAutomation.Services.Theme
             _snapshotTaken = false;
 
             // Restore the family's original values: re-run the engine
-            // chain exactly like a family switch, then drop the profile.
+            // chain FOR REAL (de-dup must be invalidated), then drop the
+            // profile.
+            VisualThemeEngine.InvalidateSceneCache();
             AppearanceService.ApplyTheme(
                 ThemeManager.CurrentTheme == AppTheme.Dark,
                 correlationId: null);

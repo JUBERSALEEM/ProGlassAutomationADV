@@ -294,11 +294,13 @@ namespace ProGlassAutomation.ViewModels.Settings
         private void ResetStudioTheme()
         {
             if (_studioDraft == null) return;
-            var defaults = ThemeStudioSettings.DefaultsFor(StudioFamilyName);
+            // 2026-09-05: route through the SERVICE reset (forced engine
+            // repaint + fresh family snapshot). The old direct Apply()
+            // scaled defaults onto whatever stale/possibly studio-written
+            // base snapshot was current — the "reset does nothing" cause.
+            var defaults = ThemeStudioService.ResetToFamilyDefaults();
             _studioDraft = defaults;
             _studioActivePreset = "";
-
-            ThemeStudioService.Apply(defaults);
 
             if (_config?.Appearance != null)
             {
@@ -365,6 +367,12 @@ namespace ProGlassAutomation.ViewModels.Settings
             OnPropertyChanged(nameof(StudioBackgroundGlow));
             OnPropertyChanged(nameof(StudioHighlightStrength));
             OnPropertyChanged(nameof(StudioAnimationIntensity));
+            // 2026-09-05: the three rich-colour sliders were MISSING here —
+            // after a reset they kept showing the old positions, which the
+            // owner read as "reset is not working" for Text Strength.
+            OnPropertyChanged(nameof(StudioColorRichness));
+            OnPropertyChanged(nameof(StudioTextStrength));
+            OnPropertyChanged(nameof(StudioWaterFlow));
             OnPropertyChanged(nameof(StudioFamilyName));
         }
     }

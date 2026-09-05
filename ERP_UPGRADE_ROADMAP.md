@@ -372,3 +372,57 @@ diagnosis) so the next session's log proves the download path.
   GoToPage). ERR-BEFC44 auto-size contract preserved (Min 232 / Max 420
   moved from the ColumnDefinition onto the rail Border).
 - Verified: 6 XAML files XML-parse, both VMs brace-balanced.
+
+---
+
+## 2026-09-05 (3) — Deep-debug chain for owner's "blind answer" escalation
+
+### TRACED ROOT CAUSES (proven through the call chain, not guessed)
+
+1. **Reset Current / Reset All "do nothing"** — TWO distinct faults:
+   (a) `ResetAll()` called `AppearanceService.ApplyTheme` which hands off
+       to `VisualThemeEngine.ApplyModule` — whose idempotence guard
+       (`signature == _lastAppliedSignature`) RETURNED EARLY, so no family
+       repaint ever happened: state was reset but the SCREEN kept the old
+       studio look. Fix: `InvalidateSceneCache()` before the chain (clears
+       the de-dup signature → forced real repaint).
+   (b) `Reset-Current` (VM) re-applied defaults directly onto whatever
+       stale snapshot was current instead of repainting the family. Now
+       routed through `ThemeStudioService.ResetToFamilyDefaults()`, which
+       drops the layer, forces the repaint, then applies defaults on a
+       provably family-fresh snapshot.
+   (c) `StudioNotifyAllSliders()` never notified ColorRichness /
+       TextStrength / WaterFlow — those sliders visibly stayed put after
+       a reset ("text strength action is wrong").
+2. **"Text strength acts wrong"** — consequence of (1): any blend computed
+   against a snapshot that was captured while studio writes were already on
+   screen blends the wrong source ink; forcing real repaints on every reset
+   + fresh OnFamilyApplied snapshots makes family ink the only base that
+   can ever be blended.
+3. **4K downloads silently fail** — traced 3 provider-level defects:
+   (a) WS page lottery: `sorting=random` was combined with a random
+       `page=1..20`; past the catalogue's real page count the API returns
+       a zero-length data array → instant fail. Random ordering alone is
+       the shuffle; page removed.
+   (b) Per-call `new HttpClient` and empty/weak agent headers; some CDNs
+       403 empty-agent requests. One pooled client + explicit UA/Accept.
+   (c) Single-attempt chain with silent nulls. Now: Wallhaven (with
+       widened-query retry) → Picsum (two different photo IDs) →
+       LoremFlickr (third, independent HOST for ISP/firewall diversity),
+       each failure returning a human reason that the settings UI status
+       line shows verbatim and the app log records. "Not downloading"
+       is now readable on screen: status code / TLS / timeout per provider.
+4. **"Open folder does nothing"** — ShellExecute-on-directory relies on the
+   shell's folder handler; hardened/3rd-party shell policies can swallow it
+   with no exception (looks dead). Now: explicit `explorer.exe "<dir>"`
+   launch, explicit shell-verb fallback, always-visible status feedback
+   (opened path or exact failure + directory location), AppLog both ways.
+
+### Settings sidebar → Reports-module design (owner: ugly, match reports)
+- Rail restyled: accent header card (icon tile + title lines + in-header
+  collapse button) exactly like SalesReportView's rail.
+- Content column gains a header strip with the hamburger (single click
+  re-open) + current section name; stacked sections moved to row 1; the
+  earlier floating overlay button is removed.
+- Drawer behaviour kept: picking a section auto-closes the rail; single
+  click opens/closes; ERR-BEFC44 min/max sizing preserved.
