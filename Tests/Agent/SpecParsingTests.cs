@@ -224,5 +224,80 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.True(m.Success);
             Assert.Equal("16", m.Groups["mm"].Value);
         }
+
+        // ══════════════════════════════════════════════════════════════
+        //  2026-09-05 — WASTAGE COLOUR LOSS (STEP 6 REPORTED DEFECTS)
+        //  (a) digits inside a glass colour (brand codes) killed the
+        //      whole pane match → colour dropdowns read only "Clear";
+        //  (b) the inner pane of a 3+ pane DGU was the MIDDLE pane
+        //      (first pane after the first spacer) — never the real
+        //      inner; the middle pane was invisible everywhere.
+        // ══════════════════════════════════════════════════════════════
+
+        [Theory]
+        [InlineData("6mm Kibbing Nova 55 FT Glass + 12mm ASP + 6mm Clear FT Glass",
+                    "6mm Kibbing Nova 55", "6mm Clear")]
+        [InlineData("6mm Cool Lite 365 FT Glass + 12mm ASP + 8mm Enermax 20 FT Glass",
+                    "6mm Cool Lite 365", "8mm Enermax 20")]
+        public void Brands_with_digits_are_not_dropped(
+            string spec, string expectedOuter, string expectedInner)
+        {
+            // The ROOT-REPORTED bug: with [^+\d] the first pane never
+            // matched; "both dropdowns only show Clear".
+            var (outer, inner) = ResolvePanes(spec);
+
+            Assert.Equal(expectedOuter, outer);
+            Assert.Equal(expectedInner, inner);
+        }
+
+        [Fact]
+        public void Triple_glazed_dgu_yields_all_three_panes()
+        {
+            // "… + 6mm Mid Grey FT Glass + 12mm ASP + …" has TWO spacers.
+            var panes = PnLSpecParser.ResolveAllPanes(
+                "6mm Kibbing Nova 55 FT Glass + 12mm ASP " +
+                "+ 6mm Mid Grey FT Glass + 12mm ASP " +
+                "+ 6mm Clear FT Glass");
+
+            Assert.Equal(3, panes.Count);
+            Assert.Equal("Outer", panes[0].Side);
+            Assert.Equal("Middle", panes[1].Side);
+            Assert.Equal("Inner", panes[2].Side);
+            Assert.Equal("Kibbing Nova 55", panes[0].Color);
+            Assert.Equal("Mid Grey", panes[1].Color);
+            Assert.Equal("Clear", panes[2].Color);
+        }
+
+        [Fact]
+        public void ResolveTwoPanes_takes_the_REAL_inner_pane()
+        {
+            // With two spacers, "Inner" must be the LAST pane — the old
+            // rule returned the MIDDLE pane (first pane after the first
+            // spacer), so Step 9 costed outer+middle and missed inner.
+            var (_, inner) = PnLSpecParser.ResolveTwoPanes(
+                "6mm Kibbing Nova 55 FT Glass + 12mm ASP " +
+                "+ 6mm Mid Grey FT Glass + 12mm ASP " +
+                "+ 6mm Clear FT Glass");
+
+            Assert.NotNull(inner);
+            Assert.Equal("Mid Grey",
+                PnLSpecParser.ResolveAllPanes(
+                    "6mm Kibbing Nova 55 FT Glass + 12mm ASP " +
+                    "+ 6mm Mid Grey FT Glass + 12mm ASP + 6mm Clear FT Glass")[1].Color);
+            Assert.Equal("Clear", inner!.Color);
+        }
+
+        [Fact]
+        public void Colour_never_swallows_a_thickness_fragment()
+        {
+            // The tempered token must still refuse "\d+mm" inside a
+            // colour — the fix opened digits, not a new corruption lane.
+            var matches = GlassPattern.Matches("6mm Nova 55 4mm FT Glass")
+                .Cast<Match>().ToList();
+            Assert.Empty(matches);
+
+            matches = GlassPattern.Matches("6mm FT Glass").Cast<Match>().ToList();
+            Assert.Empty(matches); // colourless pane: no match (parity)
+        }
     }
 }

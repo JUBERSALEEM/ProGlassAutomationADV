@@ -300,6 +300,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 // type field is blank (manual mode must stay usable).
                 if (effectiveType is "DGU" or "LAM" || group.FooterTotalSqm2 > 0m)
                 {
+                    var allPanes = PnLSpecParser.ResolveAllPanes(
+                        group.SelectedSpecName);
+
+                    // FIX-2026-09-05 (3+ pane builds): a triple-glazed
+                    // DGU carries TWO spacers — the middle pane has its
+                    // own sheet and wastage cost; the old flow read only
+                    // outer+inner and the middle charge silently never
+                    // existed. Sheet geometry mirrors the inner pane
+                    // (identical build size W2/H2).
+                    for (int m = 1; m < allPanes.Count - 1; m++)
+                    {
+                        var middle = allPanes[m];
+                        AddSource(row, checkedIds, new SpecGroupColorSide
+                        {
+                            SpecNumber = group.GroupNumber,
+                            SpecName = sourceSpecName,
+                            SideLabel = allPanes.Count == 3
+                                ? "Middle (W2/H2)"
+                                : $"Middle {m} (W2/H2)",
+                            ColorName = middle.Color,
+                            SqmValue = innerSqm,
+                            SheetWidthMm = group.InnerSheetWidthMm,
+                            SheetHeightMm = group.InnerSheetHeightMm,
+                            PricePerSqm = group.InnerSheetPricePerSqm
+                        }, step4Snapshot, effectiveType, isInnerPane: true);
+                    }
+
                     AddSource(row, checkedIds, new SpecGroupColorSide
                     {
                         SpecNumber = group.GroupNumber,
@@ -629,7 +656,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 "Outer glass wastage",
                 "Inner glass wastage",
                 "Lam outer glass wastage",
-                "Lam inner glass wastage"
+                "Lam inner glass wastage",
+                // FIX-2026-09-05 (3+ pane builds): sentinel labels for
+                // middle panes must never become COLOURS either.
+                "Middle glass wastage",
+                "Middle 1 glass wastage",
+                "Middle 2 glass wastage",
+                "Middle 3 glass wastage"
             };
 
         private static string ExtractColorKey(string? displayName)
@@ -668,6 +701,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 return "Lam Inner";
             if (side.IndexOf("Lam Outer", System.StringComparison.OrdinalIgnoreCase) >= 0)
                 return "Lam Outer";
+            // FIX-2026-09-05 (3+ pane builds): a middle pane is its own
+            // wastage row — without this branch "Middle (W2/H2)" fell
+            // through to Outer and every middle charge folded into the
+            // outer row.
+            if (side.IndexOf("Middle", System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Middle";
             if (side.IndexOf("Inner", System.StringComparison.OrdinalIgnoreCase) >= 0)
                 return "Inner";
             return "Outer";

@@ -296,6 +296,36 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     : "Colored/coated glass — offcuts not reusable."
             });
 
+            // FIX-2026-09-05 (3+ pane builds): a triple-glazed DGU has
+            // TWO spacers and a middle pane the old rule never read —
+            // its wastage charge silently didn't exist (the operator's
+            // deadline meter counted a sheet that wasn't chargeded).
+            // Every pane between first and last is a wastage side now.
+            if (doubleGlass && glassMatches.Count > 2)
+            {
+                for (int m = 1; m < glassMatches.Count - 1; m++)
+                {
+                    string middleColor =
+                        (glassMatches[m].Groups["color"].Value ?? "").Trim();
+                    string middleSide = glassMatches.Count == 3
+                        ? "Middle (W2/H2)"
+                        : $"Middle {m} (W2/H2)";
+
+                    rows.Add(new AutoWastageSuggestion
+                    {
+                        SpecGroupNumber = specGroupNumber,
+                        SourceSideLabel = middleSide,
+                        ColorName = middleColor,
+                        DisplayName = string.IsNullOrWhiteSpace(middleColor)
+                            ? $"{middleSide.Replace(" (W2/H2)", "")} glass wastage"
+                            : $"{middleColor} — {middleSide.Replace(" (W2/H2)", "").ToLowerInvariant()} glass wastage",
+                        Reason = IsClearGlass(middleColor)
+                            ? "Clear glass — optional (offcuts often reusable)."
+                            : "Colored/coated glass — offcuts not reusable."
+                    });
+                }
+            }
+
             if (doubleGlass)
             {
                 rows.Add(new AutoWastageSuggestion

@@ -40,11 +40,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>
         /// One glass pane, e.g. "6mm HD Grey FT Glass".
         ///
-        /// The colour class excludes '+' and digits so a match cannot
-        /// swallow the spacer ("+ 12mm ASP") or the next pane's thickness.
+        /// The colour class is a TEMPERED token: it excludes '+' (so a
+        /// match can never cross into the spacer layer — the classic
+        /// DGU inner-pane bug) and it refuses the fragment "\d+mm" (so
+        /// a colour never swallows the next pane's thickness).
+        ///
+        /// FIX-2026-09-05 (wastage colour loss): the earlier class
+        /// [^+\d] also rejected DIGITS anywhere in the colour, so a
+        /// real brand with numbers — "Kibbing Nova 55", "Cool Lite 365",
+        /// "Enermax 20" — NEVER matched. That pane silently vanished
+        /// from the colour dropdowns, wastage rows and every Step-9
+        /// pane split: a "6mm Kibbing Nova 55 FT Glass + 12mm ASP +
+        /// 6mm Clear FT Glass" read back as outer=Clear (both panes
+        /// Clear). Digits belong to the brand name; only the thickness
+        /// fragment is dangerous.
         /// </summary>
         public static readonly Regex GlassPattern = new(
-            @"(?<thk>\d+)\s*mm\s+(?<color>[^+\d]+?)\s+" + TreatmentAlternation + @"\s+Glass",
+            @"(?<thk>\d+)\s*mm\s+(?<color>(?:(?!\d+\s*mm\b)[^+])+?)\s+" + TreatmentAlternation + @"\s+Glass",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         /// <summary>
@@ -94,30 +106,54 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             };
 
         /// <summary>
-        /// Outer = first glass match. Inner = first match that starts after
-        /// the middle layer (ASP or PVB/SGP/EVA), so a two-pane unit never
-        /// double-counts the outer pane.
+        /// Outer = first glass match. Inner = LAST glass match.
+        /// FIX-2026-09-05 (3+ pane builds): the previous rule took the
+        /// first pane AFTER THE FIRST middle layer — in a triple-glazed
+        /// unit ("… ASP + 6mm B FT Glass + 12mm ASP + 6mm C FT Glass")
+        /// that is the MIDDLE pane, silently relabelled "Inner" while
+        /// the true inner pane was never read. With ≥2 panes the inner
+        /// pane is the last one; with one pane there is no inner.
         /// </summary>
         public static (PnLPane? Outer, PnLPane? Inner) ResolveTwoPanes(string? specName)
         {
             var matches = GlassMatches(specName);
             if (matches.Count == 0) return (null, null);
 
-            var outerMatch = matches[0];
-            var outer = FromMatch(outerMatch, "Outer");
-
-            var spacer = Spacer(specName);
-            var pvb = Interlayer(specName);
-
-            int after =
-                spacer.Success ? spacer.Index + spacer.Length
-              : pvb.Success    ? pvb.Index + pvb.Length
-              : outerMatch.Index + outerMatch.Length;
-
-            var innerMatch = matches.FirstOrDefault(m => m.Index >= after);
-            var inner = innerMatch == null ? null : FromMatch(innerMatch, "Inner");
+            var outer = FromMatch(matches[0], "Outer");
+            var inner = matches.Count >= 2
+                ? FromMatch(matches[^1], "Inner")
+                : null;
 
             return (outer, inner);
+        }
+
+        /// <summary>
+        /// Full ordered pane list for builds with three or more panes
+        /// (e.g. triple-glazed DGU with two spacers). Panes between the
+        /// first and last are labelled "Middle" (1-based when several).
+        /// Pure and deterministic; two-pane builds return the classic
+        /// Outer/Inner pair with an empty middle list.
+        /// </summary>
+        public static IReadOnlyList<PnLPane> ResolveAllPanes(string? specName)
+        {
+            var matches = GlassMatches(specName);
+            if (matches.Count == 0)
+                return [];
+
+            var panes = new List<PnLPane>(matches.Count);
+            for (int i = 0; i < matches.Count; i++)
+            {
+                string side = i == 0
+                    ? "Outer"
+                    : i == matches.Count - 1
+                        ? "Inner"
+                        : matches.Count == 3
+                            ? "Middle"
+                            : $"Middle {i}";
+                panes.Add(FromMatch(matches[i], side));
+            }
+
+            return panes;
         }
     }
 }
