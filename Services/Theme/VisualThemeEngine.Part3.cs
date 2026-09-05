@@ -212,6 +212,9 @@ namespace ProGlassAutomation.Services.Theme
             // every family switch (Part1 ×2, beside the water gate) so
             // no crystal clocks tick under another family.
             resources["CrystalAmbientHostVisibility"] = Visibility.Visible;
+            // Ios-17pm P4e: the settings preview's authored file-20
+            // composition rides the same switch-removal contract.
+            resources["CrystalPreviewHostVisibility"] = Visibility.Visible;
 
             // Token baselines (root-level): a family repaint ALWAYS
             // restores the family truth for every studio-tunable water

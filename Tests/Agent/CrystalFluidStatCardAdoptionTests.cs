@@ -164,14 +164,41 @@ namespace ProGlassAutomation.Tests.Agent
                 Assert.DoesNotContain($"x:Key=\"{k}\"", tokens,
                     StringComparison.Ordinal);
 
-            // no XAML consumer anywhere in the shipped tree
-            string mw = Read("MainWindow.xaml");
-            Assert.DoesNotContain("CrystalWaterBrush", mw,
-                StringComparison.Ordinal);
-            Assert.DoesNotContain("CrystalWaterSurfaceBrush", mw,
-                StringComparison.Ordinal);
-            Assert.DoesNotContain("CrystalBubbleBrush\"", mw,
-                StringComparison.Ordinal);
+            // no XAML consumer ANYWHERE in the shipped tree — P4e taught
+            // us the settings preview ALSO hosted the interim control; a
+            // narrow MainWindow probe cannot protect a p0 class, so the
+            // sweep now runs across every shipped XAML root.
+            string root = LocateProjectRoot();
+            var offenders = new[] { "Views", "Controls", "Themes" }
+                .Select(d => Path.Combine(root, d))
+                .Where(Directory.Exists)
+                .SelectMany(d => Directory.EnumerateFiles(
+                    d, "*.xaml", SearchOption.AllDirectories))
+                .Concat(new[]
+                {
+                    Path.Combine(root, "MainWindow.xaml"),
+                    Path.Combine(root, "App.xaml"),
+                })
+                .Where(f =>
+                {
+                    string text = File.ReadAllText(f);
+                    // CONSUMER forms only: element tags or quoted
+                    // resource references. Engineering comments naming
+                    // the retired nouns (the P4b tombstone banner) are
+                    // documentation, not consumers.
+                    return text.Contains("<crystal:CrystalWater ") ||
+                           text.Contains("<crystal:CrystalWater\n") ||
+                           text.Contains("\"CrystalWaterBrush\"") ||
+                           text.Contains("\"CrystalWaterSurfaceBrush\"") ||
+                           // quoted so it cannot match the authored
+                           // CrystalBubbleFillBrush
+                           text.Contains("\"CrystalBubbleBrush\"");
+                })
+                .Select(Path.GetFileName)
+                .ToList();
+            Assert.True(offenders.Count == 0,
+                "interim crystal-water artifacts still referenced: " +
+                string.Join(", ", offenders));
         }
     }
 }

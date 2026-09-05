@@ -293,6 +293,8 @@ namespace ProGlassAutomation.Services.Theme
                 // (MainWindow wallpaper layer) — removed with the
                 // same contract as the water gate.
                 resources.Remove("CrystalAmbientHostVisibility");
+                // Ios-17pm P4e: authored preview composition gate.
+                resources.Remove("CrystalPreviewHostVisibility");
                 foreach (var ck in CrystalFluidTokenKeys)
                     resources.Remove(ck);
                 // PRE-SEED (2026-09-05 — ERR-50472F): ClearOverrides just
@@ -445,6 +447,8 @@ namespace ProGlassAutomation.Services.Theme
                 // (MainWindow wallpaper layer) — removed with the
                 // same contract as the water gate.
                 resources.Remove("CrystalAmbientHostVisibility");
+                // Ios-17pm P4e: authored preview composition gate.
+                resources.Remove("CrystalPreviewHostVisibility");
                 foreach (var ck in CrystalFluidTokenKeys)
                     resources.Remove(ck);
                 // PRE-SEED (2026-09-05 — ERR-50472F): never leave the

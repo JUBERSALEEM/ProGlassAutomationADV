@@ -272,15 +272,17 @@
                                 Margin="0,8,0,0"
                                 SnapsToDevicePixels="True">
                             <Grid>
-                                <!-- Crystal Fluid M3b: the studio's OWN
-                                     preview is a water reservoir —
-                                     WaterFlow moves the level live
-                                     (§60), the family gate keeps it
-                                     invisible under other families. -->
-                                <crystal:CrystalWater
+                                <!-- Crystal Fluid studio preview: a water
+                                     reservoir — WaterFlow moves the level
+                                     live (§60), the family gate keeps it
+                                     invisible under other families.
+                                     Ios-17pm P4e: AUTHORED water control
+                                     (interim CrystalWater retired P4b). -->
+                                <crystal:CrystalWaterControl
                                     WaterEnabled="{DynamicResource CrystalWaterDefaultEnabled}"
                                     WaterLevel="{Binding StudioWaterLevel01}"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"/>
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    IsHitTestVisible="False"/>
                             <StackPanel Margin="12,10">
                                 <TextBlock Text="{DynamicResource Settings.PreviewModuleCard}"
                                            FontWeight="Bold"
@@ -333,6 +335,113 @@
                             </Grid>
                         </Border>
                     </StackPanel>
+                </Border>
+
+                <!-- ═══════════════════════════════════════════════════
+                     IOS-17PM P4e (2026-09-05) — AUTHORED PREVIEW
+                     COMPOSITION (file-20 reference). Family-gated: the
+                     engine writes CrystalPreviewHostVisibility under
+                     Crystal Fluid and removes it at BOTH switch paths,
+                     so this gallery renders ONLY under its own family.
+
+                     Order mirrors file 20: environment highlight trio +
+                     ambient → KPI strip (water) → nav row → status pill
+                     + DETERMINATE progress → authored grid chrome.
+                     Strings are static demo copy (§46 — presentation
+                     only; no business data is invented). Indeterminate
+                     progress remains 100% stock: nothing in this tile,
+                     anywhere, touches IsIndeterminate.
+                     ═══════════════════════════════════════════════════ -->
+                <Border Style="{StaticResource SettingsTileStyle}"
+                        Margin="0,0,0,10"
+                        Visibility="{DynamicResource CrystalPreviewHostVisibility}">
+                    <Grid UseLayoutRounding="True" SnapsToDevicePixels="True"
+                          MinHeight="330" ClipToBounds="True">
+
+                        <!-- environment highlight trio (file-20 §22) -->
+                        <Border Background="{StaticResource CrystalEnvironmentHighlightTopLeftBrush}"
+                                IsHitTestVisible="False"/>
+                        <Border Background="{StaticResource CrystalEnvironmentCyanTopRightBrush}"
+                                IsHitTestVisible="False"/>
+                        <Border Background="{StaticResource CrystalEnvironmentCyanBottomRightBrush}"
+                                IsHitTestVisible="False"/>
+                        <crystal:CrystalAmbientBackground/>
+
+                        <StackPanel Margin="12" VerticalAlignment="Stretch">
+
+                            <!-- KPI strip with water (file-20 rows) -->
+                            <UniformGrid Columns="3" Margin="0,0,0,10">
+                                <crystal:CrystalKpiCard Title="Proforma"
+                                        Value="128 KP"
+                                        WaterLevel="0.42" BubbleCount="3"
+                                        Margin="0,0,6,0">
+                                    <crystal:CrystalKpiCard.Icon>
+                                        <TextBlock Text="◇" FontSize="14"/>
+                                    </crystal:CrystalKpiCard.Icon>
+                                    <crystal:CrystalStatusPill Content="+12.8%"
+                                            StatusColor="{StaticResource CrystalPositiveBrush}"/>
+                                </crystal:CrystalKpiCard>
+                                <crystal:CrystalKpiCard Title="Active"
+                                        Value="24" WaterLevel="0.58"
+                                        Margin="3,0">
+                                    <crystal:CrystalKpiCard.Icon>
+                                        <TextBlock Text="□" FontSize="14"/>
+                                    </crystal:CrystalKpiCard.Icon>
+                                    <crystal:CrystalStatusPill Content="running"
+                                            StatusColor="{StaticResource CrystalPositiveBrush}"/>
+                                </crystal:CrystalKpiCard>
+                                <crystal:CrystalKpiCard Title="Margin"
+                                        Value="27.4%" WaterLevel="0.31"
+                                        BubbleEnabled="False"
+                                        Margin="6,0,0,0">
+                                    <crystal:CrystalKpiCard.Icon>
+                                        <TextBlock Text="✓" FontSize="14"/>
+                                    </crystal:CrystalKpiCard.Icon>
+                                </crystal:CrystalKpiCard>
+                            </UniformGrid>
+
+                            <!-- authored nav (reference styles, demo group) -->
+                            <TextBlock Style="{StaticResource CrystalNavLabelStyle}"
+                                       Text="IOS-17PM"/>
+                            <UniformGrid Columns="3" Rows="1" Margin="0,0,0,10">
+                                <RadioButton Style="{StaticResource CrystalNavButtonStyle}"
+                                             Content="Dashboard" IsChecked="True" Margin="0,0,6,0"/>
+                                <RadioButton Style="{StaticResource CrystalNavButtonStyle}"
+                                             Content="Production" Margin="3,0"/>
+                                <RadioButton Style="{StaticResource CrystalNavButtonStyle}"
+                                             Content="Reports" Margin="6,0,0,0"/>
+                            </UniformGrid>
+
+                            <!-- status pill + DETERMINATE progress (authored) -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <crystal:CrystalStatusPill Content="online"
+                                        StatusColor="{StaticResource CrystalPositiveBrush}"
+                                        Margin="0,0,8,0"/>
+                                <crystal:CrystalProgressBar Value="64"
+                                        Minimum="0" Maximum="100"
+                                        VerticalAlignment="Center"
+                                        Width="220"/>
+                            </StackPanel>
+
+                            <!-- authored grid chrome (headers only; demo
+                                 shows grid-line + header identity, zero
+                                 invented data rows) -->
+                            <DataGrid Style="{StaticResource CrystalDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource CrystalDataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource CrystalDataGridRowStyle}"
+                                      CellStyle="{StaticResource CrystalDataGridCellStyle}"
+                                      AutoGenerateColumns="False" IsReadOnly="True"
+                                      RowHeadersWidth="0" CanUserAddRows="False"
+                                      CanUserResizeColumns="False"
+                                      MaxHeight="86">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Material" Width="*"/>
+                                    <DataGridTextColumn Header="Qty" Width="*"/>
+                                    <DataGridTextColumn Header="Status" Width="*"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </StackPanel>
+                    </Grid>
                 </Border>
 
                 <UniformGrid Columns="3" Margin="0,0,0,6">
