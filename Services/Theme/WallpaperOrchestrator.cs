@@ -7,8 +7,8 @@
 // THE PIPELINE (where this sits — no engine rewiring):
 //   VisualThemeEngine.Apply / ApplyModule rebuild the family scene and
 //   layer any FILE wallpaper exactly as before (unchanged behavior).
-//   At the very END of ApplyModule (finally block) the engine calls
-//   OverlayIfLinked() here: when the user's mode is "ThemeLinked" or
+//   At the very END of ApplyModule (finally block) the engine asks
+//   TryGetLinkedScene() here: when the user's mode is "ThemeLinked" or
 //   "Scene", the code-drawn built-in scene is written over
 //   "ModuleWallpaperBrush" — the same resource key every wallpaper-aware
 //   view already binds, so navigation, dashboards and modules all pick
@@ -64,60 +64,79 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         /// <summary>
-        /// Called by VisualThemeEngine.ApplyModule at the end of EVERY
-        /// real scene build (including module-navigation repaints), and
-        /// by RefreshScene() on accent changes. No-op for File mode or
-        /// before config is loaded. Never throws into the engine's
-        /// finally block.
+        /// PURE DECISION used by VisualThemeEngine.ApplyModule: when a
+        /// theme-linked or pinned scene must paint the window stage,
+        /// returns the scene brush + intended opacity. False in File
+        /// mode and before config loads. The ENGINE performs the write
+        /// itself because it owns the private translucency/typography
+        /// helpers (v2 root-cause fix — v1 wrote only
+        /// "ModuleWallpaperBrush", consumed by exactly ONE view, so the
+        /// scene existed but was invisible behind opaque module
+        /// surfaces: the "fake/broken wallpaper" report).
         /// </summary>
-        public static void OverlayIfLinked(ResourceDictionary? resources)
+        public static bool TryGetLinkedScene(
+            out System.Windows.Media.Brush? scene, out double opacity)
         {
+            scene = null;
+            opacity = 0.85;
             try
             {
-                if (resources == null) return;
                 var appearance = App.Config?.Appearance;
-                if (appearance == null) return;
+                if (appearance == null) return false;
 
                 // 2026-09-05 factory behavior (owner directive — "as soon
                 // as the user changes the visual theme the wallpaper must
                 // change"): any legacy "Auto" value upgrades to the
                 // theme-linked dynamic scene. A previously picked file
                 // stays on disk untouched and remains one tap away via
-                // "My file / downloaded" — only the ACTIVE mode changes,
-                // exactly what the owner asked for.
+                // "My file / downloaded" — only the ACTIVE mode changes.
                 if ((appearance.WallpaperMode ?? ModeAuto) == ModeAuto)
                     appearance.WallpaperMode = ModeThemeLinked;
 
                 string mode = EffectiveMode(appearance);
-                if (mode != ModeThemeLinked && mode != ModeScene) return;
+                if (mode != ModeThemeLinked && mode != ModeScene) return false;
 
                 string sceneKey = mode == ModeScene
-                    ? (appearance?.BuiltinScene ?? "")
+                    ? (appearance.BuiltinScene ?? "")
                     : (VisualThemeEngine.Current ?? VisualThemeEngine.LiquidGlass);
 
-                var scene = BuiltinWallpaperScenes.For(sceneKey);
-                double opacity = Clamp01(appearance?.WallpaperOpacity ?? 0.85);
-                // A scene is ambient scenery, not a page background —
-                // keep the envelope below fully-opaque so the stage's own
-                // gradient glows through by design.
-                scene.Opacity = Math.Min(0.95, Math.Max(0.10, opacity));
-
-                resources["ModuleWallpaperBrush"] = scene;
-                ThemeStudioService.UpdateBase("ModuleWallpaperBrush", scene);
+                var s = BuiltinWallpaperScenes.For(sceneKey);
+                // Ambient scenery, not a page background — the stage's
+                // own gradient must still glow through by design.
+                opacity = Math.Min(0.95,
+                    Math.Max(0.10, appearance.WallpaperOpacity));
+                scene = s;
+                return true;
             }
-            catch (Exception ex)
+            catch
             {
-                AppLogService.Warning(
-                    $"Wallpaper scene overlay skipped: {ex.Message}",
-                    new LogContext { Module = "Wallpapers", Operation = "Overlay" });
+                scene = null;
+                return false;
             }
         }
 
-        /// <summary>Redraws the active scene (accent / Light-Dark base
-        /// changed) without a family rebuild.</summary>
+        /// <summary>True while an OS window backdrop (Mica/Acrylic) is
+        /// active — the scene must NOT paint an opaque stage over the
+        /// OS-rendered backdrop (Mica IS the backdrop then), and module
+        /// surfaces go extra-translucent so it can breathe.</summary>
+        public static bool BackdropActive =>
+            App.Config?.Appearance?.WindowBackdrop is
+                SystemBackdropService.Mica or SystemBackdropService.Acrylic;
+
+        /// <summary>Redraws the active scene by forcing the proven
+        /// ApplyModule pipeline to rebuild (invalidate + re-apply): one
+        /// code path paints scenes — the engine's — so accent, Light/
+        /// Dark and family changes always produce the same result.</summary>
         public static void RefreshScene()
         {
-            OverlayIfLinked(Application.Current?.Resources);
+            try
+            {
+                VisualThemeEngine.InvalidateSceneCache();
+                VisualThemeEngine.ApplyModule(
+                    VisualThemeEngine.LastRequestedModule,
+                    App.Config?.Appearance);
+            }
+            catch { /* never break a theme path */ }
         }
 
         // ── OS window backdrop (Windows 11 Mica/Acrylic — EXPERIMENTAL) ──
@@ -145,6 +164,10 @@ namespace ProGlassAutomation.Services.Theme
                 && resources != null)
             {
                 SystemBackdropService.GhostWindowStage(resources);
+                // Module surfaces must go extra-translucent so the
+                // OS backdrop can breathe (the engine overlay reads
+                // BackdropActive on its next rebuild).
+                RefreshScene();
                 Audit("Window backdrop", mode);
             }
             else
@@ -172,7 +195,10 @@ namespace ProGlassAutomation.Services.Theme
                 var resources = Application.Current?.Resources;
                 if (SystemBackdropService.Apply(window, mode)
                     && resources != null)
+                {
                     SystemBackdropService.GhostWindowStage(resources);
+                    RefreshScene();
+                }
             }
             catch { /* the painted stage is the safe default */ }
         }

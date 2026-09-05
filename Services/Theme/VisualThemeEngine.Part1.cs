@@ -468,13 +468,78 @@ namespace ProGlassAutomation.Services.Theme
                 // Last line of defense — see GuaranteeCriticalResources.
                 GuaranteeCriticalResources(resources);
 
-                // Theme-linked / pinned built-in wallpaper scene
-                // (2026-09-05 Wallpaper Studio): after EVERY real scene
-                // build — including module-navigation repaints, which is
-                // why the hook lives here — the orchestrator overlays
-                // its code-drawn family scene. No-op in File mode and
-                // before config loads; never throws.
-                WallpaperOrchestrator.OverlayIfLinked(resources);
+                // ── Theme-linked / pinned built-in wallpaper scene
+                // (2026-09-05 v2 — ROOT-CAUSE FIX). v1 wrote ONLY
+                // "ModuleWallpaperBrush" — a key consumed by exactly ONE
+                // view (About): every module root paints
+                // "ModuleBackgroundBrush" over MainWindow's
+                // WindowBackgroundBrush stage, so the scene existed but
+                // stayed invisible = the owner's "all fake/broken". The
+                // scene now follows the exact contract the FILE-wallpaper
+                // path established:
+                //   WindowBackgroundBrush ← the scene (app-wide stage)
+                //   ModuleBackgroundBrush ← translucent (scene reads
+                //       through every module)
+                //   wallpaper typography strengthened, font preference
+                //       re-asserted, About's direct consumer set.
+                // Explicit per-module image wallpapers still WIN
+                // (CurrentModule is non-empty only when one painted in
+                // this very pass). An active OS backdrop (Mica/Acrylic)
+                // keeps the window stage translucent instead.
+                if (CurrentModule == ""
+                    && WallpaperOrchestrator.TryGetLinkedScene(
+                           out var sceneBrush, out double sceneOpacity)
+                    && sceneBrush != null)
+                {
+                    try
+                    {
+                        sceneBrush.Opacity = sceneOpacity;
+                        bool osBackdrop = WallpaperOrchestrator.BackdropActive;
+                        if (!osBackdrop)
+                            resources["WindowBackgroundBrush"] = sceneBrush;
+
+                        SetTranslucent(resources, "ModuleBackgroundBrush",
+                            ThemeManager.GetThemeColor(
+                                "ModuleBackgroundBrush", Colors.White),
+                            osBackdrop ? 0.55 : 0.80);
+                        AdaptTypographyForWallpaper(resources);
+                        ApplyFontPreference(resources, true);
+
+                        resources["ModuleWallpaperBrush"] = sceneBrush;
+
+                        // The studio snapshots must describe what is
+                        // actually on screen (snapshot may have run
+                        // before this overlay).
+                        ThemeStudioService.UpdateBase(
+                            "WindowBackgroundBrush",
+                            resources["WindowBackgroundBrush"]!);
+                        ThemeStudioService.UpdateBase(
+                            "ModuleBackgroundBrush",
+                            resources["ModuleBackgroundBrush"]!);
+                        ThemeStudioService.UpdateBase(
+                            "ModuleWallpaperBrush", sceneBrush);
+                    }
+                    catch (Exception sceneEx)
+                    {
+                        AppLogService.Warning(
+                            $"Wallpaper scene overlay skipped: {sceneEx.Message}",
+                            new LogContext
+                            {
+                                Module = "Themes",
+                                Class = nameof(VisualThemeEngine)
+                            });
+                    }
+                }
+
+                // ── Theme Studio layer must SURVIVE navigation
+                // (2026-09-05 ROOT-CAUSE: clicking Dashboard — or any
+                // module — rebuilt the family here WITHOUT re-applying
+                // the studio profile, so every customization visibly
+                // reset on every navigation). A real rebuild re-snapshots
+                // the fresh family/base state and re-applies the active
+                // 0–100 profile; the signature-guard's skipped repaints
+                // never reach this point, so no-op navigations stay free.
+                ThemeStudioService.OnFamilyApplied();
 
                 // Record the rendered scene LAST (in finally, because the
                 // module-wallpaper branch returns early). A pass that threw

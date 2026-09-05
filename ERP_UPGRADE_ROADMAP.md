@@ -291,3 +291,18 @@ installer and go stale. The full system instead:
 Startup restores the saved OS-backdrop preference right after the first
 window Show(). Verified: XML/braces clean on 10 files, no dup lang keys,
 no padding overrides left, all hooks present.
+
+---
+
+## THEME APPEARANCE DEEP AUDIT — ROOT-CAUSE FIXES (2026-09-05, owner field reports)
+
+Senior trace through the call chain (not the pixels) found the new features were
+structurally invisible/reset, not cosmetically weak:
+
+| Owner report | PROVEN root cause | Fix |
+|---|---|---|
+| "Clicking Dashboard/module resets the theme" | `VisualThemeEngine.ApplyModule` (called on every navigation) tears down ~60 keys via ClearOverrides and repaints ONLY the family — the Theme Studio 0–100 layer was never re-applied on navigation | `ThemeStudioService.OnFamilyApplied()` now runs at the end of every REAL ApplyModule rebuild (in finally). The signature-guard's no-op repaints skip it, so steady-state navigation stays free |
+| "Wallpaper scenes are fake — can't see anything" | `ModuleWallpaperBrush` is consumed by EXACTLY ONE view (AboutView). Module roots paint `ModuleBackgroundBrush` over MainWindow's `WindowBackgroundBrush` stage — the v1 overlay wrote only the dead key, scene hidden behind an OPAQUE module surface | Scene now follows the FILE-wallpaper contract: `WindowBackgroundBrush` ← scene (app-wide stage, like file wallpapers), `ModuleBackgroundBrush` ← SetTranslucent 0.80, `AdaptTypographyForWallpaper` + font pref re-asserted, About's key also set, studio bases updated. Per-module image wallpapers still WIN |
+| "Downloads show nothing" | (previous round: silent pipeline) — compounded by scenes being invisible | Already status-piped; now the default state shows a live scene WITHOUT any download, and theme/accent/family changes visibly repaint it |
+| "Windows 11 options look fake" | An opaque stage brush covered the OS backdrop; translucency was never made Mica-aware | When BackdropActive: the scene keeps the window stage translucent (0.55 module surface) so DWM Mica/Acrylic breathes; scene stage-write skipped; startup path refreshes through the same rebuild |
+| "Many options don't show instant results" | Studio layer resets on navigation + invisible wallpaper made customization SEEM inert; studio live-apply itself was sound (DynamicResource on managed keys incl. GlassSurface tiles) | With nav-survival + visible scenes, every slider's effect now persists and shows everywhere |
