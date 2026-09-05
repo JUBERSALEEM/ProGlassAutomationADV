@@ -1,0 +1,19 @@
+<Application.Resources>
+    <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+
+            <!-- ═══ CRYSTAL FLUID THEME ═══ -->
+            <ResourceDictionary
+                Source="Themes/CrystalFluid/CrystalFluidTheme.xaml" />
+
+            <!-- Remove ALL references to old themes:
+                 - CrystalSeaTheme.xaml
+                 - UltraTransparentTheme.xaml
+                 - GlassTheme.xaml
+                 - OceanTheme.xaml
+                 - Any similar legacy resource dictionaries
+            -->
+
+        </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+</Application.Resources>
