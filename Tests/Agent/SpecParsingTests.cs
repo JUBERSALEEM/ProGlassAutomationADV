@@ -342,5 +342,42 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Single(panes);
             Assert.Equal("Outer", panes[0].Side);
         }
+
+        // ══════════════════════════════════════════════════════════════
+        //  2026-09-05 — BUSINESS DECISION: every ASP cavity pays.
+        //  SpacerCount drives the per-cavity ASP multiplier in Step 9
+        //  costing AND the rate-sanity basis. It must count tokens —
+        //  never glass panes, never zero on a classic build.
+        // ══════════════════════════════════════════════════════════════
+
+        [Theory]
+        [InlineData("6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass", 1)]
+        [InlineData(
+            "6mm Kibbing Nova 55 FT Glass + 12mm ASP " +
+            "+ 6mm Mid Grey FT Glass + 16mm ASP + 6mm Clear FT Glass", 2)]
+        [InlineData(
+            "6mm Clear FT Glass + 8mm ASP " +
+            "+ 6mm HD Grey FT Glass + 10mm ASP " +
+            "+ 6mm Bronze FT Glass + 12mm ASP + 6mm Clear FT Glass", 3)]
+        [InlineData("10mm Clear FT Glass", 0)]
+        [InlineData("6mm Clear FT Glass + 1.52mm Clear PVB + 6mm Clear FT Glass", 0)]
+        [InlineData("6mm Clear FT Glass + 16mm Black Warm Edge ASP + 6mm Clear FT Glass", 1)]
+        public void SpacerCount_counts_every_cavity_token(string spec, int expected)
+        {
+            // Classic = 1 (pay once, as before); triple = 2 (pay twice);
+            // lam/SGU = 0 (no spacer at all). Multi-word descriptors
+            // (Black Warm Edge) still count as ONE cavity.
+            Assert.Equal(expected, PnLSpecParser.SpacerCount(spec));
+        }
+
+        [Fact]
+        public void SpacerCount_never_confuses_pvb_thickness_for_a_cavity()
+        {
+            // The PVB/mm and spacer/mm lanes share the mm motor: without
+            // an ASP/SGU-specific descriptor, a "'1.52mm Clear PVB'" must
+            // not inflate the cavity count.
+            Assert.Equal(0, PnLSpecParser.SpacerCount(
+                "6mm Clear FT Glass + 3.04mm Clear PVB + 6mm Clear FT Glass"));
+        }
     }
 }

@@ -77,6 +77,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     var spacerMatch = PnLSpecParser.Spacer(specName);
                     bool spacerDetected = spacerMatch.Success;
 
+                    // BUSINESS DECISION 2026-09-05 (owner-confirmed): EVERY
+                    // air-spacer cavity pays the spacer field. A triple-
+                    // glazed unit carries two ASP charges, a quad three.
+                    // Classic two-pane builds report one token, so their
+                    // multiplier is 1 and this changes nothing for them.
+                    // A legacy DGU string with no spacer in the name
+                    // clamps to 1 cavity (its price was already quoted
+                    // against one).
+                    int spacerCavities =
+                        Math.Max(1, PnLSpecParser.SpacerCount(specName));
+
                     bool isDgu =
                         (group.SelectedGlassType ?? "")
                             .IndexOf("DGU", StringComparison.OrdinalIgnoreCase) >= 0
@@ -121,7 +132,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // SGU and a DGU, and using the live selection would score
                     // both against the same panel.
                     specBases[group.GroupNumber] =
-                        QuoteBasisFor(group.SelectedGlassType, isDgu, isLam, isDguLam);
+                        QuoteBasisFor(group.SelectedGlassType, isDgu, isLam,
+                            isDguLam, spacerCavities);
 
                     // Either construction has a second pane to cost.
                     bool hasInnerPane = isDgu || isLam;
@@ -233,7 +245,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         if (spacerPrice > 0m)
                         {
                             int spacerMm = TextParsing.ParseInt(spacerMatch.Groups["mm"].Value);
-                            decimal spacerAmount = Math.Round(cutSqm * spacerPrice, 2);
+                            // PER-CAVITY charging (2026-09-05 decision):
+                            // quantity kept identical to amount math so
+                            // row integrity Quantity x Price = Amount.
+                            decimal spacerAmount = Math.Round(
+                                cutSqm * spacerPrice * spacerCavities, 2);
 
                             spacerInsertAt = AddLayerRow(new ProfitLossRow
                             {
@@ -242,9 +258,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 SpecName = group.SelectedSpecName ?? "",
                                 Description = PnLMeasurement.BuildRowDescription(
                                     group,
-                                    $"{spacerMm}mm ASP (includes cutting, tempering and production)",
+                                    spacerCavities > 1
+                                        ? $"{spacerMm}mm ASP x {spacerCavities} cavities (includes cutting, tempering and production)"
+                                        : $"{spacerMm}mm ASP (includes cutting, tempering and production)",
                                     $"{cutSqm:0.##} SQM"),
-                                Quantity = Math.Round(cutSqm, 2),
+                                Quantity = Math.Round(cutSqm * spacerCavities, 2),
                                 PricePerSqm = spacerPrice,
                                 Amount = spacerAmount
                             }, spacerInsertAt);
@@ -342,7 +360,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 ? TextParsing.ParseInt(spacerMatch.Groups["mm"].Value)
                                 : SheetStorePricingService.ParseMm(_dguVm?.SpacerWidth);
 
-                            decimal amount = Math.Round(cutSqm * spacerPrice, 2);
+                            // PER-CAVITY charging (2026-09-05 decision):
+                            // one cavity = x1 (identical to before);
+                            // two spacer tokens in a triple build = x2.
+                            decimal amount = Math.Round(
+                                cutSqm * spacerPrice * spacerCavities, 2);
 
                             spacerInsertAt = AddLayerRow(new ProfitLossRow
                             {
@@ -351,9 +373,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 SpecName = group.SelectedSpecName ?? "",
                                 Description = PnLMeasurement.BuildRowDescription(
                                     group,
-                                    $"{spacerMm}mm ASP (includes cutting, tempering and production)",
+                                    spacerCavities > 1
+                                        ? $"{spacerMm}mm ASP x {spacerCavities} cavities (includes cutting, tempering and production)"
+                                        : $"{spacerMm}mm ASP (includes cutting, tempering and production)",
                                     $"{cutSqm:0.##} SQM"),
-                                Quantity = Math.Round(cutSqm, 2),
+                                Quantity = Math.Round(cutSqm * spacerCavities, 2),
                                 PricePerSqm = spacerPrice,
                                 Amount = amount
                             }, spacerInsertAt);

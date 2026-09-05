@@ -82,6 +82,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public static Match Spacer(string? specName) =>
             SpacerPattern.Match(specName ?? "");
 
+        /// <summary>
+        /// Number of air-spacer cavities declared in the spec name.
+        /// BUSINESS DECISION 2026-09-05 (owner-confirmed): every cavity
+        /// pays the spacer field — a triple-glazed unit carries TWO
+        /// ASP charges, not one. A classic two-pane DGU reports 1; a
+        /// 2-spacer unit reports 2; a spec with no spacer token reports
+        /// 0 and the CALLER clamps it (legacy DGU strings with no
+        /// spacer in the name still price one cavity).
+        /// Pure and deterministic like every accessor in this home.
+        /// </summary>
+        public static int SpacerCount(string? specName) =>
+            specName == null ? 0 : SpacerPattern.Matches(specName).Count;
+
         public static Match Interlayer(string? specName) =>
             InterlayerPattern.Match(specName ?? "");
 

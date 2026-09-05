@@ -134,6 +134,60 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("SuggestNextIdAsync failed", step1);
         }
 
+        [Fact]
+        public void Asp_is_charged_per_cavity_everywhere_it_is_priced()
+        {
+            // BUSINESS DECISION 2026-09-05 (owner-confirmed): EVERY
+            // air-spacer cavity pays the spacer field — a triple build
+            // carries TWO ASP charges. The multiplier must be wired in
+            // BOTH places ASP is priced, or cost and sanity-basis drift
+            // apart (a valid triple rate reads "healthy margin" against
+            // an understated basis = silent overquote to the customer).
+            string root = LocateProjectRoot();
+            string calc = ReadFamily(root,
+                "ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.cs");
+            string parser = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step9ProfitLoss/PnLSpecParser.cs"));
+
+            Assert.Contains("PnLSpecParser.SpacerCount", parser);
+            Assert.Contains("int spacerCavities =", calc);
+
+            // Both cost branches (DGU and DGU+LAM) multiply by cavities.
+            int costSites = calc.Split(
+                new[] { "spacerPrice * spacerCavities" },
+                StringSplitOptions.None).Length - 1;
+            Assert.True(costSites >= 2,
+                $"Expected per-cavity multiplier in BOTH ASP cost branches; found {costSites}.");
+
+            // The rate-basis mirror carries the multiplier too — a basis
+            // that stays x1 would overstate triple margins by exactly one
+            // spacer price and bless an underquoted sell rate.
+            int basisSites = calc.Split(
+                new[] { "vm.SpacerPrice * spacerCavities" },
+                StringSplitOptions.None).Length - 1;
+            Assert.True(basisSites >= 2,
+                $"QuoteBasisFor must mirror the cost model per cavity in its DGU and DGU+LAM lanes; found {basisSites}.");
+
+            // Row integrity: a multi-cavity row reports its own shape
+            // (quantity = sqm x cavities, description announces it).
+            Assert.Contains("cavit", calc);
+            Assert.Contains("cutSqm * spacerCavities, 2)", calc);
+        }
+
+        [Fact]
+        public void SpacerCount_has_runtime_facts_in_the_grammar_battery()
+        {
+            // The pin's own cargo: the runtime fact battery for
+            // SpacerCount lives in SpecParsingTests (the grammar home).
+            // If it goes missing there, this consumer pin keeps nothing.
+            string root = LocateProjectRoot();
+            string battery = File.ReadAllText(Path.Combine(root,
+                "Tests/Agent/SpecParsingTests.cs"));
+
+            Assert.Contains("SpacerCount_counts_every_cavity_token", battery);
+            Assert.Contains("SpacerCount_never_confuses_pvb_thickness_for_a_cavity", battery);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

@@ -59,8 +59,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         // ══════════════════════════════════════════════════════════════════
 
         private decimal QuoteBasisFor(
-            string? glassType, bool isDgu, bool isLam, bool isDguLam)
+            string? glassType, bool isDgu, bool isLam, bool isDguLam,
+            int spacerCavities = 1)
         {
+            // Mirror-of-cost invariant: the basis is measured against the
+            // SAME money model the cost rows use. BUSINESS DECISION
+            // 2026-09-05 (owner-confirmed): each ASP cavity pays the
+            // spacer field, so a triple build's basis carries the spacer
+            // price twice, not once — otherwise the sanity percentage
+            // would praise a rate against an understated basis.
+            spacerCavities = Math.Max(1, spacerCavities);
             string type = (glassType ?? "").Trim().ToUpperInvariant();
 
             // Spec-name evidence wins: it describes the product actually
@@ -76,7 +84,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     + vm.TotalCuttingCost
                     + vm.TotalTemperingCost
                     + vm.InterlayerSellPrice
-                    + vm.SpacerPrice;
+                    + vm.SpacerPrice * spacerCavities;
 
                 return Math.Round(basis, 2);
             }
@@ -102,7 +110,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 decimal basis =
                     (vm.OuterBasePrice + vm.InnerBasePrice) / PnLMeasurement.SafeYield(vm.YieldFactor)
-                    + vm.SpacerPrice;
+                    + vm.SpacerPrice * spacerCavities;
 
                 return Math.Round(basis, 2);
             }
