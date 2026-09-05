@@ -148,7 +148,7 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.Contains("DefaultsFor", settings);
             Assert.Contains("VisualThemeEngine.LiquidGlass", settings);
-            Assert.Contains("VisualThemeEngine.UltraTransparent", settings);
+            Assert.Contains("VisualThemeEngine.CrystalFluid", settings);
             Assert.Contains("VisualThemeEngine.Ocean", settings);
             Assert.Contains("VisualThemeEngine.Monet", settings);
             Assert.Contains("VisualThemeEngine.Professional", settings);

@@ -43,6 +43,10 @@
 
                 <!-- v2 design system: shared module-screen primitives -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>
+                <!-- CRYSTAL FLUID design tokens (2026-09-05) — colors,
+                     glass/water/reflection brushes, radii, motion,
+                     material parameters. Consumed via DynamicResource. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidTokens.xaml"/>
                 <!-- Industrial list-page chrome (PI / JO / DN / TI) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ListPageStyles.xaml"/>
                 <!-- Line-item table chrome (Step 5 + JO/DN/TI details) -->

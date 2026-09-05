@@ -25,7 +25,7 @@
 //
 // SCENE SIGNATURES (family → mood):
 //   iOS Liquid Glass → Aurora      — deep navy, two hue ribbons crossing
-//   Ultra Transparent→ Crystal Sea — aqua water column, lit from above
+//   Crystal Fluid    → Crystal Fluid — pale luminous water atmosphere (§22)
 //   Ocean            → Deep Reef   — teal abyss, bioluminescent drift
 //   Monet            → Golden Hour — dusk derived from the accent hue
 //   Professional     → Slate Grid  — graphite horizon, hairline of light
@@ -47,7 +47,7 @@ namespace ProGlassAutomation.Services.Theme
         public static readonly (string Key, string Label)[] All =
         {
             (VisualThemeEngine.LiquidGlass,      "Aurora"),
-            (VisualThemeEngine.UltraTransparent, "Crystal Sea"),
+            (VisualThemeEngine.CrystalFluid, "Crystal Fluid"),
             (VisualThemeEngine.Ocean,            "Deep Reef"),
             (VisualThemeEngine.Monet,            "Golden Hour"),
             (VisualThemeEngine.Professional,     "Slate Grid"),
@@ -74,7 +74,7 @@ namespace ProGlassAutomation.Services.Theme
                     ? VisualThemeEngine.LiquidGlass
                     : family!;
 
-                if (f == VisualThemeEngine.UltraTransparent) return CrystalSea(dark);
+                if (f == VisualThemeEngine.CrystalFluid) return CrystalFluidScene(dark);
                 if (f == VisualThemeEngine.Ocean)            return DeepReef(dark);
                 if (f == VisualThemeEngine.Monet)            return GoldenHour(h, s, dark);
                 if (f == VisualThemeEngine.Professional)     return SlateGrid(dark);
@@ -132,14 +132,19 @@ namespace ProGlassAutomation.Services.Theme
 
         /// <summary>ULTRA TRANSPARENT — a vertical water column: lit
         /// surface line, aqua body, settled depth ("water fill" mood).</summary>
-        private static LinearGradientBrush CrystalSea(bool dark)
+        /// <summary>Crystal Fluid (2026-09-05, replaces "Crystal Sea") —
+        /// the §22 environment: white light upper-left, soft cyan
+        /// atmosphere drifting to the lower-right, pale blue base. The
+        /// dark stops are a defensive fallback only — the family pairs
+        /// Light via ModePairFor.</summary>
+        private static LinearGradientBrush CrystalFluidScene(bool dark)
         {
-            return Vertical(
-                (Parse(dark ? "#0A3A52" : "#1288AE"), 0.00),
-                (Parse(dark ? "#0E5E7E" : "#5FBEDC"), 0.18),
-                (Parse(dark ? "#062A3D" : "#0A4A66"), 0.46),
-                (Parse(dark ? "#041C30" : "#083A52"), 0.78),
-                (Parse(dark ? "#020E1A" : "#06283A"), 1.00));
+            return Diagonal(
+                (Parse(dark ? "#0E2230" : "#FDFEFF"), 0.00),
+                (Parse(dark ? "#0C1F2C" : "#F2FAFE"), 0.28),
+                (Parse(dark ? "#0A1B28" : "#E6F6FD"), 0.55),
+                (Parse(dark ? "#081722" : "#D5F0FB"), 0.80),
+                (Parse(dark ? "#061320" : "#DFF5FF"), 1.00));
         }
 
         /// <summary>Ocean — teal abyss with a bioluminescent middle

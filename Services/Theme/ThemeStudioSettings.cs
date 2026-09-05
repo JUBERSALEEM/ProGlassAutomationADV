@@ -143,19 +143,23 @@ namespace ProGlassAutomation.Services.Theme
                                         s.WaterFlow = 45;
                     break;
 
-                case VisualThemeEngine.UltraTransparent:
-                    s.Frostness = 25; s.Transparency = 85;
-                    s.BlurIntensity = 40; s.GlassTint = 25;
-                    s.CornerRoundness = 40; s.CardPadding = 40;
-                    s.ShadowIntensity = 35; s.ShadowSoftness = 55;
+                case VisualThemeEngine.CrystalFluid:
+                    // 2026-09-05: Crystal Fluid v1 profile — pale, calm,
+                    // water-forward. Big radii (spec §24), bright thin
+                    // crystal edge (§11), strong specular (§13), water
+                    // dominant but translucent (§16: never a solid slab).
+                    s.Frostness = 20; s.Transparency = 40;
+                    s.BlurIntensity = 35; s.GlassTint = 30;
+                    s.CornerRoundness = 95; s.CardPadding = 55;
+                    s.ShadowIntensity = 25; s.ShadowSoftness = 70;
                     s.ShadowDepth = 20;
-                    s.BorderVisibility = 70; s.BorderOpacity = 50;
+                    s.BorderVisibility = 75; s.BorderOpacity = 70;
                     s.BorderThickness = 25;
-                    s.BackgroundVisibility = 30; s.BackgroundGlow = 60;
-                    s.HighlightStrength = 60;
+                    s.BackgroundVisibility = 88; s.BackgroundGlow = 35;
+                    s.HighlightStrength = 70;
                     s.AnimationIntensity = 50;
-                                        s.ColorRichness = 55; s.TextStrength = 85;
-                                        s.WaterFlow = 75;
+                                        s.ColorRichness = 45; s.TextStrength = 78;
+                                        s.WaterFlow = 85;
                     break;
 
                 case VisualThemeEngine.Ocean:

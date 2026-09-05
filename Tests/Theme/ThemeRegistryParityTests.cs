@@ -33,7 +33,7 @@ namespace ProGlassAutomation.Tests.Theme
             VisualThemeEngine.Monet,
             VisualThemeEngine.Professional,
             VisualThemeEngine.LiquidGlass,
-            VisualThemeEngine.UltraTransparent,
+            VisualThemeEngine.CrystalFluid,
             VisualThemeEngine.Ocean,
             VisualThemeEngine.IndustrialWhite,
             VisualThemeEngine.IndustrialGrey,
@@ -206,9 +206,10 @@ namespace ProGlassAutomation.Tests.Theme
         [InlineData(VisualThemeEngine.Monet, null)]
         [InlineData(VisualThemeEngine.Professional, null)]
         [InlineData(VisualThemeEngine.LiquidGlass, null)]
-        [InlineData(VisualThemeEngine.UltraTransparent, null)]
+        // Crystal Fluid is light-only (2026-09-05 product decision).
+        [InlineData(VisualThemeEngine.CrystalFluid, false)]
         [InlineData(VisualThemeEngine.Ocean, null)]
-        public void ModePairFor_OnlyIndustrialCouplesTheMode(
+        public void ModePairFor_OnlyIndustrialAndCrystalCoupleTheMode(
             string family, bool? expected)
         {
             Assert.Equal(expected, VisualThemeEngine.ModePairFor(family));

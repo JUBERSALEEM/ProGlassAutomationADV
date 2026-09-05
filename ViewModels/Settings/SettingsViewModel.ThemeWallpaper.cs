@@ -73,7 +73,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Professional),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.UltraTransparent),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.CrystalFluid),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Ocean),
             // Industrial family (2026-09-05): plain factory-floor ERP.
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.IndustrialWhite),

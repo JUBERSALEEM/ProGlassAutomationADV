@@ -452,7 +452,7 @@ namespace ProGlassAutomation.Services.Theme
 
                 if (string.IsNullOrWhiteSpace(hex))
                 {
-                    if (Current == LiquidGlass || Current == UltraTransparent)
+                    if (Current == LiquidGlass || Current == CrystalFluid)
                     {
                         bool dark = ThemeManager.CurrentTheme ==
                             AppTheme.Dark;

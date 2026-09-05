@@ -446,7 +446,7 @@ namespace ProGlassAutomation.Services
             // SKIP when Ultra Transparent is active — that family uses the
             // theme XAML values directly (already transparent crystal glass).
             // Overriding them here would repaint every About surface opaque.
-            if (VisualThemeEngine.Current != VisualThemeEngine.UltraTransparent)
+            if (VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid)
                 PublishAboutPalette(resources, core, surface, dark, h, s, l);
 
             // ── Dashboard ambience — derived, never hard-coded ──────

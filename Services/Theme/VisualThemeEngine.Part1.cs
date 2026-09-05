@@ -19,10 +19,18 @@ namespace ProGlassAutomation.Services.Theme
         public const string Professional = "Professional";
         /// <summary>The default family — iOS Liquid Glass (2026-08-29).</summary>
         public const string LiquidGlass = "iOS Liquid Glass";
-        /// <summary>Fully transparent glass — surfaces are nearly invisible,
-        /// only crystal edges define the shape. The aurora stage shows
-        /// through everything.</summary>
-        public const string UltraTransparent = "Ultra Transparent";
+        /// <summary>CRYSTAL FLUID (2026-09-05) — iOS water-glass design
+        /// system; REPLACES "Ultra Transparent" (retired). Surfaces are
+        /// translucent crystal (.43→.14 white @135°) containing animated
+        /// water, over a pale luminous environment. Light-only family
+        /// (ModePairFor → false). See Themes/CrystalFluid/.</summary>
+        public const string CrystalFluid = "Crystal Fluid";
+
+        /// <summary>LEGACY ALIAS — saved configs / old row references that
+        /// still say "Ultra Transparent" land on Crystal Fluid. Do not use
+        /// in new code; kept so the retired identity remains RESOLVABLE
+        /// (Normalize() also accepts the old display strings).</summary>
+        public const string UltraTransparent = CrystalFluid;
         public const string Ocean = "Ocean";
 
         /// <summary>Keys the engine may override (removed on Normal).</summary>
@@ -221,7 +229,7 @@ namespace ProGlassAutomation.Services.Theme
             // Monet and iOS Liquid Glass derive their surfaces and
             // window stage from the active accent colour, so both must
             // re-derive when the user changes the accent.
-            if (Current != Monet && Current != LiquidGlass && Current != UltraTransparent)
+            if (Current != Monet && Current != LiquidGlass && Current != CrystalFluid)
                 return;
             InvalidateSceneCache();
             Apply(Current, _lastWallpaperPath, _lastWallpaperOpacity);
@@ -277,8 +285,8 @@ namespace ProGlassAutomation.Services.Theme
                         ApplyLiquidGlass(resources);
                         break;
 
-                    case UltraTransparent:
-                        ApplyUltraTransparent(resources);
+                    case CrystalFluid:
+                        ApplyCrystalFluid(resources);
                         break;
 
                     case Ocean:
@@ -410,8 +418,8 @@ namespace ProGlassAutomation.Services.Theme
                     case LiquidGlass:
                         ApplyLiquidGlass(resources);
                         break;
-                    case UltraTransparent:
-                        ApplyUltraTransparent(resources);
+                    case CrystalFluid:
+                        ApplyCrystalFluid(resources);
                         break;
                     case Ocean:
                         ApplyOcean(resources);

@@ -14,49 +14,61 @@ namespace ProGlassAutomation.Services.Theme
 {
         public static partial class VisualThemeEngine
     {
-            private static void ApplyUltraTransparent(
+            private static void ApplyCrystalFluid(
             ResourceDictionary resources)
         {
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
             var accent = ThemeManager.AccentColor;
 
             // ══════════════════════════════════════════════════════════
-            //  ULTRA TRANSPARENT — Crystal Clear Glass
+            //  CRYSTAL FLUID (2026-09-05) — iOS water-glass design system.
+            //  REPLACES "Ultra Transparent" (retired this commit). Light-
+            //  only family (ModePairFor → false); the `dark` branches are
+            //  defensive fallbacks for mid-mode-switch paints only.
             //
-            //  PRINCIPLE: The theme XAML already defines the exact
-            //  transparent glass values. ClearOverrides() above removed
-            //  any application-level overrides, so those theme values
-            //  are now active. PublishAboutPalette is also skipped for
-            //  this family (see ThemeManager.ApplyAccent guard).
+            //  Spec = the frozen inline reference (CRYSTAL_FLUID_DESIGN.md):
+            //    · ink #102938 / muted #68808F / accent #55C9EE
+            //    · glass = white .43→.14 @135° (never opaque)
+            //    · 1px bright-white crystal border + inner hairline
+            //    · pale luminous environment stage (#F8FDFF/#EDFAFF/#DFF5FF)
             //
-            //  This method ONLY sets what the theme XAML doesn't:
-            //    1. Aurora stage (window background)
-            //    2. Crystal shadows
-            //    3. Crystal borders (OutlineBrush)
-            //    4. Typography
-            //    5. Corner radii
-            //    6. Status tints
-            //    7. Hover + interaction states
-            //    8. Liquid glass edge/reflection tokens
-            //
-            //  Everything else — ModuleBackground, GlassUltraClear,
-            //  LiquidCard, AboutInteractive, ElevatedSurface — flows
-            //  through from the theme XAML untouched.
+            //  Same resource-key contract as the retired painter — the
+            //  64-key ManagedKeys guarantee and the registry parity tests
+            //  keep working unchanged; only VALUES (and this header)
+            //  changed: new visual identity, proven plumbing.
             // ══════════════════════════════════════════════════════════
 
-            // ── 1) WINDOW — aurora stage (blue liquid wallpaper) ───
-            resources["WindowBackgroundBrush"] =
-                BuildLiquidStageBrush(dark, accent);
+            // ── 1) WINDOW — pale luminous environment stage (§22 base).
+            // The wallpaper scene ("Crystal Fluid") paints the radial
+            // light choreography on top; the stage underneath stays calm:
+            // white highlight upper-left → pale cyan lower-right. ──────
+            var stage = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1),
+                GradientStops =
+                {
+                    new GradientStop(dark
+                        ? Color.FromRgb(0x0E, 0x22, 0x30)
+                        : Color.FromRgb(0xF8, 0xFD, 0xFF), 0.0),
+                    new GradientStop(dark
+                        ? Color.FromRgb(0x0C, 0x1D, 0x2A)
+                        : Color.FromRgb(0xED, 0xFA, 0xFF), 0.45),
+                    new GradientStop(dark
+                        ? Color.FromRgb(0x09, 0x16, 0x22)
+                        : Color.FromRgb(0xDF, 0xF5, 0xFF), 1.0),
+                }
+            };
+            stage.Freeze();
+            resources["WindowBackgroundBrush"] = stage;
 
-            // ── 2) SHADOWS — theme XAML defines water-weight shadows ──
-            // (Deep, spread shadows that simulate water weight inside glass.
-            //  Defined in theme XAML, flow through via ClearOverrides.)
+            // ── 2) SHADOWS — water-weight shadows flow from the theme
+            // XAML via ClearOverrides (unchanged mechanism).
 
-            // ── 3) CRYSTAL BORDER — 36% white (was 24%): with the
-            // wallpaper showing through, a stronger crystal edge is
-            // what keeps every card's shape readable. ────────────────
+            // ── 3) CRYSTAL BORDER (§11) — bright translucent white edge
+            // with a soft falloff; never solid, never neon. ────────────
             var crystalBorder = new SolidColorBrush(
-                Color.FromArgb(0x5C, 0xFF, 0xFF, 0xFF));
+                Color.FromArgb(0x8F, 0xFF, 0xFF, 0xFF));
             crystalBorder.Freeze();
 
             var crystalBorderGradient = new LinearGradientBrush
@@ -65,9 +77,9 @@ namespace ProGlassAutomation.Services.Theme
                 EndPoint = new Point(1, 1),
                 GradientStops =
                 {
-                    new GradientStop(Color.FromArgb(0x6E, 0xFF, 0xFF, 0xFF), 0.0),
-                    new GradientStop(Color.FromArgb(0x5C, 0xFF, 0xFF, 0xFF), 0.5),
-                    new GradientStop(Color.FromArgb(0x4A, 0xFF, 0xFF, 0xFF), 1.0)
+                    new GradientStop(Color.FromArgb(0xB3, 0xFF, 0xFF, 0xFF), 0.0),
+                    new GradientStop(Color.FromArgb(0x8F, 0xFF, 0xFF, 0xFF), 0.55),
+                    new GradientStop(Color.FromArgb(0x61, 0xFF, 0xFF, 0xFF), 1.0)
                 }
             };
             crystalBorderGradient.Freeze();
@@ -77,32 +89,33 @@ namespace ProGlassAutomation.Services.Theme
             resources["OutlineDefaultBrush"] = crystalBorder;
             resources["BorderBrush"] = crystalBorder;
             resources["DividerBrush"] = new SolidColorBrush(
-                Color.FromArgb(0x2C, 0xFF, 0xFF, 0xFF));
-            resources["GlassBorderSoft"] = crystalBorder;
+                Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF));
+            resources["GlassBorderSoft"] = new SolidColorBrush(
+                Color.FromArgb(0x5C, 0xFF, 0xFF, 0xFF));
 
-            // ── 4) TYPOGRAPHY ──────────────────────────────────────
-            // 2026-09-01 cream pass: Ultra light text was cool slate
-            // (#1E293B / #334155 / #475569) — now the same warm ink as
-            // the Normal canvas over the crystal.
+            // ── 4) TYPOGRAPHY (§23) — the frozen spec palette:
+            // primary ink #102938, muted blue-gray #68808F. ────────────
             resources["PrimaryForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidSnow",
-                    Color.FromRgb(0xF8, 0xFA, 0xFC))
-                : FrozenSolid(Color.FromRgb(0x1C, 0x19, 0x17));
+                    Color.FromRgb(0xF2, 0xFA, 0xFE))
+                : FrozenSolid(Color.FromRgb(0x10, 0x29, 0x38));
             resources["SecondaryForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidCerulean",
-                    Color.FromRgb(0x93, 0xC5, 0xFD))
-                : FrozenSolid(Color.FromRgb(0x57, 0x53, 0x4E));
+                    Color.FromRgb(0x9C, 0xC3, 0xD9))
+                : FrozenSolid(Color.FromRgb(0x3D, 0x55, 0x66));
             resources["MutedForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidMuted",
-                    Color.FromRgb(0x8F, 0xB3, 0xE6))
-                : FrozenSolid(Color.FromRgb(0x78, 0x71, 0x6C));
+                    Color.FromRgb(0x7F, 0xA4, 0xBD))
+                : FrozenSolid(Color.FromRgb(0x68, 0x80, 0x8F));
 
-            // ── 5) SHAPE — larger radii ────────────────────────────
-            resources["CardCornerRadius"] = new CornerRadius(16);
-            resources["CardCornerRadiusLarge"] = new CornerRadius(20);
-            resources["ControlCornerRadius"] = new CornerRadius(12);
+            // ── 5) SHAPE (§24) — big iOS radii, centralized: cards 30/32,
+            // controls 15 (buttons 14–16 band). ────────────────────────
+            resources["CardCornerRadius"] = new CornerRadius(30);
+            resources["CardCornerRadiusLarge"] = new CornerRadius(32);
+            resources["ControlCornerRadius"] = new CornerRadius(15);
 
-            // ── 6) STATUS TINTS — barely visible hue ───────────────
+            // ── 6) STATUS TINTS — barely-visible hue (unchanged
+            // mechanism; tint color feeds status pills, §36). ──────────
             resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.10, 0.05);
             resources["TintBlueBrush"] = HueFrost("TintBlueBrush", 0.10, 0.05);
             resources["TintGreenBrush"] = HueFrost("TintGreenBrush", 0.10, 0.05);
@@ -111,42 +124,38 @@ namespace ProGlassAutomation.Services.Theme
             resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.10, 0.05);
             resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.10, 0.05);
 
-            // ── 6b) CARD FROST — a whisper of white over the stage so
-            // text on every card stays readable against a bright or
-            // busy wallpaper (the family stays see-through: the
-            // frost is 6–12% alpha, the crystal edge does the shape).
+            // ── 6b) CARD/SURFACE FROST (§10/§39/§81) — layered alpha
+            // white; the environment must stay perceptible, so module
+            // surfaces are a whisper while elevated sheets (dialogs,
+            // dropdown popups) sit one shelf higher for readability.
             resources["ModuleBackgroundBrush"] =
-                FrostFill(accent, dark ? 0.14 : 0.12, dark ? 0.07 : 0.06);
+                FrostFill(accent, dark ? 0.16 : 0.30, dark ? 0.08 : 0.12);
 
-            // Sidebar / dialogs need their own whisper of frost too —
-            // they used the base-theme fills, which were OPAQUE cream
-            // in Light, so the Ultra family never actually reached the
-            // settings rail and popups (2026-09-01 section adoption).
             resources["SideMenuBackgroundBrush"] =
-                FrostFill(accent, dark ? 0.18 : 0.16, dark ? 0.10 : 0.08);
+                FrostFill(accent, dark ? 0.22 : 0.55, dark ? 0.12 : 0.30);
             resources["ElevatedSurfaceBrush"] =
-                FrostFill(accent, dark ? 0.24 : 0.22, dark ? 0.14 : 0.12);
+                FrostFill(accent, dark ? 0.28 : 0.62, dark ? 0.16 : 0.40);
 
-            // Sections accept Ultra Transparent: the shared glass set
-            // mirrors the crystal whisper (pure white crystal edges).
+            // Sections adopt the crystal material — shared glass set
+            // mirrors the bright white edge.
             PublishSectionGlass(resources, Colors.White, dark);
 
-            // ── 7) HOVER — 14% white ───────────────────────────────
+            // ── 7) HOVER (§26) — soft translucent white veil ──────────
             var hoverFill = new SolidColorBrush(
-                Color.FromArgb(0x24, 0xFF, 0xFF, 0xFF));
+                Color.FromArgb(dark ? (byte)0x1A : (byte)0x2E, 0xFF, 0xFF, 0xFF));
             hoverFill.Freeze();
             resources["MenuHoverBrush"] = hoverFill;
 
-            // ── 8) LIQUID GLASS TOKENS — edge + reflection only ────
+            // ── 8) LIQUID TOKENS — crystal edge + §13 specular sheen ──
             resources["LiquidEdgeBrush"] = CrystalEdge(accent, dark);
             resources["LiquidInnerHighlightBrush"] =
-                HorizontalSheen(dark ? (byte)0x70 : (byte)0xDD);
+                HorizontalSheen(dark ? (byte)0x70 : (byte)0xE0);
             resources["LiquidReflectionBrush"] =
-                DiagonalSheen(dark ? (byte)0x30 : (byte)0x66);
+                DiagonalSheen(dark ? (byte)0x2E : (byte)0x4D);
             resources["LiquidControlHoverBrush"] = hoverFill;
 
             var pressed = new SolidColorBrush(
-                Color.FromArgb(0x2E, 0xFF, 0xFF, 0xFF));
+                Color.FromArgb(0x40, 0xFF, 0xFF, 0xFF));
             pressed.Freeze();
             resources["LiquidControlPressedBrush"] = pressed;
 
@@ -156,18 +165,21 @@ namespace ProGlassAutomation.Services.Theme
             resources["LiquidControlDisabledBrush"] = disabled;
 
             resources["LiquidFocusBrush"] = FrozenSolid(Color.FromArgb(
-                0x50, accent.R, accent.G, accent.B));
+                0x5C, accent.R, accent.G, accent.B));
             resources["LiquidSelectionBrush"] =
-                AccentCrystal(accent, dark ? (0x28, 0x18) : (0x30, 0x1A));
+                AccentCrystal(accent, dark ? (0x28, 0x18) : (0x33, 0x1F));
             resources["LiquidPrimaryButtonBrush"] =
-                AccentCrystal(accent, dark ? (0x70, 0x45) : (0x90, 0x55));
+                AccentCrystal(accent, dark ? (0x70, 0x45) : (0x99, 0x5E));
 
+            // Dialog scrim: icy ink veil (§39) — calmer than the old
+            // deep-blue overlay on the pale environment.
             resources["LiquidOverlayBrush"] = FrozenSolid(dark
-                ? Color.FromArgb(0x99, 0x03, 0x10, 0x26)
-                : Color.FromArgb(0x59, 0x06, 0x17, 0x24));
+                ? Color.FromArgb(0x99, 0x03, 0x10, 0x1F)
+                : Color.FromArgb(0x47, 0x10, 0x29, 0x38));
+            // §12: soft cyan/blue-gray shadow ink, low opacity.
             resources["LiquidShadowColor"] = dark
                 ? Color.FromArgb(0xFF, 0x00, 0x04, 0x10)
-                : Color.FromArgb(0x4D, 0x0B, 0x1B, 0x2E);
+                : Color.FromArgb(0x55, 0x1E, 0x5F, 0x7E);
         }
 
         // ── OCEAN — deep teal corporate ───────────────────────────────
@@ -256,15 +268,20 @@ namespace ProGlassAutomation.Services.Theme
                 Monet => Monet,
                 Professional => Professional,
                 LiquidGlass => LiquidGlass,
-                UltraTransparent => UltraTransparent,
+                CrystalFluid => CrystalFluid,
                 // Legacy families removed in the 2026-08-29 rewrite —
                 // saved configs pointing at them resolve to the new
                 // iOS Liquid Glass family instead of breaking.
                 "Glass" => LiquidGlass,
                 "Glassy" => LiquidGlass,
-                "Transparent" => UltraTransparent,
-                "Clear" => UltraTransparent,
-                "Crystal" => UltraTransparent,
+                // 2026-09-05: every retired transparent-glass name
+                // — including the literal old display string — lands
+                // on Crystal Fluid, never on a missing family.
+                "Ultra Transparent" => CrystalFluid,
+                "Transparent" => CrystalFluid,
+                "Clear" => CrystalFluid,
+                "Crystal" => CrystalFluid,
+                "Crystal Sea" => CrystalFluid,
                 Ocean => Ocean,
                 // Industrial family (2026-09-05): three explicit shade
                 // layouts; bare "Industrial" from older saves → Grey.

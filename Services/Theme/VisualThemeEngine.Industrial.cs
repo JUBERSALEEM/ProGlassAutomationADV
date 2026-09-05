@@ -58,6 +58,11 @@ namespace ProGlassAutomation.Services.Theme
             IndustrialDark => true,
             IndustrialWhite => false,
             IndustrialGrey => false,
+            // 2026-09-05: Crystal Fluid is a LIGHT-ONLY family (locked
+            // product decision: the Light/Dark toggle stays for the other
+            // families; picking Crystal Fluid snaps to Light, same
+            // mechanism as IndustrialWhite/Grey).
+            CrystalFluid => false,
             _ => null,
         };
 
