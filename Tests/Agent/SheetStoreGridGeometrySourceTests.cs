@@ -135,6 +135,29 @@ namespace ProGlassAutomation.Tests.Agent
                 $"Expected >=26 mid-column guttered cells, found {tables}.");
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  STEP-6 OTHER CHARGES — the per-spec LM/SQM metric table is a
+        //  daily-cash-close face. Header + row carry the same gutter law.
+        //  (Its origins were already aligned at 10/10 by the header
+        //  style, so only the gutters were needed.)
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void Step6_metric_table_carries_the_gutter_law_too()
+        {
+            string view = File.ReadAllText(Path.Combine(LocateProjectRoot(),
+                "Views/ProformaInvoice/Step6OtherCharges/OtherChargesView.xaml"));
+
+            Assert.Contains(
+                "Padding=\"0,0,6,0\" Text=\"{DynamicResource DeliveryNote.SPEC}\"",
+                view);
+            Assert.Contains(
+                "Padding=\"6,0,0,0\" Text=\"{DynamicResource Nav.Polish}\"",
+                view);
+            // Row col 0 is a two-line panel — margin, not per-line pads.
+            Assert.Contains("<StackPanel Margin=\"0,0,6,0\">", view);
+        }
+
         private static string View() => File.ReadAllText(Path.Combine(
             LocateProjectRoot(), "Views/SheetStore/SheetStoreView.xaml"));
 
