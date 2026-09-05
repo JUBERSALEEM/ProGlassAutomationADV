@@ -259,6 +259,11 @@ namespace ProGlassAutomation.Services.Theme
                 _lastWallpaperOpacity = ClampOpacity(wallpaperOpacity);
 
                 ClearOverrides(resources);
+                // Crystal Fluid gate (non-managed key by design —
+                // NOT in ManagedKeys; see tokens file). Removed at
+                // every family switch so the static tokens-file
+                // default (False) reigns for non-crystal families.
+                resources.Remove("CrystalWaterDefaultEnabled");
                 // PRE-SEED (2026-09-05 — ERR-50472F): ClearOverrides just
                 // opened a window where managed keys are ABSENT. A
                 // template inflating against this dictionary in the same
@@ -400,6 +405,11 @@ namespace ProGlassAutomation.Services.Theme
                 // Rebuild the family baseline (removes the previous
                 // module's wallpaper layer).
                 ClearOverrides(resources);
+                // Crystal Fluid gate (non-managed key by design —
+                // NOT in ManagedKeys; see tokens file). Removed at
+                // every family switch so the static tokens-file
+                // default (False) reigns for non-crystal families.
+                resources.Remove("CrystalWaterDefaultEnabled");
                 // PRE-SEED (2026-09-05 — ERR-50472F): never leave the
                 // dictionary with absent keys between teardown and the
                 // family republish — see Apply() for the full rationale.

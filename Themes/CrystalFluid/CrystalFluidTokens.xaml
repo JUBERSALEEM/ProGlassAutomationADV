@@ -129,4 +129,7 @@
     <!-- §43 reduced motion — global switch; CrystalWater renders a
          STATIC water body when True. Milestone 3 wires the Studio toggle. -->
     <sys:Boolean x:Key="CrystalReducedMotion">False</sys:Boolean>
+
+    <!-- Family-aware water gate: Crystal Fluid's painter publishes True at app level; the switch-away path removes it (see VisualThemeEngine next to ClearOverrides). Every other family sees this static False — water is a Crystal Fluid material, not a global effect (industrial families keep their no-theatre law). -->
+    <sys:Boolean x:Key="CrystalWaterDefaultEnabled">False</sys:Boolean>
 </ResourceDictionary>

@@ -18,6 +18,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
+             xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
              x:Name="Root"
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
@@ -29,7 +30,6 @@
 
     <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
             BorderThickness="1"
-            Padding="16,13"
             MinWidth="170"
             SnapsToDevicePixels="True">
         <Border.Style>
@@ -80,6 +80,16 @@
         </Border.Style>
 
         <Grid>
+            <!-- Crystal Fluid (2026-09-05): the KPI water reservoir.
+                 Renders ONLY when WaterEnabled (family gate / explicit);
+                 under every other family this is Collapsed and the card
+                 is pixel-identical to before. -->
+            <crystal:CrystalWater
+                WaterEnabled="{Binding WaterEnabled, ElementName=Root}"
+                WaterLevel="{Binding WaterLevel, ElementName=Root}"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"/>
+
+            <Grid Padding="16,13">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -203,6 +213,7 @@
                     </TextBlock.Style>
                 </TextBlock>
             </StackPanel>
+            </Grid>
         </Grid>
     </Border>
 </UserControl>

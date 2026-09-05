@@ -177,6 +177,10 @@ namespace ProGlassAutomation.Services.Theme
                 ? Color.FromArgb(0x99, 0x03, 0x10, 0x1F)
                 : Color.FromArgb(0x47, 0x10, 0x29, 0x38));
             // §12: soft cyan/blue-gray shadow ink, low opacity.
+            // Crystal Fluid = the water family: card/KPI surfaces that
+            // bind CrystalWaterDefaultEnabled render CrystalWater.
+            resources["CrystalWaterDefaultEnabled"] = true;
+
             resources["LiquidShadowColor"] = dark
                 ? Color.FromArgb(0xFF, 0x00, 0x04, 0x10)
                 : Color.FromArgb(0x55, 0x1E, 0x5F, 0x7E);

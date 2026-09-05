@@ -14,6 +14,51 @@ namespace ProGlassAutomation.Controls.StatCard
         public StatCardControl()
         {
             InitializeComponent();
+            Loaded += OnStatCardLoaded;
+        }
+
+        // ── Crystal Fluid (2026-09-05) — KPI cards are liquid crystal
+        // reservoirs (spec §30): the water layer is CAPABLE in every
+        // StatCard and turns on wherever the active family enables it.
+        private void OnStatCardLoaded(object sender, RoutedEventArgs e)
+        {
+            // Local value wins (a page may opt a card in or out
+            // explicitly); unset cards follow the family gate.
+            if (ReadLocalValue(WaterEnabledProperty) ==
+                DependencyProperty.UnsetValue)
+            {
+                WaterEnabled =
+                    TryFindResource("CrystalWaterDefaultEnabled") is bool on
+                    && on;
+            }
+        }
+
+        public static readonly DependencyProperty WaterEnabledProperty =
+            DependencyProperty.Register(
+                nameof(WaterEnabled), typeof(bool), typeof(StatCardControl),
+                new PropertyMetadata(false));
+
+        /// <summary>False = card looks exactly as before (theme-neutral);
+        /// True = Crystal Water renders behind the content (§30).</summary>
+        public bool WaterEnabled
+        {
+            get => (bool)GetValue(WaterEnabledProperty);
+            set => SetValue(WaterEnabledProperty, value);
+        }
+
+        public static readonly DependencyProperty WaterLevelProperty =
+            DependencyProperty.Register(
+                nameof(WaterLevel), typeof(double), typeof(StatCardControl),
+                new PropertyMetadata(0.42, null,
+                    (d, v) => Math.Max(0.0, Math.Min(1.0, (double)v))));
+
+        /// <summary>Normalized water fill 0..1 (§15). Defaults to the spec
+        /// ambience (0.42); modules may bind ALREADY-AVAILABLE semantic
+        /// ratios (§46 — no business math may be invented for this).</summary>
+        public double WaterLevel
+        {
+            get => (double)GetValue(WaterLevelProperty);
+            set => SetValue(WaterLevelProperty, value);
         }
 
         public string Icon
