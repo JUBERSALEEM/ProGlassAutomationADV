@@ -99,6 +99,35 @@ with a clear message about an unsupported `TargetFramework`.
 
 ---
 
+## Release workflow (`dotnet-desktop.yml`)
+
+The **publish + OTA release** pipeline lives at `docs/ci/dotnet-desktop.yml`
+(same workaround: the canonical copy is in `docs/ci/`, activate with a copy).
+It contains two jobs:
+
+- **`build-test`** — the same restore → build → test gate as `build-test.yml`,
+  on `windows-latest`.
+- **`release`** — runs only on a `v*.*.*` tag push or a manual
+  `workflow_dispatch`. It publishes self-contained win-x64, packages with
+  Velopack (`vpk pack`, optionally Authenticode-signed via `--signParams`
+  when `CODESIGN_PFX_BASE64`/`CODESIGN_PFX_PASSWORD` are set), then
+  `vpk upload github --publish` — which is what publishes the `RELEASES`
+  feed the in-app OTA (`VelopackUpdateService`) reads. The feed channel is
+  pinned to `stable` and `vpk` to `1.2.0` to match the app.
+
+Activate it the same way as `build-test.yml`:
+
+```bash
+cp docs/ci/dotnet-desktop.yml .github/workflows/dotnet-desktop.yml
+```
+
+### What happened to `.github/workflows/dotnet.yml`
+
+The original `dotnet.yml` targeted `ubuntu-latest`, which cannot build a
+`net8.0-windows` WPF app, so it could never go green. It has been **removed**;
+`dotnet-desktop.yml`'s `build-test` job replaces it. (Deletion was pushable
+from the bot even though creation/update of workflow files is not.)
+
 ## Adding more workflows later
 
 When the App's `workflows` scope is granted and `.github/workflows/` becomes
@@ -107,7 +136,6 @@ writable from the bot, the recommended next slices are:
 | File | Purpose | Trigger |
 |---|---|---|
 | `.github/workflows/codeql.yml` | GitHub-native security analysis | weekly + push to main |
-| `.github/workflows/release.yml` | Build the Velopack `Setup.exe` + portable zip and attach to a GitHub Release | push of a `v*` tag |
 
 Until then, the same workaround applies: keep the canonical file under
 `docs/ci/` and document the activation step in this file.
