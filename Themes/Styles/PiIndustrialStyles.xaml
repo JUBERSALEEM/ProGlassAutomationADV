@@ -86,6 +86,10 @@
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Margin"     Value="0,2,0,0"/>
+        <!-- 2026-09-05 money polish: tabular figures column-align every
+             amount and stop digit jitter on refresh (same contract the
+             dashboard KPI style already had). -->
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
     </Style>
 
     <!-- ACTIONS dropdown item — same contract as Sheet Store. -->

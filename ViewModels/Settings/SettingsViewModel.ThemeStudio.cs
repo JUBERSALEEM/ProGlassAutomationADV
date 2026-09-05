@@ -55,6 +55,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             "Balanced",
             "Frosted",
             "DenseGlass",
+            "RoyalRich",
         };
 
         /// <summary>Current visual family name (displayed on the tile).</summary>
@@ -178,6 +179,24 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             get => _studioDraft?.AnimationIntensity ?? 50;
             set => StudioSet(v => v.AnimationIntensity = value);
+        }
+
+        // ── 2026-09-05 rich colour system ─────────────────────────────
+
+        /// <summary>0 = muted pastel, 50 = family hue, 100 = deep rich
+        /// saturated colour across cards/glass/tints/wallpaper scene.</summary>
+        public double StudioColorRichness
+        {
+            get => _studioDraft?.ColorRichness ?? 50;
+            set => StudioSet(v => v.ColorRichness = value);
+        }
+
+        /// <summary>55 = family ink, 100 = stage-aware maximum-contrast
+        /// text (auto-forced when cards go near-invisible).</summary>
+        public double StudioTextStrength
+        {
+            get => _studioDraft?.TextStrength ?? 55;
+            set => StudioSet(v => v.TextStrength = value);
         }
 
         // ── Commands ──────────────────────────────────────────────────

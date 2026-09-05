@@ -82,6 +82,13 @@ namespace ProGlassAutomation.Services.Settings
                 var color = AccentPresets.ColorFor(presetKey);
                 ThemeManager.ApplyAccent(color);
 
+                // Theme Studio (2026-09-05): the glass-tint + richness
+                // layer derives from the accent — re-apply the live
+                // profile so an accent switch re-tints instantly
+                // (used to keep the old accent until the next slider
+                // move or family switch).
+                ThemeStudioService.OnAccentChanged();
+
                 if (App.Config?.Appearance != null)
                 {
                     App.Config.Appearance.AccentPreset = string.IsNullOrEmpty(presetKey) ? "GlassBlue" : presetKey;

@@ -244,6 +244,33 @@
                             </StackPanel>
                         </UniformGrid>
 
+                        <!-- COLOUR & TEXT (2026-09-05 master request) —
+                             the rich colour system: transparency has a
+                             TRUE full range now (cards can reach near-
+                             invisible), richness saturates EVERY surface
+                             + tint + the wallpaper scene, and text
+                             strength owns readability (auto-forced to
+                             max ink whenever cards go near-invisible). -->
+                        <TextBlock Text="{DynamicResource Settings.StudioColourText}"
+                                   FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <UniformGrid Columns="2">
+                            <StackPanel Margin="0,0,10,6">
+                                <TextBlock Text="{DynamicResource Settings.StudioColorRichness}"
+                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"/>
+                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="100"
+                                        Value="{Binding StudioColorRichness, Mode=TwoWay}"
+                                        ToolTip="{DynamicResource Settings.StudioColorRichnessHint}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,10,6">
+                                <TextBlock Text="{DynamicResource Settings.StudioTextStrength}"
+                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"/>
+                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="100"
+                                        Value="{Binding StudioTextStrength, Mode=TwoWay}"
+                                        ToolTip="{DynamicResource Settings.StudioTextStrengthHint}"/>
+                            </StackPanel>
+                        </UniformGrid>
+
                         <!-- ADVANCED — everything else -->
                         <TextBlock Text="{DynamicResource Settings.StudioAdvanced}"
                                    FontSize="10" FontWeight="Bold" Margin="0,6,0,2"

@@ -2423,6 +2423,11 @@
     <sys:String x:Key="Settings.StudioGlow">Background glow</sys:String>
     <sys:String x:Key="Settings.StudioHighlight">Highlight</sys:String>
     <sys:String x:Key="Settings.StudioAnimation">Animation intensity</sys:String>
+    <sys:String x:Key="Settings.StudioColourText">COLOUR &amp; TEXT</sys:String>
+    <sys:String x:Key="Settings.StudioColorRichness">Colour richness</sys:String>
+    <sys:String x:Key="Settings.StudioColorRichnessHint">0 = muted pastel … 50 = theme colour … 100 = deep saturated rich — applies to cards, glass, status tints and the wallpaper scene</sys:String>
+    <sys:String x:Key="Settings.StudioTextStrength">Text strength</sys:String>
+    <sys:String x:Key="Settings.StudioTextStrengthHint">55 = theme ink … 100 = maximum-contrast text (auto-forced whenever cards go near-invisible, so text can never disappear)</sys:String>
     <sys:String x:Key="Storage.Title">Storage usage</sys:String>
     <sys:String x:Key="Storage.Subtitle">What&apos;s using your local storage</sys:String>
     <sys:String x:Key="Storage.Total">Total</sys:String>

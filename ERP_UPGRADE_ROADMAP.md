@@ -235,3 +235,26 @@ Root causes traced in code, not screenshots:
 |---|---|---|
 | Settings → AI & Agent buttons | The new local-model card mixed one styled button (Install) with DEFAULT Win32 unstyled buttons (License/Verify/Uninstall/Cancel) — in a glass-themed app they render as jarring gray chrome, and the raw WPF ToggleButton (styles TargetType Button never apply to ToggleButton) looked like a broken checkbox | Verify/Cancel/License → `OutlinedPillButton`, Uninstall → `DangerButton`, raw ToggleButton replaced by an `OutlinedPillButton` whose TEXT states posture (`Local model answering — ON/OFF`); ProgressBar gains theme `AccentBrush` foreground; local padding overrides removed so pill templates own their metrics |
 | Splash launch recolor | App.xaml startup merges **LightTheme** at t=0 (cream + light accent); `Application_Startup` then constructs SplashView whose Background/orbs/text bound `{DynamicResource WindowBackgroundBrush/AccentBrush/…}` — when the user's saved Dark/Monet/Professional theme engaged mid-boot, the splash visibly flip-flopped into different colors | The splash is now a **frozen brand moment**: a local crystal palette (`SplashCerulean*`, `SplashText*`, `SplashOutline/Pill/Track`, frozen corners) replaces every color/corner DynamicResource; only language strings + font tokens stay dynamic. Verified zero remaining dynamic color/radius refs; XAML well-formed |
+
+---
+
+## THEME ENGINE 2.0 — Rich Colour System (2026-09-05)
+
+Senior analysis of the existing stack (VisualThemeEngine 6 families, Theme Studio
+16 sliders, WallpaperModules, per-module wallpapers) found five real defects —
+all fixed at ENGINE level (styles/views unchanged; leverage via resource keys):
+
+| # | Defect | Fix |
+|---|--------|-----|
+| 1 | Transparency floored at ~45% alpha — "100%" looked like "60%" | TRUE full range 1.0→0.04 alpha; readability owned by the text layer, not an alpha cripple |
+| 2 | No way to reach "rich" — themes felt pale/washed | New **Colour richness** slider (0–100): HSL saturation ×0.45–×1.85 + depth lift on surfaces, glass, ambient, status tints AND the wallpaper scene; true greys (S<0.08) stay neutral |
+| 3 | Outside-card text invisible on transparent themes (black text on dark stage) | New **Text strength** slider (0–100): stage-aware ink blending (bright on dark stages, deep on light). AUTOMATIC CONTRAST GUARD forces max ink whenever surfScale < 0.22 — invisible text is now impossible by construction |
+| 4 | Accent changes left studio tint stale until next slider move | `ThemeStudioService.OnAccentChanged()` re-applies the live profile instantly |
+| 5 | Money/KPI digits jittered + weren't column-aligned | `Typography.NumeralAlignment=Tabular` on PiKpi/ModuleListKpi/Hero/Stat/Medium number styles |
+
+Per-family designed signatures: Monet Richness 75 · Ocean 70 · LiquidGlass 60 ·
+Professional 45 (restrained) · UltraTransparent TextStrength 85 (readable through
+glass). New **Royal Rich** preset (Richness 90 / Text 75). Old configs upgrade
+invisibly (50/55 defaults = family look). Wallpaper: engine-generated scenes now
+follow richness; user images are dimmed only, never recoloured. UI: new
+COLOUR & TEXT slider group in Settings → Appearance → Theme Studio.

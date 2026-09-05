@@ -44,6 +44,7 @@
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Margin" Value="0,2,0,0"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
     </Style>
 
     <Style x:Key="ModuleListKpiHintStyle" TargetType="TextBlock">

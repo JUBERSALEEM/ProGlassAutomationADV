@@ -20,9 +20,22 @@
 //      this service never writes disk.
 //
 // MAPPINGS (0–100 → WPF):
-//   Frostness        alpha floor + milky boost on glass/surface keys
-//   Transparency     alpha scale 1.0 → 0.45 on surface keys (never
-//                    below the readability floor — see ReadableFloor)
+//   Frostness        milky alpha boost on glass/surface keys
+//   Transparency     alpha scale 1.0 → 0.04 on surface keys — TRUE full
+//                    range (2026-09-05): 100% really is near-invisible
+//                    glass. Readability is owned by the text layer
+//                    (TextStrength + the contrast guard), never again by
+//                    an alpha floor that made 100% look like 60%.
+//   ColorRichness    saturation ×0.45 (muted pastel) … ×1.85 (deep
+//                    rich) + gentle depth lift on surfaces, glass,
+//                    ambient, wallpaper scene and status tints. True
+//                    greys (S<0.08) stay neutral — no muddy chrome.
+//   TextStrength     ink blend toward stage-aware max-contrast text
+//                    (bright ink on dark stages, deep ink on light
+//                    stages). AUTOMATIC CONTRAST GUARD: when cards go
+//                    near-invisible (effective surface alpha < 0.22) all
+//                    text forces to max ink — "text outside the cards
+//                    disappears" is impossible by construction.
 //   BlurIntensity    frost-density boost on the glass-key group (WPF
 //                    backgrounds are alpha-composited, not GPU-blurred)
 //   GlassTint        blend of the glass group toward AccentColor
@@ -108,6 +121,30 @@ namespace ProGlassAutomation.Services.Theme
             "ShellSheenBrush", "LiquidReflectionBrush",
         };
 
+        /// <summary>Text colours — TextStrength + the automatic contrast
+        /// guard (2026-09-05). These feed every typography style in the
+        /// app (TypographyStyles / KPI / money values all bind them).</summary>
+        private static readonly string[] TextKeysPrimary =
+        {
+            "TextPrimaryBrush", "PrimaryForegroundBrush",
+        };
+
+        private static readonly string[] TextKeysSecondary =
+        {
+            "TextSecondaryBrush", "SecondaryForegroundBrush",
+            "MutedForegroundBrush",
+        };
+
+        /// <summary>Status hue tints — ColorRichness saturates these so
+        /// dashboards/list chips join the rich system instead of staying
+        /// pastel against rich surfaces.</summary>
+        private static readonly string[] TintKeys =
+        {
+            "TintIndigoBrush", "TintBlueBrush", "TintGreenBrush",
+            "TintRedBrush", "TintAmberBrush", "TintPurpleBrush",
+            "TintGrayBrush",
+        };
+
         /// <summary>Border keys (BorderVisibility + BorderOpacity).</summary>
         private static readonly string[] BorderKeys =
         {
@@ -165,6 +202,16 @@ namespace ProGlassAutomation.Services.Theme
                 Apply(Active);
         }
 
+        /// <summary>Re-applies the active profile after an accent change
+        /// so glass tint and the richness layer pick up the new accent
+        /// immediately. Previously the tint kept the OLD accent until the
+        /// next family switch or slider move (2026-09-05).</summary>
+        public static void OnAccentChanged()
+        {
+            if (Active != null && _snapshotTaken)
+                Apply(Active);
+        }
+
         /// <summary>
         /// Applies a profile live. Idempotent; safe to call on every
         /// slider tick (clones + fresh instances only — no disk IO).
@@ -187,33 +234,48 @@ namespace ProGlassAutomation.Services.Theme
             double transp = Clamp01(s.Transparency);
             double blur = Clamp01(s.BlurIntensity);
             double tint = Clamp01(s.GlassTint);
+            double rich = Clamp01(s.ColorRichness);
+            double text = Clamp01(s.TextStrength);
 
-            // Readability floor (master prompt §19): transparency can
-            // never drop surface alpha below this; dense frost raises
-            // the floor further so text keeps contrast.
-            double floor = 0.38 + 0.25 * frost;
-            double tScale = 1.0 - 0.55 * transp;
-            double surfScale = Math.Max(tScale, floor);
+            // ── Transparency — TRUE full range (2026-09-05 master
+            // request): 0 = fully solid, 100 = near-invisible glass.
+            // The old 0.38–0.63 readability FLOOR is gone; readability
+            // is guaranteed by the text layer + contrast guard below.
+            double tScale = 1.0 - 0.96 * transp;
+            double surfScale = Math.Max(tScale, 0.04 + 0.06 * frost);
 
             // Frost = milky alpha boost on top of the transparency scale.
             double frostBoost = 0.12 * frost;
             // Blur maps to frost density (WPF has no background blur).
             double blurBoost = 0.10 * blur;
 
+            // ── Colour richness — saturation ×0.45 (muted pastel) …
+            // ×1.85 (deep rich), with a gentle depth lift at the rich
+            // end so saturated colours read DEEP, not neon. Neutrals
+            // (S<0.08) are untouched — grey chrome never turns muddy.
+            double satMul = 0.45 + 1.40 * rich;
+            double deepLift = -0.10 * Math.Max(0.0, rich - 0.5) * 2.0;
+
             var accent = GetAccentColor();
 
             foreach (var key in SurfaceKeys)
-                WriteScaledBrush(resources, key, surfScale + frostBoost);
+                WriteScaledBrush(resources, key, surfScale + frostBoost, 0.0, default, satMul, deepLift);
             foreach (var key in GlassKeys)
                 WriteScaledBrush(resources, key,
-                    Math.Min(1.0, surfScale + frostBoost + blurBoost), tint, accent);
+                    Math.Min(1.0, surfScale + frostBoost + blurBoost), tint, accent, satMul, deepLift);
             foreach (var key in AmbientKeys)
-                WriteScaledBrush(resources, key, Math.Max(0.25, surfScale));
+                WriteScaledBrush(resources, key, Math.Max(0.15, surfScale), 0.0, default, satMul, deepLift);
+            foreach (var key in TintKeys)
+                WriteScaledBrush(resources, key, 1.0, 0.0, default, satMul, deepLift);
 
-            // Background visibility — wallpaper / window stage.
+            // Background visibility — wallpaper / window stage. Richness
+            // also saturates the wallpaper SCENE (gradient stops) so the
+            // per-theme dynamic wallpaper follows the same colour
+            // system; a user-supplied image is only ever dimmed, never
+            // recoloured.
             double bgScale = 0.15 + 0.85 * Clamp01(s.BackgroundVisibility);
             foreach (var key in BackgroundKeys)
-                WriteScaledBrush(resources, key, bgScale);
+                WriteScaledBrush(resources, key, bgScale, 0.0, default, satMul, deepLift);
 
             // Glow / highlight.
             double glowScale = 0.20 + 0.80 * Clamp01(s.BackgroundGlow);
@@ -222,6 +284,35 @@ namespace ProGlassAutomation.Services.Theme
             double hlScale = 0.15 + 0.85 * Clamp01(s.HighlightStrength);
             foreach (var key in HighlightKeys)
                 WriteScaledBrush(resources, key, hlScale);
+
+            // ── TEXT LAYER (2026-09-05). The complaint: "outside-card
+            // text is invisible in transparent themes". The five text
+            // keys (which feed EVERY typography style — page titles,
+            // section headers, KPI/money values, hints) now belong to
+            // this pass:
+            //   55  = the family's designed ink, untouched
+            //   100 = stage-aware maximum-contrast ink
+            //   0   = deliberately softened (pulled toward the stage)
+            // CONTRAST GUARD: with cards near-invisible (surfScale <
+            // 0.22) ink forces to maximum regardless of the slider —
+            // extreme transparency keeps full readability.
+            double stageLum = StageLuminance(resources);
+            bool darkStage = stageLum < 0.42;
+            Color primaryInk = darkStage
+                ? Color.FromRgb(0xF5, 0xF8, 0xFF)
+                : Color.FromRgb(0x0A, 0x11, 0x20);
+            Color secondaryInk = darkStage
+                ? Color.FromRgb(0xC9, 0xD4, 0xE8)
+                : Color.FromRgb(0x2E, 0x3A, 0x4D);
+
+            bool guard = surfScale < 0.22;
+            double up = guard ? 1.0 : Math.Max(0.0, (text - 0.55) / 0.45);
+            double down = guard ? 0.0 : Math.Max(0.0, (0.55 - text) / 0.55);
+
+            foreach (var key in TextKeysPrimary)
+                WriteTextBrush(resources, key, up, down, primaryInk, darkStage);
+            foreach (var key in TextKeysSecondary)
+                WriteTextBrush(resources, key, up, down, secondaryInk, darkStage);
 
             // Borders — visibility × opacity, then thickness (0–100 →
             // 0–4 DIP, same range as the classic Appearance slider so
@@ -311,6 +402,9 @@ namespace ProGlassAutomation.Services.Theme
                 foreach (var k in BorderKeys) yield return k;
                 foreach (var k in ShadowKeys) yield return k;
                 foreach (var k in BackgroundKeys) yield return k;
+                foreach (var k in TextKeysPrimary) yield return k;
+                foreach (var k in TextKeysSecondary) yield return k;
+                foreach (var k in TintKeys) yield return k;
                 yield return "DensityCardPadding";
                 foreach (var k in DurationKeys) yield return k;
             }
@@ -323,6 +417,11 @@ namespace ProGlassAutomation.Services.Theme
         private static void WriteScaledBrush(
             ResourceDictionary r, string key, double scale,
             double tintStrength, Color accent)
+            => WriteScaledBrush(r, key, scale, tintStrength, accent, 1.0, 0.0);
+
+        private static void WriteScaledBrush(
+            ResourceDictionary r, string key, double scale,
+            double tintStrength, Color accent, double satMul, double deepLift)
         {
             if (!_base.TryGetValue(key, out var baseVal)) return;
             if (baseVal is not Brush baseBrush) return;
@@ -341,7 +440,84 @@ namespace ProGlassAutomation.Services.Theme
                         stop.Color = Blend(stop.Color, accent, tintStrength * 0.6);
                 }
             }
+
+            // Colour richness (2026-09-05): saturation/depth transform.
+            // ImageBrush (user wallpaper) is deliberately NOT recoloured.
+            if (Math.Abs(satMul - 1.0) > 0.01 || Math.Abs(deepLift) > 0.001)
+            {
+                if (clone is SolidColorBrush richSolid)
+                    richSolid.Color = Enrich(richSolid.Color, satMul, deepLift);
+                else if (clone is GradientBrush richGrad)
+                {
+                    foreach (var stop in richGrad.GradientStops)
+                        stop.Color = Enrich(stop.Color, satMul, deepLift);
+                }
+            }
             r[key] = clone;
+        }
+
+        /// <summary>Richness transform (HSL): scales saturation but keeps
+        /// true greys (S&lt;0.08) neutral, and applies the depth lift.</summary>
+        private static Color Enrich(Color c, double satMul, double lift)
+        {
+            var (h, sat, lum) = ColorMath.ToHsl(c);
+            if (sat > 0.08 && Math.Abs(satMul - 1.0) > 0.01)
+                sat = Math.Clamp(sat * satMul, 0.0, 1.0);
+            lum = Math.Clamp(lum + lift, 0.0, 1.0);
+            return ColorMath.FromHsl(h, sat, lum, c.A);
+        }
+
+        /// <summary>Perceived luminance (0–1) of the LIVE window stage —
+        /// samples the just-written WindowBackgroundBrush (gradient stops
+        /// averaged) so ink choice reflects what is actually composited.</summary>
+        private static double StageLuminance(ResourceDictionary r)
+        {
+            try
+            {
+                if (r["WindowBackgroundBrush"] is SolidColorBrush solid)
+                    return ColorMath.RelativeLuminance(solid.Color);
+                if (r["WindowBackgroundBrush"] is GradientBrush grad
+                    && grad.GradientStops.Count > 0)
+                {
+                    double sum = 0;
+                    foreach (var stop in grad.GradientStops)
+                        sum += ColorMath.RelativeLuminance(stop.Color);
+                    return (sum / grad.GradientStops.Count) * grad.Opacity;
+                }
+            }
+            catch { /* fall through to the safe default */ }
+            return 0.5; // unknown stage: treat as light-neutral
+        }
+
+        /// <summary>Writes one text key: blends the family's snapshot
+        /// colour toward the stage-aware target ink (up) or toward the
+        /// stage tone for a deliberately soft look (down).</summary>
+        private static void WriteTextBrush(
+            ResourceDictionary r, string key,
+            double up, double down, Color targetInk, bool darkStage)
+        {
+            if (!_base.TryGetValue(key, out var baseVal)) return;
+            if (baseVal is not SolidColorBrush baseBrush) return;
+
+            Color c0 = baseBrush.Color;
+            Color c;
+            if (up > 0.001)
+                c = ColorMath.Mix(c0, targetInk, up);
+            else if (down > 0.001)
+            {
+                // Soft text = pull toward the stage tone (lower contrast
+                // by intent — the user steered left of the family ink).
+                Color stageTone = darkStage
+                    ? Color.FromRgb(0x12, 0x1B, 0x2E)
+                    : Color.FromRgb(0xF2, 0xF0, 0xEA);
+                c = ColorMath.Mix(c0, ColorMath.Mix(c0, stageTone, 0.55), down * 0.7);
+            }
+            else
+                return; // sits at the family design — leave the key alone
+
+            // Fresh instance: DynamicResource subscribers only update on
+            // dictionary replacement, never on a mutated shared brush.
+            r[key] = new SolidColorBrush(Color.FromArgb(c0.A, c.R, c.G, c.B));
         }
 
         private static void WriteScaledThickness(
