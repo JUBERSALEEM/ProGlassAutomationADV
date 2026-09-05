@@ -94,8 +94,16 @@ namespace ProGlassAutomation.Services.Theme
             resources["OutlineBrush"] = crystalBorder;
             resources["OutlineDefaultBrush"] = crystalBorder;
             resources["BorderBrush"] = crystalBorder;
-            resources["DividerBrush"] = new SolidColorBrush(
-                Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF));
+            // Ios-17pm P4d: grid-line identity adopts the AUTHORED grid
+            // row-border token (single home in CrystalFluidBrushes.xaml).
+            // DividerBrush feeds ModuleList row lines and every section
+            // divider; it is repainted from the neutral baseline by the
+            // critical-guarantee pass on every family switch — no
+            // authored grid tint can leak across families. Fallback is
+            // the byte-exact pre-P4d literal.
+            resources["DividerBrush"] = TokenBrush(resources,
+                "CrystalGridRowBorderBrush")
+                ?? FrozenArgb(0x33, 0xFF, 0xFF, 0xFF);
             resources["GlassBorderSoft"] = new SolidColorBrush(
                 Color.FromArgb(0x5C, 0xFF, 0xFF, 0xFF));
 
