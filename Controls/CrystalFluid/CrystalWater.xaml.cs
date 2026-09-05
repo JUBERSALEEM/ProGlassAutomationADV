@@ -43,7 +43,10 @@ namespace ProGlassAutomation.Controls.CrystalFluid
         public static readonly DependencyProperty WaterLevelProperty =
             DependencyProperty.Register(nameof(WaterLevel), typeof(double),
                 typeof(CrystalWater),
-                new FrameworkPropertyMetadata(0.42, OnWaterLevelChanged)
+                // Ios-17pm P1: default mirrors the authored
+                // CrystalDefaultWaterLevel token (0.30 — calm baseline;
+                // hosts pin semantic levels explicitly).
+                new FrameworkPropertyMetadata(0.30, OnWaterLevelChanged)
                 { CoerceValueCallback = CoerceUnitInterval });
 
         /// <summary>Normalized fill: 0 = empty … 1 = completely full (§15).</summary>

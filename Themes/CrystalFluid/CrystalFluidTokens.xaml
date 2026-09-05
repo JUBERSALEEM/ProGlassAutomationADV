@@ -4,131 +4,84 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
     <!-- ═══════════════════════════════════════════════════════════════════
-         CRYSTAL FLUID — DESIGN TOKENS (2026-09-05, Milestone 1)
-         Frozen spec: CRYSTAL_FLUID_DESIGN.md (prompt §§8,10–13,15,23,24,42)
-         One home for colors/brushes/metrics/motion. Consuming styles bind
-         via DynamicResource; family painters own the RUNTIME managed keys
-         (these Crystal* tokens are the system-level nouns: water, glass,
-         reflection — applied BY components, repainted BY nothing else).
+         CRYSTAL FLUID — PIPELINE EXTENSION TOKENS (Ios-17pm, P1 2026-09-05)
+
+         The token PLANE now lives in three byte-verbatim reference
+         dictionaries (the "Ios-17pm" authored source of truth):
+           CrystalFluidColors.xaml   — 47 color nouns
+           CrystalFluidBrushes.xaml  — 60 brush nouns
+           CrystalFluidMetrics.xaml  — radii/padding/type/motion/opacity
+         This file carries ONLY what those three deliberately do NOT:
+
+           (A) PIPELINE KEYS (5) — app-lifecycle material parameters the
+               VisualThemeEngine overrides at runtime and the Theme Studio
+               binds live (engine key list: VisualThemeEngine.Part1.cs
+               CrystalFluidTokenKeys + the family gate). They belong to the
+               app integration layer, not the authored design system.
+           (B) TRANSITIONAL BRUSHES (3) — consumed ONLY by the interim
+               Controls/CrystalFluid/CrystalWater.xaml. P2 supersedes that
+               control with the authored CrystalWaterControl (which paints
+               from CrystalWaterBodyBrush / CrystalWaterHighlightBrush /
+               CrystalWaterDepthBrush / CrystalBubbleFillBrush …), then
+               these three keys and this section are DELETED.
+
+         Nothing else may be added here: new visual nouns go into the
+         three authored dictionaries; new app switches need the same
+         lifecycle wiring the pipeline keys below already have.
          ═══════════════════════════════════════════════════════════════════ -->
 
-    <!-- ── §8 COLORS ──────────────────────────────────────────────────── -->
-    <Color x:Key="CrystalInkColor">#102938</Color>
-    <Color x:Key="CrystalMutedColor">#68808F</Color>
-    <Color x:Key="CrystalAccentColor">#55C9EE</Color>
-    <Color x:Key="CrystalAccentDeepColor">#2FA8D4</Color>
-    <Color x:Key="CrystalEnv0Color">#F8FDFF</Color>
-    <Color x:Key="CrystalEnv1Color">#EDFAFF</Color>
-    <Color x:Key="CrystalEnv2Color">#DFF5FF</Color>
-    <Color x:Key="CrystalWaterTopColor">#BFEFFB</Color>
-    <Color x:Key="CrystalWaterMidColor">#8EDCF4</Color>
-    <Color x:Key="CrystalWaterDeepColor">#5FC8EC</Color>
-    <Color x:Key="CrystalPositiveColor">#3BBF7E</Color>
-    <Color x:Key="CrystalWarningColor">#E8A13C</Color>
-    <Color x:Key="CrystalDangerColor">#E0616B</Color>
-    <Color x:Key="CrystalShadowInkColor">#1E5F7E</Color>
+    <!-- ── (A) PIPELINE KEYS ──────────────────────────────────────────── -->
 
-    <!-- ── §8 TEXT BRUSHES (also re-published by the family painter
-         as PrimaryForegroundBrush etc. — these are the component-level
-         nouns CrystalFluid controls reference directly) ──────────────── -->
-    <SolidColorBrush x:Key="CrystalInkBrush" Color="{StaticResource CrystalInkColor}" po:Freeze="True"/>
-    <SolidColorBrush x:Key="CrystalMutedBrush" Color="{StaticResource CrystalMutedColor}" po:Freeze="True"/>
-    <SolidColorBrush x:Key="CrystalAccentBrush" Color="{StaticResource CrystalAccentColor}" po:Freeze="True"/>
+    <!-- Studio WaterFlow slider + engine override: ambient speed scale
+         (authored system has no speed axis). Consumed by CrystalWater
+         (style setter) | VisualThemeEngine | ThemeStudioService. -->
+    <sys:Double x:Key="CrystalWaterSpeed">1.0</sys:Double>
 
-    <!-- ── §10 GLASS — 135° white .43 → .14 (never opaque) ───────────── -->
-    <LinearGradientBrush x:Key="CrystalGlassBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#6EFFFFFF" Offset="0"/>
-        <GradientStop Color="#24FFFFFF" Offset="1"/>
-    </LinearGradientBrush>
-    <!-- stronger white — hover/active nav, floating panels (§26/§29) -->
-    <LinearGradientBrush x:Key="CrystalGlassStrongBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#8FFFFFFF" Offset="0"/>
-        <GradientStop Color="#3DFFFFFF" Offset="1"/>
-    </LinearGradientBrush>
-    <SolidColorBrush x:Key="CrystalHoverVeilBrush" Color="#38FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="CrystalPressedVeilBrush" Color="#52FFFFFF" po:Freeze="True"/>
+    <!-- Studio WaterFlow slider + engine override: bubble-layer opacity.
+         (Authored metrics expose CrystalBubbleMaxOpacity=0.70 as the
+         design ceiling; this is the LIVE multiplier.) Consumed by
+         CrystalWater | VisualThemeEngine | ThemeStudioService. -->
+    <sys:Double x:Key="CrystalBubbleOpacity">1.0</sys:Double>
 
-    <!-- ── §11 BORDER — bright translucent white edge + inner hairline ── -->
-    <LinearGradientBrush x:Key="CrystalBorderBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#B3FFFFFF" Offset="0"/>
-        <GradientStop Color="#8FFFFFFF" Offset="0.55"/>
-        <GradientStop Color="#61FFFFFF" Offset="1"/>
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="CrystalInnerHairlineBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#66FFFFFF" Offset="0"/>
-        <GradientStop Color="#14FFFFFF" Offset="1"/>
-    </LinearGradientBrush>
+    <!-- §43 reduced motion — global switch; CrystalWater renders a
+         STATIC water body when True. Engine-managed; authored
+         components read it as their default ReducedMotion value. -->
+    <sys:Boolean x:Key="CrystalReducedMotion">False</sys:Boolean>
 
-    <!-- ── §13 SPECULAR REFLECTION — 115°-style diagonal sheen ─────────
-         WPF has no angle-on-gradient property; StartPoint/EndPoint
-         (0,0)->(1,1.6) gives a steep diagonal close to 115° that reads
-         "polished light across transparent material". Subtle by §13. -->
-    <LinearGradientBrush x:Key="CrystalReflectionBrush" StartPoint="0,0" EndPoint="1,1.6" po:Freeze="True">
-        <GradientStop Color="#3DFFFFFF" Offset="0"/>
-        <GradientStop Color="#1AFFFFFF" Offset="0.28"/>
-        <GradientStop Color="#00FFFFFF" Offset="0.62"/>
-        <GradientStop Color="#0FFFFFFF" Offset="1"/>
-    </LinearGradientBrush>
+    <!-- Family-aware water gate: Crystal Fluid's painter publishes True
+         at app level; the switch-away path removes it (see
+         VisualThemeEngine next to ClearOverrides). Every other family
+         sees this static False — water is a Crystal Fluid material,
+         not a global effect (industrial families keep their
+         no-theatre law). Consumed by StatCardControl | StatCard XAML. -->
+    <sys:Boolean x:Key="CrystalWaterDefaultEnabled">False</sys:Boolean>
 
-    <!-- ── §16 WATER — translucent body (never a solid blue slab) ─────── -->
+    <!-- §42 card-lift duration (0.32 s). The authored metrics carry
+         hover/transition/water durations but no card-lift axis; P2's
+         card tilt/lift consumes this. -->
+    <Duration x:Key="CrystalCardDuration">0:0:0.32</Duration>
+
+    <!-- ── (B) TRANSITIONAL BRUSHES — P2 TOMBSTONE ──────────────────────
+         Kept verbatim from Milestone 1 so the interim CrystalWater
+         control renders unchanged until the authored CrystalWaterControl
+         replaces it. Do NOT add new consumers; P2 deletes this region. -->
+
+    <!-- §16 water body — interim translucent cyan gradient -->
     <LinearGradientBrush x:Key="CrystalWaterBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#59BFEFFB" Offset="0"/>
         <GradientStop Color="#808EDCF4" Offset="0.45"/>
         <GradientStop Color="#995FC8EC" Offset="1"/>
     </LinearGradientBrush>
-    <!-- §17 surface highlight band -->
+    <!-- §17 surface highlight band (interim elliptical waterline sheen) -->
     <LinearGradientBrush x:Key="CrystalWaterSurfaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#CCFFFFFF" Offset="0"/>
         <GradientStop Color="#59FFFFFF" Offset="0.5"/>
         <GradientStop Color="#00FFFFFF" Offset="1"/>
     </LinearGradientBrush>
-    <!-- §18 caustic streak (soft white/cyan; noticed only up close) -->
-    <LinearGradientBrush x:Key="CrystalCausticBrush" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
-        <GradientStop Color="#00FFFFFF" Offset="0"/>
-        <GradientStop Color="#26FFFFFF" Offset="0.45"/>
-        <GradientStop Color="#33CFFCFF" Offset="0.55"/>
-        <GradientStop Color="#00FFFFFF" Offset="1"/>
-    </LinearGradientBrush>
-    <!-- §19 bubble: translucent white shell, cyan core -->
+    <!-- §19 bubble: translucent white shell, cyan core (interim) -->
     <RadialGradientBrush x:Key="CrystalBubbleBrush" po:Freeze="True">
         <GradientStop Color="#66FFFFFF" Offset="0"/>
         <GradientStop Color="#3DD6F4FF" Offset="0.55"/>
         <GradientStop Color="#12A8E4F4" Offset="1"/>
     </RadialGradientBrush>
-    <!-- §22 deep tint used for semantic fill over the body -->
-    <SolidColorBrush x:Key="CrystalWaterTintBrush" Color="#4055C9EE" po:Freeze="True"/>
-
-    <!-- ── §24 CORNER RADII (centralized — no per-XAML magic numbers) ─── -->
-    <CornerRadius x:Key="CrystalRadiusCard">30</CornerRadius>
-    <CornerRadius x:Key="CrystalRadiusCardLarge">32</CornerRadius>
-    <CornerRadius x:Key="CrystalRadiusTopBar">25</CornerRadius>
-    <CornerRadius x:Key="CrystalRadiusButton">15</CornerRadius>
-    <CornerRadius x:Key="CrystalRadiusItem">17</CornerRadius>
-    <CornerRadius x:Key="CrystalRadiusIcon">14</CornerRadius>
-    <CornerRadius x:Key="CrystalRadiusSidebar">32</CornerRadius>
-    <CornerRadius x:Key="CrystalRadiusPill">999</CornerRadius>
-
-    <!-- ── §42 MOTION (durations as resources; sentences in ms per spec) ── -->
-    <Duration x:Key="CrystalHoverDuration">0:0:0.20</Duration>
-    <Duration x:Key="CrystalCardDuration">0:0:0.32</Duration>
-    <Duration x:Key="CrystalWaterLevelDuration">0:0:1.50</Duration>
-    <Duration x:Key="CrystalAmbientDuration">0:0:20</Duration>
-    <Duration x:Key="CrystalCausticDuration">0:0:12</Duration>
-    <Duration x:Key="CrystalBubbleDuration">0:0:8</Duration>
-
-    <!-- ── §45 GLOBAL MATERIAL PARAMETERS (consumed by CrystalWater and
-         card templates; Theme Studio Milestone-3 axes bind here) ─────── -->
-    <sys:Double x:Key="CrystalWaterOpacity">1.0</sys:Double>
-    <sys:Double x:Key="CrystalWaterSpeed">1.0</sys:Double>
-    <sys:Double x:Key="CrystalCausticOpacity">1.0</sys:Double>
-    <sys:Double x:Key="CrystalBubbleOpacity">1.0</sys:Double>
-    <sys:Double x:Key="CrystalReflectionOpacity">1.0</sys:Double>
-    <sys:Double x:Key="CrystalWaterLevelDefault">0.42</sys:Double>
-    <sys:Int32  x:Key="CrystalBubbleCount">3</sys:Int32>
-    <!-- §43 reduced motion — global switch; CrystalWater renders a
-         STATIC water body when True. Milestone 3 wires the Studio toggle. -->
-    <sys:Boolean x:Key="CrystalReducedMotion">False</sys:Boolean>
-
-    <!-- Family-aware water gate: Crystal Fluid's painter publishes True at app level; the switch-away path removes it (see VisualThemeEngine next to ClearOverrides). Every other family sees this static False — water is a Crystal Fluid material, not a global effect (industrial families keep their no-theatre law). -->
-    <sys:Boolean x:Key="CrystalWaterDefaultEnabled">False</sys:Boolean>
 </ResourceDictionary>

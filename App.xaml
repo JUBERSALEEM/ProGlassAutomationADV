@@ -43,9 +43,17 @@
 
                 <!-- v2 design system: shared module-screen primitives -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>
-                <!-- CRYSTAL FLUID design tokens (2026-09-05) — colors,
-                     glass/water/reflection brushes, radii, motion,
-                     material parameters. Consumed via DynamicResource. -->
+                <!-- CRYSTAL FLUID "Ios-17pm" token plane (P1 2026-09-05).
+                     Authored source-of-truth trio, load order per the
+                     theme master (colors → brushes → metrics; brushes
+                     StaticResource-reference the color nouns), then the
+                     app's pipeline-extension tokens (studio/engine-
+                     managed keys + transitional brushes). Consumed via
+                     DynamicResource by components, overridden at runtime
+                     ONLY by the VisualThemeEngine/Theme Studio. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidColors.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidBrushes.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidMetrics.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidTokens.xaml"/>
                 <!-- Industrial list-page chrome (PI / JO / DN / TI) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ListPageStyles.xaml"/>

@@ -49,12 +49,15 @@ namespace ProGlassAutomation.Controls.StatCard
         public static readonly DependencyProperty WaterLevelProperty =
             DependencyProperty.Register(
                 nameof(WaterLevel), typeof(double), typeof(StatCardControl),
-                new PropertyMetadata(0.42, null,
+                // Ios-17pm P1: default mirrors the authored
+                // CrystalDefaultWaterLevel token (0.30).
+                new PropertyMetadata(0.30, null,
                     (d, v) => Math.Max(0.0, Math.Min(1.0, (double)v))));
 
-        /// <summary>Normalized water fill 0..1 (§15). Defaults to the spec
-        /// ambience (0.42); modules may bind ALREADY-AVAILABLE semantic
-        /// ratios (§46 — no business math may be invented for this).</summary>
+        /// <summary>Normalized water fill 0..1 (§15). Defaults to the
+        /// authored ambience (CrystalDefaultWaterLevel = 0.30); modules
+        /// may bind ALREADY-AVAILABLE semantic ratios (§46 — no business
+        /// math may be invented for this).</summary>
         public double WaterLevel
         {
             get => (double)GetValue(WaterLevelProperty);
