@@ -2400,6 +2400,8 @@
     <sys:String x:Key="Settings.StudioPreset">نمط</sys:String>
     <sys:String x:Key="Settings.StudioResetCurrent">إعادة تعيين المظهر الحالي</sys:String>
     <sys:String x:Key="Settings.StudioResetAll">إعادة تعيين جميع المظاهر</sys:String>
+    <sys:String x:Key="Settings.StudioUndo">تراجع</sys:String>
+    <sys:String x:Key="Settings.StudioUndoTip">التراجع عن آخر تغيير في الاستوديو (شريط تمرير أو قالب أو إعادة تعيين أو مظهر سريع)</sys:String>
     <sys:String x:Key="Settings.StudioCustomized">مخصص</sys:String>
     <sys:String x:Key="Settings.StudioDefaults">إعدادات العائلة الافتراضية</sys:String>
     <sys:String x:Key="Settings.StudioFrostness">الضبابية</sys:String>

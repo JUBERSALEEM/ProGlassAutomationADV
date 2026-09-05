@@ -973,6 +973,15 @@
                                 <TextBlock Text="{DynamicResource Settings.StudioResetAll}"
                                            FontSize="{StaticResource TextBody}"/>
                             </Button>
+                            <!-- Phase 4: take back the last studio touch -->
+                            <Button Command="{Binding UndoStudioCommand}"
+                                    IsEnabled="{Binding CanStudioUndo}"
+                                    Style="{StaticResource AccentChipStyle}"
+                                    ToolTip="{DynamicResource Settings.StudioUndoTip}"
+                                    Margin="8,0,0,0" Padding="12,5">
+                                <TextBlock Text="{DynamicResource Settings.StudioUndo}"
+                                           FontSize="{StaticResource TextBody}"/>
+                            </Button>
                         </StackPanel>
 
                         <!-- BASIC — the five everyday sliders -->

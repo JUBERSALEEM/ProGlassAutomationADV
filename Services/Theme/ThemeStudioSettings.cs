@@ -258,10 +258,63 @@ namespace ProGlassAutomation.Services.Theme
             "Frosted",
             "DenseGlass",
             "RoyalRich",
+            // Phase 4 (2026-09-05): industrial pack — matte, solid,
+            // keyline-forward profiles for the factory-floor audience.
+            "Ledger",
+            "Workshop",
+            "HMI Steel",
         };
 
-        public static ThemeStudioSettings Preset(string name)
+        // ── Axis registry (Phase 4, 2026-09-05) — THE 19 studio axes ──
+        //
+        // Single home for axis knowledge. The ViewModel's sliders, the
+        // per-slider reset chips and the manifest tests all read THIS
+        // list: an axis that exists in code but not here (or vice versa)
+        // is a red build (StudioAxisManifestTests), not a silent UI gap.
+
+        /// <summary>All studio axis property names (order = UI reading
+        /// order: basic, geometry, shadow, border, background, motion,
+        /// colour system).</summary>
+        public static IReadOnlyList<string> AxisNames { get; } = new[]
         {
+            "Frostness", "Transparency", "BlurIntensity", "GlassTint",
+            "CornerRoundness", "CardPadding",
+            "ShadowIntensity", "ShadowSoftness", "ShadowDepth",
+            "BorderVisibility", "BorderOpacity", "BorderThickness",
+            "BackgroundVisibility", "BackgroundGlow",
+            "HighlightStrength", "AnimationIntensity",
+            "ColorRichness", "TextStrength", "WaterFlow",
+        };
+
+        /// <summary>Sets one axis by name. Reflection is deliberate and
+        /// SAFE here: AxisNames is pinned to the real property set by
+        /// StudioAxisManifestTests, so a bogus key simply returns false
+        /// instead of compiling a silently dead mapping. Returns false
+        /// for unknown/non-double keys.</summary>
+        public bool SetAxis(string key, double value)
+        {
+            var prop = GetType().GetProperty(key);
+            if (prop == null || prop.PropertyType != typeof(double) ||
+                !prop.CanWrite)
+                return false;
+            prop.SetValue(this, value);
+            return true;
+        }
+
+        /// <summary>Restores one axis from another profile (the active
+        /// family's defaults) — the per-slider reset chip's engine.
+        /// Returns false for unknown keys (no state touched).</summary>
+        public bool ResetAxisTo(string key, ThemeStudioSettings defaults)
+        {
+            var prop = GetType().GetProperty(key);
+            if (prop == null || prop.PropertyType != typeof(double) ||
+                !prop.CanWrite || defaults == null)
+                return false;
+            prop.SetValue(this, prop.GetValue(defaults));
+            return true;
+        }
+
+        public static ThemeStudioSettings Preset(string name)        {
             var s = new ThemeStudioSettings();
             switch (name)
             {
@@ -338,6 +391,51 @@ namespace ProGlassAutomation.Services.Theme
                     s.AnimationIntensity = 50;
                     s.ColorRichness = 90; s.TextStrength = 75;
                                         s.WaterFlow = 40;
+                    break;
+
+                case "Ledger":            // 📄 paper-light matte (industrial)
+                    s.Frostness = 5; s.Transparency = 5;
+                    s.BlurIntensity = 5; s.GlassTint = 0;
+                    s.CornerRoundness = 15; s.CardPadding = 60;
+                    s.ShadowIntensity = 20; s.ShadowSoftness = 35;
+                    s.ShadowDepth = 15;
+                    s.BorderVisibility = 75; s.BorderOpacity = 70;
+                    s.BorderThickness = 45;
+                    s.BackgroundVisibility = 95; s.BackgroundGlow = 5;
+                    s.HighlightStrength = 10;
+                    s.AnimationIntensity = 30;
+                    s.ColorRichness = 45; s.TextStrength = 75;
+                    s.WaterFlow = 0;
+                    break;
+
+                case "Workshop":          // 🛠 denser matte workbench
+                    s.Frostness = 10; s.Transparency = 8;
+                    s.BlurIntensity = 10; s.GlassTint = 5;
+                    s.CornerRoundness = 12; s.CardPadding = 45;
+                    s.ShadowIntensity = 30; s.ShadowSoftness = 40;
+                    s.ShadowDepth = 20;
+                    s.BorderVisibility = 80; s.BorderOpacity = 75;
+                    s.BorderThickness = 50;
+                    s.BackgroundVisibility = 90; s.BackgroundGlow = 8;
+                    s.HighlightStrength = 8;
+                    s.AnimationIntensity = 35;
+                    s.ColorRichness = 50; s.TextStrength = 78;
+                    s.WaterFlow = 0;
+                    break;
+
+                case "HMI Steel":         // ⚙ dark-operator HMI discipline
+                    s.Frostness = 12; s.Transparency = 6;
+                    s.BlurIntensity = 8; s.GlassTint = 8;
+                    s.CornerRoundness = 10; s.CardPadding = 55;
+                    s.ShadowIntensity = 35; s.ShadowSoftness = 45;
+                    s.ShadowDepth = 25;
+                    s.BorderVisibility = 90; s.BorderOpacity = 85;
+                    s.BorderThickness = 55;
+                    s.BackgroundVisibility = 92; s.BackgroundGlow = 10;
+                    s.HighlightStrength = 12;
+                    s.AnimationIntensity = 25;
+                    s.ColorRichness = 55; s.TextStrength = 85;
+                    s.WaterFlow = 0;
                     break;
 
                 case "DenseGlass":        // 🧊 dense glass — max readability

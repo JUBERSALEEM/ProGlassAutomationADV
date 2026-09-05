@@ -2405,6 +2405,8 @@
     <sys:String x:Key="Settings.StudioPreset">Preset</sys:String>
     <sys:String x:Key="Settings.StudioResetCurrent">Reset current theme</sys:String>
     <sys:String x:Key="Settings.StudioResetAll">Reset all themes</sys:String>
+    <sys:String x:Key="Settings.StudioUndo">Undo</sys:String>
+    <sys:String x:Key="Settings.StudioUndoTip">Take back the last studio change (slider, preset, reset or quick look)</sys:String>
     <sys:String x:Key="Settings.StudioCustomized">Customized</sys:String>
     <sys:String x:Key="Settings.StudioDefaults">Family defaults</sys:String>
     <sys:String x:Key="Settings.StudioFrostness">Frostness</sys:String>

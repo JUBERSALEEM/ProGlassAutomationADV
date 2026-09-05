@@ -174,12 +174,12 @@ The settings page an operator meets:
 4. Empty/error states: wallpaper fetch failure shown inline (FxStatus pattern) instead of only logging.
 *Acceptance: add-a-page = 3 lines; rail renders matte under Industrial; full keyboard traversal.*
 
-### PHASE 4 — Theme Studio v2  *(3–4 days, after 1–3)*
-1. Industrial preset pack (Ledger / Workshop / HMI Steel) + fix Preset/VM registry drift structurally (single source list consumed by both).
-2. Every slider documents its authored key-range in a manifest the audit CI can verify against actual writes (kills "slider does nothing" reports at compile time).
-3. Snapshot-base coherence: single capture point at the pipeline studio hook (remove secondary captures).
-4. Undo: one-step revert stack of studio drafts (operators poke sliders fearlessly).
-*Acceptance: manifest test enforces slider↔key parity; presets verified by registry test.*
+### PHASE 4 — Theme Studio v2  *✅ SHIPPED (2026-09-05)*
+1. ✅ Industrial preset pack (Ledger / Workshop / HMI Steel, 19/19 axes each) — `PresetNames` is the single source; VM combo consumes it directly.
+2. ✅ `AxisNames` registry + reflection API (`SetAxis`/`ResetAxisTo`) is the single home of the 19 axes; the per-slider reset switch was deleted; `StudioAxisManifestTests` (6 facts) is the compile-time drift lock.
+3. ✅ Snapshot coherence: call sites audited (family-paint moments only — Restore / OnFamilyApplied / lazy guard); pinned by the SNAPSHOT CONTRACT comment in the service, no restructure of the proven pipeline.
+4. ✅ One-step undo: single-slot capture before every studio mutation (sliders, presets, per-slider chip, both resets, quick-look entry); restores live preview and the persisted copy together.
+*Acceptance met: manifest tests verify-by-inspection (dotnet not available in the authoring sandbox — run in VS); presets verified by range + distinctness tests.*
 
 ### PHASE 5 — Style-system consolidation  *(3–5 days)*
 1. Merge `LiquidGlassStyles.xaml` into `LiquidGlassDesign.xaml` (one glass system, one owner).

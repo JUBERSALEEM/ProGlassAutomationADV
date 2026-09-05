@@ -476,6 +476,18 @@ namespace ProGlassAutomation.Services.Theme
         /// <summary>Captures the family's freshly painted instances.</summary>
         private static void Snapshot()
         {
+            // SNAPSHOT CONTRACT (Phase 4, 2026-09-05 — audited): the base
+            // may be captured ONLY at "fresh family paint" moments —
+            //   1. OnFamilyApplied  (the canonical pipeline hook; the
+            //      family's freshly written tokens, before the profile
+            //      scale is re-applied on top)
+            //   2. Restore          (startup: after the initial family
+            //      paint, before the saved profile is re-applied)
+            //   3. the lazy guard in Apply — cold-call safety only, can
+            //      fire once per process if nothing painted yet.
+            // NEVER snapshot from a slider/preset path: a studio-scaled
+            // value entering the base is the "reset does nothing" class
+            // (2026-09-05). If you add a capture point, update this list.
             _base.Clear();
             var resources = Application.Current?.Resources;
             if (resources == null) return;

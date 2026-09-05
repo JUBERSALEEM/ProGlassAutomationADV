@@ -83,6 +83,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 if (string.IsNullOrEmpty(value)) return;
                 var preset = ThemeStudioSettings.Preset(value);
+                PushStudioUndo();
                 _studioDraft = preset;
                 _studioActivePreset = value;
                 ClearQuickLookUnlessApplying();
@@ -106,6 +107,26 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public ICommand ApplyQuickLookCommand { get; private set; }
         public ICommand ResetStudioSliderCommand { get; private set; }
+
+        // ── Phase 4: one-step studio undo ───────────────────────────
+
+        public ICommand UndoStudioCommand { get; private set; }
+
+        /// <summary>True while the single-slot undo holds a revertible
+        /// state. Studio changes mutate immediately (live preview), so
+        /// the slot is refreshed on every push and flips to false again
+        /// after Undo consumes it.</summary>
+        public bool CanStudioUndo => _studioUndo != null;
+
+        /// <summary>Single-slot snapshot of the last revertible studio
+        /// state: the draft profile, the preset identity shown in the
+        /// picker and the PERSISTED copy (undo must restore what was
+        /// saved, not only what is previewing). Null = nothing to undo.
+        /// One step, deliberately — a depth stack invites half-applied
+        /// audit trails; the operator's mental model is "take back the
+        /// last thing I touched".</summary>
+        private (ThemeStudioSettings? Draft, string Preset,
+            ThemeStudioSettings? ConfigStudio)? _studioUndo;
 
         private bool _applyingQuickLook;
 
@@ -131,6 +152,68 @@ namespace ProGlassAutomation.ViewModels.Settings
             QuickLookShowroom => "Settings.LookShowroom",
             _ => "Settings.LookCustom",
         };
+
+        /// <summary>Captures the pre-mutation state into the single
+        /// undo slot. Call sites push BEFORE touching anything (slider
+        /// tick, preset pick, resets, quick-look entry). Quick looks
+        /// push exactly once at entry — the guard here stops the nested
+        /// flows (family + reset/preset) from overwriting the slot with
+        /// mid-look snapshots.</summary>
+        private void PushStudioUndo()
+        {
+            if (_applyingQuickLook) return; // entry pushed already
+            _studioUndo = (
+                _studioDraft?.Clone(),
+                _studioActivePreset,
+                _config?.Appearance?.Studio?.Clone());
+            OnPropertyChanged(nameof(CanStudioUndo));
+        }
+
+        /// <summary>Reverts the most recent studio change (slider drag,
+        /// preset, per-slider chip, Reset Current / Reset All, quick
+        /// look). Restores LIVE preview and the PERSISTED copy together
+        /// — undoing only the preview would resurrect the change on the
+        /// next app start. Consumes the slot (one step only). Note: a
+        /// quick look's FAMILY switch is intentionally not reverted —
+        /// family undo belongs to the theme picker, not the studio.</summary>
+        private void UndoStudio()
+        {
+            var undo = _studioUndo;
+            if (undo == null) return;
+            _studioUndo = null;
+            _studioSaveTimer?.Stop(); // a pending debounced save must not
+                                      // re-persist post-undo state as
+                                      // "Theme Studio adjusted"
+
+            _studioDraft = undo.Value.Draft?.Clone();
+            _studioActivePreset = undo.Value.Preset;
+
+            if (_config?.Appearance != null)
+            {
+                _config.Appearance.Studio = undo.Value.ConfigStudio?.Clone();
+                _config.Appearance.QuickLook = ""; // undone = custom state
+                SaveConfig();
+            }
+
+            // Bypass the public setters everywhere above (no re-push),
+            // then repaint through the proven service paths.
+            if (_studioDraft != null)
+                ThemeStudioService.Apply(_studioDraft);
+            else
+                ThemeStudioService.ResetToFamilyDefaults();
+
+            AuditService.Log(
+                AuditSections.Settings,
+                "Theme Studio undo",
+                StudioFamilyName + " · last studio change reverted");
+
+            OnPropertyChanged(nameof(IsStudioDirty));
+            OnPropertyChanged(nameof(IsStudioCustomized));
+            OnPropertyChanged(nameof(SelectedStudioPreset));
+            OnPropertyChanged(nameof(ActiveQuickLookText));
+            OnPropertyChanged(nameof(CanStudioUndo));
+            StudioNotifyAllSliders();
+        }
 
         /// <summary>Any manual deviation (family/preset/slider/reset)
         /// downgrades the persisted look to Custom — unless the change
@@ -179,6 +262,10 @@ namespace ProGlassAutomation.ViewModels.Settings
                     return;
             }
 
+            // One push for the whole composite look: the guard inside
+            // PushStudioUndo keeps the nested reset/preset from
+            // overwriting the slot with mid-look snapshots.
+            PushStudioUndo();
             _applyingQuickLook = true;
             try
             {
@@ -219,75 +306,19 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         /// <summary>Reset ONE slider back to the active family's default
         /// (the per-slider chip — operators fix their own experiments
-        /// without hunting Reset-All).</summary>
+        /// without hunting Reset-All). Phase 4: the key→property mapping
+        /// lives ONCE in ThemeStudioSettings (the axis registry) instead
+        /// of a second hand-maintained switch here.</summary>
         private void ResetStudioSlider(object? parameter)
         {
             if (_studioDraft == null || parameter is not string key) return;
 
-            var d = ThemeStudioSettings.DefaultsFor(StudioFamilyName);
-            switch (key)
-            {
-                case "Frostness":
-                    _studioDraft.Frostness = d.Frostness;
-                    OnPropertyChanged(nameof(StudioFrostness)); break;
-                case "Transparency":
-                    _studioDraft.Transparency = d.Transparency;
-                    OnPropertyChanged(nameof(StudioTransparency)); break;
-                case "BlurIntensity":
-                    _studioDraft.BlurIntensity = d.BlurIntensity;
-                    OnPropertyChanged(nameof(StudioBlurIntensity)); break;
-                case "GlassTint":
-                    _studioDraft.GlassTint = d.GlassTint;
-                    OnPropertyChanged(nameof(StudioGlassTint)); break;
-                case "CornerRoundness":
-                    _studioDraft.CornerRoundness = d.CornerRoundness;
-                    OnPropertyChanged(nameof(StudioCornerRoundness)); break;
-                case "CardPadding":
-                    _studioDraft.CardPadding = d.CardPadding;
-                    OnPropertyChanged(nameof(StudioCardPadding)); break;
-                case "ShadowIntensity":
-                    _studioDraft.ShadowIntensity = d.ShadowIntensity;
-                    OnPropertyChanged(nameof(StudioShadowIntensity)); break;
-                case "ShadowSoftness":
-                    _studioDraft.ShadowSoftness = d.ShadowSoftness;
-                    OnPropertyChanged(nameof(StudioShadowSoftness)); break;
-                case "ShadowDepth":
-                    _studioDraft.ShadowDepth = d.ShadowDepth;
-                    OnPropertyChanged(nameof(StudioShadowDepth)); break;
-                case "BorderVisibility":
-                    _studioDraft.BorderVisibility = d.BorderVisibility;
-                    OnPropertyChanged(nameof(StudioBorderVisibility)); break;
-                case "BorderOpacity":
-                    _studioDraft.BorderOpacity = d.BorderOpacity;
-                    OnPropertyChanged(nameof(StudioBorderOpacity)); break;
-                case "BorderThickness":
-                    _studioDraft.BorderThickness = d.BorderThickness;
-                    OnPropertyChanged(nameof(StudioBorderThickness)); break;
-                case "BackgroundVisibility":
-                    _studioDraft.BackgroundVisibility = d.BackgroundVisibility;
-                    OnPropertyChanged(nameof(StudioBackgroundVisibility)); break;
-                case "BackgroundGlow":
-                    _studioDraft.BackgroundGlow = d.BackgroundGlow;
-                    OnPropertyChanged(nameof(StudioBackgroundGlow)); break;
-                case "HighlightStrength":
-                    _studioDraft.HighlightStrength = d.HighlightStrength;
-                    OnPropertyChanged(nameof(StudioHighlightStrength)); break;
-                case "AnimationIntensity":
-                    _studioDraft.AnimationIntensity = d.AnimationIntensity;
-                    OnPropertyChanged(nameof(StudioAnimationIntensity)); break;
-                case "ColorRichness":
-                    _studioDraft.ColorRichness = d.ColorRichness;
-                    OnPropertyChanged(nameof(StudioColorRichness)); break;
-                case "TextStrength":
-                    _studioDraft.TextStrength = d.TextStrength;
-                    OnPropertyChanged(nameof(StudioTextStrength)); break;
-                case "WaterFlow":
-                    _studioDraft.WaterFlow = d.WaterFlow;
-                    OnPropertyChanged(nameof(StudioWaterFlow)); break;
-                default:
-                    return;
-            }
+            PushStudioUndo();
+            if (!_studioDraft.ResetAxisTo(
+                    key, ThemeStudioSettings.DefaultsFor(StudioFamilyName)))
+                return;
 
+            OnPropertyChanged("Studio" + key);
             ClearQuickLookUnlessApplying();
             StudioApplyAndSettle();
         }
@@ -423,6 +454,10 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplyQuickLookCommand = new RelayCommand(ApplyQuickLook);
             ResetStudioSliderCommand = new RelayCommand(ResetStudioSlider);
 
+            // Phase 4: one-step undo (enabled only while a slot exists).
+            UndoStudioCommand = new RelayCommand(
+                _ => UndoStudio(), _ => CanStudioUndo);
+
             OnPropertyChanged(nameof(StudioFamilyName));
             OnPropertyChanged(nameof(IsGlassStudioRelevant));
             OnPropertyChanged(nameof(ActiveQuickLookText));
@@ -465,6 +500,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         private void StudioSet(Action<ThemeStudioSettings> mutate)
         {
             if (_studioDraft == null) return;
+            PushStudioUndo();
             mutate(_studioDraft);
             _studioActivePreset = ""; // sliders leave the preset identity
             OnPropertyChanged(nameof(SelectedStudioPreset));
@@ -495,6 +531,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         private void ResetStudioTheme()
         {
             if (_studioDraft == null) return;
+            PushStudioUndo();
             // 2026-09-05: route through the SERVICE reset (forced engine
             // repaint + fresh family snapshot). The old direct Apply()
             // scaled defaults onto whatever stale/possibly studio-written
@@ -531,6 +568,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 MessageBoxImage.Warning) == MessageBoxResult.Yes;
             if (!ok) return;
 
+            PushStudioUndo();
             _studioDraft = ThemeStudioSettings.DefaultsFor(StudioFamilyName);
             _studioActivePreset = "";
             ClearQuickLookUnlessApplying();
