@@ -93,14 +93,32 @@ namespace ProGlassAutomation.Services.Theme
                 if (cat.Query != "__picsum__")
                 {
                     report?.Invoke($"Searching Wallhaven for \"{cat.Label}\" 4K wallpapers…");
+                    AppLogService.Debug(
+                        $"[Wallpapers] Fetch start: category={cat.Key} query=\"{cat.Query}\"",
+                        new LogContext { Module = "Wallpapers", Operation = "Fetch" });
                     var wallhaven = await TryWallhavenAsync(cat.Query, ct)
                         .ConfigureAwait(false);
-                    if (wallhaven != null) return wallhaven;
+                    if (wallhaven != null)
+                    {
+                        AppLogService.Info(
+                            $"Wallpaper downloaded (wallhaven): {wallhaven}",
+                            new LogContext { Module = "Wallpapers", Operation = "Fetch" });
+                        return wallhaven;
+                    }
                     report?.Invoke("Wallhaven returned nothing — trying the photo service…");
                 }
 
                 report?.Invoke("Fetching a 4K photo wallpaper…");
-                return await TryPicsumAsync(ct).ConfigureAwait(false);
+                var picsum = await TryPicsumAsync(ct).ConfigureAwait(false);
+                if (picsum != null)
+                    AppLogService.Info(
+                        $"Wallpaper downloaded (picsum): {picsum}",
+                        new LogContext { Module = "Wallpapers", Operation = "Fetch" });
+                else
+                    AppLogService.Warning(
+                        "ALL wallpaper providers failed — network/firewall is blocking outbound HTTPS from the app (scenes + library remain fully usable offline).",
+                        new LogContext { Module = "Wallpapers", Operation = "Fetch" });
+                return picsum;
             }
             catch (OperationCanceledException)
             {
@@ -116,7 +134,9 @@ namespace ProGlassAutomation.Services.Theme
             }
         }
 
-        /// <summary>The local library, newest first (or an empty list).</summary>
+        /// <summary>The local library, newest first (or an empty list —
+        /// with a LOG entry on failure instead of silent emptiness, so
+        /// the "library is empty" owner report is diagnosable).</summary>
         public static IReadOnlyList<FileInfo> Library()
         {
             try
@@ -132,8 +152,11 @@ namespace ProGlassAutomation.Services.Theme
                     .OrderByDescending(f => f.LastWriteTimeUtc)
                     .ToList();
             }
-            catch
+            catch (Exception ex)
             {
+                AppLogService.Warning(
+                    $"Wallpaper library scan failed ({CacheDir}): {ex.Message}",
+                    new LogContext { Module = "Wallpapers", Operation = "Library" });
                 return Array.Empty<FileInfo>();
             }
         }
@@ -168,7 +191,12 @@ namespace ProGlassAutomation.Services.Theme
 
                 if (!doc.RootElement.TryGetProperty("data", out var data)
                     || data.GetArrayLength() == 0)
+                {
+                    AppLogService.Debug(
+                        $"[Wallpapers] Wallhaven search returned 0 results for \"{query}\" (page {page})",
+                        new LogContext { Module = "Wallpapers", Operation = "Wallhaven" });
                     return null;
+                }
 
                 var hit = data[_rng.Next(0, data.GetArrayLength())];
                 if (!hit.TryGetProperty("path", out var pathEl)) return null;

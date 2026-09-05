@@ -62,6 +62,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using ProGlassAutomation.Services.AI.AIConfig;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Settings;
 
 namespace ProGlassAutomation.Services.Theme
@@ -187,17 +188,26 @@ namespace ProGlassAutomation.Services.Theme
             "MotionDurationSlow",
         };
 
-        /// <summary>
-        /// Restores the saved profile after startup family apply.
+        /// <summary>Restores the saved profile after startup family apply.
         /// Called from App.StartupCore once the theme chain has run.
-        /// </summary>
+        /// Guarded — a poisoned profile degrades to the family look at
+        /// startup instead of crashing the boot chain.</summary>
         public static void Restore()
         {
-            var saved = App.Config?.Appearance?.Studio;
-            if (saved != null && saved.IsCustomized != false)
+            try
             {
-                Snapshot();
-                Apply(saved);
+                var saved = App.Config?.Appearance?.Studio;
+                if (saved != null && saved.IsCustomized != false)
+                {
+                    Snapshot();
+                    Apply(saved);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Theme Studio restore skipped: {ex.Message}",
+                    new LogContext { Module = "Themes", Operation = "StudioRestore" });
             }
         }
 
@@ -206,12 +216,27 @@ namespace ProGlassAutomation.Services.Theme
         /// Apply / ApplyModule: re-snapshots the family's fresh values
         /// and re-applies the active profile so a family switch never
         /// drops the user's customization.
+        /// FULLY GUARDED (ERR-46877E, 2026-09-05): this method is called
+        /// from the engine's finally block on EVERY navigation — an
+        /// exception here used to propagate through relay commands into
+        /// an unhandled UI crash. The studio layer must never be able to
+        /// take down theme application, no matter what is in the user's
+        /// saved profile.
         /// </summary>
         public static void OnFamilyApplied()
         {
-            Snapshot();
-            if (Active != null)
-                Apply(Active);
+            try
+            {
+                Snapshot();
+                if (Active != null)
+                    Apply(Active);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Theme Studio re-apply skipped: {ex.Message}",
+                    new LogContext { Module = "Themes", Operation = "StudioApply" });
+            }
         }
 
         /// <summary>Re-applies the active profile after an accent change
@@ -220,8 +245,17 @@ namespace ProGlassAutomation.Services.Theme
         /// next family switch or slider move (2026-09-05).</summary>
         public static void OnAccentChanged()
         {
-            if (Active != null && _snapshotTaken)
-                Apply(Active);
+            try
+            {
+                if (Active != null && _snapshotTaken)
+                    Apply(Active);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Theme Studio accent re-apply skipped: {ex.Message}",
+                    new LogContext { Module = "Themes", Operation = "StudioAccent" });
+            }
         }
 
         /// <summary>Refreshes ONE snapshot key (2026-09-05 — Wallpaper
@@ -465,6 +499,8 @@ namespace ProGlassAutomation.Services.Theme
             ResourceDictionary r, string key, double scale,
             double tintStrength, Color accent, double satMul, double deepLift)
         {
+            try
+            {
             if (!_base.TryGetValue(key, out var baseVal)) return;
             if (baseVal is not Brush baseBrush) return;
             var clone = baseBrush.Clone();
@@ -496,6 +532,8 @@ namespace ProGlassAutomation.Services.Theme
                 }
             }
             r[key] = clone;
+            }
+            catch { /* one poisoned key must never abort the studio */ }
         }
 
         /// <summary>Richness transform (HSL): scales saturation but keeps
@@ -538,6 +576,8 @@ namespace ProGlassAutomation.Services.Theme
             ResourceDictionary r, string key,
             double up, double down, Color targetInk, bool darkStage)
         {
+            try
+            {
             if (!_base.TryGetValue(key, out var baseVal)) return;
             if (baseVal is not SolidColorBrush baseBrush) return;
 
@@ -560,6 +600,8 @@ namespace ProGlassAutomation.Services.Theme
             // Fresh instance: DynamicResource subscribers only update on
             // dictionary replacement, never on a mutated shared brush.
             r[key] = new SolidColorBrush(Color.FromArgb(c0.A, c.R, c.G, c.B));
+            }
+            catch { /* one poisoned key must never abort the studio */ }
         }
 
         /// <summary>
@@ -576,6 +618,8 @@ namespace ProGlassAutomation.Services.Theme
             double tintStrength, Color accent, double water,
             double satMul, double deepLift)
         {
+            try
+            {
             if (!_base.TryGetValue(key, out var baseVal)) return;
             if (baseVal is not Brush baseBrush) return;
 
@@ -613,6 +657,8 @@ namespace ProGlassAutomation.Services.Theme
             b.GradientStops.Add(new GradientStop(
                 Color.FromArgb(Body(1.0), deep.R, deep.G, deep.B), 1.00));
             r[key] = b;
+            }
+            catch { /* one poisoned key must never abort the studio */ }
         }
 
         /// <summary>Effective colour of any brush: solid colour, or the
@@ -628,34 +674,62 @@ namespace ProGlassAutomation.Services.Theme
         private static void WriteScaledThickness(
             ResourceDictionary r, string key, double scale)
         {
-            if (!_base.TryGetValue(key, out var baseVal)) return;
-            if (baseVal is not Thickness baseT) return;
-            r[key] = new Thickness(
-                baseT.Left * scale, baseT.Top * scale,
-                baseT.Right * scale, baseT.Bottom * scale);
+            try
+            {
+                if (!_base.TryGetValue(key, out var baseVal)) return;
+                if (baseVal is not Thickness baseT) return;
+                r[key] = new Thickness(
+                    baseT.Left * scale, baseT.Top * scale,
+                    baseT.Right * scale, baseT.Bottom * scale);
+            }
+            catch { /* one poisoned key must never abort the studio */ }
         }
 
+        /// <summary>Scales one MotionDuration token. ERR-46877E RCA
+        /// (2026-09-05): Duration.Forever IS TimeSpan-backed
+        /// (TimeSpan.MaxValue) with HasTimeSpan == TRUE — a Forever-class
+        /// value in the snapshot multiplied by the Animation slider
+        /// overflowed IntervalFromDoubleTicks and crashed the app on
+        /// navigation. Rules: no-timeSpan tokens untouchable, anything
+        /// ≥ 1 minute is an animation TOKEN, not a motion duration
+        /// (never scaled), and the result is clamped to a sane motion
+        /// envelope. Fully guarded.</summary>
         private static void WriteScaledDuration(
             ResourceDictionary r, string key, double scale)
         {
-            if (!_base.TryGetValue(key, out var baseVal)) return;
-            if (baseVal is not Duration baseD) return;
-            var ms = Math.Max(1.0, baseD.TimeSpan.TotalMilliseconds * scale);
-            r[key] = new Duration(TimeSpan.FromMilliseconds(ms));
+            try
+            {
+                if (!_base.TryGetValue(key, out var baseVal)) return;
+                if (baseVal is not Duration baseD || !baseD.HasTimeSpan) return;
+
+                double baseMs = baseD.TimeSpan.TotalMilliseconds;
+                if (double.IsNaN(baseMs) || double.IsInfinity(baseMs)) return;
+                if (baseMs > 60_000.0) return; // Forever-class token — not a motion duration
+
+                double ms = baseMs * scale;
+                if (double.IsNaN(ms) || double.IsInfinity(ms)) return;
+                ms = Math.Clamp(ms, 1.0, 60_000.0); // 1 ms … 1 minute envelope
+                r[key] = new Duration(TimeSpan.FromMilliseconds(ms));
+            }
+            catch { /* a motion token must never crash theme application */ }
         }
 
         private static void WriteShadow(
             ResourceDictionary r, string key,
             double intensity, double softness, double depth)
         {
-            if (!_base.TryGetValue(key, out var baseVal)) return;
-            if (baseVal is not DropShadowEffect baseFx) return;
+            try
+            {
+                if (!_base.TryGetValue(key, out var baseVal)) return;
+                if (baseVal is not DropShadowEffect baseFx) return;
 
-            var fx = (DropShadowEffect)baseFx.Clone();
-            fx.Opacity = Math.Min(1.0, baseFx.Opacity * (0.35 + 1.35 * intensity));
-            fx.BlurRadius = 2.0 + 62.0 * softness;
-            fx.ShadowDepth = baseFx.ShadowDepth * (0.2 + 1.3 * depth);
-            r[key] = fx;
+                var fx = (DropShadowEffect)baseFx.Clone();
+                fx.Opacity = Math.Min(1.0, baseFx.Opacity * (0.35 + 1.35 * intensity));
+                fx.BlurRadius = 2.0 + 62.0 * softness;
+                fx.ShadowDepth = baseFx.ShadowDepth * (0.2 + 1.3 * depth);
+                r[key] = fx;
+            }
+            catch { /* one poisoned key must never abort the studio */ }
         }
 
         private static Color Blend(Color c, Color accent, double t)

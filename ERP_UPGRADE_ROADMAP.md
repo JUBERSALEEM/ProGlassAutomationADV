@@ -306,3 +306,31 @@ structurally invisible/reset, not cosmetically weak:
 | "Downloads show nothing" | (previous round: silent pipeline) — compounded by scenes being invisible | Already status-piped; now the default state shows a live scene WITHOUT any download, and theme/accent/family changes visibly repaint it |
 | "Windows 11 options look fake" | An opaque stage brush covered the OS backdrop; translucency was never made Mica-aware | When BackdropActive: the scene keeps the window stage translucent (0.55 module surface) so DWM Mica/Acrylic breathes; scene stage-write skipped; startup path refreshes through the same rebuild |
 | "Many options don't show instant results" | Studio layer resets on navigation + invisible wallpaper made customization SEEM inert; studio live-apply itself was sound (DynamicResource on managed keys incl. GlassSurface tiles) | With nav-survival + visible scenes, every slider's effect now persists and shows everywhere |
+
+---
+
+## ERR-46877E RCA — TimeSpan overflow crash in ThemeStudioService (2026-09-05)
+
+Stack evidence (owner crash report):
+`ThemeStudioService.WriteScaledDuration → IntervalFromDoubleTicks → OverflowException`
+inside `OnFamilyApplied()` (nav hook) → RelayCommand → unhandled UI crash; on the
+AppearanceService path it was caught → a ~1 s "ApplyTheme failed" storm that made
+every theme trigger feel laggy/dead.
+
+ROOT CAUSE (proveable bit): `Duration.Forever` IS TimeSpan-backed (TimeSpan.MaxValue)
+with HasTimeSpan == TRUE. A Forever-class value in the Motion-duration snapshot,
+scaled by the Animation slider (×~1.2), produced ~1.4×10^19 ticks > Int64.MaxValue.
+The old guard only checked the TYPE, never the magnitude.
+
+FIXES (three layers, defense in depth):
+1. WriteScaledDuration: !HasTimeSpan skip + NaN/∞ skip + **≥1-minute values treated
+   as animation TOKENS, never scaled** + result clamped to 1 ms–60 s + full try/catch.
+2. Every per-key writer (brush/thickness/shadow/text/water/duration) wrapped
+   individually — one poisoned resource can never abort the whole studio apply.
+3. OnFamilyApplied / Restore / OnAccentChanged fully guarded — the studio layer can
+   never again crash navigation or the boot chain, whatever the saved profile holds.
+
+Also hardened per owner field reports: wallpaper library scan failures now LOG
+(instead of returning a silent empty list); provider pipeline logs every stage to
+AppLog (fetch start, 0-result searches, per-provider outcome, all-failed network
+diagnosis) so the next session's log proves the download path.
