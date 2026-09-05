@@ -1880,6 +1880,8 @@
     <sys:String x:Key="Settings.LatestRelease">LATEST RELEASE</sys:String>
     <sys:String x:Key="Settings.LblAccent">Accent colour</sys:String>
     <sys:String x:Key="Settings.LblAutoDetect">Auto-suggest by country</sys:String>
+    <sys:String x:Key="Settings.LocaleFallback">Regional detection</sys:String>
+    <sys:String x:Key="Settings.LocaleFallbackCaption">Suggest language &amp; currency from your country · Reset returns everything to English</sys:String>
     <sys:String x:Key="Settings.LblCurrency">Currency</sys:String>
     <sys:String x:Key="Settings.LblDarkMode">Dark mode</sys:String>
     <sys:String x:Key="Settings.LblFontColor">Font colour</sys:String>

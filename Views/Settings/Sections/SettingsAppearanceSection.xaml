@@ -1301,27 +1301,44 @@
                 </Border>
 
 
-                <!-- Auto-detect + currency status -->
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
-                <Grid Margin="0,4,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center">
-                        <CheckBox Content="{DynamicResource Settings.LblAutoDetect}"
-                                  IsChecked="{Binding AutoSuggestByRegion, Mode=TwoWay}"
-                                  AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>
-                        <TextBlock Text="{Binding FxStatusText}"
-                                   Style="{StaticResource SettingsTileCaptionStyle}"
-                                   Margin="0,4,0,0"/>
+                <!-- Auto-detect + currency status — 2026-09-05: was a bare
+                     Grid with a default (unstyled) WPF button; now the same
+                     rounded SettingsTileStyle card language as every other
+                     tile in this section. Bindings/AutomationIds unchanged. -->
+                <Border Style="{StaticResource SettingsTileStyle}" Margin="0,4,0,0">
+                    <StackPanel>
+                        <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                            <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE774;"/>
+                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}"
+                                       Text="{DynamicResource Settings.LocaleFallback}"/>
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                   Text="{DynamicResource Settings.LocaleFallbackCaption}"/>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel VerticalAlignment="Center">
+                                <CheckBox Content="{DynamicResource Settings.LblAutoDetect}"
+                                          IsChecked="{Binding AutoSuggestByRegion, Mode=TwoWay}"
+                                          FontSize="{StaticResource TextBody}"
+                                          Foreground="{DynamicResource TextPrimaryBrush}"
+                                          VerticalContentAlignment="Center"
+                                          AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>
+                                <TextBlock Text="{Binding FxStatusText}"
+                                           Style="{StaticResource SettingsTileCaptionStyle}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Content="{DynamicResource Settings.ResetToEnglish}"
+                                    Command="{Binding ResetToEnglishCommand}"
+                                    AutomationProperties.AutomationId="Settings.ResetLocale"
+                                    VerticalAlignment="Center"/>
+                        </Grid>
                     </StackPanel>
-                    <Button Grid.Column="1"
-                            Content="{DynamicResource Settings.ResetToEnglish}"
-                            Command="{Binding ResetToEnglishCommand}"
-                            AutomationProperties.AutomationId="Settings.ResetLocale"
-                            VerticalAlignment="Center"/>
-                </Grid>
+                </Border>
 
             </StackPanel>
         </ScrollViewer>

@@ -1875,6 +1875,8 @@
     <sys:String x:Key="Settings.LatestRelease">أحدث إصدار</sys:String>
     <sys:String x:Key="Settings.LblAccent">لون التمييز</sys:String>
     <sys:String x:Key="Settings.LblAutoDetect">اقتراح تلقائي حسب الدولة</sys:String>
+    <sys:String x:Key="Settings.LocaleFallback">الكشف حسب المنطقة</sys:String>
+    <sys:String x:Key="Settings.LocaleFallbackCaption">اقتراح اللغة والعملة حسب بلدك · إعادة التعيين تعيد كل شيء إلى الإنجليزية</sys:String>
     <sys:String x:Key="Settings.LblCurrency">العملة</sys:String>
     <sys:String x:Key="Settings.LblDarkMode">الوضع الداكن</sys:String>
     <sys:String x:Key="Settings.LblFontColor">لون الخط</sys:String>
