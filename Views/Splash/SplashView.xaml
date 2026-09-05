@@ -1,31 +1,33 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Splash Screen — industrial glass identity
+     MODULE: Splash Screen — modern launch surface
 
-     Professional crystal composition on the deep-navy stage:
-       • aurora backdrop (layered soft orbs)
-       • top frosted trust chips (MADE IN INDIA / ENTERPRISE · vX /
+     2026-09-05 redesign (owner directive): full professional rebuild
+     on a deep-mesh cinematic stage:
+       • layered dusk-navy gradient + soft accent orbs (atmosphere,
+         not decoration-in-your-face)
+       • slim glass trust chips (MADE IN INDIA / ENTERPRISE · vX /
          OFFLINE · SECURE)
-       • centered crystal logo tile with halo + orbit ring + sheen
-       • product name (metallic gradient) + tagline
-       • circular module orbs (static, one uniform fade — no marketing
-         flash, no stagger)
-       • luminous progress bar + frosted status pill with animated dots
-       • frosted footer bar (product · version · city)
+       • hero brand block: crystal logo tile + halo + orbit ring,
+         metallic-gradient wordmark, quiet tagline
+       • uniform module chip strip (one clean 6-wide grid)
+       • hairline luminous progress + subdued status line
+       • slim translucent footer (product · version — location footer
+         removed per owner request)
 
      PRESERVED (zero regression — public API of SplashView.xaml.cs):
        • Window flags (Maximized / None / Topmost / NoTaskbar)
-       • FadeOutAndClose(Action), RunLoginAsync(), ShowTermsGate()
+       • FadeOutAndClose(Action), RunLoginAsync(), RunFirstRunSetupAsync(),
+         ShowTermsGate()
        • TermsAccepted / TermsResolved / SignedIn / HasAcceptedCurrentTerms
-       • Terms gate (UAE legal copy unchanged) + login gate (LoginPanel)
+       • Terms gate (UAE legal copy unchanged) + login + first-run gates
        • x:Name used by code-behind: PosterHost, LogoBorder, LogoScale,
          AppNameText, AppNameTranslate, TaglineText, ProgressTrack,
          ProgressFill, LoadingText, LoadingDots, LoadingStrip,
-         TermsPanel, AcceptTermsCheck, DeclineButton, ContinueButton,
-         LoginHost, LoginGate
-       • NEW x:Name animated by code-behind: TopLeftBadge, TopCenterPill,
-         TopRightBadge, FeaturePanel
+         TermsPanel, TermsBar, AcceptTermsCheck, DeclineButton,
+         ContinueButton, LoginHost, LoginGate, SetupHost, SetupGate,
+         TopLeftBadge, TopCenterPill, TopRightBadge, FeaturePanel
 ═══════════════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.Splash.SplashView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -54,13 +56,9 @@
 
     <Window.Resources>
 
-        <!-- 2026-08-25 redesign: aurora orbs + logo halo are filled with the
-         ACTIVE AccentBrush (theme/accent adaptive), softened by these
-         blurs — no more hard-coded blue radial gradients. -->
-        <BlurEffect x:Key="OrbBlur"  Radius="80" RenderingBias="Performance"/>
-        <BlurEffect x:Key="HaloBlur" Radius="26" RenderingBias="Performance"/>
+        <BlurEffect x:Key="OrbBlur"  Radius="90" RenderingBias="Performance"/>
+        <BlurEffect x:Key="HaloBlur" Radius="30" RenderingBias="Performance"/>
 
-        <!-- ═══ PALETTE (frozen once) — blueish crystal spectrum ═══ -->
         <!-- Colors and brushes are SEPARATE resources: GradientStop.Color
              and DropShadowEffect.Color demand a System.Windows.Media.Color
              — feeding them a SolidColorBrush is the XDG-0001
@@ -74,72 +72,69 @@
         <SolidColorBrush x:Key="Ice"      Color="#DBEAFE" po:Freeze="True"/>
 
         <!-- ═══════════════════════════════════════════════════════════
-             FROZEN SPLASH PALETTE (2026-09-04)
-             The splash is a BRAND MOMENT, not a theme consumer: it used
-             to bind theme brushes (WindowBackgroundBrush / AccentBrush /
-             *ForegroundBrush) — so the app booted under the startup-merged
-             LIGHT theme (cream + light accent) and flip-flopped mid-boot
-             at ~1.5 s when the user's saved Dark/Monet/Professional theme
-             engaged (the "ugly launch color that switches" report).
-             Every color below is frozen at design time to the crystal
-             navy family; NOTHING inside the splash can morph anymore.
+             FROZEN SPLASH PALETTE
+             The splash is a BRAND MOMENT, not a theme consumer: binding
+             theme brushes here booted the app under the startup-merged
+             theme and visibly flip-flopped mid-boot when the saved
+             theme engaged. Every color below is frozen at design time;
+             NOTHING inside the splash can morph anymore.
         ═══════════════════════════════════════════════════════════ -->
         <SolidColorBrush x:Key="SplashCerulean"      Color="#60A5FA" po:Freeze="True"/>
         <SolidColorBrush x:Key="SplashCeruleanDark"  Color="{StaticResource SplashCeruleanDarkColor}" po:Freeze="True"/>
         <SolidColorBrush x:Key="SplashCeruleanLite"  Color="#93C5FD" po:Freeze="True"/>
         <SolidColorBrush x:Key="SplashCeruleanDeep"  Color="#1D4ED8" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashOutline"       Color="#26FFFFFF" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashPillBg"        Color="#14FFFFFF" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashTrackBg"       Color="#1EFFFFFF" po:Freeze="True"/>
+        <SolidColorBrush x:Key="SplashOutline"       Color="#1F99C8FF" po:Freeze="True"/>
+        <SolidColorBrush x:Key="SplashPillBg"        Color="#0FFFFFFF" po:Freeze="True"/>
+        <SolidColorBrush x:Key="SplashTrackBg"       Color="#14FFFFFF" po:Freeze="True"/>
         <SolidColorBrush x:Key="SplashTextPrimary"   Color="#F8FAFC" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashTextSecondary" Color="#9FB2D8" po:Freeze="True"/>
+        <SolidColorBrush x:Key="SplashTextSecondary" Color="#8FA3C8" po:Freeze="True"/>
         <SolidColorBrush x:Key="SplashOnAccent"      Color="#FFFFFF" po:Freeze="True"/>
         <CornerRadius  x:Key="SplashCorner">10</CornerRadius>
         <CornerRadius  x:Key="SplashCornerLarge">16</CornerRadius>
 
-
-        <!-- ═══ STAGE — deep blue aurora ═══ -->
-        <LinearGradientBrush x:Key="PageBg" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#040B1C" Offset="0.0"/>
-            <GradientStop Color="#0A1A44" Offset="0.42"/>
-            <GradientStop Color="#0B2A6E" Offset="1.0"/>
+        <!-- ═══ STAGE — dusk-navy mesh ═══ -->
+        <LinearGradientBrush x:Key="PageBg" StartPoint="0,0" EndPoint="0.65,1">
+            <GradientStop Color="#04080F" Offset="0.0"/>
+            <GradientStop Color="#071226" Offset="0.45"/>
+            <GradientStop Color="#0A1A3A" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Blurred aurora orbs (frost backdrop) -->
+        <!-- Soft spotlight behind the hero brand block -->
+        <RadialGradientBrush x:Key="HeroGlow"
+                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#383B82F6" Offset="0.0"/>
+            <GradientStop Color="#172563EB" Offset="0.6"/>
+            <GradientStop Color="#001D4ED8" Offset="1.0"/>
+        </RadialGradientBrush>
         <RadialGradientBrush x:Key="OrbRight"
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#4D82F6FF" Offset="0.0"/>
-            <GradientStop Color="#1D4ED84D" Offset="0.55"/>
-            <GradientStop Color="#1D4ED800" Offset="1.0"/>
+            <GradientStop Color="#325EA5FF" Offset="0.0"/>
+            <GradientStop Color="#143B82F6" Offset="0.55"/>
+            <GradientStop Color="#003B82F6" Offset="1.0"/>
         </RadialGradientBrush>
         <RadialGradientBrush x:Key="OrbLeft"
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#60A5FA66" Offset="0.0"/>
-            <GradientStop Color="#3B82F633" Offset="0.55"/>
-            <GradientStop Color="#3B82F600" Offset="1.0"/>
+            <GradientStop Color="#4060A5FA" Offset="0.0"/>
+            <GradientStop Color="#1D3B82F6" Offset="0.55"/>
+            <GradientStop Color="#003B82F6" Offset="1.0"/>
         </RadialGradientBrush>
-        
 
         <!-- ═══ BRAND NAME — metallic crystal gradient + glow ═══ -->
         <LinearGradientBrush x:Key="NameGradient" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Color="#FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#BFDBFE" Offset="0.45"/>
+            <GradientStop Color="#DBEAFE" Offset="0.5"/>
             <GradientStop Color="{StaticResource FrostColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- ═══ ICON HALO + CRYSTAL ═══ -->
-        
-
+        <!-- ═══ LOGO TILE — crystal plate + sheen ═══ -->
         <LinearGradientBrush x:Key="SplashPlate" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#F7FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#E8F1FAFF" Offset="0.5"/>
-            <GradientStop Color="#D0E2F5FF" Offset="1.0"/>
+            <GradientStop Color="#FAFFFFFF" Offset="0.0"/>
+            <GradientStop Color="#EDF3FCFF" Offset="0.5"/>
+            <GradientStop Color="#D6E5F7FF" Offset="1.0"/>
         </LinearGradientBrush>
-
-        <!-- Top-edge highlight on the logo tile (crystal sheen). -->
-        <LinearGradientBrush x:Key="TileSheen" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#99FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#00FFFFFF" Offset="0.45"/>
+        <LinearGradientBrush x:Key="TileSheen" StartPoint="0,0" EndPoint="0.6,1">
+            <GradientStop Color="#B3FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#00FFFFFF" Offset="0.55"/>
         </LinearGradientBrush>
 
         <!-- ═══ PROGRESS — luminous ═══ -->
@@ -151,16 +146,16 @@
 
         <!-- ═══ CRYSTAL SHADOWS ═══ -->
         <DropShadowEffect x:Key="IconShadow" Color="{StaticResource SplashCeruleanDarkColor}"
-                          BlurRadius="48" ShadowDepth="0" Opacity="0.7"/>
+                          BlurRadius="52" ShadowDepth="0" Opacity="0.55"/>
         <DropShadowEffect x:Key="SplashGlow" Color="{StaticResource SplashCeruleanDarkColor}"
-                          BlurRadius="20" ShadowDepth="0" Opacity="0.45"/>
+                          BlurRadius="18" ShadowDepth="0" Opacity="0.35"/>
 
-        <!-- ═══ FROSTED TRUST CHIP (top badges) ═══ -->
+        <!-- ═══ TRUST CHIP (top badges) — slim glass ═══ -->
         <Style x:Key="TrustChipStyle" TargetType="Border">
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#24FFFFFF" Offset="0.0"/>
+                        <GradientStop Color="#1AFFFFFF" Offset="0.0"/>
                         <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
                     </LinearGradientBrush>
                 </Setter.Value>
@@ -168,9 +163,8 @@
             <Setter Property="BorderBrush" Value="{StaticResource SplashOutline}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="17"/>
-            <Setter Property="Height" Value="38"/>
+            <Setter Property="Height" Value="36"/>
             <Setter Property="Padding" Value="16,0"/>
-            <Setter Property="Effect" Value="{StaticResource SplashGlow}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="UseLayoutRounding" Value="True"/>
         </Style>
@@ -180,26 +174,22 @@
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Foreground" Value="{StaticResource SplashCerulean}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Margin" Value="0,0,9,0"/>
         </Style>
 
         <Style x:Key="ChipTextStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource SplashTextPrimary}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- ═══ MODULE CHIP (feature strip) — industrial single-line grid ═══
-             Each module renders as one compact industrial cell: a tinted glyph
-             beside a single-line label (no wrapping). The strip is laid out by
-             a UniformGrid (see FeaturePanel below) so every chip is the SAME
-             width and sits on ONE clean row — no ragged two-row wrap. -->
+        <!-- ═══ MODULE CHIP (feature strip) — quiet 6-wide grid ═══ -->
         <DataTemplate x:Key="FeatureBadgeTemplate">
-            <Border Height="40"
+            <Border Height="38"
                     Margin="6,4"
-                    Padding="12,0"
-                    CornerRadius="8"
+                    Padding="14,0"
+                    CornerRadius="10"
                     HorizontalAlignment="Stretch"
                     BorderBrush="{StaticResource SplashOutline}"
                     BorderThickness="1"
@@ -215,10 +205,10 @@
                     <TextBlock Grid.Column="0"
                                Text="{Binding Icon}"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextBodyLarge}"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{Binding BorderBrush}"
                                VerticalAlignment="Center"
-                               Margin="0,0,8,0"/>
+                               Margin="0,0,9,0"/>
                     <TextBlock Grid.Column="1"
                                Text="{Binding Label}"
                                FontSize="{StaticResource TextBody}"
@@ -299,21 +289,22 @@
 
     <Grid Background="{StaticResource PageBg}">
 
-        <Ellipse Width="420" Height="420"
-                 Fill="{StaticResource SplashCerulean}" Opacity="0.20" Effect="{StaticResource OrbBlur}"
+        <!-- ── ATMOSPHERE — soft accent orbs + hero spotlight ── -->
+        <Ellipse Width="520" Height="520"
+                 Fill="{StaticResource OrbRight}"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
-                 Margin="0,-140,-120,0" IsHitTestVisible="False"/>
-        <Ellipse Width="340" Height="340"
-                 Fill="{StaticResource SplashCerulean}" Opacity="0.15" Effect="{StaticResource OrbBlur}"
+                 Margin="0,-160,-160,0" IsHitTestVisible="False"/>
+        <Ellipse Width="440" Height="440"
+                 Fill="{StaticResource OrbLeft}"
                  HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                 Margin="-100,0,0,-100" IsHitTestVisible="False"/>
-        <Ellipse Width="480" Height="480"
-                 Fill="{StaticResource SplashCerulean}" Opacity="0.10" Effect="{StaticResource OrbBlur}"
+                 Margin="-140,0,0,-140" IsHitTestVisible="False"/>
+        <Ellipse Width="620" Height="620"
+                 Fill="{StaticResource HeroGlow}"
                  HorizontalAlignment="Center" VerticalAlignment="Center"
-                 Margin="0,-60,0,0" IsHitTestVisible="False"/>
+                 Margin="0,-40,0,0" IsHitTestVisible="False"/>
 
         <!-- ═══════════════════════════════════════════════════════════
-             POSTER — glass identity block
+             POSTER — brand block
         ═══════════════════════════════════════════════════════════════ -->
         <Grid x:Name="PosterHost" Margin="24,18">
             <Grid.RowDefinitions>
@@ -358,11 +349,11 @@
             <StackPanel Grid.Row="1"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        MaxWidth="860"
+                        MaxWidth="880"
                         Margin="8,18">
 
                 <!-- Logo — crystal tile + halo + orbit ring + sheen -->
-                <Border x:Name="LogoBorder" Width="136" Height="136"
+                <Border x:Name="LogoBorder" Width="152" Height="152"
                         HorizontalAlignment="Center"
                         RenderOptions.BitmapScalingMode="HighQuality"
                         IsHitTestVisible="False"
@@ -371,16 +362,18 @@
                         <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92"/>
                     </Border.RenderTransform>
                     <Grid>
-                        <Ellipse Width="136" Height="136" Fill="{StaticResource SplashCerulean}" Opacity="0.28" Effect="{StaticResource HaloBlur}"/>
-                        <Ellipse Width="126" Height="126"
-                                 Stroke="{StaticResource SplashCerulean}" Opacity="0.6" StrokeThickness="1.5"
-                                 StrokeDashArray="4 8"/>
-                        <Border Width="96" Height="96" CornerRadius="22"
+                        <Ellipse Width="152" Height="152" Fill="{StaticResource SplashCerulean}" Opacity="0.22" Effect="{StaticResource HaloBlur}"/>
+                        <Ellipse Width="142" Height="142"
+                                 Stroke="{StaticResource SplashCerulean}" Opacity="0.5" StrokeThickness="1"
+                                 StrokeDashArray="2 6"/>
+                        <Ellipse Width="120" Height="120"
+                                 Stroke="{StaticResource SplashOutline}" StrokeThickness="1"/>
+                        <Border Width="104" Height="104" CornerRadius="26"
                                 Effect="{StaticResource IconShadow}"
                                 Background="{StaticResource SplashPlate}"
                                 SnapsToDevicePixels="True">
                             <Grid>
-                                <Border Width="88" Height="88" CornerRadius="18"
+                                <Border Width="96" Height="96" CornerRadius="22"
                                         BorderBrush="#88FFFFFF" BorderThickness="1"
                                         ClipToBounds="True">
                                     <Border.Background>
@@ -390,7 +383,7 @@
                                     </Border.Background>
                                 </Border>
                                 <!-- Top-edge crystal sheen on the tile -->
-                                <Border Width="88" Height="88" CornerRadius="18"
+                                <Border Width="96" Height="96" CornerRadius="22"
                                         Background="{StaticResource TileSheen}"
                                         IsHitTestVisible="False"/>
                             </Grid>
@@ -398,12 +391,14 @@
                     </Grid>
                 </Border>
 
+                <!-- Wordmark — metallic gradient (NameGradient was defined
+                     but never wired; now the brand gets its glow) -->
                 <TextBlock x:Name="AppNameText"
                            Text="{DynamicResource Shell.AppTitle}"
                            FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                            HorizontalAlignment="Center"
-                           Margin="0,18,0,0"
-                           Foreground="{StaticResource SplashTextPrimary}"
+                           Margin="0,20,0,0"
+                           Foreground="{StaticResource NameGradient}"
                            Opacity="0">
                     <TextBlock.RenderTransform>
                         <TranslateTransform x:Name="AppNameTranslate" Y="12"/>
@@ -414,16 +409,16 @@
                            Text="{DynamicResource Splash.MadeInIndiaDesc}"
                            FontSize="{StaticResource TextBodyLarge}"
                            HorizontalAlignment="Center"
-                           Margin="0,7,0,0"
+                           Margin="0,8,0,0"
                            Foreground="{StaticResource SplashCerulean}"
                            Opacity="0"/>
 
-                <!-- Module chips — one clean industrial row, uniform widths -->
+                <!-- Module chips — 6-wide uniform grid, one clean block -->
                 <ItemsControl x:Name="FeaturePanel"
                               ItemTemplate="{StaticResource FeatureBadgeTemplate}"
                               HorizontalAlignment="Stretch"
-                              MaxWidth="1160"
-                              Margin="0,20,0,0"
+                              MaxWidth="1180"
+                              Margin="0,24,0,0"
                               Opacity="0">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -433,25 +428,20 @@
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
 
-                <!-- Progress -->
+                <!-- Progress — hairline luminous -->
                 <Grid x:Name="ProgressTrack"
-                      MaxWidth="340" Height="4"
-                      Margin="0,22,0,0" HorizontalAlignment="Stretch">
-                    <Border Height="4" CornerRadius="2" Background="{StaticResource SplashTrackBg}"/>
+                      MaxWidth="320" Height="3"
+                      Margin="0,26,0,0" HorizontalAlignment="Stretch">
+                    <Border Height="3" CornerRadius="1.5" Background="{StaticResource SplashTrackBg}"/>
                     <Border x:Name="ProgressFill"
-                            Height="4" Width="0"
+                            Height="3" Width="0"
                             HorizontalAlignment="Left"
-                            CornerRadius="2"
+                            CornerRadius="1.5"
                             Background="{StaticResource ProgressGradient}"/>
                 </Grid>
 
-                <!-- Status pill (frosted) -->
-                <Border CornerRadius="10" Padding="14,7"
-                        HorizontalAlignment="Center"
-                        Margin="0,12,0,0"
-                        BorderBrush="{StaticResource SplashOutline}"
-                        BorderThickness="1"
-                        Background="{StaticResource SplashPillBg}">
+                <!-- Status — quiet line (dots animated by code-behind) -->
+                <Grid HorizontalAlignment="Center" Margin="0,14,0,0">
                     <StackPanel x:Name="LoadingStrip" Orientation="Horizontal">
                         <TextBlock x:Name="LoadingText"
                                    Text="{DynamicResource Splash.Starting}"
@@ -462,26 +452,25 @@
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{StaticResource SplashCerulean}"/>
                     </StackPanel>
-                </Border>
+                </Grid>
             </StackPanel>
 
-            <!-- ── FOOTER (frosted bar) ─────────────────────────────── -->
+            <!-- ── FOOTER (slim translucent) — location run removed ── -->
             <Border Grid.Row="2"
                     HorizontalAlignment="Center"
-                    Margin="0,0,0,8"
-                    Padding="18,8"
+                    Margin="0,0,0,10"
+                    Padding="16,6"
                     CornerRadius="10"
                     BorderBrush="{StaticResource SplashOutline}"
                     BorderThickness="1"
                     Background="{StaticResource SplashPillBg}">
                 <TextBlock FontSize="{StaticResource TextBody}"
                            Foreground="{StaticResource SplashTextSecondary}"
-                           Opacity="0.8"
+                           Opacity="0.75"
                            HorizontalAlignment="Center">
                     <Run Text="{DynamicResource Splash.Copyright}"/>
                     <Run Text="{DynamicResource Splash.V}"/>
                     <Run Text="{x:Static updates:AppInfo.Version}"/>
-                    <Run Text="{DynamicResource Splash.BarautUttarPradeshIndia}"/>
                 </TextBlock>
             </Border>
         </Grid>
@@ -494,12 +483,9 @@
             <login:LoginPanel x:Name="LoginGate"/>
         </Grid>
 
-        <!-- ═══ FIRST-RUN SETUP GATE — Commit 5 of the licensing ═══
-             refactor. Replaces the pre-login Welcome and the
-             admin/admin seed. Shown when AuditService reports
-             an empty Users table (fresh install). On a
-             successful create, the splash swaps the
-             LoginPanel in via the SetupHost's Created event. -->
+        <!-- ═══ FIRST-RUN SETUP GATE — shown when AuditService reports
+             an empty Users table (fresh install). On successful create,
+             the splash proceeds straight to the workspace. ═══ -->
         <Grid x:Name="SetupHost"
               Visibility="Collapsed"
               Opacity="0"
@@ -507,7 +493,7 @@
             <login:FirstRunSetupPanel x:Name="SetupGate"/>
         </Grid>
 
-        <!-- ═══ TERMS GATE — FULL PAGE (crystal scrim) ═══ -->
+        <!-- ═══ TERMS GATE — FULL PAGE (defs unchanged, legal copy intact) ═══ -->
         <Grid x:Name="TermsPanel"
               Background="{StaticResource PageBg}"
               Visibility="Collapsed"
@@ -595,7 +581,7 @@
                 </ScrollViewer>
             </Border>
 
-            <!-- Crystal accept bar -->
+            <!-- Accept bar -->
             <Border x:Name="TermsBar"
                     CornerRadius="{StaticResource SplashCornerLarge}" Grid.Row="2"
                     BorderBrush="{StaticResource SplashOutline}"
