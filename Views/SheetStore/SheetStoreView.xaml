@@ -420,20 +420,17 @@
                         SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="40"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="56"/>
-                            <ColumnDefinition Width="96"/>
-                            <ColumnDefinition Width="104"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="0.45*" MinWidth="36"/>
+                            <ColumnDefinition Width="1.6*" MinWidth="120"/>
                             <ColumnDefinition Width="64"/>
-                            <ColumnDefinition Width="72"/>
-                            <ColumnDefinition Width="76"/>
-                            <ColumnDefinition Width="96"/>
-                            <ColumnDefinition Width="96"/>
-                            <ColumnDefinition Width="58"/>
-                            <ColumnDefinition Width="58"/>
-                            <ColumnDefinition Width="58"/>
+                            <ColumnDefinition Width="1.2*" MinWidth="100"/>
+                            <ColumnDefinition Width="1.3*" MinWidth="112"/>
+                            <ColumnDefinition Width="1.6*" MinWidth="130"/>
+                            <ColumnDefinition Width="1.3*" MinWidth="116"/>
+                            <ColumnDefinition Width="1.4*" MinWidth="124"/>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="64"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="#" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="1" Padding="6,0" Text="{DynamicResource SheetStore.Category}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
@@ -441,14 +438,11 @@
                         <TextBlock Grid.Column="3" Padding="6,0" Text="{DynamicResource ProformaInvoice.Color}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="4" Padding="6,0" Text="{DynamicResource ProformaInvoice.SIZE}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Grid.Column="5" Padding="6,0" Text="{DynamicResource SheetStore.Supplier}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="6" Padding="6,0" Text="SQM" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="7" Padding="6,0" Text="{DynamicResource SheetStore.BUYSQM}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="8" Padding="6,0" Text="{DynamicResource SheetStore.SELLSQM}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="9" Padding="6,0" Text="{DynamicResource SheetStore.TotalBUY}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="10" Padding="6,0" Text="{DynamicResource SheetStore.TotalSELL}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="11" Padding="6,0" Text="{DynamicResource SheetStore.Stock}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="12" Padding="6,0" Text="{DynamicResource SheetStore.USED}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="13" Padding="6,0,0,0" Text="BAL" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="6" Padding="6,0" Text="{DynamicResource SheetStore.TotalBUY}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="7" Padding="6,0" Text="{DynamicResource SheetStore.TotalSELL}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="8" Padding="6,0" Text="{DynamicResource SheetStore.Stock}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="9" Padding="6,0" Text="{DynamicResource SheetStore.USED}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="10" Padding="6,0,0,0" Text="BAL" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
                     </Grid>
                 </Border>
 
@@ -510,20 +504,17 @@
                                         </Border.Style>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="40"/>
-                                                <ColumnDefinition Width="150"/>
-                                                <ColumnDefinition Width="56"/>
-                                                <ColumnDefinition Width="96"/>
-                                                <ColumnDefinition Width="104"/>
-                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="0.45*" MinWidth="36"/>
+                                                <ColumnDefinition Width="1.6*" MinWidth="120"/>
                                                 <ColumnDefinition Width="64"/>
-                                                <ColumnDefinition Width="72"/>
-                                                <ColumnDefinition Width="76"/>
-                                                <ColumnDefinition Width="96"/>
-                                                <ColumnDefinition Width="96"/>
-                                                <ColumnDefinition Width="58"/>
-                                                <ColumnDefinition Width="58"/>
-                                                <ColumnDefinition Width="58"/>
+                                                <ColumnDefinition Width="1.2*" MinWidth="100"/>
+                                                <ColumnDefinition Width="1.3*" MinWidth="112"/>
+                                                <ColumnDefinition Width="1.6*" MinWidth="130"/>
+                                                <ColumnDefinition Width="1.3*" MinWidth="116"/>
+                                                <ColumnDefinition Width="1.4*" MinWidth="124"/>
+                                                <ColumnDefinition Width="64"/>
+                                                <ColumnDefinition Width="64"/>
+                                                <ColumnDefinition Width="64"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="{Binding Id}" FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
@@ -531,42 +522,34 @@
                                                        Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding Category}"/>
                                             <TextBlock Grid.Column="2" Padding="6,0" Text="{Binding ThicknessDisplay}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
+                                                       HorizontalTextAlignment="Center"/>
                                             <TextBlock Grid.Column="3" Padding="6,0" Text="{Binding Color}" FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding Color}"/>
                                             <TextBlock Grid.Column="4" Padding="6,0" Text="{Binding SizeDisplay}" FontSize="{StaticResource TextBody}"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding SizeDisplay}"/>
                                             <TextBlock Grid.Column="5" Padding="6,0" Text="{Binding Supplier}" FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding Supplier}"/>
-                                            <TextBlock Grid.Column="6" Padding="6,0" Text="{Binding SqmPerSheet, StringFormat={}{0:N4}}"
-                                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                            <TextBlock Grid.Column="7" Padding="6,0" Text="{Binding PurchasePricePerSqm, StringFormat={}{0:0.##}}"
-                                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                            <TextBlock Grid.Column="8" Padding="6,0" Text="{Binding SellPricePerSqm, StringFormat={}{0:0.##}}"
-                                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                            <TextBlock Grid.Column="9" Padding="6,0" Text="{Binding TotalPurchaseValue, StringFormat={}{0:N0}}"
+                                            <TextBlock Grid.Column="6" Padding="6,0" Text="{Binding TotalPurchaseValue, StringFormat={}{0:N0}}"
                                                        FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"
                                                        VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                            <TextBlock Grid.Column="10" Padding="6,0" Text="{Binding TotalSellValue, StringFormat={}{0:N0}}"
+                                            <TextBlock Grid.Column="7" Padding="6,0" Text="{Binding TotalSellValue, StringFormat={}{0:N0}}"
                                                        FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
                                                        VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="11" Margin="6,0"
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="8" Margin="6,0"
                                                     Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Stock}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                             </Border>
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="12" Margin="6,0"
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="9" Margin="6,0"
                                                     Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Used}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                                             </Border>
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="13" Margin="6,0,0,0"
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="10" Margin="6,0,0,0"
                                                     Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Balance}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
@@ -744,6 +727,54 @@
                                     </StackPanel>
                                 </Border>
                             </Grid>
+
+                            <!-- PER-SHEET SQM PRICING (2026-09-05) —
+                                 moved out of the main grid: keeping BUY/SQM
+                                 and SELL/SQM as fixed columns next to the
+                                 flexible Supplier star column is what made
+                                 the table read as "inconsistent spacing" on
+                                 wide screens. This is SELECTION-scoped data
+                                 (per-sheet rate, not a portfolio figure), so
+                                 the card hides when no row is selected. -->
+                            <StackPanel Margin="0,0,0,10"
+                                        Visibility="{Binding IsRowSelected, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
+                                            Margin="0,0,3,0"
+                                            Background="{DynamicResource TintBlueBrush}"
+                                            BorderBrush="{DynamicResource AccentBrush}"
+                                            BorderThickness="1">
+                                        <StackPanel>
+                                            <TextBlock Text="SQM/SHEET" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                            <TextBlock Text="{Binding DisplaySqmPerSheet, StringFormat={}{0:0.####}}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="1" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
+                                            Margin="3,0,0,0"
+                                            Background="{DynamicResource TintRedBrush}"
+                                            BorderBrush="{DynamicResource DangerBrush}"
+                                            BorderThickness="1">
+                                        <StackPanel>
+                                            <TextBlock Text="{DynamicResource SheetStore.BUYSQM}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
+                                            <TextBlock Text="{Binding DisplayBuyPricePerSqm, StringFormat={}{0:0.##} AED}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                                <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
+                                        Margin="0,6,0,0"
+                                        Background="{DynamicResource TintGreenBrush}"
+                                        BorderBrush="{DynamicResource SuccessBrush}"
+                                        BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="{DynamicResource SheetStore.SELLSQM}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Text="{Binding DisplaySellPricePerSqm, StringFormat={}{0:0.##} AED}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
 
                             <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,4,0,16"/>
 

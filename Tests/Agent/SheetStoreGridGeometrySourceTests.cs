@@ -31,15 +31,29 @@ namespace ProGlassAutomation.Tests.Agent
         {
             string view = View();
 
-            int tables = Count(view, "<ColumnDefinition Width=\"40\"/>");
-            Assert.Equal(2, tables);
-            int buyCol = Count(view, "<ColumnDefinition Width=\"72\"/>");
-            Assert.Equal(2, buyCol);
-            int pillCol = Count(view, "<ColumnDefinition Width=\"58\"/>");
-            Assert.Equal(6, pillCol);           // 3 pills x 2 tables
-            int supplierFlex = Count(view, "<ColumnDefinition Width=\"*\"/>");
-            Assert.True(supplierFlex >= 2,
-                "Supplier stays the flexible column in both tables.");
+            int listStart = view.IndexOf("<ColumnDefinition Width=\"0.45*\"", StringComparison.Ordinal);
+            int listEnd = view.IndexOf("</ListBox.ItemTemplate>", StringComparison.Ordinal);
+            string listScope = view.Substring(listStart, listEnd - listStart);
+
+            // 2026-09-05 width-law v3 (senior-debug rebuild): hybrid
+            // MinWidth+star. v2's spineless dense-star table let some
+            // columns (Thickness/Colour, Sell-total, pills) collapse while
+            // Category/Supplier ballooned — the invisible "diagonal" the
+            // owner called out. The law both tables must keep identical:
+            //   # 0.45* min36 / Cat 1.6* min120 / Thick 64 /
+            //   Colour 1.2* min100 / Size 1.3* min112 / Supplier 1.6* min130 /
+            //   TotalBUY 1.3* min116 / TotalSELL 1.4* min124 / pills 64 x3
+            Assert.Equal(2, Count(listScope, "<ColumnDefinition Width=\"0.45*\" MinWidth=\"36\"/>"));
+            Assert.Equal(4, Count(listScope, "<ColumnDefinition Width=\"1.6*\""));
+            Assert.Equal(2, Count(listScope, "<ColumnDefinition Width=\"1.2*\" MinWidth=\"100\"/>"));
+            Assert.Equal(4, Count(listScope, "<ColumnDefinition Width=\"1.3*\""));
+            Assert.Equal(2, Count(listScope, "<ColumnDefinition Width=\"1.4*\" MinWidth=\"124\"/>"));
+            Assert.Equal(8, Count(listScope, "<ColumnDefinition Width=\"64\"/>"));
+            Assert.Equal(0, Count(listScope, "<ColumnDefinition Width=\"58\"/>"));
+            Assert.Equal(0, Count(listScope, "<ColumnDefinition Width=\"56\"/>"));
+            // The SQM price trio (72/76) must NOT come back into the list.
+            Assert.Equal(0, Count(listScope, "<ColumnDefinition Width=\"72\"/>"));
+            Assert.Equal(0, Count(listScope, "<ColumnDefinition Width=\"76\"/>"));
         }
 
         [Fact]
@@ -60,11 +74,12 @@ namespace ProGlassAutomation.Tests.Agent
         {
             string view = View();
 
-            // 14 header cells + 11 row text cells = 25 padded cells. The
-            // three pills use Margin so their tint fills the full cell.
+            // 11 header cells + 8 row text cells = 19 padded cells (the SQM
+            // price trio left the list grid to the sidebar 2026-09-05).
+            // The three pills use Margin so their tint fills the full cell.
             int paddedTextCells = Count(view, "Padding=\"6,0\"", true);
-            Assert.True(paddedTextCells >= 25,
-                $"Expected >=25 padded text cells, found {paddedTextCells}.");
+            Assert.True(paddedTextCells >= 19,
+                $"Expected >=19 padded text cells, found {paddedTextCells}.");
             Assert.Equal(4, Count(view, "Margin=\"6,0\""));
         }
 
@@ -86,6 +101,38 @@ namespace ProGlassAutomation.Tests.Agent
             // The row's first gap used to be 16 while the rest were 20 —
             // visible rhythm break between HEADING and first stat.
             Assert.DoesNotContain("<ColumnDefinition Width=\"16\"/>", view);
+        }
+
+        [Fact]
+        public void sqm_price_trio_lives_in_the_sidebar_not_the_grid()
+        {
+            string view = View();
+
+            // 2026-09-05 move: the per-sheet SQM pricing cells must live
+            // ONLY in the detail sidebar (selection-scoped card) — never
+            // as row-template bindings again, since that is what let the
+            // flexible Supplier star-column widen the trio gap on wide
+            // screens. Guard row-template scope so this can't come back.
+            int rowStart = view.IndexOf("<ListBox.ItemTemplate>", StringComparison.Ordinal);
+            int rowEnd = view.IndexOf("</ListBox.ItemTemplate>", StringComparison.Ordinal);
+            string rowScope = view.Substring(rowStart, rowEnd - rowStart);
+            Assert.DoesNotContain("Binding SqmPerSheet", rowScope);
+            Assert.DoesNotContain("Binding PurchasePricePerSqm", rowScope);
+            Assert.DoesNotContain("Binding SellPricePerSqm", rowScope);
+
+            // Sidebar carries the trio on the new selection display values.
+            Assert.Contains("Binding DisplaySqmPerSheet", view);
+            Assert.Contains("Binding DisplayBuyPricePerSqm", view);
+            Assert.Contains("Binding DisplaySellPricePerSqm", view);
+            Assert.Contains("SQM/SHEET", view);
+
+            // VM exposes them (selection-aware, portfolio-fallback 0).
+            string vm = File.ReadAllText(
+                Path.Combine(LocateProjectRoot(),
+                    "ViewModels/SheetStore/SheetStoreViewModel.Part1.cs"));
+            Assert.Contains("DisplaySqmPerSheet =>", vm);
+            Assert.Contains("DisplayBuyPricePerSqm =>", vm);
+            Assert.Contains("DisplaySellPricePerSqm =>", vm);
         }
 
         // ══════════════════════════════════════════════════════════════

@@ -223,6 +223,16 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public decimal DisplayBuyingValue => SelectedSheet?.TotalPurchaseValue ?? TotalBuyingValue;
         public decimal DisplaySellingValue => SelectedSheet?.TotalSellValue ?? TotalSellingValue;
         public decimal DisplayProfit => SelectedSheet?.ProfitValue ?? TotalProfit;
+
+        // Per-sheet SQM pricing (2026-09-05 — moved from the main grid to
+        // the detail sidebar: with Supplier as the lone star column, the
+        // flexible Supplier column kept shoving the SQM trio far away and
+        // the table read as "inconsistent spacing". Portfolio rates are
+        // meaningless here (rates differ per sheet), so these Show zero
+        // when no row is selected; the XAML hides the card via IsRowSelected.
+        public decimal DisplaySqmPerSheet => SelectedSheet?.SqmPerSheet ?? 0m;
+        public decimal DisplayBuyPricePerSqm => SelectedSheet?.PurchasePricePerSqm ?? 0m;
+        public decimal DisplaySellPricePerSqm => SelectedSheet?.SellPricePerSqm ?? 0m;
         public bool IsRowSelected => SelectedSheet != null;
         public string SelectionLabel => SelectedSheet == null
             ? string.Empty
@@ -546,6 +556,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(DisplayBuyingValue));
             OnPropertyChanged(nameof(DisplaySellingValue));
             OnPropertyChanged(nameof(DisplayProfit));
+            OnPropertyChanged(nameof(DisplaySqmPerSheet));
+            OnPropertyChanged(nameof(DisplayBuyPricePerSqm));
+            OnPropertyChanged(nameof(DisplaySellPricePerSqm));
             OnPropertyChanged(nameof(IsRowSelected));
             OnPropertyChanged(nameof(SelectionLabel));
         }
