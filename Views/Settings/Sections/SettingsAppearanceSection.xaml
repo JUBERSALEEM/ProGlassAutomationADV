@@ -431,7 +431,7 @@
                                       RowStyle="{StaticResource CrystalDataGridRowStyle}"
                                       CellStyle="{StaticResource CrystalDataGridCellStyle}"
                                       AutoGenerateColumns="False" IsReadOnly="True"
-                                      RowHeadersWidth="0" CanUserAddRows="False"
+                                      RowHeaderWidth="0" CanUserAddRows="False"
                                       CanUserResizeColumns="False"
                                       MaxHeight="86">
                                 <DataGrid.Columns>

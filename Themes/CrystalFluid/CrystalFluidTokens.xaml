@@ -69,6 +69,19 @@
          no-theatre law). Consumed by StatCardControl | StatCard XAML. -->
     <sys:Boolean x:Key="CrystalWaterDefaultEnabled">False</sys:Boolean>
 
+    <!-- FAMILY-GATE STATIC DEFAULTS (2026-09-05 — XDG-0001 / family
+         leak fix). The engine WRITES these as Visible under Crystal
+         Fluid and REMOVES them at every family switch (Part1 ×2 +
+         Part3). The same contract as CrystalWaterDefaultEnabled above
+         requires a static default here, because the removal means the
+         key must still RESOLVE to the non-crystal answer: Designer
+         tooling needs the key present, and at runtime an unresolvable
+         DynamicResource falls back to Visibility's CLR default
+         (Visible) — the crystal chrome would then render under every
+         other family, exactly what the gate exists to prevent. -->
+    <Visibility x:Key="CrystalAmbientHostVisibility">Collapsed</Visibility>
+    <Visibility x:Key="CrystalPreviewHostVisibility">Collapsed</Visibility>
+
     <!-- §42 card-lift duration (0.32 s). The authored metrics carry
          hover/transition/water durations but no card-lift axis; P2's
          card tilt/lift consumes this. -->

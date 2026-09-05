@@ -203,5 +203,35 @@ namespace ProGlassAutomation.Tests.Agent
                 Assert.Contains($"x:Key=\"{key}\"", plane,
                     StringComparison.Ordinal);
         }
+        // ── 6. STATIC GATE DEFAULT + VALID DATAGRID API (2026-09-05) ────
+        // Regression pins for a real Windows-box build break: the
+        // preview authored a DataGrid with RowHeadersWidth (plural —
+        // not a WPF property; the correct API is RowHeaderWidth),
+        // which hard-fails the whole XAML parse and cascades into
+        // "XDG0008 name does not exist" for every custom control on
+        // the surface. And the preview-host gate existed ONLY as a
+        // runtime write in the engine — with no static tokens-file
+        // default, the designer renders XDG-0001 AND, at runtime, an
+        // unresolvable DynamicResource falls back to Visibility's CLR
+        // default (Visible), leaking the crystal preview gallery (and,
+        // by the same contract, the shell ambient host) under every
+        // non-crystal family.
+        [Fact]
+        public void Gate_has_tokens_default_and_preview_uses_valid_datagrid_api()
+        {
+            string tokens = Read("Themes/CrystalFluid/CrystalFluidTokens.xaml");
+            Assert.Contains(
+                "x:Key=\"CrystalPreviewHostVisibility\">Collapsed",
+                tokens, StringComparison.Ordinal);
+            Assert.Contains(
+                "x:Key=\"CrystalAmbientHostVisibility\">Collapsed",
+                tokens, StringComparison.Ordinal);
+
+            string xaml = Read(Preview);
+            Assert.DoesNotContain("RowHeadersWidth", xaml,
+                StringComparison.Ordinal);
+            Assert.Contains("RowHeaderWidth=\"0\"", xaml,
+                StringComparison.Ordinal);
+        }
     }
 }
