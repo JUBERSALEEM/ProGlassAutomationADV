@@ -181,6 +181,19 @@ namespace ProGlassAutomation.Services.Theme
             // bind CrystalWaterDefaultEnabled render CrystalWater.
             resources["CrystalWaterDefaultEnabled"] = true;
 
+            // Token baselines (root-level): a family repaint ALWAYS
+            // restores the family truth for every studio-tunable water
+            // token, so Theme-Studio Reset provably lands clean (the
+            // "reset does nothing" class must stay dead). The studio
+            // then writes its mapped values on top (ThemeStudioService).
+            resources["CrystalWaterOpacity"] = 1.0;
+            resources["CrystalWaterSpeed"] = 1.0;
+            resources["CrystalCausticOpacity"] = 1.0;
+            resources["CrystalBubbleOpacity"] = 1.0;
+            resources["CrystalReflectionOpacity"] = 1.0;
+            resources["CrystalReducedMotion"] =
+                App.Config?.Appearance?.ReducedMotion == true;
+
             resources["LiquidShadowColor"] = dark
                 ? Color.FromArgb(0xFF, 0x00, 0x04, 0x10)
                 : Color.FromArgb(0x55, 0x1E, 0x5F, 0x7E);

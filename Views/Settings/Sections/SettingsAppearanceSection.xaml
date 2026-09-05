@@ -982,6 +982,15 @@
                                 <TextBlock Text="{DynamicResource Settings.StudioUndo}"
                                            FontSize="{StaticResource TextBody}"/>
                             </Button>
+                            <!-- Crystal Fluid M3 (spec §43): minimized
+                                 water choreography + ambient motion. -->
+                            <CheckBox Content="{DynamicResource Settings.StudioReducedMotion}"
+                                      IsChecked="{Binding StudioReducedMotion, Mode=TwoWay}"
+                                      ToolTip="{DynamicResource Settings.StudioReducedMotionTip}"
+                                      Margin="14,0,0,0"
+                                      VerticalAlignment="Center"
+                                      FontSize="{StaticResource TextBody}"
+                                      Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </StackPanel>
 
                         <!-- BASIC — the five everyday sliders -->

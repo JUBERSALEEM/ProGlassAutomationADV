@@ -18,12 +18,26 @@
 <UserControl x:Class="ProGlassAutomation.Controls.CrystalFluid.CrystalWater"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
              x:Name="Root"
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
              Focusable="False"
              IsHitTestVisible="False">
+
+    <!-- Token-fed parameters (Milestone 3): WaterOpacity / WaterSpeed
+         come from the Crystal Fluid design tokens (Theme Studio moves
+         them live via the root-level overrides); a host may still pin
+         any of them with an explicit local value — local always wins. -->
+    <UserControl.Style>
+        <Style TargetType="{x:Type local:CrystalWater}">
+            <Setter Property="WaterOpacity"
+                    Value="{DynamicResource CrystalWaterOpacity}"/>
+            <Setter Property="WaterSpeed"
+                    Value="{DynamicResource CrystalWaterSpeed}"/>
+        </Style>
+    </UserControl.Style>
 
     <UserControl.Resources>
         <!-- ONE ambient storyboard per instance; channels address NAMED
@@ -164,8 +178,10 @@
             </Canvas>
 
             <!-- §19 bubbles (sparse; clipped inside the body; X positions
-                 are laid out in code-behind against the live width) -->
-            <Canvas x:Name="BubbleLayer">
+                 are laid out in code-behind against the live width).
+                 Layer opacity = studio WaterFlow mapping (Milestone 3). -->
+            <Canvas x:Name="BubbleLayer"
+                    Opacity="{DynamicResource CrystalBubbleOpacity}">
                 <Canvas.Style>
                     <Style TargetType="Canvas">
                         <Setter Property="Visibility" Value="Visible"/>

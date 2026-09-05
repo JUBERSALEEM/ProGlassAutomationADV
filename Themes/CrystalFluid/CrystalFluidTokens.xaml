@@ -120,7 +120,6 @@
          card templates; Theme Studio Milestone-3 axes bind here) ─────── -->
     <sys:Double x:Key="CrystalWaterOpacity">1.0</sys:Double>
     <sys:Double x:Key="CrystalWaterSpeed">1.0</sys:Double>
-    <sys:Double x:Key="CrystalWaveAmplitude">3.0</sys:Double>
     <sys:Double x:Key="CrystalCausticOpacity">1.0</sys:Double>
     <sys:Double x:Key="CrystalBubbleOpacity">1.0</sys:Double>
     <sys:Double x:Key="CrystalReflectionOpacity">1.0</sys:Double>

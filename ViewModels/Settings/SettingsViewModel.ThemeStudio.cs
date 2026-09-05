@@ -118,6 +118,33 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// after Undo consumes it.</summary>
         public bool CanStudioUndo => _studioUndo != null;
 
+        // ── §43 Reduced motion (Milestone 3) ────────────────────────
+
+        /// <summary>Crystal Fluid reduced-motion switch (spec §43):
+        /// disables the water choreography + ambient motion app-wide.
+        /// Persisted (additive config field, migration-safe); published
+        /// to CrystalReducedMotion so new surfaces honor it immediately,
+        /// and CrystalWater re-reads the token whenever its ambient
+        /// state re-syncs (hide → show).</summary>
+        public bool StudioReducedMotion
+        {
+            get => _config?.Appearance?.ReducedMotion == true;
+            set
+            {
+                if (_config?.Appearance == null) return;
+                if (_config.Appearance.ReducedMotion == value) return;
+                _config.Appearance.ReducedMotion = value;
+                SaveConfig();
+                if (Application.Current?.Resources != null)
+                    Application.Current.Resources["CrystalReducedMotion"] = value;
+                AuditService.Log(
+                    AuditSections.Settings,
+                    "Theme Studio reduced motion",
+                    value ? "animations minimized" : "full motion restored");
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>Single-slot snapshot of the last revertible studio
         /// state: the draft profile, the preset identity shown in the
         /// picker and the PERSISTED copy (undo must restore what was

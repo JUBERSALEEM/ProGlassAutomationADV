@@ -33,6 +33,20 @@ namespace ProGlassAutomation.Services.Theme
         public const string UltraTransparent = CrystalFluid;
         public const string Ocean = "Ocean";
 
+        /// <summary>Crystal Fluid's tunable water tokens (2026-09-05):
+        /// the tokens file carries the defaults; family paint writes
+        /// root-level baselines; the studio may put its mapped values on
+        /// top. Removed at EVERY family switch so other families and the
+        /// static defaults always reign (never a stale studio leak).
+        /// CrystalWaterDefaultEnabled is handled inline beside this list
+        /// because removal must ALSO happen where no loop exists.</summary>
+        private static readonly string[] CrystalFluidTokenKeys =
+        {
+            "CrystalWaterOpacity", "CrystalWaterSpeed",
+            "CrystalCausticOpacity", "CrystalBubbleOpacity",
+            "CrystalReflectionOpacity", "CrystalReducedMotion",
+        };
+
         /// <summary>Keys the engine may override (removed on Normal).</summary>
         private static readonly string[] ManagedKeys =
         {
@@ -264,6 +278,8 @@ namespace ProGlassAutomation.Services.Theme
                 // every family switch so the static tokens-file
                 // default (False) reigns for non-crystal families.
                 resources.Remove("CrystalWaterDefaultEnabled");
+                foreach (var ck in CrystalFluidTokenKeys)
+                    resources.Remove(ck);
                 // PRE-SEED (2026-09-05 — ERR-50472F): ClearOverrides just
                 // opened a window where managed keys are ABSENT. A
                 // template inflating against this dictionary in the same
@@ -410,6 +426,8 @@ namespace ProGlassAutomation.Services.Theme
                 // every family switch so the static tokens-file
                 // default (False) reigns for non-crystal families.
                 resources.Remove("CrystalWaterDefaultEnabled");
+                foreach (var ck in CrystalFluidTokenKeys)
+                    resources.Remove(ck);
                 // PRE-SEED (2026-09-05 — ERR-50472F): never leave the
                 // dictionary with absent keys between teardown and the
                 // family republish — see Apply() for the full rationale.

@@ -2409,6 +2409,8 @@
     <sys:String x:Key="Settings.StudioResetAll">Reset all themes</sys:String>
     <sys:String x:Key="Settings.StudioUndo">Undo</sys:String>
     <sys:String x:Key="Settings.StudioUndoTip">Take back the last studio change (slider, preset, reset or quick look)</sys:String>
+    <sys:String x:Key="Settings.StudioReducedMotion">Reduced motion</sys:String>
+    <sys:String x:Key="Settings.StudioReducedMotionTip">Water, caustics, bubbles and ambient motion render as calm static surfaces (accessibility)</sys:String>
     <sys:String x:Key="Settings.StudioCustomized">Customized</sys:String>
     <sys:String x:Key="Settings.StudioDefaults">Family defaults</sys:String>
     <sys:String x:Key="Settings.StudioFrostness">Frostness</sys:String>

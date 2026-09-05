@@ -104,6 +104,12 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// <summary>How strongly the wallpaper shows through (0.3–1).</summary>
         public double WallpaperOpacity { get; set; } = 0.85;
 
+        /// <summary>CRYSTAL FLUID (2026-09-05, spec §43) — reduced motion:
+        /// true = the water/surface/caustic/bubble choreography and card
+        /// tilt render STATIC everywhere; functional transitions stay.
+        /// Additive + default false = migration-safe for existing saves.</summary>
+        public bool ReducedMotion { get; set; } = false;
+
         /// <summary>
         /// Wallpaper mode (2026-09-05 — Wallpaper Studio).
         ///   "Auto"        (DEFAULT, migration-safe): a saved WallpaperPath

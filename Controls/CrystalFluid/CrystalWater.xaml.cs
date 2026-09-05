@@ -155,9 +155,7 @@ namespace ProGlassAutomation.Controls.CrystalFluid
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            // §43: the global token is consulted AT LOAD (theme-time), not
-            // polled — a studio toggle repaint re-creates the surface.
-            _reducedMotion = TryFindResource("CrystalReducedMotion") is bool b && b;
+            RefreshReducedMotion();
             ApplyLevel(instant: true);
             LayoutBubbles();
             SyncAmbientState();
@@ -278,9 +276,18 @@ namespace ProGlassAutomation.Controls.CrystalFluid
         /// <summary>Starts/resumes the ambient choreography unless reduced
         /// motion, disabled, or already running — and pauses it when the
         /// water is not actually on screen.</summary>
+        private void RefreshReducedMotion() =>
+            _reducedMotion =
+                TryFindResource("CrystalReducedMotion") is bool b && b;
+
         private void SyncAmbientState()
         {
             if (!IsLoaded) return;
+
+            // §43 live-honest: re-consult the token on every resync (hide
+            // → show, enable flip) so the studio's Reduced-Motion toggle
+            // applies without waiting for a full theme repaint.
+            RefreshReducedMotion();
 
             bool shouldRun = WaterEnabled && !_reducedMotion && IsVisible;
             if (shouldRun && !_ambientStarted)
