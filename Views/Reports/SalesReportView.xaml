@@ -131,16 +131,25 @@
 
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition x:Name="RailColumn" Width="268"/>
+            <!-- 2026-09-05 drawer behaviour: the 268px width now lives on
+                 the rail Border and the column is Auto, so the rail can
+                 shrink to 0 when closed (IsRailOpen drives the Visibility).
+                 NOTE: before this change the rail header button flipped
+                 IsRailOpen but NOTHING in this file bound to it — the
+                 collapse button was dead. -->
+            <ColumnDefinition x:Name="RailColumn" Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <!-- ══════════════════════════════════════════════════════════
-             LEFT — NAVIGATION RAIL
+             LEFT — NAVIGATION RAIL (drawer: auto-closes on report pick)
         ══════════════════════════════════════════════════════════════ -->
         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                 Grid.Column="0"
                 Margin="14,14,6,14"
+                Width="268"
+                Visibility="{Binding IsRailOpen,
+                    Converter={StaticResource BoolToVisibilityConverter}}"
                 Background="{DynamicResource ElevatedSurfaceBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"

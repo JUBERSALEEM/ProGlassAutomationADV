@@ -102,6 +102,10 @@
          full alpha so it can stand alone.
     ═══════════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FFF7F4EC" po:Freeze="True"/>
+    <!-- 2026-09-05 dropdown contrast tokens: see DarkTheme note. 12% black
+         tint over #F7F4EC is the light-theme hover lift; selected row uses
+         AccentBrush + OnAccentForegroundBrush in BOTH themes. -->
+    <SolidColorBrush x:Key="ComboBoxItemHoverBrush" Color="#1F000000" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleWallpaperBrush" Color="Transparent" po:Freeze="True"/>
     <LinearGradientBrush x:Key="ElevatedSurfaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#90FFFCF5" Offset="0.00"/>

@@ -72,6 +72,12 @@
          is a floating window, so an alpha-00 glass brush shows the
          desktop through it. -->
     <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FF1C1F26" po:Freeze="True"/>
+    <!-- 2026-09-05 dropdown contrast tokens (ERR white-on-white rows):
+         ComboBoxItem hover/highlight must NEVER use the glass wash —
+         ~40% white glass + white text is invisible on the dark popup.
+         17% white tint over #1C1F26 reads as a subtle lift instead, and
+         the selected row uses AccentBrush + OnAccentForegroundBrush. -->
+    <SolidColorBrush x:Key="ComboBoxItemHoverBrush" Color="#2BFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleWallpaperBrush" Color="Transparent" po:Freeze="True"/>
     <LinearGradientBrush x:Key="ElevatedSurfaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#74FFFFFF" Offset="0.00"/>

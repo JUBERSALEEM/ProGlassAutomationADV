@@ -63,6 +63,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (_settingsPage == value) return;
                 _settingsPage = value;
                 OnPropertyChanged();
+                // 2026-09-05 owner directive: picking a page from the rail
+                // CLOSES the rail automatically so the section gets the
+                // full module width. Applies to every switch path — rail
+                // buttons AND programmatic GoToPage navigation — because it
+                // lives here in the single setter.
+                IsSettingsRailOpen = false;
                 OnPropertyChanged(nameof(IsAppearancePage));
                 OnPropertyChanged(nameof(IsAiPage));
                 OnPropertyChanged(nameof(IsAgentPage));   // PHASE F
@@ -109,6 +115,31 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         /// <summary>Switches the active settings page (nav rail).</summary>
         public ICommand SwitchSettingsPageCommand { get; private set; }
+
+        /// <summary>
+        /// Settings navigation rail visibility (2026-09-05 drawer behaviour).
+        /// True when entering the module; closes automatically as soon as a
+        /// page is picked, and re-opens with a single click on the floating
+        /// menu button. Single-click open/close, no double state.
+        /// </summary>
+        private bool _isSettingsRailOpen = true;
+        public bool IsSettingsRailOpen
+        {
+            get => _isSettingsRailOpen;
+            set
+            {
+                if (_isSettingsRailOpen == value) return;
+                _isSettingsRailOpen = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private ICommand? _toggleSettingsRailCommand;
+        /// <summary>Single click toggles the rail: open when closed, close
+        /// when open.</summary>
+        public ICommand ToggleSettingsRailCommand =>
+            _toggleSettingsRailCommand ??= new RelayCommand(
+                _ => IsSettingsRailOpen = !IsSettingsRailOpen);
 
         /// <summary>
         /// Command-free way to switch page. SettingsPage has a private

@@ -827,7 +827,17 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBox">
                     <Grid>
+                        <!-- 2026-09-05 two silent defects fixed here:
+                             (1) the ToggleButton's Background was never
+                                 wired from the ComboBox, so the chrome
+                                 border painted TRANSPARENT (TemplateBinding
+                                 read the toggle's own unset Background);
+                             (2) the ContentPresenter above it had hit-testing
+                                 ON, so clicks landing on the selection text
+                                 never reached the toggle — dropdown felt dead
+                                 unless the arrow was hit. -->
                         <ToggleButton x:Name="Toggle" Focusable="False" ClickMode="Press"
+                                      Background="{TemplateBinding Background}"
                                       IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
@@ -848,6 +858,7 @@
                             </ToggleButton.Template>
                         </ToggleButton>
                         <ContentPresenter Margin="14,0,32,0" VerticalAlignment="Center"
+                                          IsHitTestVisible="False"
                                           Content="{TemplateBinding SelectionBoxItem}"
                                           ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
                         <TextBlock x:Name="Arrow" Text="&#xE70D;" FontFamily="Segoe MDL2 Assets"

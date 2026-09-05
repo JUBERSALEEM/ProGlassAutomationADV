@@ -203,12 +203,18 @@ namespace ProGlassAutomation.ViewModels.Reports
                 {
                     ActiveKey = key;
                     OnPropertyChanged(nameof(IsOverview));
+                    // 2026-09-05 owner directive: choosing a report from the
+                    // rail CLOSES the rail automatically so the report gets
+                    // the full module width (drawer behaviour; re-opens via
+                    // the floating menu button or the header toggle).
 
                     // Statements can be generated in the Dispatch section now;
                     // refresh the read-only Statement report when it opens so it
                     // reflects the latest generated statements.
                     if (key == "Statement")
                         _ = StatementReport.LoadAsync();
+
+                    IsRailOpen = false; // auto-close (see above)
                 }
             });
 

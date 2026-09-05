@@ -238,31 +238,53 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
+
+                            <!-- FULL-SURFACE OPEN (2026-09-05 owner report):
+                                 a professional dropdown opens from a click
+                                 ANYWHERE on the box, not only on the arrow.
+                                 The old template put the toggle ONLY in the
+                                 arrow column, so clicking the text body did
+                                 nothing. The toggle now spans both columns
+                                 with a transparent template (Background is
+                                 set explicitly on the border INSIDE its
+                                 template — the ToggleButton.Background
+                                 property alone does not paint), and every
+                                 visual above it is IsHitTestVisible=False.
+                                 This is exactly WPF's own Aero pattern. -->
+                            <ToggleButton Grid.Column="0" Grid.ColumnSpan="2"
+                                          x:Name="PART_Button"
+                                          Focusable="False"
+                                          ClickMode="Press"
+                                          Cursor="Hand"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          Background="Transparent">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="HitSurface"
+                                                Background="{TemplateBinding Background}"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                SnapsToDevicePixels="True"/>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="HitSurface" Property="Cursor" Value="Hand"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
                             <ContentPresenter Grid.Column="0"
                                               Margin="12,0"
                                               VerticalAlignment="Center"
                                               ContentSource="SelectionBoxItem"
                                               IsHitTestVisible="False"/>
-                            <!-- ToggleButton (required, or the popup never opens).
-                                 The previous template only had a static TextBlock
-                                 chevron with no click surface; IsDropDownOpen was
-                                 bound on the Popup but nothing ever set it true.
-                                 Mirrors the editable variant's pattern. -->
-                            <ToggleButton Grid.Column="1"
-                                          x:Name="PART_Button"
-                                          Focusable="False"
-                                          ClickMode="Press"
-                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
-                                          Background="Transparent"
-                                          BorderThickness="0"
-                                          Padding="0,0,12,0"
-                                          Cursor="Hand">
-                                <TextBlock Text="&#xE70D;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{StaticResource TextCaption}"
-                                           VerticalAlignment="Center"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            </ToggleButton>
+                            <TextBlock Grid.Column="1"
+                                       Text="&#xE70D;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource TextCaption}"
+                                       Margin="0,0,12,0"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
                             <Popup IsOpen="{TemplateBinding IsDropDownOpen}"
                                    Placement="Bottom"
                                    AllowsTransparency="True"
@@ -345,17 +367,27 @@
                         <ContentPresenter/>
                     </Border>
                     <ControlTemplate.Triggers>
+                        <!-- 2026-09-05 contrast fix: hover/highlight used the
+                             GLASS wash (~40% white) — on the dark popup that
+                             turned the row near-white while the text STAYED
+                             white (invisible text, the "white on white" bug).
+                             Dedicated per-theme tint tokens instead. -->
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="ItemBd" Property="Background"
-                                    Value="{DynamicResource GlassSurfaceBrush}"/>
+                                    Value="{DynamicResource ComboBoxItemHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsHighlighted" Value="True">
                             <Setter TargetName="ItemBd" Property="Background"
-                                    Value="{DynamicResource GlassSurfaceBrush}"/>
+                                    Value="{DynamicResource ComboBoxItemHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="ItemBd" Property="Background"
-                                    Value="{DynamicResource TintIndigoBrush}"/>
+                                    Value="{DynamicResource AccentBrush}"/>
+                            <!-- Foreground MUST flip too: the old style kept
+                                 PrimaryForegroundBrush, which is dark on dark
+                                 accent in the light theme. -->
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource OnAccentForegroundBrush}"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">

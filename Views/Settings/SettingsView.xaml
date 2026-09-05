@@ -45,21 +45,27 @@
 
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.ColumnDefinitions>
-            <!-- ERR-BEFC44 follow-up: this rail was a hard 232px, so with a
-                 larger global UI scale or font the longest labels clipped
-                 mid-word ("Appearance" rendered as "Appea"). Auto-size to
-                 the widest label instead, with MinWidth preserving the old
-                 232px look at default scale and MaxWidth stopping the rail
-                 from eating the content pane in verbose languages. -->
-            <ColumnDefinition Width="Auto" MinWidth="232" MaxWidth="420"/>
+            <!-- ERR-BEFC44 follow-up + 2026-09-05 drawer behaviour:
+                 ERR-BEFC44: rail was a hard 232px, clipping long labels.
+                 The AUTO-SIZE contract (Min 232 / Max 420) now lives on the
+                 rail Border itself; the column is plain Auto so the rail can
+                 shrink to 0 when the user closes it (single-click toggle +
+                 auto-close on page pick — the section then gets the full
+                 module width). -->
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <!-- ══════════════════════════════════════════════════════════
              LEFT — NAVIGATION RAIL (rounded floating card, clearly visible)
+             Visibility = IsSettingsRailOpen (drawer: closes on page pick,
+             re-opens via the floating menu button).
         ══════════════════════════════════════════════════════════════ -->
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Column="0"
                 Margin="14,14,6,14"
+                MinWidth="232" MaxWidth="420"
+                Visibility="{Binding IsSettingsRailOpen,
+                    Converter={StaticResource BoolToVisibilityConverter}}"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
                 BorderThickness="1.5"
@@ -392,6 +398,50 @@
                     ElementName=SettingsRoot,
                     Converter={StaticResource BoolToVisibilityConverter},
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
+
+            <!-- Floating menu toggle (2026-09-05 drawer): ONE button for
+                 single-click open AND close. Sits above every section
+                 (ZIndex), always reachable — after the rail auto-closes on
+                 a page pick, this is how the user brings it back to switch
+                 page again. -->
+            <Border Panel.ZIndex="20"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Margin="10,10,0,0"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    Background="{DynamicResource PopupSurfaceBrush}"
+                    BorderBrush="{DynamicResource GlassBorderBright}"
+                    BorderThickness="1"
+                    Padding="1"
+                    SnapsToDevicePixels="True">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="14" ShadowDepth="2"
+                                      Direction="270" Opacity="0.25"
+                                      Color="#000000"/>
+                </Border.Effect>
+                <Button Command="{Binding DataContext.ToggleSettingsRailCommand,
+                                          ElementName=SettingsRoot}"
+                        Width="40" Height="40"
+                        Cursor="Hand"
+                        ToolTip="{DynamicResource ToolTip.ToggleMenu}"
+                        Background="Transparent"
+                        BorderThickness="0">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <StackPanel VerticalAlignment="Center"
+                                        HorizontalAlignment="Center">
+                                <Border Width="20" Height="2.5" CornerRadius="2"
+                                        Background="{DynamicResource PrimaryForegroundBrush}"
+                                        Margin="0,0,0,4"/>
+                                <Border Width="20" Height="2.5" CornerRadius="2"
+                                        Background="{DynamicResource PrimaryForegroundBrush}"
+                                        Margin="0,0,0,4"/>
+                                <Border Width="20" Height="2.5" CornerRadius="2"
+                                        Background="{DynamicResource PrimaryForegroundBrush}"/>
+                            </StackPanel>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

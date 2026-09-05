@@ -334,3 +334,41 @@ Also hardened per owner field reports: wallpaper library scan failures now LOG
 (instead of returning a silent empty list); provider pipeline logs every stage to
 AppLog (fetch start, 0-result searches, per-provider outcome, all-failed network
 diagnosis) so the next session's log proves the download path.
+
+---
+
+## 2026-09-05 — Owner escalation: dropdown UX + module rail drawer behaviour
+
+### DROPDOWNS (ComboBox) — two proven root causes, global fix
+
+1. **"Click anywhere should open it"** — `ModernComboBoxStyle` placed its
+   toggle ONLY in the arrow column (`Grid.Column=1`), so clicks on the text
+   body hit a `ContentPresenter` with `IsHitTestVisible=False` over NOTHING
+   and died. Reworked to WPF's own Aero pattern: the toggle spans both
+   columns (Grid.ColumnSpan=2) with a transparent-border template, every
+   visual above is hit-test invisible. `LiquidGlassComboBox` fixed the same
+   class: its chrome never received a Background (TemplateBinding read the
+   toggle's own unset property → transparent box) and its ContentPresenter
+   stole the click (now IsHitTestVisible=False).
+2. **"White text on white background"** — ComboBoxItem hover/highlight used
+   GlassSurfaceBrush ≈ 40% WHITE glass; on the dark popup (#1C1F26) the row
+   turned near-white while `PrimaryForegroundBrush` stayed white → invisible
+   text. Also IsSelected kept theme foreground: dark-on-indigo in light
+   theme. Dedicated per-theme `ComboBoxItemHoverBrush` tokens (Dark
+   #2BFFFFFF / Light #1F000000); IsSelected now paints `AccentBrush` +
+   `OnAccentForegroundBrush`. Implicit styles cover every ComboBox app-wide
+   — no third-party dropdown controls exist in the app, so the WPF-native
+   global style IS the global service; no packages added.
+
+### MODULE RAILS (Settings + Reports) — drawer behaviour
+
+- **Reports:** `IsRailOpen` existed, toggle button existed, hamburger style
+  existed — but NO Visibility binding consumed the state (the collapse
+  button was DEAD). Rail column is now Auto + width moved onto the Border;
+  Border.Visibility binds IsRailOpen; NavigateReport auto-closes the rail.
+- **Settings:** new `IsSettingsRailOpen` + floating menu toggle (single
+  click open/close, always visible over the content); SettingsPage setter
+  auto-closes the rail on EVERY switch path (rail clicks + deep-link
+  GoToPage). ERR-BEFC44 auto-size contract preserved (Min 232 / Max 420
+  moved from the ColumnDefinition onto the rail Border).
+- Verified: 6 XAML files XML-parse, both VMs brace-balanced.
