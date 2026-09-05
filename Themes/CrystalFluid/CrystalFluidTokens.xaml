@@ -1,8 +1,9 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:sys="clr-namespace:System;assembly=mscorlib"
-    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+<!-- xmlns:po (presentation options) dropped at P4b — its only users
+     were the retired transitional Freeze brushes -->
     <!-- ═══════════════════════════════════════════════════════════════════
          CRYSTAL FLUID — PIPELINE EXTENSION TOKENS (Ios-17pm, P1 2026-09-05)
 
@@ -18,14 +19,15 @@
                binds live (engine key list: VisualThemeEngine.Part1.cs
                CrystalFluidTokenKeys + the family gate). They belong to the
                app integration layer, not the authored design system.
-           (B) TRANSITIONAL BRUSHES (3) — consumed ONLY by the interim
-               Controls/CrystalFluid/CrystalWater.xaml. P2 landed the
-               authored CrystalWaterControl (paints from
-               CrystalWaterBodyBrush / CrystalWaterHighlightBrush /
-               CrystalWaterDepthBrush / CrystalBubbleFillBrush …);
-               P4 migrates the hosts (StatCard, previews) onto it, and
-               then these three keys, the interim control, and this
-               section are DELETED.
+           (B) TRANSITIONAL BRUSHES — RETIRED P4b (2026-09-05). The
+               interim Controls/CrystalFluid/CrystalWater.xaml(+cs) and
+               its three interim brushes (CrystalWaterBrush /
+               CrystalWaterSurfaceBrush / CrystalBubbleBrush) are
+               deleted. StatCard now hosts the AUTHORED
+               CrystalWaterControl (paints from CrystalWaterBodyBrush /
+               CrystalWaterHighlightBrush / CrystalWaterDepthBrush /
+               CrystalBubbleFillBrush …) as settled at P2: nothing is
+               tombstoned here any more.
 
          Nothing else may be added here: new visual nouns go into the
          three authored dictionaries; new app switches need the same
@@ -71,28 +73,4 @@
          hover/transition/water durations but no card-lift axis; P2's
          card tilt/lift consumes this. -->
     <Duration x:Key="CrystalCardDuration">0:0:0.32</Duration>
-
-    <!-- ── (B) TRANSITIONAL BRUSHES — P2 TOMBSTONE ──────────────────────
-         Kept verbatim from Milestone 1 so the interim CrystalWater
-         control renders unchanged until the authored CrystalWaterControl
-         replaces it. Do NOT add new consumers; P2 deletes this region. -->
-
-    <!-- §16 water body — interim translucent cyan gradient -->
-    <LinearGradientBrush x:Key="CrystalWaterBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#59BFEFFB" Offset="0"/>
-        <GradientStop Color="#808EDCF4" Offset="0.45"/>
-        <GradientStop Color="#995FC8EC" Offset="1"/>
-    </LinearGradientBrush>
-    <!-- §17 surface highlight band (interim elliptical waterline sheen) -->
-    <LinearGradientBrush x:Key="CrystalWaterSurfaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#CCFFFFFF" Offset="0"/>
-        <GradientStop Color="#59FFFFFF" Offset="0.5"/>
-        <GradientStop Color="#00FFFFFF" Offset="1"/>
-    </LinearGradientBrush>
-    <!-- §19 bubble: translucent white shell, cyan core (interim) -->
-    <RadialGradientBrush x:Key="CrystalBubbleBrush" po:Freeze="True">
-        <GradientStop Color="#66FFFFFF" Offset="0"/>
-        <GradientStop Color="#3DD6F4FF" Offset="0.55"/>
-        <GradientStop Color="#12A8E4F4" Offset="1"/>
-    </RadialGradientBrush>
 </ResourceDictionary>

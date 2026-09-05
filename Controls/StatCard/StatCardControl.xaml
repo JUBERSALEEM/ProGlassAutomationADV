@@ -48,6 +48,35 @@
                         <Setter Property="Visibility" Value="Collapsed"/>
                     </DataTrigger>
 
+                    <!-- ═══ IOS-17PM P4b (2026-09-05): AUTHORED KPI CHROME,
+                         family-gated on the SAME plane as the water. When
+                         the water plane is on (Crystal Fluid — every KPI
+                         host binds the CrystalWaterDefaultEnabled gate),
+                         the card wears the authored KPI-card chrome
+                         (file 06): crystal glass surface + crystal border
+                         + authored water-weight shadow. Declared BEFORE
+                         the state triggers below so Success/Warning/Error
+                         tint the glass exactly as before and Transparent
+                         stays transparent. Under every other family the
+                         gate is False; this never fires — pixel-identical. -->
+                    <DataTrigger Binding="{Binding WaterEnabled,
+                                             ElementName=Root}" Value="True">
+                        <Setter Property="Background"
+                                Value="{DynamicResource CrystalGlassSurfaceBrush}"/>
+                        <Setter Property="BorderBrush"
+                                Value="{DynamicResource CrystalGlassBorderBrush}"/>
+                        <Setter Property="BorderThickness"
+                                Value="{DynamicResource CrystalBorderThickness}"/>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect
+                                        Color="{DynamicResource CrystalShadowColor}"
+                                        BlurRadius="40" ShadowDepth="14"
+                                        Direction="270" Opacity="0.30"/>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+
                     <!-- State tints -->
                     <DataTrigger Binding="{Binding State, ElementName=Root}"
                                  Value="Success">
@@ -80,14 +109,23 @@
         </Border.Style>
 
         <Grid>
-            <!-- Crystal Fluid (2026-09-05): the KPI water reservoir.
-                 Renders ONLY when WaterEnabled (family gate / explicit);
-                 under every other family this is Collapsed and the card
-                 is pixel-identical to before. -->
-            <crystal:CrystalWater
+            <!-- Crystal Fluid: the KPI water reservoir — renders ONLY
+                 when WaterEnabled (family gate / explicit); under every
+                 other family this is Collapsed and the card is
+                 pixel-identical to before.
+                 Ios-17pm P4b (2026-09-05): the interim CrystalWater
+                 UserControl is retired; this is now the AUTHORED
+                 CrystalWaterControl (Transforms-only motion, D5/D6/D9/
+                 D35-class lifecycle fixes included) with the exact same
+                 public wiring carried over DP-for-DP. Its TargetType style
+                 feeds CrystalWaterOpacity/Speed/Bubble/Wave tokens via
+                 the authored defaults, the studio live-writes land
+                 through those same tokens. -->
+            <crystal:CrystalWaterControl
                 WaterEnabled="{Binding WaterEnabled, ElementName=Root}"
                 WaterLevel="{Binding WaterLevel, ElementName=Root}"
-                CornerRadius="{DynamicResource CardCornerRadiusLarge}"/>
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                IsHitTestVisible="False"/>
 
             <Grid Margin="16,13">
             <Grid.ColumnDefinitions>

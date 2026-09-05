@@ -103,10 +103,16 @@ namespace ProGlassAutomation.Tests.Agent
                 PlaneFiles.SelectMany(f => KeysOf(Read(f))),
                 StringComparer.Ordinal);
 
-            // The interim CrystalWater control is the plane's only live
-            // consumer with parse-time references; it must resolve too.
-            var consumerFiles = PlaneFiles.Concat(
-                new[] { "Controls/CrystalFluid/CrystalWater.xaml" });
+            // Ios-17pm P4b (2026-09-05): the interim CrystalWater
+            // control is retired; the plane's live parse-time consumer
+            // is the authored controls dictionary (its templates bind
+            // plane nouns statically). The StatCard host binds its water
+            // layer through DynamicResource only — plane closure for it
+            // is proven by the P4b battery.
+            var consumerFiles = PlaneFiles.Concat(new[]
+            {
+                "Themes/CrystalFluid/CrystalFluidControls.xaml",
+            });
 
             var missing = consumerFiles
                 .SelectMany(f => StaticRefsOf(Read(f))
@@ -165,15 +171,14 @@ namespace ProGlassAutomation.Tests.Agent
                 "<Duration x:Key=\"CrystalAmbientDuration\">0:0:18</Duration>",
                 metrics, StringComparison.Ordinal);
 
-            // Default water level 0.30 is pinned in BOTH DP defaults —
-            // the retired 0.42 ambience must not reappear.
-            string water = Read("Controls/CrystalFluid/CrystalWater.xaml.cs");
+            // Default water level 0.30 is pinned in the StatCard DP
+            // default — the retired 0.42 ambience must not reappear.
+            // Ios-17pm P4b: the interim CrystalWater control is deleted;
+            // the authored CrystalWaterControl's default travels via its
+            // TargetType style (authored metrics), not a code default.
             string stat = Read("Controls/StatCard/StatCardControl.xaml.cs");
-            foreach (var (name, src) in new[] { ("CrystalWater", water), ("StatCardControl", stat) })
-            {
-                Assert.Contains("0.30", src, StringComparison.Ordinal);
-                Assert.DoesNotContain("0.42", src, StringComparison.Ordinal);
-            }
+            Assert.Contains("0.30", stat, StringComparison.Ordinal);
+            Assert.DoesNotContain("0.42", stat, StringComparison.Ordinal);
         }
 
         // ── 5. TOKENS FILE STAYS SHRINK-WRAPPED (SINGLE-HOME RULE) ──────
@@ -188,13 +193,22 @@ namespace ProGlassAutomation.Tests.Agent
                 "CrystalWaterSpeed", "CrystalBubbleOpacity",
                 "CrystalReducedMotion", "CrystalWaterDefaultEnabled",
                 "CrystalCardDuration",
-                // (B) transitional brushes — tombstoned at P2 with the
-                // interim CrystalWater control.
+            })
+            {
+                Assert.Contains($"x:Key=\"{k}\"", tokens, StringComparison.Ordinal);
+            }
+
+            // (B) transitional brushes — Ios-17pm P4b TOMBSTONE EXECUTED:
+            // the interim control is deleted and its three interim
+            // brushes retired with it.
+            foreach (var k in new[]
+            {
                 "CrystalWaterBrush", "CrystalWaterSurfaceBrush",
                 "CrystalBubbleBrush",
             })
             {
-                Assert.Contains($"x:Key=\"{k}\"", tokens, StringComparison.Ordinal);
+                Assert.DoesNotContain($"x:Key=\"{k}\"", tokens,
+                    StringComparison.Ordinal);
             }
 
             // Retired nouns now live ONLY in the authored trio — they must
