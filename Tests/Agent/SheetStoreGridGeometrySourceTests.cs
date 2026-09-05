@@ -88,8 +88,58 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("<ColumnDefinition Width=\"16\"/>", view);
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  DELIVERY REPORT — same hand-built list pattern, same defects
+        //  pinned (header/row origin was 16 vs 14; zero gutters on
+        //  headers; ad-hoc 8px/6px margins on a subset of row cells).
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void DeliveryReport_header_and_row_origins_match()
+        {
+            string view = DeliveryReportView();
+
+            // Header style pads 16; the row Border must be 16 now, not
+            // 14 — any retreat = misaligned columns at every cell.
+            Assert.Contains("Padding=\"16,9\" Cursor=\"Hand\"", view);
+        }
+
+        [Fact]
+        public void DeliveryReport_list_has_no_ad_hoc_cell_margins()
+        {
+            string view = DeliveryReportView();
+
+            // Between the table header and the row template's end, the
+            // one-off 8px/6px margin tails are gone; uniforms come from
+            // the per-cell Padding rule. (The ageing-bucket card above
+            // the table legitimately keeps its 8px gap — not in scope.)
+            int hs = view.IndexOf("<!-- Table header -->", StringComparison.Ordinal);
+            int re = view.IndexOf("</ListBox.ItemTemplate>", StringComparison.Ordinal);
+            Assert.True(hs > 0 && re > hs);
+            string scope = view.Substring(hs, re - hs);
+
+            Assert.DoesNotContain("Margin=\"0,0,8,0\"", scope);
+            Assert.DoesNotContain("Margin=\"0,0,6,0\"", scope);
+            Assert.Contains("Margin=\"0,0,8,0\"",
+                view.Substring(0, hs));   // card spacing preserved
+        }
+
+        [Fact]
+        public void DeliveryReport_every_table_cell_carries_gutters()
+        {
+            string view = DeliveryReportView();
+
+            // 15 header + 15 row cells, two width-table runs identical.
+            int tables = Count(view, "Padding=\"6,0\" Text=", true);
+            Assert.True(tables >= 26,
+                $"Expected >=26 mid-column guttered cells, found {tables}.");
+        }
+
         private static string View() => File.ReadAllText(Path.Combine(
             LocateProjectRoot(), "Views/SheetStore/SheetStoreView.xaml"));
+
+        private static string DeliveryReportView() => File.ReadAllText(Path.Combine(
+            LocateProjectRoot(), "Views/Reports/DeliveryReport/DeliveryReportView.xaml"));
 
         private static int Count(string haystack, string needle,
             bool bothDirections = false)

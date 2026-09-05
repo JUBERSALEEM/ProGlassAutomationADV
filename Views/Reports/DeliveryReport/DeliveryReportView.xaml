@@ -380,21 +380,21 @@
                                 <ColumnDefinition Width="56"/>
                                 <ColumnDefinition Width="58"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{DynamicResource Reports.DeliveryReport.SRNO}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="1" Text="{DynamicResource Reports.DeliveryReport.PI}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Specification}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="3" Text="{DynamicResource JobOrder.GlassType}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="4" Text="{DynamicResource DeliveryNote.GlassRef}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="5" Text="{DynamicResource Common.Customer}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="6" Text="{DynamicResource Common.Salesman}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="7" Text="{DynamicResource Common.Project}" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="8" Text="W1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="9" Text="H1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="10" Text="W2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="11" Text="H2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="12" Text="TOTAL" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="13" Text="{DynamicResource Reports.DeliveryReport.Deliv}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="14" Text="{DynamicResource Common.Balance}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="{DynamicResource Reports.DeliveryReport.SRNO}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="1" Padding="6,0" Text="{DynamicResource Reports.DeliveryReport.PI}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="2" Padding="6,0" Text="{DynamicResource Common.Specification}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="3" Padding="6,0" Text="{DynamicResource JobOrder.GlassType}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Padding="6,0" Text="{DynamicResource DeliveryNote.GlassRef}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="5" Padding="6,0" Text="{DynamicResource Common.Customer}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="6" Padding="6,0" Text="{DynamicResource Common.Salesman}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="7" Padding="6,0" Text="{DynamicResource Common.Project}" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="8" Padding="6,0" Text="W1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="9" Padding="6,0" Text="H1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="10" Padding="6,0" Text="W2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="11" Padding="6,0" Text="H2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="12" Padding="6,0" Text="TOTAL" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="13" Padding="6,0" Text="{DynamicResource Reports.DeliveryReport.Deliv}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="14" Padding="6,0,0,0" Text="{DynamicResource Common.Balance}" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 
@@ -420,7 +420,7 @@
                              Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Padding="14,9" Cursor="Hand"
+                                <Border Padding="16,9" Cursor="Hand"
                                         ToolTip="{DynamicResource Reports.DeliveryReport.ClickViewDeliveryHistoryRow}"
                                         behaviors:ClickToCommandBehavior.Command="{Binding DataContext.SelectRowCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                         behaviors:ClickToCommandBehavior.CommandParameter="{Binding}">
@@ -453,21 +453,21 @@
                                             <ColumnDefinition Width="58"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding Specification}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" ToolTip="{Binding Specification}"/>
-                                        <TextBlock Grid.Column="3" Text="{Binding GlassType}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
-                                        <TextBlock Grid.Column="4" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
-                                        <TextBlock Grid.Column="5" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
-                                        <TextBlock Grid.Column="6" Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
-                                        <TextBlock Grid.Column="7" Text="{Binding ProjectName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
-                                        <TextBlock Grid.Column="8" Text="{Binding W1}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="9" Text="{Binding H1}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="10" Text="{Binding W2}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="11" Text="{Binding H2}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="12" Text="{Binding TotalQty}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="13" Text="{Binding DeliveredQty}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SuccessBrush}"/>
-                                        <TextBlock Grid.Column="14" Text="{Binding BalanceQty}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
+                                        <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="{Binding SerialNumber}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Padding="6,0" Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="2" Padding="6,0" Text="{Binding Specification}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"  ToolTip="{Binding Specification}"/>
+                                        <TextBlock Grid.Column="3" Padding="6,0" Text="{Binding GlassType}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="4" Padding="6,0" Text="{Binding GlassRef}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="5" Padding="6,0" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="6" Padding="6,0" Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="7" Padding="6,0" Text="{Binding ProjectName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Grid.Column="8" Padding="6,0" Text="{Binding W1}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="9" Padding="6,0" Text="{Binding H1}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="10" Padding="6,0" Text="{Binding W2}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="11" Padding="6,0" Text="{Binding H2}" FontSize="{StaticResource TextBody}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="12" Padding="6,0" Text="{Binding TotalQty}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="13" Padding="6,0" Text="{Binding DeliveredQty}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Grid.Column="14" Padding="6,0,0,0" Text="{Binding BalanceQty}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
