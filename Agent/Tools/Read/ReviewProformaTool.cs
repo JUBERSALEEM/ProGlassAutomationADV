@@ -30,6 +30,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 
 namespace ProGlassAutomation.Agent.Tools.Read

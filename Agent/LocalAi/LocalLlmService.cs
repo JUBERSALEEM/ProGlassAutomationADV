@@ -29,7 +29,7 @@ using LLama.Common;
 using LLama.Sampling;
 using ProGlassAutomation.Services.Logging;
 
-namespace ProGlassAutomation.Agent.Models
+namespace ProGlassAutomation.Agent.LocalAi
 {
     /// <summary>
     /// One loaded model. Dispose to free native memory (up to several GB).

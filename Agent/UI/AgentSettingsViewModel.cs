@@ -18,7 +18,7 @@ using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Agent.Configuration;
 using ProGlassAutomation.Agent.Core;
 using ProGlassAutomation.Agent.Interfaces;
-using ProGlassAutomation.Agent.Models;
+using ProGlassAutomation.Agent.LocalAi;
 using ProGlassAutomation.Agent.Rules;
 using ProGlassAutomation.Agent.Security.Network;
 using ProGlassAutomation.Agent.Security.SecretProtection;

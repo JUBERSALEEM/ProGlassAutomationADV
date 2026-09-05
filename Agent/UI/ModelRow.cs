@@ -1,6 +1,6 @@
 // FILE: Agent/UI/ModelRow.cs — one row in the Settings local-model picker.
 
-using ProGlassAutomation.Agent.Models;
+using ProGlassAutomation.Agent.LocalAi;
 using ProGlassAutomation.ViewModels;
 
 namespace ProGlassAutomation.Agent.UI

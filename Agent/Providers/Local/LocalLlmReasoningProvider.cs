@@ -21,7 +21,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ProGlassAutomation.Agent.Interfaces;
-using ProGlassAutomation.Agent.Models;
+using ProGlassAutomation.Agent.LocalAi;
 using ProGlassAutomation.Services.Logging;
 
 namespace ProGlassAutomation.Agent.Providers.Local

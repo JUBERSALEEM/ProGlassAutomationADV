@@ -66,7 +66,7 @@ namespace ProGlassAutomation.Agent.Core
         public static AgentTaskAdapter? TaskAdapter { get; private set; }
 
         /// <summary>Guard: the live local-LLM instance (null when knowledge-only).</summary>
-        private static ProGlassAutomation.Agent.Models.LocalLlmService? _sharedLlm;
+        private static ProGlassAutomation.Agent.LocalAi.LocalLlmService? _sharedLlm;
 
         /// <summary>
         /// Navigation callback, set once by the shell. Assigning it before
@@ -115,10 +115,10 @@ namespace ProGlassAutomation.Agent.Core
                     // Shared local-LLM instance: one per composition, lazy
                     // (no load at build time), disposed on Invalidate so
                     // native weights never leak when posture changes.
-                    ProGlassAutomation.Agent.Models.LocalLlmService? sharedLlm = null;
+                    ProGlassAutomation.Agent.LocalAi.LocalLlmService? sharedLlm = null;
                     string? llmPath = AgentProviderSelector.LocalModelPathInEffect();
                     if (!string.IsNullOrWhiteSpace(llmPath))
-                        sharedLlm = new ProGlassAutomation.Agent.Models
+                        sharedLlm = new ProGlassAutomation.Agent.LocalAi
                             .LocalLlmService(llmPath);
                     _sharedLlm = sharedLlm;
 

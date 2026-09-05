@@ -39,7 +39,7 @@ namespace ProGlassAutomation.Agent.Providers
             IAgentKnowledge? knowledge,
             IAgentSecurityService security,
             IAiService? ai,
-            ProGlassAutomation.Agent.Models.LocalLlmService? sharedLlm = null)
+            ProGlassAutomation.Agent.LocalAi.LocalLlmService? sharedLlm = null)
         {
             try
             {
@@ -106,7 +106,7 @@ namespace ProGlassAutomation.Agent.Providers
             IAgentKnowledge? knowledge,
             string? llmModelPath,
             string llmModelTitle,
-            ProGlassAutomation.Agent.Models.LocalLlmService? sharedLlm)
+            ProGlassAutomation.Agent.LocalAi.LocalLlmService? sharedLlm)
         {
             if (!string.IsNullOrWhiteSpace(llmModelPath) && sharedLlm != null)
                 return new LocalLlmReasoningProvider(sharedLlm, knowledge, llmModelTitle);
@@ -125,7 +125,7 @@ namespace ProGlassAutomation.Agent.Providers
                 var settings = AgentConfigurationService.Current;
                 if (!settings.LocalModelEnabled) return null;
 
-                if (Agent.Models.LocalModelManager.IsInstalled(
+                if (Agent.LocalAi.LocalModelManager.IsInstalled(
                         settings.LocalModelId, out var path))
                     return path;
 
@@ -141,7 +141,7 @@ namespace ProGlassAutomation.Agent.Providers
         public static string LocalModelTitleInEffect()
         {
             var settings = AgentConfigurationService.Current;
-            return Agent.Models.LocalModelCatalog
+            return Agent.LocalAi.LocalModelCatalog
                        .Find(settings.LocalModelId)?.Title
                    ?? "local model";
         }

@@ -8,7 +8,7 @@
 // permissive licenses, unique ids, sane sizes).
 // ═══════════════════════════════════════════════════════════════════════
 
-using ProGlassAutomation.Agent.Models;
+using ProGlassAutomation.Agent.LocalAi;
 using System;
 using System.Linq;
 using Xunit;

@@ -38,7 +38,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Logging;
 
-namespace ProGlassAutomation.Agent.Models
+namespace ProGlassAutomation.Agent.LocalAi
 {
     /// <summary>On-disk integrity record for one installed model.</summary>
     public sealed class LocalModelMeta

@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ProGlassAutomation.Agent.Models
+namespace ProGlassAutomation.Agent.LocalAi
 {
     /// <summary>One installable local model entry.</summary>
     public sealed class LocalModelEntry
