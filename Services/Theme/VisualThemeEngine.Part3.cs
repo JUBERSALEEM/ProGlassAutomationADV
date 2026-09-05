@@ -122,7 +122,12 @@ namespace ProGlassAutomation.Services.Theme
 
             // ── 6) STATUS TINTS — barely-visible hue (unchanged
             // mechanism; tint color feeds status pills, §36). ──────────
-            resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.10, 0.05);
+            // Ios-17pm P4c: the sidebar chip/accent tint adopts the
+            // authored nav ACTIVE-fill identity (single home); fallback
+            // is the pre-P4c frost formula, unchanged.
+            resources["TintIndigoBrush"] = TokenBrush(resources,
+                "CrystalNavActiveBgBrush")
+                ?? HueFrost("TintIndigoBrush", 0.10, 0.05);
             resources["TintBlueBrush"] = HueFrost("TintBlueBrush", 0.10, 0.05);
             resources["TintGreenBrush"] = HueFrost("TintGreenBrush", 0.10, 0.05);
             resources["TintRedBrush"] = HueFrost("TintRedBrush", 0.10, 0.05);
@@ -146,10 +151,17 @@ namespace ProGlassAutomation.Services.Theme
             // mirrors the bright white edge.
             PublishSectionGlass(resources, Colors.White, dark);
 
-            // ── 7) HOVER (§26) — soft translucent white veil ──────────
-            var hoverFill = new SolidColorBrush(
-                Color.FromArgb(dark ? (byte)0x1A : (byte)0x2E, 0xFF, 0xFF, 0xFF));
-            hoverFill.Freeze();
+            // ── 7) HOVER (§26) — soft translucent veil.
+            // Ios-17pm P4c: adopts the AUTHORED nav hover identity
+            // (CrystalNavHoverBgBrush) — the single authored number
+            // home for hover surfaces; the literal below is the
+            // byte-exact pre-P4c fallback. MenuHoverBrush stays a
+            // ManagedKey: every family switch removes + repaints it,
+            // no authored nav tint can leak across families. ──────
+            var hoverFill = TokenBrush(resources,
+                "CrystalNavHoverBgBrush")
+                ?? FrozenArgb(dark ? (byte)0x1A : (byte)0x2E,
+                    0xFF, 0xFF, 0xFF);
             resources["MenuHoverBrush"] = hoverFill;
 
             // ── 8) LIQUID TOKENS — crystal edge + §13 specular sheen ──
@@ -309,6 +321,33 @@ namespace ProGlassAutomation.Services.Theme
             }
             catch { /* a token lookup must never break a paint */ }
             return fallback;
+        }
+
+        /// <summary>P4c — the full-brush companion to TokenColor: hands
+        /// the AUTHORED frozen brush instance through for role keys
+        /// (MenuHoverBrush/Tint…), or null so the caller can keep its
+        /// proven fallback. Authored brushes live in merged dictionaries
+        /// and are inherently frozen at merge; sharing the instance for
+        /// a runtime role key is the standard WPF alias pattern.</summary>
+        private static SolidColorBrush TokenBrush(
+            ResourceDictionary resources, string key)
+        {
+            try
+            {
+                if (resources?.Contains(key) == true &&
+                    resources[key] is SolidColorBrush brush)
+                    return brush;
+            }
+            catch { /* a token lookup must never break a paint */ }
+            return null;
+        }
+
+        private static SolidColorBrush FrozenArgb(
+            byte a, byte r, byte g, byte b)
+        {
+            var brush = new SolidColorBrush(Color.FromArgb(a, r, g, b));
+            brush.Freeze();
+            return brush;
         }
 
         private static void SetTranslucent(
