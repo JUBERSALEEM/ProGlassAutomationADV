@@ -1,0 +1,150 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- ═══════════════════════════════════════════════════════════════════
+         IOS-17PM — SCROLLBAR / SCROLLVIEWER (P2 2026-09-05)
+         Integrated port of the authored CrystalFluidScrollBar.xaml
+         (incoming file 14) with the fix register applied:
+           D28 Track IsDirectionReversed removed — a slider-template
+               pattern that would invert drag/wheel direction.
+           D27 ScrollContentPresenter now carries the standard binding
+               set (CanContentScroll above all — without it, lists
+               hosted in this ScrollViewer style silently lose
+               VirtualizingStackPanel recycling).
+           +   Sizes/radii tokenized (integration nouns in
+               CrystalFluidMetrics.xaml).
+         ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- THUMB -->
+    <Style x:Key="CrystalScrollBarThumb"
+           TargetType="Thumb">
+        <Setter Property="OverridesDefaultStyle"
+                Value="True" />
+        <Setter Property="IsTabStop"
+                Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border x:Name="ThumbBorder"
+                            CornerRadius="{StaticResource
+                                CrystalRadiusScrollBar}"
+                            Background="{StaticResource
+                                CrystalScrollThumbBrush}"
+                            Margin="1" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver"
+                                 Value="True">
+                            <Setter TargetName="ThumbBorder"
+                                    Property="Background"
+                                    Value="{StaticResource
+                                        CrystalScrollThumbHoverBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- SCROLLBAR (both orientations via trigger) -->
+    <Style x:Key="CrystalScrollBarStyle"
+           TargetType="ScrollBar">
+        <Setter Property="Width"
+                Value="{StaticResource CrystalScrollBarSize}" />
+        <Setter Property="MinWidth"
+                Value="{StaticResource CrystalScrollBarSize}" />
+        <Setter Property="Background"
+                Value="{StaticResource CrystalScrollTrackBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Border CornerRadius="{StaticResource
+                                CrystalRadiusScrollBar}"
+                            Background="{TemplateBinding Background}">
+                        <!-- D28: no IsDirectionReversed — default keeps
+                             min at top/left (drag & wheel match chrome) -->
+                        <Track x:Name="PART_Track">
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource
+                                           CrystalScrollBarThumb}" />
+                            </Track.Thumb>
+                        </Track>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+
+        <Style.Triggers>
+            <Trigger Property="Orientation"
+                     Value="Horizontal">
+                <Setter Property="Width"
+                        Value="Auto" />
+                <Setter Property="Height"
+                        Value="{StaticResource CrystalScrollBarSize}" />
+                <Setter Property="MinHeight"
+                        Value="{StaticResource CrystalScrollBarSize}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- SCROLLVIEWER -->
+    <Style x:Key="CrystalScrollViewerStyle"
+           TargetType="ScrollViewer">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollViewer">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- D27: the standard contract — CanContentScroll
+                             keeps list virtualization alive; content
+                             bindings keep templated content working -->
+                        <ScrollContentPresenter
+                            x:Name="PART_ScrollContentPresenter"
+                            Grid.Column="0"
+                            Grid.Row="0"
+                            CanContentScroll="{TemplateBinding
+                                CanContentScroll}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding
+                                ContentTemplate}"
+                            ContentTemplateSelector="{TemplateBinding
+                                ContentTemplateSelector}"
+                            Margin="{TemplateBinding Padding}" />
+
+                        <ScrollBar
+                            x:Name="PART_VerticalScrollBar"
+                            Grid.Column="1"
+                            Grid.Row="0"
+                            Orientation="Vertical"
+                            Style="{StaticResource CrystalScrollBarStyle}"
+                            Value="{TemplateBinding VerticalOffset}"
+                            Maximum="{TemplateBinding ScrollableHeight}"
+                            ViewportSize="{TemplateBinding ViewportHeight}"
+                            Visibility="{TemplateBinding
+                                ComputedVerticalScrollBarVisibility}" />
+
+                        <ScrollBar
+                            x:Name="PART_HorizontalScrollBar"
+                            Grid.Column="0"
+                            Grid.Row="1"
+                            Orientation="Horizontal"
+                            Style="{StaticResource CrystalScrollBarStyle}"
+                            Value="{TemplateBinding HorizontalOffset}"
+                            Maximum="{TemplateBinding ScrollableWidth}"
+                            ViewportSize="{TemplateBinding ViewportWidth}"
+                            Visibility="{TemplateBinding
+                                ComputedHorizontalScrollBarVisibility}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

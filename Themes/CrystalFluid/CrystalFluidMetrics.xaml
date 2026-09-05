@@ -99,4 +99,16 @@
 
     <sys:Double x:Key="CrystalDefaultWaterLevel">0.30</sys:Double>
 
+    <!-- ═════════════════════════════════════════════════════════════════
+         INTEGRATION ADDITIONS (Ios-17pm P2) — nouns the shipped
+         templates need that the authored set omits. Additions only;
+         no authored value above is overridden. The battery's
+         key-closure/audit tests cover this file end to end.
+         ═════════════════════════════════════════════════════════════════ -->
+    <sys:Double x:Key="CrystalOpacityDisabled">0.45</sys:Double>
+    <sys:Double x:Key="CrystalGridDataRowHeight">44</sys:Double>
+    <sys:Double x:Key="CrystalGridHeaderHeight">42</sys:Double>
+    <sys:Double x:Key="CrystalScrollBarSize">8</sys:Double>
+    <CornerRadius x:Key="CrystalRadiusScrollBar">4</CornerRadius>
+
 </ResourceDictionary>

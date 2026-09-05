@@ -296,4 +296,17 @@
     <SolidColorBrush x:Key="CrystalScrollTrackBrush"
                      Color="#10FFFFFF" />
 
+    <!-- ═════════════════════════════════════════════════════════════════
+         INTEGRATION ADDITIONS (Ios-17pm P2) — brush nouns the shipped
+         templates need, sourced from authored colors where one exists.
+         ═════════════════════════════════════════════════════════════════ -->
+    <!-- Authored color CrystalHighlightColor surfaces as a brush for
+         BorderBrush usage (inner top hairlines; replaces the authored
+         #D9FFFFFF literal) -->
+    <SolidColorBrush x:Key="CrystalHighlightBrush"
+                     Color="{StaticResource CrystalHighlightColor}" />
+    <!-- 94%-opaque popup chrome (combo dropdowns; §38 near-opaque rule) -->
+    <SolidColorBrush x:Key="CrystalPopupBackgroundBrush"
+                     Color="#F0F5FAFF" />
+
 </ResourceDictionary>

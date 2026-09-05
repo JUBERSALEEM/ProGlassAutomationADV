@@ -19,11 +19,13 @@
                CrystalFluidTokenKeys + the family gate). They belong to the
                app integration layer, not the authored design system.
            (B) TRANSITIONAL BRUSHES (3) — consumed ONLY by the interim
-               Controls/CrystalFluid/CrystalWater.xaml. P2 supersedes that
-               control with the authored CrystalWaterControl (which paints
-               from CrystalWaterBodyBrush / CrystalWaterHighlightBrush /
-               CrystalWaterDepthBrush / CrystalBubbleFillBrush …), then
-               these three keys and this section are DELETED.
+               Controls/CrystalFluid/CrystalWater.xaml. P2 landed the
+               authored CrystalWaterControl (paints from
+               CrystalWaterBodyBrush / CrystalWaterHighlightBrush /
+               CrystalWaterDepthBrush / CrystalBubbleFillBrush …);
+               P4 migrates the hosts (StatCard, previews) onto it, and
+               then these three keys, the interim control, and this
+               section are DELETED.
 
          Nothing else may be added here: new visual nouns go into the
          three authored dictionaries; new app switches need the same

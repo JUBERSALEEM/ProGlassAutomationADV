@@ -55,6 +55,16 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidBrushes.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidMetrics.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidTokens.xaml"/>
+                <!-- Ios-17pm P2: authored control templates + opt-in
+                     styles (buttons/inputs/tooltip), navigation,
+                     DataGrid, scrollbar — authored master order. All
+                     purely additive nouns; nothing existing changes
+                     until a host adopts these (P4). -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidControls.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidNavigation.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidDataGrid.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/CrystalFluid/CrystalFluidScrollBar.xaml"/>
                 <!-- Industrial list-page chrome (PI / JO / DN / TI) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ListPageStyles.xaml"/>
                 <!-- Line-item table chrome (Step 5 + JO/DN/TI details) -->
