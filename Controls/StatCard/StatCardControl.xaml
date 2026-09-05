@@ -89,7 +89,7 @@
                 WaterLevel="{Binding WaterLevel, ElementName=Root}"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"/>
 
-            <Grid Padding="16,13">
+            <Grid Margin="16,13">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>

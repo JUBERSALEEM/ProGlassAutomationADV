@@ -281,7 +281,7 @@
                                     WaterEnabled="{DynamicResource CrystalWaterDefaultEnabled}"
                                     WaterLevel="{Binding StudioWaterLevel01}"
                                     CornerRadius="{DynamicResource CardCornerRadius}"/>
-                            <StackPanel Padding="12,10">
+                            <StackPanel Margin="12,10">
                                 <TextBlock Text="{DynamicResource Settings.PreviewModuleCard}"
                                            FontWeight="Bold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
