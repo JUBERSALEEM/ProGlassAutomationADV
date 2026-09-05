@@ -299,5 +299,48 @@ namespace ProGlassAutomation.Tests.Agent
             matches = GlassPattern.Matches("6mm FT Glass").Cast<Match>().ToList();
             Assert.Empty(matches); // colourless pane: no match (parity)
         }
+
+        [Fact]
+        public void Four_pane_build_labels_middle_panes_with_ordinals()
+        {
+            // Docker hybrid: outer + middle + middle + inner. Ordinals
+            // keep two identical middle colours distinguishable on rows.
+            var panes = PnLSpecParser.ResolveAllPanes(
+                "6mm Clear FT Glass + 12mm ASP " +
+                "+ 6mm HD Grey FT Glass + 12mm ASP " +
+                "+ 6mm Bronze FT Glass + 12mm ASP " +
+                "+ 6mm Kibbing Nova 55 FT Glass");
+
+            Assert.Equal(4, panes.Count);
+            Assert.Equal("Outer", panes[0].Side);
+            Assert.Equal("Middle 1", panes[1].Side);
+            Assert.Equal("Middle 2", panes[2].Side);
+            Assert.Equal("Inner", panes[3].Side);
+        }
+
+        [Fact]
+        public void Two_pane_build_has_no_middle()
+        {
+            // The classic build must keep producing ONLY Outer/Inner —
+            // any phantom middle would invent a wastage row and a Step 9
+            // material row from nothing.
+            var panes = PnLSpecParser.ResolveAllPanes(
+                "6mm Clear FT Glass + 12mm ASP + 6mm HD Grey FT Glass");
+
+            Assert.Equal(2, panes.Count);
+            Assert.Equal("Outer", panes[0].Side);
+            Assert.Equal("Inner", panes[1].Side);
+        }
+
+        [Fact]
+        public void Single_pane_build_returns_no_inner()
+        {
+            // Colourless middle/lam layers name no second pane — a SGU
+            // must never gain a phantom inner row.
+            var panes = PnLSpecParser.ResolveAllPanes("10mm Clear FT Glass");
+
+            Assert.Single(panes);
+            Assert.Equal("Outer", panes[0].Side);
+        }
     }
 }

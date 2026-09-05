@@ -142,6 +142,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// spec name first; missing DGU/LAM panes are synthesised from the
         /// live Step 4 panel so a Clear/Clear unit cannot collapse to
         /// "spacer only" just because a regex or the Sheet Store missed.
+        ///
+        /// FIX-2026-09-05 (3+ pane builds): a triple-glazed DGU carries
+        /// THREE sheets of glass. The old outer+inner path took the spec's
+        /// panes from ResolveTwoPanes, so the MIDDLE sheet never became a
+        /// material row — the P&L silently costed a third of the glass
+        /// away on every triple unit (the very mistake this method's own
+        /// header says it was built to stop). Panes now come from
+        /// ResolveAllPanes: outer, every middle (in spec order), inner.
         /// </summary>
         private List<PnLPane> CollectPanes(
             string specName, bool isDgu, bool isLam, bool isDguLam, bool hasInnerPane)
@@ -179,40 +187,66 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 return panes;
             }
 
-            var (outer, inner) = PnLSpecParser.ResolveTwoPanes(specName);
+            // FIX-2026-09-05: full ordered pane list (Outer/Middle…/Inner).
+            // Two-pane builds keep the classic pair; the middle panes of
+            // a 3+ pane build are material rows now, in spec order.
+            var allPanes = PnLSpecParser.ResolveAllPanes(specName);
+            for (int i = 0; i < allPanes.Count; i++)
+                panes.Add(allPanes[i]);
 
-            if (outer != null)
-                panes.Add(outer);
-            else if (isDgu && _dguVm != null)
-                panes.Add(PnLSpecParser.FromParts(
-                    "Outer",
-                    SheetStorePricingService.ParseMm(_dguVm.OuterThickness),
-                    _dguVm.OuterGlassColor));
-            else if (isLam && _lamVm != null)
-                panes.Add(PnLSpecParser.FromParts(
-                    "Outer",
-                    SheetStorePricingService.ParseMm(_lamVm.OuterThickness),
-                    _lamVm.OuterGlassColor));
-            else if (!hasInnerPane && _sguVm != null && matches.Count == 0)
-                panes.Add(PnLSpecParser.FromParts(
-                    "Outer",
-                    SheetStorePricingService.ParseMm(_sguVm.SelectedThickness),
-                    _sguVm.GlassColor));
-
-            if (hasInnerPane)
+            // Synthesis gaps, never synthesis replacement: when the spec
+            // parse gives NOTHING for a side that the build type implies,
+            // fall back to the live Step 4 panel (the Clear/Clear guard).
+            if (panes.Count == 0)
             {
-                if (inner != null)
-                    panes.Add(inner);
-                else if (isDgu && _dguVm != null)
+                if (isDgu && _dguVm != null)
                     panes.Add(PnLSpecParser.FromParts(
-                        "Inner",
-                        SheetStorePricingService.ParseMm(_dguVm.InnerThickness),
-                        _dguVm.InnerGlassColor));
+                        "Outer",
+                        SheetStorePricingService.ParseMm(_dguVm.OuterThickness),
+                        _dguVm.OuterGlassColor));
                 else if (isLam && _lamVm != null)
                     panes.Add(PnLSpecParser.FromParts(
-                        "Inner",
-                        SheetStorePricingService.ParseMm(_lamVm.InnerThickness),
-                        _lamVm.InnerGlassColor));
+                        "Outer",
+                        SheetStorePricingService.ParseMm(_lamVm.OuterThickness),
+                        _lamVm.OuterGlassColor));
+                else if (!hasInnerPane && _sguVm != null && matches.Count == 0)
+                    panes.Add(PnLSpecParser.FromParts(
+                        "Outer",
+                        SheetStorePricingService.ParseMm(_sguVm.SelectedThickness),
+                        _sguVm.GlassColor));
+            }
+
+            // A two-pane build with only the outer pane named must still
+            // gain its synthesised inner — parsing one colour is NOT proof
+            // the inner sheet is absent (FUZZY part-colours exist in the
+            // wild). Middle panes are never synthesised: the spec is the
+            // only source that can name a middle.
+            if (hasInnerPane)
+            {
+                bool innerPresent = false;
+                for (int i = 0; i < panes.Count; i++)
+                {
+                    if (string.Equals(panes[i].Side, "Inner",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        innerPresent = true;
+                        break;
+                    }
+                }
+
+                if (!innerPresent)
+                {
+                    if (isDgu && _dguVm != null)
+                        panes.Add(PnLSpecParser.FromParts(
+                            "Inner",
+                            SheetStorePricingService.ParseMm(_dguVm.InnerThickness),
+                            _dguVm.InnerGlassColor));
+                    else if (isLam && _lamVm != null)
+                        panes.Add(PnLSpecParser.FromParts(
+                            "Inner",
+                            SheetStorePricingService.ParseMm(_lamVm.InnerThickness),
+                            _lamVm.InnerGlassColor));
+                }
             }
 
             return panes;
@@ -236,7 +270,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 return _dguLamVm?.OuterBasePrice ?? 0m;
             }
 
-            bool inner = side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0;
+            // FIX-2026-09-05 (3+ pane builds): a middle pane used to fall
+            // through to the OUTER base rate because only "Inner" was
+            // tested. A middle sheet shares the inner pane's build-side
+            // geometry, so it carries the inner rate as its fallback —
+            // the same pairing the wastage rows use.
+            bool inner = side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0
+                      || side.IndexOf("Middle", StringComparison.OrdinalIgnoreCase) >= 0;
             if (isDgu)
                 return inner ? (_dguVm?.InnerBasePrice ?? 0m) : (_dguVm?.OuterBasePrice ?? 0m);
             if (isLam)
@@ -264,7 +304,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             if (thicknessMm <= 0 || color.Length == 0) return null;
 
-            bool isInner = side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0;
+            // FIX-2026-09-05 (3+ pane builds): a middle sheet is measured
+            // against the INNER pane sheet geometry chosen in Step 4 —
+            // treating it as outer picked a differently-sized sheet for
+            // an identical build size.
+            bool isInner = side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0
+                        || side.IndexOf("Middle", StringComparison.OrdinalIgnoreCase) >= 0;
 
             int sheetW = 0;
             int sheetH = 0;
