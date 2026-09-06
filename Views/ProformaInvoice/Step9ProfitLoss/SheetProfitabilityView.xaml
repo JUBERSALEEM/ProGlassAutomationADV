@@ -187,7 +187,7 @@
                 <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource SheetCardStyle}" Margin="0,0,8,0">
                     <StackPanel>
                         <TextBlock Text="EFFICIENCY" Style="{StaticResource SheetCaptionStyle}"/>
-                        <TextBlock Text="{Binding UsageEfficiencyDisplay}" Style="{StaticResource SheetKpiValueStyle}">
+                        <TextBlock Text="{Binding UsageEfficiencyDisplay}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource SheetKpiValueStyle}">
                                     <Style.Triggers>
