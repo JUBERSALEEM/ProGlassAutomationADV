@@ -137,6 +137,7 @@ namespace ProGlassAutomation.Tests.Settings
         [InlineData("SettingsAppearanceSection.xaml", "ResetFontCommand")]
         [InlineData("SettingsAppearanceSection.xaml", "ModuleWallpaperRows")]
         [InlineData("SettingsAppearanceSection.xaml", "VisualThemeOptions")]
+        [InlineData("SettingsAppearanceSection.xaml", "ReducedMotion")]
         [InlineData("SettingsAiSection.xaml", "IsAiEnabled")]
         [InlineData("SettingsAiSection.xaml", "UseRealData")]
         [InlineData("SettingsAiSection.xaml", "AiModel")]

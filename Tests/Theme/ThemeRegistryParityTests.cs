@@ -3,12 +3,15 @@
 // PROJECT: ProGlassAutomation.Tests
 // ─────────────────────────────────────────────────────────────────────────
 // Phase-1 audit deliverable (2026-09-05 — SETTINGS_MODULE_AUDIT.md):
-// every bug in the F-01..F-05 class was a REGISTRY DRIFT — two lists that
-// must agree, maintained by hand, silently disagreeing:
+// the F-01..F-05 bug class was REGISTRY DRIFT — lists that must agree,
+// maintained by hand, silently disagreeing:
 //
 //   F-01  family painter vs the managed-key contract      (ERR-50472F)
-//   F-03  VM preset combo  vs Preset() switch cases        (DenseGlass)
 //   F-06  VM mode-coupling switch vs engine family data
+//
+// (F-03, the studio preset registry, was retired with the Theme Studio
+// removal on 2026-09-06 — the preset/DefaultProfile machinery no longer
+// exists, so its parity pins went with it.)
 //
 // These tests pin the registries so a future drift is a red build,
 // not a customer crash report. No WPF Application is constructed —
@@ -156,46 +159,6 @@ namespace ProGlassAutomation.Tests.Theme
                 Assert.Contains(key, coverage);
         }
 
-        // ── F-03: preset registry parity ────────────────────────────────
-
-        [Fact]
-        public void EveryRegisteredPreset_ProducesADistinctProfile()
-        {
-            // The VM combo lists exactly ThemeStudioSettings.PresetNames
-            // (single source). Distinctness per name proves no named
-            // preset silently collapsed onto the default arm — the
-            // DenseGlass failure shape (F-03).
-            var names = ThemeStudioSettings.PresetNames;
-            Assert.True(names.Count >= 5,
-                "registry must keep the shipped preset set");
-
-            var profiles = names
-                .Select(n => (Name: n, Profile: ThemeStudioSettings.Preset(n)))
-                .ToList();
-
-            foreach (var (_, profile) in profiles)
-                Assert.True(profile.IsCustomized,
-                    "a preset is by definition a customization");
-
-            for (int i = 0; i < profiles.Count; i++)
-                for (int j = i + 1; j < profiles.Count; j++)
-                    Assert.False(
-                        profiles[i].Profile.Matches(profiles[j].Profile),
-                        $"presets '{profiles[i].Name}' and " +
-                        $"'{profiles[j].Name}' render identically — one " +
-                        $"of them is a phantom row in the combo");
-        }
-
-        [Fact]
-        public void UnknownPreset_FallsBackSafelyWithoutLying()
-        {
-            // Persisted legacy/unknown names must not throw — the
-            // default arm is the Dense Glass profile, which the
-            // registry now also lists by name.
-            var fallback = ThemeStudioSettings.Preset("__no_such_preset__");
-            Assert.NotNull(fallback);
-        }
-
         // ── F-06: mode coupling lives in the engine ─────────────────────
 
         [Theory]
@@ -215,28 +178,7 @@ namespace ProGlassAutomation.Tests.Theme
             Assert.Equal(expected, VisualThemeEngine.ModePairFor(family));
         }
 
-        // ── Catalogue coverage: defaults + scenes for every family ──────
-
-        [Fact]
-        public void DefaultsFor_EveryFamily_StaysInSliderRange()
-        {
-            foreach (var family in AllFamilies)
-            {
-                var profile = ThemeStudioSettings.DefaultsFor(family);
-                Assert.NotNull(profile);
-
-                foreach (var prop in typeof(ThemeStudioSettings)
-                             .GetProperties(BindingFlags.Public |
-                                            BindingFlags.Instance)
-                             .Where(p => p.PropertyType == typeof(double)))
-                {
-                    double v = (double)prop.GetValue(profile)!;
-                    Assert.True(v >= 0 && v <= 100,
-                        $"{family}.{prop.Name} = {v} — outside the " +
-                        $"0..100 slider domain");
-                }
-            }
-        }
+        // ── Catalogue coverage: scenes for every family ─────────────────
 
         [Fact]
         public void SceneCatalogue_CoversEveryFamily_Exactly()

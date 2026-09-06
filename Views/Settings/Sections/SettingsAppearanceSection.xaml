@@ -19,7 +19,6 @@
      Bindings target SettingsViewModel (DataContext flows from shell).
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAppearanceSection"
-             xmlns:sc="clr-namespace:ProGlassAutomation.Views.Settings.Controls"
              xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -163,95 +162,6 @@
                 </Border>
 
                 
-                <!-- ═══ PHASE 2 (2026-09-05) — QUICK LOOKS: one coherent
-                     appearance per audience in a single click — family +
-                     studio profile (+ promised mode) via the proven
-                     existing flows. Persisted so the label survives
-                     restarts; any manual deviation falls back to Custom. -->
-                <Border Style="{StaticResource SettingsTileStyle}" Margin="0,0,0,10">
-                    <StackPanel>
-                        <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                            <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE9F5;"/>
-                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.QuickLooks}"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                   Text="{DynamicResource Settings.QuickLooksCaption}"/>
-                        <UniformGrid Columns="3" Margin="0,8,0,0">
-                            <Button Command="{Binding ApplyQuickLookCommand}"
-                                    CommandParameter="FactoryFloor"
-                                    Cursor="Hand" Margin="0,0,8,0" Padding="14,10"
-                                    Background="{DynamicResource ElevatedSurfaceBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="&#xE7EF;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   VerticalAlignment="Center"/>
-                                        <TextBlock Text="{DynamicResource Settings.LookFactoryFloor}"
-                                                   FontWeight="Bold" Margin="8,0,0,0"
-                                                   FontSize="{StaticResource TextBody}"/>
-                                    </StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.LookFactoryFloorDesc}"
-                                               FontSize="{StaticResource TextCaption}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Command="{Binding ApplyQuickLookCommand}"
-                                    CommandParameter="Office"
-                                    Cursor="Hand" Margin="0,0,8,0" Padding="14,10"
-                                    Background="{DynamicResource ElevatedSurfaceBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="&#xE790;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   VerticalAlignment="Center"/>
-                                        <TextBlock Text="{DynamicResource Settings.LookOffice}"
-                                                   FontWeight="Bold" Margin="8,0,0,0"
-                                                   FontSize="{StaticResource TextBody}"/>
-                                    </StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.LookOfficeDesc}"
-                                               FontSize="{StaticResource TextCaption}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Command="{Binding ApplyQuickLookCommand}"
-                                    CommandParameter="Showroom"
-                                    Cursor="Hand" Padding="14,10"
-                                    Background="{DynamicResource ElevatedSurfaceBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   VerticalAlignment="Center"/>
-                                        <TextBlock Text="{DynamicResource Settings.LookShowroom}"
-                                                   FontWeight="Bold" Margin="8,0,0,0"
-                                                   FontSize="{StaticResource TextBody}"/>
-                                    </StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.LookShowroomDesc}"
-                                               FontSize="{StaticResource TextCaption}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap" Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Button>
-                        </UniformGrid>
-                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                            <TextBlock Text="{DynamicResource Settings.CurrentLook}"
-                                       FontSize="{StaticResource TextCaption}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock Text="{Binding ActiveQuickLookText}"
-                                       FontWeight="Bold" Margin="6,0,0,0"
-                                       FontSize="{StaticResource TextCaption}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
                 <!-- ═══ PHASE 2 — LIVE PREVIEW: a mini module card painted
                      from the SAME DynamicResource tokens the real screens
                      consume — surface, ink, keyline, accent, status chips
@@ -280,7 +190,7 @@
                                      (interim CrystalWater retired P4b). -->
                                 <crystal:CrystalWaterControl
                                     WaterEnabled="{DynamicResource CrystalWaterDefaultEnabled}"
-                                    WaterLevel="{Binding StudioWaterLevel01}"
+                                    WaterLevel="0.4"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     IsHitTestVisible="False"/>
                             <StackPanel Margin="12,10">
@@ -1049,214 +959,25 @@
                         </StackPanel>
                     </Border>
                 </UniformGrid>
-                <!-- ═══ THEME STUDIO — live 0–100 appearance customization ═══ -->
-                <!-- Full-width tile: sliders apply instantly via
-                     ThemeStudioService (no restart), persist debounced to
-                     config.json, restore on startup. Basic = theme, frost,
-                     transparency, corners, shadow; Advanced = everything
-                     else. Presets are centralized profiles; Reset Current
-                     restores the active family's defaults; Reset All clears
-                     the studio layer for every family (Yes/No confirm). -->
+
+                <!-- ═══ ACCESSIBILITY — reduced motion (§43) ═══
+                     App-wide switch: the Crystal Fluid water/caustic/
+                     bubble choreography and card tilt render calm and
+                     static. Persisted; survives family switches. -->
                 <Border Style="{StaticResource SettingsTileStyle}" Margin="0,0,0,10">
                     <StackPanel>
                         <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                            <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7EF;"/>
-                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.ThemeStudio}"/>
-                            <Border Margin="10,0,0,0" Padding="8,2" CornerRadius="10"
-                                    Background="{DynamicResource AccentBrush}"
-                                    Visibility="{Binding IsStudioCustomized, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="{DynamicResource Settings.StudioCustomized}"
-                                           Foreground="White" FontSize="10" FontWeight="Bold"/>
-                            </Border>
+                            <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE713;"/>
+                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}"
+                                       Text="{DynamicResource Settings.ReducedMotion}"/>
                         </StackPanel>
                         <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                   Text="{DynamicResource Settings.ThemeStudioCaption}"/>
-
-                        <!-- Presets + reset actions -->
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,4">
-                            <TextBlock Text="{DynamicResource Settings.StudioPreset}"
-                                       VerticalAlignment="Center" Margin="0,0,8,0"
-                                       FontWeight="SemiBold"
-                                       FontSize="{StaticResource TextBody}"/>
-                            <ComboBox ItemsSource="{Binding StudioPresetOptions}"
-                                      SelectedItem="{Binding SelectedStudioPreset}"
-                                      Width="180" Padding="8,5"
-                                      FontSize="{StaticResource TextBody}"/>
-                            <Button Command="{Binding ResetStudioThemeCommand}"
-                                    Style="{StaticResource AccentChipStyle}"
-                                    Margin="10,0,0,0" Padding="12,5">
-                                <TextBlock Text="{DynamicResource Settings.StudioResetCurrent}"
-                                           FontSize="{StaticResource TextBody}"/>
-                            </Button>
-                            <Button Command="{Binding ResetStudioAllCommand}"
-                                    Style="{StaticResource AccentChipStyle}"
-                                    Margin="8,0,0,0" Padding="12,5">
-                                <TextBlock Text="{DynamicResource Settings.StudioResetAll}"
-                                           FontSize="{StaticResource TextBody}"/>
-                            </Button>
-                            <!-- Phase 4: take back the last studio touch -->
-                            <Button Command="{Binding UndoStudioCommand}"
-                                    IsEnabled="{Binding CanStudioUndo}"
-                                    Style="{StaticResource AccentChipStyle}"
-                                    ToolTip="{DynamicResource Settings.StudioUndoTip}"
-                                    Margin="8,0,0,0" Padding="12,5">
-                                <TextBlock Text="{DynamicResource Settings.StudioUndo}"
-                                           FontSize="{StaticResource TextBody}"/>
-                            </Button>
-                            <!-- Crystal Fluid M3 (spec §43): minimized
-                                 water choreography + ambient motion. -->
-                            <CheckBox Content="{DynamicResource Settings.StudioReducedMotion}"
-                                      IsChecked="{Binding StudioReducedMotion, Mode=TwoWay}"
-                                      ToolTip="{DynamicResource Settings.StudioReducedMotionTip}"
-                                      Margin="14,0,0,0"
-                                      VerticalAlignment="Center"
-                                      FontSize="{StaticResource TextBody}"
-                                      Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        </StackPanel>
-
-                        <!-- BASIC — the five everyday sliders -->
-                        <TextBlock Text="{DynamicResource Settings.StudioBasic}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <UniformGrid Columns="5">
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioFrostness}"
-                            Value="{Binding StudioFrostness, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="Frostness"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioTransparency}"
-                            Value="{Binding StudioTransparency, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="Transparency"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioCorners}"
-                            Value="{Binding StudioCornerRoundness, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="CornerRoundness"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioShadow}"
-                            Value="{Binding StudioShadowIntensity, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="ShadowIntensity"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioBlur}"
-                            Value="{Binding StudioBlurIntensity, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="BlurIntensity"
-                            IsRelevant="{Binding IsGlassStudioRelevant}"/>
-                        </UniformGrid>
-
-                        <!-- COLOUR & TEXT (2026-09-05 master request) —
-                             the rich colour system: transparency has a
-                             TRUE full range now (cards can reach near-
-                             invisible), richness saturates EVERY surface
-                             + tint + the wallpaper scene, and text
-                             strength owns readability (auto-forced to
-                             max ink whenever cards go near-invisible). -->
-                        <TextBlock Text="{DynamicResource Settings.StudioColourText}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <UniformGrid Columns="2">
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioColorRichness}"
-                            Value="{Binding StudioColorRichness, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="ColorRichness"
-                            ToolTipText="{DynamicResource Settings.StudioColorRichnessHint}"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioTextStrength}"
-                            Value="{Binding StudioTextStrength, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="TextStrength"
-                            ToolTipText="{DynamicResource Settings.StudioTextStrengthHint}"/>
-                        </UniformGrid>
-
-                        <!-- GLASS & WATER (2026-09-05) — the liquid-crystal
-                             layer: frosted → water-fill cards. -->
-                        <TextBlock Text="{DynamicResource Settings.StudioGlassWater}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <UniformGrid Columns="2">
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioWaterFlow}"
-                            Value="{Binding StudioWaterFlow, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="WaterFlow"
-                            IsRelevant="{Binding IsGlassStudioRelevant}"
-                            ToolTipText="{DynamicResource Settings.StudioWaterFlowHint}"/>
-                            <TextBlock Text="{DynamicResource Settings.StudioWaterFlowCaption}"
-                                       FontSize="{StaticResource TextCaption}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       TextWrapping="Wrap" VerticalAlignment="Center"
-                                       Margin="0,0,10,6"/>
-                        </UniformGrid>
-
-                        <!-- ADVANCED — everything else -->
-                        <TextBlock Text="{DynamicResource Settings.StudioAdvanced}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <UniformGrid Columns="4">
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioTint}"
-                            Value="{Binding StudioGlassTint, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="GlassTint"
-                            IsRelevant="{Binding IsGlassStudioRelevant}"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioPadding}"
-                            Value="{Binding StudioCardPadding, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="CardPadding"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioSoftness}"
-                            Value="{Binding StudioShadowSoftness, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="ShadowSoftness"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioDepth}"
-                            Value="{Binding StudioShadowDepth, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="ShadowDepth"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioBorder}"
-                            Value="{Binding StudioBorderVisibility, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="BorderVisibility"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioBorderOpacity}"
-                            Value="{Binding StudioBorderOpacity, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="BorderOpacity"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioBorderWidth}"
-                            Value="{Binding StudioBorderThickness, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="BorderThickness"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioBackground}"
-                            Value="{Binding StudioBackgroundVisibility, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="BackgroundVisibility"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioGlow}"
-                            Value="{Binding StudioBackgroundGlow, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="BackgroundGlow"
-                            IsRelevant="{Binding IsGlassStudioRelevant}"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioHighlight}"
-                            Value="{Binding StudioHighlightStrength, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="HighlightStrength"
-                            IsRelevant="{Binding IsGlassStudioRelevant}"/>
-                            <sc:StudioSliderControl Margin="0,0,10,6"
-                            Header="{DynamicResource Settings.StudioAnimation}"
-                            Value="{Binding StudioAnimationIntensity, Mode=TwoWay}"
-                            ResetCommand="{Binding ResetStudioSliderCommand}"
-                            SliderKey="AnimationIntensity"/>
-                        </UniformGrid>
-
+                                   Text="{DynamicResource Settings.ReducedMotionTip}"
+                                   TextWrapping="Wrap"/>
+                        <CheckBox AutomationProperties.AutomationId="Settings.ReducedMotion"
+                                  Content="{DynamicResource Settings.ReducedMotion}"
+                                  IsChecked="{Binding ReducedMotion, Mode=TwoWay}"
+                                  Margin="0,8,0,0"/>
                     </StackPanel>
                 </Border>
 

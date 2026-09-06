@@ -2,20 +2,17 @@
 // FILE: Tests/Agent/CrystalFluidSettingsBridgeTests.cs
 // PROJECT: ProGlassAutomation.Tests
 //
-// IOS-17PM P3 — settings/studio bridge pins (2026-09-05).
+// IOS-17PM P3 — settings/engine bridge pins (2026-09-05).
 //
 // The authored CrystalFluidSettings surface (incoming file 19) is
 // integrated under D31: NEVER a second source of truth. These tests pin
 // the contract:
 //   · Baseline* consts hold the AUTHORED numbers and are the single
-//     number home consumed by the engine baseline block and the studio
-//     master mapping,
+//     number home consumed by the engine baseline block,
 //   · the façade exposes the authored API read-live (resource-backed
 //     axes) + exactly one two-way property (ReducedMotion, config truth),
-//   · the studio master mapping is recalibrated so FULL slider ==
-//     authored baseline (no more multiplier-vs-baseline drift),
 //   · the CrystalWaveAmplitude axis is end-to-end (token → engine
-//     baseline → studio map → style setter → cleanup list),
+//     baseline → style setter → cleanup list),
 //   · the bubble axis is ABSOLUTE authored intensity (0.70), not a
 //     multiplier,
 //   · the family IDENTITY "Crystal Fluid" is untouchable (persisted),
@@ -96,7 +93,7 @@ namespace ProGlassAutomation.Tests.Agent
             })
                 Assert.False(t.GetProperty(p)!.CanWrite,
                     $"{p} must stay read-live — writes belong to the " +
-                    "studio master mapping, never a parallel setter.");
+                    "engine family paint, never a parallel setter.");
 
             Assert.True(t.GetProperty(nameof(CrystalFluidSettings.ReducedMotion))!
                 .CanWrite, "ReducedMotion is the two-way config-backed axis.");
@@ -139,39 +136,6 @@ namespace ProGlassAutomation.Tests.Agent
                 Assert.Contains(c, engine, StringComparison.Ordinal);
         }
 
-        // ── 5. STUDIO RECALIBRATION: full slider = authored baseline ────
-        [Fact]
-        public void Studio_master_mapping_anchors_on_baseline_consts()
-        {
-            string studio = Read("Services/Theme/ThemeStudioService.cs");
-
-            Assert.Contains("CrystalWaveAmplitude", studio,
-                StringComparison.Ordinal);
-            foreach (var c in new[]
-            {
-                "BaselineWaterOpacity", "BaselineWaterSpeed",
-                "BaselineCausticIntensity", "BaselineBubbleIntensity",
-                "BaselineReflectionOpacity", "BaselineWaveAmplitude",
-                "FloorWaterOpacity", "FloorWaterSpeed",
-                "FloorCausticIntensity", "FloorBubbleIntensity",
-                "FloorReflectionOpacity", "FloorWaveAmplitude",
-            })
-                Assert.Contains($"CrystalFluidSettings.{c}", studio,
-                    StringComparison.Ordinal);
-
-            // the retired multiplier endpoints must not come back
-            Assert.DoesNotContain("0.60 + 0.80 * water", studio,
-                StringComparison.Ordinal);
-            Assert.DoesNotContain("0.25 + 0.75 * water", studio,
-                StringComparison.Ordinal);
-            // reflection rides the absolute HighlightStrength axis now;
-            // ("0.15 + 0.85 * Clamp01(" legitimately stays — it is the
-            // GLOBAL hlScale glow-brush formula, untouched by P3)
-            Assert.Contains("* highlight;", studio, StringComparison.Ordinal);
-            Assert.Contains("(CrystalFluidSettings.BaselineReflectionOpacity",
-                studio, StringComparison.Ordinal);
-        }
-
         // ── 6. BUBBLE AXIS IS ABSOLUTE (0.70 authored intensity) ────────
         [Fact]
         public void Bubble_axis_is_absolute_authored_intensity()
@@ -183,8 +147,8 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains(
                 "<sys:Double x:Key=\"CrystalBubbleOpacity\">0.70</sys:Double>",
                 tokens, StringComparison.Ordinal);
-            // multiplier math is gone — the token/engine/studio express
-            // the authored peak opacity directly
+            // multiplier math is gone — the token/engine express the
+            // authored peak opacity directly
             Assert.DoesNotContain("0.7 *", control, StringComparison.Ordinal);
         }
 
@@ -214,9 +178,9 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(7, keys.Length);
         }
 
-        // ── 8. STUDIO-WRITTEN OPACITIES BIND DYNAMICALLY IN TEMPLATES ───
+        // ── 8. ENGINE-WRITTEN OPACITIES BIND DYNAMICALLY IN TEMPLATES ───
         [Fact]
-        public void Template_opacities_follow_studio_writes_live()
+        public void Template_opacities_follow_engine_writes_live()
         {
             string controls = Read("Themes/CrystalFluid/CrystalFluidControls.xaml");
 
@@ -227,7 +191,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(2, Regex.Matches(controls,
                 @"\{DynamicResource\s+CrystalReflectionOpacity\}").Count);
 
-            // zero StaticResource forms of either studio-written axis
+            // zero StaticResource forms of either engine-written axis
             Assert.Empty(Regex.Matches(controls,
                 @"StaticResource\s+CrystalCausticOpacity"));
             Assert.Empty(Regex.Matches(controls,
@@ -255,15 +219,6 @@ namespace ProGlassAutomation.Tests.Agent
                 "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
             Assert.Contains("FamilyDisplayName(key)", wallpaper,
                 StringComparison.Ordinal);
-        }
-
-        // ── 10. CRYSTAL STUDIO DEFAULT PROFILE UNTOUCHED ────────────────
-        [Fact]
-        public void Crystal_default_studio_profile_keeps_its_tuned_sliders()
-        {
-            var d = ThemeStudioSettings.DefaultsFor(VisualThemeEngine.CrystalFluid);
-            Assert.Equal(85, d.WaterFlow);
-            Assert.Equal(70, d.HighlightStrength);
         }
     }
 }

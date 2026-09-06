@@ -23,6 +23,7 @@
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.AI.AIConfig;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Localization;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,33 @@ namespace ProGlassAutomation.ViewModels.Settings
         public IReadOnlyList<LanguageInfo> Languages => LanguageCatalog.All;
         public IReadOnlyList<CurrencyInfo> Currencies => CurrencyCatalog.All;
         public IReadOnlyList<CountryInfo> PhoneCountries => CountryDialCode.All;
+
+        // ── Accessibility — reduced motion (§43) ─────────────────────
+
+        /// <summary>App-wide reduced-motion switch (spec §43). Disables the
+        /// Crystal Fluid water/caustic/bubble choreography and the card
+        /// tilt so ambient surfaces render calm and static (accessibility).
+        /// Persisted via App.Config.Appearance.ReducedMotion; published to
+        /// the CrystalReducedMotion resource immediately so every surface
+        /// honors it without a family repaint.</summary>
+        public bool ReducedMotion
+        {
+            get => _config?.Appearance?.ReducedMotion == true;
+            set
+            {
+                if (_config?.Appearance == null) return;
+                if (_config.Appearance.ReducedMotion == value) return;
+                _config.Appearance.ReducedMotion = value;
+                SaveConfig();
+                if (System.Windows.Application.Current?.Resources != null)
+                    System.Windows.Application.Current.Resources["CrystalReducedMotion"] = value;
+                AuditService.Log(
+                    AuditSections.Settings,
+                    "Reduced motion",
+                    value ? "animations minimized" : "full motion restored");
+                OnPropertyChanged();
+            }
+        }
 
         private LanguageInfo? _selectedLanguage;
         private CurrencyInfo? _selectedCurrency;
@@ -119,9 +147,6 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// listeners (detach-first, so repeated loads never stack).</summary>
         public void InitializeAppearanceSection()
         {
-            // Theme Studio — draft profile + debounced save timer + commands.
-            InitializeThemeStudio();
-
             // Wallpaper Studio (2026-09-05) — modes, built-in scenes,
             // online 4K downloads and the local library.
             InitializeWallpaperStudio();
@@ -179,7 +204,6 @@ namespace ProGlassAutomation.ViewModels.Settings
             foreach (var row in NavRows)
                 row.RefreshLabel();
             OnPropertyChanged(nameof(ActivePageLabel));
-            OnPropertyChanged(nameof(ActiveQuickLookText));
             OnPropertyChanged(nameof(WallpaperStatus));
         }
 

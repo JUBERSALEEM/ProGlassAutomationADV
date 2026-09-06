@@ -66,13 +66,6 @@ namespace ProGlassAutomation.Services.Settings
                 var color = AccentPresets.ColorFor(presetKey);
                 ThemeManager.ApplyAccent(color);
 
-                // Theme Studio (2026-09-05): the glass-tint + richness
-                // layer derives from the accent — re-apply the live
-                // profile so an accent switch re-tints instantly
-                // (used to keep the old accent until the next slider
-                // move or family switch).
-                ThemeStudioService.OnAccentChanged();
-
                 // Accent-derived wallpaper scenes (Monet's Golden Hour is
                 // 100% accent-hue; Aurora has accent ribbons) redraw on
                 // the spot when a theme-linked/pinned scene is on screen.

@@ -98,7 +98,6 @@ namespace ProGlassAutomation.Services.Theme
                 var ghost = current.Clone();
                 ghost.Opacity = 0.22;
                 resources["WindowBackgroundBrush"] = ghost;
-                ThemeStudioService.UpdateBase("WindowBackgroundBrush", ghost);
             }
         }
     }

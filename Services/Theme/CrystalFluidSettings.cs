@@ -152,23 +152,21 @@ namespace ProGlassAutomation.Services.Theme
             }
         }
 
-        /// <summary>0–2 global motion scale — the studio AnimationIntensity
-        /// slider (0–100) mapped onto the authored range.</summary>
+        /// <summary>0–2 global motion scale. With the Theme Studio removed,
+        /// motion follows the authored baseline (1.0), halved when the
+        /// reduced-motion preference is on.</summary>
         public double AnimationIntensity =>
-            Clamp((ThemeStudioService.Active?.AnimationIntensity
-                   ?? ThemeStudioSettings.DefaultsFor(
-                       VisualThemeEngine.Current ?? VisualThemeEngine.Normal)
-                       .AnimationIntensity) / 50.0, 0, 2);
+            Clamp(App.Config?.Appearance?.ReducedMotion == true ? 0.5 : 1.0, 0, 2);
 
         #endregion
 
         #region ── Liveness hub ──
 
-        /// <summary>Called by the VisualThemeEngine and ThemeStudioService
-        /// after they repaint/write the crystal keys. Raises one blanket
-        /// change notification so bindings through this façade refresh —
-        /// the underlying values may change without per-property
-        /// granularity (paint is already a coarse event).</summary>
+        /// <summary>Called by the VisualThemeEngine after it repaints the
+        /// crystal keys. Raises one blanket change notification so bindings
+        /// through this façade refresh — the underlying values may change
+        /// without per-property granularity (paint is already a coarse
+        /// event).</summary>
         public static void NotifyRepainted()
         {
             if (_instance.IsValueCreated)

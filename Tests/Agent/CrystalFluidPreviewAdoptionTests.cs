@@ -62,7 +62,7 @@ namespace ProGlassAutomation.Tests.Agent
                     "resources.Remove(\"CrystalPreviewHostVisibility\");"))
                 .Count);
 
-            // not a managed key, not a studio pipeline token
+            // not a managed key, not an engine pipeline token
             var managedKeys = (string[])typeof(VisualThemeEngine)
                 .GetField("ManagedKeys",
                     System.Reflection.BindingFlags.NonPublic |
@@ -134,7 +134,9 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains(
                 "WaterEnabled=\"{DynamicResource CrystalWaterDefaultEnabled}\"",
                 xaml, StringComparison.Ordinal);
-            Assert.Contains("WaterLevel=\"{Binding StudioWaterLevel01}\"",
+            // Theme Studio removal: the preview water level is now a fixed
+            // authored value (0.4) — no studio slider binding remains.
+            Assert.Contains("WaterLevel=\"0.4\"",
                 xaml, StringComparison.Ordinal);
             Assert.DoesNotContain("<crystal:CrystalWater ", xaml,
                 StringComparison.Ordinal);

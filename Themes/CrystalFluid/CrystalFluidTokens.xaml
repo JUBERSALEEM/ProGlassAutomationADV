@@ -36,22 +36,21 @@
 
     <!-- ── (A) PIPELINE KEYS ──────────────────────────────────────────── -->
 
-    <!-- Studio WaterFlow slider + engine override: ambient speed scale
-         (authored system has no speed axis). Consumed by CrystalWater
-         (style setter) | VisualThemeEngine | ThemeStudioService. -->
+    <!-- Engine-managed ambient speed scale (authored system has no
+         speed axis). Consumed by CrystalWater (style setter) and the
+         VisualThemeEngine. -->
     <sys:Double x:Key="CrystalWaterSpeed">1.0</sys:Double>
 
-    <!-- Studio WaterFlow slider + engine override: bubble PEAK opacity —
-         an ABSOLUTE axis (Ios-17pm P3): the authored BubbleIntensity
-         baseline is 0.70 (which also equals the authored design ceiling
+    <!-- Engine-managed bubble PEAK opacity — an ABSOLUTE axis
+         (Ios-17pm P3): the authored BubbleIntensity baseline is 0.70
+         (which also equals the authored design ceiling
          CrystalBubbleMaxOpacity). Consumed by CrystalWater + the authored
-         CrystalWaterControl (bubble keyframes) | VisualThemeEngine |
-         ThemeStudioService. Single number home:
-         CrystalFluidSettings.BaselineBubbleIntensity. -->
+         CrystalWaterControl (bubble keyframes) and the VisualThemeEngine.
+         Single number home: CrystalFluidSettings.BaselineBubbleIntensity. -->
     <sys:Double x:Key="CrystalBubbleOpacity">0.70</sys:Double>
 
-    <!-- Studio WaterFlow slider + engine override: wave sway amplitude
-         (Ios-17pm P3 axis, authored baseline 3.0 — single number home:
+    <!-- Engine-managed wave sway amplitude (Ios-17pm P3 axis, authored
+         baseline 3.0 — single number home:
          CrystalFluidSettings.BaselineWaveAmplitude). Consumed by the
          authored CrystalWaterControl wave storyboard via style setter. -->
     <sys:Double x:Key="CrystalWaveAmplitude">3.0</sys:Double>

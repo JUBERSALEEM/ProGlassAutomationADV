@@ -187,7 +187,7 @@ namespace ProGlassAutomation.Tests.Agent
         {
             string tokens = Read(Tokens);
 
-            // (A) pipeline keys — engine/studio-managed, app-lifecycle.
+            // (A) pipeline keys — engine-managed, app-lifecycle.
             foreach (var k in new[]
             {
                 "CrystalWaterSpeed", "CrystalBubbleOpacity",

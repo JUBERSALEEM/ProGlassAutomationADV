@@ -217,10 +217,8 @@ namespace ProGlassAutomation.Services.Theme
             resources["CrystalPreviewHostVisibility"] = Visibility.Visible;
 
             // Token baselines (root-level): a family repaint ALWAYS
-            // restores the family truth for every studio-tunable water
-            // token, so Theme-Studio Reset provably lands clean (the
-            // "reset does nothing" class must stay dead). The studio
-            // then writes its mapped values on top (ThemeStudioService).
+            // restores the authored truth for every water token, so the
+            // crystal surfaces land on the family defaults cleanly.
             // Ios-17pm P3: baselines are the AUTHORED values, homed in
             // CrystalFluidSettings.Baseline* (single number home; XAML
             // token defaults are pinned equal by the bridge tests).

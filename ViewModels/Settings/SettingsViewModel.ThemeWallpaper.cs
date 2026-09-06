@@ -119,11 +119,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ApplyVisualTheme();
                 }
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(StudioFamilyName));
-                OnPropertyChanged(nameof(IsGlassStudioRelevant));
                 OnPropertyChanged(nameof(IsIndustrialLook));
-                ClearQuickLookUnlessApplying();
-                OnPropertyChanged(nameof(ActiveQuickLookText));
 
                 // 2026-09-05 PIPELINE UNIFICATION: the extra RefreshScene
                 // toggle used to duplicate the module overlay that is

@@ -44,13 +44,10 @@
 //                                      re-derived from the NEW surfaces)
 //     4. ThemeManager.ReapplyOutlinePreference (user's card-edges choice)
 //
-//   NOBODY else runs those layers after this: no duplicate studio
-//   re-apply, no trailing RefreshScene, no second ApplyModule. Services
-//   keep their public APIs and just delegate here, so every existing
-//   caller keeps working AND inherits the same order.
-//
-//   Slider-level studio tweaks stay in-memory (ThemeStudioService.Apply
-//   writes resources directly) — dragging must never repaint families.
+//   NOBODY else runs those layers after this: no trailing RefreshScene,
+//   no second ApplyModule. Services keep their public APIs and just
+//   delegate here, so every existing caller keeps working AND inherits
+//   the same order.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Logging;
@@ -130,8 +127,7 @@ namespace ProGlassAutomation.Services.Theme
 
                 AppLogService.Debug(
                     $"[ThemePipeline] Rebuilt: {reason} | family={appearance?.VisualTheme} " +
-                    $"wallpaper={appearance?.WallpaperMode}/{appearance?.BuiltinScene} " +
-                    $"studioActive={ThemeStudioService.Active != null}",
+                    $"wallpaper={appearance?.WallpaperMode}/{appearance?.BuiltinScene}",
                     new LogContext { Module = "Themes", Operation = "Pipeline" });
             }
             catch (Exception ex)

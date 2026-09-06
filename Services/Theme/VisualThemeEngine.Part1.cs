@@ -602,18 +602,6 @@ namespace ProGlassAutomation.Services.Theme
                         ApplyFontPreference(resources, true);
 
                         resources["ModuleWallpaperBrush"] = sceneBrush;
-
-                        // The studio snapshots must describe what is
-                        // actually on screen (snapshot may have run
-                        // before this overlay).
-                        ThemeStudioService.UpdateBase(
-                            "WindowBackgroundBrush",
-                            resources["WindowBackgroundBrush"]!);
-                        ThemeStudioService.UpdateBase(
-                            "ModuleBackgroundBrush",
-                            resources["ModuleBackgroundBrush"]!);
-                        ThemeStudioService.UpdateBase(
-                            "ModuleWallpaperBrush", sceneBrush);
                     }
                     catch (Exception sceneEx)
                     {
@@ -626,16 +614,6 @@ namespace ProGlassAutomation.Services.Theme
                             });
                     }
                 }
-
-                // ── Theme Studio layer must SURVIVE navigation
-                // (2026-09-05 ROOT-CAUSE: clicking Dashboard — or any
-                // module — rebuilt the family here WITHOUT re-applying
-                // the studio profile, so every customization visibly
-                // reset on every navigation). A real rebuild re-snapshots
-                // the fresh family/base state and re-applies the active
-                // 0–100 profile; the signature-guard's skipped repaints
-                // never reach this point, so no-op navigations stay free.
-                ThemeStudioService.OnFamilyApplied();
 
                 // Record the rendered scene LAST (in finally, because the
                 // module-wallpaper branch returns early). A pass that threw
