@@ -72,6 +72,11 @@ Ranked; corroborated against the repo's own `CURRENT_PRODUCT_AUDIT_2026-09-05.md
 - **Localization:** removed 344 orphaned studio/quick-look strings across all 15 language files; renamed `Settings.StudioReducedMotion*` → `Settings.ReducedMotion*` (en-US + ar-AE).
 - **Tests:** trimmed studio-only assertions (`ThemeRegistryParityTests` F-03 preset pins + `DefaultsFor` range test; `CrystalFluidSettingsBridgeTests` studio master-mapping + default-profile tests; `CrystalFluidPreviewAdoptionTests` now pins the fixed preview `WaterLevel="0.4"`); added `ReducedMotion` to the `SettingsRedesignTests` binding pin.
 
+### C.5 P3 hardening (this turn)
+- **Converters no longer throw in `ConvertBack`**: `ColorStringConverter`, `PercentToWidthConverter` (both `IValueConverter` and `IMultiValueConverter` forms), and `SliderValueLabelConverter` now return `Binding.DoNothing` (per-source `DoNothing` for the multi-value forms) instead of `NotImplementedException`, so a stray two-way binding can never crash the UI.
+- **`KeyProtection` silent catches made observable**: the rate-limit ledger read failure and the `MachineHash` fallback now log via the generator's `AppLogService.Warning` stub. Degradation is preserved (empty ledger / `UNKNOWN` fingerprint) but the vendor is told the limiter stopped tracking.
+- **Velopack PDB policy resolved**: the shipped package now excludes `*.pdb` (`packagingScope.include` drops the glob; `**/*.pdb` added to `zipExclude`). PDBs remain in the publish output for the vendor's own symbolication; `docs/CI.md` documents the trade-off and how to reverse it.
+
 ---
 
 ## D. Architecture improvements
@@ -163,9 +168,9 @@ The changes in this engagement were verified by **static reference analysis** (e
 
 **P3**
 15. Decorative-animation behaviors (`BounceHoverBehavior`, `ContentTransitionBehavior`, `SmoothScrollBehavior`, `GridLengthAnimation`) are still referenced by active views — removal is a UX change needing sign-off + a Windows visual pass.
-16. `ConvertBack` in 3 converters throws `NotImplementedException` (idiomatic; bindings are OneWay — safe, but return `Binding.DoNothing` for defense if touched).
-17. `KeyProtection.LoadRateLimitEntries` uses a bare `catch { }` (benign: rate-limit ledger degrades to empty on parse failure).
-18. Velopack `*.pdb` include-glob vs zipExclude inconsistency — pick one policy.
+16. ~~`ConvertBack` in 3 converters throws `NotImplementedException`~~ **Done 2026-09-06** — `ColorStringConverter`, `PercentToWidthConverter`, `SliderValueLabelConverter` now return `Binding.DoNothing` (per-source `DoNothing` for the multi-value forms) instead of throwing.
+17. ~~`KeyProtection.LoadRateLimitEntries` bare `catch { }`~~ **Done 2026-09-06** — the ledger read failure and the `MachineHash` fallback now log via the generator's `AppLogService.Warning` stub (the benign empty-ledger / `UNKNOWN` degradation is preserved, but observable).
+18. ~~Velopack `*.pdb` include vs zipExclude inconsistency~~ **Done 2026-09-06** — policy chosen: **exclude PDBs from the shipped package** (removed `*.pdb` from `packagingScope.include`, added `**/*.pdb` to `zipExclude`). PDBs are still produced in the publish output for the vendor's own symbolication; trade-off is less detail in end-user crash stacks, which can be reversed by re-adding the glob.
 
 ---
 

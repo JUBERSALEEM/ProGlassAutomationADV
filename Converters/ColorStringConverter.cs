@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using ProGlassAutomation.Services.Logging;
 using System.Windows.Data;
@@ -34,7 +34,10 @@ namespace ProGlassAutomation.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            // One-way converter (dashboard badges, chart bars, status
+            // pills). Never thrown: DoNothing leaves the source untouched
+            // instead of crashing a stray two-way binding.
+            return Binding.DoNothing;
         }
     }
 }

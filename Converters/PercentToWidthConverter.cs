@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Converters/PercentToWidthConverter.cs
 // PROJECT: ProGlassAutomation
 // NAMESPACE: ProGlassAutomation.Converters
@@ -34,6 +34,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Data;
 
 namespace ProGlassAutomation.Converters
@@ -80,7 +81,7 @@ namespace ProGlassAutomation.Converters
             Type targetType,
             object parameter,
             CultureInfo culture)
-            => throw new NotImplementedException();
+            => Binding.DoNothing;
 
         // ═════════════════════════════════════════════════════════════════
         //  IMultiValueConverter — MultiBinding with 2 values
@@ -111,7 +112,7 @@ namespace ProGlassAutomation.Converters
             Type[] targetTypes,
             object parameter,
             CultureInfo culture)
-            => throw new NotImplementedException();
+            => Enumerable.Repeat(Binding.DoNothing, targetTypes.Length).ToArray();
 
         // ═════════════════════════════════════════════════════════════════
         //  PRIVATE HELPER — Safe conversion of any numeric object to double

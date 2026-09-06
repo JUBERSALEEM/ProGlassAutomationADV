@@ -37,6 +37,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using ProGlassAutomation.Services.Logging;
 
 namespace ProGlassAutomation.Tools.LicenseGenerator;
 
@@ -201,7 +202,15 @@ internal static class KeyProtection
                     ?? new List<RateLimitEntry>();
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            // Rate-limit ledger is best-effort: a corrupt/unreadable file
+            // degrades to an empty ledger (never blocks key generation),
+            // but the failure must not be silent — the vendor must know
+            // the limiter stopped tracking.
+            AppLogService.Warning(
+                "KeyProtection: rate-limit ledger unreadable, limiter degraded to empty — " + ex.Message);
+        }
         return new List<RateLimitEntry>();
     }
 
@@ -215,8 +224,13 @@ internal static class KeyProtection
             byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(machineId));
             return Convert.ToHexString(hash).Substring(0, 16);
         }
-        catch
+        catch (Exception ex)
         {
+            // Fingerprint failure degrades to a shared "UNKNOWN" bucket so
+            // key generation still works, but it must be observable — a
+            // silent UNKNOWN collapses every machine into one rate bucket.
+            AppLogService.Warning(
+                "KeyProtection: machine fingerprint unavailable, using UNKNOWN — " + ex.Message);
             return "UNKNOWN";
         }
     }

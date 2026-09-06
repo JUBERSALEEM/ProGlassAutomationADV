@@ -18,6 +18,7 @@
 
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Data;
 
 namespace ProGlassAutomation.Converters
@@ -45,7 +46,7 @@ namespace ProGlassAutomation.Converters
 
         public object[] ConvertBack(
             object value, Type[] targetTypes, object parameter, CultureInfo culture)
-            => throw new NotImplementedException();
+            => Enumerable.Repeat(Binding.DoNothing, targetTypes.Length).ToArray();
 
         private static double ToDouble(object value)
         {

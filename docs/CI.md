@@ -115,6 +115,13 @@ It contains two jobs:
   feed the in-app OTA (`VelopackUpdateService`) reads. The feed channel is
   pinned to `stable` and `vpk` to `1.2.0` to match the app.
 
+Package contents are governed by `installer/velopack.json`:
+`packagingScope.include` ships `*.exe`/`*.dll`/`*.json` only — **PDBs are
+excluded from the shipped package** (kept in the publish output for the
+vendor's own symbolication). If richer end-user crash stacks are wanted,
+re-add `*.pdb` to `packagingScope.include` and remove `**/*.pdb` from
+`zipExclude`.
+
 Activate it the same way as `build-test.yml`:
 
 ```bash

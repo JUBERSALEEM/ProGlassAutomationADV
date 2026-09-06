@@ -221,9 +221,15 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         }
         public void Dispose()
         {
-            try { _loadCts?.Cancel(); _loadCts?.Dispose(); _loadCts = null; } catch { }
-            try { _debounceCts?.Cancel(); _debounceCts?.Dispose(); _debounceCts = null; } catch { }
-            try { _importCts?.Cancel(); _importCts?.Dispose(); _importCts = null; } catch { }
+            // Best-effort CTS teardown — a cancel/dispose failure must not
+            // crash navigation, but it must be observable (S-5: no silent
+            // catches in production code).
+            try { _loadCts?.Cancel(); _loadCts?.Dispose(); _loadCts = null; }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[InquiryListViewModel] Dispose: load CTS teardown failed: " + ExceptionMessages.Deep(ex)); }
+            try { _debounceCts?.Cancel(); _debounceCts?.Dispose(); _debounceCts = null; }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[InquiryListViewModel] Dispose: debounce CTS teardown failed: " + ExceptionMessages.Deep(ex)); }
+            try { _importCts?.Cancel(); _importCts?.Dispose(); _importCts = null; }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[InquiryListViewModel] Dispose: import CTS teardown failed: " + ExceptionMessages.Deep(ex)); }
         }
     }
 }

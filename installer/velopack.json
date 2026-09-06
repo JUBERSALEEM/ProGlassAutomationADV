@@ -20,15 +20,15 @@
     "include": [
       "*.exe",
       "*.dll",
-      "*.json",
-      "*.pdb"
+      "*.json"
     ]
   },
   "deltaMode": "BestSpeed",
   "packSources": null,
   "zipExclude": [
     "**/TestResults/**",
-    "**/appsettings.Development.json"
+    "**/appsettings.Development.json",
+    "**/*.pdb"
   ],
   "codeSign": null,
   "awsRegions": null,
