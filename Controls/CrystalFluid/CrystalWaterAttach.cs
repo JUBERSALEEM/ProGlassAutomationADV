@@ -263,12 +263,18 @@ namespace ProGlassAutomation.Controls.CrystalFluid
             // Border insets its child by Padding and ignores child Margin;
             // transfer the inset to the content's margin (honoured by the
             // Grid) so the content is pixel-identical and the water spans
-            // the full card.
+            // the full card. Alignment is left untouched: the Grid honours
+            // it exactly as the Border did, so non-stretch content (centred
+            // badges, right-aligned chips) keeps its layout.
             border.Padding = new Thickness(0);
             original.Margin = padding;
-            original.HorizontalAlignment = HorizontalAlignment.Stretch;
-            original.VerticalAlignment = VerticalAlignment.Stretch;
 
+            // Detach the original child BEFORE reparenting it into the
+            // wrapper. WPF throws "Specified element is already the
+            // logical child of another element" when an element is added
+            // while still connected to its old parent — and `original`
+            // is still Border.Child at this point.
+            border.Child = null;
             wrapper.Children.Add(water);
             wrapper.Children.Add(original);
             border.Child = wrapper;

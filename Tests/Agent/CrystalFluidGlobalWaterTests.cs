@@ -92,6 +92,28 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("HasCardAncestor", src, StringComparison.Ordinal);
         }
 
+        // ── 2b. REPARENT SAFELY (regression: startup crash) ─────────────
+        [Fact]
+        public void Wrap_disconnects_the_original_child_before_reparenting()
+        {
+            // ERR-3F0957: EnsureWrapped added the still-connected original
+            // child into the wrapper Grid, and WPF threw "Specified element
+            // is already the logical child of another element" — the crash
+            // left the app stuck on the splash screen. The original MUST be
+            // detached from the Border before it is re-added to the wrapper.
+            string src = Read("Controls/CrystalFluid/CrystalWaterAttach.cs");
+
+            int disconnect = src.IndexOf("border.Child = null",
+                StringComparison.Ordinal);
+            int reAdd = src.IndexOf("wrapper.Children.Add(original)",
+                StringComparison.Ordinal);
+
+            Assert.True(disconnect >= 0,
+                "EnsureWrapped must detach Border.Child before reparenting.");
+            Assert.True(reAdd > disconnect,
+                "The original child must be disconnected BEFORE being added to the wrapper.");
+        }
+
         // ── 3. LIVE FAMILY GATE (no reload) ─────────────────────────────
         [Fact]
         public void Water_gates_on_the_family_resource_and_ambient_level()
