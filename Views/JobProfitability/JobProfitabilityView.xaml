@@ -127,12 +127,19 @@
 
     </UserControl.Resources>
 
-    <!-- Two-column layout: main content + detail sidebar -->
+    <!-- Root surface: switches between the two-column layout (list +
+         sidebar) and the full-screen detail page opened on double-click.
+         The full page mirrors the Step 9 Profit & Loss module's
+         full-screen spec report. -->
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
+
+        <!-- ═══ LAYER 1 — two-column layout: main content + detail sidebar
+             (hidden while the full-screen detail page is open) ═══ -->
+        <Grid Visibility="{Binding HasFullDetail, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
         <!-- ═══ LEFT: Main Content ═══ -->
         <Grid Grid.Column="0">
@@ -531,7 +538,7 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="CONFIRMED PIs" Style="{StaticResource JpSectionLabelStyle}"/>
                                     <TextBlock Style="{StaticResource JpSectionHintStyle}">
-                                        <Run Text="One row per PI-confirmed invoice — click a row for the full Step 9 detail in the sidebar. "/>
+                                        <Run Text="One row per PI-confirmed invoice — click a row for the full Step 9 detail in the sidebar, double-click for the full page. "/>
                                         <Run Text="{Binding PortfolioStatusLine, Mode=OneWay}"/>
                                     </TextBlock>
                                 </StackPanel>
@@ -643,6 +650,9 @@
                                                             <Border.InputBindings>
                                                                 <MouseBinding MouseAction="LeftClick"
                                                                               Command="{Binding DataContext.SelectRowCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                                              CommandParameter="{Binding}"/>
+                                                                <MouseBinding MouseAction="LeftDoubleClick"
+                                                                              Command="{Binding DataContext.OpenFullDetailCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                               CommandParameter="{Binding}"/>
                                                             </Border.InputBindings>
                                                             <Grid>
@@ -850,6 +860,52 @@
                 Visibility="{Binding JobDetail.IsPanelVisible, Converter={StaticResource BoolToVisibilityConverter}}">
             <local:JobDetailPanel DataContext="{Binding JobDetail}"/>
         </Border>
+
+        </Grid>
+
+        <!-- ═══ LAYER 2 — full-screen detail page (double-click on a row).
+             Opens as the whole module surface, exactly like the Step 9
+             Profit & Loss full-screen spec report: an accent toolbar with
+             a BACK button, then the full-width detail (same JobDetail VM
+             as the sidebar, so the figures always agree). ═══ -->
+        <Grid Visibility="{Binding HasFullDetail, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Toolbar: back to jobs · hint -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="20,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0"
+                            Content="← BACK TO JOBS"
+                            Command="{Binding CloseFullDetailCommand}"
+                            Style="{StaticResource OutlinedPillButton}"
+                            VerticalAlignment="Center"
+                            Cursor="Hand"
+                            ToolTip="Return to the confirmed-jobs list."/>
+                    <TextBlock Grid.Column="1"
+                               FontSize="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"
+                               Margin="16,0,0,0">
+                        <Run Text="Full detail for "/><Run Text="{Binding JobDetail.ProformaId, Mode=OneWay}"/>
+                        <Run Text=" — double-click any row in the jobs list to open it here; a single click opens the sidebar."/>
+                    </TextBlock>
+                </Grid>
+            </Border>
+
+            <local:JobFullDetailView Grid.Row="1" DataContext="{Binding JobDetail}"/>
+        </Grid>
 
     </Grid>
 </UserControl>

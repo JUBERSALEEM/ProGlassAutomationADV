@@ -887,6 +887,14 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         /// <summary>Selects a row and opens the detail sidebar.</summary>
         public ICommand SelectRowCommand { get; private set; }
 
+        /// <summary>Double-click: opens the full-screen job detail page
+        /// (same treatment as the Profit &amp; Loss module's full-screen spec
+        /// detail).</summary>
+        public ICommand OpenFullDetailCommand { get; private set; }
+
+        /// <summary>Returns from the full-screen detail to the jobs list.</summary>
+        public ICommand CloseFullDetailCommand { get; private set; }
+
         /// <summary>Closes the detail sidebar.</summary>
         public ICommand CloseDetailCommand { get; private set; }
 
@@ -918,6 +926,29 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         public bool HasRowSelection => _selectedRow != null;
 
+        // ── Full-screen detail (double-click) ─────────────────────────────
+        // Single click opens the 420px sidebar; a DOUBLE-click on the same
+        // row opens a full-screen detail page (the whole module surface, the
+        // same pattern the Step 9 Profit & Loss module uses for its spec
+        // report). Both surfaces read the SAME JobDetail VM, so the figures
+        // always agree.
+
+        private bool _isFullDetailOpen;
+        public bool IsFullDetailOpen
+        {
+            get => _isFullDetailOpen;
+            private set
+            {
+                if (_isFullDetailOpen == value) return;
+                _isFullDetailOpen = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasFullDetail));
+            }
+        }
+
+        /// <summary>True while the full-screen job detail page is open.</summary>
+        public bool HasFullDetail => IsFullDetailOpen;
+
         public string SelectionScopeLabel => _selectedRow != null
             ? $"PI {_selectedRow.ProformaId}"
             : "All confirmed PIs";
@@ -932,6 +963,12 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             SelectedRow = row;
             foreach (var r in Rows)
                 r.IsSelectedRow = ReferenceEquals(r, row);
+
+            // Clearing the selection (explicitly or because the selected PI
+            // was filtered out) also closes the full-screen detail — the
+            // detail page can't stay open for a row that is no longer there.
+            if (row == null)
+                IsFullDetailOpen = false;
         }
 
         /// <summary>Raises change notifications for every top-card property.</summary>
@@ -1055,6 +1092,21 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             });
             CloseDetailCommand = new RelayCommand(_ => JobDetail.ClearSelection());
             ClearRowSelectionCommand = new RelayCommand(_ => SetSelectedRow(null));
+
+            // Double-click opens the full-screen detail page. The single-click
+            // handlers that fire first (WPF delivers a double-click as two
+            // clicks + one double-click) are harmless: they toggle the
+            // sidebar, and the full page then covers the whole module.
+            OpenFullDetailCommand = new RelayCommand(param =>
+            {
+                if (param is JobProfitabilityRow row)
+                {
+                    SetSelectedRow(row);
+                    JobDetail.LoadJobDetail(row.ProformaId);
+                    IsFullDetailOpen = true;
+                }
+            });
+            CloseFullDetailCommand = new RelayCommand(_ => IsFullDetailOpen = false);
 
             Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));
 

@@ -421,6 +421,14 @@
 			<DependentUpon>JobDetailPanel.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
+		<Page Update="Views\JobProfitability\JobFullDetailView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\JobProfitability\JobFullDetailView.xaml.cs">
+			<DependentUpon>JobFullDetailView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
 	</ItemGroup>
 
 </Project>
