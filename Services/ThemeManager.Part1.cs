@@ -655,8 +655,7 @@ namespace ProGlassAutomation.Services
             blob1.GradientStops.Add(new GradientStop(
                 Color.FromArgb(0, core.R, core.G, core.B), 1.0));
             blob1.Freeze();
-            if (!liquidActive)
-                resources["DashAmbientBlob1Brush"] = blob1;
+            resources["DashAmbientBlob1Brush"] = blob1;
 
             // Bottom-left deep blob.
             Color deep = LookupColor(resources, "AccentDarkBrush", core);
@@ -671,16 +670,14 @@ namespace ProGlassAutomation.Services
             blob2.GradientStops.Add(new GradientStop(
                 Color.FromArgb(0, deep.R, deep.G, deep.B), 1.0));
             blob2.Freeze();
-            if (!liquidActive)
-                resources["DashAmbientBlob2Brush"] = blob2;
+            resources["DashAmbientBlob2Brush"] = blob2;
 
             // Liquid card fill — ultra-transparent for iOS glass effect.
             var glass = new SolidColorBrush(
                 ColorMath.Tint(core, surface, dark ? 0.04 : 0.02))
             { Opacity = 0.12 };
             glass.Freeze();
-            if (!liquidActive)
-                resources["DashLiquidSurfaceBrush"] = glass;
+            resources["DashLiquidSurfaceBrush"] = glass;
 
             // Accent text on the dashboard.
             FreezeAndSet(resources, "DashAccentTextBrush",
