@@ -127,11 +127,13 @@
                 <Button Style="{StaticResource PrimaryPillButton}"
                         Content="BUY" MinWidth="110" Margin="0,0,10,0"
                         Command="{Binding BuyCommand}"
-                        CommandParameter="{Binding Sheet}"/>
+                        CommandParameter="{Binding Sheet}"
+                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button Style="{StaticResource OutlinedPillButton}"
                         Content="USE" MinWidth="110" Margin="0,0,10,0"
                         Command="{Binding UseCommand}"
-                        CommandParameter="{Binding Sheet}"/>
+                        CommandParameter="{Binding Sheet}"
+                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button Style="{StaticResource OutlinedPillButton}"
                         Content="CLOSE" MinWidth="110"
                         Command="{Binding CloseCommand}"/>
@@ -153,16 +155,19 @@
             <StackPanel Orientation="Horizontal">
                 <Button Style="{StaticResource TabPillButton}" Content="OVERVIEW"
                         Command="{Binding SelectTabCommand}" CommandParameter="Overview"
-                        behaviors:TabState.IsActive="{Binding IsOverview, Mode=OneWay}"/>
+                        behaviors:TabState.IsActive="{Binding IsOverview, Mode=OneWay}"
+                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button Style="{StaticResource TabPillButton}" Content="EDIT"
                         Command="{Binding SelectTabCommand}" CommandParameter="Edit"
                         behaviors:TabState.IsActive="{Binding IsEdit, Mode=OneWay}"/>
                 <Button Style="{StaticResource TabPillButton}" Content="MOVEMENTS"
                         Command="{Binding SelectTabCommand}" CommandParameter="Movements"
-                        behaviors:TabState.IsActive="{Binding IsMovements, Mode=OneWay}"/>
+                        behaviors:TabState.IsActive="{Binding IsMovements, Mode=OneWay}"
+                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button Style="{StaticResource TabPillButton}" Content="ANALYSIS"
                         Command="{Binding SelectTabCommand}" CommandParameter="Analysis"
-                        behaviors:TabState.IsActive="{Binding IsAnalysis, Mode=OneWay}"/>
+                        behaviors:TabState.IsActive="{Binding IsAnalysis, Mode=OneWay}"
+                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
             </StackPanel>
         </Border>
 
@@ -348,18 +353,18 @@
                              Delete is not a peer of Save — see the
                              view-model header. -->
                         <StackPanel Orientation="Horizontal" Margin="0,22,0,0"
-                                    HorizontalAlignment="Right"
-                                    DataContext="{Binding Editor}">
-                            <TextBlock Text="{Binding ValidationSummary}"
+                                    HorizontalAlignment="Right">
+                            <TextBlock Text="{Binding Editor.ValidationSummary}"
                                        VerticalAlignment="Center" Margin="0,0,16,0"
                                        TextWrapping="Wrap" MaxWidth="460"
                                        FontSize="{StaticResource TextCaption}"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource DangerBrush}"
-                                       Visibility="{Binding HasValidationSummary, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                       Visibility="{Binding Editor.HasValidationSummary, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <Button Style="{StaticResource PrimaryPillButton}"
-                                    Content="SAVE CHANGES" MinWidth="170"
-                                    Command="{Binding SaveCommand}"/>
+                                    MinWidth="170"
+                                    Command="{Binding SaveCommand}"
+                                    Content="{Binding SaveButtonText}"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>

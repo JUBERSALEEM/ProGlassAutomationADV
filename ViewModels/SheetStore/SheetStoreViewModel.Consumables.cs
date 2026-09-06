@@ -114,6 +114,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             : $"{_selectedItem.CategoryDisplay} • {_selectedItem.UomDisplay}";
 
         private ICommand? _selectItemCommand;
+        /// <summary>Empty-state gate for the consumables list.</summary>
+        public bool HasNoItems => Items.Count == 0;
+
         public ICommand SelectItemCommand =>
             _selectItemCommand ??= new RelayCommand(p =>
             {
@@ -193,6 +196,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(HasItems));
             OnPropertyChanged(nameof(NoItems));
             OnPropertyChanged(nameof(ItemCount));
+            OnPropertyChanged(nameof(HasNoItems));
             OnPropertyChanged(nameof(ItemsStockValue));
             OnPropertyChanged(nameof(ItemsUsedValue));
             OnPropertyChanged(nameof(LowStockCount));
@@ -426,32 +430,58 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         }
     
         // ═══════════════════════════════════════════════════════════════
-        // DETAIL WORKSPACE
+        // DETAIL WORKSPACE  (double-click a row, ADD NEW, or EDIT)
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Opens the full-screen detail window for a sheet. Shown modally
-        /// against the shell so an edit cannot be stranded behind the list,
-        /// and the list is reloaded afterwards because the Edit tab may
-        /// have changed the very row the grid is displaying.
+        /// Opens the full-screen workspace. A null sheet means ADD NEW: the
+        /// window starts on the Edit tab with an empty form, and Overview /
+        /// Movements / Analysis are suppressed because a sheet that does
+        /// not exist yet has no stock, no history and no margin.
+        ///
+        /// Permission is checked HERE, before the window is built, so an
+        /// unauthorised operator never sees a form they cannot submit.
         /// </summary>
-        private void OpenSheetDetail(GlassSheet sheet)
+        private void OpenSheetWorkspace(GlassSheet? sheet)
         {
+            bool isNew = sheet == null;
+
+            if (!PermissionService.Require(
+                    isNew ? AppPermissions.SheetStoreCreate : AppPermissions.SheetStoreEdit,
+                    isNew ? "add a glass sheet" : "edit a glass sheet"))
+                return;
+
             try
             {
+                // Edit binds a COPY, never the grid's live instance. Editing
+                // the bound row directly mutates the visible list as the
+                // operator types and leaves those edits behind on cancel.
+                var working = isNew ? null : Clone(sheet!);
+
                 var vm = new SheetDetailWindowViewModel(
-                    sheet, _historyRepo, BuyCommand, UseCommand);
+                    working, _historyRepo, BuyCommand, UseCommand);
+
+                // Saving routes back through the SAME persistence methods the
+                // dialogs and the panel use, so there is still exactly one
+                // writer to the inventory ledger.
+                vm.SaveRequested += async (_, result) =>
+                {
+                    if (result == null) return;
+                    if (isNew) await PersistNewSheetAsync(result);
+                    else       await PersistEditedSheetAsync(result, sheet!);
+                };
 
                 _dialogs.ShowDialog<Views.SheetStore.SheetDetailWindow>(vm);
 
-                // The editor writes through its own repository call, so the
-                // in-memory row can be stale on return.
                 AsyncUtility.SafeFireAndForget(LoadAsync, "SheetStore ReloadAfterDetail");
             }
             catch (Exception ex)
             {
-                ShowError("Could not open the detail page.\n\n" + ExceptionMessages.Deep(ex));
+                ShowError("Could not open the sheet workspace.\n\n" + ExceptionMessages.Deep(ex));
             }
         }
+
+        /// <summary>Double click on a row — same workspace, existing sheet.</summary>
+        private void OpenSheetDetail(GlassSheet sheet) => OpenSheetWorkspace(sheet);
     }
 }

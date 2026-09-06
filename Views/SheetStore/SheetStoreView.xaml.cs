@@ -39,7 +39,7 @@ namespace ProGlassAutomation.Views.SheetStore
             // 2026-09-06: the EDITOR panel now shares the animated column
             // with the stats panel, so the column reacts to either one.
             if (e.PropertyName != nameof(SheetStoreViewModel.IsRowSelected) &&
-                e.PropertyName != nameof(SheetStoreViewModel.IsEditorOpen))
+                e.PropertyName != nameof(SheetStoreViewModel.IsItemEditorOpen))
                 return;
 
             SyncRightColumn();
@@ -54,13 +54,17 @@ namespace ProGlassAutomation.Views.SheetStore
         /// </summary>
         private void SyncRightColumn()
         {
-            if (DetailPanel == null || EditorPanel == null) return;
+            if (DetailPanel == null || ItemEditorPanel == null) return;
 
-            bool editorOpen = _vm?.IsEditorOpen == true;
-            bool statsOpen = _vm?.IsRowSelected == true && !editorOpen;
-            bool anyOpen = editorOpen || statsOpen;
+            // Two panels contend for one column now that glass editing moved
+            // to the full-screen workspace. Precedence is explicit: an open
+            // FORM wins over the statistics rail, because asking to edit is a
+            // stronger intent than having a row highlighted.
+            bool itemEditorOpen = _vm?.IsItemEditorOpen == true;
+            bool statsOpen = _vm?.IsRowSelected == true && !itemEditorOpen;
+            bool anyOpen = statsOpen || itemEditorOpen;
 
-            EditorPanel.Visibility = editorOpen ? Visibility.Visible : Visibility.Collapsed;
+            ItemEditorPanel.Visibility = itemEditorOpen ? Visibility.Visible : Visibility.Collapsed;
             DetailPanel.Visibility = statsOpen ? Visibility.Visible : Visibility.Collapsed;
 
             if (anyOpen)
@@ -91,10 +95,10 @@ namespace ProGlassAutomation.Views.SheetStore
                     // Re-test on completion: the operator can reopen a
                     // panel mid-animation, and collapsing unconditionally
                     // here would hide a panel that is now wanted.
-                    if (_vm?.IsEditorOpen != true && _vm?.IsRowSelected != true)
+                    if (_vm?.IsRowSelected != true && _vm?.IsItemEditorOpen != true)
                     {
                         DetailPanel.Visibility = Visibility.Collapsed;
-                        EditorPanel.Visibility = Visibility.Collapsed;
+                        ItemEditorPanel.Visibility = Visibility.Collapsed;
                     }
                 };
                 DetailColumn.BeginAnimation(ColumnDefinition.WidthProperty, close);

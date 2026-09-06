@@ -54,13 +54,19 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         /// entry and the reload; duplicating that here would mean two code
         /// paths recording stock movements differently.
         /// </param>
-        public SheetDetailWindowViewModel(GlassSheet sheet,
+        public SheetDetailWindowViewModel(GlassSheet? sheet,
                                           ISheetHistoryRepository? historyRepo = null,
                                           ICommand? buyCommand = null,
                                           ICommand? useCommand = null)
         {
-            Sheet = sheet ?? throw new ArgumentNullException(nameof(sheet));
+            // A NULL sheet is ADD NEW, not an error: the window opens on the
+            // Edit tab with an empty form. Overview / Movements / Analysis
+            // are hidden, because a sheet that does not exist yet has no
+            // stock, no history and no margin to report.
+            IsNew = sheet == null;
+            Sheet = sheet ?? new GlassSheet();
             _historyRepo = historyRepo ?? new SheetHistoryRepository();
+            if (IsNew) _activeKey = TabEdit;
             BuyCommand = buyCommand;
             UseCommand = useCommand;
 
@@ -70,6 +76,22 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             // stay in exactly one place and cannot drift between the two
             // surfaces.
             Editor = new AddEditSheetViewModel(sheet);
+
+            SaveCommand = new RelayCommand(_ =>
+            {
+                // Materialise + re-validate inside the form. CanExecute is an
+                // affordance, not a boundary — accelerators and automation
+                // peers can still reach this.
+                Editor.SaveCommand.Execute(null);
+                if (Editor.DialogResult != true || Editor.Result == null) return;
+
+                // The window does not write to the database itself. It raises
+                // this and the list persists through the shared path, so the
+                // ledger keeps exactly one writer.
+                SaveRequested?.Invoke(this, Editor.Result);
+                CloseAction?.Invoke();
+            },
+            _ => Editor.IsValid);
 
             SelectTabCommand = new RelayCommand(p =>
             {
@@ -83,6 +105,19 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         public GlassSheet Sheet { get; }
 
+        /// <summary>True when this is ADD NEW rather than an existing row.</summary>
+        public bool IsNew { get; }
+
+        public string SaveButtonText => IsNew ? "ADD SHEET" : "SAVE CHANGES";
+
+        /// <summary>Only an existing sheet has stock, history and margin.</summary>
+        public bool IsExisting => !IsNew;
+
+        /// <summary>Raised with the validated sheet; the list persists it.</summary>
+        public event EventHandler<GlassSheet>? SaveRequested;
+
+        public ICommand SaveCommand { get; }
+
         /// <summary>The always-editable form behind the Edit tab.</summary>
         public AddEditSheetViewModel Editor { get; }
 
@@ -92,10 +127,13 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         // ── Identity ───────────────────────────────────────────────────
 
-        public string HeaderTitle =>
-            $"{Sheet.Category} {Sheet.ThicknessDisplay} {Sheet.Color}".Trim();
+        public string HeaderTitle => IsNew
+            ? "New glass sheet"
+            : $"{Sheet.Category} {Sheet.ThicknessDisplay} {Sheet.Color}".Trim();
 
-        public string HeaderSubtitle => $"{Sheet.SizeDisplay} mm  ·  {Sheet.SqmPerSheet:N4} SQM per sheet";
+        public string HeaderSubtitle => IsNew
+            ? "Fill in the specification and save to add it to inventory."
+            : $"{Sheet.SizeDisplay} mm  ·  {Sheet.SqmPerSheet:N4} SQM per sheet";
 
         // ── Tabs ───────────────────────────────────────────────────────
 

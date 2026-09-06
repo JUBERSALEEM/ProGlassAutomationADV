@@ -16,9 +16,45 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Focusable="True">
+
+    <!-- Escape clears the row selection, which is also what closes the
+         stats rail: selection and panel visibility are the same state.
+         The single click that selects no longer toggles off, so this (and
+         the rail's close button) is the deselect gesture. -->
+    <UserControl.InputBindings>
+        <KeyBinding Key="Escape" Command="{Binding ClearSelectionCommand}"/>
+    </UserControl.InputBindings>
 
     <UserControl.Resources>
+
+        <!-- Consumable editor panel field chrome -->
+        <Style x:Key="ItemFieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+
+        <Style x:Key="ItemEntry" TargetType="TextBox">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="9,0"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="ItemFieldError" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,-8,0,10"/>
+            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        </Style>
 
         <!-- Reusable modern menu item (left-click runs its command). -->
         <Style x:Key="SheetMenuActionItem" TargetType="Button">
@@ -142,6 +178,45 @@
                     <TextBlock Text="{DynamicResource SheetStore.StockManagementPricingSystem}"
                                Style="{StaticResource ModulePageSubtitleStyle}"
                                Margin="0,4,0,0"/>
+
+                    <!-- ══ STOCK TYPE SWITCH ══
+                         Consumables live INSIDE this module rather than
+                         behind a second nav entry: they are the same job
+                         (what is on the shelf, what it cost, what is left),
+                         and a separate module would fork the toolbar, the
+                         filters and the export path for no gain.
+
+                         Switching clears BOTH selections — see the
+                         view-model — so a row action can never fire against
+                         an invisible item of the wrong type. -->
+                    <Border Background="{DynamicResource DialogInsetBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="{DynamicResource CardBorderThickness}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            Padding="5" Margin="0,12,0,0"
+                            HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource TabPillButton}"
+                                    Content="GLASS SHEETS"
+                                    Command="{Binding ShowGlassCommand}"
+                                    behaviors:TabState.IsActive="{Binding IsGlassView, Mode=OneWay}"/>
+                            <Button Style="{StaticResource TabPillButton}"
+                                    Content="CONSUMABLES"
+                                    Command="{Binding ShowConsumablesCommand}"
+                                    behaviors:TabState.IsActive="{Binding IsConsumablesView, Mode=OneWay}"/>
+                            <!-- Low-stock badge rides the switch so it is
+                                 visible while looking at glass, which is the
+                                 whole point of a reorder alert. -->
+                            <Border Background="{DynamicResource DangerBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="9,3" VerticalAlignment="Center" Margin="8,0,4,0"
+                                    Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding LowStockCount, StringFormat={}{0} LOW}"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
 
@@ -472,7 +547,21 @@
                                  VirtualizingStackPanel.CacheLength="1,2"
                                  VirtualizingStackPanel.CacheLengthUnit="Page"
                                  behaviors:SmoothScrollBehavior.IsEnabled="True"
-                                 Visibility="{Binding HasSheets, Converter={StaticResource BoolToVisibilityConverter}}">
+                                 >
+                            <ListBox.Style>
+                                <Style TargetType="ListBox">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding HasSheets}" Value="True"/>
+                                                <Condition Binding="{Binding IsGlassView}" Value="True"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.Style>
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>
@@ -565,13 +654,158 @@
 
                         <!-- Empty state -->
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                    IsHitTestVisible="False"
-                                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsEmpty}" Value="True"/>
+                                                <Condition Binding="{Binding IsGlassView}" Value="True"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE7B8;"
                                 Title="{DynamicResource SheetStore.NoGlassSheetsYet}"
                                 Message="Inventory holds your raw glass — sizes, thicknesses, colours, stock and value. Click '+ Add New' to add your first glass sheet."/>
                         </StackPanel>
+
+                        <!-- ══ CONSUMABLES LIST ══
+                             Spacer bar, desiccant, sealants, cavity gas and
+                             hardware. Quantities are DECIMAL here — you
+                             genuinely hold 45.55 LM of spacer — so the
+                             columns format to 2dp rather than whole units.
+
+                             Low-stock rows are ordered FIRST by the
+                             view-model and tinted, so the list opens on what
+                             needs ordering instead of burying it
+                             alphabetically. -->
+                        <Grid Visibility="{Binding IsConsumablesView, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ListBox ItemsSource="{Binding Items}"
+                                     ItemContainerStyle="{StaticResource SheetListBoxItemStyle}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
+                                     Padding="10,6,10,10"
+                                     Focusable="False"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                     VirtualizingStackPanel.IsVirtualizing="True"
+                                     VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                     behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border behaviors:ClickToCommandBehavior.Command="{Binding DataContext.SelectItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                behaviors:ClickToCommandBehavior.CommandParameter="{Binding}"
+                                                Padding="14,11" Margin="0,0,0,6"
+                                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                                BorderThickness="1"
+                                                SnapsToDevicePixels="True">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLowStock}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="110"/>
+                                                    <ColumnDefinition Width="130"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding FullDescription}"
+                                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                        <TextBlock Text="{Binding CategoryDisplay}"
+                                                                   FontSize="{StaticResource TextCaption}"
+                                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                                        <TextBlock Text="{Binding Supplier, StringFormat={}  ·  {0}}"
+                                                                   FontSize="{StaticResource TextCaption}"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="BALANCE" FontSize="{StaticResource TextCaption}"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding BalanceDisplay}"
+                                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                    <TextBlock Text="USED" FontSize="{StaticResource TextCaption}"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding Used, StringFormat={}{0:N2}}"
+                                                               FontSize="{StaticResource TextBody}"
+                                                               Foreground="{DynamicResource DangerBrush}"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                                    <TextBlock Text="STOCK VALUE" FontSize="{StaticResource TextCaption}"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding BalanceCostValue, StringFormat={}{0:N2}}"
+                                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                </StackPanel>
+
+                                                <!-- Receive / Issue stay on the ROW: this is fast,
+                                                     repetitive work and should not cost a page load. -->
+                                                <StackPanel Grid.Column="4" Orientation="Horizontal"
+                                                            VerticalAlignment="Center">
+                                                    <Button Style="{StaticResource RowSuccessButton}"
+                                                            Tag="&#xE7B8;" Content="RECEIVE" MinWidth="104"
+                                                            Command="{Binding DataContext.ReceiveItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            CommandParameter="{Binding}"/>
+                                                    <Button Style="{StaticResource RowPrimaryButton}"
+                                                            Tag="&#xE896;" Content="ISSUE" MinWidth="92" Margin="6,0,0,0"
+                                                            Command="{Binding DataContext.ConsumeItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            CommandParameter="{Binding}"/>
+                                                    <Button Style="{StaticResource RowOutlinedButton}"
+                                                            Tag="&#xE8E5;" Content="EDIT" MinWidth="86" Margin="6,0,0,0"
+                                                            Command="{Binding DataContext.EditItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            CommandParameter="{Binding}"/>
+                                                    <Button Style="{StaticResource RowDangerButton}"
+                                                            Tag="&#xE74D;" Content="DELETE" MinWidth="96" Margin="6,0,0,0"
+                                                            Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                            CommandParameter="{Binding}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                        IsHitTestVisible="False"
+                                        Visibility="{Binding HasNoItems, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <emptyState:EmptyStateControl
+                                    Icon="&#xE7B8;"
+                                    Title="No consumables yet"
+                                    Message="Spacer bar, desiccant, primary and secondary sealant, cavity gas and hardware are stocked here in their own units. Click ADD NEW to add the first one."/>
+                            </StackPanel>
+                        </Grid>
                     </Grid>
                 </Border>
             </Grid>
@@ -803,43 +1037,176 @@
                                         Command="{Binding UseCommand}"
                                         CommandParameter="{Binding SelectedSheet}"/>
                             </Grid>
+                            <!-- 2026-09-06: OPEN is now the primary action —
+                                 it raises the full-screen workspace, where the
+                                 nine fields fit at once alongside Movements
+                                 and Analysis. Double-clicking the row does the
+                                 same thing.
+
+                                 DELETE was demoted out of this pair. It sat as
+                                 an equal-weight peer of Edit, one 180px hop
+                                 from Buy and Use, on a panel the operator uses
+                                 all day — a destructive, irreversible action
+                                 has no business being that easy to hit by
+                                 muscle memory. It now lives behind the "⋯"
+                                 overflow. -->
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Button Style="{StaticResource RowOutlinedButton}"
-                                        Tag="&#xE8E5;" Content="{DynamicResource Action.Edit}"
+                                        Tag="&#xE8A7;" Content="OPEN"
+                                        ToolTip="Open the full detail workspace (or double-click the row)"
                                         Command="{Binding OpenEditPanelCommand}"
                                         CommandParameter="{Binding SelectedSheet}"/>
-                                <Button Grid.Column="1"
-                                        Style="{StaticResource RowDangerButton}"
-                                        Tag="&#xE74D;" Content="{DynamicResource Action.Delete}"
-                                        Command="{Binding DeleteCommand}"
-                                        CommandParameter="{Binding SelectedSheet}"/>
+                                <Button x:Name="RowOverflowButton" Grid.Column="1"
+                                        Style="{StaticResource RowOutlinedButton}"
+                                        Content="&#xE10C;" FontFamily="Segoe MDL2 Assets"
+                                        MinWidth="44" Margin="8,0,0,0"
+                                        ToolTip="{DynamicResource SheetStore.MoreActions}"
+                                        behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=RowOverflowPopup}"/>
+                                <Popup x:Name="RowOverflowPopup" Grid.Column="1"
+                                       PlacementTarget="{Binding ElementName=RowOverflowButton}"
+                                       Placement="Bottom" VerticalOffset="4"
+                                       AllowsTransparency="True" StaysOpen="True"
+                                       PopupAnimation="Fade">
+                                    <Border Background="{DynamicResource PopupSurfaceBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                            BorderThickness="1" Padding="6"
+                                            CornerRadius="{DynamicResource CardCornerRadius}">
+                                        <Button Style="{StaticResource RowDangerButton}"
+                                                Tag="&#xE74D;" Content="{DynamicResource Action.Delete}"
+                                                MinWidth="180"
+                                                Command="{Binding DeleteCommand}"
+                                                CommandParameter="{Binding SelectedSheet}"/>
+                                    </Border>
+                                </Popup>
                             </Grid>
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
             </Grid>
 
-            <!-- ══ RIGHT SLIDE-IN EDITOR PANEL (Add / Edit) ══
-                 2026-09-06. The Add/Edit form outgrew a modal: nine fields
-                 today and more once unit-of-measure lands, while the
-                 operator needs to keep comparing against the grid. It
-                 shares the animated DetailColumn with the stats panel and
-                 uses the same GridLengthAnimation, so the list reflows
-                 live instead of being covered over.
+            <!-- The glass Add/Edit slide-out was removed on 2026-09-06:
+                 ADD NEW, EDIT and double-click all raise the full-screen
+                 workspace now, so nothing could ever set Editor non-null and
+                 this panel could never appear. Consumables keep a panel
+                 (below) because an item is ten short fields. -->
 
-                 Buy and Use stay modal on purpose — short, single-decision
-                 confirmations where blocking the UI is correct. -->
-            <Grid x:Name="EditorPanel" Grid.Column="1" Margin="14,0,0,0"
+            <!-- ══ CONSUMABLE ITEM EDITOR PANEL ══
+                 Consumables keep the slide-out rather than the full-screen
+                 workspace: an item is 10 short fields with no history tab,
+                 no per-sheet geometry and no margin analysis to show, so a
+                 whole page would be mostly empty. Shares the same animated
+                 column. -->
+            <Grid x:Name="ItemEditorPanel" Grid.Column="1" Margin="14,0,0,0"
                   Visibility="Collapsed">
-                <sheetstore:SheetEditorPanel Width="360"
-                                             VerticalAlignment="Stretch"
-                                             DataContext="{Binding Editor}"
-                                             PanelHost="{Binding DataContext,
-                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                <Border Width="360" VerticalAlignment="Stretch"
+                        Background="{DynamicResource DialogSurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                        Padding="20"
+                        DataContext="{Binding ItemEditor}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Title}"
+                                       FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Margin="0,0,0,16"/>
+
+                            <TextBlock Text="NAME" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="{Binding NameError}" Style="{StaticResource ItemFieldError}"
+                                       Visibility="{Binding HasNameError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <TextBlock Text="CATEGORY" Style="{StaticResource ItemFieldLabel}"/>
+                            <ComboBox ItemsSource="{Binding Categories}"
+                                      SelectedItem="{Binding Category}"
+                                      Margin="0,0,0,12" Height="34"/>
+
+                            <TextBlock Text="UNIT OF MEASURE" Style="{StaticResource ItemFieldLabel}"/>
+                            <ComboBox ItemsSource="{Binding Uoms}"
+                                      SelectedItem="{Binding Uom}"
+                                      Margin="0,0,0,12" Height="34"/>
+
+                            <TextBlock Text="SPECIFICATION" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding Specification, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ItemEntry}"/>
+
+                            <TextBlock Text="PART NUMBER" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding PartNumber, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ItemEntry}"/>
+
+                            <TextBlock Text="SUPPLIER" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ItemEntry}"/>
+
+                            <!-- Stock is read-only once anything has been
+                                 consumed: it moves through Receive/Issue so
+                                 every change leaves a reason behind. -->
+                            <TextBlock Text="OPENING STOCK" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"
+                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                     IsEnabled="{Binding CanEditStock}"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="{Binding StockError}" Style="{StaticResource ItemFieldError}"
+                                       Visibility="{Binding HasStockError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <TextBlock Text="REORDER LEVEL" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding ReorderText, UpdateSourceTrigger=PropertyChanged}"
+                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="{Binding ReorderError}" Style="{StaticResource ItemFieldError}"
+                                       Visibility="{Binding HasReorderError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <TextBlock Text="PURCHASE PRICE / UNIT" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding PurchaseText, UpdateSourceTrigger=PropertyChanged}"
+                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="{Binding PurchaseError}" Style="{StaticResource ItemFieldError}"
+                                       Visibility="{Binding HasPurchaseError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <TextBlock Text="SELL PRICE / UNIT" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding SellText, UpdateSourceTrigger=PropertyChanged}"
+                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="{Binding SellError}" Style="{StaticResource ItemFieldError}"
+                                       Visibility="{Binding HasSellError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <!-- Selling below cost is legal (clearance,
+                                 samples) so this warns and does not block. -->
+                            <Border Background="{DynamicResource DialogInsetBrush}"
+                                    BorderBrush="{DynamicResource WarningBrush}"
+                                    BorderThickness="1" Padding="10,8" Margin="0,4,0,0"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    Visibility="{Binding HasMarginWarning, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding MarginWarning}" TextWrapping="Wrap"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource WarningBrush}"/>
+                            </Border>
+
+                            <Grid Margin="0,18,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                                        Content="CANCEL"
+                                        Command="{Binding DataContext.CloseItemEditorCommand,
+                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                <Button Grid.Column="2" Style="{StaticResource PrimaryPillButton}"
+                                        Content="{Binding SaveButtonText}"
+                                        Command="{Binding DataContext.SaveItemEditorCommand,
+                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
             </Grid>
         </Grid>
     </Grid>

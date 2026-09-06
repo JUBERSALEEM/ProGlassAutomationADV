@@ -42,81 +42,57 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 {
     public partial class SheetStoreViewModel
     {
-        // ── Editor panel state ─────────────────────────────────────────
-
-        private AddEditSheetViewModel? _editor;
-        /// <summary>
-        /// The live Add/Edit form, or null when the panel is closed.
-        /// The panel binds its whole content to this.
-        /// </summary>
-        public AddEditSheetViewModel? Editor
-        {
-            get => _editor;
-            private set
-            {
-                _editor = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(IsEditorOpen));
-                OnPropertyChanged(nameof(IsDetailPanelVisible));
-            }
-        }
-
-        public bool IsEditorOpen => _editor != null;
+        // ── Right-hand column state ────────────────────────────────────
 
         /// <summary>
-        /// The stats/detail panel and the editor share the right-hand
-        /// column. This is what the detail panel binds to instead of
-        /// IsRowSelected, so the editor wins when both would show.
+        /// Glass sheets no longer use a slide-out form (see below), so the
+        /// stats rail only ever yields to the CONSUMABLE item editor.
         /// </summary>
-        public bool IsDetailPanelVisible => IsRowSelected && !IsEditorOpen;
+        public bool IsDetailPanelVisible => IsRowSelected && !IsItemEditorOpen;
 
+        // 2026-09-06: ADD NEW and EDIT now open the FULL-SCREEN detail
+        // workspace instead of the 360px slide-out panel.
+        //
+        // The panel was the right call when the form was the only thing it
+        // had to show, but the workspace supersedes it outright: same
+        // always-editable fields, plus Overview, Movements and Analysis,
+        // and room for all nine fields at once instead of a scroll in a
+        // narrow column. Keeping both would have meant two ways to reach
+        // the same form, which is exactly the duplication the owner saw as
+        // "still the same as before".
+        //
+        // Persistence still funnels through PersistNewSheetAsync /
+        // PersistEditedSheetAsync in Part1 — the only writers to the ledger.
         private ICommand? _openAddPanelCommand;
         public ICommand OpenAddPanelCommand =>
-            _openAddPanelCommand ??= new RelayCommand(_ => OpenEditor(null));
+            _openAddPanelCommand ??= new RelayCommand(_ =>
+            {
+                // ADD NEW follows the visible list. Adding a glass sheet
+                // while looking at consumables (or the reverse) would be a
+                // silent mode error — the operator would fill in a form for
+                // the wrong kind of stock and only find out on save.
+                if (IsConsumablesView) AddItemCommand.Execute(null);
+                else                   OpenSheetWorkspace(null);
+            });
 
         private ICommand? _openEditPanelCommand;
         public ICommand OpenEditPanelCommand =>
             _openEditPanelCommand ??= new RelayCommand(
-                p => OpenEditor(p as GlassSheet ?? SelectedSheet),
+                p => OpenSheetWorkspace(p as GlassSheet ?? SelectedSheet),
                 p => (p as GlassSheet ?? SelectedSheet) != null);
 
-        private ICommand? _closeEditorCommand;
-        public ICommand CloseEditorCommand =>
-            _closeEditorCommand ??= new RelayCommand(_ => CloseEditor());
-
-        private ICommand? _saveEditorCommand;
-        /// <summary>
-        /// Commits the panel. Gated on the form's own IsValid, so the
-        /// SAVE button is visibly dead until every field is acceptable —
-        /// the same blocking contract the dialogs now use.
-        /// </summary>
-        public ICommand SaveEditorCommand =>
-            _saveEditorCommand ??= new RelayCommand(
-                _ => AsyncUtility.SafeFireAndForget(SaveEditorAsync, "Inventory SaveEditor"),
-                _ => Editor?.IsValid == true);
-
-        /// <summary>
-        /// Opens the panel for a new sheet (null) or an existing one.
-        /// Permission is checked HERE, before the form is even built, so
-        /// an unauthorised operator never sees a form they cannot submit.
-        /// </summary>
-        private void OpenEditor(GlassSheet? sheet)
-        {
-            bool isNew = sheet == null;
-
-            if (!PermissionService.Require(
-                    isNew ? AppPermissions.SheetStoreCreate : AppPermissions.SheetStoreEdit,
-                    isNew ? "add a glass sheet" : "edit a glass sheet"))
-                return;
-
-            // Edit binds a COPY, never the grid's live instance. Editing
-            // the bound row directly would mutate the visible list as the
-            // operator types and leave those edits behind on cancel.
-            _editingOriginal = sheet;
-            Editor = new AddEditSheetViewModel(sheet == null ? null : Clone(sheet));
-        }
-
-        private GlassSheet? _editingOriginal;
+        // 2026-09-06 — THE GLASS SLIDE-OUT PANEL WAS REMOVED.
+        //
+        // OpenEditor, CloseEditorCommand, SaveEditorCommand, SaveEditorAsync
+        // and _editingOriginal all went with it. Once ADD NEW and EDIT
+        // pointed at the full-screen workspace nothing could set Editor to a
+        // non-null value, so every one of them was unreachable: Editor was
+        // permanently null, IsEditorOpen permanently false, and the panel
+        // could never appear. Leaving that in place would have been a
+        // phantom feature — code that reads as a live path but cannot run.
+        //
+        // Clone stays: the workspace uses it to edit a COPY so typing does
+        // not mutate the grid's live row.
 
         private static GlassSheet Clone(GlassSheet s) => new()
         {
@@ -137,42 +113,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             LastPurchaseDate = s.LastPurchaseDate
         };
 
-        private void CloseEditor()
-        {
-            Editor = null;
-            _editingOriginal = null;
-        }
-
-        /// <summary>
-        /// Commits the panel through the SAME persistence path the modal
-        /// dialogs use.
-        ///
-        /// DELIBERATELY NOT a reimplementation: AddAsync/EditAsync already
-        /// own the repository call, the change-diff, the history entry and
-        /// the audit record with its AuditChange list. Duplicating that
-        /// here would mean two code paths writing the inventory ledger,
-        /// and they would drift. Instead the panel hands its validated
-        /// Result to those methods via a pre-supplied form.
-        /// </summary>
-        private async System.Threading.Tasks.Task SaveEditorAsync()
-        {
-            var form = Editor;
-            if (form == null || !form.IsValid) return;
-
-            // Materialise the result from the form (re-validates inside).
-            form.SaveCommand.Execute(null);
-            if (form.DialogResult != true || form.Result == null) return;
-
-            var original = _editingOriginal;
-
-            // Close first: persistence triggers LoadAsync, which rebuilds
-            // the collection the panel is bound against.
-            CloseEditor();
-
-            if (original == null)
-                await PersistNewSheetAsync(form.Result);
-            else
-                await PersistEditedSheetAsync(form.Result, original);
-        }
+        // The pre-existing PersistNewSheetAsync / PersistEditedSheetAsync
+        // in Part1 remain the single persistence path for glass sheets; the
+        // workspace calls them via the SaveRequested event it raises.
     }
 }

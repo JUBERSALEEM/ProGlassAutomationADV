@@ -183,20 +183,50 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("SetError(nameof(SellPriceText), MarginWarning)", vm);
         }
 
-        // ── 11. Editor panel shares ONE persistence path with the dialog ─
+        // ── 11. ONE persistence path for glass sheets ──────────────────
         //
-        // Two code paths writing the inventory ledger would drift.
+        // Two code paths writing the inventory ledger would drift. The
+        // slide-out panel was removed on 2026-09-06 and the full-screen
+        // workspace took its place, so the caller moved from
+        // SheetStoreViewModel.Editor.cs to the Consumables partial — but the
+        // rule is unchanged: only Part1 may write, and the workspace must
+        // route through it rather than calling the repository itself.
         [Fact]
-        public void Editor_panel_reuses_the_dialog_persistence_methods()
+        public void Workspace_reuses_the_dialog_persistence_methods()
         {
-            var editor = Read("ViewModels", "SheetStore", "SheetStoreViewModel.Editor.cs");
+            var caller = Read("ViewModels", "SheetStore", "SheetStoreViewModel.Consumables.cs");
             var part1 = Read("ViewModels", "SheetStore", "SheetStoreViewModel.Part1.cs");
 
-            Assert.Contains("PersistNewSheetAsync", editor);
-            Assert.Contains("PersistEditedSheetAsync", editor);
+            Assert.Contains("PersistNewSheetAsync", caller);
+            Assert.Contains("PersistEditedSheetAsync", caller);
 
             Assert.Contains("internal async Task PersistNewSheetAsync", part1);
             Assert.Contains("internal async Task PersistEditedSheetAsync", part1);
+        }
+
+        // ── 11b. The removed panel left nothing behind ─────────────────
+        //
+        // Editor/IsEditorOpen were unreachable once ADD NEW and EDIT pointed
+        // at the workspace: nothing could set Editor non-null, so the panel
+        // could never appear. Dead UI state that still reads as live is a
+        // trap; this pins the removal.
+        [Fact]
+        public void Glass_slide_out_editor_is_gone()
+        {
+            var editor = StripComments(
+                Read("ViewModels", "SheetStore", "SheetStoreViewModel.Editor.cs"));
+            var view = Read("Views", "SheetStore", "SheetStoreView.xaml");
+            var code = Read("Views", "SheetStore", "SheetStoreView.xaml.cs");
+
+            Assert.DoesNotContain("SaveEditorAsync", editor);
+            Assert.DoesNotContain("_editingOriginal", editor);
+            Assert.DoesNotContain("IsEditorOpen", editor);
+
+            Assert.DoesNotContain("<sheetstore:SheetEditorPanel", view);
+            Assert.DoesNotContain("EditorPanel.Visibility", code);
+
+            // The consumables panel is the one that stayed.
+            Assert.Contains("ItemEditorPanel", code);
         }
 
         // ── 12. The audit diff snapshots BEFORE the dialog mutates ─────
