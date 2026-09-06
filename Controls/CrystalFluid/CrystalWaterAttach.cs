@@ -224,7 +224,10 @@ namespace ProGlassAutomation.Controls.CrystalFluid
 
             // Loaded has fired → the style (incl. BasedOn / inline
             // Border.Style) is applied, so these are the effective values.
-            var original = child;
+            // Margin / alignment are FrameworkElement properties, so the
+            // child is re-typed from UIElement (Border.Child's static type).
+            if (child is not FrameworkElement original)
+                return;   // non-Framework content carries no margin/alignment
             var padding = border.Padding;
             var state = new WrapState(
                 original,
@@ -289,7 +292,7 @@ namespace ProGlassAutomation.Controls.CrystalFluid
         private sealed class WrapState
         {
             public WrapState(
-                UIElement original,
+                FrameworkElement original,
                 Thickness padding,
                 Thickness margin,
                 HorizontalAlignment horizontalAlignment,
@@ -302,7 +305,7 @@ namespace ProGlassAutomation.Controls.CrystalFluid
                 VerticalAlignment = verticalAlignment;
             }
 
-            public UIElement Original { get; }
+            public FrameworkElement Original { get; }
             public Thickness Padding { get; }
             public Thickness Margin { get; }
             public HorizontalAlignment HorizontalAlignment { get; }
