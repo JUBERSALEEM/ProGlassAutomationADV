@@ -289,8 +289,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ICommand BuyCommand { get; }
         public ICommand UseCommand { get; }
         public ICommand RefreshCommand { get; }
-        public ICommand ClearSelectionCommand { get; }
         public ICommand SelectSheetCommand { get; }
+
+        /// <summary>Escape / rail close — clears the row selection.</summary>
+        public ICommand ClearSelectionCommand { get; }
         public ICommand ShowHistoryCommand { get; }
         public ICommand ClearFiltersCommand { get; }
         public ICommand ExportCsvCommand { get; }
@@ -322,11 +324,34 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             UseCommand = new RelayCommand(async p => await UseAsync(p as GlassSheet ?? SelectedSheet));
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             ClearSelectionCommand = new RelayCommand(_ => SelectedSheet = null);
+            // 2026-09-06: single click SELECTS; it no longer toggles off.
+            //
+            // The old body was
+            //     SelectedSheet = ReferenceEquals(SelectedSheet, sheet) ? null : sheet;
+            // which deselected on a second click of the same row. Two
+            // problems with that:
+            //
+            //  1. Selection and panel visibility are the same state here
+            //     (IsRowSelected drives the stats rail), so "close the
+            //     panel" and "forget which row I was on" were welded
+            //     together. The rail already has an explicit close button.
+            //
+            //  2. It races with double-click. WPF raises MouseLeftButtonDown
+            //     TWICE before MouseDoubleClick, so opening a detail page on
+            //     double click would have run select -> DESELECT -> open for
+            //     null. ClickToCommandBehavior now defers the single-click
+            //     command by the system double-click interval, but a
+            //     self-cancelling toggle would still be the wrong semantic.
+            //
+            // Deselection is now Escape (see SheetStoreView), which is the
+            // discoverable, non-destructive gesture every grid uses.
             SelectSheetCommand = new RelayCommand(p =>
             {
                 if (p is GlassSheet sheet)
-                    SelectedSheet = ReferenceEquals(SelectedSheet, sheet) ? null : sheet;
+                    SelectedSheet = sheet;
             });
+
+            ClearSelectionCommand = new RelayCommand(_ => SelectedSheet = null);
             ShowHistoryCommand = new RelayCommand(_ => ShowHistory());
             ClearFiltersCommand = new RelayCommand(_ => ClearAllFilters());
             ExportCsvCommand = new RelayCommand(async _ => await ExportCsvAsync());
