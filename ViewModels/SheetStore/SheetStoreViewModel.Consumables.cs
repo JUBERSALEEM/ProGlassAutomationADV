@@ -256,7 +256,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             if (!PermissionService.Require(
                     AppPermissions.SheetStoreEdit,
-                    receive ? "receive inventory stock" : "consume inventory stock"))
+                    receive ? "buy inventory stock" : "use inventory stock"))
                 return;
 
             var vm = new SheetStoreItems.ItemMovementViewModel(item, receive);
@@ -270,8 +270,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             if (!vm.IsValid)
             {
                 ShowError(receive
-                    ? "Receipt not recorded — the quantity was not valid."
-                    : "Consumption not recorded — the quantity was not valid.");
+                    ? "Purchase not recorded — the quantity was not valid."
+                    : "Usage not recorded — the quantity was not valid.");
                 return;
             }
 

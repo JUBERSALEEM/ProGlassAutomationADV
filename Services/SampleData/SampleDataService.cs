@@ -132,6 +132,67 @@ namespace ProGlassAutomation.Services.SampleData
             await sheets.AddAsync(Sheet("Low-E", 6, "Clear", 2440, 1830, "Saint-Gobain", 180, 260, 35, 2));
             await sheets.AddAsync(Sheet("Frosted", 5, "Frosted", 2200, 1650, "National Glass", 130, 200, 30, 2));
 
+            // ── 1b. Consumables (the non-glass side of an IGU) ───────
+            //
+            // A DGU is not just glass: it is glass PLUS spacer, desiccant,
+            // butyl, silicone and cavity gas. Seeding only sheets left the
+            // CONSUMABLES tab empty on a fresh install, which reads as a
+            // broken feature rather than an empty table.
+            //
+            // Deliberately plain stock: quantity in, quantity out, value.
+            // These do NOT link to a job order the way sheets do — that
+            // coupling is a later step, once the proforma knows how much
+            // spacer a given DGU consumes.
+            var items = new InventoryItemRepository();
+            foreach (var it in new[]
+            {
+                // Spacer bar — sold and consumed by the linear metre.
+                Item("Warm-edge spacer bar", InventoryCategory.SpacerBar,
+                     StockUom.LinearMetre, "12mm black", "SPB-12-BLK",
+                     "Technoform Gulf", 4.20m, 6.50m, 2400, 780, 400),
+                Item("Warm-edge spacer bar", InventoryCategory.SpacerBar,
+                     StockUom.LinearMetre, "16mm black", "SPB-16-BLK",
+                     "Technoform Gulf", 4.80m, 7.20m, 1800, 640, 400),
+                Item("Aluminium spacer bar", InventoryCategory.SpacerBar,
+                     StockUom.LinearMetre, "12mm mill", "SPA-12-ML",
+                     "Al Gurg Glass", 2.90m, 4.60m, 3200, 1150, 500),
+
+                // Desiccant — kilograms.
+                Item("Molecular sieve desiccant", InventoryCategory.Desiccant,
+                     StockUom.Kilogram, "3A beads", "DES-3A",
+                     "Grace Davison", 12.50m, 19.00m, 240, 96, 60),
+
+                // Primary seal (butyl) and secondary seals.
+                Item("Polyisobutylene (PIB) butyl", InventoryCategory.PrimarySeal,
+                     StockUom.Kilogram, "Hot-melt primary seal", "PIB-STD",
+                     "Fenzi Gulf", 22.00m, 33.00m, 180, 74, 45),
+                Item("Two-part silicone sealant", InventoryCategory.SecondarySeal,
+                     StockUom.Kilogram, "Structural grade", "SIL-2K",
+                     "Dow Chemical", 28.50m, 42.00m, 320, 128, 80),
+                // Deliberately below its reorder level: the low-stock badge,
+                // the red row tint and the low-first ordering are all dead
+                // code on a demo database where nothing is ever short.
+                Item("Polysulphide sealant", InventoryCategory.SecondarySeal,
+                     StockUom.Kilogram, "Secondary seal", "PSF-STD",
+                     "Fenzi Gulf", 19.75m, 30.00m, 150, 122, 40),
+
+                // Cavity gas — cubic metres.
+                Item("Argon gas", InventoryCategory.Gas,
+                     StockUom.CubicMetre, "99.9% purity", "GAS-AR-999",
+                     "Air Liquide", 8.40m, 13.00m, 500, 210, 120),
+
+                // Hardware — discrete pieces.
+                Item("Spacer corner key", InventoryCategory.Hardware,
+                     StockUom.Piece, "12mm straight", "CK-12",
+                     "Technoform Gulf", 0.35m, 0.70m, 5000, 1800, 1000),
+                Item("Spacer bar connector", InventoryCategory.Hardware,
+                     StockUom.Piece, "16mm inline joiner", "CN-16",
+                     "Technoform Gulf", 0.48m, 0.95m, 3000, 1120, 800),
+            })
+            {
+                await items.AddAsync(it);
+            }
+
             // ── 2. Inquiry (starting point of the workflow) ──────────
             try
             {
@@ -216,7 +277,7 @@ namespace ProGlassAutomation.Services.SampleData
         public static async Task<string> ClearAllDataAsync()
         {
             ReadOnlyGate.Demand("clear all data");
-            int ti = 0, dn = 0, jo = 0, pi = 0, sh = 0, inq = 0;
+            int ti = 0, dn = 0, jo = 0, pi = 0, sh = 0, inq = 0, ci = 0;
 
             try
             {
@@ -288,6 +349,17 @@ namespace ProGlassAutomation.Services.SampleData
                     await sheetRepo.DeleteAsync(x.Id);
                     sh++;
                 }
+
+                // Consumables live in the same module and are seeded with
+                // the sheets, so they must be cleared with them — otherwise
+                // "the database is empty" is a lie and the next seed run
+                // refuses because it finds leftovers.
+                var itemRepo = new InventoryItemRepository();
+                foreach (var x in await itemRepo.GetAllAsync())
+                {
+                    await itemRepo.DeleteAsync(x.Id);
+                    ci++;
+                }
             }
             catch (Exception ex)
             {
@@ -305,6 +377,7 @@ namespace ProGlassAutomation.Services.SampleData
             return "All data cleared ✔\n\n" +
                    $"• Inquiries: {inq} removed\n" +
                    $"• Sheet Store: {sh} sheet(s) removed\n" +
+                   $"• Consumables: {ci} item(s) removed\n" +
                    $"• Proforma Invoices: {pi} removed\n" +
                    $"• Job Orders: {jo} removed\n" +
                    $"• Delivery Notes: {dn} removed (incl. master)\n" +
@@ -402,6 +475,33 @@ namespace ProGlassAutomation.Services.SampleData
             WidthMm = w, HeightMm = h, Supplier = supplier,
             PurchasePricePerSqm = buy, SellPricePerSqm = sell,
             Stock = stock, Used = used
+        };
+
+        /// <summary>
+        /// One consumable line. Stock and Used are seeded together so the
+        /// list opens with a believable balance and at least one row sits
+        /// under its reorder level, which is what exercises the low-stock
+        /// badge on a demo database.
+        /// </summary>
+        private static InventoryItem Item(
+            string name, InventoryCategory category, StockUom uom,
+            string spec, string partNumber, string supplier,
+            decimal buy, decimal sell,
+            decimal stock, decimal used, decimal reorder) => new InventoryItem
+        {
+            Name = name,
+            Category = category,
+            Uom = uom,
+            Specification = spec,
+            PartNumber = partNumber,
+            Supplier = supplier,
+            PurchasePricePerUnit = buy,
+            SellPricePerUnit = sell,
+            Stock = stock,
+            Used = used,
+            ReorderLevel = reorder,
+            CreatedAt = DateTime.Now,
+            LastUpdated = DateTime.Now
         };
 
         /// <summary>

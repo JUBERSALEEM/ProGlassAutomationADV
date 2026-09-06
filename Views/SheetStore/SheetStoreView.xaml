@@ -846,11 +846,11 @@
                                                 <StackPanel Grid.Column="4" Orientation="Horizontal"
                                                             VerticalAlignment="Center">
                                                     <Button Style="{StaticResource RowSuccessButton}"
-                                                            Tag="&#xE7B8;" Content="RECEIVE" MinWidth="104"
+                                                            Tag="&#xE7B8;" Content="BUY" MinWidth="92"
                                                             Command="{Binding DataContext.ReceiveItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                             CommandParameter="{Binding}"/>
                                                     <Button Style="{StaticResource RowPrimaryButton}"
-                                                            Tag="&#xE896;" Content="ISSUE" MinWidth="92" Margin="6,0,0,0"
+                                                            Tag="&#xE896;" Content="USE" MinWidth="92" Margin="6,0,0,0"
                                                             Command="{Binding DataContext.ConsumeItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                             CommandParameter="{Binding}"/>
                                                     <Button Style="{StaticResource RowOutlinedButton}"

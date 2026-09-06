@@ -59,9 +59,13 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreItems
 
         // ── Titles ─────────────────────────────────────────────────────
 
-        public string DialogTitle => IsReceive ? "Receive stock" : "Issue stock";
+        public string DialogTitle => IsReceive ? "Buy stock" : "Use stock";
 
-        public string ActionLabel => IsReceive ? "RECEIVE" : "ISSUE";
+        // 2026-09-06: BUY/USE, not RECEIVE/ISSUE. Consumables behave as
+        // plain stock exactly like sheets — quantity in, quantity out —
+        // and two vocabularies for one operation made the module look like
+        // two features. Glass says BUY/USE, so consumables do too.
+        public string ActionLabel => IsReceive ? "BUY" : "USE";
 
         public string ItemLabel => Item.FullDescription;
 
