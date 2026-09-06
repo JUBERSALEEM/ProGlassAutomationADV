@@ -263,7 +263,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                     decimal totalValue = rows.Sum(r => r.Amount);
 
                     // ── Group band: "Spec 1 — 6mm Clear Float" ──────────
-                    col.Item().PaddingTop(6).Background(SURFACE).Padding(6, 4)
+                    col.Item().PaddingTop(6).Background(SURFACE).PaddingHorizontal(6).PaddingVertical(4)
                         .Text($"Spec {group.Key} — {specName}   ({rows.Count} line(s))")
                         .FontSize(9).SemiBold().FontColor(ACCENT);
 
@@ -318,7 +318,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                 }
 
                 // ── PI grand total (after the last column) ────────────────
-                col.Item().PaddingTop(6).Border(1).BorderColor(LINE).Padding(8, 6)
+                col.Item().PaddingTop(6).Border(1).BorderColor(LINE).PaddingHorizontal(8).PaddingVertical(6)
                     .Row(r =>
                     {
                         r.RelativeItem(2).Text("PI Total").SemiBold().FontColor(ACCENT);
