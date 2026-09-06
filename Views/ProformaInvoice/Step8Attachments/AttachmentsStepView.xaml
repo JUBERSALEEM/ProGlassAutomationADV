@@ -35,17 +35,16 @@
                                 Command="{Binding ApproveInvoiceCommand}"
                                 ToolTip="{DynamicResource ProformaInvoice.ApproveUploadConfirmation}"
                                 IsEnabled="{Binding HasProformaId}"/>
-                        <Button Style="{StaticResource PiGhostChipButton}"
-                                Content="{DynamicResource ProformaInvoice.Image}"
-                                ToolTip="{DynamicResource ProformaInvoice.AttachImageFile}"
-                                Command="{Binding AddImageCommand}"
-                                IsEnabled="{Binding HasProformaId}"/>
-                        <Button Style="{StaticResource PiGhostChipButton}"
-                                Content="{DynamicResource ProformaInvoice.PDF}"
-                                Margin="8,0,0,0"
-                                ToolTip="{DynamicResource ProformaInvoice.AttachPDFFile}"
-                                Command="{Binding AddPdfCommand}"
-                                IsEnabled="{Binding HasProformaId}"/>
+                        <!-- 2026-09-06 — the standalone IMAGE and PDF chips
+                             were REMOVED here. They duplicated the choice the
+                             approve flow already asks for: APPROVE INVOICE
+                             opens ApprovalUploadChoiceDialog, which asks
+                             "JPG or PDF?" and forwards to these very same
+                             uploaders (AddImageCommand / AddPdfCommand).
+                             Two entry points for one act = the action
+                             duplication the owner flagged. The commands
+                             remain on the VM — the dialog is now their single
+                             caller, so the upload path is unchanged. -->
                         <Button Style="{StaticResource PiIconButtonStyle}"
                                 Margin="8,0,0,0"
                                 Command="{Binding RefreshCommand}"
