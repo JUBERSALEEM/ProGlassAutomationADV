@@ -1,45 +1,51 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityViewModel.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Sheet Profitability Analysis
+// MODULE: Sheet Profitability Analysis (Step 9 — SHEET DETAIL tab)
 //
 // WHAT IT IS
-//   Separate view for sheet usage and offcut tracking.
-//   Shows:
-//   - Sheets purchased vs sheets used
-//   - Offcut analysis (reusable vs waste)
-//   - Real cost based on actual usage
-//   - Profit impact of offcut reusability
+//   Per-pane breakdown of the glass sheets a job actually consumes, in the
+//   business's three-way model — BUY SHEET / USED SHEET / WASTAGE SHEET.
+//   There is deliberately NO separate scrap/remnant value here: glass that
+//   is bought but not used is WASTAGE, full stop.
 //
-// WHY SEPARATE
-//   The main P&L uses purchase costs. This view shows the REAL cost
-//   based on what was actually used, accounting for reusable offcuts.
+// WHERE THE NUMBERS COME FROM (single source of truth)
+//   • BUY SHEET  — the authoritative sheet quantity and glass amount
+//                  already costed by Step 9 (ProfitLossRow.Quantity /
+//                  .Amount). When the operator set a SHEET QTY on the
+//                  matching Step 6 wastage row, that quantity is already
+//                  baked into the row (BuildGlassRowAsync reads it).
+//   • USED SHEET — the whole sheets required to cover the required area
+//                  (cut SQM + wastage %), via PnLMeasurement.
+//   • WASTAGE    — BUY − USED sheets (never negative).
+//   • WASTAGE    — the monetary wastage charge is read from the Step 6
+//     CHARGE    wastage setup (WastageRow.ResultAmount), matched to the
+//                  exact pane side (Outer / Inner / Lam Outer / Lam Inner /
+//                  Middle), split across a row's checked sources by SQM
+//                  share so a multi-source row is never double-counted.
 //
 // FORMULAS
-//   Purchase Cost = Sheets Purchased × Sheet Price
-//   Used Area = Total Area Required (with wastage)
-//   Offcut Area = (Sheets Purchased × Sheet SQM) - Used Area
-//   Reusable Offcut Value = Reusable Offcut Area × Sheet Price per SQM
-//   Real Cost = Purchase Cost - Reusable Offcut Value
-//   Usage Efficiency = (Used Area / Total Sheet Area) × 100
+//   Required area  = cut SQM × (1 + wastage % / 100)
+//   Used sheets    = ⌈required area ÷ sheet SQM⌉
+//   Wastage sheets = max(0, buy sheets − used sheets)
+//   Buy price      = Step 9 glass row amount (authoritative)
+//   Used price     = required area × sheet rate
+//   Wastage price  = Step 6 wastage charge (ResultAmount)
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
-using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
-using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 {
     /// <summary>
-    /// Sheet profitability breakdown for detailed analysis.
+    /// Sheet usage breakdown: buy / used / wastage sheets per glass pane,
+    /// with the Step 6 wastage charge connected per pane side.
     /// </summary>
     public class SheetProfitabilityViewModel : ViewModelBase
     {
@@ -48,12 +54,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public SheetProfitabilityViewModel(ProfitLossStepViewModel parentViewModel)
         {
             _parentViewModel = parentViewModel ?? throw new ArgumentNullException(nameof(parentViewModel));
-            
+
             SheetBreakdown = new ObservableCollection<SheetProfitRow>();
             RefreshCommand = new RelayCommand(_ => RefreshAnalysis());
             SelectRowCommand = new RelayCommand(_ => SetSelectedRow(_));
             BackCommand = new RelayCommand(_ => BackToSheetList());
-            
+
             // Initial load
             RefreshAnalysis();
         }
@@ -67,40 +73,72 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// </summary>
         public ObservableCollection<SheetProfitRow> SheetBreakdown { get; }
 
-        private decimal _totalSheetsPurchased;
-        /// <summary>Total sheets purchased.</summary>
-        public decimal TotalSheetsPurchased
+        private decimal _totalBuySheets;
+        /// <summary>Total sheets bought.</summary>
+        public decimal TotalBuySheets
         {
-            get => _totalSheetsPurchased;
+            get => _totalBuySheets;
             private set
             {
-                if (_totalSheetsPurchased == value) return;
-                _totalSheetsPurchased = value;
+                if (_totalBuySheets == value) return;
+                _totalBuySheets = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(TotalSheetsPurchasedDisplay));
+                OnPropertyChanged(nameof(TotalBuySheetsDisplay));
             }
         }
 
-        public string TotalSheetsPurchasedDisplay => $"{TotalSheetsPurchased:0}";
+        public string TotalBuySheetsDisplay => $"{TotalBuySheets:0}";
 
-        private decimal _totalSheetArea;
-        /// <summary>Total sheet area purchased (SQM).</summary>
-        public decimal TotalSheetArea
+        private decimal _totalUsedSheets;
+        /// <summary>Total sheets used.</summary>
+        public decimal TotalUsedSheets
         {
-            get => _totalSheetArea;
+            get => _totalUsedSheets;
             private set
             {
-                if (_totalSheetArea == value) return;
-                _totalSheetArea = value;
+                if (_totalUsedSheets == value) return;
+                _totalUsedSheets = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(TotalSheetAreaDisplay));
+                OnPropertyChanged(nameof(TotalUsedSheetsDisplay));
             }
         }
 
-        public string TotalSheetAreaDisplay => $"{TotalSheetArea:0.##} SQM";
+        public string TotalUsedSheetsDisplay => $"{TotalUsedSheets:0}";
+
+        private decimal _totalWastageSheets;
+        /// <summary>Total sheets wasted (buy − used).</summary>
+        public decimal TotalWastageSheets
+        {
+            get => _totalWastageSheets;
+            private set
+            {
+                if (_totalWastageSheets == value) return;
+                _totalWastageSheets = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TotalWastageSheetsDisplay));
+            }
+        }
+
+        public string TotalWastageSheetsDisplay => $"{TotalWastageSheets:0}";
+
+        private decimal _totalBuySheetArea;
+        /// <summary>Total area bought (SQM).</summary>
+        public decimal TotalBuySheetArea
+        {
+            get => _totalBuySheetArea;
+            private set
+            {
+                if (_totalBuySheetArea == value) return;
+                _totalBuySheetArea = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TotalBuySheetAreaDisplay));
+            }
+        }
+
+        public string TotalBuySheetAreaDisplay => $"{TotalBuySheetArea:0.##} SQM";
 
         private decimal _totalUsedArea;
-        /// <summary>Total area used (SQM).</summary>
+        /// <summary>Total area used, required area including wastage (SQM).</summary>
         public decimal TotalUsedArea
         {
             get => _totalUsedArea;
@@ -115,120 +153,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string TotalUsedAreaDisplay => $"{TotalUsedArea:0.##} SQM";
 
-        private decimal _totalOffcutArea;
-        /// <summary>Total offcut area (SQM).</summary>
-        public decimal TotalOffcutArea
+        private decimal _totalBuyPrice;
+        /// <summary>Total sheet price (sum of the Step 9 glass row amounts).</summary>
+        public decimal TotalBuyPrice
         {
-            get => _totalOffcutArea;
+            get => _totalBuyPrice;
             private set
             {
-                if (_totalOffcutArea == value) return;
-                _totalOffcutArea = value;
+                if (_totalBuyPrice == value) return;
+                _totalBuyPrice = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(TotalOffcutAreaDisplay));
+                OnPropertyChanged(nameof(TotalBuyPriceDisplay));
             }
         }
 
-        public string TotalOffcutAreaDisplay => $"{TotalOffcutArea:0.##} SQM";
-
-        private decimal _wastageArea;
-        /// <summary>Actual wastage area from Step 6 (SQM).</summary>
-        public decimal WastageArea
-        {
-            get => _wastageArea;
-            private set
-            {
-                if (_wastageArea == value) return;
-                _wastageArea = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(WastageAreaDisplay));
-            }
-        }
-
-        public string WastageAreaDisplay => $"{WastageArea:0.##} SQM";
-
-        private decimal _wastageCharge;
-        /// <summary>Actual wastage charge from Step 6 (AED).</summary>
-        public decimal WastageCharge
-        {
-            get => _wastageCharge;
-            private set
-            {
-                if (_wastageCharge == value) return;
-                _wastageCharge = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(WastageChargeDisplay));
-            }
-        }
-
-        public string WastageChargeDisplay => $"AED {WastageCharge:N2}";
-
-        private decimal _totalPurchaseCost;
-        /// <summary>Total purchase cost (AED).</summary>
-        public decimal TotalPurchaseCost
-        {
-            get => _totalPurchaseCost;
-            private set
-            {
-                if (_totalPurchaseCost == value) return;
-                _totalPurchaseCost = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(TotalPurchaseCostDisplay));
-            }
-        }
-
-        public string TotalPurchaseCostDisplay => $"AED {TotalPurchaseCost:N2}";
-
-        private decimal _realCost;
-        /// <summary>Real cost after accounting for reusable offcuts (AED).</summary>
-        public decimal RealCost
-        {
-            get => _realCost;
-            private set
-            {
-                if (_realCost == value) return;
-                _realCost = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(RealCostDisplay));
-            }
-        }
-
-        public string RealCostDisplay => $"AED {RealCost:N2}";
-
-        private decimal _wastageChargedToCustomer;
-        /// <summary>Wastage amount charged to customer (AED).</summary>
-        public decimal WastageChargedToCustomer
-        {
-            get => _wastageChargedToCustomer;
-            private set
-            {
-                if (_wastageChargedToCustomer == value) return;
-                _wastageChargedToCustomer = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(WastageChargedToCustomerDisplay));
-            }
-        }
-
-        public string WastageChargedToCustomerDisplay => $"AED {WastageChargedToCustomer:N2}";
-
-        private decimal _usageEfficiencyPercent;
-        /// <summary>Sheet usage efficiency percentage.</summary>
-        public decimal UsageEfficiencyPercent
-        {
-            get => _usageEfficiencyPercent;
-            private set
-            {
-                if (_usageEfficiencyPercent == value) return;
-                _usageEfficiencyPercent = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(UsageEfficiencyDisplay));
-            }
-        }
-
-        public string UsageEfficiencyDisplay => $"{UsageEfficiencyPercent:0.#}%";
+        public string TotalBuyPriceDisplay => $"AED {TotalBuyPrice:N2}";
 
         private decimal _totalUsedPrice;
-        /// <summary>Total value of the glass actually used (used SQM × rate).</summary>
+        /// <summary>Total used sheet price (required area × rate).</summary>
         public decimal TotalUsedPrice
         {
             get => _totalUsedPrice;
@@ -243,45 +185,51 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string TotalUsedPriceDisplay => $"AED {TotalUsedPrice:N2}";
 
-        private decimal _totalOffcutPrice;
-        /// <summary>Total value of the offcut left over (offcut SQM × rate).</summary>
-        public decimal TotalOffcutPrice
+        private decimal _wastageSheetPrice;
+        /// <summary>Total wastage sheet price — the Step 6 wastage charge.</summary>
+        public decimal WastageSheetPrice
         {
-            get => _totalOffcutPrice;
+            get => _wastageSheetPrice;
             private set
             {
-                if (_totalOffcutPrice == value) return;
-                _totalOffcutPrice = value;
+                if (_wastageSheetPrice == value) return;
+                _wastageSheetPrice = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(TotalOffcutPriceDisplay));
+                OnPropertyChanged(nameof(WastageSheetPriceDisplay));
             }
         }
 
-        public string TotalOffcutPriceDisplay => $"AED {TotalOffcutPrice:N2}";
+        public string WastageSheetPriceDisplay => $"AED {WastageSheetPrice:N2}";
 
-        /// <summary>Share of the total sheet price that is actually used.</summary>
-        public decimal UsedPriceSharePercent => TotalPurchaseCost > 0m
-            ? Math.Round(TotalUsedPrice / TotalPurchaseCost * 100m, 1)
+        private decimal _usageEfficiencyPercent;
+        /// <summary>Used area ÷ bought area, as a percentage.</summary>
+        public decimal UsageEfficiencyPercent
+        {
+            get => _usageEfficiencyPercent;
+            private set
+            {
+                if (_usageEfficiencyPercent == value) return;
+                _usageEfficiencyPercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(UsageEfficiencyDisplay));
+            }
+        }
+
+        public string UsageEfficiencyDisplay => $"{UsageEfficiencyPercent:0.#}%";
+
+        /// <summary>Used sheet price as a share of the total buy price.</summary>
+        public decimal UsedPriceSharePercent => TotalBuyPrice > 0m
+            ? Math.Round(TotalUsedPrice / TotalBuyPrice * 100m, 1)
             : 0m;
 
         public string UsedPriceShareDisplay => $"{UsedPriceSharePercent:0.#}%";
 
-        /// <summary>Share of the total sheet price lost to offcut.</summary>
-        public decimal OffcutPriceSharePercent => TotalPurchaseCost > 0m
-            ? Math.Round(TotalOffcutPrice / TotalPurchaseCost * 100m, 1)
+        /// <summary>Step 6 wastage charge as a share of the total buy price.</summary>
+        public decimal WastagePriceSharePercent => TotalBuyPrice > 0m
+            ? Math.Round(WastageSheetPrice / TotalBuyPrice * 100m, 1)
             : 0m;
 
-        public string OffcutPriceShareDisplay => $"{OffcutPriceSharePercent:0.#}%";
-
-        /// <summary>Wastage charged to the customer minus the offcut value.</summary>
-        public decimal NetWastageVsOffcut => WastageCharge - TotalOffcutPrice;
-
-        public string NetWastageVsOffcutDisplay => $"AED {NetWastageVsOffcut:N2}";
-
-        /// <summary>Plain reading of the wastage-vs-offcut comparison.</summary>
-        public string NetWastageVsOffcutLabel => NetWastageVsOffcut >= 0m
-            ? "recovered over the offcut value"
-            : "short of the offcut value";
+        public string WastagePriceShareDisplay => $"{WastagePriceSharePercent:0.#}%";
 
         private string _statusMessage = "Press REFRESH to analyze sheet profitability.";
         /// <summary>Status message.</summary>
@@ -358,8 +306,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         /// <summary>
         /// Refresh the sheet profitability analysis.
-        /// Reads ACTUAL wastage charge data from Step 6 (not estimated "reusable offcuts").
-        /// We charge wastage and throw away small offcuts, so this shows the real wastage cost impact.
+        /// Reads the authoritative Step 9 glass rows (buy quantity + amount)
+        /// and the Step 6 wastage setup (per-pane charge), then derives the
+        /// used/wastage split in the business's three-way sheet model.
         /// </summary>
         public void RefreshAnalysis()
         {
@@ -374,147 +323,134 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 var groups = _parentViewModel.SpecGroupsView;
                 if (groups == null || groups.Count == 0)
                 {
+                    ResetTotals();
                     StatusMessage = "No specifications found. Please add specifications in Step 5.";
                     return;
                 }
 
-                decimal totalSheets = 0m;
-                decimal totalSheetArea = 0m;
-                decimal totalUsedArea = 0m;
-                decimal totalPurchaseCost = 0m;
-                decimal totalUsedPrice = 0m;
-                decimal totalOffcutPrice = 0m;
-                decimal totalWastageChargeAmount = 0m;
-                decimal totalWastageArea = 0m;
+                decimal wastagePercent = _parentViewModel.WastagePercent;
 
-                // Analyze each specification group
+                decimal totalBuySheets = 0m;
+                decimal totalUsedSheets = 0m;
+                decimal totalWastageSheets = 0m;
+                decimal totalBuySheetArea = 0m;
+                decimal totalUsedArea = 0m;
+                decimal totalBuyPrice = 0m;
+                decimal totalUsedPrice = 0m;
+                decimal totalWastageCharge = 0m;
+
                 foreach (var specGroup in groups)
                 {
                     var specName = specGroup.SpecName ?? "";
-                    var area = specGroup.CutSqm;
-                    if (area <= 0) continue;
+                    var cutSqm = specGroup.CutSqm;
+                    if (cutSqm <= 0) continue;
 
                     // Build family of this specification ("SGU"/"DGU"/"LAM"/
                     // "DGU+LAM") — every sheet row of the spec shares it.
                     var glassFamilyLabel = FamilyLabelFor(specName);
 
-                    // Get glass rows from this spec
                     var glassRows = specGroup.Rows.Where(r => r.Kind == "Glass").ToList();
-                    
                     foreach (var glassRow in glassRows)
                     {
-                        // Get sheet dimensions
-                        var sheetWidth = glassRow.SheetWidthMm;
-                        var sheetHeight = glassRow.SheetHeightMm;
-                        var sheetSqm = (sheetWidth * sheetHeight) / 1_000_000m;
+                        var sheetSqm = glassRow.SheetSqm;
                         if (sheetSqm <= 0) continue;
 
-                        // Get quantity (sheets purchased)
-                        var sheetsPurchased = glassRow.Quantity;
-                        if (sheetsPurchased <= 0) continue;
+                        var unitRate = glassRow.PricePerSqm;
 
-                        // Calculate areas
-                        var totalSheetAreaForThisRow = sheetsPurchased * sheetSqm;
-                        var usedAreaForThisRow = area; // this pane covers the whole cut area
+                        // Required area including the cutting wastage %. The
+                        // same area Basis the Step 9 glass rows use.
+                        var requiredSqm = PnLMeasurement.AreaWithWastage(cutSqm, wastagePercent);
+                        var usedSheets = PnLMeasurement.WholeSheetsRequired(requiredSqm, sheetSqm);
 
-                        // Get price per SQM and the three sheet-price figures
-                        var pricePerSqm = glassRow.PricePerSqm;
-                        var purchaseCostForThisRow = totalSheetAreaForThisRow * pricePerSqm; // TOTAL sheet price
-                        var usedPriceForThisRow = usedAreaForThisRow * pricePerSqm;           // USED sheet price
-                        var offcutPriceForThisRow = (totalSheetAreaForThisRow - usedAreaForThisRow) * pricePerSqm; // OFFCUT value
+                        string paneSide = PaneSideFrom(glassRow.Description);
 
-                        // Calculate wastage from ACTUAL Step 6 wastage charges for this pane
-                        var wastageAreaForThisRow = 0m;
-                        var wastageChargeForThisRow = 0m;
-                        
-                        // Find matching wastage rows from Step 6
-                        // Match by spec number and side (Outer/Inner)
-                        var paneSide = glassRow.Description?.Contains("Inner") == true ? "Inner" : "Outer";
-                        var matchingWastageRows = GetWastageRowsForPane(specGroup.SpecNumber, paneSide);
-                        
-                        foreach (var wastageRow in matchingWastageRows)
-                        {
-                            if (wastageRow.IsActive)
-                            {
-                                wastageAreaForThisRow += wastageRow.TotalSqm;
-                                wastageChargeForThisRow += wastageRow.ResultAmount;
-                            }
-                        }
+                        // SGU is priced by required area unless the operator
+                        // set a Step 6 SHEET QTY (which BuildGlassRowAsync then
+                        // priced as whole sheets). The row description says
+                        // which basis was used, so it is read, never guessed.
+                        bool pricedByArea = (glassRow.Description ?? "")
+                            .IndexOf("priced by required area", StringComparison.OrdinalIgnoreCase) >= 0;
 
-                        // Calculate efficiency
-                        var efficiencyPercent = totalSheetAreaForThisRow > 0
-                            ? Math.Round((usedAreaForThisRow / totalSheetAreaForThisRow) * 100m, 1)
-                            : 0m;
+                        decimal buySheets = pricedByArea ? usedSheets : glassRow.Quantity;
+                        if (buySheets <= 0) continue;
 
-                        // Add row to breakdown
-                        var row = new SheetProfitRow
+                        decimal buySheetArea = pricedByArea
+                            ? requiredSqm
+                            : Math.Round(buySheets * sheetSqm, 4);
+
+                        decimal wastageSheets = Math.Max(0m, buySheets - usedSheets);
+                        decimal wastageArea = Math.Max(0m, buySheetArea - requiredSqm);
+
+                        // BUY price = the Step 9 glass row amount (authoritative).
+                        decimal buySheetPrice = glassRow.Amount;
+                        // USED price = required area × rate.
+                        decimal usedSheetPrice = Math.Round(requiredSqm * unitRate, 2);
+                        // WASTAGE price = the Step 6 wastage charge for this pane.
+                        decimal wastageSheetPrice =
+                            ResolveStep6WastageCharge(specGroup.SpecNumber, paneSide);
+
+                        SheetBreakdown.Add(new SheetProfitRow
                         {
                             SpecName = specName,
                             GlassTypeLabel = glassFamilyLabel,
-                            SheetSize = $"{sheetWidth} × {sheetHeight} mm",
+                            SheetSize = $"{glassRow.SheetWidthMm} × {glassRow.SheetHeightMm} mm",
                             SheetSqm = sheetSqm,
-                            SheetsPurchased = sheetsPurchased,
-                            TotalSheetArea = totalSheetAreaForThisRow,
-                            UsedArea = usedAreaForThisRow,
-                            OffcutArea = totalSheetAreaForThisRow - usedAreaForThisRow,
-                            WastageArea = wastageAreaForThisRow, // ACTUAL wastage area from Step 6
-                            WasteOffcutArea = (totalSheetAreaForThisRow - usedAreaForThisRow) - wastageAreaForThisRow,
-                            ReusablePercent = totalSheetAreaForThisRow > 0 
-                                ? Math.Round((wastageAreaForThisRow / totalSheetAreaForThisRow) * 100m, 1) 
+                            BuySheets = buySheets,
+                            UsedSheets = usedSheets,
+                            WastageSheets = wastageSheets,
+                            BuySheetArea = buySheetArea,
+                            UsedArea = requiredSqm,
+                            WastageArea = wastageArea,
+                            PricePerSqm = unitRate,
+                            BuySheetPrice = buySheetPrice,
+                            UsedSheetPrice = usedSheetPrice,
+                            WastageSheetPrice = wastageSheetPrice,
+                            UsageEfficiencyPercent = buySheetArea > 0m
+                                ? Math.Round(requiredSqm / buySheetArea * 100m, 1)
                                 : 0m,
-                            PricePerSqm = pricePerSqm,
-                            PurchaseCost = purchaseCostForThisRow,      // TOTAL sheet price
-                            UsedPrice = usedPriceForThisRow,            // USED sheet price
-                            OffcutPrice = offcutPriceForThisRow,        // OFFCUT value
-                            WastageCharge = wastageChargeForThisRow,    // WASTAGE sheet price (Step 6)
-                            RealCost = purchaseCostForThisRow, // Real cost is purchase cost (wastage is charged to customer)
-                            UsageEfficiencyPercent = efficiencyPercent,
-                            IsEfficient = efficiencyPercent >= 70m
-                        };
+                            UsedPriceSharePercent = buySheetPrice > 0m
+                                ? Math.Round(usedSheetPrice / buySheetPrice * 100m, 1)
+                                : 0m,
+                            WastagePriceSharePercent = buySheetPrice > 0m
+                                ? Math.Round(wastageSheetPrice / buySheetPrice * 100m, 1)
+                                : 0m
+                        });
 
-                        SheetBreakdown.Add(row);
-
-                        // Accumulate totals
-                        totalSheets += sheetsPurchased;
-                        totalSheetArea += totalSheetAreaForThisRow;
-                        totalUsedArea += usedAreaForThisRow;
-                        totalPurchaseCost += purchaseCostForThisRow;
-                        totalUsedPrice += usedPriceForThisRow;
-                        totalOffcutPrice += offcutPriceForThisRow;
-                        totalWastageChargeAmount += wastageChargeForThisRow;
-                        totalWastageArea += wastageAreaForThisRow;
+                        totalBuySheets += buySheets;
+                        totalUsedSheets += usedSheets;
+                        totalWastageSheets += wastageSheets;
+                        totalBuySheetArea += buySheetArea;
+                        totalUsedArea += requiredSqm;
+                        totalBuyPrice += buySheetPrice;
+                        totalUsedPrice += usedSheetPrice;
+                        totalWastageCharge += wastageSheetPrice;
                     }
                 }
 
-                // Set totals
-                TotalSheetsPurchased = totalSheets;
-                TotalSheetArea = totalSheetArea;
+                TotalBuySheets = totalBuySheets;
+                TotalUsedSheets = totalUsedSheets;
+                TotalWastageSheets = totalWastageSheets;
+                TotalBuySheetArea = totalBuySheetArea;
                 TotalUsedArea = totalUsedArea;
-                TotalOffcutArea = totalSheetArea - totalUsedArea;
-                WastageArea = totalWastageArea; // Actual wastage area from Step 6
-                WastageCharge = totalWastageChargeAmount; // Wastage sheet price from Step 6
-                TotalPurchaseCost = totalPurchaseCost;     // Total sheet price
-                TotalUsedPrice = totalUsedPrice;           // Used sheet price
-                TotalOffcutPrice = totalOffcutPrice;       // Offcut value
-                RealCost = totalPurchaseCost; // Real cost is purchase cost
-                WastageChargedToCustomer = totalWastageChargeAmount; // Wastage charged to customer
-                UsageEfficiencyPercent = totalSheetArea > 0
-                    ? Math.Round((totalUsedArea / totalSheetArea) * 100m, 1)
+                TotalBuyPrice = totalBuyPrice;
+                TotalUsedPrice = totalUsedPrice;
+                WastageSheetPrice = totalWastageCharge;
+                UsageEfficiencyPercent = totalBuySheetArea > 0m
+                    ? Math.Round(totalUsedArea / totalBuySheetArea * 100m, 1)
                     : 0m;
 
-                // Re-raise the computed price-comparison figures (they derive
-                // from the totals set just above).
+                // Re-raise the computed comparison figures (they derive from
+                // the totals set just above).
                 OnPropertyChanged(nameof(UsedPriceSharePercent));
                 OnPropertyChanged(nameof(UsedPriceShareDisplay));
-                OnPropertyChanged(nameof(OffcutPriceSharePercent));
-                OnPropertyChanged(nameof(OffcutPriceShareDisplay));
-                OnPropertyChanged(nameof(NetWastageVsOffcut));
-                OnPropertyChanged(nameof(NetWastageVsOffcutDisplay));
-                OnPropertyChanged(nameof(NetWastageVsOffcutLabel));
+                OnPropertyChanged(nameof(WastagePriceSharePercent));
+                OnPropertyChanged(nameof(WastagePriceShareDisplay));
 
-                StatusMessage = $"Analysis complete. {SheetBreakdown.Count} sheet type(s) analyzed. " +
-                               $"Usage efficiency: {UsageEfficiencyPercent:0.#}%. " +
-                               $"Wastage charged to customer: AED {WastageChargedToCustomer:N2}.";
+                StatusMessage = SheetBreakdown.Count == 0
+                    ? "No priced glass sheets found — add glass rows in Step 5 and press REFRESH."
+                    : $"Analysis complete. {SheetBreakdown.Count} sheet type(s) analyzed. " +
+                      $"Bought {TotalBuySheets:0} · used {TotalUsedSheets:0} · wastage {TotalWastageSheets:0} sheet(s). " +
+                      $"Wastage charge (Step 6): {WastageSheetPriceDisplay}.";
             }
             catch (Exception ex)
             {
@@ -527,45 +463,113 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
-        /// <summary>
-        /// Get wastage rows from Step 6 that match a specific pane (spec number + side).
-        /// </summary>
-        private List<WastageRow> GetWastageRowsForPane(int specNumber, string paneSide)
+        private void ResetTotals()
         {
-            var result = new List<WastageRow>();
-            
-            var wastagesSection = _parentViewModel._otherChargesVm?.WastagesSection;
-            if (wastagesSection?.WastageRows == null) return result;
+            TotalBuySheets = 0m;
+            TotalUsedSheets = 0m;
+            TotalWastageSheets = 0m;
+            TotalBuySheetArea = 0m;
+            TotalUsedArea = 0m;
+            TotalBuyPrice = 0m;
+            TotalUsedPrice = 0m;
+            WastageSheetPrice = 0m;
+            UsageEfficiencyPercent = 0m;
+        }
 
-            foreach (var wastageRow in wastagesSection.WastageRows)
+        /// <summary>
+        /// The pane side a Step 9 glass row belongs to, read from the row
+        /// description's "{side} pane · …" prefix. Falls back to Outer so an
+        /// unlabelled row still reports rather than vanishes.
+        /// </summary>
+        private static string PaneSideFrom(string? description)
+        {
+            if (string.IsNullOrWhiteSpace(description)) return "Outer";
+
+            int idx = description.IndexOf(" pane", StringComparison.OrdinalIgnoreCase);
+            string side = idx > 0 ? description[..idx].Trim() : "Outer";
+            return side.Length == 0 ? "Outer" : side;
+        }
+
+        /// <summary>
+        /// Maps a Step 9 pane side to the exact Step 6 wastage source label
+        /// so the charge is read for the right pane — outer, inner, lam
+        /// outer, lam inner, or a middle pane. Unknown sides (e.g. an extra
+        /// "Pane N" of a 4+ pane hybrid) return null — they have no Step 6
+        /// wastage source, so no charge is attributed to them.
+        /// </summary>
+        private static string? Step6SideLabelForPane(string paneSide)
+        {
+            string side = (paneSide ?? "").Trim();
+            if (side.Length == 0) return null;
+
+            if (side.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Lam Inner (W2/H2)";
+            if (side.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Lam Outer (W2/H2)";
+            if (side.IndexOf("Middle", StringComparison.OrdinalIgnoreCase) >= 0)
+                return $"{side} (W2/H2)";
+            if (side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Inner (W2/H2)";
+            if (side.IndexOf("Outer", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Outer (W1/H1)";
+            return null;
+        }
+
+        /// <summary>
+        /// The wastage charge the Step 6 setup applies to THIS specification's
+        /// pane side. A wastage row can cover several checked panes, so the
+        /// row's ResultAmount is split across its checked sources by SQM share
+        /// and only this pane's share is returned — the same allocation the
+        /// Step 9 cost rows use, so the two screens never disagree.
+        /// </summary>
+        private decimal ResolveStep6WastageCharge(int specNumber, string paneSide)
+        {
+            string? sideLabel = Step6SideLabelForPane(paneSide);
+            if (sideLabel == null) return 0m;
+
+            var rows = _parentViewModel._otherChargesVm?.WastagesSection?.WastageRows;
+            if (rows == null) return 0m;
+
+            decimal total = 0m;
+
+            foreach (var wastageRow in rows)
             {
-                // Check if this wastage row targets the specified pane
-                foreach (var source in wastageRow.AvailableSources)
+                if (wastageRow == null || !wastageRow.IsActive) continue;
+                if (wastageRow.ResultAmount <= 0m) continue;
+
+                var checkedSources = wastageRow.AvailableSources
+                    .Where(s => s != null && s.IsChecked && s.SqmValue > 0m)
+                    .ToList();
+                if (checkedSources.Count == 0) continue;
+
+                // Use the row's own TotalSqm (checked sources' combined SQM) as
+                // the allocation denominator — byte-for-byte the same share the
+                // Step 9 cost rows use, so the two screens reconcile exactly.
+                decimal rowTotalSqm = wastageRow.TotalSqm;
+                if (rowTotalSqm <= 0m) continue;
+
+                foreach (var src in checkedSources)
                 {
-                    if (source.IsChecked && 
-                        source.SpecNumber == specNumber &&
-                        source.SideLabel.Contains(paneSide, StringComparison.OrdinalIgnoreCase))
-                    {
-                        result.Add(wastageRow);
-                        break;
-                    }
+                    if (src.SpecNumber != specNumber) continue;
+                    if (!string.Equals(src.SideLabel, sideLabel, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    total += wastageRow.ResultAmount * (src.SqmValue / rowTotalSqm);
                 }
             }
 
-            return result;
+            return Math.Round(total, 2);
         }
 
         /// <summary>
         /// Build family shown in the GLASS TYPE column: "SGU", "DGU",
         /// "LAM" or "DGU+LAM". Spacer/interlayer evidence in the spec name
         /// drives DGU / LAM / DGU+LAM; anything without a marker (or a named
-        /// spec the wizard cannot parse) defaults to SGU, exactly like the
-        /// Glass Type Comparison analysis. Only the build family is shown —
-        /// never the outer/inner pane identity.
+        /// spec the wizard cannot parse) defaults to SGU. Only the build
+        /// family is shown — never the outer/inner pane identity.
         /// </summary>
         private static string FamilyLabelFor(string specName)
         {
-            specName ??= "";
             bool dgu = PnLSpecParser.Spacer(specName).Success
                        || specName.IndexOf("DGU", StringComparison.OrdinalIgnoreCase) >= 0;
             bool lam = PnLSpecParser.Interlayer(specName).Success
@@ -579,7 +583,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
     }
 
     /// <summary>
-    /// Sheet profit row for breakdown display.
+    /// Sheet profit row for breakdown display: the buy / used / wastage
+    /// three-way sheet model for one glass pane.
     /// </summary>
     public class SheetProfitRow : ViewModelBase
     {
@@ -597,9 +602,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         /// <summary>
         /// Build family of the specification this sheet belongs to:
-        /// "SGU", "DGU", "LAM" or "DGU+LAM". Kept as its own column so the
-        /// first thing a reader sees is what the unit is. The outer/inner
-        /// pane identity is intentionally NOT shown here.
+        /// "SGU", "DGU", "LAM" or "DGU+LAM". The outer/inner pane identity
+        /// is intentionally NOT shown here.
         /// </summary>
         private string _glassTypeLabel = "";
         public string GlassTypeLabel
@@ -638,39 +642,74 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
-        public string SheetSqmDisplay => $"{SheetSqm:0.##} SQM";
+        public string SheetSqmDisplay => $"{SheetSqm:0.####} SQM";
 
-        private decimal _sheetsPurchased;
-        public decimal SheetsPurchased
+        private decimal _buySheets;
+        /// <summary>Sheets bought for this pane.</summary>
+        public decimal BuySheets
         {
-            get => _sheetsPurchased;
+            get => _buySheets;
             set
             {
-                if (_sheetsPurchased == value) return;
-                _sheetsPurchased = value;
+                if (_buySheets == value) return;
+                _buySheets = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(SheetsPurchasedDisplay));
+                OnPropertyChanged(nameof(BuySheetsDisplay));
             }
         }
 
-        public string SheetsPurchasedDisplay => $"{SheetsPurchased:0}";
+        public string BuySheetsDisplay => $"{BuySheets:0}";
 
-        private decimal _totalSheetArea;
-        public decimal TotalSheetArea
+        private decimal _usedSheets;
+        /// <summary>Whole sheets required to cover the required area.</summary>
+        public decimal UsedSheets
         {
-            get => _totalSheetArea;
+            get => _usedSheets;
             set
             {
-                if (_totalSheetArea == value) return;
-                _totalSheetArea = value;
+                if (_usedSheets == value) return;
+                _usedSheets = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(TotalSheetAreaDisplay));
+                OnPropertyChanged(nameof(UsedSheetsDisplay));
             }
         }
 
-        public string TotalSheetAreaDisplay => $"{TotalSheetArea:0.##} SQM";
+        public string UsedSheetsDisplay => $"{UsedSheets:0}";
+
+        private decimal _wastageSheets;
+        /// <summary>Sheets wasted = buy − used (never negative).</summary>
+        public decimal WastageSheets
+        {
+            get => _wastageSheets;
+            set
+            {
+                if (_wastageSheets == value) return;
+                _wastageSheets = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(WastageSheetsDisplay));
+            }
+        }
+
+        public string WastageSheetsDisplay => $"{WastageSheets:0}";
+
+        private decimal _buySheetArea;
+        /// <summary>Area bought (SQM): buy sheets × sheet SQM (or required SQM when priced by area).</summary>
+        public decimal BuySheetArea
+        {
+            get => _buySheetArea;
+            set
+            {
+                if (_buySheetArea == value) return;
+                _buySheetArea = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(BuySheetAreaDisplay));
+            }
+        }
+
+        public string BuySheetAreaDisplay => $"{BuySheetArea:0.##} SQM";
 
         private decimal _usedArea;
+        /// <summary>Required area including wastage (SQM).</summary>
         public decimal UsedArea
         {
             get => _usedArea;
@@ -685,22 +724,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string UsedAreaDisplay => $"{UsedArea:0.##} SQM";
 
-        private decimal _offcutArea;
-        public decimal OffcutArea
-        {
-            get => _offcutArea;
-            set
-            {
-                if (_offcutArea == value) return;
-                _offcutArea = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(OffcutAreaDisplay));
-            }
-        }
-
-        public string OffcutAreaDisplay => $"{OffcutArea:0.##} SQM";
-
         private decimal _wastageArea;
+        /// <summary>Wasted area (SQM) = bought area − required area (never negative).</summary>
         public decimal WastageArea
         {
             get => _wastageArea;
@@ -714,36 +739,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         public string WastageAreaDisplay => $"{WastageArea:0.##} SQM";
-
-        private decimal _wasteOffcutArea;
-        public decimal WasteOffcutArea
-        {
-            get => _wasteOffcutArea;
-            set
-            {
-                if (_wasteOffcutArea == value) return;
-                _wasteOffcutArea = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(WasteOffcutAreaDisplay));
-            }
-        }
-
-        public string WasteOffcutAreaDisplay => $"{WasteOffcutArea:0.##} SQM";
-
-        private decimal _reusablePercent;
-        public decimal ReusablePercent
-        {
-            get => _reusablePercent;
-            set
-            {
-                if (_reusablePercent == value) return;
-                _reusablePercent = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(ReusablePercentDisplay));
-            }
-        }
-
-        public string ReusablePercentDisplay => $"{ReusablePercent:0.#}%";
 
         private decimal _pricePerSqm;
         public decimal PricePerSqm
@@ -760,106 +755,53 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string PricePerSqmDisplay => $"AED {PricePerSqm:N2}/SQM";
 
-        private decimal _purchaseCost;
-        public decimal PurchaseCost
+        private decimal _buySheetPrice;
+        /// <summary>Total sheet price = the Step 9 glass row amount.</summary>
+        public decimal BuySheetPrice
         {
-            get => _purchaseCost;
+            get => _buySheetPrice;
             set
             {
-                if (_purchaseCost == value) return;
-                _purchaseCost = value;
+                if (_buySheetPrice == value) return;
+                _buySheetPrice = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(PurchaseCostDisplay));
+                OnPropertyChanged(nameof(BuySheetPriceDisplay));
             }
         }
 
-        public string PurchaseCostDisplay => $"AED {PurchaseCost:N2}";
+        public string BuySheetPriceDisplay => $"AED {BuySheetPrice:N2}";
 
-        private decimal _usedPrice;
-        /// <summary>Used sheet price: used SQM × rate.</summary>
-        public decimal UsedPrice
+        private decimal _usedSheetPrice;
+        /// <summary>Used sheet price = required area × rate.</summary>
+        public decimal UsedSheetPrice
         {
-            get => _usedPrice;
+            get => _usedSheetPrice;
             set
             {
-                if (_usedPrice == value) return;
-                _usedPrice = value;
+                if (_usedSheetPrice == value) return;
+                _usedSheetPrice = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(UsedPriceDisplay));
+                OnPropertyChanged(nameof(UsedSheetPriceDisplay));
             }
         }
 
-        public string UsedPriceDisplay => $"AED {UsedPrice:N2}";
+        public string UsedSheetPriceDisplay => $"AED {UsedSheetPrice:N2}";
 
-        private decimal _offcutPrice;
-        /// <summary>Offcut value: offcut SQM × rate.</summary>
-        public decimal OffcutPrice
+        private decimal _wastageSheetPrice;
+        /// <summary>Wastage sheet price = the Step 6 wastage charge for this pane.</summary>
+        public decimal WastageSheetPrice
         {
-            get => _offcutPrice;
+            get => _wastageSheetPrice;
             set
             {
-                if (_offcutPrice == value) return;
-                _offcutPrice = value;
+                if (_wastageSheetPrice == value) return;
+                _wastageSheetPrice = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(OffcutPriceDisplay));
+                OnPropertyChanged(nameof(WastageSheetPriceDisplay));
             }
         }
 
-        public string OffcutPriceDisplay => $"AED {OffcutPrice:N2}";
-
-        /// <summary>Share of this sheet's total price that is actually used.</summary>
-        public decimal UsedPriceSharePercent => PurchaseCost > 0m
-            ? Math.Round(UsedPrice / PurchaseCost * 100m, 1)
-            : 0m;
-
-        public string UsedPriceShareDisplay => $"{UsedPriceSharePercent:0.#}%";
-
-        /// <summary>Share of this sheet's total price lost to offcut.</summary>
-        public decimal OffcutPriceSharePercent => PurchaseCost > 0m
-            ? Math.Round(OffcutPrice / PurchaseCost * 100m, 1)
-            : 0m;
-
-        public string OffcutPriceShareDisplay => $"{OffcutPriceSharePercent:0.#}%";
-
-        private decimal _wastageCharge;
-        public decimal WastageCharge
-        {
-            get => _wastageCharge;
-            set
-            {
-                if (_wastageCharge == value) return;
-                _wastageCharge = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(WastageChargeDisplay));
-            }
-        }
-
-        public string WastageChargeDisplay => $"AED {WastageCharge:N2}";
-
-        /// <summary>Wastage charged to the customer minus this sheet's offcut value.</summary>
-        public decimal NetWastageVsOffcut => WastageCharge - OffcutPrice;
-
-        public string NetWastageVsOffcutDisplay => $"AED {NetWastageVsOffcut:N2}";
-
-        /// <summary>Plain reading of the wastage-vs-offcut comparison for this row.</summary>
-        public string NetWastageVsOffcutLabel => NetWastageVsOffcut >= 0m
-            ? "recovered over the offcut value"
-            : "short of the offcut value";
-
-        private decimal _realCost;
-        public decimal RealCost
-        {
-            get => _realCost;
-            set
-            {
-                if (_realCost == value) return;
-                _realCost = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(RealCostDisplay));
-            }
-        }
-
-        public string RealCostDisplay => $"AED {RealCost:N2}";
+        public string WastageSheetPriceDisplay => $"AED {WastageSheetPrice:N2}";
 
         private decimal _usageEfficiencyPercent;
         public decimal UsageEfficiencyPercent
@@ -876,17 +818,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string UsageEfficiencyDisplay => $"{UsageEfficiencyPercent:0.#}%";
 
-        private bool _isEfficient = true;
-        public bool IsEfficient
+        private decimal _usedPriceSharePercent;
+        /// <summary>Used price as a share of the buy price.</summary>
+        public decimal UsedPriceSharePercent
         {
-            get => _isEfficient;
+            get => _usedPriceSharePercent;
             set
             {
-                if (_isEfficient == value) return;
-                _isEfficient = value;
+                if (_usedPriceSharePercent == value) return;
+                _usedPriceSharePercent = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(UsedPriceShareDisplay));
             }
         }
+
+        public string UsedPriceShareDisplay => $"{UsedPriceSharePercent:0.#}%";
+
+        private decimal _wastagePriceSharePercent;
+        /// <summary>Step 6 wastage charge as a share of the buy price.</summary>
+        public decimal WastagePriceSharePercent
+        {
+            get => _wastagePriceSharePercent;
+            set
+            {
+                if (_wastagePriceSharePercent == value) return;
+                _wastagePriceSharePercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(WastagePriceShareDisplay));
+            }
+        }
+
+        public string WastagePriceShareDisplay => $"{WastagePriceSharePercent:0.#}%";
 
         private bool _isSelected;
         /// <summary>True while this row's full-screen detail is open.</summary>
