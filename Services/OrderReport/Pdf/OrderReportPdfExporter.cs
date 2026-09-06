@@ -17,6 +17,7 @@
 
 using ProGlassAutomation.Models.OrderReport;
 using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.Export.Pdf.Renderers;
 using ProGlassAutomation.Services.Logging;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
