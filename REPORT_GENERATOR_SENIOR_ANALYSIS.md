@@ -720,14 +720,15 @@ how can you upgrade it … more important module integration all rounder report
 generation so should be proper separate also more professional if used multi
 generation."
 
-**Scope decision.** "Step 9 all reports" is the four analysis reports hosted by
+**Scope decision.** "Step 9 all reports" is the five report surfaces hosted by
 the Proforma Invoice wizard's **Step 9 — Profit & Loss** screen
 (`ViewModels/ProformaInvoice/Step9ProfitLoss/`, `Views/ProformaInvoice/
-Step9ProfitLoss/`): (1) Service Profitability, (2) Sheet Profitability,
-(3) Glass Type Comparison, and (4) the per-spec Target comparison in the
-GLASS/SPEC COMPARISON tab. These are the house "advanced report" modules the
-earlier §16 round referenced; the same user language ("all rounder report
-generation", "multi generation") now applies to them directly.
+Step9ProfitLoss/`): (1) the main cost-breakdown line table (tab 1),
+(2) Service Profitability, (3) Sheet Profitability, (4) Glass Type Comparison,
+and (5) the per-spec Target comparison in the GLASS/SPEC COMPARISON tab. These
+are the house "advanced report" modules the earlier §16 round referenced; the
+same user language ("all rounder report generation", "multi generation") now
+applies to them directly.
 
 **Senior analysis — deficiencies found.**
 
@@ -776,9 +777,11 @@ generation", "multi generation") now applies to them directly.
 **Implemented.** `ViewModels/ProformaInvoice/Step9ProfitLoss/Step9ReportExport.cs`
 (new); export commands/methods on `GlassTypeComparisonViewModel`,
 `ServiceProfitabilityViewModel`, `SheetProfitabilityViewModel` and the parent
-`ProfitLossStepViewModel` (target comparison); export toolbars + column-aligned
-totals footers in `GlassTypeComparisonView.xaml` and `ServiceProfitabilityView.xaml`;
-toolbar in `SheetProfitabilityView.xaml` and `ProfitLossStepView.xaml`.
+`ProfitLossStepViewModel` (target comparison AND the main P&L cost breakdown);
+export toolbars + column-aligned totals footers in `GlassTypeComparisonView.xaml`
+and `ServiceProfitabilityView.xaml`; toolbars in `SheetProfitabilityView.xaml`
+and `ProfitLossStepView.xaml` (both the GLASS/SPEC COMPARISON tab and the tab-1
+cost-breakdown station).
 
 **Verification.** All four changed views pass `xaml_wellformed.py`,
 `stray_attr_check.py` and `dup_property_check.py` (0 issues); `binding_check.py`

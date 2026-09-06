@@ -127,6 +127,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _ => AsyncUtility.SafeFireAndForget(() => ExportTargetAsync(ExportFormat.Excel), "Step9 Target Excel"));
             ExportTargetPdfCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(() => ExportTargetAsync(ExportFormat.Pdf), "Step9 Target PDF"));
+            ExportPnlCsvCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportPnlAsync(ExportFormat.Csv), "Step9 PnL CSV"));
+            ExportPnlExcelCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportPnlAsync(ExportFormat.Excel), "Step9 PnL Excel"));
+            ExportPnlPdfCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportPnlAsync(ExportFormat.Pdf), "Step9 PnL PDF"));
 
             Rows.CollectionChanged += OnRowsCollectionChanged;
 
@@ -211,6 +217,60 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (_isTargetExporting == value) return;
                 _isTargetExporting = value;
                 OnPropertyChanged();
+            }
+        }
+
+        // ── Main P&L cost breakdown export (the tab-1 line-item table) ──
+        public ICommand ExportPnlCsvCommand { get; }
+        public ICommand ExportPnlExcelCommand { get; }
+        public ICommand ExportPnlPdfCommand { get; }
+
+        private bool _isPnlExporting;
+        /// <summary>True while a cost-breakdown export runs.</summary>
+        public bool IsPnlExporting
+        {
+            get => _isPnlExporting;
+            private set
+            {
+                if (_isPnlExporting == value) return;
+                _isPnlExporting = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private async Task ExportPnlAsync(ExportFormat format)
+        {
+            if (_isPnlExporting || Rows.Count == 0) return;
+            _isPnlExporting = true;
+            try
+            {
+                var rows = Rows.ToList();
+                rows.Add(new ProfitLossRow
+                {
+                    Kind = "TOTAL",
+                    Description = $"All costed lines ({Rows.Count})",
+                    Amount = Rows.Sum(r => r.Amount)
+                });
+
+                var result = await Step9ReportExport.RunAsync(
+                    format, rows, "Profit & Loss Cost Breakdown",
+                    Step9ReportExport.PnlHeaders,
+                    Step9ReportExport.PnlMap,
+                    Step9ReportExport.PnlMapExcel,
+                    $"ProfitLoss_CostBreakdown_{DateTime.Now:yyyyMMdd}");
+
+                if (result.Success)
+                    StatusMessage = $"Exported {format} — {result.SavedPath}";
+                else if (!result.Cancelled)
+                    App.Dialogs.Warning(result.ErrorMessage ?? "Export failed.", "Export");
+            }
+            catch (Exception ex)
+            {
+                App.Dialogs.Error($"Export failed: {ExceptionMessages.Deep(ex)}", "Export");
+            }
+            finally
+            {
+                _isPnlExporting = false;
             }
         }
 

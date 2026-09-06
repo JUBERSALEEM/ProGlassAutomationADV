@@ -168,6 +168,38 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             : r.IsProfitable ? "PROFIT"
             : "LOSS";
 
+        // ── MAIN P&L COST BREAKDOWN ────────────────────────────────────
+        public static readonly string[] PnlHeaders =
+        {
+            "SPEC", "KIND", "DESCRIPTION", "SHEET SIZE", "QTY", "PRICE", "AMOUNT"
+        };
+
+        public static string[] PnlMap(ProfitLossRow r) => new[]
+        {
+            r.SpecDisplay,
+            r.Kind,
+            r.Description,
+            r.Kind == "TOTAL"
+                ? "—"
+                : r.SheetWidthMm > 0
+                    ? $"{r.SheetWidthMm} × {r.SheetHeightMm} · {r.SheetSqm.ToString("0.####", CultureInfo.InvariantCulture)} SQM"
+                    : "—",
+            r.Kind == "TOTAL" ? "—" : r.Quantity.ToString("0.##", CultureInfo.InvariantCulture),
+            r.Kind == "TOTAL" ? "—" : $"{r.PricePerSqm.ToString("N2", CultureInfo.InvariantCulture)} / {r.UnitLabel}",
+            N(r.Amount)
+        };
+
+        public static object[] PnlMapExcel(ProfitLossRow r) => new object[]
+        {
+            r.SpecDisplay,
+            r.Kind,
+            r.Description,
+            r.Kind == "TOTAL" ? "—" : r.SizeDisplay,
+            r.Kind == "TOTAL" ? "—" : r.Quantity,
+            r.Kind == "TOTAL" ? "—" : r.PricePerSqm,
+            r.Amount
+        };
+
         // ── TARGET COMPARISON ───────────────────────────────────────────
         public static readonly string[] TargetHeaders =
         {

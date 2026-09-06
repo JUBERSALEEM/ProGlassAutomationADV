@@ -151,12 +151,30 @@
                     <StackPanel>
 
                 <Border Style="{StaticResource PiStationIdentityStyle}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="09" Style="{StaticResource PiStationCodeStyle}"/>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.ProfitLOSS}" Style="{StaticResource PiStationTitleStyle}"/>
-                        <TextBlock Text="Given price vs base price · approved KPI · Step 5 Base Price is the given price"
-                                   Style="{StaticResource PiStationHintStyle}"/>
-                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="09" Style="{StaticResource PiStationCodeStyle}"/>
+                            <TextBlock Text="{DynamicResource ProformaInvoice.ProfitLOSS}" Style="{StaticResource PiStationTitleStyle}"/>
+                            <TextBlock Text="Given price vs base price · approved KPI · Step 5 Base Price is the given price"
+                                       Style="{StaticResource PiStationHintStyle}"/>
+                        </StackPanel>
+                        <!-- Export toolbar for the cost breakdown (P&L lines) -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                            <Button Content="CSV" Command="{Binding ExportPnlCsvCommand}"
+                                    Style="{StaticResource TgtExportButton}"
+                                    ToolTip="Export the cost breakdown as CSV."/>
+                            <Button Content="EXCEL" Command="{Binding ExportPnlExcelCommand}"
+                                    Style="{StaticResource TgtExportButton}"
+                                    ToolTip="Export the cost breakdown as Excel."/>
+                            <Button Content="PDF" Command="{Binding ExportPnlPdfCommand}"
+                                    Style="{StaticResource TgtExportButton}"
+                                    ToolTip="Export the cost breakdown as PDF."/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
 
                 <!-- Controls: one compact settings row — WASTAGE %,
