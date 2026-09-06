@@ -72,6 +72,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         private void GoToStep6() => NavigateToStep6Requested?.Invoke();
 
+        /// <summary>Returns from the full-screen spec detail back to the
+        /// per-group comparison list (clears the selection).</summary>
+        public ICommand BackToComparisonCommand { get; }
+
+        private void BackToComparison()
+        {
+            foreach (var r in TargetSpecsView)
+                r.IsSelected = false;
+
+            SelectedTargetSpec = null;
+        }
+
         /// <summary>Raw job-level aggregate of the last recalculation.</summary>
         public TargetPriceResult? JobTargetResult { get; private set; }
 

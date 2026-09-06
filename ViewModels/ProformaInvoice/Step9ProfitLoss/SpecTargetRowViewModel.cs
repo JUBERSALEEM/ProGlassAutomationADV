@@ -78,7 +78,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 ? SpecName
                 : SpecNumberDisplay;
 
-        public string GlassTypeCode => Result?.GlassTypeCode ?? "";
         public string BuildTypeLabel => Result?.BuildType switch
         {
             GlassBuildType.Sgu => "SGU — single glazed",

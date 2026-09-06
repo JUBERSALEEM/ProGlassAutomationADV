@@ -4,18 +4,20 @@
 //
 // Locks the 2026-09-06 Step 9 "GLASS / SPEC COMPARISON" report contract:
 //
-//   1. The six-section report stays CLOSED by default. Recalculation must
+//   1. The spec detail stays CLOSED by default. Recalculation must
 //      preserve an existing selection but must NEVER auto-select the first
-//      spec row — the report opens only when the user clicks a per-group
+//      spec row — the detail opens only when the user clicks a per-group
 //      comparison row.
 //
-//   2. The report is bounded (MaxHeight) so it scrolls inside its own
-//      viewer instead of stretching the whole page, and it no longer shows
-//      the raw "Source rows" count — the identity section keeps the spec
-//      (build / glass code / dimensions summary) and its SQM, which are the
-//      figures the estimator actually needs here.
+//   2. The detail opens as a FULL-SCREEN module view (the whole tab
+//      content, with a "BACK TO COMPARISON" return), not a 392 px right
+//      sidebar. It keeps the six sections under the page scroller.
 //
-//   3. The tab carries a "GO TO STEP 6 · OTHER CHARGES" button wired back
+//   3. The detail shows the spec identity (build, dimensions summary) and
+//      its SQM/price figures — no raw "Source rows" count and no "Glass
+//      code" row.
+//
+//   4. The tab carries a "GO TO STEP 6 · OTHER CHARGES" button wired back
 //      to the wizard (the report repeatedly references Step 6 U-insert /
 //      wastage rows).
 //
@@ -35,7 +37,7 @@ namespace ProGlassAutomation.Tests.Agent
                 relative.Replace('/', Path.DirectorySeparatorChar)));
 
         [Fact]
-        public void Comparison_report_stays_closed_until_a_row_is_clicked()
+        public void Spec_detail_stays_closed_until_a_row_is_clicked()
         {
             // Recalculation preserves a live selection but must not fall
             // back to the first spec row — no auto-open by default.
@@ -47,37 +49,62 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("TargetSpecsView[0]", target,
                 StringComparison.Ordinal);
 
-            // The empty "No specification selected" state must remain mounted
-            // so a closed report reads clearly instead of vanishing.
+            // The two states are toggled off the selection: the list is the
+            // default, the detail only appears once a row is selected.
             string view = Read(
                 "Views/ProformaInvoice/Step9ProfitLoss/ProfitLossStepView.xaml");
-            Assert.Contains("No specification selected", view,
-                StringComparison.Ordinal);
             Assert.Contains("HasSelectedTargetSpec", view,
+                StringComparison.Ordinal);
+            Assert.Contains("InverseBoolToVisibilityConverter", view,
+                StringComparison.Ordinal);
+            Assert.Contains("BoolToVisibilityConverter", view,
                 StringComparison.Ordinal);
         }
 
         [Fact]
-        public void Comparison_report_is_bounded_and_shows_no_source_row_count()
+        public void Spec_detail_opens_as_a_full_screen_not_a_sidebar()
         {
             string view = Read(
                 "Views/ProformaInvoice/Step9ProfitLoss/ProfitLossStepView.xaml");
 
-            // Bounded: the inspector caps its height and scrolls internally.
-            Assert.Contains("MaxHeight=\"600\"", view,
+            // No right-sidebar column remains; the detail takes the full
+            // module width and returns via an explicit back button.
+            Assert.DoesNotContain("Width=\"392\"", view,
+                StringComparison.Ordinal);
+            Assert.Contains("BACK TO COMPARISON", view,
+                StringComparison.Ordinal);
+            Assert.Contains("Command=\"{Binding BackToComparisonCommand}\"", view,
                 StringComparison.Ordinal);
 
-            // No raw source-row summary in the identity section. The spec
-            // identity (build / glass code / dimensions) and its SQM stay.
+            string vm = Read(
+                "ViewModels/ProformaInvoice/Step9ProfitLoss/ProfitLossStepViewModel.TargetPricing.cs");
+            Assert.Contains("public ICommand BackToComparisonCommand { get; }", vm,
+                StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Spec_detail_shows_spec_and_sqm_but_no_glass_code_or_source_rows()
+        {
+            string view = Read(
+                "Views/ProformaInvoice/Step9ProfitLoss/ProfitLossStepView.xaml");
+
+            // No raw source-row summary and no glass-code row: the detail
+            // keeps the spec identity (build, dimensions summary) and its
+            // SQM/price figures only.
             Assert.DoesNotContain("SourceRowsSummary", view,
                 StringComparison.Ordinal);
             Assert.DoesNotContain("Source rows", view,
                 StringComparison.Ordinal);
-            Assert.Contains("GlassTypeCode", view,
+            Assert.DoesNotContain("Glass code", view,
                 StringComparison.Ordinal);
+            Assert.DoesNotContain("GlassTypeCode", view,
+                StringComparison.Ordinal);
+
             Assert.Contains("DimensionsSummary", view,
                 StringComparison.Ordinal);
             Assert.Contains("AreaSqmDisplay", view,
+                StringComparison.Ordinal);
+            Assert.Contains("BuildTypeLabel", view,
                 StringComparison.Ordinal);
         }
 
