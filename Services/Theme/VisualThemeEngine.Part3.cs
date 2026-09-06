@@ -202,6 +202,62 @@ namespace ProGlassAutomation.Services.Theme
             resources["LiquidOverlayBrush"] = FrozenSolid(dark
                 ? Color.FromArgb(0x99, 0x03, 0x10, 0x1F)
                 : Color.FromArgb(0x47, 0x10, 0x29, 0x38));
+
+            // ── 8c) GLOBAL CARD + ABOUT PLANE (Ios-17pm P5, 2026-09-09)
+            // THE 'cards not accepting / About not dynamic' bug: all 12
+            // keys below are ManagedKeys — ClearOverrides deletes them
+            // on every family switch — but the Crystal painter never
+            // repainted them, and ApplyAccent further SKIPS the About
+            // palette under Crystal Fluid (its comment promised "theme
+            // XAML values directly" — no such XAML keys exist). Net
+            // effect: sidebar cards / shell liquid / dashboard ambience
+            // / the About dynamic plane sat on the BASE theme colours
+            // forever — the family applied only around them.
+            // Fix at the painter level: every value derived from the
+            // current accent through the same FrostFill/SolidFrost/
+            // ColorMath helpers the Liquid painter uses, so accent
+            // changes (family re-apply) and Light baseline stay truly
+            // dynamic. Alphas are tuned a shelf BELOW the module surface
+            // so cards float on the crystal environment, not under it.
+            resources["SidebarCardBrush"] =
+                FrostFill(accent, dark ? 0.30 : 0.48, dark ? 0.15 : 0.26);
+            resources["ShellLiquidBrush"] =
+                FrostFill(accent, dark ? 0.32 : 0.50, dark ? 0.16 : 0.30);
+            resources["DashLiquidSurfaceBrush"] =
+                FrostFill(accent, dark ? 0.20 : 0.34, dark ? 0.10 : 0.16);
+            resources["DashAmbientBrush"] =
+                FrostFill(accent, dark ? 0.14 : 0.20, dark ? 0.06 : 0.10);
+            resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.12);
+            resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.10);
+
+            var aboutPanel = new SolidColorBrush(ColorMath.WithAlpha(
+                ColorMath.Mix(
+                    Color.FromRgb(0xFF, 0xFF, 0xFF), accent,
+                    dark ? 0.30 : 0.45),
+                dark ? (byte)0x14 : (byte)0x10));
+            aboutPanel.Freeze();
+            resources["AboutInteractiveBrush"] = aboutPanel;
+
+            var aboutHover = new SolidColorBrush(ColorMath.WithAlpha(
+                ColorMath.Mix(
+                    Color.FromRgb(0xFF, 0xFF, 0xFF), accent,
+                    dark ? 0.40 : 0.55),
+                dark ? (byte)0x20 : (byte)0x1A));
+            aboutHover.Freeze();
+            resources["AboutInteractiveHoverBrush"] = aboutHover;
+
+            resources["AboutInteractiveBorderBrush"] = FrozenSolid(
+                ColorMath.WithAlpha(accent, dark ? (byte)0x45 : (byte)0x38));
+            resources["AboutInteractiveBorderStrongBrush"] = FrozenSolid(
+                ColorMath.WithAlpha(
+                    ColorMath.Lighten(accent, 0.08),
+                    dark ? (byte)0x66 : (byte)0x54));
+            resources["AboutCardBorderBrush"] = FrozenSolid(
+                ColorMath.WithAlpha(
+                    ColorMath.Lighten(accent, 0.12),
+                    dark ? (byte)0x56 : (byte)0x33));
+            resources["AboutDividerBrush"] = FrozenSolid(
+                ColorMath.WithAlpha(accent, dark ? (byte)0x20 : (byte)0x16));
             // §12: soft cyan/blue-gray shadow ink, low opacity.
             // Crystal Fluid = the water family: card/KPI surfaces that
             // bind CrystalWaterDefaultEnabled render CrystalWater.

@@ -443,9 +443,12 @@ namespace ProGlassAutomation.Services
             // About finally follows custom accents, theme-family swaps
             // and live Settings changes instead of staying fixed to one accent.
             //
-            // SKIP when Crystal Fluid is active — the family uses the
-            // theme XAML values directly (already transparent crystal glass).
-            // Overriding them here would repaint every About surface opaque.
+            // SKIP when Crystal Fluid is active — that family owns its
+            // About palette itself: VisualThemeEngine.ApplyCrystalFluid
+            // repaints every About* key accent-aware on each family/
+            // accent re-apply (Ios-17pm P5, 2026-09-09). Never write
+            // PublishAboutPalette's opaque values over the crystal
+            // material — that would fog every About surface mid-flight.
             if (VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid)
                 PublishAboutPalette(resources, core, surface, dark, h, s, l);
 
