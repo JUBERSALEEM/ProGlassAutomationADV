@@ -19,6 +19,7 @@
     xmlns:preview="clr-namespace:ProGlassAutomation.Views.Reports.OrderReport.Preview"
     xmlns:pipeline="clr-namespace:ProGlassAutomation.Views.Reports.OrderReport.Pipeline"
     xmlns:review="clr-namespace:ProGlassAutomation.Views.Reports.OrderReport.Review"
+    xmlns:specs="clr-namespace:ProGlassAutomation.Views.Reports.OrderReport.Specifications"
     xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Reports.OrderReport"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=vm:OrderReportGeneratorViewModel, IsDesignTimeCreatable=False}"
@@ -105,8 +106,10 @@
                 </StackPanel>
 
                 <!-- Centered stepper -->
-                <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="520" MaxWidth="760">
+                <Grid Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="660" MaxWidth="920">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -391,6 +394,78 @@
                             </TextBlock>
                         </StackPanel>
                     </Button>
+
+                    <Border Grid.Column="7">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource StepperConnectorStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
+
+                    <!-- STEP 5 — SPECIFICATIONS -->
+                    <Button Grid.Column="8" Style="{StaticResource StepBadgeButtonStyle}"
+                            Command="{Binding GoToStepCommand}" CommandParameter="5"
+                            IsEnabled="{Binding CanNavigateToStep5}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <Border>
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
+                                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep5Complete}" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsStep5Active}" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="5"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsStep5Complete}" Value="True">
+                                                    <Setter Property="Text" Value="✓"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsStep5Active}" Value="True">
+                                                    <Setter Property="Text" Value="5"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                            <TextBlock Text="Specifications">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep5Complete}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsStep5Active}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
                 </Grid>
 
                 <!-- Close ✕ button -->
@@ -477,6 +552,19 @@
                     </Style>
                 </review:ReviewStep.Style>
             </review:ReviewStep>
+
+            <specs:SpecificationsStep>
+                <specs:SpecificationsStep.Style>
+                    <Style TargetType="specs:SpecificationsStep">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentStep}" Value="5">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </specs:SpecificationsStep.Style>
+            </specs:SpecificationsStep>
         </Grid>
 
         <!-- ═══════════════════════════════════════════════════════════
@@ -516,7 +604,7 @@
                             Content="Generate Report"
                             Visibility="{Binding ShowGenerateButton, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                    <Button Command="{Binding NextStepCommand}"
+                    <Button Command="{Binding FinishCommand}"
                             Style="{StaticResource NavButtonSuccessStyle}"
                             Content="Finish"
                             Visibility="{Binding ShowFinishButton, Converter={StaticResource BoolToVisibilityConverter}}"/>

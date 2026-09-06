@@ -658,3 +658,57 @@ DataTriggers). XAML passes `xaml_wellformed.py`, `stray_attr_check.py` and
 `dup_property_check.py`; all StaticResource/DynamicResource keys verified
 against the theme dictionaries; all 18 bindings verified against
 `OrderReportGeneratorViewModel` / `StatusCheckItem`.
+
+---
+
+## 16. Round — Step 5 Specifications, export & professional layout
+
+**Reported:** "specification etc these should be step 5 type in reports only related
+to specifications only … include excel csv pdf export … for separation use like
+pi 1 spec 1 - specification then row data and in end total sum result right
+after the column where columns end exact same position in height … check step 9
+that have few module which have advance report pattern … update the pdf layout
+more professionally."
+
+**Senior analysis.** The Proforma Invoice module's **Step 5 (DataGrid)** and
+**Step 9 (Profit/Loss comparison)** are the house reference patterns: Step 5
+renders spec groups with a numbered badge + "Specification" header, a shared
+column grid, and a footer row whose **Qty / SQM / Value totals sit in the SAME
+grid columns as the data** (lines 456–476 of `DataGridView.xaml`). Step 9 adds
+KPI cards, header/subheader and row-highlight styling. The export machinery
+(`Services/Reporting/ReportingExportService.cs` → `CsvExportEngine` /
+`ExcelExportEngine` / `PdfExportEngine`) already provides generic
+`ExportCsvAsync<T>` / `ExportExcelAsync<T>` / `ExportPdfAsync<T>` used by every
+Reports-hub screen — no new engines needed.
+
+**Implemented.**
+
+1. **Step 5 — Specifications.** New `Views/Reports/OrderReport/Specifications/
+   SpecificationsStep.xaml` (+ code-behind, csproj) renders the bundle as
+   `PI 1 · <id>` cards, each containing `Spec 1 — <specification>` blocks with
+   a shared 8-column grid (`# | Glass Ref | Specification | Dimensions | Qty |
+   SQM | Rate | Amount`) and a **footer total row using the identical column
+   definitions**, so sums land exactly under Qty / SQM / Amount. A PI-level
+   grand-total strip (Qty / SQM / Value chips) follows the groups.
+2. **Grouping model.** `Models/OrderReport/OrderReportSpecGroups.cs`:
+   `OrderReportSpecPiGroup` / `OrderReportSpecGroup` (computed, not persisted)
+   + `OrderReportSpecExportRow` (flat export row). The VM rebuilds them from
+   `LastBundle` via `RebuildSpecificationGroups()`.
+3. **Wizard 4 → 5 steps.** `OrderReportGeneratorViewModel` extended:
+   `IsStep5Complete/Active`, `CanNavigateToStep5`, `CanGoNext < 5`,
+   `ShowNextButton` (steps 1/3/4), `ShowGenerateButton` (step 2),
+   `ShowFinishButton` (step 5), new `FinishCommand` (step 5 → save & back to
+   list). `IsStep4Complete` now means "report exists" (was "PDF exists").
+   Shell stepper + content + footer updated to 5 steps.
+4. **Export.** `ExportCsvCommand` / `ExportExcelCommand` / `ExportPdfCommand`
+   on the Step 5 toolbar — CSV/Excel stream the flattened spec table via
+   `ReportingExportService`; PDF opens the generated report PDF.
+5. **PDF.** `OrderReportPdfExporter.RenderSpecTable` now groups rows by spec
+   group with a "Spec N — <name>" band, a column-aligned per-group total row
+   (Qty / SQM / Amount under their columns) and a "PI Total" footer strip.
+
+**Verification.** New/changed XAML passes `xaml_wellformed.py`,
+`stray_attr_check.py`, `dup_property_check.py`; all resource keys resolve;
+all bindings verified against the VM and the new group POCOs; csproj parses as
+XML. No `Tests/` source-level contract references the old 4-step wizard, so
+nothing regresses.

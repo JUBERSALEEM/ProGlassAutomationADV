@@ -507,6 +507,16 @@
 			<SubType>Code</SubType>
 		</Compile>
 
+		<!-- Step 5: Specifications -->
+		<Page Update="Views\Reports\OrderReport\Specifications\SpecificationsStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\Specifications\SpecificationsStep.xaml.cs">
+			<DependentUpon>SpecificationsStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
 	</ItemGroup>
 
 </Project>

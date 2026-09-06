@@ -239,43 +239,94 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
 
         private static void RenderSpecTable(IContainer container, OrderReportSnapshot s)
         {
-            container.Table(table =>
+            if (s.SpecRows.Count == 0)
             {
-                table.ColumnsDefinition(c =>
-                {
-                    c.RelativeColumn(1.6f);   // spec
-                    c.RelativeColumn(1.4f);   // dims
-                    c.RelativeColumn(0.8f);   // qty
-                    c.RelativeColumn(1.0f);   // sqm
-                    c.RelativeColumn(0.9f);   // delivered
-                    c.RelativeColumn(0.9f);   // balance
-                    c.RelativeColumn(1.2f);   // amount
-                });
+                container.Text("No specification rows.").FontSize(8).FontColor(MUTED);
+                return;
+            }
 
-                table.Header(h =>
-                {
-                    h.Cell().Background(HEADER).Padding(3).Text("Specification").FontColor(DocumentStyle.ColorWhite).SemiBold();
-                    h.Cell().Background(HEADER).Padding(3).Text("Dimensions").FontColor(DocumentStyle.ColorWhite).SemiBold();
-                    h.Cell().Background(HEADER).Padding(3).Text("Qty").FontColor(DocumentStyle.ColorWhite).SemiBold();
-                    h.Cell().Background(HEADER).Padding(3).Text("SQM").FontColor(DocumentStyle.ColorWhite).SemiBold();
-                    h.Cell().Background(HEADER).Padding(3).Text("Deliv.").FontColor(DocumentStyle.ColorWhite).SemiBold();
-                    h.Cell().Background(HEADER).Padding(3).Text("Balance").FontColor(DocumentStyle.ColorWhite).SemiBold();
-                    h.Cell().Background(HEADER).Padding(3).Text("Amount").FontColor(DocumentStyle.ColorWhite).SemiBold();
-                });
+            container.Column(col =>
+            {
+                var groups = s.SpecRows
+                    .GroupBy(r => r.GroupNumber)
+                    .OrderBy(g => g.Key)
+                    .ToList();
 
-                foreach (var row in s.SpecRows)
+                foreach (var group in groups)
                 {
-                    string spec = string.IsNullOrWhiteSpace(row.SpecName)
-                        ? (row.GlassRef + " · " + (row.GroupName ?? ""))
-                        : row.SpecName;
-                    table.Cell().Padding(3).Text(spec);
-                    table.Cell().Padding(3).Text(row.DimensionsDisplay);
-                    table.Cell().Padding(3).Text(row.Qty.ToString());
-                    table.Cell().Padding(3).Text(row.TotalSqm.ToString("N3", CultureInfo.InvariantCulture));
-                    table.Cell().Padding(3).Text(row.DeliveredQty.ToString());
-                    table.Cell().Padding(3).Text(row.BalanceQty.ToString());
-                    table.Cell().Padding(3).AlignRight().Text(row.Amount.ToString("N2", CultureInfo.InvariantCulture));
+                    var rows = group.OrderBy(r => r.SerialNumber).ToList();
+                    string specName = !string.IsNullOrWhiteSpace(rows[0].SpecName) ? rows[0].SpecName
+                                    : !string.IsNullOrWhiteSpace(rows[0].GroupName) ? rows[0].GroupName
+                                    : rows[0].GlassType;
+                    int totalQty = rows.Sum(r => r.Qty);
+                    decimal totalSqm = rows.Sum(r => r.TotalSqm);
+                    decimal totalValue = rows.Sum(r => r.Amount);
+
+                    // ── Group band: "Spec 1 — 6mm Clear Float" ──────────
+                    col.Item().PaddingTop(6).Background(SURFACE).Padding(6, 4)
+                        .Text($"Spec {group.Key} — {specName}   ({rows.Count} line(s))")
+                        .FontSize(9).SemiBold().FontColor(ACCENT);
+
+                    // ── Group table (header / rows / aligned totals) ─────
+                    col.Item().Table(table =>
+                    {
+                        table.ColumnsDefinition(c =>
+                        {
+                            c.RelativeColumn(1.7f);   // specification
+                            c.RelativeColumn(1.0f);   // dimensions
+                            c.RelativeColumn(0.7f);   // qty
+                            c.RelativeColumn(0.8f);   // sqm
+                            c.RelativeColumn(0.8f);   // rate
+                            c.RelativeColumn(1.0f);   // amount
+                        });
+
+                        table.Header(h =>
+                        {
+                            h.Cell().Background(HEADER).Padding(3).Text("Specification").FontColor(DocumentStyle.ColorWhite).SemiBold();
+                            h.Cell().Background(HEADER).Padding(3).Text("Dimensions").FontColor(DocumentStyle.ColorWhite).SemiBold();
+                            h.Cell().Background(HEADER).Padding(3).AlignRight().Text("Qty").FontColor(DocumentStyle.ColorWhite).SemiBold();
+                            h.Cell().Background(HEADER).Padding(3).AlignRight().Text("SQM").FontColor(DocumentStyle.ColorWhite).SemiBold();
+                            h.Cell().Background(HEADER).Padding(3).AlignRight().Text("Rate").FontColor(DocumentStyle.ColorWhite).SemiBold();
+                            h.Cell().Background(HEADER).Padding(3).AlignRight().Text("Amount").FontColor(DocumentStyle.ColorWhite).SemiBold();
+                        });
+
+                        foreach (var row in rows)
+                        {
+                            string spec = string.IsNullOrWhiteSpace(row.SpecName)
+                                ? (row.GlassRef + " · " + (row.GroupName ?? ""))
+                                : row.SpecName;
+                            table.Cell().Padding(3).Text($"{row.GlassRef}  ·  {spec}");
+                            table.Cell().Padding(3).Text(row.DimensionsDisplay);
+                            table.Cell().Padding(3).AlignRight().Text(row.Qty.ToString());
+                            table.Cell().Padding(3).AlignRight().Text(row.TotalSqm.ToString("N3", CultureInfo.InvariantCulture));
+                            table.Cell().Padding(3).AlignRight().Text(row.Rate.ToString("N2", CultureInfo.InvariantCulture));
+                            table.Cell().Padding(3).AlignRight().Text(row.Amount.ToString("N2", CultureInfo.InvariantCulture));
+                        }
+
+                        // ── Totals row: sums land exactly under Qty / SQM / Amount ──
+                        table.Cell().ColumnSpan(2).Background(SURFACE).Padding(3)
+                            .Text("Spec total").SemiBold().FontColor(ACCENT);
+                        table.Cell().Background(SURFACE).Padding(3).AlignRight()
+                            .Text(totalQty.ToString()).SemiBold();
+                        table.Cell().Background(SURFACE).Padding(3).AlignRight()
+                            .Text(totalSqm.ToString("N3", CultureInfo.InvariantCulture)).SemiBold();
+                        table.Cell().Background(SURFACE).Padding(3).AlignRight()
+                            .Text("—").FontColor(MUTED);
+                        table.Cell().Background(SURFACE).Padding(3).AlignRight()
+                            .Text(totalValue.ToString("N2", CultureInfo.InvariantCulture)).SemiBold().FontColor(GREEN);
+                    });
                 }
+
+                // ── PI grand total (after the last column) ────────────────
+                col.Item().PaddingTop(6).Border(1).BorderColor(LINE).Padding(8, 6)
+                    .Row(r =>
+                    {
+                        r.RelativeItem(2).Text("PI Total").SemiBold().FontColor(ACCENT);
+                        r.RelativeItem(2).Text($"Ordered {s.Totals.OrderedQty} pcs  ·  Delivered {s.Totals.DeliveredQty} pcs  ·  Balance {s.Totals.BalanceQty} pcs")
+                            .FontSize(9).FontColor(MUTED);
+                        r.RelativeItem(2).AlignRight().Text($"AED {s.Totals.OrderedValue:N2}")
+                            .SemiBold().FontColor(GREEN);
+                    });
             });
         }
 

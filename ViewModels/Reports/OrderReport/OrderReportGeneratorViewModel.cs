@@ -24,12 +24,14 @@ using ProGlassAutomation.Models.OrderReport;
 using ProGlassAutomation.Models.ProformaInvoice.Common;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Services.OrderReport;
 using ProGlassAutomation.Services.OrderReport.Pdf;
 using ProGlassAutomation.Services.OrderReport.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
 using System;
@@ -132,6 +134,12 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
 
             DownloadLastPdfCommand = new RelayCommand(_ => OrderReportPdfExporter.OpenPdf(LastPdfPath), _ => HasLastPdf);
 
+            ExportCsvCommand = new RelayCommand(async _ => await ExportSpecsAsync(ExportFormat.Csv),
+                _ => HasReport && !_isGenerating);
+            ExportExcelCommand = new RelayCommand(async _ => await ExportSpecsAsync(ExportFormat.Excel),
+                _ => HasReport && !_isGenerating);
+            ExportPdfCommand = new RelayCommand(_ => OrderReportPdfExporter.OpenPdf(LastPdfPath), _ => HasLastPdf);
+
             OpenWarningActionCommand = new RelayCommand(param =>
             {
                 if (param is not OrderReportWarning w) return;
@@ -155,13 +163,22 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                     CurrentStep = 3;
                     _ = RunGenerateAsync();
                 }
+                else if (_currentStep == 3 && HasReport)
+                {
+                    CurrentStep = 4;
+                }
                 else if (_currentStep == 4)
                 {
-                    var saved = OnReportSaved;
-                    if (saved != null) _ = saved.Invoke();
-                    else OnCancelled?.Invoke();
+                    CurrentStep = 5;
                 }
             }, _ => CanGoNext);
+
+            FinishCommand = new RelayCommand(_ =>
+            {
+                var saved = OnReportSaved;
+                if (saved != null) _ = saved.Invoke();
+                else OnCancelled?.Invoke();
+            }, _ => _currentStep == 5 && !_isGenerating);
 
             PreviousStepCommand = new RelayCommand(_ =>
             {
@@ -172,7 +189,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             {
                 if (_isGenerating) return;
                 if (!int.TryParse(param?.ToString(), out int target)) return;
-                if (target < 1 || target > 4 || target == _currentStep) return;
+                if (target < 1 || target > 5 || target == _currentStep) return;
 
                 bool allowed = target switch
                 {
@@ -180,6 +197,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                     2 => CanNavigateToStep2,
                     3 => CanNavigateToStep3,
                     4 => CanNavigateToStep4,
+                    5 => CanNavigateToStep5,
                     _ => false
                 };
 
@@ -190,6 +208,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                         2 => "Configure at least one filter before viewing Preview.",
                         3 => "Select at least one proforma invoice before generating.",
                         4 => "Generate a report first before viewing Review.",
+                        5 => "Generate a report first before viewing Specifications.",
                         _ => ""
                     };
                     return;
@@ -224,6 +243,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                 OnPropertyChanged(nameof(IsStep2Active));
                 OnPropertyChanged(nameof(IsStep3Active));
                 OnPropertyChanged(nameof(IsStep4Active));
+                OnPropertyChanged(nameof(IsStep5Active));
                 AsyncUtility.InvalidateCommandsThrottled();
             }
         }
@@ -231,28 +251,36 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         public bool IsStep1Complete => HasFilter;
         public bool IsStep2Complete => PreviewVM.HasSelection;
         public bool IsStep3Complete => HasReport;
-        public bool IsStep4Complete => HasLastPdf;
+        public bool IsStep4Complete => HasReport;
+        public bool IsStep5Complete => HasReport;
 
         public bool IsStep1Active => _currentStep == 1;
         public bool IsStep2Active => _currentStep == 2;
         public bool IsStep3Active => _currentStep == 3;
         public bool IsStep4Active => _currentStep == 4;
+        public bool IsStep5Active => _currentStep == 5;
 
         public bool CanNavigateToStep1 => !_isGenerating;
         public bool CanNavigateToStep2 => HasFilter && !_isGenerating;
         public bool CanNavigateToStep3 => PreviewVM.HasSelection && !_isGenerating;
         public bool CanNavigateToStep4 => HasReport && !_isGenerating;
+        public bool CanNavigateToStep5 => HasReport && !_isGenerating;
 
         public bool CanGoPrevious => _currentStep > 1 && !_isGenerating;
-        public bool CanGoNext => _currentStep < 4 && !_isGenerating;
+        public bool CanGoNext => _currentStep < 5 && !_isGenerating;
 
-        public bool ShowNextButton => _currentStep == 1 && !_isGenerating;
+        // Step 1, Execute-done (only when a report exists) and Review show
+        // the "Next Step" button; Step 2 shows "Generate Report"; the last
+        // step shows "Finish".
+        public bool ShowNextButton =>
+            (_currentStep == 1 || (_currentStep == 3 && HasReport) || _currentStep == 4) && !_isGenerating;
         public bool ShowGenerateButton => _currentStep == 2 && !_isGenerating;
-        public bool ShowFinishButton => _currentStep == 4;
+        public bool ShowFinishButton => _currentStep == 5;
 
         public ICommand NextStepCommand { get; private set; } = null!;
         public ICommand PreviousStepCommand { get; private set; } = null!;
         public ICommand GoToStepCommand { get; private set; } = null!;
+        public ICommand FinishCommand { get; private set; } = null!;
 
         // ═════════════════════════════════════════════════════════════════
         //  FILTER STATE
@@ -408,7 +436,14 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         public OrderReportBundle? LastBundle
         {
             get => _lastBundle;
-            private set { _lastBundle = value; OnPropertyChanged(); OnPropertyChanged(nameof(SectionCount)); HasReport = value != null; }
+            private set
+            {
+                _lastBundle = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SectionCount));
+                HasReport = value != null;
+                RebuildSpecificationGroups();
+            }
         }
 
         public int SectionCount => _lastBundle?.SectionCount ?? 0;
@@ -417,20 +452,37 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         public bool HasReport
         {
             get => _hasReport;
-            private set { if (_hasReport == value) return; _hasReport = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsStep3Complete)); OnPropertyChanged(nameof(CanNavigateToStep4)); }
+            private set
+            {
+                if (_hasReport == value) return;
+                _hasReport = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsStep3Complete));
+                OnPropertyChanged(nameof(IsStep4Complete));
+                OnPropertyChanged(nameof(IsStep5Complete));
+                OnPropertyChanged(nameof(CanNavigateToStep4));
+                OnPropertyChanged(nameof(CanNavigateToStep5));
+            }
         }
 
         private string _lastPdfPath = "";
         public string LastPdfPath
         {
             get => _lastPdfPath;
-            private set { _lastPdfPath = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasLastPdf)); OnPropertyChanged(nameof(IsStep4Complete)); }
+            private set { _lastPdfPath = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasLastPdf)); }
         }
 
         public bool HasLastPdf => !string.IsNullOrWhiteSpace(_lastPdfPath);
 
         /// <summary>Flattened warnings across all sections (for Review).</summary>
         public ObservableCollection<OrderReportWarning> Warnings { get; } = new();
+
+        /// <summary>
+        /// Step 5 "Specifications" breakdown — one "PI n" group per selected
+        /// Proforma, each containing "Spec n — specification" groups with row
+        /// data and column-aligned footer totals. Rebuilt when a report lands.
+        /// </summary>
+        public ObservableCollection<OrderReportSpecPiGroup> SpecificationGroups { get; } = new();
 
         public ICommand PreviewCommand { get; }
         public ICommand GenerateCommand { get; }
@@ -439,6 +491,9 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         public ICommand SelectAllCommand { get; }
         public ICommand DeselectAllCommand { get; }
         public ICommand DownloadLastPdfCommand { get; }
+        public ICommand ExportCsvCommand { get; }
+        public ICommand ExportExcelCommand { get; }
+        public ICommand ExportPdfCommand { get; }
 
         // ═════════════════════════════════════════════════════════════════
         //  PREPARE
@@ -499,10 +554,12 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             OnPropertyChanged(nameof(IsStep2Complete));
             OnPropertyChanged(nameof(IsStep3Complete));
             OnPropertyChanged(nameof(IsStep4Complete));
+            OnPropertyChanged(nameof(IsStep5Complete));
             OnPropertyChanged(nameof(CanNavigateToStep1));
             OnPropertyChanged(nameof(CanNavigateToStep2));
             OnPropertyChanged(nameof(CanNavigateToStep3));
             OnPropertyChanged(nameof(CanNavigateToStep4));
+            OnPropertyChanged(nameof(CanNavigateToStep5));
             OnPropertyChanged(nameof(CanGoPrevious));
             OnPropertyChanged(nameof(CanGoNext));
             OnPropertyChanged(nameof(ShowNextButton));
@@ -775,6 +832,136 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
 
         private static string? NullIfEmpty(string s) =>
             string.IsNullOrWhiteSpace(s) ? null : s;
+
+        // ═════════════════════════════════════════════════════════════════
+        //  STEP 5 — SPECIFICATIONS (grouped breakdown + export)
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Rebuilds the "PI n → Spec n — specification" grouping used by the
+        /// Step 5 screen from the current bundle. Each spec group carries
+        /// footer totals so the UI/PDF can place the sum row exactly under
+        /// the Qty / SQM / Amount columns.
+        /// </summary>
+        private void RebuildSpecificationGroups()
+        {
+            SpecificationGroups.Clear();
+            if (_lastBundle == null) return;
+
+            int piIndex = 0;
+            foreach (var section in _lastBundle.Sections)
+            {
+                piIndex++;
+
+                var piGroup = new OrderReportSpecPiGroup
+                {
+                    Index = piIndex,
+                    ProformaId = section.Header.ProformaId,
+                    PiStatus = section.Header.PiStatus,
+                    CustomerName = section.Header.CustomerName,
+                    ProjectName = section.Header.ProjectName,
+                    IssueDate = section.Header.IssueDate
+                };
+
+                foreach (var g in section.SpecRows
+                    .GroupBy(r => r.GroupNumber)
+                    .OrderBy(g => g.Key))
+                {
+                    var rows = g.OrderBy(r => r.SerialNumber).ToList();
+
+                    var spec = new OrderReportSpecGroup
+                    {
+                        GroupNumber = g.Key,
+                        GroupName = rows[0].GroupName,
+                        SpecName = rows[0].SpecName,
+                        GlassType = rows[0].GlassType,
+                        Rows = rows,
+                        TotalQty = rows.Sum(r => r.Qty),
+                        TotalSqm = Math.Round(rows.Sum(r => r.TotalSqm), 3),
+                        TotalValue = rows.Sum(r => r.Amount),
+                        TotalDeliveredQty = rows.Sum(r => r.DeliveredQty),
+                        TotalBalanceQty = rows.Sum(r => r.BalanceQty)
+                    };
+
+                    piGroup.Groups.Add(spec);
+                }
+
+                piGroup.TotalQty = piGroup.Groups.Sum(g => g.TotalQty);
+                piGroup.TotalSqm = Math.Round(piGroup.Groups.Sum(g => g.TotalSqm), 3);
+                piGroup.TotalValue = piGroup.Groups.Sum(g => g.TotalValue);
+                piGroup.TotalDeliveredQty = piGroup.Groups.Sum(g => g.TotalDeliveredQty);
+                piGroup.TotalBalanceQty = piGroup.Groups.Sum(g => g.TotalBalanceQty);
+
+                SpecificationGroups.Add(piGroup);
+            }
+        }
+
+        /// <summary>Flattens every specification row in the bundle for export.</summary>
+        private List<OrderReportSpecExportRow> BuildSpecExportRows()
+        {
+            var rows = new List<OrderReportSpecExportRow>();
+            if (_lastBundle == null) return rows;
+
+            foreach (var section in _lastBundle.Sections)
+            {
+                foreach (var group in section.SpecRows.GroupBy(r => r.GroupNumber).OrderBy(g => g.Key))
+                {
+                    var first = group.First();
+                    string spec = !string.IsNullOrWhiteSpace(first.SpecName) ? first.SpecName
+                                : !string.IsNullOrWhiteSpace(first.GroupName) ? first.GroupName
+                                : first.GlassType;
+
+                    foreach (var r in group.OrderBy(r => r.SerialNumber))
+                    {
+                        rows.Add(new OrderReportSpecExportRow
+                        {
+                            ProformaId = section.Header.ProformaId,
+                            GroupNumber = r.GroupNumber,
+                            Specification = spec,
+                            SerialNumber = r.SerialNumber,
+                            GlassRef = r.GlassRef,
+                            GlassType = r.GlassType,
+                            W1 = r.W1, H1 = r.H1, W2 = r.W2, H2 = r.H2,
+                            Qty = r.Qty,
+                            TotalSqm = r.TotalSqm,
+                            Rate = r.Rate,
+                            Amount = r.Amount,
+                            DeliveredQty = r.DeliveredQty,
+                            BalanceQty = r.BalanceQty,
+                            WeightKg = r.TotalWeight
+                        });
+                    }
+                }
+            }
+
+            return rows;
+        }
+
+        /// <summary>Exports the Step 5 specifications table as CSV or Excel.</summary>
+        private async Task ExportSpecsAsync(ExportFormat format)
+        {
+            var rows = BuildSpecExportRows();
+            string title = _lastBundle?.Title ?? "Order Report Specifications";
+
+            try
+            {
+                ExportResult result = format == ExportFormat.Csv
+                    ? await ReportingExportService.ExportCsvAsync(
+                        rows, title, OrderReportSpecExportRow.Headers, r => r.ToCsvRow())
+                    : await ReportingExportService.ExportExcelAsync(
+                        rows, title, OrderReportSpecExportRow.Headers, r => r.ToExcelRow());
+
+                if (result.Success)
+                    StatusMessage = $"Exported {format} — {result.SavedPath}";
+                else if (!result.Cancelled)
+                    StatusMessage = $"Export failed: {result.ErrorMessage}";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Export failed: {ExceptionMessages.Deep(ex)}";
+                AppLogService.Error($"[OrderReport] {format} export failed", ex);
+            }
+        }
 
         // ═════════════════════════════════════════════════════════════════
         //  MASTER DATA
