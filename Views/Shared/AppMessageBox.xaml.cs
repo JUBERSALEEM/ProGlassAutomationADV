@@ -32,6 +32,34 @@ namespace ProGlassAutomation.Views.Shared
         private MessageBoxResult _defaultResult;
 
         /// <summary>
+        /// ERR-36432A: this constructor did not exist.
+        ///
+        /// Without it the compiler-generated InitializeComponent() never
+        /// ran, so NONE of the x:Name fields were ever assigned —
+        /// OkButton, YesButton, NoButton and CancelButton were all null.
+        /// The visual tree was never loaded at all, which is why the
+        /// crash was a bare NullReferenceException on the very first
+        /// line of ConfigureButtons() rather than anything descriptive.
+        ///
+        /// A parameterless WPF Window compiles fine without a
+        /// constructor — the default one is generated — but the default
+        /// constructor does NOT call InitializeComponent(). That call
+        /// only appears in a hand-written ctor, so a partial Window
+        /// class with no ctor silently produces an empty window. Nothing
+        /// warns about it, and the class is only reachable through the
+        /// static ShowBox() factory, so it looked deliberate.
+        ///
+        /// Every AppMessageBox.Show in the app was therefore dead:
+        /// any code path that tried to show a message box crashed
+        /// instead, which meant error reporting itself was the thing
+        /// that failed. Bugs hid behind it.
+        /// </summary>
+        public AppMessageBox()
+        {
+            InitializeComponent();
+        }
+
+        /// <summary>
         /// Themed equivalent of MessageBox.Show(owner, message, caption,
         /// buttons, icon, defaultResult). Falls back to the caller's
         /// responsibility when the themed shell cannot open (owner-gone

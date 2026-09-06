@@ -42,6 +42,74 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("x:Key=\"GhostActionButton\"", view);
         }
 
+        // ── ERR-36432A ────────────────────────────────────────────────
+        //
+        // The shell shipped with NO constructor. A partial WPF Window
+        // compiles perfectly without one — the implicit default ctor is
+        // generated — but that generated ctor does NOT call
+        // InitializeComponent(). So the visual tree was never loaded and
+        // every x:Name field (OkButton, YesButton, NoButton,
+        // CancelButton) stayed null. ConfigureButtons() then threw a bare
+        // NullReferenceException on its first line.
+        //
+        // The blast radius was the whole app: AppMessageBox is how every
+        // error is reported, so ANY code path that tried to show a
+        // message crashed instead of explaining itself. Real bugs hid
+        // behind it — the user hit it by clicking USE on a zero-balance
+        // sheet, where the app was correctly trying to say "No stock
+        // available to use."
+        //
+        // Nothing warns about this: no compiler error, no analyzer, and
+        // the class is only reachable through the static ShowBox()
+        // factory, so the omission looked deliberate.
+        [Fact]
+        public void Shell_calls_InitializeComponent_so_named_elements_resolve()
+        {
+            string code = File.ReadAllText(Path.Combine(
+                LocateProjectRoot(), "Views/Shared/AppMessageBox.xaml.cs"));
+
+            Assert.Contains("public AppMessageBox()", code);
+            Assert.Contains("InitializeComponent();", code);
+
+            // The named buttons the code-behind drives must exist in the
+            // view, or InitializeComponent cannot populate them.
+            string view = File.ReadAllText(Path.Combine(
+                LocateProjectRoot(), "Views/Shared/AppMessageBox.xaml"));
+
+            foreach (var name in new[] { "OkButton", "YesButton", "NoButton", "CancelButton" })
+            {
+                Assert.Contains($"x:Name=\"{name}\"", view);
+                Assert.Contains(name, code);
+            }
+        }
+
+        // Repo-wide guard: the same omission anywhere else is the same
+        // silent, total failure of that window.
+        [Fact]
+        public void Every_xaml_code_behind_calls_InitializeComponent()
+        {
+            string root = LocateProjectRoot();
+            var offenders = new System.Collections.Generic.List<string>();
+
+            foreach (var xaml in Directory.GetFiles(
+                         Path.Combine(root, "Views"), "*.xaml", SearchOption.AllDirectories))
+            {
+                string codeBehind = xaml + ".cs";
+                if (!File.Exists(codeBehind)) continue;
+
+                // Only files that declare a partial class need the call.
+                if (!File.ReadAllText(xaml).Contains("x:Class")) continue;
+
+                if (!File.ReadAllText(codeBehind).Contains("InitializeComponent"))
+                    offenders.Add(Path.GetFileName(codeBehind));
+            }
+
+            Assert.True(offenders.Count == 0,
+                "These code-behind files never call InitializeComponent(), so their " +
+                "x:Name fields stay null and the window loads empty: " +
+                string.Join(", ", offenders));
+        }
+
         [Fact]
         public void Service_routes_through_the_shell_with_one_native_fallback()
         {

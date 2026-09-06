@@ -48,9 +48,32 @@ namespace ProGlassAutomation.Services.Dialogs
                     return ProGlassAutomation.Views.Shared.AppMessageBox.ShowBox(
                         owner, message, caption, button, icon, defaultResult);
                 }
-                catch (System.InvalidOperationException)
+                catch (System.Exception ex)
                 {
-                    // fall through to the native box (window-disposed edge)
+                    // ERR-36432A widened this from InvalidOperationException
+                    // to Exception.
+                    //
+                    // The themed shell threw NullReferenceException (it was
+                    // missing its constructor, so InitializeComponent never
+                    // ran and every named button was null). That escaped the
+                    // narrow catch and took the whole app down — while the
+                    // app was merely trying to say "No stock available to
+                    // use."
+                    //
+                    // A message box is the LAST link in error reporting. If
+                    // it can itself crash the process, every underlying bug
+                    // is masked by a fatal NRE with a stack that points at
+                    // the messenger instead of the message. Whatever is
+                    // wrong with the themed shell, the user must still get
+                    // the text — so fall through to the native box for ANY
+                    // failure, and log the shell fault so it stays visible
+                    // rather than silently degrading forever.
+                    try
+                    {
+                        ProGlassAutomation.Services.Logging.AppLogService.Error(
+                            "Themed message shell failed; used native fallback.", ex);
+                    }
+                    catch { /* logging must never mask the message either */ }
                 }
             }
             return MessageBox.Show(message, caption ?? string.Empty,
