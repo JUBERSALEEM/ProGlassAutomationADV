@@ -31,8 +31,31 @@ namespace ProGlassAutomation.Services.Dialogs
             MessageBoxButton button = MessageBoxButton.OK,
             MessageBoxImage icon = MessageBoxImage.None,
             MessageBoxResult defaultResult = MessageBoxResult.None)
-            => MessageBox.Show(message, caption ?? string.Empty,
+        {
+            // 2026-09-09: route every app message through the professional
+            // themed shell (View: Views/Shared/AppMessageBox). The desktop
+            // MessageBox remains only as the crash-path fallback — if the
+            // app is in a state where the themed window cannot open (no
+            // live UI thread yet, teardown, or WPF itself failing), the
+            // native box must still surface the message.
+            System.Windows.Window? owner = System.Windows.Application.Current?.MainWindow;
+            if (System.Windows.Application.Current?.Dispatcher != null
+                && System.Windows.Application.Current.MainWindow is System.Windows.Window w
+                && w.IsLoaded)
+            {
+                try
+                {
+                    return ProGlassAutomation.Views.Shared.AppMessageBox.ShowBox(
+                        owner, message, caption, button, icon, defaultResult);
+                }
+                catch (System.InvalidOperationException)
+                {
+                    // fall through to the native box (window-disposed edge)
+                }
+            }
+            return MessageBox.Show(message, caption ?? string.Empty,
                 button, icon, defaultResult);
+        }
 
         public void Info(string message, string? caption = null)
             => Show(message, caption, MessageBoxButton.OK, MessageBoxImage.Information);
