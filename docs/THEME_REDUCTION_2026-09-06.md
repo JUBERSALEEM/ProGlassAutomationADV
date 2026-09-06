@@ -78,6 +78,39 @@ to Monet/Crystal Fluid; it resets to Normal).
 - `CrystalFluidNavAdoptionTests` — "every family owns MenuHoverBrush" now
   covers Monet (Part1) + Crystal Fluid (Part3); Industrial read removed.
 
+## Theme customization (Settings → Themes)
+
+The Theme Studio's one legitimate capability — tuning the Crystal Fluid
+material — was rebuilt as a **bounded, persisted, family-aware** surface
+under a new top-level Settings **`Themes`** section (never the 0–100
+playground).
+
+- **Surface (six live axes only)** — water opacity, water speed, wave
+  amplitude, caustic intensity, bubble intensity, reflection opacity. The
+  glass / glass-border / shadow opacity axes stay **parked** in
+  `CrystalFluidSettings` (no live consumer key) and are deliberately not
+  surfaced.
+- **Named presets** — **Default / Calm / Intense** (`ThemeCustomization.Presets`;
+  Default == the authored baselines). Plus a **per-family Reset**: Crystal →
+  baselines; Normal/Monet → default card shape (corner 12, border 1.5,
+  gradients on).
+- **Family-aware** — the Crystal group renders only while **Ios-17pm** is the
+  active family (`SettingsViewModel.IsCrystalThemeActive`); Normal/Monet keep
+  their existing Appearance controls (`CardCornerRadius`, `CardBorderThickness`,
+  `UseGradientSurfaces`).
+- **Persistence** — `AppConfig.Appearance.ThemeCustomization`
+  (`ThemeCustomizationSettings`: the six axes + `CrystalPreset` identity,
+  defaults = `CrystalFluidSettings.Baseline*`).
+- **Single writer** — `ThemeCustomization.Apply(resources)` is the only place
+  that writes the six `Crystal*` tokens; `ApplyCrystalFluid` delegates to it.
+  `CrystalReducedMotion` remains a separate config-backed §43 flag.
+- **UI / files** — `Views/Settings/Sections/SettingsThemesSection.xaml` +
+  `SettingsViewModel.ThemeCustomization.cs`; rail row `Themes` →
+  `Settings.SecThemes`; live preview reuses `CrystalWaterControl`.
+- **Localization** — 19 new `Settings.*` keys added across all 15 language
+  dictionaries, `scripts/i18n/*.py` sources and `translations/*-settings.json`
+  intermediates.
+
 ## Static validation note
 
 The sandbox has no .NET SDK, so this change was validated statically

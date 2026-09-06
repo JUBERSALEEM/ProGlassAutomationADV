@@ -109,6 +109,10 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
                 OnPropertyChanged();
 
+                // Family gate for the Themes section's Crystal Fluid
+                // material group (visible only while Ios-17pm is active).
+                OnPropertyChanged(nameof(IsCrystalThemeActive));
+
                 // 2026-09-05 PIPELINE UNIFICATION: the extra RefreshScene
                 // toggle used to duplicate the module overlay that is
                 // already guaranteed inside RebuildFamily; removed — the

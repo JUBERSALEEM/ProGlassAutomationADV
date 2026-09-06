@@ -15,6 +15,7 @@
 
      Sections:
        SettingsAppearanceSection — theme, wallpaper, accent, motion
+       SettingsThemesSection     — visual family + Crystal Fluid tuning
        SettingsAiSection         — providers, keys, tuning, security
        SettingsVoiceSection      — Whisper speech-to-text models
        SettingsUpdatesSection    — OTA check / download / install
@@ -310,6 +311,12 @@
                     ElementName=SettingsRoot,
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=Appearance,
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
+            <sections:SettingsThemesSection
+                Visibility="{Binding DataContext.SettingsPage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=Themes,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsAiSection
                 Visibility="{Binding DataContext.SettingsPage,

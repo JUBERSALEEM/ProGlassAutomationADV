@@ -1767,6 +1767,15 @@
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Contrôler si l&#x27;agent parle à Internet et ce qu&#x27;il est autorisé à dire.</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">CRÉER LA SAUVEGARDE MAINTENANT</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Créez un jeu de sauvegarde maintenant, actualisez la liste ou ouvrez le dossier où les sauvegardes sont conservées.</sys:String>
+    <sys:String x:Key="Settings.CrystalBubbleIntensity">Intensité des bulles</sys:String>
+    <sys:String x:Key="Settings.CrystalCausticIntensity">Intensité des caustiques</sys:String>
+    <sys:String x:Key="Settings.CrystalMaterialHint">Six axes en direct règlent l&#x27;eau cristalline : eau, caustiques, bulles et reflet. L&#x27;opacité du verre, des bordures et des ombres conserve son aspect conçu.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Le réglage Crystal Fluid n&#x27;apparaît que lorsque le thème Ios-17pm est actif. Normal et Monet conservent leurs commandes de forme de carte et de dégradés dans Apparence.</sys:String>
+    <sys:String x:Key="Settings.CrystalPreviewHint">Aperçu en direct : la même surface d&#x27;eau que les écrans réels.</sys:String>
+    <sys:String x:Key="Settings.CrystalReflectionOpacity">Opacité du reflet</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterOpacity">Opacité de l&#x27;eau</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterSpeed">Vitesse de l&#x27;eau</sys:String>
+    <sys:String x:Key="Settings.CrystalWaveAmplitude">Amplitude des vagues</sys:String>
     <sys:String x:Key="Settings.CtrlMouseWheelZoomsAppCtrl0Resets100">Ctrl + molette de souris zoome l&#x27;application. Ctrl + 0 rétablit 100 %.</sys:String>
     <sys:String x:Key="Settings.CurrentVersion">VERSION ACTUELLE</sys:String>
     <sys:String x:Key="Settings.CustomerLocation">Emplacement du client</sys:String>
@@ -1837,10 +1846,12 @@
     <sys:String x:Key="Settings.Groq">Groq</sys:String>
     <sys:String x:Key="Settings.GrpAccent">COULEUR D&#x27;ACCENT</sys:String>
     <sys:String x:Key="Settings.GrpAdvanced">AVANCÉ</sys:String>
+    <sys:String x:Key="Settings.GrpCrystalMaterial">Matériau Crystal Fluid</sys:String>
     <sys:String x:Key="Settings.GrpDensity">DENSITÉ D&#x27;AFFICHAGE</sys:String>
     <sys:String x:Key="Settings.GrpIntelligence">INTELLIGENCE</sys:String>
     <sys:String x:Key="Settings.GrpLanguage">LANGUE ET DEVISE</sys:String>
     <sys:String x:Key="Settings.GrpLook">APPARENCE</sys:String>
+    <sys:String x:Key="Settings.GrpPresets">Préréglages rapides</sys:String>
     <sys:String x:Key="Settings.GrpTheme">THÈME</sys:String>
     <sys:String x:Key="Settings.HideOptional">Masquer toutes les options</sys:String>
     <sys:String x:Key="Settings.HigherMoreCreativeLowerMoreDeterministicRead">Plus élevé = plus créatif, plus bas = plus déterministe. Lu depuis config.json.</sys:String>
@@ -1937,6 +1948,7 @@
     <sys:String x:Key="Settings.PickModuleGenerateLandsWorkspaceFirstVoice">Choisissez un module. La génération atterrit d&#x27;abord sur cet espace de travail pour que la voix et l&#x27;image restent ensemble.</sys:String>
     <sys:String x:Key="Settings.PickPlanPressGETLicenseKEYPasteVendorKey">Choisissez un plan et appuyez sur OBTENIR LA CLÉ DE LICENCE, ou collez une clé fournisseur. L&#x27;essai démarre automatiquement ; l&#x27;ID PC n&#x27;est nécessaire que pour les clés liées à la machine.</sys:String>
     <sys:String x:Key="Settings.PickSetRestoreSelectingEnoughRestoreButton">Choisissez un jeu à restaurer. La sélection suffit — le bouton de restauration s&#x27;allume.</sys:String>
+    <sys:String x:Key="Settings.PresetsHint">Des styles en un clic qui placent les six axes Crystal Fluid sur des profils nommés.</sys:String>
     <sys:String x:Key="Settings.PrivacyPostureProviderCredentialsTaught">Posture de confidentialité, identifiants de fournisseur, phrases apprises et mémoire de l&#x27;agent.</sys:String>
     <sys:String x:Key="Settings.ProbeDatabaseRefreshRowCountTable">Sonder chaque base de données et actualiser le tableau des nombres de lignes</sys:String>
     <sys:String x:Key="Settings.ProbesProglassAutomationDatabaseFileAuto">Sonde chaque fichier de base de données ProGlass Automation. La migration automatique au prochain démarrage gère la plupart des dérives ; la reconstruction est l&#x27;option nucléaire pour un fichier trop endommagé pour s&#x27;ouvrir.</sys:String>
@@ -1971,6 +1983,8 @@
     <sys:String x:Key="Settings.ResetAppearanceDefaults">RÉINITIALISER L&#x27;APPARENCE AUX DÉFAUTS</sys:String>
     <sys:String x:Key="Settings.ResetDEMOFolder">RÉINITIALISER LE DOSSIER DÉMO</sys:String>
     <sys:String x:Key="Settings.ResetDeletesAppdataProglassautomationDemo">La réinitialisation supprime uniquement %AppData%/ProGlassAutomation.Demo. Les fichiers de production ne sont jamais ouverts ni effacés.</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamily">Réinitialiser par défaut</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamilyHint">Restaure la famille de thème active à son aspect par défaut.</sys:String>
     <sys:String x:Key="Settings.ResetToEnglish">Revenir à l&#x27;anglais</sys:String>
     <sys:String x:Key="Settings.Resetting">RÉINITIALISATION...</sys:String>
     <sys:String x:Key="Settings.ResettingAppearance">Réinitialisation de l&#x27;apparence</sys:String>
@@ -2001,6 +2015,7 @@
     <sys:String x:Key="Settings.SecDemo">Centre de démo</sys:String>
     <sys:String x:Key="Settings.SecFeatures">Fonctions</sys:String>
     <sys:String x:Key="Settings.SecLicense">Licence</sys:String>
+    <sys:String x:Key="Settings.SecThemes">Thèmes</sys:String>
     <sys:String x:Key="Settings.SecUpdates">Mises à jour</sys:String>
     <sys:String x:Key="Settings.SecVoice">Voix</sys:String>
     <sys:String x:Key="Settings.Security">SÉCURITÉ</sys:String>
@@ -2030,6 +2045,10 @@
     <sys:String x:Key="Settings.Temperature">Température</sys:String>
     <sys:String x:Key="Settings.ThemeColoursWallpapersMotionModule">Thème, couleurs, fonds d&#x27;écran, mouvement et arrière-plans par module.</sys:String>
     <sys:String x:Key="Settings.ThemeLayout">THÈME ET DISPOSITION</sys:String>
+    <sys:String x:Key="Settings.ThemePresetCalm">Calme</sys:String>
+    <sys:String x:Key="Settings.ThemePresetDefault">Par défaut</sys:String>
+    <sys:String x:Key="Settings.ThemePresetIntense">Intense</sys:String>
+    <sys:String x:Key="Settings.ThemesSubtitle">Famille de thème visuel et réglage du matériau Crystal Fluid.</sys:String>
     <sys:String x:Key="Settings.ThreeWhisperModelSizesAvailable">Trois tailles de modèle Whisper sont disponibles.</sys:String>
     <sys:String x:Key="Settings.Title">Paramètres</sys:String>
     <sys:String x:Key="Settings.Toggle">ACTIVER/DÉSACTIVER</sys:String>

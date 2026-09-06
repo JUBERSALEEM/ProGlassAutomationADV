@@ -97,6 +97,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             var rows = new ObservableCollection<SettingsNavRow>
             {
                 new("Appearance", "\uE790", "Settings.SecAppearance"),
+                new("Themes",     "\uE792", "Settings.SecThemes"),
                 new("AI",         "\uE8F2", "Settings.SecAi"),
                 new("Agent",      "\uE9F5", "Settings.SecAgent"),
                 new("Voice",      "\uE720", "Settings.SecVoice"),

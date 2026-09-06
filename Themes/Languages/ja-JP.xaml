@@ -1767,6 +1767,15 @@
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">エージェントがインターネットと通信するか、何を言うことを許可するかを制御。</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">今すぐバックアップを作成</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">今すぐバックアップセットを作成、リストを更新、またはバックアップ保存フォルダを開きます。</sys:String>
+    <sys:String x:Key="Settings.CrystalBubbleIntensity">気泡の強度</sys:String>
+    <sys:String x:Key="Settings.CrystalCausticIntensity">コースティクス強度</sys:String>
+    <sys:String x:Key="Settings.CrystalMaterialHint">6つのライブ軸でクリスタルウォーターを調整します（水、コースティクス、気泡、反射）。ガラス・枠線・影の不透明度はデザイン通りの見た目を維持します。</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid の調整は Ios-17pm テーマがアクティブなときだけ表示されます。Normal と Monet はカード形状とグラデーションのコントロールを外観で維持します。</sys:String>
+    <sys:String x:Key="Settings.CrystalPreviewHint">ライブプレビュー — 実際の画面と同じ水面。</sys:String>
+    <sys:String x:Key="Settings.CrystalReflectionOpacity">反射の不透明度</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterOpacity">水の不透明度</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterSpeed">水の速度</sys:String>
+    <sys:String x:Key="Settings.CrystalWaveAmplitude">波の振幅</sys:String>
     <sys:String x:Key="Settings.CtrlMouseWheelZoomsAppCtrl0Resets100">Ctrl + マウスホイールでアプリをズーム。Ctrl + 0で100%にリセット。</sys:String>
     <sys:String x:Key="Settings.CurrentVersion">現在のバージョン</sys:String>
     <sys:String x:Key="Settings.CustomerLocation">顧客所在地</sys:String>
@@ -1837,10 +1846,12 @@
     <sys:String x:Key="Settings.Groq">Groq</sys:String>
     <sys:String x:Key="Settings.GrpAccent">アクセント色</sys:String>
     <sys:String x:Key="Settings.GrpAdvanced">詳細設定</sys:String>
+    <sys:String x:Key="Settings.GrpCrystalMaterial">Crystal Fluid マテリアル</sys:String>
     <sys:String x:Key="Settings.GrpDensity">表示密度</sys:String>
     <sys:String x:Key="Settings.GrpIntelligence">インテリジェンス</sys:String>
     <sys:String x:Key="Settings.GrpLanguage">言語と通貨</sys:String>
     <sys:String x:Key="Settings.GrpLook">外観</sys:String>
+    <sys:String x:Key="Settings.GrpPresets">クイックプリセット</sys:String>
     <sys:String x:Key="Settings.GrpTheme">テーマ</sys:String>
     <sys:String x:Key="Settings.HideOptional">すべてのオプションを非表示</sys:String>
     <sys:String x:Key="Settings.HigherMoreCreativeLowerMoreDeterministicRead">高いほど創造的、低いほど決定的。config.jsonから読み取られます。</sys:String>
@@ -1937,6 +1948,7 @@
     <sys:String x:Key="Settings.PickModuleGenerateLandsWorkspaceFirstVoice">モジュールを選択。[生成] は最初にそのワークスペースに移動するため、音声と映像が一緒に保たれます。</sys:String>
     <sys:String x:Key="Settings.PickPlanPressGETLicenseKEYPasteVendorKey">プランを選択してGET LICENSE KEYを押すか、ベンダーキーを貼り付けます。トライアルは自動的に開始され、PC IDはマシン固定キーにのみ必要です。</sys:String>
     <sys:String x:Key="Settings.PickSetRestoreSelectingEnoughRestoreButton">復元するセットを選択。選択するだけで十分です — 復元ボタンが点灯します。</sys:String>
+    <sys:String x:Key="Settings.PresetsHint">ワンタップで6つの Crystal Fluid 軸を名前付きプロファイルに設定するルック。</sys:String>
     <sys:String x:Key="Settings.PrivacyPostureProviderCredentialsTaught">プライバシーポスチャ、プロバイダー資格情報、教えたフレーズ、エージェントメモリ。</sys:String>
     <sys:String x:Key="Settings.ProbeDatabaseRefreshRowCountTable">すべてのデータベースを検査し、行数テーブルを更新</sys:String>
     <sys:String x:Key="Settings.ProbesProglassAutomationDatabaseFileAuto">すべてのProGlass Automationデータベースファイルを検査。次回起動時の自動移行でほとんどのドリフトを処理します。再構築は開くには壊れすぎたファイル用の最終手段です。</sys:String>
@@ -1971,6 +1983,8 @@
     <sys:String x:Key="Settings.ResetAppearanceDefaults">外観をデフォルトにリセット</sys:String>
     <sys:String x:Key="Settings.ResetDEMOFolder">デモフォルダをリセット</sys:String>
     <sys:String x:Key="Settings.ResetDeletesAppdataProglassautomationDemo">リセットは%AppData%/ProGlassAutomation.Demoのみを削除します。本番ファイルは開かれたり消去されたりしません。</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamily">デフォルトにリセット</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamilyHint">アクティブなテーマファミリーをデフォルトの見た目に戻します。</sys:String>
     <sys:String x:Key="Settings.ResetToEnglish">英語に戻す</sys:String>
     <sys:String x:Key="Settings.Resetting">リセット中...</sys:String>
     <sys:String x:Key="Settings.ResettingAppearance">外観をリセット中</sys:String>
@@ -2001,6 +2015,7 @@
     <sys:String x:Key="Settings.SecDemo">デモセンター</sys:String>
     <sys:String x:Key="Settings.SecFeatures">機能</sys:String>
     <sys:String x:Key="Settings.SecLicense">ライセンス</sys:String>
+    <sys:String x:Key="Settings.SecThemes">テーマ</sys:String>
     <sys:String x:Key="Settings.SecUpdates">更新</sys:String>
     <sys:String x:Key="Settings.SecVoice">音声</sys:String>
     <sys:String x:Key="Settings.Security">セキュリティ</sys:String>
@@ -2030,6 +2045,10 @@
     <sys:String x:Key="Settings.Temperature">温度</sys:String>
     <sys:String x:Key="Settings.ThemeColoursWallpapersMotionModule">テーマ、色、壁紙、モーション、モジュールごとの背景。</sys:String>
     <sys:String x:Key="Settings.ThemeLayout">テーマとレイアウト</sys:String>
+    <sys:String x:Key="Settings.ThemePresetCalm">穏やか</sys:String>
+    <sys:String x:Key="Settings.ThemePresetDefault">デフォルト</sys:String>
+    <sys:String x:Key="Settings.ThemePresetIntense">強烈</sys:String>
+    <sys:String x:Key="Settings.ThemesSubtitle">ビジュアルテーマファミリーと Crystal Fluid マテリアルの調整。</sys:String>
     <sys:String x:Key="Settings.ThreeWhisperModelSizesAvailable">3つのWhisperモデルサイズが利用可能です。</sys:String>
     <sys:String x:Key="Settings.Title">設定</sys:String>
     <sys:String x:Key="Settings.Toggle">切り替え</sys:String>

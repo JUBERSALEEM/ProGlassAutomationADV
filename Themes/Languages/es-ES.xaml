@@ -1767,6 +1767,15 @@
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Controle si el agente habla con internet y qué se le permite decir.</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">CREAR RESPALDO AHORA</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Cree un conjunto de respaldo ahora, actualice la lista o abra la carpeta donde se guardan los respaldos.</sys:String>
+    <sys:String x:Key="Settings.CrystalBubbleIntensity">Intensidad de burbujas</sys:String>
+    <sys:String x:Key="Settings.CrystalCausticIntensity">Intensidad de cáusticos</sys:String>
+    <sys:String x:Key="Settings.CrystalMaterialHint">Seis ejes en vivo ajustan el agua cristalina: agua, cáusticos, burbujas y reflejo. La opacidad del cristal, el borde y la sombra mantienen su aspecto diseñado.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">El ajuste Crystal Fluid aparece solo cuando el tema Ios-17pm está activo. Normal y Monet conservan sus controles de forma de tarjeta y degradados en Apariencia.</sys:String>
+    <sys:String x:Key="Settings.CrystalPreviewHint">Vista previa en vivo: la misma superficie de agua que usan las pantallas reales.</sys:String>
+    <sys:String x:Key="Settings.CrystalReflectionOpacity">Opacidad del reflejo</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterOpacity">Opacidad del agua</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterSpeed">Velocidad del agua</sys:String>
+    <sys:String x:Key="Settings.CrystalWaveAmplitude">Amplitud de onda</sys:String>
     <sys:String x:Key="Settings.CtrlMouseWheelZoomsAppCtrl0Resets100">Ctrl + rueda del mouse acerca la app. Ctrl + 0 restablece al 100 %.</sys:String>
     <sys:String x:Key="Settings.CurrentVersion">VERSIÓN ACTUAL</sys:String>
     <sys:String x:Key="Settings.CustomerLocation">Ubicación del cliente</sys:String>
@@ -1837,10 +1846,12 @@
     <sys:String x:Key="Settings.Groq">Groq</sys:String>
     <sys:String x:Key="Settings.GrpAccent">COLOR DE ACENTO</sys:String>
     <sys:String x:Key="Settings.GrpAdvanced">AVANZADO</sys:String>
+    <sys:String x:Key="Settings.GrpCrystalMaterial">Material Crystal Fluid</sys:String>
     <sys:String x:Key="Settings.GrpDensity">DENSIDAD DE PANTALLA</sys:String>
     <sys:String x:Key="Settings.GrpIntelligence">INTELIGENCIA</sys:String>
     <sys:String x:Key="Settings.GrpLanguage">IDIOMA Y MONEDA</sys:String>
     <sys:String x:Key="Settings.GrpLook">APARIENCIA</sys:String>
+    <sys:String x:Key="Settings.GrpPresets">Preajustes rápidos</sys:String>
     <sys:String x:Key="Settings.GrpTheme">TEMA</sys:String>
     <sys:String x:Key="Settings.HideOptional">Ocultar todos los opcionales</sys:String>
     <sys:String x:Key="Settings.HigherMoreCreativeLowerMoreDeterministicRead">Más alto = más creativo, más bajo = más determinista. Leído de config.json.</sys:String>
@@ -1937,6 +1948,7 @@
     <sys:String x:Key="Settings.PickModuleGenerateLandsWorkspaceFirstVoice">Elija un módulo. La generación aterriza primero en ese espacio de trabajo para que la voz y la imagen permanezcan juntas.</sys:String>
     <sys:String x:Key="Settings.PickPlanPressGETLicenseKEYPasteVendorKey">Elija un plan y presione GET LICENSE KEY, o pegue una clave del proveedor. La prueba comienza automáticamente; el ID de PC solo se necesita para claves vinculadas a máquina.</sys:String>
     <sys:String x:Key="Settings.PickSetRestoreSelectingEnoughRestoreButton">Elija un conjunto para restaurar. Seleccionar es suficiente — el botón de restaurar se ilumina.</sys:String>
+    <sys:String x:Key="Settings.PresetsHint">Aspectos de un toque que fijan los seis ejes Crystal Fluid a perfiles con nombre.</sys:String>
     <sys:String x:Key="Settings.PrivacyPostureProviderCredentialsTaught">Postura de privacidad, credenciales de proveedor, frases enseñadas y memoria del agente.</sys:String>
     <sys:String x:Key="Settings.ProbeDatabaseRefreshRowCountTable">Examinar cada base de datos y actualizar la tabla de recuento de filas</sys:String>
     <sys:String x:Key="Settings.ProbesProglassAutomationDatabaseFileAuto">Examina cada archivo de base de datos de ProGlass Automation. La migración automática en el próximo inicio maneja la mayoría de las desviaciones; la reconstrucción es la opción nuclear para un archivo demasiado dañado para abrirse.</sys:String>
@@ -1971,6 +1983,8 @@
     <sys:String x:Key="Settings.ResetAppearanceDefaults">RESTABLECER APARIENCIA A PREDETERMINADOS</sys:String>
     <sys:String x:Key="Settings.ResetDEMOFolder">RESTABLECER CARPETA DEMO</sys:String>
     <sys:String x:Key="Settings.ResetDeletesAppdataProglassautomationDemo">El restablecimiento elimina solo %AppData%/ProGlassAutomation.Demo. Los archivos de producción nunca se abren ni se borran.</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamily">Restablecer a predeterminado</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamilyHint">Restaura la familia de tema activa a su aspecto predeterminado.</sys:String>
     <sys:String x:Key="Settings.ResetToEnglish">Restablecer a inglés</sys:String>
     <sys:String x:Key="Settings.Resetting">RESTABLECIENDO...</sys:String>
     <sys:String x:Key="Settings.ResettingAppearance">Restableciendo apariencia</sys:String>
@@ -2001,6 +2015,7 @@
     <sys:String x:Key="Settings.SecDemo">Centro de demostración</sys:String>
     <sys:String x:Key="Settings.SecFeatures">Funciones</sys:String>
     <sys:String x:Key="Settings.SecLicense">Licencia</sys:String>
+    <sys:String x:Key="Settings.SecThemes">Temas</sys:String>
     <sys:String x:Key="Settings.SecUpdates">Actualizaciones</sys:String>
     <sys:String x:Key="Settings.SecVoice">Voz</sys:String>
     <sys:String x:Key="Settings.Security">SEGURIDAD</sys:String>
@@ -2030,6 +2045,10 @@
     <sys:String x:Key="Settings.Temperature">Temperatura</sys:String>
     <sys:String x:Key="Settings.ThemeColoursWallpapersMotionModule">Tema, colores, fondos de pantalla, movimiento y fondos por módulo.</sys:String>
     <sys:String x:Key="Settings.ThemeLayout">TEMA Y DISEÑO</sys:String>
+    <sys:String x:Key="Settings.ThemePresetCalm">Calma</sys:String>
+    <sys:String x:Key="Settings.ThemePresetDefault">Predeterminado</sys:String>
+    <sys:String x:Key="Settings.ThemePresetIntense">Intenso</sys:String>
+    <sys:String x:Key="Settings.ThemesSubtitle">Familia de tema visual y ajuste del material Crystal Fluid.</sys:String>
     <sys:String x:Key="Settings.ThreeWhisperModelSizesAvailable">Tres tamaños de modelo Whisper están disponibles.</sys:String>
     <sys:String x:Key="Settings.Title">Configuración</sys:String>
     <sys:String x:Key="Settings.Toggle">ALTERNAR</sys:String>

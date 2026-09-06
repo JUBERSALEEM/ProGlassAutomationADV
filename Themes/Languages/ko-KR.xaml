@@ -1767,6 +1767,15 @@
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">에이전트가 인터넷과 통신하는지, 무엇을 말할 수 있는지 제어.</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">지금 백업 만들기</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">지금 백업 세트를 만들고, 목록을 새로 고치거나 백업이 보관된 폴더를 엽니다.</sys:String>
+    <sys:String x:Key="Settings.CrystalBubbleIntensity">거품 강도</sys:String>
+    <sys:String x:Key="Settings.CrystalCausticIntensity">코스틱 강도</sys:String>
+    <sys:String x:Key="Settings.CrystalMaterialHint">6개의 라이브 축으로 크리스탈 물을 조정합니다 — 물, 코스틱, 거품, 반사. 유리·테두리·그림자 불투명도는 디자인된 모습을 유지합니다.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid 조정은 Ios-17pm 테마가 활성일 때만 표시됩니다. Normal과 Monet은 카드 모양 및 그라데이션 컨트롤을 Appearance에서 유지합니다.</sys:String>
+    <sys:String x:Key="Settings.CrystalPreviewHint">라이브 미리보기 — 실제 화면과 동일한 수면.</sys:String>
+    <sys:String x:Key="Settings.CrystalReflectionOpacity">반사 불투명도</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterOpacity">물 불투명도</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterSpeed">물 속도</sys:String>
+    <sys:String x:Key="Settings.CrystalWaveAmplitude">파동 진폭</sys:String>
     <sys:String x:Key="Settings.CtrlMouseWheelZoomsAppCtrl0Resets100">Ctrl + 마우스 휠로 앱을 확대/축소합니다. Ctrl + 0은 100%로 재설정.</sys:String>
     <sys:String x:Key="Settings.CurrentVersion">현재 버전</sys:String>
     <sys:String x:Key="Settings.CustomerLocation">고객 위치</sys:String>
@@ -1837,10 +1846,12 @@
     <sys:String x:Key="Settings.Groq">Groq</sys:String>
     <sys:String x:Key="Settings.GrpAccent">강조 색상</sys:String>
     <sys:String x:Key="Settings.GrpAdvanced">고급</sys:String>
+    <sys:String x:Key="Settings.GrpCrystalMaterial">Crystal Fluid 소재</sys:String>
     <sys:String x:Key="Settings.GrpDensity">표시 밀도</sys:String>
     <sys:String x:Key="Settings.GrpIntelligence">지능</sys:String>
     <sys:String x:Key="Settings.GrpLanguage">언어 및 통화</sys:String>
     <sys:String x:Key="Settings.GrpLook">모양</sys:String>
+    <sys:String x:Key="Settings.GrpPresets">빠른 프리셋</sys:String>
     <sys:String x:Key="Settings.GrpTheme">테마</sys:String>
     <sys:String x:Key="Settings.HideOptional">모든 선택 항목 숨기기</sys:String>
     <sys:String x:Key="Settings.HigherMoreCreativeLowerMoreDeterministicRead">높을수록 창의적, 낮을수록 결정적. config.json에서 읽습니다.</sys:String>
@@ -1937,6 +1948,7 @@
     <sys:String x:Key="Settings.PickModuleGenerateLandsWorkspaceFirstVoice">모듈을 선택하세요. [생성]이 먼저 해당 작업 공간으로 이동하여 음성과 화면이 함께 유지됩니다.</sys:String>
     <sys:String x:Key="Settings.PickPlanPressGETLicenseKEYPasteVendorKey">플랜을 선택하고 GET LICENSE KEY를 누르거나 벤더 키를 붙여넣으세요. 평가판이 자동으로 시작되며 PC ID는 머신 바인딩 키에만 필요합니다.</sys:String>
     <sys:String x:Key="Settings.PickSetRestoreSelectingEnoughRestoreButton">복원할 세트를 선택하세요. 선택만으로 충분합니다 — 복원 버튼이 켜집니다.</sys:String>
+    <sys:String x:Key="Settings.PresetsHint">한 번 탭으로 6개의 Crystal Fluid 축을 명명된 프로필로 설정하는 룩.</sys:String>
     <sys:String x:Key="Settings.PrivacyPostureProviderCredentialsTaught">개인정보 보호 태세, 프로바이더 자격 증명, 학습 문구, 에이전트 메모리.</sys:String>
     <sys:String x:Key="Settings.ProbeDatabaseRefreshRowCountTable">모든 데이터베이스를 검사하고 행 수 테이블 새로 고침</sys:String>
     <sys:String x:Key="Settings.ProbesProglassAutomationDatabaseFileAuto">모든 ProGlass Automation 데이터베이스 파일을 검사합니다. 다음 앱 시작 시 자동 마이그레이션이 대부분의 드리프트를 처리하며, 재빌드는 열기 너무 손상된 파일용 최후 수단입니다.</sys:String>
@@ -1971,6 +1983,8 @@
     <sys:String x:Key="Settings.ResetAppearanceDefaults">외관을 기본값으로 재설정</sys:String>
     <sys:String x:Key="Settings.ResetDEMOFolder">데모 폴더 재설정</sys:String>
     <sys:String x:Key="Settings.ResetDeletesAppdataProglassautomationDemo">재설정은 %AppData%/ProGlassAutomation.Demo만 삭제합니다. 생산 파일은 열리거나 지워지지 않습니다.</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamily">기본값으로 재설정</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamilyHint">활성 테마 패밀리를 기본 모습으로 복원합니다.</sys:String>
     <sys:String x:Key="Settings.ResetToEnglish">영어로 재설정</sys:String>
     <sys:String x:Key="Settings.Resetting">재설정 중...</sys:String>
     <sys:String x:Key="Settings.ResettingAppearance">외관 재설정 중</sys:String>
@@ -2001,6 +2015,7 @@
     <sys:String x:Key="Settings.SecDemo">데모 센터</sys:String>
     <sys:String x:Key="Settings.SecFeatures">기능</sys:String>
     <sys:String x:Key="Settings.SecLicense">라이선스</sys:String>
+    <sys:String x:Key="Settings.SecThemes">테마</sys:String>
     <sys:String x:Key="Settings.SecUpdates">업데이트</sys:String>
     <sys:String x:Key="Settings.SecVoice">음성</sys:String>
     <sys:String x:Key="Settings.Security">보안</sys:String>
@@ -2030,6 +2045,10 @@
     <sys:String x:Key="Settings.Temperature">온도</sys:String>
     <sys:String x:Key="Settings.ThemeColoursWallpapersMotionModule">테마, 색상, 배경화면, 모션, 모듈별 배경.</sys:String>
     <sys:String x:Key="Settings.ThemeLayout">테마 및 레이아웃</sys:String>
+    <sys:String x:Key="Settings.ThemePresetCalm">차분함</sys:String>
+    <sys:String x:Key="Settings.ThemePresetDefault">기본값</sys:String>
+    <sys:String x:Key="Settings.ThemePresetIntense">강렬함</sys:String>
+    <sys:String x:Key="Settings.ThemesSubtitle">비주얼 테마 패밀리와 Crystal Fluid 소재 조정.</sys:String>
     <sys:String x:Key="Settings.ThreeWhisperModelSizesAvailable">3가지 Whisper 모델 크기 사용 가능.</sys:String>
     <sys:String x:Key="Settings.Title">설정</sys:String>
     <sys:String x:Key="Settings.Toggle">전환</sys:String>

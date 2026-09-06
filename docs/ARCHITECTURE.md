@@ -143,6 +143,14 @@ Eleven SQLite files under `AppDataRoot`, each owned by one `DbContext`
   Acrylic (Windows 11).
 - **`CrystalFluidSettings`** is the single source of truth for crystal token
   baselines (engine and XAML defaults pinned equal by tests).
+- **`ThemeCustomization`** (Settings → **Themes**) is the bounded, persisted,
+  family-aware replacement for the Theme Studio: six live Crystal Fluid axes
+  (water opacity/speed, wave amplitude, caustic, bubble, reflection opacity),
+  named presets **Default / Calm / Intense**, and a per-family **Reset**. It
+  is the SINGLE writer of the six `Crystal*` tokens (`Apply`), delegated to
+  from `ApplyCrystalFluid`; `CrystalReducedMotion` stays a separate §43 flag.
+  Normal/Monet keep their Appearance card controls, and the Crystal group is
+  only visible while **Ios-17pm** is the active family.
 - **Removed 2026-09-06**: the experimental **Theme Studio** (0–100 slider
   playground) and its Quick-Looks companion. The §43 **reduced-motion**
   accessibility toggle was preserved as a standalone Appearance tile.

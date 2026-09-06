@@ -1767,6 +1767,15 @@
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">नियंत्रित करें कि एजेंट इंटरनेट से बात करता है या नहीं, और उसे क्या कहने की अनुमति है।</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">अभी बैकअप बनाएँ</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">अभी बैकअप सेट बनाएँ, सूची ताज़ा करें, या वह फ़ोल्डर खोलें जहाँ बैकअप रखे जाते हैं।</sys:String>
+    <sys:String x:Key="Settings.CrystalBubbleIntensity">बुलबुला तीव्रता</sys:String>
+    <sys:String x:Key="Settings.CrystalCausticIntensity">कॉस्टिक तीव्रता</sys:String>
+    <sys:String x:Key="Settings.CrystalMaterialHint">छह लाइव अक्ष क्रिस्टल जल को ट्यून करते हैं — जल, कॉस्टिक, बुलबुले और परावर्तन। काँच, किनारा और छाया अपारदर्शिता अपने निर्धारित रूप में रहती है।</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">क्रिस्टल फ्लूइड ट्यूनिंग केवल तब दिखती है जब Ios-17pm थीम सक्रिय हो। Normal और Monet अपने कार्ड आकार और ग्रेडिएंट नियंत्रण Appearance में रखते हैं।</sys:String>
+    <sys:String x:Key="Settings.CrystalPreviewHint">लाइव पूर्वावलोकन — वही जल सतह जो वास्तविक स्क्रीन उपयोग करती हैं।</sys:String>
+    <sys:String x:Key="Settings.CrystalReflectionOpacity">परावर्तन अपारदर्शिता</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterOpacity">जल अपारदर्शिता</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterSpeed">जल गति</sys:String>
+    <sys:String x:Key="Settings.CrystalWaveAmplitude">तरंग आयाम</sys:String>
     <sys:String x:Key="Settings.CtrlMouseWheelZoomsAppCtrl0Resets100">Ctrl + माउस व्हील ऐप को ज़ूम करता है। Ctrl + 0 100% पर रीसेट करता है।</sys:String>
     <sys:String x:Key="Settings.CurrentVersion">वर्तमान संस्करण</sys:String>
     <sys:String x:Key="Settings.CustomerLocation">ग्राहक स्थान</sys:String>
@@ -1837,10 +1846,12 @@
     <sys:String x:Key="Settings.Groq">Groq</sys:String>
     <sys:String x:Key="Settings.GrpAccent">एक्सेंट</sys:String>
     <sys:String x:Key="Settings.GrpAdvanced">उन्नत</sys:String>
+    <sys:String x:Key="Settings.GrpCrystalMaterial">क्रिस्टल फ्लूइड सामग्री</sys:String>
     <sys:String x:Key="Settings.GrpDensity">प्रदर्शन घनत्व</sys:String>
     <sys:String x:Key="Settings.GrpIntelligence">बुद्धिमत्ता</sys:String>
     <sys:String x:Key="Settings.GrpLanguage">भाषा और मुद्रा</sys:String>
     <sys:String x:Key="Settings.GrpLook">रूप-रंग</sys:String>
+    <sys:String x:Key="Settings.GrpPresets">त्वरित प्रीसेट</sys:String>
     <sys:String x:Key="Settings.GrpTheme">थीम</sys:String>
     <sys:String x:Key="Settings.HideOptional">सभी वैकल्पिक छिपाएँ</sys:String>
     <sys:String x:Key="Settings.HigherMoreCreativeLowerMoreDeterministicRead">उच्च = अधिक रचनात्मक, निम्न = अधिक नियतात्मक। config.json से पढ़ा जाता है।</sys:String>
@@ -1937,6 +1948,7 @@
     <sys:String x:Key="Settings.PickModuleGenerateLandsWorkspaceFirstVoice">एक मॉड्यूल चुनें। जनरेशन पहले उस कार्यक्षेत्र पर उतरता है ताकि आवाज़ और चित्र एक साथ रहें।</sys:String>
     <sys:String x:Key="Settings.PickPlanPressGETLicenseKEYPasteVendorKey">एक योजना चुनें और GET LICENSE KEY दबाएँ, या विक्रेता कुंजी चिपकाएँ। परीक्षण स्वतः शुरू होता है; PC ID केवल मशीन-बद्ध कुंजियों के लिए आवश्यक है।</sys:String>
     <sys:String x:Key="Settings.PickSetRestoreSelectingEnoughRestoreButton">पुनर्स्थापित करने के लिए एक सेट चुनें। चयन पर्याप्त है — पुनर्स्थापना बटन जगमगाता है।</sys:String>
+    <sys:String x:Key="Settings.PresetsHint">एक-टैप लुक जो छह क्रिस्टल फ्लूइड अक्षों को नामित प्रोफ़ाइल पर सेट करते हैं।</sys:String>
     <sys:String x:Key="Settings.PrivacyPostureProviderCredentialsTaught">गोपनीयता रुख, प्रदाता साख, सिखाई गई वाक्यांश और एजेंट मेमोरी।</sys:String>
     <sys:String x:Key="Settings.ProbeDatabaseRefreshRowCountTable">हर डेटाबेस की जाँच करें और पंक्ति-गणना तालिका ताज़ा करें</sys:String>
     <sys:String x:Key="Settings.ProbesProglassAutomationDatabaseFileAuto">हर ProGlass Automation डेटाबेस फ़ाइल की जाँच करता है। अगले ऐप प्रारंभ पर स्वचालित माइग्रेशन अधिकांश विचलन संभालता है; पुनर्निर्माण उस फ़ाइल के लिए परम विकल्प है जो खोलने के लिए बहुत टूटी है।</sys:String>
@@ -1971,6 +1983,8 @@
     <sys:String x:Key="Settings.ResetAppearanceDefaults">दिखावट को डिफ़ॉल्ट पर रीसेट करें</sys:String>
     <sys:String x:Key="Settings.ResetDEMOFolder">डेमो फ़ोल्डर रीसेट करें</sys:String>
     <sys:String x:Key="Settings.ResetDeletesAppdataProglassautomationDemo">रीसेट केवल %AppData%/ProGlassAutomation.Demo हटाता है। उत्पादन फ़ाइलें कभी नहीं खोली या साफ़ की जातीं।</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamily">डिफ़ॉल्ट पर रीसेट करें</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamilyHint">सक्रिय थीम परिवार को उसके डिफ़ॉल्ट रूप में बहाल करें।</sys:String>
     <sys:String x:Key="Settings.ResetToEnglish">अंग्रेज़ी पर रीसेट</sys:String>
     <sys:String x:Key="Settings.Resetting">रीसेट हो रहा है...</sys:String>
     <sys:String x:Key="Settings.ResettingAppearance">दिखावट रीसेट हो रही है</sys:String>
@@ -2001,6 +2015,7 @@
     <sys:String x:Key="Settings.SecDemo">डेमो केंद्र</sys:String>
     <sys:String x:Key="Settings.SecFeatures">सुविधाएँ</sys:String>
     <sys:String x:Key="Settings.SecLicense">लाइसेंस</sys:String>
+    <sys:String x:Key="Settings.SecThemes">थीम्स</sys:String>
     <sys:String x:Key="Settings.SecUpdates">अपडेट</sys:String>
     <sys:String x:Key="Settings.SecVoice">आवाज़</sys:String>
     <sys:String x:Key="Settings.Security">सुरक्षा</sys:String>
@@ -2030,6 +2045,10 @@
     <sys:String x:Key="Settings.Temperature">तापमान</sys:String>
     <sys:String x:Key="Settings.ThemeColoursWallpapersMotionModule">थीम, रंग, वॉलपेपर, गति और प्रति-मॉड्यूल पृष्ठभूमि।</sys:String>
     <sys:String x:Key="Settings.ThemeLayout">थीम और लेआउट</sys:String>
+    <sys:String x:Key="Settings.ThemePresetCalm">शांत</sys:String>
+    <sys:String x:Key="Settings.ThemePresetDefault">डिफ़ॉल्ट</sys:String>
+    <sys:String x:Key="Settings.ThemePresetIntense">तीव्र</sys:String>
+    <sys:String x:Key="Settings.ThemesSubtitle">विज़ुअल थीम परिवार और क्रिस्टल फ्लूइड सामग्री ट्यूनिंग।</sys:String>
     <sys:String x:Key="Settings.ThreeWhisperModelSizesAvailable">तीन Whisper मॉडल आकार उपलब्ध हैं।</sys:String>
     <sys:String x:Key="Settings.Title">सेटिंग्स</sys:String>
     <sys:String x:Key="Settings.Toggle">टॉगल</sys:String>

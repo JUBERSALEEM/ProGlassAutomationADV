@@ -1767,6 +1767,15 @@
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Kontrol apakah agen berbicara dengan internet, dan apa yang diizinkan untuk dikatakan.</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">BUAT CADANGAN SEKARANG</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Buat set cadangan sekarang, segarkan daftar, atau buka folder tempat cadangan disimpan.</sys:String>
+    <sys:String x:Key="Settings.CrystalBubbleIntensity">Intensitas gelembung</sys:String>
+    <sys:String x:Key="Settings.CrystalCausticIntensity">Intensitas kaustik</sys:String>
+    <sys:String x:Key="Settings.CrystalMaterialHint">Enam sumbu langsung menyetel air kristal — air, kaustik, gelembung, dan pantulan. Opasitas kaca, tepi, dan bayangan tetap pada tampilan aslinya.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Penyetelan Crystal Fluid hanya muncul saat tema Ios-17pm aktif. Normal dan Monet tetap memakai kontrol bentuk kartu dan gradien di Appearance.</sys:String>
+    <sys:String x:Key="Settings.CrystalPreviewHint">Pratinjau langsung — permukaan air yang sama seperti layar asli.</sys:String>
+    <sys:String x:Key="Settings.CrystalReflectionOpacity">Opasitas pantulan</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterOpacity">Opasitas air</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterSpeed">Kecepatan air</sys:String>
+    <sys:String x:Key="Settings.CrystalWaveAmplitude">Amplitudo gelombang</sys:String>
     <sys:String x:Key="Settings.CtrlMouseWheelZoomsAppCtrl0Resets100">Ctrl + roda mouse memperbesar aplikasi. Ctrl + 0 mengatur ulang ke 100 %.</sys:String>
     <sys:String x:Key="Settings.CurrentVersion">VERSI SAAT INI</sys:String>
     <sys:String x:Key="Settings.CustomerLocation">Lokasi Pelanggan</sys:String>
@@ -1837,10 +1846,12 @@
     <sys:String x:Key="Settings.Groq">Groq</sys:String>
     <sys:String x:Key="Settings.GrpAccent">WARNA AKSEN</sys:String>
     <sys:String x:Key="Settings.GrpAdvanced">LANJUTAN</sys:String>
+    <sys:String x:Key="Settings.GrpCrystalMaterial">Material Crystal Fluid</sys:String>
     <sys:String x:Key="Settings.GrpDensity">KEPADATAN TAMPILAN</sys:String>
     <sys:String x:Key="Settings.GrpIntelligence">KECERDASAN</sys:String>
     <sys:String x:Key="Settings.GrpLanguage">BAHASA &amp; MATA UANG</sys:String>
     <sys:String x:Key="Settings.GrpLook">TAMPILAN</sys:String>
+    <sys:String x:Key="Settings.GrpPresets">Prasetel cepat</sys:String>
     <sys:String x:Key="Settings.GrpTheme">TEMA</sys:String>
     <sys:String x:Key="Settings.HideOptional">Sembunyikan semua opsional</sys:String>
     <sys:String x:Key="Settings.HigherMoreCreativeLowerMoreDeterministicRead">Lebih tinggi = lebih kreatif, lebih rendah = lebih deterministik. Dibaca dari config.json.</sys:String>
@@ -1937,6 +1948,7 @@
     <sys:String x:Key="Settings.PickModuleGenerateLandsWorkspaceFirstVoice">Pilih modul. Generate mendarat di ruang kerja itu terlebih dahulu sehingga suara dan gambar tetap menyatu.</sys:String>
     <sys:String x:Key="Settings.PickPlanPressGETLicenseKEYPasteVendorKey">Pilih paket dan tekan GET LICENSE KEY, atau tempel kunci vendor. Percobaan dimulai otomatis; ID PC hanya diperlukan untuk kunci terikat mesin.</sys:String>
     <sys:String x:Key="Settings.PickSetRestoreSelectingEnoughRestoreButton">Pilih set untuk dipulihkan. Memilih saja sudah cukup — tombol pulihkan menyala.</sys:String>
+    <sys:String x:Key="Settings.PresetsHint">Tampilan sekali klik yang mengatur enam sumbu Crystal Fluid ke profil bernama.</sys:String>
     <sys:String x:Key="Settings.PrivacyPostureProviderCredentialsTaught">Postur privasi, kredensial penyedia, frasa terajar, dan memori agen.</sys:String>
     <sys:String x:Key="Settings.ProbeDatabaseRefreshRowCountTable">Periksa setiap basis data dan segarkan tabel jumlah baris</sys:String>
     <sys:String x:Key="Settings.ProbesProglassAutomationDatabaseFileAuto">Memeriksa setiap file basis data ProGlass Automation. Migrasi otomatis pada permulaan aplikasi berikutnya menangani sebagian besar penyimpangan; rebuild adalah opsi nuklir untuk file yang terlalu rusak untuk dibuka.</sys:String>
@@ -1971,6 +1983,8 @@
     <sys:String x:Key="Settings.ResetAppearanceDefaults">ATUR ULANG TAMPILAN KE DEFAULT</sys:String>
     <sys:String x:Key="Settings.ResetDEMOFolder">ATUR ULANG FOLDER DEMO</sys:String>
     <sys:String x:Key="Settings.ResetDeletesAppdataProglassautomationDemo">Atur ulang hanya menghapus %AppData%/ProGlassAutomation.Demo. File produksi tidak pernah dibuka atau dihapus.</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamily">Reset ke Default</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamilyHint">Kembalikan keluarga tema aktif ke tampilan default-nya.</sys:String>
     <sys:String x:Key="Settings.ResetToEnglish">Kembalikan ke bahasa Inggris</sys:String>
     <sys:String x:Key="Settings.Resetting">MENGATUR ULANG...</sys:String>
     <sys:String x:Key="Settings.ResettingAppearance">Mengatur Ulang Tampilan</sys:String>
@@ -2001,6 +2015,7 @@
     <sys:String x:Key="Settings.SecDemo">Pusat demo</sys:String>
     <sys:String x:Key="Settings.SecFeatures">Fitur</sys:String>
     <sys:String x:Key="Settings.SecLicense">Lisensi</sys:String>
+    <sys:String x:Key="Settings.SecThemes">Tema</sys:String>
     <sys:String x:Key="Settings.SecUpdates">Pembaruan</sys:String>
     <sys:String x:Key="Settings.SecVoice">Suara</sys:String>
     <sys:String x:Key="Settings.Security">KEAMANAN</sys:String>
@@ -2030,6 +2045,10 @@
     <sys:String x:Key="Settings.Temperature">Suhu</sys:String>
     <sys:String x:Key="Settings.ThemeColoursWallpapersMotionModule">Tema, warna, wallpaper, gerakan, dan latar per-modul.</sys:String>
     <sys:String x:Key="Settings.ThemeLayout">TEMA &amp; TATA LETAK</sys:String>
+    <sys:String x:Key="Settings.ThemePresetCalm">Tenang</sys:String>
+    <sys:String x:Key="Settings.ThemePresetDefault">Default</sys:String>
+    <sys:String x:Key="Settings.ThemePresetIntense">Intens</sys:String>
+    <sys:String x:Key="Settings.ThemesSubtitle">Keluarga tema visual dan penyetelan material Crystal Fluid.</sys:String>
     <sys:String x:Key="Settings.ThreeWhisperModelSizesAvailable">Tiga ukuran model Whisper tersedia.</sys:String>
     <sys:String x:Key="Settings.Title">Pengaturan</sys:String>
     <sys:String x:Key="Settings.Toggle">ALIHKAN</sys:String>

@@ -1767,6 +1767,15 @@
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Ajanın internetle konuşup konuşmayacağını ve ne söylemesine izin verildiğini kontrol edin.</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">ŞİMDİ YEDEK OLUŞTUR</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Şimdi bir yedek kümesi oluşturun, listeyi yenileyin veya yedeklerin tutulduğu klasörü açın.</sys:String>
+    <sys:String x:Key="Settings.CrystalBubbleIntensity">Kabarcık yoğunluğu</sys:String>
+    <sys:String x:Key="Settings.CrystalCausticIntensity">Kostik yoğunluğu</sys:String>
+    <sys:String x:Key="Settings.CrystalMaterialHint">Altı canlı eksen kristal suyu ayarlar — su, kostikler, kabarcıklar ve yansıma. Cam, kenarlık ve gölge opaklığı tasarlanmış görünümünü korur.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid ayarı yalnızca Ios-17pm teması etkinken görünür. Normal ve Monet kart şekli ve degrade kontrollerini Görünüm&#x27;de tutar.</sys:String>
+    <sys:String x:Key="Settings.CrystalPreviewHint">Canlı önizleme — gerçek ekranlarla aynı su yüzeyi.</sys:String>
+    <sys:String x:Key="Settings.CrystalReflectionOpacity">Yansıma opaklığı</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterOpacity">Su opaklığı</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterSpeed">Su hızı</sys:String>
+    <sys:String x:Key="Settings.CrystalWaveAmplitude">Dalga genliği</sys:String>
     <sys:String x:Key="Settings.CtrlMouseWheelZoomsAppCtrl0Resets100">Ctrl + fare tekerleği uygulamayı yakınlaştırır. Ctrl + 0 %100&#x27;e sıfırlar.</sys:String>
     <sys:String x:Key="Settings.CurrentVersion">GEÇERLİ SÜRÜM</sys:String>
     <sys:String x:Key="Settings.CustomerLocation">Müşteri Konumu</sys:String>
@@ -1837,10 +1846,12 @@
     <sys:String x:Key="Settings.Groq">Groq</sys:String>
     <sys:String x:Key="Settings.GrpAccent">VURGU RENGİ</sys:String>
     <sys:String x:Key="Settings.GrpAdvanced">GELİŞMİŞ</sys:String>
+    <sys:String x:Key="Settings.GrpCrystalMaterial">Crystal Fluid malzeme</sys:String>
     <sys:String x:Key="Settings.GrpDensity">GÖRÜNÜM YOĞUNLUĞU</sys:String>
     <sys:String x:Key="Settings.GrpIntelligence">ZEKÂ</sys:String>
     <sys:String x:Key="Settings.GrpLanguage">DİL VE PARA BİRİMİ</sys:String>
     <sys:String x:Key="Settings.GrpLook">GÖRÜNÜM</sys:String>
+    <sys:String x:Key="Settings.GrpPresets">Hızlı ön ayarlar</sys:String>
     <sys:String x:Key="Settings.GrpTheme">TEMA</sys:String>
     <sys:String x:Key="Settings.HideOptional">Tüm isteğe bağlıları gizle</sys:String>
     <sys:String x:Key="Settings.HigherMoreCreativeLowerMoreDeterministicRead">Yüksek = daha yaratıcı, düşük = daha belirlenimci. config.json&#x27;dan okunur.</sys:String>
@@ -1937,6 +1948,7 @@
     <sys:String x:Key="Settings.PickModuleGenerateLandsWorkspaceFirstVoice">Bir modül seçin. Oluşturma önce o çalışma alanına iner; böylece ses ve görüntü birlikte kalır.</sys:String>
     <sys:String x:Key="Settings.PickPlanPressGETLicenseKEYPasteVendorKey">Bir plan seçin ve LİSANS ANAHTARI AL&#x27;a basın veya bir satıcı anahtarı yapıştırın. Deneme otomatik başlar; PC Kimliği yalnızca makineye bağlı anahtarlar için gerekir.</sys:String>
     <sys:String x:Key="Settings.PickSetRestoreSelectingEnoughRestoreButton">Geri yüklenecek bir küme seçin. Seçmek yeterlidir — geri yükleme düğmesi yanar.</sys:String>
+    <sys:String x:Key="Settings.PresetsHint">Altı Crystal Fluid eksenini adlandırılmış profillere ayarlayan tek dokunuşluk görünümler.</sys:String>
     <sys:String x:Key="Settings.PrivacyPostureProviderCredentialsTaught">Gizlilik duruşu, sağlayıcı kimlik bilgileri, öğretilen ifadeler ve ajan belleği.</sys:String>
     <sys:String x:Key="Settings.ProbeDatabaseRefreshRowCountTable">Her veritabanını yokla ve satır sayısı tablosunu yenile</sys:String>
     <sys:String x:Key="Settings.ProbesProglassAutomationDatabaseFileAuto">Her ProGlass Automation veritabanı dosyasını yoklar. Sonraki uygulama başlatmasındaki otomatik geçiş çoğu sapmayı yönetir; yeniden oluşturma, açılamayacak kadar bozuk bir dosya için son çaredir.</sys:String>
@@ -1971,6 +1983,8 @@
     <sys:String x:Key="Settings.ResetAppearanceDefaults">GÖRÜNÜMÜ VARSAYILANA SIFIRLA</sys:String>
     <sys:String x:Key="Settings.ResetDEMOFolder">DEMO KLASÖRÜNÜ SIFIRLA</sys:String>
     <sys:String x:Key="Settings.ResetDeletesAppdataProglassautomationDemo">Sıfırlama yalnızca %AppData%/ProGlassAutomation.Demo klasörünü siler. Üretim dosyaları asla açılmaz veya temizlenmez.</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamily">Varsayılana sıfırla</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamilyHint">Etkin tema ailesini varsayılan görünümüne döndürür.</sys:String>
     <sys:String x:Key="Settings.ResetToEnglish">İngilizceye sıfırla</sys:String>
     <sys:String x:Key="Settings.Resetting">SIFIRLANIYOR...</sys:String>
     <sys:String x:Key="Settings.ResettingAppearance">Görünüm Sıfırlanıyor</sys:String>
@@ -2001,6 +2015,7 @@
     <sys:String x:Key="Settings.SecDemo">Demo merkezi</sys:String>
     <sys:String x:Key="Settings.SecFeatures">Özellikler</sys:String>
     <sys:String x:Key="Settings.SecLicense">Lisans</sys:String>
+    <sys:String x:Key="Settings.SecThemes">Temalar</sys:String>
     <sys:String x:Key="Settings.SecUpdates">Güncellemeler</sys:String>
     <sys:String x:Key="Settings.SecVoice">Ses</sys:String>
     <sys:String x:Key="Settings.Security">GÜVENLİK</sys:String>
@@ -2030,6 +2045,10 @@
     <sys:String x:Key="Settings.Temperature">Sıcaklık</sys:String>
     <sys:String x:Key="Settings.ThemeColoursWallpapersMotionModule">Tema, renkler, duvar kâğıtları, hareket ve modül başına arka planlar.</sys:String>
     <sys:String x:Key="Settings.ThemeLayout">TEMA VE DÜZEN</sys:String>
+    <sys:String x:Key="Settings.ThemePresetCalm">Sakin</sys:String>
+    <sys:String x:Key="Settings.ThemePresetDefault">Varsayılan</sys:String>
+    <sys:String x:Key="Settings.ThemePresetIntense">Yoğun</sys:String>
+    <sys:String x:Key="Settings.ThemesSubtitle">Görsel tema ailesi ve Crystal Fluid malzeme ayarı.</sys:String>
     <sys:String x:Key="Settings.ThreeWhisperModelSizesAvailable">Üç Whisper modeli boyutu mevcuttur.</sys:String>
     <sys:String x:Key="Settings.Title">Ayarlar</sys:String>
     <sys:String x:Key="Settings.Toggle">AÇ/KAPAT</sys:String>

@@ -1767,6 +1767,15 @@
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">التحكم فيما إذا كان الوكيل يتصل بالإنترنت وما المسموح له بقوله.</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">إنشاء نسخة احتياطية الآن</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">أنشئ مجموعة نسخ احتياطي الآن، حدّث القائمة، أو افتح المجلد الذي تُحفظ فيه النسخ.</sys:String>
+    <sys:String x:Key="Settings.CrystalBubbleIntensity">شدة الفقاعات</sys:String>
+    <sys:String x:Key="Settings.CrystalCausticIntensity">شدة الانعكاس الضوئي</sys:String>
+    <sys:String x:Key="Settings.CrystalMaterialHint">ستة محاور حية تضبط الماء البلوري — الماء والانعكاسات والفقاعات. تبقى شفافية الزجاج والحواف والظلال على مظهرها الأصلي.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">يظهر ضبط Crystal Fluid فقط عندما يكون مظهر Ios-17pm نشطًا. يحتفظ Normal و Monet بأدوات شكل البطاقة والتدرجات في قسم المظهر.</sys:String>
+    <sys:String x:Key="Settings.CrystalPreviewHint">معاينة حية — نفس سطح الماء المستخدم في الشاشات الحقيقية.</sys:String>
+    <sys:String x:Key="Settings.CrystalReflectionOpacity">شفافية الانعكاس</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterOpacity">شفافية الماء</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterSpeed">سرعة الماء</sys:String>
+    <sys:String x:Key="Settings.CrystalWaveAmplitude">سعة الموجة</sys:String>
     <sys:String x:Key="Settings.CtrlMouseWheelZoomsAppCtrl0Resets100">Ctrl + عجلة الفأرة لتكبير التطبيق. Ctrl + 0 يعيد إلى 100%.</sys:String>
     <sys:String x:Key="Settings.CurrentVersion">الإصدار الحالي</sys:String>
     <sys:String x:Key="Settings.CustomerLocation">موقع العميل</sys:String>
@@ -1837,10 +1846,12 @@
     <sys:String x:Key="Settings.Groq">Groq</sys:String>
     <sys:String x:Key="Settings.GrpAccent">لون التمييز</sys:String>
     <sys:String x:Key="Settings.GrpAdvanced">إعدادات متقدمة</sys:String>
+    <sys:String x:Key="Settings.GrpCrystalMaterial">مادة كريستال فلويد</sys:String>
     <sys:String x:Key="Settings.GrpDensity">كثافة العرض</sys:String>
     <sys:String x:Key="Settings.GrpIntelligence">الذكاء</sys:String>
     <sys:String x:Key="Settings.GrpLanguage">اللغة والعملة</sys:String>
     <sys:String x:Key="Settings.GrpLook">المظهر</sys:String>
+    <sys:String x:Key="Settings.GrpPresets">الإعدادات السريعة</sys:String>
     <sys:String x:Key="Settings.GrpTheme">السمة</sys:String>
     <sys:String x:Key="Settings.HideOptional">إخفاء كل الاختياري</sys:String>
     <sys:String x:Key="Settings.HigherMoreCreativeLowerMoreDeterministicRead">أعلى = أكثر إبداعًا، أدنى = أكثر حتمية. تُقرأ من config.json.</sys:String>
@@ -1939,6 +1950,7 @@
     <sys:String x:Key="Settings.PickModuleGenerateLandsWorkspaceFirstVoice">اختر وحدة. ينتقل التوليد إلى مساحة عمل تلك الوحدة أولًا ليبقى الصوت والصورة معًا.</sys:String>
     <sys:String x:Key="Settings.PickPlanPressGETLicenseKEYPasteVendorKey">اختر خطة واضغط احصل على مفتاح الترخيص، أو الصق مفتاح مورّد. تبدأ النسخة التجريبية تلقائيًا؛ ومعرف الكمبيوتر مطلوب فقط للمفاتيح المرتبطة بالجهاز.</sys:String>
     <sys:String x:Key="Settings.PickSetRestoreSelectingEnoughRestoreButton">اختر مجموعة للاستعادة. التحديد كافٍ — يضيء زر الاستعادة.</sys:String>
+    <sys:String x:Key="Settings.PresetsHint">مظاهر بلمسة واحدة تضبط المحاور الستة لمادة كريستال فلويد على ملفات جاهزة.</sys:String>
     <sys:String x:Key="Settings.PrivacyPostureProviderCredentialsTaught">موقف الخصوصية، بيانات اعتماد المزوّد، العبارات المعلَّمة وذاكرة الوكيل.</sys:String>
     <sys:String x:Key="Settings.ProbeDatabaseRefreshRowCountTable">فحص كل قاعدة بيانات وتحديث جدول عدد الصفوف</sys:String>
     <sys:String x:Key="Settings.ProbesProglassAutomationDatabaseFileAuto">يفحص كل ملف قاعدة بيانات ProGlass Automation. الترحيل التلقائي عند التشغيل التالي يعالج معظم الانحرافات؛ إعادة البناء هي الخيار النووي لملف تالف جدًا بحيث لا يُفتح.</sys:String>
@@ -1973,6 +1985,8 @@
     <sys:String x:Key="Settings.ResetAppearanceDefaults">إعادة تعيين المظهر إلى الافتراضي</sys:String>
     <sys:String x:Key="Settings.ResetDEMOFolder">إعادة تعيين مجلد العرض التجريبي</sys:String>
     <sys:String x:Key="Settings.ResetDeletesAppdataProglassautomationDemo">إعادة التعيين تحذف فقط %AppData%/ProGlassAutomation.Demo. ملفات الإنتاج لا تُفتح ولا تُمسح أبدًا.</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamily">إعادة الضبط إلى الوضع الافتراضي</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamilyHint">استعادة عائلة المظهر النشطة إلى مظهرها الافتراضي.</sys:String>
     <sys:String x:Key="Settings.ResetToEnglish">إعادة إلى الإنجليزية</sys:String>
     <sys:String x:Key="Settings.Resetting">جارٍ إعادة التعيين...</sys:String>
     <sys:String x:Key="Settings.ResettingAppearance">جارٍ إعادة تعيين المظهر</sys:String>
@@ -2003,6 +2017,7 @@
     <sys:String x:Key="Settings.SecDemo">مركز العروض</sys:String>
     <sys:String x:Key="Settings.SecFeatures">الميزات</sys:String>
     <sys:String x:Key="Settings.SecLicense">الترخيص</sys:String>
+    <sys:String x:Key="Settings.SecThemes">السمات</sys:String>
     <sys:String x:Key="Settings.SecUpdates">التحديثات</sys:String>
     <sys:String x:Key="Settings.SecVoice">الصوت</sys:String>
     <sys:String x:Key="Settings.Security">الأمان</sys:String>
@@ -2032,6 +2047,10 @@
     <sys:String x:Key="Settings.Temperature">درجة الحرارة</sys:String>
     <sys:String x:Key="Settings.ThemeColoursWallpapersMotionModule">السمة والألوان والخلفيات والحركة وخلفيات كل وحدة.</sys:String>
     <sys:String x:Key="Settings.ThemeLayout">السمة والتخطيط</sys:String>
+    <sys:String x:Key="Settings.ThemePresetCalm">هادئ</sys:String>
+    <sys:String x:Key="Settings.ThemePresetDefault">افتراضي</sys:String>
+    <sys:String x:Key="Settings.ThemePresetIntense">مكثف</sys:String>
+    <sys:String x:Key="Settings.ThemesSubtitle">اختيار عائلة المظهر المرئي وضبط مادة كريستال فلويد.</sys:String>
     <sys:String x:Key="Settings.ThreeWhisperModelSizesAvailable">ثلاثة أحجام لنماذج Whisper متاحة.</sys:String>
     <sys:String x:Key="Settings.Title">الإعدادات</sys:String>
     <sys:String x:Key="Settings.Toggle">تبديل</sys:String>

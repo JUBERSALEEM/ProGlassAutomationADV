@@ -1772,6 +1772,15 @@
     <sys:String x:Key="Settings.ControlWhetherAgentTalksInternetWhatAllowed">Control whether the agent talks to the internet, and what it is allowed to say.</sys:String>
     <sys:String x:Key="Settings.CreateBackupNOW">CREATE BACKUP NOW</sys:String>
     <sys:String x:Key="Settings.CreateBackupSetNowRefreshListOpenFolderWhere">Create a backup set now, refresh the list, or open the folder where backups are kept.</sys:String>
+    <sys:String x:Key="Settings.CrystalBubbleIntensity">Bubble intensity</sys:String>
+    <sys:String x:Key="Settings.CrystalCausticIntensity">Caustic intensity</sys:String>
+    <sys:String x:Key="Settings.CrystalMaterialHint">Six live axes tune the crystal water — water, caustics, bubbles and reflection. Glass, border and shadow opacity stay at their authored look.</sys:String>
+    <sys:String x:Key="Settings.CrystalOnlyIos17pm">Crystal Fluid tuning appears only while Ios-17pm is the active theme. Normal and Monet keep their card shape and gradient controls in Appearance.</sys:String>
+    <sys:String x:Key="Settings.CrystalPreviewHint">Live preview — the same water surface real screens use.</sys:String>
+    <sys:String x:Key="Settings.CrystalReflectionOpacity">Reflection opacity</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterOpacity">Water opacity</sys:String>
+    <sys:String x:Key="Settings.CrystalWaterSpeed">Water speed</sys:String>
+    <sys:String x:Key="Settings.CrystalWaveAmplitude">Wave amplitude</sys:String>
     <sys:String x:Key="Settings.CtrlMouseWheelZoomsAppCtrl0Resets100">Ctrl + mouse wheel zooms the app. Ctrl + 0 resets to 100 %.</sys:String>
     <sys:String x:Key="Settings.CurrentVersion">CURRENT VERSION</sys:String>
     <sys:String x:Key="Settings.CustomerLocation">Customer Location</sys:String>
@@ -1842,10 +1851,12 @@
     <sys:String x:Key="Settings.Groq">Groq</sys:String>
     <sys:String x:Key="Settings.GrpAccent">ACCENT</sys:String>
     <sys:String x:Key="Settings.GrpAdvanced">ADVANCED</sys:String>
+    <sys:String x:Key="Settings.GrpCrystalMaterial">Crystal Fluid material</sys:String>
     <sys:String x:Key="Settings.GrpDensity">DISPLAY DENSITY</sys:String>
     <sys:String x:Key="Settings.GrpIntelligence">INTELLIGENCE</sys:String>
     <sys:String x:Key="Settings.GrpLanguage">LANGUAGE &amp; CURRENCY</sys:String>
     <sys:String x:Key="Settings.GrpLook">LOOK</sys:String>
+    <sys:String x:Key="Settings.GrpPresets">Quick presets</sys:String>
     <sys:String x:Key="Settings.GrpTheme">THEME</sys:String>
     <sys:String x:Key="Settings.HideOptional">Hide all optional</sys:String>
     <sys:String x:Key="Settings.HigherMoreCreativeLowerMoreDeterministicRead">Higher = more creative, lower = more deterministic. Read from config.json.</sys:String>
@@ -1944,6 +1955,7 @@
     <sys:String x:Key="Settings.PickModuleGenerateLandsWorkspaceFirstVoice">Pick a module. Generate lands on that workspace first so the voice and the picture stay together.</sys:String>
     <sys:String x:Key="Settings.PickPlanPressGETLicenseKEYPasteVendorKey">Pick a plan and press GET LICENSE KEY, or paste a vendor key. The trial starts automatically; the PC ID is only needed for machine-bound keys.</sys:String>
     <sys:String x:Key="Settings.PickSetRestoreSelectingEnoughRestoreButton">Pick a set to restore. Selecting is enough — the restore button lights up.</sys:String>
+    <sys:String x:Key="Settings.PresetsHint">One-tap looks that set the six Crystal Fluid axes to named profiles.</sys:String>
     <sys:String x:Key="Settings.PrivacyPostureProviderCredentialsTaught">Privacy posture, provider credentials, taught phrases and agent memory.</sys:String>
     <sys:String x:Key="Settings.ProbeDatabaseRefreshRowCountTable">Probe every database and refresh the row-count table</sys:String>
     <sys:String x:Key="Settings.ProbesProglassAutomationDatabaseFileAuto">Probes every ProGlass Automation database file. The auto-migration on next app start handles most drift; rebuild is the nuclear option for a file too broken to open.</sys:String>
@@ -1978,6 +1990,8 @@
     <sys:String x:Key="Settings.ResetAppearanceDefaults">RESET APPEARANCE TO DEFAULTS</sys:String>
     <sys:String x:Key="Settings.ResetDEMOFolder">RESET DEMO FOLDER</sys:String>
     <sys:String x:Key="Settings.ResetDeletesAppdataProglassautomationDemo">Reset deletes only %AppData%/ProGlassAutomation.Demo. Production files are never opened or cleared.</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamily">Reset to Default</sys:String>
+    <sys:String x:Key="Settings.ResetThemeFamilyHint">Restore the active theme family to its default look.</sys:String>
     <sys:String x:Key="Settings.ResetToEnglish">Reset to English</sys:String>
     <sys:String x:Key="Settings.Resetting">RESETTING...</sys:String>
     <sys:String x:Key="Settings.ResettingAppearance">Resetting Appearance</sys:String>
@@ -2008,6 +2022,7 @@
     <sys:String x:Key="Settings.SecDemo">Demo Center</sys:String>
     <sys:String x:Key="Settings.SecFeatures">Features</sys:String>
     <sys:String x:Key="Settings.SecLicense">License</sys:String>
+    <sys:String x:Key="Settings.SecThemes">Themes</sys:String>
     <sys:String x:Key="Settings.SecUpdates">Updates</sys:String>
     <sys:String x:Key="Settings.SecVoice">Voice</sys:String>
     <sys:String x:Key="Settings.Security">SECURITY</sys:String>
@@ -2037,6 +2052,10 @@
     <sys:String x:Key="Settings.Temperature">Temperature</sys:String>
     <sys:String x:Key="Settings.ThemeColoursWallpapersMotionModule">Theme, colours, wallpapers, motion and per-module backgrounds.</sys:String>
     <sys:String x:Key="Settings.ThemeLayout">THEME &amp; LAYOUT</sys:String>
+    <sys:String x:Key="Settings.ThemePresetCalm">Calm</sys:String>
+    <sys:String x:Key="Settings.ThemePresetDefault">Default</sys:String>
+    <sys:String x:Key="Settings.ThemePresetIntense">Intense</sys:String>
+    <sys:String x:Key="Settings.ThemesSubtitle">Visual theme family and Crystal Fluid material tuning.</sys:String>
     <sys:String x:Key="Settings.ThreeWhisperModelSizesAvailable">Three Whisper model sizes are available.</sys:String>
     <sys:String x:Key="Settings.Title">Settings</sys:String>
     <sys:String x:Key="Settings.Toggle">TOGGLE</sys:String>
