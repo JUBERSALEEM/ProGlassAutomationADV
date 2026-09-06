@@ -72,21 +72,45 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public string Category
         {
             get => _category;
-            set { if (_category == value) return; _category = value; Raise(); Revalidate(); }
+            set
+            {
+                if (_category == value) return;
+                _category = value;
+                Raise();
+                _sizeTouched = true;
+                RefreshSizeOptions();   // cascade: sizes follow cat/thk/colour
+                Revalidate();
+            }
         }
 
         private string _thicknessText = "6";
         public string ThicknessText
         {
             get => _thicknessText;
-            set { if (_thicknessText == value) return; _thicknessText = value; Raise(); Revalidate(); }
+            set
+            {
+                if (_thicknessText == value) return;
+                _thicknessText = value;
+                Raise();
+                _sizeTouched = true;
+                RefreshSizeOptions();   // cascade: sizes follow cat/thk/colour
+                Revalidate();
+            }
         }
 
         private string _color = "Clear";
         public string Color
         {
             get => _color;
-            set { if (_color == value) return; _color = value; Raise(); Revalidate(); }
+            set
+            {
+                if (_color == value) return;
+                _color = value;
+                Raise();
+                _sizeTouched = true;
+                RefreshSizeOptions();   // cascade: sizes follow cat/thk/colour
+                Revalidate();
+            }
         }
 
         private string _widthText = "3210";
@@ -98,6 +122,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 if (_widthText == value) return;
                 _widthText = value;
                 Raise();
+                _sizeTouched = true;
                 RefreshHeightOptions();   // cascade: height follows width
                 Revalidate();
             }
@@ -272,15 +297,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 // Offline or first run — fall through to the standards.
             }
 
-            // Sizes actually in stock, so a bespoke cut entered once is
-            // offered thereafter.
-            _knownSizes = StandardSizes
-                .Select(x => (x.Width, x.Height))
-                .Concat(all.Where(g => g.WidthMm > 0 && g.HeightMm > 0)
-                           .Select(g => (g.WidthMm, g.HeightMm)))
-                .Distinct()
-                .OrderBy(x => x.Item1).ThenBy(x => x.Item2)
-                .ToList();
+            // Real stocked sheets, kept WHOLE. The size cascade filters on
+            // category + thickness + colour, so a flat (width,height) list
+            // would throw away exactly the columns it needs.
+            _stocked = all.Where(g => g.WidthMm > 0 && g.HeightMm > 0).ToList();
 
             UiDispatch.Run(() =>
             {
@@ -289,14 +309,101 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     new[] { "Clear", "HD Grey", "Bronze", "Green", "Blue", "Silver" }));
                 Fill(SupplierOptions, suppliers);
                 Fill(ThicknessOptions, MergeNumeric(thicknesses, StandardThicknesses));
-                Fill(WidthOptions, _knownSizes.Select(x => x.Item1)
-                                              .Distinct().OrderBy(w => w)
-                                              .Select(w => w.ToString(CultureInfo.InvariantCulture)));
-                RefreshHeightOptions();
+                RefreshSizeOptions();
             });
         }
 
-        private List<(int, int)> _knownSizes = new();
+        private List<GlassSheet> _stocked = new();
+
+        /// <summary>
+        /// True once the operator has changed category, thickness, colour or
+        /// width by hand. Until then an EXISTING sheet's stored size is left
+        /// exactly as saved — see RefreshSizeOptions.
+        /// </summary>
+        private bool _sizeTouched;
+
+        /// <summary>
+        /// Sizes available for the CURRENT category + thickness + colour.
+        ///
+        /// Narrowed progressively rather than all-or-nothing: an exact
+        /// three-way match is best, but a half-filled form must still offer
+        /// something useful, so each criterion is dropped in turn before
+        /// falling back to the mill standards. Returning an empty list
+        /// whenever the combination is new would make the dropdowns vanish
+        /// exactly when the operator is entering unfamiliar stock.
+        /// </summary>
+        private List<(int Width, int Height)> CandidateSizes()
+        {
+            bool HasCat = !string.IsNullOrWhiteSpace(Category);
+            bool HasCol = !string.IsNullOrWhiteSpace(Color);
+            bool HasThk = int.TryParse(ThicknessText?.Trim(), out int thk);
+            if (!HasThk) thk = -1;
+
+            IEnumerable<GlassSheet> Match(bool cat, bool col, bool t) =>
+                _stocked.Where(g =>
+                    (!cat || string.Equals(g.Category, Category, StringComparison.OrdinalIgnoreCase)) &&
+                    (!col || string.Equals(g.Color, Color, StringComparison.OrdinalIgnoreCase)) &&
+                    (!t   || g.ThicknessMm == thk));
+
+            // Most specific first.
+            foreach (var (cat, col, t) in new[]
+                     {
+                         (HasCat, HasCol, HasThk),   // category + colour + thickness
+                         (HasCat, HasCol, false),    // category + colour
+                         (false,  HasCol, HasThk),   // colour + thickness
+                         (false,  HasCol, false),    // colour alone
+                         (HasCat, false,  false),    // category alone
+                     })
+            {
+                if (!cat && !col && !t) continue;
+                var hit = Match(cat, col, t)
+                    .Select(g => (g.WidthMm, g.HeightMm))
+                    .Distinct().ToList();
+                if (hit.Count > 0) return Order(hit);
+            }
+
+            // Nothing stocked resembles this combination — offer the mill
+            // standards so the operator still gets one-click sizes.
+            return Order(StandardSizes.Select(x => (x.Width, x.Height)).ToList());
+        }
+
+        private static List<(int Width, int Height)> Order(List<(int, int)> src) =>
+            src.OrderBy(x => x.Item1).ThenBy(x => x.Item2)
+               .Select(x => (Width: x.Item1, Height: x.Item2)).ToList();
+
+        /// <summary>
+        /// Rebuilds WidthOptions for the current category/thickness/colour,
+        /// then re-runs the width to height cascade.
+        /// </summary>
+        private void RefreshSizeOptions()
+        {
+            var sizes = CandidateSizes();
+
+            Fill(WidthOptions, sizes.Select(x => x.Width).Distinct()
+                                    .Select(w => w.ToString(CultureInfo.InvariantCulture)));
+
+            // If the current width is not offered for this combination, move
+            // to the first one that is — otherwise the height list below
+            // would be empty and the operator would be stuck.
+            //
+            // EXCEPT when editing: an existing sheet's saved size is the
+            // truth, even if it is a bespoke cut nobody else stocks.
+            // Snapping it to a "standard" would silently rewrite real
+            // inventory the moment the operator opened the tab to change a
+            // price. The dropdown still lists the candidates; it just does
+            // not overrule what is already on the record.
+            if (!_sizeTouched && IsEditMode) { RefreshHeightOptions(); return; }
+
+            if (WidthOptions.Count > 0 &&
+                (!int.TryParse(WidthText?.Trim(), out int cw) ||
+                 !sizes.Any(x => x.Width == cw)))
+            {
+                WidthText = WidthOptions[0];   // setter re-enters the cascade
+                return;
+            }
+
+            RefreshHeightOptions();
+        }
 
         /// <summary>
         /// Heights available for the CURRENT width. A width with one known
@@ -307,9 +414,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (!int.TryParse(WidthText?.Trim(), out int w)) return;
 
-            var heights = _knownSizes.Where(x => x.Item1 == w)
-                                     .Select(x => x.Item2)
-                                     .Distinct().OrderBy(h => h).ToList();
+            var heights = CandidateSizes().Where(x => x.Width == w)
+                                          .Select(x => x.Height)
+                                          .Distinct().OrderBy(h => h).ToList();
             if (heights.Count == 0) return;
 
             Fill(HeightOptions, heights.Select(h => h.ToString(CultureInfo.InvariantCulture)));
