@@ -35,9 +35,16 @@
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
+using ProGlassAutomation.Services.SheetStore;
+using ProGlassAutomation.Utilities;
+using ProGlassAutomation.ViewModels.Shared;
 using ProGlassAutomation.ViewModels.Validation;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.SheetStore
@@ -86,7 +93,14 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public string WidthText
         {
             get => _widthText;
-            set { if (_widthText == value) return; _widthText = value; Raise(); Revalidate(); }
+            set
+            {
+                if (_widthText == value) return;
+                _widthText = value;
+                Raise();
+                RefreshHeightOptions();   // cascade: height follows width
+                Revalidate();
+            }
         }
 
         private string _heightText = "2250";
@@ -193,6 +207,143 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public Action? CloseAction { get; set; }
 
         // ============ CONSTRUCTORS ============
+        // ═══════════════════════════════════════════════════════════════
+        //  PICKER OPTIONS
+        //
+        //  Every one of these is an EDITABLE combo, never a closed list.
+        //  The stock trade adds thicknesses and mill sizes constantly, and
+        //  a closed list would make a legitimate new sheet unenterable —
+        //  the operator would have no way to record 5.5mm or a bespoke cut.
+        //  The dropdown is a shortcut for the 95% case, not a gate.
+        //
+        //  Seeded with the industry standards, then UNIONED with whatever
+        //  the database already holds, so a size someone typed last month
+        //  is offered as a click this month.
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>Standard float thicknesses, 3mm through 19mm.</summary>
+        private static readonly int[] StandardThicknesses =
+            { 3, 4, 5, 6, 8, 10, 12, 15, 19 };
+
+        /// <summary>
+        /// Standard mill sheet sizes. Width is the key; a width can carry
+        /// SEVERAL heights (3210 comes as both 2250 normal and 2440), which
+        /// is why HeightOptions is a list rather than a single lookup.
+        /// </summary>
+        private static readonly (int Width, int Height, string Label)[] StandardSizes =
+        {
+            (3210, 2250, "Normal"),
+            (3210, 2440, "Oversize"),
+            (3660, 2440, "Jumbo"),
+            (3660, 2550, "Jumbo tall"),
+            (2440, 1830, "Half"),
+            (2140, 1650, "Small"),
+        };
+
+        public ObservableCollection<string> CategoryOptions { get; } = new();
+        public ObservableCollection<string> ThicknessOptions { get; } = new();
+        public ObservableCollection<string> ColorOptions { get; } = new();
+        public ObservableCollection<string> SupplierOptions { get; } = new();
+        public ObservableCollection<string> WidthOptions { get; } = new();
+        public ObservableCollection<string> HeightOptions { get; } = new();
+
+        /// <summary>
+        /// Loads the pickers. Fire-and-forget from the constructor: the form
+        /// is fully usable before this returns, because every field is a
+        /// free-text combo. A failed load costs the shortcuts, not the form.
+        /// </summary>
+        private async Task LoadOptionsAsync()
+        {
+            List<string> cats = new(), colors = new(), suppliers = new();
+            List<int> thicknesses = new();
+            List<GlassSheet> all = new();
+
+            try
+            {
+                var repo = new SheetStoreRepository();
+                cats = await repo.GetCategoriesAsync().ConfigureAwait(false);
+                colors = await repo.GetColorsAsync().ConfigureAwait(false);
+                suppliers = await repo.GetSuppliersAsync().ConfigureAwait(false);
+                thicknesses = await repo.GetThicknessesAsync().ConfigureAwait(false);
+                all = await repo.GetAllAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+                // Offline or first run — fall through to the standards.
+            }
+
+            // Sizes actually in stock, so a bespoke cut entered once is
+            // offered thereafter.
+            _knownSizes = StandardSizes
+                .Select(x => (x.Width, x.Height))
+                .Concat(all.Where(g => g.WidthMm > 0 && g.HeightMm > 0)
+                           .Select(g => (g.WidthMm, g.HeightMm)))
+                .Distinct()
+                .OrderBy(x => x.Item1).ThenBy(x => x.Item2)
+                .ToList();
+
+            UiDispatch.Run(() =>
+            {
+                Fill(CategoryOptions, cats);
+                Fill(ColorOptions, MergeText(colors,
+                    new[] { "Clear", "HD Grey", "Bronze", "Green", "Blue", "Silver" }));
+                Fill(SupplierOptions, suppliers);
+                Fill(ThicknessOptions, MergeNumeric(thicknesses, StandardThicknesses));
+                Fill(WidthOptions, _knownSizes.Select(x => x.Item1)
+                                              .Distinct().OrderBy(w => w)
+                                              .Select(w => w.ToString(CultureInfo.InvariantCulture)));
+                RefreshHeightOptions();
+            });
+        }
+
+        private List<(int, int)> _knownSizes = new();
+
+        /// <summary>
+        /// Heights available for the CURRENT width. A width with one known
+        /// height auto-fills it; a width with several (3210 → 2250 or 2440)
+        /// leaves the choice open rather than guessing.
+        /// </summary>
+        private void RefreshHeightOptions()
+        {
+            if (!int.TryParse(WidthText?.Trim(), out int w)) return;
+
+            var heights = _knownSizes.Where(x => x.Item1 == w)
+                                     .Select(x => x.Item2)
+                                     .Distinct().OrderBy(h => h).ToList();
+            if (heights.Count == 0) return;
+
+            Fill(HeightOptions, heights.Select(h => h.ToString(CultureInfo.InvariantCulture)));
+
+            // Auto-fill ONLY when unambiguous, and never over a height that
+            // already matches this width — silently rewriting a deliberate
+            // entry is worse than leaving it alone.
+            if (heights.Count == 1)
+            {
+                var only = heights[0].ToString(CultureInfo.InvariantCulture);
+                if (HeightText != only) HeightText = only;
+            }
+            else if (!int.TryParse(HeightText?.Trim(), out int h) || !heights.Contains(h))
+            {
+                HeightText = heights[0].ToString(CultureInfo.InvariantCulture);
+            }
+        }
+
+        private static void Fill(ObservableCollection<string> target, IEnumerable<string> values)
+        {
+            target.Clear();
+            foreach (var v in values) target.Add(v);
+        }
+
+        private static IEnumerable<string> MergeText(IEnumerable<string> db, IEnumerable<string> standards) =>
+            standards.Concat(db.Where(x => !string.IsNullOrWhiteSpace(x)))
+                     .Select(x => x.Trim())
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(x => x, StringComparer.OrdinalIgnoreCase);
+
+        private static IEnumerable<string> MergeNumeric(IEnumerable<int> db, IEnumerable<int> standards) =>
+            standards.Concat(db).Where(x => x > 0).Distinct().OrderBy(x => x)
+                     .Select(x => x.ToString(CultureInfo.InvariantCulture));
+
         public AddEditSheetViewModel() : this(null) { }
 
         public AddEditSheetViewModel(GlassSheet? existing)
@@ -212,6 +363,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 _sellPriceText = existing.SellPricePerSqm.ToString("0.##", ci);
                 _stockText = existing.Stock.ToString(ci);
             }
+
+            AsyncUtility.SafeFireAndForget(LoadOptionsAsync, "AddEditSheet LoadOptions");
 
             SaveCommand = new RelayCommand(_ => Save(), _ => IsValid);
             CancelCommand = new RelayCommand(_ => Cancel());
