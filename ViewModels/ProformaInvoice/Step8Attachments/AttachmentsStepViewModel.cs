@@ -69,6 +69,7 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
                 param => AsyncUtility.SafeFireAndForget(() => DeleteAttachmentAsync(
                     param as ProformaAttachmentRowViewModel), "PI Step8"));
             RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(LoadAsync, "PI Step8"));
+            ApproveInvoiceCommand = new RelayCommand(_ => ApprovalRequested?.Invoke());
 
             // Follow Proforma ID changes (new invoice / id edit in Step 1)
             _company.PropertyChanged += (_, e) =>
@@ -129,6 +130,14 @@ public AttachmentsStepViewModel(IDialogService? dialogs,
 
         public ICommand AddImageCommand { get; }
         public ICommand AddPdfCommand { get; }
+        // 2026-09-09 — Step 8 hosts the SAME approve entry as the PI
+        // list's right-click menu (no duplicated flow): the parent
+        // ProformaInvoiceViewModel subscribes to ApprovalRequested and
+        // calls SavedInvoicesListVM.ApproveAsync(entity), which is the
+        // identical method the context menu calls. See the parent's
+        // OnStep8ApprovalRequested comment for the full chain.
+        public ICommand ApproveInvoiceCommand { get; }
+        public event System.Action? ApprovalRequested;
         public ICommand OpenAttachmentCommand { get; }
         public ICommand RenameAttachmentCommand { get; }
         public ICommand DeleteAttachmentCommand { get; }

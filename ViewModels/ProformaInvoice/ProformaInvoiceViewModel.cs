@@ -79,6 +79,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         private WizardStep _currentStep;
         private int _furthestStepReached = 1;
         private int? _pendingApprovalInvoiceId;
+        // Currently-loaded wizard invoice (row id). Set by
+        // LoadInvoiceIntoWizardAsync, cleared on New/BackToList — the
+        // Step 8 APPROVE button routes through this.
+        private int? _loadedInvoiceId;
 
         public WizardStep CurrentStep
         {
@@ -304,6 +308,7 @@ public ProformaInvoiceViewModel() : this(
             };
 
             Step8VM.AttachmentUploaded += OnStep8AttachmentUploaded;
+            Step8VM.ApprovalRequested += OnStep8ApprovalRequested;
 
             SavedInvoicesListVM.OnSnapshotRestoreRequested = json =>
                 AsyncUtility.SafeFireAndForget(() => RestoreSnapshotIntoWizardAsync(json), "PI RestoreSnapshot");
@@ -338,6 +343,9 @@ public ProformaInvoiceViewModel() : this(
 
             try { Step8VM.AttachmentUploaded -= OnStep8AttachmentUploaded; }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
+
+            try { Step8VM.ApprovalRequested -= OnStep8ApprovalRequested; }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProGlassAutomation.Disposal] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
 
             // Follow-up audit pass (Aug 2026): SavedInvoicesListViewModel
             // is IDisposable and subscribes to static DocumentLifecycle
@@ -551,6 +559,7 @@ public ProformaInvoiceViewModel() : this(
 
         private async Task StartNewInvoiceAsync()
         {
+            _loadedInvoiceId = null;   // unsaved draft: Step 8 Approve guards out
             Step1VM.InquiryId = null;
             Step1VM.CompanyName = "";
             Step1VM.CompanyTrn = "";
@@ -606,6 +615,7 @@ public ProformaInvoiceViewModel() : this(
             Step7VM.PrintableInvoice.FurthestStepReached = _furthestStepReached;
             await Step7VM.PrintableInvoice.SilentDraftSaveAsync();
             _pendingApprovalInvoiceId = null;
+            _loadedInvoiceId = null;   // wizard left: no current row to approve
             IsListView = true;
             await SavedInvoicesListVM.LoadInvoicesAsync();
         }
@@ -616,9 +626,11 @@ public ProformaInvoiceViewModel() : this(
             var entity = await _invoices.GetByIdAsync(invoiceId);
             if (entity == null)
             {
+                _loadedInvoiceId = null;
                 _dialogs.Show(LocalizationService.Instance.T("Msg.SelectedInvoiceCouldNotBe"), LocalizationService.Instance.T("Msg.CapLoadFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
+            _loadedInvoiceId = entity.Id;   // wizard row for Step 8 APPROVE
             var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
             Step7VM.InvoiceMainSummary.BeginBatchUpdate();
             try
@@ -665,6 +677,52 @@ public ProformaInvoiceViewModel() : this(
                 if (uploadPdf) Step8VM.AddPdfCommand.Execute(null);
                 else Step8VM.AddImageCommand.Execute(null);
             }));
+        }
+
+        // ── STEP 8 APPROVE (2026-09-09) ──────────────────────────────────
+        // The APPROVE button inside wizard Step 8 runs the EXACT chain the
+        // PI list's right-click "Approved" menu item runs — same dialog,
+        // same uploader forward, same CompleteApprovalAsync (approve +
+        // Job Order conversion), because it calls the SAME list method.
+        // No second implementation exists anywhere by design:
+        //   Step8.ApproveInvoiceCommand
+        //     → ApprovalRequested (Step8VM event)
+        //     → OnStep8ApprovalRequested (here)
+        //     → SavedInvoicesListVM.ApproveAsync(entity)   ← list's own method
+        //     → OnInvoiceUploadRequested → Step 8 upload
+        //     → OnStep8AttachmentUploaded → CompleteApprovalAsync
+        private void OnStep8ApprovalRequested()
+        {
+            AsyncUtility.SafeFireAndForget(ApproveCurrentInvoiceAsync, "PI ApproveCurrent");
+        }
+
+        private async Task ApproveCurrentInvoiceAsync()
+        {
+            // Approve only makes sense on a SAVED invoice: a fresh wizard
+            // draft has no row to transition. (StartNewInvoiceAsync clears
+            // _loadedInvoiceId for exactly this guard.)
+            if (_invoices == null || _loadedInvoiceId == null)
+            {
+                _dialogs.Show(
+                    LocalizationService.Instance.T("Msg.SelectedInvoiceCouldNotBe"),
+                    LocalizationService.Instance.T("Msg.CapLoadFailed"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            var entity = await _invoices.GetByIdAsync(_loadedInvoiceId.Value);
+            if (entity == null)
+            {
+                _dialogs.Show(
+                    LocalizationService.Instance.T("Msg.SelectedInvoiceCouldNotBe"),
+                    LocalizationService.Instance.T("Msg.CapLoadFailed"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            await SavedInvoicesListVM.ApproveAsync(entity);   // ← SAME method as right-click
         }
 
         private void OnStep8AttachmentUploaded()

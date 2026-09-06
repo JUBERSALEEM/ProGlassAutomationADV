@@ -38,7 +38,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 {
         public partial class SavedInvoicesListViewModel : ViewModelBase, IDisposable
     {
-            private async Task ApproveAsync(SavedProformaInvoice entity)
+            /// SINGLE approve entry for the whole PI module. Callers:
+            ///  • the saved-list context menu (right-click → "Approved")
+            ///  • the wizard Step 8 APPROVE button (2026-09-09, via
+            ///    ProformaInvoiceViewModel.ApproveCurrentInvoiceAsync)
+            /// internal so the wizard can call it; the chain itself is
+            /// unchanged — any fix here fixes BOTH call surfaces at once.
+            internal async Task ApproveAsync(SavedProformaInvoice entity)
         {
             if (entity == null) return;
 
