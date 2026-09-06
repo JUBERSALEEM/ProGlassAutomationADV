@@ -83,3 +83,11 @@ to Monet/Crystal Fluid; it resets to Normal).
 The sandbox has no .NET SDK, so this change was validated statically
 (grep/diff/brace-balance) only; a `dotnet build` + `dotnet test` on a Windows
 runner should confirm before release.
+
+## Known pre-existing cosmetic wart (left as-is, out of scope)
+
+The Crystal Fluid row in Settings shows **“Ios-17pm — Ios-17pm”**: its
+wallpaper-scene label and its family display name are both authored
+`Ios-17pm` (pinned by `CrystalFluidSettingsBridgeTests`), so the option row
+duplicates the name. This predates the reduction (2026-09-05); changing the
+scene label would require updating that pin.
