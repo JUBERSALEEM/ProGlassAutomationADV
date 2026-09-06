@@ -51,6 +51,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             
             SheetBreakdown = new ObservableCollection<SheetProfitRow>();
             RefreshCommand = new RelayCommand(_ => RefreshAnalysis());
+            SelectRowCommand = new RelayCommand(_ => SetSelectedRow(_));
+            BackCommand = new RelayCommand(_ => BackToSheetList());
             
             // Initial load
             RefreshAnalysis();
@@ -225,6 +227,62 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string UsageEfficiencyDisplay => $"{UsageEfficiencyPercent:0.#}%";
 
+        private decimal _totalUsedPrice;
+        /// <summary>Total value of the glass actually used (used SQM × rate).</summary>
+        public decimal TotalUsedPrice
+        {
+            get => _totalUsedPrice;
+            private set
+            {
+                if (_totalUsedPrice == value) return;
+                _totalUsedPrice = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TotalUsedPriceDisplay));
+            }
+        }
+
+        public string TotalUsedPriceDisplay => $"AED {TotalUsedPrice:N2}";
+
+        private decimal _totalOffcutPrice;
+        /// <summary>Total value of the offcut left over (offcut SQM × rate).</summary>
+        public decimal TotalOffcutPrice
+        {
+            get => _totalOffcutPrice;
+            private set
+            {
+                if (_totalOffcutPrice == value) return;
+                _totalOffcutPrice = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(TotalOffcutPriceDisplay));
+            }
+        }
+
+        public string TotalOffcutPriceDisplay => $"AED {TotalOffcutPrice:N2}";
+
+        /// <summary>Share of the total sheet price that is actually used.</summary>
+        public decimal UsedPriceSharePercent => TotalPurchaseCost > 0m
+            ? Math.Round(TotalUsedPrice / TotalPurchaseCost * 100m, 1)
+            : 0m;
+
+        public string UsedPriceShareDisplay => $"{UsedPriceSharePercent:0.#}%";
+
+        /// <summary>Share of the total sheet price lost to offcut.</summary>
+        public decimal OffcutPriceSharePercent => TotalPurchaseCost > 0m
+            ? Math.Round(TotalOffcutPrice / TotalPurchaseCost * 100m, 1)
+            : 0m;
+
+        public string OffcutPriceShareDisplay => $"{OffcutPriceSharePercent:0.#}%";
+
+        /// <summary>Wastage charged to the customer minus the offcut value.</summary>
+        public decimal NetWastageVsOffcut => WastageCharge - TotalOffcutPrice;
+
+        public string NetWastageVsOffcutDisplay => $"AED {NetWastageVsOffcut:N2}";
+
+        /// <summary>Plain reading of the wastage-vs-offcut comparison.</summary>
+        public string NetWastageVsOffcutLabel => NetWastageVsOffcut >= 0m
+            ? "recovered over the offcut value"
+            : "short of the offcut value";
+
         private string _statusMessage = "Press REFRESH to analyze sheet profitability.";
         /// <summary>Status message.</summary>
         public string StatusMessage
@@ -254,9 +312,49 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>Refresh command.</summary>
         public ICommand RefreshCommand { get; }
 
+        /// <summary>Opens the full-screen detail for the clicked sheet row.</summary>
+        public ICommand SelectRowCommand { get; }
+
+        /// <summary>Returns from the detail screen back to the sheet list.</summary>
+        public ICommand BackCommand { get; }
+
+        private SheetProfitRow? _selectedRow;
+        /// <summary>The sheet row whose full-screen detail is open (null = list).</summary>
+        public SheetProfitRow? SelectedRow
+        {
+            get => _selectedRow;
+            private set
+            {
+                if (ReferenceEquals(_selectedRow, value)) return;
+                _selectedRow = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasSelectedRow));
+            }
+        }
+
+        /// <summary>True while a sheet row's detail screen is open.</summary>
+        public bool HasSelectedRow => SelectedRow != null;
+
         // ══════════════════════════════════════════════════════════════
         //  METHODS
         // ══════════════════════════════════════════════════════════════
+
+        private void SetSelectedRow(object? parameter)
+        {
+            var row = parameter as SheetProfitRow;
+            foreach (var r in SheetBreakdown)
+                r.IsSelected = ReferenceEquals(r, row);
+
+            SelectedRow = row;
+        }
+
+        private void BackToSheetList()
+        {
+            foreach (var r in SheetBreakdown)
+                r.IsSelected = false;
+
+            SelectedRow = null;
+        }
 
         /// <summary>
         /// Refresh the sheet profitability analysis.
@@ -271,6 +369,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             try
             {
                 SheetBreakdown.Clear();
+                SelectedRow = null;
 
                 var groups = _parentViewModel.SpecGroupsView;
                 if (groups == null || groups.Count == 0)
@@ -283,6 +382,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 decimal totalSheetArea = 0m;
                 decimal totalUsedArea = 0m;
                 decimal totalPurchaseCost = 0m;
+                decimal totalUsedPrice = 0m;
+                decimal totalOffcutPrice = 0m;
                 decimal totalWastageChargeAmount = 0m;
                 decimal totalWastageArea = 0m;
 
@@ -293,8 +394,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     var area = specGroup.CutSqm;
                     if (area <= 0) continue;
 
-                    // Build family of this specification ("SGU"/"DGU"/"LAMINATION"/
-                    // "DGU+LAMINATION") — every sheet row of the spec shares it.
+                    // Build family of this specification ("SGU"/"DGU"/"LAM"/
+                    // "DGU+LAM") — every sheet row of the spec shares it.
                     var glassFamilyLabel = FamilyLabelFor(specName);
 
                     // Get glass rows from this spec
@@ -314,11 +415,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                         // Calculate areas
                         var totalSheetAreaForThisRow = sheetsPurchased * sheetSqm;
-                        var usedAreaForThisRow = area; // Assume all area is used for this pane
+                        var usedAreaForThisRow = area; // this pane covers the whole cut area
 
-                        // Get price per SQM
+                        // Get price per SQM and the three sheet-price figures
                         var pricePerSqm = glassRow.PricePerSqm;
-                        var purchaseCostForThisRow = totalSheetAreaForThisRow * pricePerSqm;
+                        var purchaseCostForThisRow = totalSheetAreaForThisRow * pricePerSqm; // TOTAL sheet price
+                        var usedPriceForThisRow = usedAreaForThisRow * pricePerSqm;           // USED sheet price
+                        var offcutPriceForThisRow = (totalSheetAreaForThisRow - usedAreaForThisRow) * pricePerSqm; // OFFCUT value
 
                         // Calculate wastage from ACTUAL Step 6 wastage charges for this pane
                         var wastageAreaForThisRow = 0m;
@@ -347,9 +450,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         var row = new SheetProfitRow
                         {
                             SpecName = specName,
-                            GlassType = glassRow.Description ?? "Glass",
                             GlassTypeLabel = glassFamilyLabel,
-                            PaneNote = PaneNoteFrom(glassRow.Description),
                             SheetSize = $"{sheetWidth} × {sheetHeight} mm",
                             SheetSqm = sheetSqm,
                             SheetsPurchased = sheetsPurchased,
@@ -362,8 +463,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 ? Math.Round((wastageAreaForThisRow / totalSheetAreaForThisRow) * 100m, 1) 
                                 : 0m,
                             PricePerSqm = pricePerSqm,
-                            PurchaseCost = purchaseCostForThisRow,
-                            WastageCharge = wastageChargeForThisRow, // ACTUAL wastage charge from Step 6
+                            PurchaseCost = purchaseCostForThisRow,      // TOTAL sheet price
+                            UsedPrice = usedPriceForThisRow,            // USED sheet price
+                            OffcutPrice = offcutPriceForThisRow,        // OFFCUT value
+                            WastageCharge = wastageChargeForThisRow,    // WASTAGE sheet price (Step 6)
                             RealCost = purchaseCostForThisRow, // Real cost is purchase cost (wastage is charged to customer)
                             UsageEfficiencyPercent = efficiencyPercent,
                             IsEfficient = efficiencyPercent >= 70m
@@ -376,6 +479,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         totalSheetArea += totalSheetAreaForThisRow;
                         totalUsedArea += usedAreaForThisRow;
                         totalPurchaseCost += purchaseCostForThisRow;
+                        totalUsedPrice += usedPriceForThisRow;
+                        totalOffcutPrice += offcutPriceForThisRow;
                         totalWastageChargeAmount += wastageChargeForThisRow;
                         totalWastageArea += wastageAreaForThisRow;
                     }
@@ -387,13 +492,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 TotalUsedArea = totalUsedArea;
                 TotalOffcutArea = totalSheetArea - totalUsedArea;
                 WastageArea = totalWastageArea; // Actual wastage area from Step 6
-                WastageCharge = totalWastageChargeAmount; // Actual wastage charge from Step 6
-                TotalPurchaseCost = totalPurchaseCost;
+                WastageCharge = totalWastageChargeAmount; // Wastage sheet price from Step 6
+                TotalPurchaseCost = totalPurchaseCost;     // Total sheet price
+                TotalUsedPrice = totalUsedPrice;           // Used sheet price
+                TotalOffcutPrice = totalOffcutPrice;       // Offcut value
                 RealCost = totalPurchaseCost; // Real cost is purchase cost
                 WastageChargedToCustomer = totalWastageChargeAmount; // Wastage charged to customer
                 UsageEfficiencyPercent = totalSheetArea > 0
                     ? Math.Round((totalUsedArea / totalSheetArea) * 100m, 1)
                     : 0m;
+
+                // Re-raise the computed price-comparison figures (they derive
+                // from the totals set just above).
+                OnPropertyChanged(nameof(UsedPriceSharePercent));
+                OnPropertyChanged(nameof(UsedPriceShareDisplay));
+                OnPropertyChanged(nameof(OffcutPriceSharePercent));
+                OnPropertyChanged(nameof(OffcutPriceShareDisplay));
+                OnPropertyChanged(nameof(NetWastageVsOffcut));
+                OnPropertyChanged(nameof(NetWastageVsOffcutDisplay));
+                OnPropertyChanged(nameof(NetWastageVsOffcutLabel));
 
                 StatusMessage = $"Analysis complete. {SheetBreakdown.Count} sheet type(s) analyzed. " +
                                $"Usage efficiency: {UsageEfficiencyPercent:0.#}%. " +
@@ -440,10 +557,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         /// <summary>
         /// Build family shown in the GLASS TYPE column: "SGU", "DGU",
-        /// "LAMINATION" or "DGU+LAMINATION". Spacer/interlayer evidence in
-        /// the spec name drives DGU / LAM / DGU+LAM; anything without a
-        /// marker (or a named spec the wizard cannot parse) defaults to SGU,
-        /// exactly like the Glass Type Comparison analysis.
+        /// "LAM" or "DGU+LAM". Spacer/interlayer evidence in the spec name
+        /// drives DGU / LAM / DGU+LAM; anything without a marker (or a named
+        /// spec the wizard cannot parse) defaults to SGU, exactly like the
+        /// Glass Type Comparison analysis. Only the build family is shown —
+        /// never the outer/inner pane identity.
         /// </summary>
         private static string FamilyLabelFor(string specName)
         {
@@ -453,24 +571,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             bool lam = PnLSpecParser.Interlayer(specName).Success
                        || specName.IndexOf("LAM", StringComparison.OrdinalIgnoreCase) >= 0;
 
-            if (dgu && lam) return "DGU+LAMINATION";
+            if (dgu && lam) return "DGU+LAM";
             if (dgu) return "DGU";
-            if (lam) return "LAMINATION";
+            if (lam) return "LAM";
             return "SGU";
-        }
-
-        /// <summary>
-        /// Short pane identity from the full row description, e.g.
-        /// "Outer pane · 6mm HD Grey · 8.64 sqm …" → "Outer pane · 6mm HD Grey".
-        /// </summary>
-        private static string PaneNoteFrom(string? description)
-        {
-            if (string.IsNullOrWhiteSpace(description)) return "";
-            var parts = description.Split(
-                new[] { " · " }, StringSplitOptions.RemoveEmptyEntries);
-            return parts.Length >= 2
-                ? $"{parts[0].Trim()} · {parts[1].Trim()}"
-                : description.Trim();
         }
     }
 
@@ -491,22 +595,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
-        private string _glassType = "";
-        public string GlassType
-        {
-            get => _glassType;
-            set
-            {
-                if (_glassType == value) return;
-                _glassType = value ?? "";
-                OnPropertyChanged();
-            }
-        }
-
         /// <summary>
         /// Build family of the specification this sheet belongs to:
-        /// "SGU", "DGU", "LAMINATION" or "DGU+LAMINATION". Kept as its own
-        /// column so the first thing a reader sees is what the unit is.
+        /// "SGU", "DGU", "LAM" or "DGU+LAM". Kept as its own column so the
+        /// first thing a reader sees is what the unit is. The outer/inner
+        /// pane identity is intentionally NOT shown here.
         /// </summary>
         private string _glassTypeLabel = "";
         public string GlassTypeLabel
@@ -516,19 +609,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 if (_glassTypeLabel == value) return;
                 _glassTypeLabel = value ?? "";
-                OnPropertyChanged();
-            }
-        }
-
-        /// <summary>Short pane identity, e.g. "Outer pane · 6mm HD Grey".</summary>
-        private string _paneNote = "";
-        public string PaneNote
-        {
-            get => _paneNote;
-            set
-            {
-                if (_paneNote == value) return;
-                _paneNote = value ?? "";
                 OnPropertyChanged();
             }
         }
@@ -695,6 +775,52 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public string PurchaseCostDisplay => $"AED {PurchaseCost:N2}";
 
+        private decimal _usedPrice;
+        /// <summary>Used sheet price: used SQM × rate.</summary>
+        public decimal UsedPrice
+        {
+            get => _usedPrice;
+            set
+            {
+                if (_usedPrice == value) return;
+                _usedPrice = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(UsedPriceDisplay));
+            }
+        }
+
+        public string UsedPriceDisplay => $"AED {UsedPrice:N2}";
+
+        private decimal _offcutPrice;
+        /// <summary>Offcut value: offcut SQM × rate.</summary>
+        public decimal OffcutPrice
+        {
+            get => _offcutPrice;
+            set
+            {
+                if (_offcutPrice == value) return;
+                _offcutPrice = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OffcutPriceDisplay));
+            }
+        }
+
+        public string OffcutPriceDisplay => $"AED {OffcutPrice:N2}";
+
+        /// <summary>Share of this sheet's total price that is actually used.</summary>
+        public decimal UsedPriceSharePercent => PurchaseCost > 0m
+            ? Math.Round(UsedPrice / PurchaseCost * 100m, 1)
+            : 0m;
+
+        public string UsedPriceShareDisplay => $"{UsedPriceSharePercent:0.#}%";
+
+        /// <summary>Share of this sheet's total price lost to offcut.</summary>
+        public decimal OffcutPriceSharePercent => PurchaseCost > 0m
+            ? Math.Round(OffcutPrice / PurchaseCost * 100m, 1)
+            : 0m;
+
+        public string OffcutPriceShareDisplay => $"{OffcutPriceSharePercent:0.#}%";
+
         private decimal _wastageCharge;
         public decimal WastageCharge
         {
@@ -709,6 +835,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         public string WastageChargeDisplay => $"AED {WastageCharge:N2}";
+
+        /// <summary>Wastage charged to the customer minus this sheet's offcut value.</summary>
+        public decimal NetWastageVsOffcut => WastageCharge - OffcutPrice;
+
+        public string NetWastageVsOffcutDisplay => $"AED {NetWastageVsOffcut:N2}";
+
+        /// <summary>Plain reading of the wastage-vs-offcut comparison for this row.</summary>
+        public string NetWastageVsOffcutLabel => NetWastageVsOffcut >= 0m
+            ? "recovered over the offcut value"
+            : "short of the offcut value";
 
         private decimal _realCost;
         public decimal RealCost
@@ -748,6 +884,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 if (_isEfficient == value) return;
                 _isEfficient = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isSelected;
+        /// <summary>True while this row's full-screen detail is open.</summary>
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected == value) return;
+                _isSelected = value;
                 OnPropertyChanged();
             }
         }
