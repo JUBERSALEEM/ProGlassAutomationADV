@@ -417,6 +417,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     ProjectName = x.ProjectName ?? "",
                     Status = x.Status ?? "Draft",
                     GrandTotalVatInclusive = x.GrandTotalVatInclusive,
+                    IssueDate = x.IssueDate,
                     CreatedAt = x.CreatedAt,
                     UpdatedAt = x.UpdatedAt
                 })

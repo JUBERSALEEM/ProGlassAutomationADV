@@ -21,6 +21,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Models.OrderReport;
+using ProGlassAutomation.Models.ProformaInvoice.Common;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.Logging;
@@ -90,7 +91,10 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                 await RunPreviewAsync();
             };
 
-            foreach (var s in new[] { "Draft", "Approved", "Rejected", "Cancelled", "Expired" })
+            // Canonical Proforma statuses (Draft / Sent / Approved / Rejected /
+            // Expired / Cancelled) — mirrors ProformaInvoiceStatus.All so the
+            // chips cover every state a saved PI can actually be in.
+            foreach (var s in ProformaInvoiceStatus.All)
             {
                 var item = new StatusCheckItem(s, false);
                 item.PropertyChanged += (_, args) =>
@@ -265,7 +269,16 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         public string FilterCustomer
         {
             get => _filterCustomer;
-            set { if (_filterCustomer == value) return; _filterCustomer = value; OnPropertyChanged(); NotifyFilterDependents(); SchedulePreview(); }
+            set
+            {
+                if (_filterCustomer == value) return;
+                _filterCustomer = value;
+                OnPropertyChanged();
+                // Project dropdown must reflect the chosen customer.
+                RefreshProjectsForCustomer();
+                NotifyFilterDependents();
+                SchedulePreview();
+            }
         }
 
         private string _filterProject = "";
@@ -279,7 +292,16 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         public string FilterSalesman
         {
             get => _filterSalesman;
-            set { if (_filterSalesman == value) return; _filterSalesman = value; OnPropertyChanged(); NotifyFilterDependents(); SchedulePreview(); }
+            set
+            {
+                if (_filterSalesman == value) return;
+                _filterSalesman = value;
+                OnPropertyChanged();
+                // Customer dropdown must reflect the chosen salesman.
+                RefreshCustomersForSalesman();
+                NotifyFilterDependents();
+                SchedulePreview();
+            }
         }
 
         private DateTime? _dateFrom;
@@ -305,11 +327,36 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             _dateTo.HasValue ||
             StatusItems.Any(s => s.IsChecked);
 
+        // ── Live match count (updates as filters change) ──────────────────
+        private int _matchCount;
+        public int MatchCount
+        {
+            get => _matchCount;
+            private set { if (_matchCount == value) return; _matchCount = value; OnPropertyChanged(); OnPropertyChanged(nameof(MatchCountDisplay)); }
+        }
+
+        public string MatchCountDisplay =>
+            !HasFilter
+                ? "Configure filters to see matching proforma invoices."
+                : IsLoading
+                    ? "Searching…"
+                    : _matchCount == 0
+                        ? "0 proforma invoices match"
+                        : _matchCount == 1
+                            ? "1 proforma invoice matches"
+                            : $"{_matchCount:N0} proforma invoices match";
+
         public ObservableCollection<StatusCheckItem> StatusItems { get; } = new();
         public ObservableCollection<string> Companies { get; } = new();
         public ObservableCollection<string> Customers { get; } = new();
         public ObservableCollection<string> Projects { get; } = new();
         public ObservableCollection<string> Salesmen { get; } = new();
+
+        // Full client / project lists (name + owning salesman / customer) so
+        // the Customer and Project dropdowns can be scoped exactly like the
+        // Statement Generator. Loaded once in LoadMasterDataAsync.
+        private List<SavedClient> _allClients = new();
+        private List<SavedProject> _allProjects = new();
 
         // ═════════════════════════════════════════════════════════════════
         //  CORE STATE
@@ -319,7 +366,14 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         public bool IsLoading
         {
             get => _isLoading;
-            set { if (_isLoading == value) return; _isLoading = value; OnPropertyChanged(); AsyncUtility.InvalidateCommandsThrottled(); }
+            set
+            {
+                if (_isLoading == value) return;
+                _isLoading = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(MatchCountDisplay));
+                AsyncUtility.InvalidateCommandsThrottled();
+            }
         }
 
         private bool _isGenerating;
@@ -406,6 +460,11 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             _dateFrom = item.FilterDateFrom;
             _dateTo = item.FilterDateTo;
 
+            // Re-scope dropdowns to the restored salesman/customer.
+            RefreshCustomersForSalesman();
+            RefreshProjectsForCustomer();
+
+            MatchCount = 0;
             PreviewVM.UpdateFromList(new List<ProformaListRow>());
             ResetResult();
             StatusMessage = $"Opening {item.ReportNumber} — click Preview to regenerate.";
@@ -423,6 +482,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         private void NotifyFilterDependents()
         {
             OnPropertyChanged(nameof(HasFilter));
+            OnPropertyChanged(nameof(MatchCountDisplay));
             OnPropertyChanged(nameof(IsStep1Complete));
             OnPropertyChanged(nameof(CanNavigateToStep2));
         }
@@ -473,6 +533,12 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             OnPropertyChanged(nameof(FilterSalesman));
             OnPropertyChanged(nameof(DateFrom));
             OnPropertyChanged(nameof(DateTo));
+
+            // Dropdown scoping returns to "everything".
+            RefreshCustomersForSalesman();
+            RefreshProjectsForCustomer();
+
+            MatchCount = 0;
             NotifyFilterDependents();
             PreviewVM.UpdateFromList(new List<ProformaListRow>());
         }
@@ -492,7 +558,15 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                 var all = await Task.Run(() => _invoices.GetListRowsAsync(CancellationToken.None));
 
                 var filtered = all.Where(MatchesFilter).ToList();
+
+                // Salesman lives inside the PI snapshot (Client.SalesRepresentative),
+                // not in the narrow list projection — apply it as a post-filter,
+                // mirroring StatementAggregator.ApplySalesmanFilterAsync.
+                if (!string.IsNullOrWhiteSpace(_filterSalesman))
+                    filtered = await ApplySalesmanFilterAsync(filtered);
+
                 PreviewVM.UpdateFromList(filtered);
+                MatchCount = filtered.Count;
 
                 StatusMessage = filtered.Count == 0
                     ? "No proforma invoices match the filters."
@@ -517,14 +591,74 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             if (!string.IsNullOrWhiteSpace(_filterProject) &&
                 !Contains(row.ProjectName, _filterProject)) return false;
 
-            if (_dateFrom.HasValue && row.CreatedAt < _dateFrom.Value.Date) return false;
-            if (_dateTo.HasValue && row.CreatedAt > _dateTo.Value.Date.AddDays(1).AddTicks(-1)) return false;
+            // Filter on the real PI issue date; fall back to CreatedAt for
+            // legacy rows whose IssueDate was never set.
+            DateTime piDate = row.IssueDate == default ? row.CreatedAt : row.IssueDate;
+            if (_dateFrom.HasValue && piDate < _dateFrom.Value.Date) return false;
+            if (_dateTo.HasValue && piDate > _dateTo.Value.Date.AddDays(1).AddTicks(-1)) return false;
 
             if (StatusItems.Any(s => s.IsChecked) &&
                 !StatusItems.Any(s => s.IsChecked && string.Equals(s.Status, row.Status, StringComparison.OrdinalIgnoreCase)))
                 return false;
 
             return true;
+        }
+
+        /// <summary>
+        /// Keeps only PIs whose snapshot sales representative (or prepared-by)
+        /// matches the chosen salesman. Reads each candidate PI's snapshot
+        /// JSON, exactly like StatementAggregator.SearchSalesmanInProformaInvoice.
+        /// </summary>
+        private async Task<List<ProformaListRow>> ApplySalesmanFilterAsync(List<ProformaListRow> rows)
+        {
+            if (rows.Count == 0) return rows;
+            string needle = _filterSalesman.Trim();
+
+            var result = new List<ProformaListRow>(rows.Count);
+            const int chunk = 8;
+
+            for (int i = 0; i < rows.Count; i += chunk)
+            {
+                var batch = rows.Skip(i).Take(chunk).ToList();
+                var tasks = batch.Select(async row =>
+                {
+                    try
+                    {
+                        var pi = await _invoices.GetByProformaIdAsync(row.ProformaId);
+                        if (pi == null) return (row, false);
+
+                        if (string.IsNullOrWhiteSpace(pi.FullSnapshotJson) || pi.FullSnapshotJson == "{}")
+                            return (row, false);
+
+                        using var doc = JsonDocument.Parse(pi.FullSnapshotJson);
+                        var root = doc.RootElement;
+
+                        return (row, Contains(TryReadString(root, "Client", "SalesRepresentative"), needle) ||
+                                     Contains(TryReadString(root, "PreparedBy", "Name"), needle) ||
+                                     Contains(TryReadString(root, "Client", "DocumentPreparedBy"), needle));
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Debug($"[OrderReport] Salesman search error on {row.ProformaId}: {ex.Message}");
+                        return (row, false);
+                    }
+                });
+
+                var chunkResults = await Task.WhenAll(tasks);
+                result.AddRange(chunkResults.Where(r => r.Item2).Select(r => r.Item1));
+            }
+
+            return result;
+        }
+
+        private static string? TryReadString(System.Text.Json.JsonElement root, string obj, string prop)
+        {
+            if (root.ValueKind != System.Text.Json.JsonValueKind.Object) return null;
+            if (!root.TryGetProperty(obj, out var objEl) || objEl.ValueKind != System.Text.Json.JsonValueKind.Object)
+                return null;
+            if (!objEl.TryGetProperty(prop, out var propEl) || propEl.ValueKind != System.Text.Json.JsonValueKind.String)
+                return null;
+            return propEl.GetString();
         }
 
         private static bool Contains(string? source, string term) =>
@@ -654,20 +788,19 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                         .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().OrderBy(n => n))
                         Companies.Add(c);
 
-                    Customers.Clear();
-                    foreach (var c in clients.Select(c => c.CustomerName)
-                        .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().OrderBy(n => n))
-                        Customers.Add(c);
-
-                    Projects.Clear();
-                    foreach (var p in projects.Select(p => p.ProjectIdentifierName)
-                        .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().OrderBy(n => n))
-                        Projects.Add(p);
+                    // Keep the full lists so the Customer dropdown can be
+                    // scoped to the chosen salesman and the Project dropdown
+                    // to the chosen customer (same as Statement Generator).
+                    _allClients = clients ?? new List<SavedClient>();
+                    _allProjects = projects ?? new List<SavedProject>();
 
                     Salesmen.Clear();
                     foreach (var s in salesmen.Select(s => s.Name)
                         .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().OrderBy(n => n))
                         Salesmen.Add(s);
+
+                    RefreshCustomersForSalesman();
+                    RefreshProjectsForCustomer();
                 });
             }
             catch (Exception ex)
@@ -675,6 +808,99 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                 AppLogService.Error("[OrderReport] master data load failed", ex);
             }
         }
+
+        /// <summary>
+        /// Scopes the Customer dropdown to the chosen salesman (all when none),
+        /// clearing a now-invalid selection. Mirrors StatementGeneratorViewModel.
+        /// </summary>
+        private void RefreshCustomersForSalesman()
+        {
+            string salesman = _filterSalesman?.Trim() ?? "";
+
+            IEnumerable<string> names = _allClients
+                .Select(c => c.CustomerName ?? "")
+                .Where(n => !string.IsNullOrWhiteSpace(n));
+
+            if (salesman.Length > 0)
+            {
+                names = _allClients
+                    .Where(c => string.Equals(c.SalesRepresentative?.Trim() ?? "", salesman,
+                        StringComparison.OrdinalIgnoreCase))
+                    .Select(c => c.CustomerName ?? "")
+                    .Where(n => !string.IsNullOrWhiteSpace(n));
+            }
+
+            var ordered = names.Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            Customers.Clear();
+            foreach (var n in ordered) Customers.Add(n);
+
+            if (salesman.Length > 0 && !string.IsNullOrWhiteSpace(_filterCustomer))
+            {
+                bool stillValid = _allClients.Any(c =>
+                    string.Equals(c.CustomerName?.Trim() ?? "", _filterCustomer.Trim(),
+                        StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(c.SalesRepresentative?.Trim() ?? "", salesman,
+                        StringComparison.OrdinalIgnoreCase));
+
+                if (!stillValid)
+                {
+                    _filterCustomer = "";
+                    OnPropertyChanged(nameof(FilterCustomer));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Scopes the Project dropdown to the chosen customer (all when none),
+        /// clearing a now-invalid selection. Project display matches what the
+        /// PI stores in its ProjectName column (identifier, then reference).
+        /// </summary>
+        private void RefreshProjectsForCustomer()
+        {
+            string customer = _filterCustomer?.Trim() ?? "";
+
+            IEnumerable<string> names = _allProjects
+                .Select(ProjectDisplayName)
+                .Where(n => !string.IsNullOrWhiteSpace(n));
+
+            if (customer.Length > 0)
+            {
+                names = _allProjects
+                    .Where(p => string.Equals(p.CustomerName?.Trim() ?? "", customer,
+                        StringComparison.OrdinalIgnoreCase))
+                    .Select(ProjectDisplayName)
+                    .Where(n => !string.IsNullOrWhiteSpace(n));
+            }
+
+            var ordered = names.Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            Projects.Clear();
+            foreach (var n in ordered) Projects.Add(n);
+
+            if (customer.Length > 0 && !string.IsNullOrWhiteSpace(_filterProject))
+            {
+                string sel = _filterProject.Trim();
+                bool stillValid = _allProjects.Any(p =>
+                    string.Equals(ProjectDisplayName(p), sel, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(p.CustomerName?.Trim() ?? "", customer, StringComparison.OrdinalIgnoreCase));
+
+                if (!stillValid)
+                {
+                    _filterProject = "";
+                    OnPropertyChanged(nameof(FilterProject));
+                }
+            }
+        }
+
+        private static string ProjectDisplayName(SavedProject p) =>
+            !string.IsNullOrWhiteSpace(p.ProjectIdentifierName)
+                ? p.ProjectIdentifierName.Trim()
+                : (p.ProjectReference?.Trim() ?? "");
     }
 
     /// <summary>Filter criteria persisted into SavedOrderReport.FilterJson.</summary>

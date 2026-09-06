@@ -72,6 +72,25 @@
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            TextWrapping="Wrap" Margin="0,6,0,0"/>
 
+                <!-- Live match count (auto-refreshes as filters change) -->
+                <Border Margin="0,14,0,0"
+                        Background="{DynamicResource ModuleBackgroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="14,10"
+                        HorizontalAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="10" Height="10" CornerRadius="5"
+                                Background="{DynamicResource SuccessBrush}"
+                                VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="{Binding MatchCountDisplay}"
+                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
                 <!-- Filters card -->
                 <Border Margin="0,20,0,0"
                         Background="{DynamicResource ModuleBackgroundBrush}"
@@ -95,28 +114,36 @@
 
                         <StackPanel Grid.Row="0" Grid.Column="0">
                             <TextBlock Text="Company" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox IsEditable="True"
+                            <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
+                                      Height="40"
                                       ItemsSource="{Binding Companies}"
-                                      Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"/>
+                                      Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"
+                                      IsTextSearchEnabled="True"/>
                         </StackPanel>
                         <StackPanel Grid.Row="0" Grid.Column="2">
                             <TextBlock Text="Customer" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox IsEditable="True"
+                            <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
+                                      Height="40"
                                       ItemsSource="{Binding Customers}"
-                                      Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"/>
+                                      Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"
+                                      IsTextSearchEnabled="True"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="2" Grid.Column="0">
                             <TextBlock Text="Project" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox IsEditable="True"
+                            <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
+                                      Height="40"
                                       ItemsSource="{Binding Projects}"
-                                      Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"/>
+                                      Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"
+                                      IsTextSearchEnabled="True"/>
                         </StackPanel>
                         <StackPanel Grid.Row="2" Grid.Column="2">
                             <TextBlock Text="Salesman" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox IsEditable="True"
+                            <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
+                                      Height="40"
                                       ItemsSource="{Binding Salesmen}"
-                                      Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"/>
+                                      Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"
+                                      IsTextSearchEnabled="True"/>
                         </StackPanel>
 
                         <StackPanel Grid.Row="4" Grid.Column="0">

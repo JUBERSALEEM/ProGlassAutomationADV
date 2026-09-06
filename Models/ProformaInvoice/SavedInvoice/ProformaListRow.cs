@@ -35,6 +35,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string ProjectName { get; set; } = "";
         public string Status { get; set; } = "Draft";
         public decimal GrandTotalVatInclusive { get; set; }
+
+        /// <summary>Proforma issue date (the "PI date" shown on the document).</summary>
+        public DateTime IssueDate { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }
