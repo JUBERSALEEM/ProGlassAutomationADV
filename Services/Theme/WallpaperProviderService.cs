@@ -101,7 +101,22 @@ namespace ProGlassAutomation.Services.Theme
 
         private static HttpClient CreateClient()
         {
-            var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+            // 2026-09-09: explicit handler — without it SocketsHttpHandler
+            // picks up system defaults that corporate proxies/vintage TLS
+            // stacks can break silently (the "download seems dead" class:
+            // a TLS policy reset surfaces only as a 30s timeout).
+            var handler = new SocketsHttpHandler
+            {
+                AutomaticDecompression = System.Net.DecompressionMethods.GZip
+                                       | System.Net.DecompressionMethods.Deflate,
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+                SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                {
+                    EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                                        | System.Security.Authentication.SslProtocols.Tls13,
+                },
+            };
+            var http = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(30) };
             http.DefaultRequestHeaders.UserAgent.ParseAdd(
                 "ProGlassAutomation-WallpaperStudio/2.0 (+https://wallhaven.cc)");
             http.DefaultRequestHeaders.Accept.ParseAdd("image/*,application/json;q=0.9,*/*;q=0.1");
@@ -294,7 +309,9 @@ namespace ProGlassAutomation.Services.Theme
             CancellationToken ct)
         {
             // Two different photo IDs = two independent attempts (one CDN
-            // edge miss must not end the whole chain).
+            // edge miss must not end the whole chain), then the plain
+            // random endpoint as a third wheel (2026-09-09: some ID-space
+            // entries 503 on CDN miss; the random endpoint always routes).
             foreach (var id in new[] { _rng.Next(0, 1080), _rng.Next(0, 1080) })
             {
                 string file = Path.Combine(CacheDir,
@@ -307,7 +324,19 @@ namespace ProGlassAutomation.Services.Theme
                     $"[Wallpapers] Picsum id {id} failed: {outcome.FailText}",
                     new LogContext { Module = "Wallpapers", Operation = "Picsum" });
             }
-            return new ProviderOutcome(null, "both photo IDs failed");
+
+            {
+                string file = Path.Combine(CacheDir,
+                    $"picsum-random-{DateTime.UtcNow:yyyyMMddHHmmss}.jpg");
+                var outcome = await DownloadAsync(
+                    "https://picsum.photos/3840/2160", file,
+                    "Picsum", ct).ConfigureAwait(false);
+                if (outcome.Ok) return outcome;
+                AppLogService.Debug(
+                    $"[Wallpapers] Picsum random endpoint failed: {outcome.FailText}",
+                    new LogContext { Module = "Wallpapers", Operation = "Picsum" });
+            }
+            return new ProviderOutcome(null, "all photo attempts failed");
         }
 
         // ── Provider 3: LoremFlickr (independent host) ───────────────
