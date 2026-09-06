@@ -95,8 +95,12 @@ namespace ProGlassAutomation.Services.Theme
         {
             if (resources["WindowBackgroundBrush"] is Brush current)
             {
+                // 2026-09-09: 0.22 read as "broken see-through ugly" —
+                // the OS texture flooded every surface and body text
+                // sank into it. 0.45 keeps the Mica/Acrylic material
+                // visible while the app's own stage stays readable.
                 var ghost = current.Clone();
-                ghost.Opacity = 0.22;
+                ghost.Opacity = 0.45;
                 resources["WindowBackgroundBrush"] = ghost;
                 ThemeStudioService.UpdateBase("WindowBackgroundBrush", ghost);
             }
