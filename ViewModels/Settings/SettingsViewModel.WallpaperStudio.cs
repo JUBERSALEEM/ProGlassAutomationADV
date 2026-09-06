@@ -150,7 +150,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     return _selectedBuiltinSceneKey!;
                 var saved = App.Config?.Appearance?.BuiltinScene;
                 return string.IsNullOrWhiteSpace(saved)
-                    ? (VisualThemeEngine.Current ?? VisualThemeEngine.LiquidGlass)
+                    ? (VisualThemeEngine.Current ?? VisualThemeEngine.Normal)
                     : saved!;
             }
             set

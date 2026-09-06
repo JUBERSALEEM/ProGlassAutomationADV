@@ -3,29 +3,26 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Dynamic Theme Engine — visual theme families (v3)
 //
-// Three complete visual languages layered ON TOP of the Light/Dark
-// base themes — the base brushes are derived, never hard-coded twice:
+// Three visual families layered ON TOP of the Light/Dark base themes —
+// the base brushes are derived, never hard-coded twice (2026-09-06 theme
+// reduction: Professional, iOS Liquid Glass, Ocean and the Industrial
+// trio were removed):
 //
-//   Normal        — clean, practical default (no surface overrides).
-//   Monet         — colour-adaptive artistic look (Material-You style):
-//                   the palette is DERIVED from the user's accent
-//                   colour — hue-tinted frosted surfaces, tinted fallback
-//                   gradient — and re-derives live when the accent
-//                   changes. Wallpaper reads through the frost.
-//   Professional  — premium corporate finish: cool slate gradient
-//                   window, crisp cooler surfaces, tighter radii,
-//                   restrained hover — visibly distinct from Normal.
-//   iOS Liquid Glass — the app's DEFAULT look (2026-08-29 rewrite):
-//                   one coherent crystal design system that adapts to
-//                   Light and Dark. The window paints its own OPAQUE
-//                   aurora stage (deep navy in Dark, sky-ice in Light)
-//                   and every surface becomes a translucent frosted
-//                   pane with crystal edges, top reflections and soft
-//                   shadows — self-contained, identical on every
-//                   machine, no OS backdrop dependency. (The old
-//                   "Glass"/"Glassy" families were removed; saved
-//                   configs referencing them resolve to this family.)
-//   Ocean         — deep teal corporate.
+//   Normal         — clean, practical DEFAULT (no surface overrides).
+//   Monet          — colour-adaptive artistic look (Material-You style):
+//                    the palette is DERIVED from the user's accent colour
+//                    — hue-tinted frosted surfaces, tinted fallback
+//                    gradient — and re-derives live when the accent
+//                    changes. Wallpaper reads through the frost.
+//   Crystal Fluid  — displayed as "Ios-17pm": the iOS water-glass design
+//                    system. The window paints its own OPAQUE pale stage
+//                    and every surface becomes a translucent crystal pane
+//                    with crystal edges, top reflections and soft
+//                    shadows. Light-only (ModePairFor → false); see
+//                    Themes/CrystalFluid/.
+//
+// Saved configs referencing any removed family (or any unknown value)
+// resolve to Normal — the new default — never to a nearest match.
 //
 // SYSTEM-WIDE WALLPAPER (v3):
 //   A single global wallpaper can be set in Settings and now applies

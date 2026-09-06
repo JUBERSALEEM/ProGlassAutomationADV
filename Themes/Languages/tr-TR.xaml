@@ -1910,14 +1910,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">Yeni misiniz? Her modülü keşfetmek için küçük bağlantılı bir demo veri kümesi yükleyin — yalnızca boş bir veritabanında.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">Henüz iş yok. Kayıt başlatmak için Seçileni Oluştur veya Tümünü Oluştur.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">Henüz güncelleme geçmişi yok. İlk kaydı yazmak için güncellemeleri kontrol edin.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetProfessionalIosLiquidGlassOcean">Normal, Monet, Professional, iOS Liquid Glass veya Ocean — tüm uygulamayı anında yeniden stillendirir. iOS Liquid Glass varsayılandır: Açık ve Koyu&#x27;ya uyum sağlayan eksiksiz bir kristal tasarım sistemi — zengin bir aurora sahnesi üzerinde yarı saydam buzlu paneller, kristal kenarlar, yansımalar ve yumuşak gölgeler. Her Windows 10/11 makinesinde aynı şekilde işlenir.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet veya Ios-17pm — tüm uygulamayı anında yeniden stillendirir. Normal varsayılandır: Açık ve Koyu'ya uyum sağlayan temiz, profesyonel bir ERP tasarım sistemi. Monet paletini vurgu renginizden alır; Ios-17pm yalnızca Açık modda çalışan kristal-akışkan görünümdür.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">Henüz hiçbir şey öğretilmedi.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">ÇIKTIYI AÇ</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">KAYITLARI AÇ</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">ARAÇLAR KLASÖRÜNÜ AÇ</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">RESMÎ FFMPEG SAYFASI</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">OpenAI Whisper ile çevrimdışı konuşma metni — %95+ doğruluk, bulut yok.</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">Her görünüm için tek bir genel metin rengi. Temayı otomatik izler — iOS Liquid Glass, Hakkında paletini kullanır. Metnin buzlu yüzeyler üzerinde her zaman görünür kalması için bir renk seçin.</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">Her görünüm için tek bir genel metin rengi. Temayı otomatik izler — Ios-17pm, Hakkında paletini kullanır. Metnin buzlu yüzeyler üzerinde her zaman görünür kalması için bir renk seçin.</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">Her modülün arkasında bir görsel, ayrıca tek tek ekranlar için modül başına geçersiz kılmalar.</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">Kesim bölümü için operatör kopya kâğıdı.</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">Bu işi atölyede yürüten operatör.</sys:String>

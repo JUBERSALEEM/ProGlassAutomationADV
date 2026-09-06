@@ -98,7 +98,7 @@ namespace ProGlassAutomation.Services.Theme
 
                 string sceneKey = mode == ModeScene
                     ? (appearance.BuiltinScene ?? "")
-                    : (VisualThemeEngine.Current ?? VisualThemeEngine.LiquidGlass);
+                    : (VisualThemeEngine.Current ?? VisualThemeEngine.Normal);
 
                 var s = BuiltinWallpaperScenes.For(sceneKey);
                 // Ambient scenery, not a page background — the stage's

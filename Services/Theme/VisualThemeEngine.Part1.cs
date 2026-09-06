@@ -16,9 +16,6 @@ namespace ProGlassAutomation.Services.Theme
     {
             public const string Normal = "Normal";
         public const string Monet = "Monet";
-        public const string Professional = "Professional";
-        /// <summary>The default family — iOS Liquid Glass (2026-08-29).</summary>
-        public const string LiquidGlass = "iOS Liquid Glass";
         /// <summary>CRYSTAL FLUID (2026-09-05) — iOS water-glass design
         /// system; REPLACES "Ultra Transparent" (retired). Surfaces are
         /// translucent crystal (.43→.14 white @135°) containing animated
@@ -35,12 +32,13 @@ namespace ProGlassAutomation.Services.Theme
         public static string FamilyDisplayName(string family) =>
             family == CrystalFluid ? "Ios-17pm" : family;
 
-        /// <summary>LEGACY ALIAS — saved configs / old row references that
-        /// still say "Ultra Transparent" land on Crystal Fluid. Do not use
-        /// in new code; kept so the retired identity remains RESOLVABLE
-        /// (Normalize() also accepts the old display strings).</summary>
-        public const string UltraTransparent = CrystalFluid;
-        public const string Ocean = "Ocean";
+        /// <summary>The Light/Dark mode a family PROMISES by design —
+        /// true = Dark, false = Light, null = respects the user's own
+        /// mode choice. 2026-09-06 theme reduction: Normal and Monet
+        /// follow the user's Light/Dark toggle; Crystal Fluid (Ios-17pm)
+        /// is LIGHT-ONLY and snaps to Light.</summary>
+        public static bool? ModePairFor(string? family) =>
+            family == CrystalFluid ? (bool?)false : null;
 
         /// <summary>Crystal Fluid's tunable water tokens (2026-09-05):
         /// the tokens file carries the defaults; family paint writes
@@ -71,23 +69,23 @@ namespace ProGlassAutomation.Services.Theme
             "ModuleWallpaperBrush",
 
             // Status-tint cards/chips (InfoCard + the BrushKeyConverter
-            // chips in dashboards/lists). The iOS Liquid Glass family
-            // renders these as see-through hue frost (hue kept, alpha
-            // dropped), so the overrides must be cleaned up on family
-            // switch exactly like the surfaces above.
+            // chips in dashboards/lists). The Crystal Fluid (Ios-17pm)
+            // family renders these as see-through hue frost (hue kept,
+            // alpha dropped), so the overrides must be cleaned up on
+            // family switch exactly like the surfaces above.
             "TintIndigoBrush", "TintBlueBrush", "TintGreenBrush",
             "TintRedBrush", "TintAmberBrush", "TintPurpleBrush",
             "TintGrayBrush",
 
             // Dashboard surface + ambient layer, and the shell (top bar)
-            // — the iOS family re-skins these to the aurora stage.
+            // — Crystal Fluid re-skins these to its pale stage.
             "DashLiquidSurfaceBrush", "DashAmbientBrush",
             "DashAmbientBlob1Brush", "DashAmbientBlob2Brush",
             "ShellLiquidBrush", "SidebarCardBrush",
 
-            // Liquid Glass design system tokens (2026-08-29): the
-            // iOS Liquid Glass family writes accent-tinted crystal values;
-            // every other family restores the theme-file defaults.
+            // Liquid Glass design system tokens (2026-08-29): Crystal
+            // Fluid (Ios-17pm) writes accent-tinted crystal values; every
+            // other family restores the theme-file defaults.
             "LiquidGlassBrush", "LiquidGlassSubtleBrush",
             "LiquidGlassStrongBrush",
             "LiquidEdgeBrush", "LiquidInnerHighlightBrush",
@@ -251,10 +249,10 @@ namespace ProGlassAutomation.Services.Theme
 
         private static void OnAccentChanged(object? sender, EventArgs e)
         {
-            // Monet and iOS Liquid Glass derive their surfaces and
+            // Monet and Crystal Fluid derive their surfaces and
             // window stage from the active accent colour, so both must
             // re-derive when the user changes the accent.
-            if (Current != Monet && Current != LiquidGlass && Current != CrystalFluid)
+            if (Current != Monet && Current != CrystalFluid)
                 return;
             InvalidateSceneCache();
             Apply(Current, _lastWallpaperPath, _lastWallpaperOpacity);
@@ -315,32 +313,8 @@ namespace ProGlassAutomation.Services.Theme
                             _lastWallpaperOpacity);
                         break;
 
-                    case Professional:
-                        ApplyProfessional(resources);
-                        break;
-
-                    case LiquidGlass:
-                        ApplyLiquidGlass(resources);
-                        break;
-
                     case CrystalFluid:
                         ApplyCrystalFluid(resources);
-                        break;
-
-                    case Ocean:
-                        ApplyOcean(resources);
-                        break;
-
-                    // Industrial family (2026-09-05): plain solid ERP look,
-                    // three shade layouts.
-                    case IndustrialWhite:
-                        ApplyIndustrialWhite(resources);
-                        break;
-                    case IndustrialGrey:
-                        ApplyIndustrialGrey(resources);
-                        break;
-                    case IndustrialDark:
-                        ApplyIndustrialDark(resources);
                         break;
                 }
 
@@ -463,29 +437,8 @@ namespace ProGlassAutomation.Services.Theme
                         ApplyMonet(resources, _lastWallpaperPath,
                             _lastWallpaperOpacity);
                         break;
-                    case Professional:
-                        ApplyProfessional(resources);
-                        break;
-                    case LiquidGlass:
-                        ApplyLiquidGlass(resources);
-                        break;
                     case CrystalFluid:
                         ApplyCrystalFluid(resources);
-                        break;
-                    case Ocean:
-                        ApplyOcean(resources);
-                        break;
-
-                    // Industrial family (2026-09-05): plain solid ERP look,
-                    // three shade layouts.
-                    case IndustrialWhite:
-                        ApplyIndustrialWhite(resources);
-                        break;
-                    case IndustrialGrey:
-                        ApplyIndustrialGrey(resources);
-                        break;
-                    case IndustrialDark:
-                        ApplyIndustrialDark(resources);
                         break;
                 }
 
@@ -1044,76 +997,6 @@ namespace ProGlassAutomation.Services.Theme
             var brush = new SolidColorBrush(tinted) { Opacity = opacity };
             brush.Freeze();
             return brush;
-        }
-
-        // ── PROFESSIONAL — premium corporate ───────────────────────────
-
-        private static void ApplyProfessional(ResourceDictionary resources)
-        {
-            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
-
-            // Cool slate window gradient — immediately distinguishes
-            // Professional from Normal.
-            var window = new LinearGradientBrush(
-                dark ? Color.FromRgb(0x0A, 0x13, 0x26)
-                     : Color.FromRgb(0xEC, 0xF2, 0xF9),
-                dark ? Color.FromRgb(0x16, 0x23, 0x3E)
-                     : Color.FromRgb(0xD9, 0xE5, 0xF2),
-                new Point(0, 0), new Point(1, 1));
-            window.Freeze();
-            resources["WindowBackgroundBrush"] = window;
-
-            // Crisp, clearly cooler surfaces (all views consume these
-            // via DynamicResource, so the change is global). The mix
-            // ratios are strong enough to be seen at a glance — this
-            // is what separates Professional from Normal.
-            Color cool = dark
-                ? Color.FromRgb(0x18, 0x25, 0x3D)
-                : Color.FromRgb(0xE2, 0xEA, 0xF4);
-
-            Color moduleBg = ThemeManager.GetThemeColor(
-                "ModuleBackgroundBrush", Colors.White);
-            var moduleBrush = new SolidColorBrush(
-                ColorMath.Mix(moduleBg, cool, 0.62));
-            moduleBrush.Freeze();
-            resources["ModuleBackgroundBrush"] = moduleBrush;
-
-            Color elevated = ThemeManager.GetThemeColor(
-                "ElevatedSurfaceBrush", Colors.White);
-            var elevatedBrush = new SolidColorBrush(
-                ColorMath.Mix(elevated, cool, 0.52));
-            elevatedBrush.Freeze();
-            resources["ElevatedSurfaceBrush"] = elevatedBrush;
-
-            Color sideMenu = ThemeManager.GetThemeColor(
-                "SideMenuBackgroundBrush", Colors.White);
-            var sideMenuBrush = new SolidColorBrush(
-                ColorMath.Mix(sideMenu, cool, 0.46));
-            sideMenuBrush.Freeze();
-            resources["SideMenuBackgroundBrush"] = sideMenuBrush;
-
-            // Tighter radii + restrained hover tint.
-            resources["CardCornerRadius"] = new CornerRadius(10);
-            resources["CardCornerRadiusLarge"] = new CornerRadius(14);
-            resources["ControlCornerRadius"] = new CornerRadius(8);
-
-            var hover = new SolidColorBrush(dark
-                ? Color.FromRgb(0x2E, 0x40, 0x5E)
-                : Color.FromRgb(0xE4, 0xEC, 0xF6));
-            hover.Freeze();
-            resources["MenuHoverBrush"] = hover;
-
-            // Sections accept Professional too: the shared glass set
-            // mirrors the steel-blue material (Settings, wizards,
-            // sidebars — everything follows the industrial look).
-            PublishSectionGlass(resources, cool, dark);
-
-            // Cool slate keyline to match the cooled surfaces above.
-            // Professional is the "premium corporate" family, so the
-            // edge is a touch crisper than Monet's.
-            ApplyKeyline(resources, dark
-                ? Color.FromRgb(0x5A, 0x6B, 0x82)
-                : Color.FromRgb(0x8C, 0x9C, 0xB0));
         }
     }
 }

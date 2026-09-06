@@ -1910,14 +1910,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">Впервые здесь? Загрузите небольшой связанный демо-набор, чтобы изучить каждый модуль — только на пустой базе данных.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">Пока нет заданий. Сгенерируйте выбранное или всё, чтобы начать запись.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">Истории обновлений пока нет. Проверьте наличие обновлений, чтобы записать первую запись.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetProfessionalIosLiquidGlassOcean">Normal, Monet, Professional, iOS Liquid Glass или Ocean — мгновенно переоформляет всё приложение. iOS Liquid Glass — по умолчанию: целостная кристальная дизайн-система, адаптирующаяся к светлой и тёмной теме — полупрозрачные матовые панели, кристальные грани, отражения и мягкие тени на насыщенной сцене-авроре. Отрисовывается одинаково на каждой машине Windows 10/11.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet или Ios-17pm — мгновенно переоформляет всё приложение. Normal — по умолчанию: чистая профессиональная ERP-дизайн-система, адаптирующаяся к светлой и тёмной теме. Monet строит палитру из вашего акцентного цвета; Ios-17pm — кристально-жидкий вид только в светлой теме.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">Пока ничего не обучено.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">ОТКРЫТЬ ВЫВОД</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">ОТКРЫТЬ ЗАПИСИ</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">ОТКРЫТЬ ПАПКУ ИНСТРУМЕНТОВ</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">ОФИЦИАЛЬНАЯ СТРАНИЦА FFMPEG</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">Офлайн-распознавание речи с OpenAI Whisper — точность более 95 %, без облака.</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">Один глобальный цвет текста для всех представлений. Автоматически следует теме — iOS Liquid Glass использует палитру «О программе». Выберите цвет, чтобы текст всегда оставался видимым на матовых поверхностях.</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">Один глобальный цвет текста для всех представлений. Автоматически следует теме — Ios-17pm использует палитру «О программе». Выберите цвет, чтобы текст всегда оставался видимым на матовых поверхностях.</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">Одно изображение за каждым модулем плюс переопределения для отдельных экранов.</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">Шпаргалка оператора для зоны резки.</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">Оператор, выполняющий это задание на производстве.</sys:String>

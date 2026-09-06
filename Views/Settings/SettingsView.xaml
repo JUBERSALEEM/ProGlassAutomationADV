@@ -80,21 +80,19 @@
                                   Direction="270" Opacity="0.20"
                                   Color="#000000"/>
             </Border.Effect>
-            <!-- 2026-09-01: the rail now carries the liquid-glass touch —
-                 a crisp top catch-light plus a soft glare band, exactly
-                 like the main shell drawer, so it reads as frosted glass
-                 over the stage instead of a flat card. -->
+            <!-- The rail carries the liquid-glass touch — a crisp top
+                 catch-light plus a soft glare band, exactly like the main
+                 shell drawer, so it reads as frosted glass over the stage
+                 instead of a flat card. -->
             <Grid>
                 <Border Height="1" VerticalAlignment="Top"
                         Background="{DynamicResource ShellSheenBrush}"
-                        IsHitTestVisible="False"
-                        Visibility="{Binding IsIndustrialLook, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                        IsHitTestVisible="False"/>
                 <Border Height="14" VerticalAlignment="Top"
                         CornerRadius="14,14,5,5"
                         Background="{DynamicResource GlassTopReflection}"
                         Opacity="0.55"
-                        IsHitTestVisible="False"
-                        Visibility="{Binding IsIndustrialLook, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                        IsHitTestVisible="False"/>
             <DockPanel Margin="10,20,10,16">
 
                 <!-- Brand header — 2026-09-05 restyled to the REPORTS-module

@@ -22,9 +22,9 @@ namespace ProGlassAutomation.Services.Theme
 
             // ══════════════════════════════════════════════════════════
             //  CRYSTAL FLUID (2026-09-05) — iOS water-glass design system.
-            //  REPLACES "Ultra Transparent" (retired this commit). Light-
-            //  only family (ModePairFor → false); the `dark` branches are
-            //  defensive fallbacks for mid-mode-switch paints only.
+            //  REPLACES "Ultra Transparent" (retired). Light-only family
+            //  (ModePairFor → false); the `dark` branches are defensive
+            //  fallbacks for mid-mode-switch paints only.
             //
             //  Spec = the frozen inline reference (CRYSTAL_FLUID_DESIGN.md):
             //    · ink #102938 / muted #68808F / accent #55C9EE
@@ -244,65 +244,6 @@ namespace ProGlassAutomation.Services.Theme
                 : Color.FromArgb(0x55, 0x1E, 0x5F, 0x7E);
         }
 
-        // ── OCEAN — deep teal corporate ───────────────────────────────
-
-        private static void ApplyOcean(ResourceDictionary resources)
-        {
-            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
-
-            var window = new LinearGradientBrush(
-                dark ? Color.FromRgb(0x06, 0x23, 0x30)
-                     : Color.FromRgb(0xE4, 0xF4, 0xF1),
-                dark ? Color.FromRgb(0x09, 0x2E, 0x40)
-                     : Color.FromRgb(0xCB, 0xE9, 0xE2),
-                new Point(0, 0), new Point(1, 1));
-            window.Freeze();
-            resources["WindowBackgroundBrush"] = window;
-
-            Color teal = dark
-                ? Color.FromRgb(0x10, 0x34, 0x43)
-                : Color.FromRgb(0xC6, 0xE5, 0xDD);
-
-            Color moduleBg = ThemeManager.GetThemeColor(
-                "ModuleBackgroundBrush", Colors.White);
-            var moduleBrush = new SolidColorBrush(
-                ColorMath.Mix(moduleBg, teal, 0.60));
-            moduleBrush.Freeze();
-            resources["ModuleBackgroundBrush"] = moduleBrush;
-
-            Color elevated = ThemeManager.GetThemeColor(
-                "ElevatedSurfaceBrush", Colors.White);
-            var elevatedBrush = new SolidColorBrush(
-                ColorMath.Mix(elevated, teal, 0.50));
-            elevatedBrush.Freeze();
-            resources["ElevatedSurfaceBrush"] = elevatedBrush;
-
-            Color sideMenu = ThemeManager.GetThemeColor(
-                "SideMenuBackgroundBrush", Colors.White);
-            var sideMenuBrush = new SolidColorBrush(
-                ColorMath.Mix(sideMenu, teal, 0.45));
-            sideMenuBrush.Freeze();
-            resources["SideMenuBackgroundBrush"] = sideMenuBrush;
-
-            resources["CardCornerRadius"] = new CornerRadius(12);
-            resources["CardCornerRadiusLarge"] = new CornerRadius(16);
-            resources["ControlCornerRadius"] = new CornerRadius(8);
-
-            var hover = new SolidColorBrush(dark
-                ? Color.FromRgb(0x14, 0x35, 0x47)
-                : Color.FromRgb(0xE4, 0xF2, 0xF6));
-            hover.Freeze();
-            resources["MenuHoverBrush"] = hover;
-
-            // Sections accept Ocean too — shared glass set mirrors the
-            // deep-teal material.
-            PublishSectionGlass(resources, teal, dark);
-
-            ApplyKeyline(resources, dark
-                ? Color.FromRgb(0x2E, 0x5A, 0x6E)
-                : Color.FromRgb(0x7F, 0xB4, 0xC4));
-        }
-
         // ── Helpers ─────────────────────────────────────────────────────
 
         private static void ClearOverrides(ResourceDictionary resources)
@@ -376,30 +317,18 @@ namespace ProGlassAutomation.Services.Theme
             return family?.Trim() switch
             {
                 Monet => Monet,
-                Professional => Professional,
-                LiquidGlass => LiquidGlass,
                 CrystalFluid => CrystalFluid,
-                // Legacy families removed in the 2026-08-29 rewrite —
-                // saved configs pointing at them resolve to the new
-                // iOS Liquid Glass family instead of breaking.
-                "Glass" => LiquidGlass,
-                "Glassy" => LiquidGlass,
-                // 2026-09-05: every retired transparent-glass name
-                // — including the literal old display string — lands
-                // on Crystal Fluid, never on a missing family.
+                // Legacy transparent-glass names keep landing on Crystal
+                // Fluid (Ios-17pm), never on a missing family.
                 "Ultra Transparent" => CrystalFluid,
                 "Transparent" => CrystalFluid,
                 "Clear" => CrystalFluid,
                 "Crystal" => CrystalFluid,
                 "Crystal Sea" => CrystalFluid,
-                Ocean => Ocean,
-                // Industrial family (2026-09-05): three explicit shade
-                // layouts; bare "Industrial" from older saves → Grey.
-                IndustrialWhite => IndustrialWhite,
-                IndustrialGrey  => IndustrialGrey,
-                IndustrialDark  => IndustrialDark,
-                "Industrial"    => IndustrialGrey,
-                "Factory"       => IndustrialGrey,
+                // 2026-09-06 theme reduction (owner decision: keep Normal,
+                // Monet, Ios-17pm): every removed family — Professional,
+                // iOS Liquid Glass, Ocean, Industrial White/Grey/Dark — and
+                // any unknown saved value resets to Normal (the new default).
                 _ => Normal
             };
         }

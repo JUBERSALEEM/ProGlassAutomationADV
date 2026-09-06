@@ -390,10 +390,9 @@ namespace ProGlassAutomation
             PerformanceProfileService.Apply();
 
             // 9d) Base colour mode (Light/Dark) + visual theme family +
-            //     wallpaper (Normal / Monet / Professional /
-            //     iOS Liquid Glass / Ocean). The base theme is restored
-            //     FIRST so the family derives its surfaces against the
-            //     right palette. iOS Liquid Glass is the default family.
+            //     wallpaper (Normal / Monet / Ios-17pm). The base theme
+            //     is restored FIRST so the family derives its surfaces
+            //     against the right palette. Normal is the default family.
             ProGlassAutomation.Services.ThemeManager.ApplyTheme(
                 Config.Appearance?.Theme == "Dark"
                     ? ProGlassAutomation.Services.AppTheme.Dark
@@ -405,7 +404,7 @@ namespace ProGlassAutomation
                 Config.Appearance?.UseGradientSurfaces ?? true);
 
             VisualThemeEngine.Apply(
-                Config.Appearance?.VisualTheme ?? "iOS Liquid Glass",
+                Config.Appearance?.VisualTheme ?? VisualThemeEngine.Normal,
                 Config.Appearance?.WallpaperPath ?? "",
                 Config.Appearance?.WallpaperOpacity ?? 0.85);
 

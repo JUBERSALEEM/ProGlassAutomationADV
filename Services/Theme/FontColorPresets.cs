@@ -13,8 +13,8 @@
 // transparent frosted surfaces.
 //
 // "Auto" (empty config value) means "no override": every family keeps
-// its own palette (iOS Liquid Glass = the About page's LiquidSnow/Cerulean/Muted,
-// all others = the Light/Dark theme defaults).
+// its own palette (Crystal Fluid / Ios-17pm = the About page's
+// LiquidSnow/Cerulean/Muted, all others = the Light/Dark theme defaults).
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;

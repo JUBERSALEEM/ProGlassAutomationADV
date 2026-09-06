@@ -130,10 +130,13 @@ Eleven SQLite files under `AppDataRoot`, each owned by one `DbContext`
 - **Tokens**: `Themes/Styles/` (Light/Dark design tokens + shared card/table/
   dialog/input/typography styles) and `Themes/CrystalFluid/` (the shipped
   Crystal family: tokens, controls, `CrystalWaterControl`, stat-card).
-- **Engine**: `VisualThemeEngine` (4 parts) paints the **nine shipped visual
-  families** — Normal, Monet, Professional, LiquidGlass, CrystalFluid, Ocean,
-  IndustrialWhite, IndustrialGrey, IndustrialDark — with a managed-key
-  contract that keeps crash-critical brushes always present.
+- **Engine**: `VisualThemeEngine` (hub + 3 part files) paints the **three
+  shipped visual families** — **Normal** (default), **Monet** (accent-derived
+  Material-You), and **Crystal Fluid** (displayed **Ios-17pm**, light-only via
+  `ModePairFor`) — with a managed-key contract that keeps crash-critical
+  brushes always present. Professional, iOS Liquid Glass, Ocean and the
+  Industrial trio were removed 2026-09-06; saved configs referencing any
+  removed family resolve to Normal.
 - **Pipeline**: `ThemePipeline` is the single rebuild order (family paint →
   accent → outline preference). `WallpaperOrchestrator` + `BuiltinWallpaperScenes`
   drive the Wallpaper Studio; `SystemBackdropService` provides optional Mica/

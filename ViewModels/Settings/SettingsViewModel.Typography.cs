@@ -44,10 +44,11 @@ namespace ProGlassAutomation.ViewModels.Settings
         //  One colour drives the whole UI's Primary/Secondary/Muted
         //  foregrounds (the VisualThemeEngine derives the hierarchy so
         //  headings/captions/hints keep their contrast order). "Auto"
-        //  hands ownership back to the theme/visual family — in iOS Liquid Glass
-        //  that is the About page's text palette. Persists like the
-        //  accent, applies live like the accent, works in EVERY
-        //  visual family — the visibility dial for transparent UIs.
+        //  hands ownership back to the theme/visual family — in Crystal
+        //  Fluid (Ios-17pm) that is the About page's text palette.
+        //  Persists like the accent, applies live like the accent, works
+        //  in EVERY visual family — the visibility dial for transparent
+        //  UIs.
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>Chip list for the Font Color tile (Auto + presets).</summary>
@@ -227,7 +228,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                     // 1) Reset the persisted values to factory defaults.
                     SetResetStatus("Resetting configuration...");
-                    ap.VisualTheme = ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass;
+                    ap.VisualTheme = ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal;
                     ap.Theme = "Light";
                     ap.UseDefinedOutline = false;
                     ap.UseGradientSurfaces = true;

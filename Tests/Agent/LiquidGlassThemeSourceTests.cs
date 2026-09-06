@@ -1,16 +1,20 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Tests/Agent/LiquidGlassThemeSourceTests.cs
 // PROJECT: ProGlassAutomation.Tests
-// MODULE: Source-level invariants for the iOS Liquid Glass theme system
-//         (2026-08-29 — system-wide rewrite + completion sweep)
+// MODULE: Source-level invariants for the shared glass design system
+//         (2026-08-29 — system-wide rewrite + completion sweep;
+//          2026-09-06 — theme reduction: the iOS Liquid Glass, Ocean,
+//          Professional and Industrial FAMILIES are removed, but the
+//          shared Liquid* design-system tokens, the cream Normal palette
+//          and the Crystal Fluid (Ios-17pm) family all remain and stay
+//          pinned here.)
 //
-// Pins the DESIGN of the iOS Liquid Glass family AND the COMPLETENESS of
-// the system-wide rewrite: the legacy "Glass"/"Glassy" families, their
-// resource keys, identifiers, file names and UI wording must stay
-// deleted; the opaque in-window stage must stay self-contained (no DWM
-// veil); the per-mode ramps (white water glass in Light, deep frost in
-// Dark) must stay per-mode; and the Liquid* token surface must stay
-// identical across BOTH theme dictionaries.
+// Pins the DESIGN of the surviving surface system: the legacy
+// "Glass"/"Glassy" families, their resource keys, identifiers, file
+// names and UI wording must stay deleted; the opaque in-window stage
+// must stay self-contained (no DWM veil); the Liquid* token surface
+// must stay identical across BOTH theme dictionaries; Normal must stay
+// cream (no blue cast); and Crystal Fluid must stay readable.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -58,118 +62,101 @@ namespace ProGlassAutomation.Tests.Agent
 
         private static string LightTheme => Read("Themes/LightTheme.xaml");
 
-        [Fact]
-        public void Liquid_glass_uses_white_water_glass_in_light_and_deep_frost_in_dark()
-        {
-            // The original defect: the light mode used the dark ramp —
-            // cards vanished on the pale stage. The single iOS Liquid
-            // Glass family keeps an intentional ramp per mode: white
-            // water glass in Light, deep frost in Dark.
-            // 2026-09-01 richness pass: both ramps got denser (richer
-            // frost) so cards read as real glass instead of pale sheets.
-            // 2026-09-01 UHD pass: the SETTINGS rail came back to a
-            // visibly translucent 0.90/0.62 (0.96/0.76 was a flat white
-            // slab on the light stage), while the MAIN shell sidebar
-            // went richer (0.95/0.80) so module buttons stay readable.
-            Assert.Contains("0.90, 0.64", Engine, StringComparison.Ordinal);
-            Assert.Contains("0.90, 0.62", Engine, StringComparison.Ordinal); // settings rail — glass, not slab
-            Assert.Contains("0.95, 0.80", Engine, StringComparison.Ordinal); // main shell sidebar — rich frost
-            Assert.Contains("0.30, 0.12", Engine, StringComparison.Ordinal); // dark
-            Assert.Contains("0.44, 0.20", Engine, StringComparison.Ordinal); // dark rail
-
-            // 2026-08-29 watery upgrade: the light curve has a dip
-            // under the top edge and a meniscus band — the droplet's
-            // surface-tension light — instead of a linear fade.
-            Assert.Contains("dip = (byte)(topA * 0.86)", Engine, StringComparison.Ordinal);
-            Assert.Contains("meniscus = (byte)", Engine, StringComparison.Ordinal);
-        }
+        // ══════════════════════════════════════════════════════════════
+        //  Family inventory — 2026-09-06 theme reduction (owner decision)
+        // ══════════════════════════════════════════════════════════════
 
         [Fact]
-        public void Liquid_glass_window_stage_is_opaque_and_self_contained()
+        public void Removed_families_are_gone_and_normal_is_the_default_family()
         {
-            // 2026-08-29 white-fade regression: an alpha veil over an
-            // opaque WPF window surface blends toward the white clear
-            // color on Windows 11 / transparency-off machines — the
-            // whole app faded to a white sheet. The stage must be
-            // opaque and visibly more colourful than the white panes.
-            string engine = Engine;
-            Assert.Contains("BuildLiquidStageBrush(", engine, StringComparison.Ordinal);
-            Assert.DoesNotContain("WithAlpha(baseA", engine, StringComparison.Ordinal);
-            Assert.DoesNotContain("WithAlpha(baseB", engine, StringComparison.Ordinal);
-            Assert.DoesNotContain("WithAlpha(stageA", engine, StringComparison.Ordinal);
-            Assert.DoesNotContain("WithAlpha(stageB", engine, StringComparison.Ordinal);
-            Assert.Contains("0xD7, 0xE5, 0xF9", engine, StringComparison.Ordinal);
-            Assert.Contains("0xAE, 0xCB, 0xF0", engine, StringComparison.Ordinal);
-
-            // Watery stage (2026-08-29): a third accent bloom and
-            // caustic light pools give the aurora layered water depth.
-            Assert.Contains("LiquidOrbC(dark, accent)", engine, StringComparison.Ordinal);
-            Assert.Contains("LiquidCaustic(dark, accent", engine, StringComparison.Ordinal);
-
-            // 2026-08-29 completion sweep: the DWM chrome service that
-            // used to veil the window surface is DELETED outright — no
-            // OS-backdrop code path exists anymore.
-            Assert.DoesNotContain("GlassChromeService", engine, StringComparison.Ordinal);
-            Assert.DoesNotContain("SyncGlassChrome", engine, StringComparison.Ordinal);
-            Assert.DoesNotContain("ReapplyWindowChrome", engine, StringComparison.Ordinal);
-            Assert.DoesNotContain("GlassChromeService", Read("MainWindow.xaml.cs"),
-                StringComparison.Ordinal);
-        }
-
-        [Fact]
-        public void Glass_and_glassy_are_removed_and_ios_liquid_glass_is_the_default_family()
-        {
-            // 2026-08-29 rewrite: the two confusing "Glass"/"Glassy"
-            // families are GONE; one iOS Liquid Glass family replaces
-            // them, adapts to Light/Dark, and is the app-wide default.
+            // 2026-08-29 rewrite removed the two confusing "Glass"/"Glassy"
+            // families. 2026-09-06 theme reduction then removed the iOS
+            // Liquid Glass, Ocean, Professional and Industrial families;
+            // Normal is now the app-wide default. No legacy migration maps
+            // a saved value onto a removed family — every unknown/removed
+            // value resolves to Normal.
             string engine = Engine;
             Assert.DoesNotContain("public const string Glass =", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Glassy =", engine, StringComparison.Ordinal);
-            Assert.Contains("public const string LiquidGlass = \"iOS Liquid Glass\";", engine, StringComparison.Ordinal);
-            Assert.Contains("\"Glass\" => LiquidGlass", engine, StringComparison.Ordinal);
-            Assert.Contains("\"Glassy\" => LiquidGlass", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("public const string LiquidGlass =", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("public const string Ocean =", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("public const string Professional =", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("public const string Industrial", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("\"Glass\" => LiquidGlass", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("\"Glassy\" => LiquidGlass", engine, StringComparison.Ordinal);
 
             string config = Read("Services/AI/AIConfig/AppConfig.cs");
-            Assert.Contains("= \"iOS Liquid Glass\";", config, StringComparison.Ordinal);
+            Assert.Contains("= \"Normal\";", config, StringComparison.Ordinal);
+            Assert.DoesNotContain("= \"iOS Liquid Glass\";", config, StringComparison.Ordinal);
 
+            // App.StartupCore.cs is pulled in by the App.*.cs convention.
             string appCs = Read("App.xaml.cs");
-            Assert.Contains("?? \"iOS Liquid Glass\"", appCs, StringComparison.Ordinal);
+            Assert.Contains("?? VisualThemeEngine.Normal", appCs, StringComparison.Ordinal);
+            Assert.DoesNotContain("?? \"iOS Liquid Glass\"", appCs, StringComparison.Ordinal);
 
-            string vm = Read("ViewModels/Settings/SettingsViewModel.cs");
-            Assert.Contains("VisualThemeEngine.LiquidGlass,", vm, StringComparison.Ordinal);
-            Assert.DoesNotContain("VisualThemeEngine.Glass,", vm, StringComparison.Ordinal);
-            Assert.DoesNotContain("VisualThemeEngine.Glassy,", vm, StringComparison.Ordinal);
+            // The settings options list ships exactly the three retained
+            // families and none of the removed ones.
+            string vm = Read(
+                "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
+            Assert.Contains("VisualThemeEngine.Normal)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.Monet)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.CrystalFluid)", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.LiquidGlass", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.Ocean", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.Professional", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.Industrial", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.Glass", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.Glassy", vm, StringComparison.Ordinal);
         }
+
+        [Fact]
+        public void Engine_publishes_the_crystal_fluid_tokens()
+        {
+            // The Liquid* token surface is now authored by the Crystal
+            // Fluid (Ios-17pm) family; the engine must keep publishing the
+            // edge/selection/primary/overlay tokens the shared styles
+            // consume.
+            string engine = Engine;
+            Assert.Contains("ApplyCrystalFluid", engine, StringComparison.Ordinal);
+            Assert.Contains("\"LiquidEdgeBrush\"", engine, StringComparison.Ordinal);
+            Assert.Contains("\"LiquidSelectionBrush\"", engine, StringComparison.Ordinal);
+            Assert.Contains("\"LiquidPrimaryButtonBrush\"", engine, StringComparison.Ordinal);
+            Assert.Contains("CrystalEdge", engine, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Accent_application_does_not_clobber_the_crystal_family_tints()
+        {
+            // ApplyAccent runs after the engine on every family switch;
+            // it must not repaint the Blue/Indigo tint chips opaque over
+            // the Crystal Fluid family's see-through hue frost.
+            string tm = Read("Services/ThemeManager.cs");
+            int guard = tm.IndexOf(
+                "VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid",
+                StringComparison.Ordinal);
+            int tintBlue = tm.IndexOf(
+                "FreezeAndSet(resources, \"TintBlueBrush\"",
+                StringComparison.Ordinal);
+            Assert.True(guard >= 0, "tint guard missing");
+            Assert.True(tintBlue >= 0, "TintBlueBrush write missing");
+            Assert.True(guard < tintBlue,
+                "the Crystal Fluid tint guard must come before the TintBlueBrush write");
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  Shared glass design-system invariants (kept after reduction)
+        // ══════════════════════════════════════════════════════════════
 
         [Fact]
         public void Light_glass_card_is_translucent_white_not_opaque()
         {
-            // The second original defect: the light card was #FFFFFFFF
-            // (opaque white) — a solid slab, not glass. The LiquidGlass
-            // meniscus ramp is denser after the 2026-09-01 richness
-            // pass but never reaches full opacity.
+            // The light glass material is a translucent white ramp, never
+            // an opaque white slab. The tokens live in the theme files and
+            // are consumed by every surviving family's cards.
             Assert.Contains("#E4FFFFFF", LightTheme, StringComparison.Ordinal);
             Assert.Contains("#CEFFFFFF", LightTheme, StringComparison.Ordinal);
             Assert.Contains("#F6FFFFFF", LightTheme, StringComparison.Ordinal);
             Assert.Contains("#96FFFFFF", LightTheme, StringComparison.Ordinal); // specular sheen
-        }
-
-        [Fact]
-        public void Liquid_stage_orb_stops_stay_the_reference_constants()
-        {
-            // The stage is OPAQUE and SELF-CONTAINED: its orb stops are
-            // frozen constants inside BuildLiquidStageBrush (the 2026-08-29
-            // boosted light values and the original dark values). The
-            // About page's own orbs are now accent-derived at runtime
-            // (ThemeManager.PublishAboutPalette), so there is no theme
-            // copy to drift against — the engine IS the reference.
-            // (2026-09-01 stale-pin fix: the old fact asserted theme
-            // hexes that had been superseded by the runtime palette and
-            // could never pass again.)
-            Assert.Contains("0x66, 0x60, 0xA5, 0xFA", Engine, StringComparison.Ordinal);
-            Assert.Contains("0x7A, 0x3B, 0x82, 0xF6", Engine, StringComparison.Ordinal);
-            Assert.Contains("0x4D, 0x82, 0xF6, 0xFF", Engine, StringComparison.Ordinal);
-            Assert.Contains("0x60, 0xA5, 0xFA, 0x66", Engine, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -179,9 +166,6 @@ namespace ProGlassAutomation.Tests.Agent
             // must never read the surface-named Liquid* keys again (that
             // coupling would white-out text when surfaces are
             // recoloured).
-            // 2026-09-01 cream pass: the light palette was cool slate
-            // with a BLUE secondary (#1D4ED8) — blue captions across the
-            // whole light UI. Now warm ink like the Normal canvas.
             Assert.Contains("FrozenSolid(Color.FromRgb(0x1C, 0x19, 0x17))", Engine, StringComparison.Ordinal);
             Assert.Contains("FrozenSolid(Color.FromRgb(0x57, 0x53, 0x4E))", Engine, StringComparison.Ordinal);
             Assert.Contains("FrozenSolid(Color.FromRgb(0x78, 0x71, 0x6C))", Engine, StringComparison.Ordinal);
@@ -195,11 +179,6 @@ namespace ProGlassAutomation.Tests.Agent
             // consumers bound with DynamicResource. The card styles
             // must never switch back to StaticResource, or the glass
             // surfaces would silently stay opaque.
-            // (2026-09-01 stale-pin fix: the canonical cards consume
-            // GlassUltraClearBrush/GlassSurfaceBrush/GlassSurfaceElevated
-            // — the fact previously pinned GlassSurfaceStandard, which
-            // no card file references, so it could never pass. The
-            // engine's PublishSectionGlass overrides ALL of these.)
             string cardStyles = Read("Themes/Styles/CardStyles.xaml");
             string settings = Read("Views/Settings/SettingsSectionStyles.xaml");
 
@@ -216,20 +195,17 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Liquid_glass_design_system_is_merged_and_tokens_are_defined_in_both_themes()
+        public void Glass_design_system_is_merged_and_tokens_are_defined_in_both_themes()
         {
-            // The global liquid glass system (2026-08-29): one shared
-            // dictionary merged in App.xaml; every token it consumes is
-            // defined in BOTH theme files so Light/Dark switching and
-            // the iOS Liquid Glass family overrides always resolve.
+            // The shared glass design system is merged in App.xaml; every
+            // token it consumes is defined in BOTH theme files so
+            // Light/Dark switching always resolves.
             string app = Read("App.xaml");
             string light = LightTheme;
             string dark = Read("Themes/DarkTheme.xaml");
             string styles = Read("Themes/Styles/LiquidGlassStyles.xaml");
 
             Assert.Contains("LiquidGlassStyles.xaml", app, StringComparison.Ordinal);
-            // (2026-09-01 stale-pin fix: the styles dictionary adopts the
-            // reference CARD through BasedOn, not a "Controls/" path.)
             Assert.Contains("{StaticResource LiquidGlassCard}", styles, StringComparison.Ordinal);
 
             string[] tokens =
@@ -248,13 +224,10 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Liquid_glass_styles_never_pin_theme_colours_with_static_resource()
+        public void Glass_styles_never_pin_theme_colours_with_static_resource()
         {
             // Dynamic switching depends on DynamicResource — the design
             // system must never StaticResource the glass MATERIALS.
-            // (Style-key references like {StaticResource
-            // LiquidGlassButtonPrimary} in BasedOn are legitimate —
-            // styles, not colours.)
             string styles = Read("Themes/Styles/LiquidGlassStyles.xaml");
             foreach (string token in new[]
                      {
@@ -268,27 +241,13 @@ namespace ProGlassAutomation.Tests.Agent
             {
                 Assert.DoesNotContain("{StaticResource " + token + "}", styles, StringComparison.Ordinal);
             }
-            // (2026-09-01 stale-pin fix: the design system's surface
-            // material is GlassSurfaceElevated/GlassUltraClearBrush —
-            // GlassSurfaceStandard was never referenced there.)
             Assert.Contains("{DynamicResource GlassSurfaceElevated}", styles, StringComparison.Ordinal);
             Assert.Contains("{DynamicResource GlassUltraClearBrush}", styles, StringComparison.Ordinal);
             Assert.Contains("{DynamicResource GlassTopReflection}", styles, StringComparison.Ordinal);
         }
 
         [Fact]
-        public void Engine_publishes_the_liquid_glass_tokens_for_the_liquid_family()
-        {
-            string engine = Engine;
-            Assert.Contains("ApplyLiquidGlassTokens", engine, StringComparison.Ordinal);
-            Assert.Contains("\"LiquidEdgeBrush\"", engine, StringComparison.Ordinal);
-            Assert.Contains("\"LiquidSelectionBrush\"", engine, StringComparison.Ordinal);
-            Assert.Contains("\"LiquidPrimaryButtonBrush\"", engine, StringComparison.Ordinal);
-            Assert.Contains("CrystalEdge", engine, StringComparison.Ordinal);
-        }
-
-        [Fact]
-        public void Liquid_glass_card_control_exposes_intensity_and_radius()
+        public void Glass_card_control_exposes_intensity_and_radius()
         {
             string control = Read("Controls/LiquidGlassCard.cs");
             Assert.Contains("LiquidIntensityProperty", control, StringComparison.Ordinal);
@@ -309,16 +268,12 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void Theme_dictionaries_define_no_legacy_glass_family_resource_keys()
         {
-            // The old Glass* FAMILY identifiers are gone. NOTE: the
-            // ADOPTED design surface legitimately keeps keys named
-            // GlassSurface* / GlassBorder* / GlassShadow* / GlassTop* /
-            // GlassWater* — these are the canonical shared materials
-            // every section consumes (the reference design), and this
-            // test layer itself requires them to exist in both themes.
-            // So the check targets the LEGACY identifiers only, exactly
-            // mirroring the banned-identifier list below. The previous
-            // version used Contains("Glass"), which false-failed the
-            // whole suite — the adopted keys make it impossible to pass.
+            // The old Glass* FAMILY identifiers are gone. The ADOPTED
+            // design surface legitimately keeps keys named GlassSurface* /
+            // GlassBorder* / GlassShadow* / GlassTop* / GlassWater* —
+            // these are the canonical shared materials every section
+            // consumes. The check targets the LEGACY identifiers only,
+            // exactly mirroring the banned-identifier list below.
             var legacy = new[]
             {
                 "GlassCard", "GlassSheen", "GlassIce", "GlassFrost",
@@ -350,9 +305,7 @@ namespace ProGlassAutomation.Tests.Agent
                         // EXACT match only: the adopted surface family
                         // legitimately uses GlassSurface* / GlassBorder* /
                         // GlassFrostedBrush etc., which share prefixes
-                        // with the old identifiers (GlassFrost vs
-                        // GlassFrostedBrush). Prefix matching would
-                        // false-flag the adopted design.
+                        // with the old identifiers.
                         Assert.False(
                             key == name,
                             "Resource key still carries the legacy Glass family name: " + key);
@@ -366,8 +319,9 @@ namespace ProGlassAutomation.Tests.Agent
         {
             // 2026-08-29 completion sweep: the rewrite must not leave a
             // single legacy-family identifier behind. Word-boundary
-            // matching keeps the NEW family intact (LiquidGlassCard,
-            // LiquidGlassBrush etc. do not contain these identifiers).
+            // matching keeps the NEW shared design system intact
+            // (LiquidGlassCard, LiquidGlassBrush etc. do not contain
+            // these identifiers).
             var root = Root();
             var sep = Path.DirectorySeparatorChar;
             var banned = new[]
@@ -422,6 +376,10 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("over transparent glass", section, StringComparison.Ordinal);
             Assert.DoesNotContain("Glass or Glassy", section, StringComparison.Ordinal);
             Assert.DoesNotContain("Glass, Glassy", section, StringComparison.Ordinal);
+            // the removed families must not appear in the caption key or
+            // anywhere else on the page.
+            Assert.DoesNotContain("Professional", section, StringComparison.Ordinal);
+            Assert.DoesNotContain("Ocean", section, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -496,25 +454,6 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Accent_application_does_not_clobber_the_liquid_family_tints()
-        {
-            // ApplyAccent runs after the engine on every family switch;
-            // it must not repaint the Blue/Indigo tint chips opaque over
-            // the iOS Liquid Glass family's see-through hue frost.
-            string tm = Read("Services/ThemeManager.cs");
-            int guard = tm.IndexOf(
-                "VisualThemeEngine.Current != VisualThemeEngine.LiquidGlass",
-                StringComparison.Ordinal);
-            int tintBlue = tm.IndexOf(
-                "FreezeAndSet(resources, \"TintBlueBrush\"",
-                StringComparison.Ordinal);
-            Assert.True(guard >= 0, "tint guard missing");
-            Assert.True(tintBlue >= 0, "TintBlueBrush write missing");
-            Assert.True(guard < tintBlue,
-                "the Liquid Glass tint guard must come before the TintBlueBrush write");
-        }
-
-        [Fact]
         public void Card_template_draws_the_watery_meniscus_line()
         {
             // The droplet's surface-tension band: the white top
@@ -539,22 +478,17 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Liquid_glass_reference_dictionary_is_merged_and_controls_adopt_it()
+        public void Reference_dictionary_is_merged_and_controls_adopt_it()
         {
-            // 2026-08-29 reference adoption: the canonical dictionary is
-            // merged first in App.xaml, the shared button system renders
-            // the reference glass (idle gradient + top glare), the app
-            // toggle is the reference switch, the engine publishes the
-            // per-mode palette, and the main window rides the reference
-            // app background.
+            // The canonical glass dictionary is merged first in App.xaml;
+            // the shared button system renders the reference glass (idle
+            // gradient + top glare), the app toggle is the reference
+            // switch, the engine publishes the per-mode palette, and the
+            // main window rides the reference app background.
             string app = Read("App.xaml");
             Assert.Contains("LiquidGlassDesign.xaml", app, StringComparison.Ordinal);
 
             string design = Read("Themes/Styles/LiquidGlassDesign.xaml");
-            // 2026-09-01 stale-pin fix: LiquidGlassDesign.xaml is a
-            // TEMPLATE dictionary (it declares in its own header that
-            // every colour/brush token is defined in the theme files).
-            // The control styles live here…
             foreach (string key in new[]
                      {
                          "LiquidGlassPanel", "LiquidGlassCard",
@@ -582,11 +516,6 @@ namespace ProGlassAutomation.Tests.Agent
             }
 
             string buttons = Read("Styles/ButtonStyles.xaml");
-            // (2026-09-01 stale-pin fix: the pill template's glare layer
-            // consumes GlassTopReflectionGradient and the pill surfaces
-            // consume GlassSurfaceBrush / GlassSurfaceElevated — the old
-            // pins referenced GlassGradientIdle/GlassTopReflection,
-            // neither of which appears in ButtonStyles.)
             Assert.Contains("GlassTopReflectionGradient", buttons, StringComparison.Ordinal);
             Assert.Contains("{DynamicResource GlassSurfaceBrush}", buttons, StringComparison.Ordinal);
             Assert.Contains("{DynamicResource GlassSurfaceElevated}", buttons, StringComparison.Ordinal);
@@ -600,10 +529,6 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("resources[\"GlassGradientActive\"]", tm, StringComparison.Ordinal);
 
             string window = Read("MainWindow.xaml");
-            // 2026-09-01 stale-pin fix: the main window rides the
-            // WINDOW background brush (the family's opaque aurora stage /
-            // Normal's canvas), not AppBackgroundBrush — the reference
-            // dictionary still carries AppBackgroundBrush for adoption.
             Assert.Contains("{DynamicResource WindowBackgroundBrush}", window, StringComparison.Ordinal);
             Assert.Contains("Style=\"{StaticResource LiquidGlassWindow}\"", window, StringComparison.Ordinal);
         }
@@ -623,14 +548,14 @@ namespace ProGlassAutomation.Tests.Agent
             {
                 string xaml = Read(rel);
                 Assert.False(
-                    System.Text.RegularExpressions.Regex.IsMatch(
+                    Regex.IsMatch(
                         xaml, "(Background|BorderBrush|Foreground|Color|Fill)=\"#[0-9A-Fa-f]{6,8}\""),
                     rel + " contains a hardcoded colour");
             }
         }
 
         // ══════════════════════════════════════════════════════════════
-        //  2026-09-01 RICHNESS PASS — the theme system must stay vivid
+        //  Cream/SaaS + readability passes (surviving families)
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
@@ -672,42 +597,25 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void Frosted_glass_is_more_saturated_after_the_richness_pass()
         {
-            // The Liquid Glass family's frost carries a visible accent
-            // kiss (light 0.16, dark 0.32) instead of a whisper — the
-            // whole frosted system reads saturated, not flat white.
+            // The surviving frost carries a visible accent kiss (light
+            // 0.16, dark 0.32) instead of a whisper — the whole frosted
+            // system reads saturated, not flat white.
             string engine = Engine;
             Assert.Contains("dark ? 0.32 : 0.16", engine, StringComparison.Ordinal);
-            Assert.Contains("HueFrost(\"TintBlueBrush\", 0.36, 0.18)", engine, StringComparison.Ordinal);
         }
 
         [Fact]
         public void Crystal_fluid_keeps_card_text_readable()
         {
-            // Crystal Fluid (2026-09-05, replaces Ultra Transparent): the
+            // Crystal Fluid (Ios-17pm, replaces Ultra Transparent): the
             // pale environment shows behind everything, but card text must
             // never wash out: spec glass frost (.30/.12 whisper on module
-            // surfaces) plus the §11 bright white crystal edge (56%).
+            // surfaces) plus the bright white crystal edge.
             string engine = Engine;
             Assert.Contains("Color.FromArgb(0x8F, 0xFF, 0xFF, 0xFF)", engine, StringComparison.Ordinal);
             Assert.Contains("CARD FROST", engine, StringComparison.Ordinal);
             Assert.Contains("FrostFill(accent, dark ? 0.16 : 0.30, dark ? 0.08 : 0.12)", engine, StringComparison.Ordinal);
         }
-
-        [Fact]
-        public void Industrial_family_carries_more_contrast_and_saturation()
-        {
-            // Professional is the industrial steel look: the cool slate
-            // window/surfaces were near-white. The 2026-09-01 pass makes
-            // the steel visibly saturated and higher contrast.
-            string engine = Engine;
-            Assert.Contains("Color.FromRgb(0xEC, 0xF2, 0xF9)", engine, StringComparison.Ordinal);
-            Assert.Contains("Color.FromRgb(0xD9, 0xE5, 0xF2)", engine, StringComparison.Ordinal);
-            Assert.Contains("Color.FromRgb(0xE2, 0xEA, 0xF4)", engine, StringComparison.Ordinal);
-        }
-
-        // ══════════════════════════════════════════════════════════════
-        //  2026-09-01 SECTION-ADOPTION + CREAM/SaaS + UHD PASS
-        // ══════════════════════════════════════════════════════════════
 
         [Fact]
         public void Sections_adopt_the_active_family_material_set()
@@ -717,15 +625,14 @@ namespace ProGlassAutomation.Tests.Agent
             // GlassSurface*/GlassBorder* keys, but the engine only
             // overrode Module/Elevated/SideMenu — so no matter which
             // family was active, those screens kept the BASE THEME
-            // glass. Every family now mirrors its material into the
+            // glass. Each surviving family mirrors its material into the
             // shared set (Normal restores the base values via
             // ClearOverrides; the keys are managed).
             string engine = Engine;
             Assert.Contains("PublishSectionGlass", engine, StringComparison.Ordinal);
             Assert.True(
-                Regex.Matches(engine, "PublishSectionGlass\\(resources").Count >= 5,
-                "PublishSectionGlass must run for LiquidGlass, Monet, " +
-                "Professional, Ocean and Crystal Fluid");
+                Regex.Matches(engine, "PublishSectionGlass\\(resources").Count >= 2,
+                "PublishSectionGlass must run for Monet and Crystal Fluid");
             Assert.Contains(
                 "resources[\"GlassSurfaceBrush\"] = resources[\"ModuleBackgroundBrush\"]",
                 engine, StringComparison.Ordinal);
@@ -738,12 +645,7 @@ namespace ProGlassAutomation.Tests.Agent
         public void Normal_family_is_free_of_the_blue_cast()
         {
             // Normal = pure cream SaaS. The static chroma that used to
-            // make EVERY family read blue is gone from both themes:
-            // MenuHoverBrush was #185FCDFF / #183B82F6 (blue chips,
-            // hover fills, sliders, action buttons), the shadows were
-            // blue-tinted (#1A3050 / #3C78A0 / #32B4FF), the card
-            // refraction edge and water lines were icy blue, and light
-            // secondary text was cool slate #991E2832.
+            // make EVERY family read blue is gone from both themes.
             string light = LightTheme;
             Assert.DoesNotContain("#185FCDFF", light, StringComparison.Ordinal);
             Assert.DoesNotContain("#1A3050", light, StringComparison.Ordinal);
@@ -765,19 +667,13 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        [Fact]
         public void Runtime_text_ink_is_warm_and_managed_in_every_family()
         {
-            // The by-default bluish system theme had one more live path
-            // than the base XAML: ThemeManager.PublishLiquidReference
-            // writes TextPrimaryBrush/TextSecondaryBrush into the APP
-            // scope on every Light/Dark swap, and VisualThemeEngine's
-            // ManagedKeys did NOT contain those two keys — so even in
-            // Normal the cool slate secondary (#991E2832 Light) survived
-            // ClearOverrides and permanently masked the warm theme-file
-            // value. The reference now publishes warm stone and the
-            // engine manages the keys so Normal restores the theme's own
-            // cream ink.
+            // ThemeManager.PublishLiquidReference writes
+            // TextPrimaryBrush/TextSecondaryBrush into the APP scope on
+            // every Light/Dark swap, and the engine manages those keys so
+            // Normal restores the theme's own cream ink (not the cool
+            // slate #991E2832 that once masked it).
             string tm = Read("Services/ThemeManager.cs");
             Assert.Contains(
                 "FreezeAndSet(resources, \"TextPrimaryBrush\", Color.FromRgb(0x1C, 0x19, 0x17))",
@@ -842,10 +738,10 @@ namespace ProGlassAutomation.Tests.Agent
         {
             // The rail's ACTIVE pill used GlassSurfaceUltra (~5% alpha) —
             // invisible on the frosted rail; IsPressed only dimmed the
-            // whole button (making it MORE transparent), and the glyph/
-            // label never changed colour. Now: active = the material ramp
-            // + crystal edge + accent ink, pressed = accent tint, and the
-            // glyph/label light up accent via the parent button's Tag.
+            // whole button, and the glyph/label never changed colour.
+            // Now: active = the material ramp + crystal edge + accent
+            // ink, pressed = accent tint, and the glyph/label light up
+            // accent via the parent button's Tag.
             string styles = Read("Views/Settings/SettingsSectionStyles.xaml");
 
             string navButton = Regex.Match(
@@ -884,8 +780,7 @@ namespace ProGlassAutomation.Tests.Agent
             // the base theme's ShellLiquidBrush — which was ~5% alpha in
             // Light (#14F6F1E6) and ~4% in Dark: module buttons washed
             // out over the content card. Both themes now ship a readable
-            // warm-cream / deep-slate frost (the families still override
-            // this token at runtime).
+            // warm-cream / deep-slate frost.
             Assert.Contains("#E6F6F1E6", LightTheme, StringComparison.Ordinal);
             Assert.Contains("#D9FFFCF5", LightTheme, StringComparison.Ordinal);
             string dark = Read("Themes/DarkTheme.xaml");
@@ -903,15 +798,15 @@ namespace ProGlassAutomation.Tests.Agent
                 "SidebarSubMenuCard + active module + active sub-item must all use GlassSurfaceBrush");
         }
 
+        [Fact]
         public void Normal_keyline_and_tints_stay_warm_neutrals()
         {
             // ApplyAccent used to derive the card keyline + Blue/Indigo
             // tints from the ACCENT hue in every family — with the
-            // default blue accent the whole Normal canvas read blue
-            // (the "industrial theme forcing blue" feel). In Normal the
-            // keyline is the theme's warm hairline and the tints are
-            // warm neutrals; the accent still drives CTAs and the
-            // colourful families still derive their own keylines.
+            // default blue accent the whole Normal canvas read blue.
+            // In Normal the keyline is the theme's warm hairline and the
+            // tints are warm neutrals; the accent still drives CTAs and
+            // the colourful families still derive their own keylines.
             string tm = Read("Services/ThemeManager.cs");
             Assert.Contains("bool normalFamily", tm, StringComparison.Ordinal);
             Assert.Contains("keyline = ThemeManager.GetThemeColor(\"OutlineBrush\"",
@@ -926,8 +821,8 @@ namespace ProGlassAutomation.Tests.Agent
         {
             // GuaranteeCriticalResources injects a fallback when a key
             // fails to resolve — the old fallbacks were icy blue
-            // (#D7E5F9 window, #334155 ink, #C7D2E1 outline) and once
-            // injected they stayed in the app scope. Now cream/warm.
+            // (#D7E5F9 window, #334155 ink, #C7D2E1 outline). Now
+            // cream/warm.
             string engine = Engine;
             Assert.Contains("Color.FromRgb(0xF6, 0xF1, 0xE6)", engine, StringComparison.Ordinal);
             Assert.Contains("Color.FromRgb(0xFE, 0xFC, 0xF8)", engine, StringComparison.Ordinal);
@@ -938,34 +833,12 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Shell_sidebar_frost_is_rich_and_settings_rail_reads_as_glass()
-        {
-            // Main modules sidebar: the shell frost got RICHER (0.95/0.80
-            // light, 0.42/0.20 dark) so module buttons stay readable —
-            // previously 0.91/0.63 let the stage wash the nav text out.
-            // Settings rail: 0.96/0.76 was a flat white slab that blended
-            // into the light stage; 0.90/0.62 + top catch-light keeps it
-            // GLASS but clearly visible (and the shadow was lifted).
-            string engine = Engine;
-            Assert.Contains("ShellLiquidBrush\"] = FrostFill(accent, 0.95, 0.80)", engine, StringComparison.Ordinal);
-            Assert.Contains("ShellLiquidBrush\"] = FrostFill(accent, 0.42, 0.20)", engine, StringComparison.Ordinal);
-            Assert.Contains("SidebarCardBrush\"] = FrostFill(accent, 0.92, 0.70)", engine, StringComparison.Ordinal);
-            Assert.Contains("SideMenuBackgroundBrush\"] = FrostFill(accent, 0.90, 0.62)", engine, StringComparison.Ordinal);
-
-            string settings = Read("Views/Settings/SettingsView.xaml");
-            Assert.Contains("{DynamicResource ShellSheenBrush}", settings, StringComparison.Ordinal);
-            Assert.Contains("{DynamicResource GlassTopReflection}", settings, StringComparison.Ordinal);
-            Assert.Contains("Opacity=\"0.20\"", settings, StringComparison.Ordinal);
-        }
-
-        [Fact]
         public void Crystal_fluid_covers_rail_dialogs_and_sections()
         {
-            // Crystal Fluid (2026-09-05): the settings rail is a FLOATING
+            // Crystal Fluid (Ios-17pm): the settings rail is a FLOATING
             // crystal panel (.55/.30 white frost) and dialogs/dropdown
             // popups sit one shelf stronger (.62/.40), so they stay
-            // readable over the pale environment (§25/§38/§39). Rail and
-            // dialogs are covered by the family, glass AND readable.
+            // readable over the pale environment.
             string engine = Engine;
             Assert.Contains(
                 "FrostFill(accent, dark ? 0.22 : 0.55, dark ? 0.12 : 0.30)",

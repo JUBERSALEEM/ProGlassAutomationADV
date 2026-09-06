@@ -59,7 +59,7 @@ Never hardcode a brand color in a view. Use theme brushes:
 `ModuleBackgroundBrush`, semantic `SuccessBrush / WarningBrush / DangerBrush /
 InfoBrush`, and tints `TintGreenBrush / TintAmberBrush / TintRedBrush /
 TintBlueBrush / TintIndigoBrush`. These flip automatically between the
-Light/Dark themes and the Normal/Monet/Professional families.
+Light/Dark themes and the Normal/Monet/Ios-17pm families.
 
 ## Shared primitives (`Themes/Styles/DesignTokens.xaml`)
 - `ModuleSectionCardStyle` — the one section-card shape.

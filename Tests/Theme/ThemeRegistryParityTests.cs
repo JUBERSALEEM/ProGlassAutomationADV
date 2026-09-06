@@ -29,18 +29,14 @@ namespace ProGlassAutomation.Tests.Theme
 {
     public class ThemeRegistryParityTests
     {
-        // The complete family catalogue (the nine shipped families).
+        // The complete family catalogue (the three shipped families,
+        // 2026-09-06 theme reduction: Professional, iOS Liquid Glass,
+        // Ocean and the Industrial trio were removed).
         private static readonly string[] AllFamilies =
         {
             VisualThemeEngine.Normal,
             VisualThemeEngine.Monet,
-            VisualThemeEngine.Professional,
-            VisualThemeEngine.LiquidGlass,
             VisualThemeEngine.CrystalFluid,
-            VisualThemeEngine.Ocean,
-            VisualThemeEngine.IndustrialWhite,
-            VisualThemeEngine.IndustrialGrey,
-            VisualThemeEngine.IndustrialDark,
         };
 
         // ── F-01: the managed-key contract ──────────────────────────────
@@ -162,17 +158,12 @@ namespace ProGlassAutomation.Tests.Theme
         // ── F-06: mode coupling lives in the engine ─────────────────────
 
         [Theory]
-        [InlineData(VisualThemeEngine.IndustrialDark, true)]
-        [InlineData(VisualThemeEngine.IndustrialWhite, false)]
-        [InlineData(VisualThemeEngine.IndustrialGrey, false)]
         [InlineData(VisualThemeEngine.Normal, null)]
         [InlineData(VisualThemeEngine.Monet, null)]
-        [InlineData(VisualThemeEngine.Professional, null)]
-        [InlineData(VisualThemeEngine.LiquidGlass, null)]
-        // Crystal Fluid is light-only (2026-09-05 product decision).
+        // Crystal Fluid (Ios-17pm) is light-only (2026-09-05 product
+        // decision); Normal and Monet respect the user's own mode.
         [InlineData(VisualThemeEngine.CrystalFluid, false)]
-        [InlineData(VisualThemeEngine.Ocean, null)]
-        public void ModePairFor_OnlyIndustrialAndCrystalCoupleTheMode(
+        public void ModePairFor_OnlyCrystalFluidCouplesTheMode(
             string family, bool? expected)
         {
             Assert.Equal(expected, VisualThemeEngine.ModePairFor(family));

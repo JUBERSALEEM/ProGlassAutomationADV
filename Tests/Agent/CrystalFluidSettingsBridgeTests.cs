@@ -209,8 +209,11 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal("Ios-17pm",
                 VisualThemeEngine.FamilyDisplayName(
                     VisualThemeEngine.CrystalFluid));
-            Assert.Equal(VisualThemeEngine.Ocean,
-                VisualThemeEngine.FamilyDisplayName(VisualThemeEngine.Ocean));
+            // non-crystal families surface their identity verbatim
+            Assert.Equal(VisualThemeEngine.Normal,
+                VisualThemeEngine.FamilyDisplayName(VisualThemeEngine.Normal));
+            Assert.Equal(VisualThemeEngine.Monet,
+                VisualThemeEngine.FamilyDisplayName(VisualThemeEngine.Monet));
 
             string scenes = Read("Services/Theme/BuiltinWallpaperScenes.cs");
             Assert.DoesNotContain("(VisualThemeEngine.CrystalFluid, \"Crystal Fluid\")",

@@ -27,13 +27,14 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string Theme { get; set; } = "Light";
 
         /// <summary>
-        /// "Normal" | "Monet" | "Professional" | "iOS Liquid Glass"
-        /// | "Ocean" — see VisualThemeEngine for what each does.
-        /// Legacy theme entries from before the 2026-08-29 rewrite are
-        /// migrated automatically to the iOS family.
-        /// Default: iOS Liquid Glass.
+        /// "Normal" | "Monet" | "Crystal Fluid" (displayed "Ios-17pm") —
+        /// see VisualThemeEngine for what each does. 2026-09-06 theme
+        /// reduction: the six removed families (Professional, iOS Liquid
+        /// Glass, Ocean, Industrial White/Grey/Dark) and any unknown
+        /// legacy value are migrated automatically to Normal.
+        /// Default: Normal.
         /// </summary>
-        public string VisualTheme { get; set; } = "iOS Liquid Glass";
+        public string VisualTheme { get; set; } = "Normal";
 
         /// <summary>
         /// Global font colour override (Settings → Appearance → Font

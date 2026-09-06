@@ -1910,14 +1910,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">नए हैं? हर मॉड्यूल का अन्वेषण करने के लिए छोटा जुड़ा डेमो डेटासेट लोड करें — केवल खाली डेटाबेस पर।</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">अभी कोई कार्य नहीं। रिकॉर्डिंग शुरू करने के लिए चयनित बनाएँ या सभी बनाएँ का उपयोग करें।</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">अभी कोई अपडेट इतिहास नहीं। पहली प्रविष्टि दर्ज करने के लिए अपडेट जाँचें।</sys:String>
-    <sys:String x:Key="Settings.NormalMonetProfessionalIosLiquidGlassOcean">Normal, Monet, Professional, iOS Liquid Glass या Ocean — पूरे ऐप को तुरंत नया रूप देता है। iOS Liquid Glass डिफ़ॉल्ट है: एक संपूर्ण क्रिस्टल डिज़ाइन प्रणाली जो लाइट और डार्क के अनुकूल होती है — पारभासी फ्रॉस्टेड फलक, क्रिस्टल किनारे, प्रतिबिंब और समृद्ध ऑरोरा मंच पर नरम छायाएँ। हर Windows 10/11 मशीन पर समान रूप से प्रस्तुत होता है।</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet या Ios-17pm — पूरे ऐप को तुरंत नया रूप देता है। Normal डिफ़ॉल्ट है: एक साफ, पेशेवर ERP डिज़ाइन प्रणाली जो लाइट और डार्क के अनुकूल होती है। Monet अपना पैलेट आपके एक्सेंट रंग से लेता है; Ios-17pm केवल-लाइट क्रिस्टल-फ्लुइड लुक है।</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">अभी तक कुछ नहीं सिखाया गया।</sys:String>
     <sys:String x:Key="Settings.OPENOutput">आउटपुट खोलें</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">रिकॉर्डिंग खोलें</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">टूल्स फ़ोल्डर खोलें</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">आधिकारिक FFMPEG पृष्ठ</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">OpenAI Whisper के साथ ऑफ़लाइन वाक्-से-पाठ — 95%+ सटीकता, कोई क्लाउड नहीं।</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">हर दृश्य के लिए एक वैश्विक पाठ रंग। ऑटो थीम का पालन करता है — iOS Liquid Glass About पैलेट का उपयोग करता है। एक रंग चुनें ताकि पाठ फ्रॉस्टेड सतहों पर हमेशा दृश्यमान रहे।</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">हर दृश्य के लिए एक वैश्विक पाठ रंग। ऑटो थीम का पालन करता है — Ios-17pm About पैलेट का उपयोग करता है। एक रंग चुनें ताकि पाठ फ्रॉस्टेड सतहों पर हमेशा दृश्यमान रहे।</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">हर मॉड्यूल के पीछे एक छवि, साथ ही व्यक्तिगत स्क्रीन के लिए प्रति-मॉड्यूल अधिलेखन।</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">कटिंग बे के लिए ऑपरेटर चीट-शीट।</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">ऑपरेटर जो इस कार्य को शॉप फ़्लोर पर चला रहा है।</sys:String>

@@ -364,7 +364,7 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.LblThemeFamily}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="{DynamicResource Settings.NormalMonetProfessionalIosLiquidGlassOcean}"/>
+                                       Text="{DynamicResource Settings.NormalMonetIos17pm}"/>
                             <ComboBox ItemsSource="{Binding VisualThemeOptions}"
                                       DisplayMemberPath="Display"
                                       SelectedValuePath="Key"

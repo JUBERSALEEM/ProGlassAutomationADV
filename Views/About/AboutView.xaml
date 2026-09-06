@@ -103,9 +103,9 @@
                                      made translucent by the theme engine
                                      when a wallpaper is active.
          So the About page now behaves exactly like every other module:
-         Light/Dark swap, visual family (Monet / Professional /
-         iOS Liquid Glass / Ocean), accent changes and wallpaper layering all re-tint the
-         page live through DynamicResource — in ALL THREE sections
+         Light/Dark swap, visual family (Normal / Monet / Ios-17pm),
+         accent changes and wallpaper layering all re-tint the page live
+         through DynamicResource — in ALL THREE sections
          (About / Modules / Developer share the Liquid* palette).
 
          The only stage-specific decoration is the two soft aurora orbs

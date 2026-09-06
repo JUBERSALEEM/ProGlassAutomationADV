@@ -8,7 +8,7 @@
       Section  2: Semantic Colors        (Accent, Status, Tint Color tokens)
       Section  3: Text Brushes           (Primary, Secondary, Muted, OnAccent)
       Section  4: Surface Brushes        (Module, Elevated, Sidebar, Menu surfaces)
-      Section  5: Liquid Glass Surfaces  (Ultra-transparent glass fill brushes)
+      Section  5: Liquid Glass Surfaces  (translucent glass fill brushes)
       Section  6: Glass Variants         (UltraClear, Crystal, Water, Frosted)
       Section  7: Glass Edge Borders     (Crystal edge gradient brushes)
       Section  8: Glass Highlights       (Specular, Reflection, Refraction)

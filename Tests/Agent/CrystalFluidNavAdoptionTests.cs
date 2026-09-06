@@ -13,7 +13,7 @@
 //   TintIndigoBrush ← CrystalNavActiveBgBrush (authored active fill
 //                      / sidebar chip accent)
 // Both role keys are ManagedKeys — removed & repainted on every family
-// switch — so no authored nav tint can leak into Monet/Ocean/…; the
+// switch — so no authored nav tint can leak into Normal/Monet/…; the
 // pre-P4c formulas survive as byte-exact fallbacks when the merged
 // authored dictionaries are absent (unit hosts).
 // ═══════════════════════════════════════════════════════════════════════
@@ -87,29 +87,23 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("TintIndigoBrush", keys);
         }
 
-        // ── 3. EVERY FAMILY PATH REPAINTS THE ROLE KEYS ─────────────────
+        // ── 3. EVERY SURVIVING FAMILY PATH REPAINTS THE ROLE KEYS ───────
         [Fact]
         public void Every_family_painter_owns_menu_hover()
         {
             string p1 = Read("Services/Theme/VisualThemeEngine.Part1.cs");
-            string p2 = Read("Services/Theme/VisualThemeEngine.Part2.cs");
             string p3 = Read("Services/Theme/VisualThemeEngine.Part3.cs");
-            string ind = Read("Services/Theme/VisualThemeEngine.Industrial.cs");
 
-            // Monet + Professional (Part1 profiles), Liquid (Part2),
-            // Crystal + Ocean (Part3), Industrial — every family writes
-            // MenuHoverBrush on paint; overwrites (not cleanup) carry
-            // each switch.
+            // 2026-09-06 theme reduction: Monet (Part1) and Crystal Fluid
+            // (Part3) each write MenuHoverBrush on paint; Normal restores
+            // the theme-file default via ClearOverrides. Overwrites (not
+            // cleanup) carry each switch.
             Assert.True(Regex.Matches(p1,
-                Regex.Escape("resources[\"MenuHoverBrush\"] =")).Count >= 2,
-                "Part1 must cover at least two family profiles");
-            Assert.Contains("resources[\"MenuHoverBrush\"] =", p2,
-                StringComparison.Ordinal);
+                Regex.Escape("resources[\"MenuHoverBrush\"] =")).Count >= 1,
+                "Part1 must cover the Monet profile");
             Assert.True(Regex.Matches(p3,
-                Regex.Escape("resources[\"MenuHoverBrush\"] =")).Count >= 2,
-                "Crystal AND Ocean paints both own MenuHoverBrush");
-            Assert.Contains("resources[\"MenuHoverBrush\"] =", ind,
-                StringComparison.Ordinal);
+                Regex.Escape("resources[\"MenuHoverBrush\"] =")).Count >= 1,
+                "Crystal Fluid paint owns MenuHoverBrush");
         }
 
         // ── 4. AUTHORED NAV NUMBER HOME EXISTS (colors → brushes) ───────

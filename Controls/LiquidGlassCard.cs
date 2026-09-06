@@ -8,7 +8,7 @@
 // center + soft shadow) needs a dedicated ContentControl. The default
 // style lives in Themes/Styles/LiquidGlassStyles.xaml and resolves
 // every colour through DynamicResource, so Light/Dark swaps and the
-// iOS Liquid Glass family re-tints all cards live.
+// active visual family re-tint all cards live.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System.Windows;

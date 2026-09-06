@@ -97,8 +97,8 @@
                      hierarchy, iPhone-style liquid switch, crystal inputs,
                      crystal DataGrid, navigation capsule, dialog chrome.
                      Every colour resolves via DynamicResource so
-                     Light/Dark and the iOS Liquid Glass family re-tint
-                     the whole system live. -->
+                     Light/Dark and the active visual family re-tint the
+                     whole system live. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/LiquidGlassStyles.xaml"/>
 
                 <!-- Modern rounded context-menu styles for every module's

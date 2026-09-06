@@ -38,12 +38,12 @@ namespace ProGlassAutomation.ViewModels.Settings
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         // ══════════════════════════════════════════════════════════════
-        //  v2 — VISUAL THEME & WALLPAPER. Family catalogue (2026-09-05):
-        //       Normal / Monet / Professional / iOS Liquid Glass /
-        //       Crystal Fluid / Ocean / Industrial White / Grey /
-        //       Dark. The legacy theme entries were removed in the
-        //       2026-08-29 rewrite; saved configs still resolve to iOS
-        //       Liquid Glass via the engine's Normalize mapping.
+        //  v2 — VISUAL THEME & WALLPAPER. Family catalogue (2026-09-06
+        //       theme reduction): Normal / Monet / Crystal Fluid
+        //       (displayed "Ios-17pm"). Professional, iOS Liquid Glass,
+        //       Ocean and the Industrial trio were removed; saved
+        //       configs referencing any removed family resolve to Normal
+        //       via the engine's Normalize mapping.
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>One selectable visual family. Display pairs the family
@@ -74,20 +74,13 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Professional),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.CrystalFluid),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Ocean),
-            // Industrial family (2026-09-05): plain factory-floor ERP.
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.IndustrialWhite),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.IndustrialGrey),
-            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.IndustrialDark),
         };
 
         public string SelectedVisualTheme
         {
             get => _config?.Appearance?.VisualTheme
-                ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass;
+                ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal;
             set
             {
                 if (_config == null || string.IsNullOrEmpty(value))
@@ -96,14 +89,10 @@ namespace ProGlassAutomation.ViewModels.Settings
                 _config.Appearance.VisualTheme = value;
                 SaveConfig();
 
-                // 2026-09-05 mode coupling: an industrial LAYOUT promises
-                // its own ink pairing. Industrial Dark auto-engages Dark
-                // mode; White/Grey auto-engage Light — the UI can never
-                // show dark text on a dark card (or vice-versa) after a
-                // family switch. The map itself is engine data
-                // (VisualThemeEngine.ModePairFor, Phase-1: it used to be
-                // a hand-written switch here). Non-industrial families
-                // keep the user's own Light/Dark choice.
+                // Mode coupling (engine data, VisualThemeEngine.ModePairFor):
+                // Crystal Fluid (Ios-17pm) is light-only, so picking it
+                // auto-engages Light. Normal and Monet keep the user's own
+                // Light/Dark choice.
                 bool? modePair = ProGlassAutomation.Services.Theme
                     .VisualThemeEngine.ModePairFor(value);
                 if (modePair.HasValue)
@@ -119,7 +108,6 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ApplyVisualTheme();
                 }
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(IsIndustrialLook));
 
                 // 2026-09-05 PIPELINE UNIFICATION: the extra RefreshScene
                 // toggle used to duplicate the module overlay that is

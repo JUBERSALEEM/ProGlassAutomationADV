@@ -1917,14 +1917,14 @@
     <sys:String x:Key="Settings.NewHereLoadSmallLinkedDemoDatasetExplore">New here? Load a small linked demo dataset to explore every module — only on an empty database.</sys:String>
     <sys:String x:Key="Settings.NoJobsYetGenerateSelectedGenerateStart">No jobs yet. Generate Selected or Generate All to start a recording.</sys:String>
     <sys:String x:Key="Settings.NoUpdateHistoryYetCheckUpdatesRecordFirst">No update history yet. Check for updates to record the first entry.</sys:String>
-    <sys:String x:Key="Settings.NormalMonetProfessionalIosLiquidGlassOcean">Normal, Monet, Professional, iOS Liquid Glass or Ocean — restyles the whole app instantly. iOS Liquid Glass is the default: a complete crystal design system that adapts to Light and Dark — translucent frosted panes, crystal edges, reflections and soft shadows over a rich aurora stage. Renders identically on every Windows 10/11 machine.</sys:String>
+    <sys:String x:Key="Settings.NormalMonetIos17pm">Normal, Monet or Ios-17pm — restyles the whole app instantly. Normal is the default: a clean, professional ERP design system that adapts to Light and Dark. Monet derives its palette from your accent colour; Ios-17pm is the light-only crystal-fluid look.</sys:String>
     <sys:String x:Key="Settings.NothingTaughtYet">Nothing has been taught yet.</sys:String>
     <sys:String x:Key="Settings.OPENOutput">OPEN OUTPUT</sys:String>
     <sys:String x:Key="Settings.OPENRecordings">OPEN RECORDINGS</sys:String>
     <sys:String x:Key="Settings.OPENToolsFolder">OPEN TOOLS FOLDER</sys:String>
     <sys:String x:Key="Settings.OfficialFfmpegPAGE">OFFICIAL FFMPEG PAGE</sys:String>
     <sys:String x:Key="Settings.OfflineSpeechTextOpenaiWhisper95AccuracyNo">Offline speech-to-text with OpenAI Whisper — 95%+ accuracy, no cloud.</sys:String>
-    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">One global text colour for every view. Auto follows the theme — iOS Liquid Glass uses the About palette. Pick a colour so text always stays visible over frosted surfaces.</sys:String>
+    <sys:String x:Key="Settings.OneGlobalTextColourViewAutoFollowsThemeIos">One global text colour for every view. Auto follows the theme — Ios-17pm uses the About palette. Pick a colour so text always stays visible over frosted surfaces.</sys:String>
     <sys:String x:Key="Settings.OneImageBehindModulePlusModuleOverrides">One image behind every module, plus per-module overrides for individual screens.</sys:String>
     <sys:String x:Key="Settings.OperatorCheatSheetCuttingBay">Operator cheat-sheet for the cutting bay.</sys:String>
     <sys:String x:Key="Settings.OperatorRunningJobShopFloor">Operator running this job on the shop floor.</sys:String>

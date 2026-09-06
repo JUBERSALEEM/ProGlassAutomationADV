@@ -284,8 +284,8 @@ namespace ProGlassAutomation.Services
             // tints, card keylines) must stay WARM-NEUTRAL so the
             // default blue accent can never wash the family blue again.
             // The accent still drives CTAs (AccentBrush family), and
-            // Monet / Professional / Ocean / iOS Liquid Glass derive
-            // their own tinted surfaces per family below.
+            // Monet / Crystal Fluid derive their own tinted surfaces
+            // per family below.
             bool normalFamily =
                 VisualThemeEngine.Current == VisualThemeEngine.Normal;
 
@@ -347,13 +347,13 @@ namespace ProGlassAutomation.Services
                 dark ? Color.FromRgb(0x1E, 0x29, 0x3B)
                      : Color.FromRgb(0xFF, 0xFF, 0xFF));
 
-            // The iOS Liquid Glass family OWNS the tint brushes (it
-            // renders them as see-through hue frost). ApplyAccent runs
+            // The Crystal Fluid (Ios-17pm) family OWNS the tint brushes
+            // (it renders them as see-through hue frost). ApplyAccent runs
             // AFTER the engine on every family switch (settings path),
             // so without this guard it would repaint the Blue/Indigo
             // chips opaque on top of the frost — the same class of bug
             // as the dashboard-surface guard below.
-            if (VisualThemeEngine.Current != VisualThemeEngine.LiquidGlass)
+            if (VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid)
             {
                 if (normalFamily)
                 {
@@ -438,9 +438,9 @@ namespace ProGlassAutomation.Services
                 ColorMath.Mix(keyline, surface, 0.62));
 
             // ── About / Liquid palette — accent-aware, never hard-coded ──
-            // The About page and the iOS Liquid Glass family share the
-            // Liquid* palette. Re-publish it from the current accent so
-            // About finally follows custom accents, theme-family swaps
+            // The About page and the Crystal Fluid (Ios-17pm) family
+            // share the Liquid* palette. Re-publish it from the current
+            // accent so About follows custom accents, theme-family swaps
             // and live Settings changes instead of staying fixed to one accent.
             //
             // SKIP when Crystal Fluid is active — the family uses the
@@ -461,9 +461,9 @@ namespace ProGlassAutomation.Services
         /// <summary>
         /// Re-derives the About / Liquid palette from the active accent.
         /// This keeps the About module's crystal chrome, tab strip,
-        /// chips, orbs and shared iOS Liquid Glass family resources
-        /// aligned with live accent changes instead of freezing them to
-        /// the theme's original blue.
+        /// chips, orbs and shared Crystal Fluid (Ios-17pm) family
+        /// resources aligned with live accent changes instead of freezing
+        /// them to the theme's original blue.
         /// </summary>
         private static void PublishAboutPalette(
             ResourceDictionary resources,
@@ -503,10 +503,10 @@ namespace ProGlassAutomation.Services
             Color deepTint = ColorMath.Tint(accentDeep,
                 Color.FromRgb(255, 255, 255), dark ? 0.08 : 0.05);
 
-            // ── ULTRA-TRANSPARENT GLASS (iOS Liquid Glass 110%) ──────
+            // ── CRYSTAL GLASS (Ios-17pm) ────────────────────────────
             // Both themes now use very low alpha so the background
             // gradient shows through every card, matching the iPhone
-            // liquid glass effect where surfaces are near-invisible
+            // crystal-glass effect where surfaces are near-invisible
             // and only the crystal edge defines the shape.
             if (dark)
             {
@@ -635,21 +635,13 @@ namespace ProGlassAutomation.Services
                 ColorMath.Tint(core, surface, dark ? 0.14 : 0.11), 0.5));
             ambient.GradientStops.Add(new GradientStop(
                 ColorMath.Tint(core, surface, dark ? 0.20 : 0.16), 1.0));
-            // ── GLASSY GUARD ────────────────────────────────────────
-            // The iOS Liquid Glass visual family OWNS these four
-            // dashboard keys (it renders them as glass). ApplyAccent
-            // runs AFTER the engine on every theme change
-            // (ApplyVisualTheme order), so without this guard it would
-            // repaint the whole dashboard surface OPAQUE on top of the
-            // glass transparency — the "dashboards don't accept the
-            // setting" bug. DashAccentTextBrush below stays
-            // accent-driven in every family.
-            bool liquidActive =
-                VisualThemeEngine.Current == VisualThemeEngine.LiquidGlass;
-
+            // 2026-09-06 theme reduction: no surviving family paints the
+            // dashboard surface as glass (the iOS Liquid Glass painter was
+            // removed), so the accent-derived dashboard ambient always
+            // applies. DashAccentTextBrush below stays accent-driven in
+            // every family.
             ambient.Freeze();
-            if (!liquidActive)
-                resources["DashAmbientBrush"] = ambient;
+            resources["DashAmbientBrush"] = ambient;
 
             // Top-right glow blob.
             var blob1 = new RadialGradientBrush();

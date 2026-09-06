@@ -115,13 +115,6 @@ namespace ProGlassAutomation.ViewModels.Settings
         public string ActivePageLabel =>
             NavRows.FirstOrDefault(r => r.IsActive)?.Label ?? _settingsPage;
 
-        /// <summary>True while an industrial (flat) family is active —
-        /// the rail then renders matte (no sheen/glare layers), keeping
-        /// the settings chrome honest with the family's no-theatre law.</summary>
-        public bool IsIndustrialLook =>
-            ProGlassAutomation.Services.Theme.VisualThemeEngine
-                .IsIndustrial(_config?.Appearance?.VisualTheme ?? "");
-
         /// <summary>Active settings page key (nav rail selection).</summary>
         public string SettingsPage
         {
