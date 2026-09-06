@@ -224,6 +224,10 @@ namespace ProGlassAutomation.ViewModels
                 case "TaxInvoiceReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "TaxInvoice"; break;
                 case "StatementReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Statement"; _ = SalesReportVM.StatementReport.LoadAsync(); break;
                 case "StatementGenerator": CurrentViewModel = StatementModuleVM; break;
+                case "OrderReport":
+                    WireOrderReportCallbacks();
+                    CurrentViewModel = OrderReportModuleVM;
+                    break;
                 case "About": CurrentViewModel = AboutVM; break;
                 case "Settings": CurrentViewModel = SettingsVM; break;
                 case "SystemCenter":
@@ -270,6 +274,9 @@ namespace ProGlassAutomation.ViewModels
                 "TaxInvoice" => ProGlassAutomation.Services.Theme.WallpaperModules.TaxInvoice,
                 "SalesReport" => ProGlassAutomation.Services.Theme.WallpaperModules.SalesReport,
                 "StatementGenerator" => ProGlassAutomation.Services.Theme.WallpaperModules.StatementGenerator,
+                // Report Generator sits next to Statement Generator (Finance
+                // group) and shares its wallpaper until a dedicated key exists.
+                "OrderReport" => ProGlassAutomation.Services.Theme.WallpaperModules.StatementGenerator,
                 "Optimization" or "Cutting" or "HolesCutouts" or "Polish" or "EdgeDeletion" or "Mitring" or "Tempering" or "Pairing" or "DoublingLamination" => ProGlassAutomation.Services.Theme.WallpaperModules.Optimization,
                 "Diagnostics" => ProGlassAutomation.Services.Theme.WallpaperModules.Logs,
                 "SystemCenter" => ProGlassAutomation.Services.Theme.WallpaperModules.SystemCenter,
@@ -282,6 +289,46 @@ namespace ProGlassAutomation.ViewModels
                 _ => ""
             };
             ProGlassAutomation.Services.Theme.VisualThemeEngine.ApplyModule(moduleKey, _config?.Appearance);
+        }
+
+        private bool _orderReportCallbacksWired;
+
+        /// <summary>
+        /// Wires the Report Generator's warning-action callbacks exactly once
+        /// (the module VM is lazy). Mirrors the Statement Generator wiring in
+        /// Part1: "open PI / open JO / open TI" navigate to the real document.
+        /// </summary>
+        private void WireOrderReportCallbacks()
+        {
+            if (_orderReportCallbacksWired) return;
+            _orderReportCallbacksWired = true;
+
+            OrderReportModuleVM.OnOpenProformaByNumber = async proformaId =>
+            {
+                if (string.IsNullOrWhiteSpace(proformaId) || _invoices == null) return;
+                var pi = await _invoices.GetByProformaIdAsync(proformaId);
+                if (pi == null) return;
+                Navigate("ProformaInvoice");
+                await ProformaInvoiceVM.OpenSavedInvoiceAsync(pi.Id);
+            };
+
+            OrderReportModuleVM.OnOpenJobOrderByNumber = async jobOrderId =>
+            {
+                if (string.IsNullOrWhiteSpace(jobOrderId) || _jobs == null) return;
+                var jo = await _jobs.GetByJobOrderIdAsync(jobOrderId);
+                if (jo == null) return;
+                Navigate("JobOrder");
+                await JobOrderVM.OpenJobOrderAsync(jo.Id);
+            };
+
+            OrderReportModuleVM.OnOpenTaxInvoiceByNumber = async invoiceNumber =>
+            {
+                if (string.IsNullOrWhiteSpace(invoiceNumber) || _taxInvoices == null) return;
+                var inv = await _taxInvoices.GetByInvoiceNumberAsync(invoiceNumber);
+                if (inv == null) return;
+                Navigate("TaxInvoice");
+                await TaxInvoiceVM.OpenInvoiceAsync(inv.Id);
+            };
         }
 
         private async Task LoadVatSubmissionAsync()

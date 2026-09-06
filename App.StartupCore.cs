@@ -25,6 +25,7 @@ using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.Statement.Repository;
+using ProGlassAutomation.Services.OrderReport.Repository;
 using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.Views.Splash;
@@ -293,6 +294,7 @@ namespace ProGlassAutomation
                 MasterData = ServiceProvider.GetRequiredService<IMasterDataRepository>();
                 TaxInvoices = ServiceProvider.GetRequiredService<ITaxInvoiceRepository>();
                 Statements = ServiceProvider.GetRequiredService<IStatementRepository>();
+                OrderReports = ServiceProvider.GetRequiredService<IOrderReportRepository>();
                 Reporting = ServiceProvider.GetRequiredService<IReportingDataService>();
                 Status = ServiceProvider.GetRequiredService<Services.Workflow.IStatusService>();
                 Dialogs = ServiceProvider.GetRequiredService<Services.Dialogs.IDialogService>();
@@ -311,6 +313,7 @@ namespace ProGlassAutomation
                 MasterData = new MasterDataRepository();
                 TaxInvoices = new TaxInvoiceRepository();
                 Statements = new StatementRepository();
+                OrderReports = new Services.OrderReport.Repository.OrderReportRepository();
                 Reporting = new ReportingDataService();
                 DashboardMetrics = new DashboardMetricsService();
                 DashboardFilter = new DashboardFilterService();
@@ -325,6 +328,7 @@ namespace ProGlassAutomation
                 MasterData.InitializeAsync(),
                 TaxInvoices.InitializeAsync(),
                 Statements.InitializeAsync(),
+                OrderReports.InitializeAsync(),
 
                 // 9b) Audit & user system — own DB (audit.db), safe in
                 //     parallel. Never throws internally.

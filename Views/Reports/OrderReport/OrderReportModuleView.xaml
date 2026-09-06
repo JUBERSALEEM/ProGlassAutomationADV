@@ -1,0 +1,61 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Reports/OrderReport/OrderReportModuleView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Report Generator (standalone module shell)
+
+     Toggles between the saved-report list and the 4-step generation
+     wizard, mirroring StatementModuleView (list ↔ generator).
+═══════════════════════════════════════════════════════════════════ -->
+
+<UserControl x:Class="ProGlassAutomation.Views.Reports.OrderReport.OrderReportModuleView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vmList="clr-namespace:ProGlassAutomation.ViewModels.Reports.OrderReport"
+             xmlns:vList="clr-namespace:ProGlassAutomation.Views.Reports.OrderReport"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <DataTemplate DataType="{x:Type vmList:OrderReportListViewModel}">
+            <vList:OrderReportListView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmList:OrderReportGeneratorViewModel}">
+            <vList:OrderReportGeneratorView/>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+
+        <!-- Saved reports list -->
+        <ContentControl Content="{Binding ListVM}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowGenerator}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+
+        <!-- 4-step generation wizard -->
+        <ContentControl Content="{Binding GeneratorVM}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowGenerator}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+    </Grid>
+</UserControl>

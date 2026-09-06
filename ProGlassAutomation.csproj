@@ -431,4 +431,82 @@
 		</Compile>
 	</ItemGroup>
 
+	<!-- ═══════════════════════════════════════════════════════════════
+	     Chat 22 v5 — Overall Report Generator (standalone module)
+	     List ↔ 4-step wizard (Filter → Preview → Execute → Review).
+	═══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+
+		<!-- Module shell (list ↔ generator toggle) -->
+		<Page Update="Views\Reports\OrderReport\OrderReportModuleView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\OrderReportModuleView.xaml.cs">
+			<DependentUpon>OrderReportModuleView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Saved reports list -->
+		<Page Update="Views\Reports\OrderReport\OrderReportListView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\OrderReportListView.xaml.cs">
+			<DependentUpon>OrderReportListView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Wizard shell -->
+		<Page Update="Views\Reports\OrderReport\OrderReportGeneratorView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\OrderReportGeneratorView.xaml.cs">
+			<DependentUpon>OrderReportGeneratorView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 1: Filter -->
+		<Page Update="Views\Reports\OrderReport\Filter\FilterStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\Filter\FilterStep.xaml.cs">
+			<DependentUpon>FilterStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 2: Preview -->
+		<Page Update="Views\Reports\OrderReport\Preview\PreviewStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\Preview\PreviewStep.xaml.cs">
+			<DependentUpon>PreviewStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 3: Execute -->
+		<Page Update="Views\Reports\OrderReport\Pipeline\ExecuteStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\Pipeline\ExecuteStep.xaml.cs">
+			<DependentUpon>ExecuteStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 4: Review -->
+		<Page Update="Views\Reports\OrderReport\Review\ReviewStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\OrderReport\Review\ReviewStep.xaml.cs">
+			<DependentUpon>ReviewStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+	</ItemGroup>
+
 </Project>

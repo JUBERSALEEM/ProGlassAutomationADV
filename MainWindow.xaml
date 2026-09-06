@@ -51,6 +51,7 @@
         xmlns:vmDelivery="clr-namespace:ProGlassAutomation.ViewModels.DeliveryNote"
         xmlns:vmTaxInvoice="clr-namespace:ProGlassAutomation.ViewModels.TaxInvoice"
         xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
+        xmlns:vmOrderReport="clr-namespace:ProGlassAutomation.ViewModels.Reports.OrderReport"
         xmlns:vmSystem="clr-namespace:ProGlassAutomation.ViewModels.SystemCenter"
         xmlns:vmCompany="clr-namespace:ProGlassAutomation.ViewModels.CompanyCenter"
         xmlns:vmUsers="clr-namespace:ProGlassAutomation.ViewModels.UserCenter"
@@ -71,6 +72,7 @@
         xmlns:viewsTaxInvoice="clr-namespace:ProGlassAutomation.Views.TaxInvoice"
         xmlns:viewsReports="clr-namespace:ProGlassAutomation.Views.Reports"
         xmlns:viewsStatementModule="clr-namespace:ProGlassAutomation.Views.Reports.StatementModule"
+        xmlns:viewsOrderReport="clr-namespace:ProGlassAutomation.Views.Reports.OrderReport"
         xmlns:viewsAi="clr-namespace:ProGlassAutomation.Views.AI"
         xmlns:viewsShared="clr-namespace:ProGlassAutomation.Views.Shared"
         xmlns:agentUi="clr-namespace:ProGlassAutomation.Agent.UI"
@@ -194,6 +196,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmReports:StatementModuleViewModel}">
             <viewsStatementModule:StatementModuleView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmOrderReport:OrderReportModuleViewModel}">
+            <viewsOrderReport:OrderReportModuleView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmSystem:SystemCenterViewModel}">
             <viewsSystem:SystemCenterView/>
@@ -887,6 +892,10 @@
                                                 Content="{DynamicResource Nav.StatementGenerator}"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="StatementGenerator"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Report Generator"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="OrderReport"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
                                                 Content="{DynamicResource Nav.JobProfitability}"
                                                 Command="{Binding NavigateCommand}"

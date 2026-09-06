@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/DependencyInjection/ServiceRegistration.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Infrastructure — Dependency Injection composition root (Phase 5)
@@ -40,6 +40,7 @@ using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.Statement.Repository;
+using ProGlassAutomation.Services.OrderReport.Repository;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.About;
@@ -103,6 +104,7 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<IDeliveryNoteRepository, DeliveryNoteRepository>();
             services.AddSingleton<ITaxInvoiceRepository, TaxInvoiceRepository>();
             services.AddSingleton<IStatementRepository, StatementRepository>();
+            services.AddSingleton<IOrderReportRepository, OrderReportRepository>();
             services.AddSingleton<IMasterDataRepository, MasterDataRepository>();
             services.AddSingleton<ISpecificationsRepository, SpecificationsRepository>();
             services.AddSingleton<Services.AI.IAiProviderEvents, Services.AI.AiProviderEvents>();
@@ -230,6 +232,12 @@ namespace ProGlassAutomation.Services.DependencyInjection
                 sp.GetService<Services.Dialogs.IDialogService>(),
                 sp.GetService<Services.Statement.Repository.IStatementRepository>(),
                 sp.GetService<Services.MasterData.Repository.IMasterDataRepository>(),
+                sp.GetService<Services.Database.IDatabaseServices>()));
+            services.AddTransient(sp => new ViewModels.Reports.OrderReport.OrderReportModuleViewModel(
+                sp.GetService<Services.Dialogs.IDialogService>(),
+                sp.GetService<Services.OrderReport.Repository.IOrderReportRepository>(),
+                sp.GetService<Services.MasterData.Repository.IMasterDataRepository>(),
+                sp.GetService<Services.ProformaInvoice.ProformaInvoiceRepository.IProformaInvoiceRepository>(),
                 sp.GetService<Services.Database.IDatabaseServices>()));
             services.AddTransient<ViewModels.Reports.PiReport.PiReportViewModel>();
             services.AddTransient<ViewModels.Reports.JoReport.JoReportViewModel>();

@@ -17,6 +17,7 @@ using ProGlassAutomation.ViewModels.Optimization;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
 using ProGlassAutomation.ViewModels.Production;
 using ProGlassAutomation.ViewModels.Reports;
+using ProGlassAutomation.ViewModels.Reports.OrderReport;
 using ProGlassAutomation.ViewModels.Reports.VatSubmission;
 using ProGlassAutomation.ViewModels.Settings;
 using ProGlassAutomation.ViewModels.Shared;
@@ -118,6 +119,9 @@ namespace ProGlassAutomation.ViewModels
         public TaxInvoiceViewModel TaxInvoiceVM { get; }
         public SalesReportViewModel SalesReportVM { get; }
         public StatementModuleViewModel StatementModuleVM { get; }
+        private OrderReportModuleViewModel? _lazyOrderReportModuleVM;
+        public OrderReportModuleViewModel OrderReportModuleVM =>
+            _lazyOrderReportModuleVM ??= ResolveOrNew<OrderReportModuleViewModel>();
         private JobProfitabilityViewModel? _lazyJobProfitabilityVM;
         public JobProfitabilityViewModel JobProfitabilityVM => _lazyJobProfitabilityVM ??= ResolveOrNew<JobProfitabilityViewModel>();
         private CompanyCenterViewModel? _lazyCompanyCenterVM;
@@ -643,6 +647,8 @@ namespace ProGlassAutomation.ViewModels
             TaxInvoiceVM = ResolveOrNew<TaxInvoiceViewModel>();
             SalesReportVM = ResolveOrNew<SalesReportViewModel>();
             StatementModuleVM = ResolveOrNew<StatementModuleViewModel>();
+            // Report Generator is lazy (first navigation resolves it) — no
+            // cross-module callbacks need wiring at shell construction.
 
             // AI chat — may need voice services from App
             try

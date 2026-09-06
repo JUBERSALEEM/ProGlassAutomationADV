@@ -1,0 +1,698 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Reports/OrderReport/Review/ReviewStep.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Report Generator — Step 4: Review (2026-09-06)
+
+     Final wizard step. Renders the generated OrderReportBundle:
+       · bundle banner (report number, title, generated-at, section count)
+       · bundle KPI strip (ordered / delivered / invoiced / value / missing)
+       · one card per selected Proforma Invoice:
+           header + job release  →  PI spec rows  →  delivery notes
+           (with glass weights + attachments)  →  tax invoices (partial +
+           balance)  →  reconciliation  →  attachment completeness  →  totals
+       · consolidated alert list with open-PI/JO/TI actions
+     Bound to OrderReportGeneratorViewModel (LastBundle, Warnings, …).
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl
+    x:Class="ProGlassAutomation.Views.Reports.OrderReport.Review.ReviewStep"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Reports.OrderReport"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=vm:OrderReportGeneratorViewModel, IsDesignTimeCreatable=False}"
+    FontFamily="{DynamicResource AppFontFamily}"
+    TextOptions.TextFormattingMode="Ideal"
+    TextOptions.TextRenderingMode="ClearType"
+    UseLayoutRounding="True"
+    SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <Style x:Key="KpiCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+            <Setter Property="Padding" Value="14,12"/>
+        </Style>
+        <Style x:Key="KpiLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        </Style>
+        <Style x:Key="KpiValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,16,0,8"/>
+        </Style>
+        <Style x:Key="Th" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        </Style>
+        <Style x:Key="Td" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        </Style>
+        <Style x:Key="RowLine" TargetType="Border">
+            <Setter Property="Padding" Value="10,6"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="32,24,32,32">
+
+                <!-- ═══ STEP TITLE ═══ -->
+                <TextBlock Text="Step 4 — Review"
+                           FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                <TextBlock Text="The report below covers every selected proforma invoice through delivery and invoicing. Download the PDF, or go back to adjust the selection."
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           TextWrapping="Wrap" Margin="0,6,0,0"/>
+
+                <!-- ═══ BUNDLE BANNER ═══ -->
+                <Border Margin="0,20,0,0"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="24,20"
+                        BorderThickness="{DynamicResource CardBorderThickness}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                        <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                        </Style>
+                    </Border.Style>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="20"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Width="56" Height="56"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="✓" FontSize="28" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding LastBundle.Title}"
+                                       FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                       Foreground="White"/>
+                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="White" Opacity="0.9" Margin="0,4,0,0">
+                                <Run Text="{Binding LastBundle.ReportNumber, Mode=OneWay}"/>
+                                <Run Text="  ·  "/>
+                                <Run Text="{Binding LastBundle.SectionCount, Mode=OneWay}"/>
+                                <Run Text=" order(s)  ·  generated "/>
+                                <Run Text="{Binding LastBundle.GeneratedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy HH:mm}}"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <Button Grid.Column="3" Command="{Binding DownloadLastPdfCommand}"
+                                VerticalAlignment="Center"
+                                IsEnabled="{Binding HasLastPdf}"
+                                Height="44" Padding="20,0" Cursor="Hand" BorderThickness="0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="{DynamicResource ModuleBackgroundBrush}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Padding="{TemplateBinding Padding}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="⬇" FontSize="{StaticResource TextSection}"
+                                                       Foreground="{DynamicResource AccentBrush}"
+                                                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <TextBlock Text="Download PDF" FontSize="{StaticResource TextBodyLarge}"
+                                                       FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- ═══ BUNDLE KPI STRIP ═══ -->
+                <Grid Margin="0,14,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource KpiCard}">
+                        <StackPanel>
+                            <TextBlock Text="Ordered (pcs)" Style="{StaticResource KpiLabel}"/>
+                            <TextBlock Text="{Binding LastBundle.TotalOrderedQty}" Style="{StaticResource KpiValue}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource KpiCard}">
+                        <StackPanel>
+                            <TextBlock Text="Delivered (pcs)" Style="{StaticResource KpiLabel}"/>
+                            <TextBlock Text="{Binding LastBundle.TotalDeliveredQty}" Style="{StaticResource KpiValue}"
+                                       Foreground="{DynamicResource SuccessBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="4" Style="{StaticResource KpiCard}">
+                        <StackPanel>
+                            <TextBlock Text="Invoiced (pcs)" Style="{StaticResource KpiLabel}"/>
+                            <TextBlock Text="{Binding LastBundle.TotalInvoicedQty}" Style="{StaticResource KpiValue}"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="6" Style="{StaticResource KpiCard}">
+                        <StackPanel>
+                            <TextBlock Text="Invoiced Value" Style="{StaticResource KpiLabel}"/>
+                            <TextBlock Text="{Binding LastBundle.TotalInvoicedValue, StringFormat=AED {0:N2}}"
+                                       Style="{StaticResource KpiValue}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="8" Style="{StaticResource KpiCard}">
+                        <StackPanel>
+                            <TextBlock Text="Missing Documents" Style="{StaticResource KpiLabel}"/>
+                            <TextBlock Text="{Binding LastBundle.TotalMissingDocuments}" Style="{StaticResource KpiValue}"
+                                       Foreground="{DynamicResource DangerBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ═══ SECTIONS (one per selected PI) ═══ -->
+                <ItemsControl ItemsSource="{Binding LastBundle.Sections}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,20,0,0"
+                                    Background="{DynamicResource ModuleBackgroundBrush}"
+                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    BorderThickness="{DynamicResource CardBorderThickness}"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    Padding="20,16">
+
+                                <StackPanel>
+
+                                    <!-- ── SECTION HEADER + JOB RELEASE ── -->
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Header.ProformaId}"
+                                                           FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                                <Border Background="{DynamicResource TintIndigoBrush}"
+                                                        CornerRadius="8" Padding="8,1" Margin="10,0,0,0"
+                                                        VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Header.PiStatus}"
+                                                               FontSize="{StaticResource TextCaption}"
+                                                               Foreground="{DynamicResource AccentBrush}"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <TextBlock FontSize="{StaticResource TextBody}"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0">
+                                                <Run Text="{Binding Header.CompanyName, Mode=OneWay}"/>
+                                                <Run Text="  ·  "/>
+                                                <Run Text="{Binding Header.CustomerName, Mode=OneWay}"/>
+                                                <Run Text="  ·  "/>
+                                                <Run Text="{Binding Header.ProjectName, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                            <TextBlock Text="PI Date" FontSize="{StaticResource TextCaption}"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding Header.IssueDateDisplay}"
+                                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       HorizontalAlignment="Right" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Job release block -->
+                                    <Border Margin="0,12,0,0" Background="{DynamicResource TintIndigoBrush}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="Job Order(s)" Style="{StaticResource KpiLabel}"/>
+                                                <TextBlock Text="{Binding Header.JobOrderIds}" Style="{StaticResource Td}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="JO Status" Style="{StaticResource KpiLabel}"/>
+                                                <TextBlock Text="{Binding Header.JobOrderStatus}" Style="{StaticResource Td}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="2">
+                                                <TextBlock Text="Priority" Style="{StaticResource KpiLabel}"/>
+                                                <TextBlock Text="{Binding Header.JobOrderPriority}" Style="{StaticResource Td}"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="3">
+                                                <TextBlock Text="Release / Delivery Date" Style="{StaticResource KpiLabel}"/>
+                                                <TextBlock Text="{Binding Header.ReleaseDateDisplay}" Style="{StaticResource Td}"/>
+                                                <TextBlock Text="{Binding Header.ConvertedAtDisplay}"
+                                                           FontSize="{StaticResource TextCaption}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- ── PI SPEC ROWS ── -->
+                                    <TextBlock Text="Proforma Invoice — Specification" Style="{StaticResource SectionTitle}"/>
+                                    <Grid Margin="0,0,0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="90"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Group" Style="{StaticResource Th}"/>
+                                        <TextBlock Grid.Column="1" Text="Ref" Style="{StaticResource Th}"/>
+                                        <TextBlock Grid.Column="2" Text="Specification" Style="{StaticResource Th}"/>
+                                        <TextBlock Grid.Column="3" Text="Qty" Style="{StaticResource Th}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="4" Text="Delivered" Style="{StaticResource Th}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="5" Text="Balance" Style="{StaticResource Th}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="6" Text="Amount" Style="{StaticResource Th}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="7" Text="Weight (kg)" Style="{StaticResource Th}" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <ItemsControl ItemsSource="{Binding SpecRows}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Style="{StaticResource RowLine}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="120"/>
+                                                            <ColumnDefinition Width="90"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="70"/>
+                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="90"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding GroupName}" Style="{StaticResource Td}"/>
+                                                        <TextBlock Grid.Column="1" Text="{Binding GlassRef}" Style="{StaticResource Td}" FontWeight="SemiBold"/>
+                                                        <StackPanel Grid.Column="2">
+                                                            <TextBlock Text="{Binding SpecName}" Style="{StaticResource Td}"/>
+                                                            <TextBlock Text="{Binding DimensionsDisplay}" FontSize="{StaticResource TextCaption}"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        </StackPanel>
+                                                        <TextBlock Grid.Column="3" Text="{Binding Qty}" Style="{StaticResource Td}" HorizontalAlignment="Right"/>
+                                                        <TextBlock Grid.Column="4" Text="{Binding DeliveredQty}" Style="{StaticResource Td}" HorizontalAlignment="Right"
+                                                                   Foreground="{DynamicResource SuccessBrush}"/>
+                                                        <TextBlock Grid.Column="5" Text="{Binding BalanceQty}" Style="{StaticResource Td}" HorizontalAlignment="Right"
+                                                                   Foreground="{DynamicResource WarningBrush}"/>
+                                                        <TextBlock Grid.Column="6" Text="{Binding Amount, StringFormat={}{0:N2}}" Style="{StaticResource Td}" HorizontalAlignment="Right"/>
+                                                        <TextBlock Grid.Column="7" Text="{Binding TotalWeight, StringFormat={}{0:N1}}" Style="{StaticResource Td}" HorizontalAlignment="Right"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- ── DELIVERY NOTES ── -->
+                                    <TextBlock Text="Delivery Notes" Style="{StaticResource SectionTitle}"/>
+                                    <ItemsControl ItemsSource="{Binding DeliveryNotes}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Margin="0,0,0,8" Background="{DynamicResource WindowBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                                        BorderThickness="{DynamicResource CardBorderThickness}"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                        Padding="12,10">
+                                                    <StackPanel>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="{Binding DeliveryNoteId}"
+                                                                       FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                                       Foreground="{DynamicResource AccentBrush}"
+                                                                       VerticalAlignment="Center"/>
+                                                            <TextBlock Grid.Column="1" Text="{Binding DeliveredWhenDisplay}"
+                                                                       FontSize="{StaticResource TextCaption}"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                       VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                                <TextBlock Text="Delivered:" FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                           VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                                <TextBlock Text="{Binding TotalDeliveredQty}" FontSize="{StaticResource TextBody}"
+                                                                           FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
+                                                                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                                <TextBlock Text="Balance:" FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                           VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                                <TextBlock Text="{Binding TotalBalanceQty}" FontSize="{StaticResource TextBody}"
+                                                                           FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"
+                                                                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                                                <TextBlock Text="Weight:" FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                           VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                                <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                           VerticalAlignment="Center">
+                                                                    <Run Text="{Binding TotalWeightKg, Mode=OneWay, StringFormat={}{0:N1}}"/>
+                                                                    <Run Text=" kg"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                        <TextBlock FontSize="{StaticResource TextCaption}"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0">
+                                                            <Run Text="{Binding DriverName, Mode=OneWay}"/>
+                                                            <Run Text="  ·  "/>
+                                                            <Run Text="{Binding VehicleNumber, Mode=OneWay}"/>
+                                                        </TextBlock>
+                                                        <Border Margin="0,8,0,0" Background="{DynamicResource TintIndigoBrush}"
+                                                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,4"
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource AccentBrush}">
+                                                                <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
+                                                                <Run Text=" attachment(s)"/>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- ── TAX INVOICES ── -->
+                                    <TextBlock Text="Tax Invoices" Style="{StaticResource SectionTitle}"/>
+                                    <ItemsControl ItemsSource="{Binding TaxInvoices}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Margin="0,0,0,8" Background="{DynamicResource WindowBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                                        BorderThickness="{DynamicResource CardBorderThickness}"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                        Padding="12,10">
+                                                    <StackPanel>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <TextBlock Grid.Column="0" Text="{Binding InvoiceNumber}"
+                                                                       FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
+                                                                       Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                                                                <TextBlock Text="{Binding InvoiceType}" FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                <TextBlock Text="  ·  " FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                <TextBlock Text="{Binding IssueDateDisplay}" FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                <TextBlock Text="  ·  " FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                <TextBlock Text="{Binding DeliveryNoteReference}" FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                                <TextBlock Text="Qty" FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
+                                                                <TextBlock Text="{Binding TotalQty}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
+                                                                <TextBlock Text="Subtotal" FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
+                                                                <TextBlock Text="{Binding Subtotal, StringFormat={}{0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
+                                                                <TextBlock Text="VAT" FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
+                                                                <TextBlock Text="{Binding VatAmount, StringFormat={}{0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
+                                                                <TextBlock Text="Total" FontSize="{StaticResource TextCaption}"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
+                                                                <TextBlock Text="{Binding GrandTotal, StringFormat=AED {0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- ── RECONCILIATION ── -->
+                                    <TextBlock Text="Reconciliation" Style="{StaticResource SectionTitle}"/>
+                                    <Border Background="{DynamicResource WindowBackgroundBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                            BorderThickness="{DynamicResource CardBorderThickness}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Padding="12,10">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Reconciliation.SummaryDisplay}"
+                                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                       Foreground="{Binding Reconciliation.OverallColorHex, Converter={StaticResource ColorStringConverter}}"/>
+                                            <TextBlock Text="{Binding Reconciliation.TotalsDisplay}"
+                                                       FontSize="{StaticResource TextCaption}"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,3,0,0"/>
+                                            <ItemsControl ItemsSource="{Binding Reconciliation.Rows}" Margin="0,8,0,0">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Style="{StaticResource RowLine}">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="90"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="130"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="{Binding GlassRef}" Style="{StaticResource Td}" FontWeight="SemiBold"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding SpecGroupName}" Style="{StaticResource Td}"/>
+                                                                <TextBlock Grid.Column="2" Text="{Binding OrderedQty, StringFormat=Ord {0}}" Style="{StaticResource Td}" HorizontalAlignment="Right"/>
+                                                                <TextBlock Grid.Column="3" Text="{Binding DeliveredQty, StringFormat=Del {0}}" Style="{StaticResource Td}" HorizontalAlignment="Right"
+                                                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                                                <TextBlock Grid.Column="4" Text="{Binding InvoicedQty, StringFormat=Inv {0}}" Style="{StaticResource Td}" HorizontalAlignment="Right"
+                                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                                                <TextBlock Grid.Column="5" Text="{Binding StatusLabel}" Style="{StaticResource Td}" FontWeight="Bold"
+                                                                           Foreground="{Binding StatusColorHex, Converter={StaticResource ColorStringConverter}}"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- ── ATTACHMENT COMPLETENESS ── -->
+                                    <TextBlock Text="Attachment Completeness" Style="{StaticResource SectionTitle}"/>
+                                    <Border Background="{DynamicResource WindowBackgroundBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                            BorderThickness="{DynamicResource CardBorderThickness}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Padding="12,10">
+                                        <StackPanel>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                <Run Text="PI attachments: "/>
+                                                <Run Text="{Binding Attachments.ProformaAttachmentCount, Mode=OneWay}" FontWeight="Bold"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0">
+                                                <Run Text="Delivery notes prepared: "/>
+                                                <Run Text="{Binding Attachments.DeliveryNotesPrepared, Mode=OneWay}" FontWeight="Bold"/>
+                                                <Run Text="  ·  with attachments: "/>
+                                                <Run Text="{Binding Attachments.DeliveryNotesAttached, Mode=OneWay}" FontWeight="Bold"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0">
+                                                <Run Text="Tax invoice attachments: "/>
+                                                <Run Text="{Binding Attachments.TaxInvoiceAttachmentCount, Mode=OneWay}" FontWeight="Bold"/>
+                                            </TextBlock>
+                                            <Border Margin="0,8,0,0" Background="{DynamicResource TintRedBrush}"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,6"
+                                                    Visibility="{Binding Attachments.HasMissingDocuments, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <TextBlock Text="{Binding Attachments.MissingDocumentsDisplay}"
+                                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- ── TOTALS ── -->
+                                    <TextBlock Text="Totals" Style="{StaticResource SectionTitle}"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Grid.Column="0" Style="{StaticResource KpiCard}">
+                                            <StackPanel>
+                                                <TextBlock Text="Ordered Weight (kg)" Style="{StaticResource KpiLabel}"/>
+                                                <TextBlock Text="{Binding Totals.OrderedWeightKg, StringFormat={}{0:N1}}" Style="{StaticResource KpiValue}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Column="2" Style="{StaticResource KpiCard}">
+                                            <StackPanel>
+                                                <TextBlock Text="Delivered Weight (kg)" Style="{StaticResource KpiLabel}"/>
+                                                <TextBlock Text="{Binding Totals.DeliveredWeightKg, StringFormat={}{0:N1}}" Style="{StaticResource KpiValue}"
+                                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Column="4" Style="{StaticResource KpiCard}">
+                                            <StackPanel>
+                                                <TextBlock Text="Balance Weight (kg)" Style="{StaticResource KpiLabel}"/>
+                                                <TextBlock Text="{Binding Totals.BalanceWeightKg, StringFormat={}{0:N1}}" Style="{StaticResource KpiValue}"
+                                                           Foreground="{DynamicResource WarningBrush}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Grid.Column="6" Style="{StaticResource KpiCard}">
+                                            <StackPanel>
+                                                <TextBlock Text="Invoiced Value" Style="{StaticResource KpiLabel}"/>
+                                                <TextBlock Text="{Binding Totals.InvoicedValue, StringFormat=AED {0:N2}}" Style="{StaticResource KpiValue}"
+                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </Grid>
+                                    <TextBlock FontSize="{StaticResource TextBody}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,8,0,0">
+                                        <Run Text="Delivery progress: "/>
+                                        <Run Text="{Binding Totals.DeliveryPct, Mode=OneWay, StringFormat={}{0:N1}%}" FontWeight="Bold"/>
+                                        <Run Text="   ·   Invoicing progress: "/>
+                                        <Run Text="{Binding Totals.InvoicePct, Mode=OneWay, StringFormat={}{0:N1}%}" FontWeight="Bold"/>
+                                    </TextBlock>
+
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- ═══ ALERTS (consolidated) ═══ -->
+                <TextBlock Text="Alerts" FontSize="{StaticResource TextSection}" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,20,0,8"/>
+                <ItemsControl ItemsSource="{Binding Warnings}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,0,0,8" Background="{DynamicResource ModuleBackgroundBrush}"
+                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    BorderThickness="{DynamicResource CardBorderThickness}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="12,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Width="10" Height="10" CornerRadius="5"
+                                            VerticalAlignment="Top" Margin="0,6,12,0">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Severity}" Value="Error">
+                                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Severity}" Value="Info">
+                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding Title}" FontSize="{StaticResource TextBody}"
+                                                   FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="{Binding Detail}" FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="2" VerticalAlignment="Center"
+                                            Command="{Binding DataContext.OpenWarningActionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Height="30" Padding="12,0" Cursor="Hand" BorderThickness="0">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ActionKind}" Value="">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="bd" Background="{DynamicResource TintIndigoBrush}"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <TextBlock Text="Open" FontSize="{StaticResource TextBody}"
+                                                               FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <TextBlock Text="{Binding StatusMessage}"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,16,0,0" TextWrapping="Wrap"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

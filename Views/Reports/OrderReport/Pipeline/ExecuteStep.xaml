@@ -1,0 +1,93 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Reports/OrderReport/Pipeline/ExecuteStep.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Report Generator — Step 3: Execute (2026-09-06)
+
+     Transient pipeline step. Generation starts automatically when the
+     user advances from Preview; this surface shows the build status and
+     then a "ready" summary before auto-advancing to Review.
+═══════════════════════════════════════════════════════════════════ -->
+<UserControl
+    x:Class="ProGlassAutomation.Views.Reports.OrderReport.Pipeline.ExecuteStep"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Reports.OrderReport"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=vm:OrderReportGeneratorViewModel, IsDesignTimeCreatable=False}"
+    FontFamily="{DynamicResource AppFontFamily}"
+    TextOptions.TextFormattingMode="Ideal"
+    TextOptions.TextRenderingMode="ClearType"
+    UseLayoutRounding="True"
+    SnapsToDevicePixels="True">
+
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="620">
+
+            <TextBlock Text="Step 3 — Execute"
+                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       HorizontalAlignment="Center"/>
+
+            <!-- Busy indicator while building -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,28,0,0">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsGenerating}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
+                <ProgressBar IsIndeterminate="True" Width="220" Height="6"
+                             Foreground="{DynamicResource AccentBrush}"
+                             Background="{DynamicResource OutlineBrush}"/>
+                <TextBlock Text="Building report — reading proforma invoices, job orders, delivery notes and tax invoices…"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           TextWrapping="Wrap" TextAlignment="Center" Margin="0,14,0,0"/>
+            </StackPanel>
+
+            <!-- Ready state -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,28,0,0">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasReport}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
+                <Border Width="64" Height="64" CornerRadius="32"
+                        Background="{DynamicResource SuccessBrush}" HorizontalAlignment="Center">
+                    <TextBlock Text="✓" FontSize="28" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           HorizontalAlignment="Center" Margin="0,16,0,0">
+                    <Run Text="Report ready — "/>
+                    <Run Text="{Binding SectionCount, Mode=OneWay}"/>
+                    <Run Text=" order(s) built."/>
+                </TextBlock>
+                <TextBlock Text="Advancing to Review…"
+                           FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           HorizontalAlignment="Center" Margin="0,6,0,0"/>
+            </StackPanel>
+
+            <TextBlock Text="{Binding StatusMessage}"
+                       FontSize="{StaticResource TextBody}"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       HorizontalAlignment="Center" TextWrapping="Wrap"
+                       TextAlignment="Center" Margin="0,20,0,0"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

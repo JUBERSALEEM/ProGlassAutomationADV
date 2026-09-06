@@ -47,6 +47,7 @@ using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.Statement.Repository;
+using ProGlassAutomation.Services.OrderReport.Repository;
 using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.Views.Splash;
@@ -94,6 +95,7 @@ namespace ProGlassAutomation
         public static IMasterDataRepository MasterData { get; private set; }
         public static ITaxInvoiceRepository TaxInvoices { get; private set; }
         public static IStatementRepository Statements { get; private set; }
+        public static IOrderReportRepository OrderReports { get; private set; }
 
         /// <summary>
         /// Central reporting / data-intelligence layer.
