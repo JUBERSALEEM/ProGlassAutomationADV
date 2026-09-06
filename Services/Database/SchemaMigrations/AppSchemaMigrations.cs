@@ -54,6 +54,28 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                         "CREATE INDEX IF NOT EXISTS IX_SheetHistories_CustomerName ON SheetHistories(CustomerName);");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_SheetHistories_DocumentReference ON SheetHistories(DocumentReference);");
+                }),
+
+                // Sheet movement REVERSAL (undo a mistaken Use/Buy).
+                //
+                // A history row is an immutable audit record, so an undo
+                // writes a COMPENSATING row rather than deleting the
+                // original. These two columns carry that link:
+                //   ReversesHistoryId — set on the compensating row
+                //   IsReversed        — set on the original, so it can be
+                //                       badged and never reversed twice
+                //
+                // Both are nullable / DEFAULT 0, so every row written by
+                // an older build reads back correctly with no backfill —
+                // the same discipline migration 1001 documents for the
+                // traceability columns.
+                new(1002, "Sheet history: movement reversal (undo) columns", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "SheetHistories", "ReversesHistoryId", "INTEGER NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "SheetHistories", "IsReversed",        "INTEGER NOT NULL DEFAULT 0");
+
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_SheetHistories_ReversesHistoryId ON SheetHistories(ReversesHistoryId);");
                 })
             };
 

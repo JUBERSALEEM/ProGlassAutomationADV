@@ -2166,6 +2166,9 @@
     <sys:String x:Key="SheetStore.RefreshData">डेटा ताज़ा करें</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">इतिहास पुनः लोड करें</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">शेष शेष</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">प्रतिवर्तित</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">पूर्ववत करें</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">इस गतिविधि को पूर्ववत करें और स्टॉक बहाल करें</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">विक्रय मूल्य (प्रति वर्ग मी)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">विक्रय / वर्ग मी</sys:String>
     <sys:String x:Key="SheetStore.SKIP">छोड़ें</sys:String>

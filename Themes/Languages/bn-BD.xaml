@@ -2166,6 +2166,9 @@
     <sys:String x:Key="SheetStore.RefreshData">ডেটা রিফ্রেশ করুন</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">ইতিহাস পুনরায় লোড করুন</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">অবশিষ্ট ব্যালেন্স</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">বিপরীত</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">পূর্বাবস্থা</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">এই লেনদেন পূর্বাবস্থায় ফিরিয়ে স্টক পুনরুদ্ধার করুন</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">বিক্রয় মূল্য (প্রতি বর্গমিটার)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">বিক্রয় / বর্গমিটার</sys:String>
     <sys:String x:Key="SheetStore.SKIP">এড়িয়ে যান</sys:String>

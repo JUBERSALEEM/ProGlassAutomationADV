@@ -2168,6 +2168,9 @@
     <sys:String x:Key="SheetStore.RefreshData">تحديث البيانات</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">إعادة تحميل السجل</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">الرصيد المتبقي</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">تم العكس</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">تراجع</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">تراجع عن هذه الحركة واستعادة المخزون</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">سعر البيع (لكل م²)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">بيع / م²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">تخطي</sys:String>

@@ -2166,6 +2166,9 @@
     <sys:String x:Key="SheetStore.RefreshData">Segarkan data</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">Muat ulang riwayat</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">Saldo tersisa</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">DIBALIK</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">BATALKAN</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">Batalkan pergerakan ini dan pulihkan stok</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">HARGA JUAL (per m²)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">JUAL/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">LEWATI</sys:String>

@@ -2166,6 +2166,9 @@
     <sys:String x:Key="SheetStore.RefreshData">刷新数据</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">重新加载历史记录</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">剩余余额</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">已冲销</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">撤销</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">撤销此变动并恢复库存</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">销售价（每 m²）</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">销售/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">跳过</sys:String>

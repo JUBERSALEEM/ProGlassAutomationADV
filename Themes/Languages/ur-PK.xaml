@@ -2166,6 +2166,9 @@
     <sys:String x:Key="SheetStore.RefreshData">ڈیٹا تازہ کریں</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">ہسٹری دوبارہ لوڈ کریں</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">باقی بیلنس</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">منسوخ شدہ</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">واپس کریں</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">اس حرکت کو واپس کریں اور اسٹاک بحال کریں</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">فروخت قیمت (فی مربع میٹر)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">فروخت / مربع میٹر</sys:String>
     <sys:String x:Key="SheetStore.SKIP">چھوڑیں</sys:String>

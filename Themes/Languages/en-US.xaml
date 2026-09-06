@@ -2173,6 +2173,9 @@
     <sys:String x:Key="SheetStore.RefreshData">Refresh Data</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">Reload history</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">Remaining balance</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">REVERSED</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">UNDO</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">Undo this movement and restore the stock</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">SELL PRICE (per SQM)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">SELL/SQM</sys:String>
     <sys:String x:Key="SheetStore.SKIP">SKIP</sys:String>

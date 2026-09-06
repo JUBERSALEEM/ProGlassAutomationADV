@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProGlassAutomation.Models.SheetStore.SheetStoreHistory
@@ -84,6 +84,56 @@ namespace ProGlassAutomation.Models.SheetStore.SheetStoreHistory
 
         public DateTime Timestamp { get; set; } = DateTime.Now;
 
+        // ═══════════════════════════════════════════════════════════
+        //  REVERSAL / UNDO (2026-09-06)
+        //
+        //  Owner need: "if we mistakenly used sheet include add option
+        //  to undo that action or edit properly".
+        //
+        //  A history row is an IMMUTABLE AUDIT RECORD (see the note
+        //  above) — so an undo must NEVER delete or rewrite the
+        //  original row. Instead it writes a COMPENSATING entry:
+        //
+        //      original  Used     qty 10   <- stays, flagged reversed
+        //      new       Reversed qty -10  <- points back via ReversesHistoryId
+        //
+        //  Stock is restored by the compensating movement, and the
+        //  ledger still shows that the mistake happened and who fixed
+        //  it. That is the accounting-correct shape (a contra entry),
+        //  and it is the only shape compatible with the immutability
+        //  contract this class already declares.
+        //
+        //  Both columns are nullable/defaulted so every pre-existing
+        //  row reads correctly without a backfill.
+        // ═══════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Set on a COMPENSATING row: the Id of the original movement
+        /// this entry reverses. Null on ordinary movements.
+        /// </summary>
+        public int? ReversesHistoryId { get; set; }
+
+        /// <summary>
+        /// Set on an ORIGINAL row once it has been reversed, so the
+        /// grid can badge it and the UI can refuse to reverse it twice.
+        /// </summary>
+        public bool IsReversed { get; set; }
+
+        /// <summary>True when this row is itself a compensating entry.</summary>
+        public bool IsReversalEntry => ReversesHistoryId.HasValue;
+
+        /// <summary>
+        /// Only stock MOVEMENTS can be reversed, and only once. An
+        /// "Added"/"Edited"/"Deleted" row is not a movement, and a
+        /// compensating row must never itself be undone (that would be
+        /// a redo — the user should record a fresh movement instead).
+        /// </summary>
+        public bool CanReverse =>
+            !IsReversed
+            && !IsReversalEntry
+            && (Action == "Used" || Action == "Bought");
+
+
         // ============ DISPLAY HELPERS ============
         public string TimestampDisplay => Timestamp.ToString("dd-MMM-yyyy HH:mm:ss");
         public string DateDisplay => Timestamp.ToString("dd-MMM-yyyy");
@@ -98,6 +148,7 @@ namespace ProGlassAutomation.Models.SheetStore.SheetStoreHistory
             "Deleted" => "#EF4444",   // red
             "Bought" => "#3B82F6",    // blue
             "Used" => "#8B5CF6",      // purple
+            "Reversed" => "#F97316",  // orange — a correction, not a failure
             _ => "#64748B"            // gray
         };
     }

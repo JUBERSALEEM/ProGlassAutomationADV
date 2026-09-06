@@ -2166,6 +2166,9 @@
     <sys:String x:Key="SheetStore.RefreshData">Actualizar datos</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">Recargar historial</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">Saldo restante</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">REVERTIDO</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">DESHACER</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">Deshacer este movimiento y restaurar el stock</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">PRECIO DE VENTA (por m²)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">VENTA/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">SALTAR</sys:String>

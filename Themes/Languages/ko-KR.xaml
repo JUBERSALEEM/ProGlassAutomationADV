@@ -2166,6 +2166,9 @@
     <sys:String x:Key="SheetStore.RefreshData">데이터 새로 고침</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">기록 다시 로드</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">남은 잔액</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">취소됨</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">실행 취소</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">이 이동을 취소하고 재고를 복원합니다</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">판매 가격(m²당)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">판매/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">건너뛰기</sys:String>

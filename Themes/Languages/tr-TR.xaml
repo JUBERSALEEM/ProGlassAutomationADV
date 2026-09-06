@@ -2166,6 +2166,9 @@
     <sys:String x:Key="SheetStore.RefreshData">Verileri yenile</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">Geçmişi yeniden yükle</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">Kalan bakiye</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">İPTAL EDİLDİ</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">GERİ AL</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">Bu hareketi geri al ve stoğu geri yükle</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">SATIŞ FİYATI (m² başına)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">SATIŞ/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">ATLA</sys:String>

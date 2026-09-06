@@ -192,7 +192,25 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         private void ShowHistory()
         {
             var vm = new HistoryViewModel();
-            _dialogs.ShowDialog<HistoryView>(vm);
+
+            // 2026-09-06 — undoing a movement from inside History restores
+            // stock, so the grid behind this dialog is instantly stale.
+            // Reload on the event rather than unconditionally after close:
+            // the common case (operator just browsing history) then costs
+            // nothing. Unsubscribed straight after ShowDialog returns —
+            // the VM is per-dialog, but the handler captures `this`.
+            void OnReversed() =>
+                AsyncUtility.SafeFireAndForget(LoadAsync, "SheetStore ReloadAfterUndo");
+
+            vm.MovementReversed += OnReversed;
+            try
+            {
+                _dialogs.ShowDialog<HistoryView>(vm);
+            }
+            finally
+            {
+                vm.MovementReversed -= OnReversed;
+            }
         }
     }
 }

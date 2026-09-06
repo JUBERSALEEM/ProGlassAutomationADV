@@ -2166,6 +2166,9 @@
     <sys:String x:Key="SheetStore.RefreshData">Daten aktualisieren</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">Historie neu laden</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">Verbleibender Bestand</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">STORNIERT</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">RÜCKGÄNGIG</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">Diese Buchung rückgängig machen und Bestand wiederherstellen</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">VERKAUFSPREIS (pro m²)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">VERKAUF/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">ÜBERSPRINGEN</sys:String>

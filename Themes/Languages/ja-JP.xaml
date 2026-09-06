@@ -2166,6 +2166,9 @@
     <sys:String x:Key="SheetStore.RefreshData">データを更新</sys:String>
     <sys:String x:Key="SheetStore.ReloadHistory">履歴を再読み込み</sys:String>
     <sys:String x:Key="SheetStore.RemainingBalance">残高</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">取消済</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">元に戻す</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">この移動を取り消して在庫を復元します</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">販売価格（m²あたり）</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">販売/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">スキップ</sys:String>

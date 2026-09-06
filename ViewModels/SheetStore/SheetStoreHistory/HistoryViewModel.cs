@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Services.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.ViewModels;
@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
+using ProGlassAutomation.Services.Audit;   // PermissionService / AppPermissions / AuditService
 
 using ProGlassAutomation.Services.Dialogs;
 using Microsoft.Extensions.DependencyInjection;
@@ -110,6 +111,21 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
         public ICommand CloseCommand { get; }
         public ICommand ClearDatesCommand { get; }
 
+        /// <summary>
+        /// Undo a mistaken stock movement (2026-09-06). Writes a
+        /// compensating entry — see SheetHistoryRepository
+        /// .ReverseMovementAsync for why the original row is never
+        /// deleted or edited.
+        /// </summary>
+        public ICommand UndoMovementCommand { get; }
+
+        /// <summary>
+        /// Raised after a successful undo so the Sheet Store grid behind
+        /// this dialog reloads — otherwise the restored stock would not
+        /// appear until the operator reopened the module.
+        /// </summary>
+        public event Action? MovementReversed;
+
         public Action? CloseAction { get; set; }
 
         public HistoryViewModel() : this(null, initialize: true)
@@ -135,7 +151,96 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
                 _ = LoadAsync();
             });
 
+            UndoMovementCommand = new RelayCommand(
+                param => AsyncUtility.SafeFireAndForget(
+                    () => UndoMovementAsync(param as SheetHistory), "SheetStore Undo"),
+                param => param is SheetHistory h && h.CanReverse);
+
             _ = LoadAsync();
+        }
+
+        /// <summary>
+        /// Confirms, then asks the repository for a COMPENSATING entry.
+        ///
+        /// The UI never computes the stock adjustment itself — it names
+        /// the row to undo and the repository re-validates every guard
+        /// server-side (already reversed / not a movement / would drive a
+        /// counter negative) inside one transaction. That way a stale
+        /// grid cannot double-undo by clicking twice.
+        /// </summary>
+        private async Task UndoMovementAsync(SheetHistory? entry)
+        {
+            if (entry == null || !entry.CanReverse) return;
+
+            if (!PermissionService.Require(
+                    AppPermissions.SheetStoreEdit, "undo a stock movement"))
+                return;
+
+            string what = entry.Action == "Used" ? "consumption" : "purchase";
+            var confirm = _dialogs.Show(
+                $"Undo this {what}?\n\n" +
+                $"{entry.SheetDescription}\n" +
+                $"{entry.QuantityChanged} sheet(s) on {entry.TimestampDisplay}\n\n" +
+                "The original entry is KEPT and marked reversed — a new " +
+                "compensating entry restores the stock, so the audit trail " +
+                "still shows what happened.",
+                "Undo stock movement",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question,
+                MessageBoxResult.No);
+
+            if (confirm != MessageBoxResult.Yes) return;
+
+            try
+            {
+                IsBusy = true;
+
+                var compensating = await _repo.ReverseMovementAsync(
+                    entry.Id, reason: string.Empty);
+
+                if (compensating == null)
+                {
+                    _dialogs.Show(
+                        "This entry can no longer be undone. It may already " +
+                        "have been reversed from another window.",
+                        "Undo not possible",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    try
+                    {
+                        AuditService.Log(
+                            AuditSections.SheetStore, "Stock movement reversed",
+                            $"{entry.SheetDescription} — undo of #{entry.Id} " +
+                            $"({entry.Action} {entry.QuantityChanged})",
+                            "SHEET", entry.SheetId.ToString());
+                    }
+                    catch { /* best-effort, never blocks the undo */ }
+
+                    MovementReversed?.Invoke();
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                // Deliberate refusal from the repository (e.g. undoing a
+                // purchase whose sheets are already consumed). This is a
+                // business answer, not a crash — show the reason verbatim.
+                _dialogs.Show(ex.Message, "Undo not possible",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                _dialogs.Show(
+                    "Could not undo this movement:\n\n" + ExceptionMessages.Deep(ex),
+                    LocalizationService.Instance.T("Msg.CapError"),
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsBusy = false;
+                await LoadAsync();
+            }
         }
 
         private async Task LoadAsync()
