@@ -77,6 +77,12 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 OnPropertyChanged(nameof(IsConsumablesView));
                 OnPropertyChanged(nameof(HasItems));
                 OnPropertyChanged(nameof(IsItemSelected));
+
+                // The summary strip now follows the visible list, so the
+                // switch must re-announce it. Without this the tiles keep
+                // showing glass figures over a consumables list until some
+                // unrelated change happens to refresh them.
+                RaiseStatsChanged();
             }
         }
 
@@ -201,6 +207,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(ItemsUsedValue));
             OnPropertyChanged(nameof(LowStockCount));
             OnPropertyChanged(nameof(HasLowStock));
+
+            // The summary strip reads from Items while the consumables list
+            // is showing, so a refill has to re-announce it too.
+            if (IsConsumablesView) RaiseStatsChanged();
         }
 
         // ── Actions ────────────────────────────────────────────────────

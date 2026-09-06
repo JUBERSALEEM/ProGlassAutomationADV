@@ -29,6 +29,34 @@
 
     <UserControl.Resources>
 
+        <!-- Inventory summary tile. Right margin only, so the row of tiles
+             is flush with the container edge on both sides rather than
+             carrying a stray gap at the end. -->
+        <Style x:Key="InventoryStatCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="InventoryStatCardLast" TargetType="Border"
+               BasedOn="{StaticResource InventoryStatCard}">
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+
+        <!-- Figures wrap rather than clip: "1,234,567 AED" must stay
+             readable when seven tiles share the width. -->
+        <Style x:Key="InventoryStatValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,6,0,0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
         <!-- Consumable editor panel field chrome -->
         <Style x:Key="ItemFieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
@@ -387,85 +415,128 @@
                 </StackPanel>
             </Border>
 
-            <!-- TOTAL INVENTORY STATS — always visible aggregate summary -->
+            <!-- ══ TOTAL INVENTORY STATS ══
+                 2026-09-06 — rebuilt as real cards.
+
+                 This was one flat Border containing a 16-column Grid of
+                 bare StackPanels separated by hand-counted 20px spacer
+                 columns. Three problems: the figures had no visual
+                 containment so they read as one run-on sentence; the fixed
+                 gaps did not reflow, so on a narrow window the numbers
+                 collided and on a wide one they clumped at the left; and
+                 adding a metric meant renumbering every Grid.Column after
+                 it.
+
+                 A UniformGrid of carded tiles fixes all three — equal
+                 tiles, automatic reflow, and a new metric is just another
+                 child. -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,10" Margin="8,0,8,12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Padding="16,14" Margin="8,0,8,12"
                     SnapsToDevicePixels="True">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Width="30" Height="30" CornerRadius="{DynamicResource ControlCornerRadius}" Margin="0,0,10,0"
+                <StackPanel>
+
+                    <!-- Section heading, so the strip is identifiable
+                         without decoding the tiles. -->
+                    <StackPanel Orientation="Horizontal" Margin="2,0,0,12">
+                        <Border Width="28" Height="28" Margin="0,0,10,0"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Background="{DynamicResource AccentBrush}">
                             <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextSection}" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="{DynamicResource SheetStore.TotalInventory}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                   Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{DynamicResource SheetStore.TotalInventory}"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="2" Margin="0">
-                        <TextBlock Text="{DynamicResource DeliveryNote.Items}" Style="{StaticResource StatLabel}"/>
-                        <TextBlock Text="{Binding TotalItems}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="4" Margin="0">
-                        <TextBlock Text="{DynamicResource SheetStore.Stock}" Style="{StaticResource StatLabel}"/>
-                        <TextBlock Text="{Binding TotalStock}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource SuccessBrush}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="6" Margin="0">
-                        <TextBlock Text="{DynamicResource SheetStore.BuyingValue}" Style="{StaticResource StatLabel}"/>
-                        <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource DangerBrush}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="8" Margin="0">
-                        <TextBlock Text="{DynamicResource SheetStore.SellingValue}" Style="{StaticResource StatLabel}"/>
-                        <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource SuccessBrush}"/>
-                    </StackPanel>
-                    <!--
-                        USED VALUE and BALANCE VALUE complete the picture.
-                        Buying/Selling value describe what was PURCHASED;
-                        without these the strip cannot answer "is stock
-                        turning into revenue, or just sitting on a rack?".
-                    -->
-                    <StackPanel Grid.Column="10" Margin="0">
-                        <TextBlock Text="{DynamicResource SheetStore.UsedValue}" Style="{StaticResource StatLabel}"/>
-                        <TextBlock Text="{Binding TotalUsedValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource WarningBrush}"
-                                   ToolTip="{DynamicResource SheetStore.UsedValueTip}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="12" Margin="0">
-                        <TextBlock Text="{DynamicResource SheetStore.BalanceValue}" Style="{StaticResource StatLabel}"/>
-                        <TextBlock Text="{Binding TotalBalanceValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource InfoBrush}"
-                                   ToolTip="{DynamicResource SheetStore.BalanceValueTip}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="14">
-                        <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}" Style="{StaticResource StatLabel}"/>
-                        <!--
-                            Was TotalProfit (sell minus buy on ALL stock),
-                            which counts margin on sheets already consumed
-                            as still "expected". ExpectedProfit is the
-                            margin remaining on UNUSED stock, which is what
-                            the label claims.
-                        -->
-                        <TextBlock Text="{Binding ExpectedProfit, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource AccentBrush}"
-                                   ToolTip="{DynamicResource SheetStore.ExpectedProfitTip}"/>
-                    </StackPanel>
-                </Grid>
+
+                    <UniformGrid Columns="7">
+                        <Border Style="{StaticResource InventoryStatCard}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource DeliveryNote.Items}"
+                                           Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="{Binding TotalItems}"
+                                           Style="{StaticResource InventoryStatValue}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InventoryStatCard}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.Stock}"
+                                           Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="{Binding TotalStock}"
+                                           Style="{StaticResource InventoryStatValue}"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InventoryStatCard}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.BuyingValue}"
+                                           Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}"
+                                           Style="{StaticResource InventoryStatValue}"
+                                           Foreground="{DynamicResource DangerBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InventoryStatCard}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.SellingValue}"
+                                           Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}"
+                                           Style="{StaticResource InventoryStatValue}"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- USED and BALANCE complete the picture: buying and
+                             selling value describe what was PURCHASED, and
+                             without these the strip cannot answer "is stock
+                             turning into revenue, or just sitting on a rack?" -->
+                        <Border Style="{StaticResource InventoryStatCard}"
+                                ToolTip="{DynamicResource SheetStore.UsedValueTip}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.UsedValue}"
+                                           Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="{Binding TotalUsedValue, StringFormat={}{0:N0} AED}"
+                                           Style="{StaticResource InventoryStatValue}"
+                                           Foreground="{DynamicResource WarningBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource InventoryStatCard}"
+                                ToolTip="{DynamicResource SheetStore.BalanceValueTip}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.BalanceValue}"
+                                           Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="{Binding TotalBalanceValue, StringFormat={}{0:N0} AED}"
+                                           Style="{StaticResource InventoryStatValue}"
+                                           Foreground="{DynamicResource InfoBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ExpectedProfit, not TotalProfit: margin remaining
+                             on UNUSED stock, which is what the label claims.
+                             TotalProfit counted margin on consumed sheets as
+                             still "expected". -->
+                        <Border Style="{StaticResource InventoryStatCardLast}"
+                                ToolTip="{DynamicResource SheetStore.ExpectedProfitTip}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}"
+                                           Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="{Binding ExpectedProfit, StringFormat={}{0:N0} AED}"
+                                           Style="{StaticResource InventoryStatValue}"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </StackPanel>
             </Border>
         </StackPanel>
 
