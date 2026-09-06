@@ -189,6 +189,15 @@ namespace ProGlassAutomation.Services.Theme
             string wall = appearance?.WallpaperPath ?? "";
             double op = ClampOpacity(appearance?.WallpaperOpacity ?? 0.85);
 
+            // 2026-09-09: mode + pinned scene ARE render inputs — with
+            // them missing from the signature, swapping "Built-in scene"
+            // A → B (or Scene → ThemeLinked) could hashtag-match an
+            // earlier apply and be silently skipped by any apply-side
+            // caller that forgot InvalidateSceneCache. The guard's job
+            // is to skip *identical* scenes, not *different* ones.
+            string mode = appearance?.WallpaperMode ?? "";
+            string scene = appearance?.BuiltinScene ?? "";
+
             string moduleWall = "";
             if (!string.IsNullOrEmpty(mod) &&
                 appearance?.ModuleWallpapers != null &&
@@ -204,7 +213,7 @@ namespace ProGlassAutomation.Services.Theme
                 ThemeManager.CurrentTheme,
                 ThemeManager.AccentColor.ToString(
                     System.Globalization.CultureInfo.InvariantCulture),
-                family, mod, wall, op.ToString("F3",
+                family, mod, wall, mode, scene, op.ToString("F3",
                     System.Globalization.CultureInfo.InvariantCulture),
                 moduleWall,
                 FontPreferenceSignature());
@@ -594,10 +603,20 @@ namespace ProGlassAutomation.Services.Theme
                         if (!osBackdrop)
                             resources["WindowBackgroundBrush"] = sceneBrush;
 
+                        // OS backdrop: Mica wants calmer surfaces
+                        // (0.70 — body surface stays a surface), Acrylic
+                        // tolerates more bleed (0.62). The previous flat
+                        // 0.55 for both is what read "ugly" — text sat on
+                        // moving wallpaper.
+                        double osSurface =
+                            App.Config?.Appearance?.WindowBackdrop ==
+                                ProGlassAutomation.Services.Theme.SystemBackdropService.Acrylic
+                                ? 0.62
+                                : 0.70;
                         SetTranslucent(resources, "ModuleBackgroundBrush",
                             ThemeManager.GetThemeColor(
                                 "ModuleBackgroundBrush", Colors.White),
-                            osBackdrop ? 0.55 : 0.80);
+                            osBackdrop ? osSurface : 0.80);
                         AdaptTypographyForWallpaper(resources);
                         ApplyFontPreference(resources, true);
 
