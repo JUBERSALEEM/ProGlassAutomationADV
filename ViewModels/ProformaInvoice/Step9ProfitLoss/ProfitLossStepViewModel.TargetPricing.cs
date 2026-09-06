@@ -59,6 +59,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             SelectedTargetSpec = row;
         }
 
+        /// <summary>
+        /// Host-wired navigation back to Step 6 (Other charges) from the
+        /// Glass / Spec Comparison tab. The report references Step 6
+        /// U-insert / wastage rows, so a one-click jump keeps the estimator
+        /// in flow. Wired by ProformaInvoiceViewModel to GoToStep(6).
+        /// </summary>
+        public Action? NavigateToStep6Requested { get; set; }
+
+        /// <summary>Jumps to Step 6 (Other charges) via the host callback.</summary>
+        public ICommand GoToStep6Command { get; }
+
+        private void GoToStep6() => NavigateToStep6Requested?.Invoke();
+
         /// <summary>Raw job-level aggregate of the last recalculation.</summary>
         public TargetPriceResult? JobTargetResult { get; private set; }
 
@@ -579,17 +592,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             foreach (var (spec, group) in specs)
                 TargetSpecsView.Add(SpecTargetRowViewModel.FromResult(spec, group));
 
-            // Preserve the sidebar selection when it still exists.
+            // Preserve the sidebar selection when it still exists. The
+            // report stays CLOSED until the user clicks a spec row — no
+            // first-row auto-selection (2026-09-06: the report must not
+            // open by default; it opens only from the per-group rows).
             SpecTargetRowViewModel? keep = null;
             if (SelectedTargetSpec != null)
             {
                 keep = TargetSpecsView.FirstOrDefault(r =>
                     r.SpecNumber == SelectedTargetSpec.SpecNumber
                     && string.Equals(r.SpecName, SelectedTargetSpec.SpecName, StringComparison.Ordinal));
-            }
-            else if (TargetSpecsView.Count > 0)
-            {
-                keep = TargetSpecsView[0];
             }
 
             foreach (var r in TargetSpecsView)

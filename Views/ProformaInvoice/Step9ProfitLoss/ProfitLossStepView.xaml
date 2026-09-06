@@ -815,7 +815,25 @@
                     <StackPanel Grid.Column="0">
 
                         <!-- Per-group target comparison -->
-                        <TextBlock Text="PER-GROUP COMPARISON — TARGET MODEL" Style="{StaticResource TgtSectionLabel}"/>
+                        <Grid Margin="0,18,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="PER-GROUP COMPARISON — TARGET MODEL"
+                                       Style="{StaticResource TgtSectionLabel}"
+                                       Margin="0"
+                                       VerticalAlignment="Center"/>
+                            <Button Grid.Column="1"
+                                    Content="GO TO STEP 6 · OTHER CHARGES"
+                                    Command="{Binding GoToStep6Command}"
+                                    Style="{StaticResource PrimaryPillButton}"
+                                    VerticalAlignment="Center"
+                                    Margin="12,0,0,0"
+                                    Padding="16,0"
+                                    Cursor="Hand"
+                                    ToolTip="Open Step 6 (Other charges) to review U-inserts, wastage and supplementary charges."/>
+                        </Grid>
                         <TextBlock Text="Each Step 5 specification is priced independently (never mixed Base Rates). Click a row to open its full calculation inspector."
                                    FontSize="{StaticResource TextCaption}"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
@@ -991,11 +1009,15 @@
                         </ContentControl>
                     </StackPanel>
 
-                    <!-- ═══ RIGHT: six-section specification inspector ═══ -->
+                    <!-- ═══ RIGHT: six-section specification inspector ═══
+                         MaxHeight keeps the report bounded so it scrolls
+                         inside its own viewer instead of stretching the
+                         whole page (2026-09-06). -->
                     <Border Grid.Column="2"
                             Style="{StaticResource TgtCardStyle}"
                             Padding="0"
                             VerticalAlignment="Top"
+                            MaxHeight="600"
                             Visibility="{Binding HasSelectedTargetSpec, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -1045,14 +1067,6 @@
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="Glass code" Style="{StaticResource TgtSideLabelStyle}"/>
                                         <TextBlock Grid.Column="1" Text="{Binding GlassTypeCode}" Style="{StaticResource TgtSideValueStyle}"/>
-                                    </Grid>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="Source rows" Style="{StaticResource TgtSideLabelStyle}"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding SourceRowsSummary}" Style="{StaticResource TgtSideValueStyle}"/>
                                     </Grid>
                                     <TextBlock Text="{Binding DimensionsSummary}"
                                                FontSize="{StaticResource TextCaption}"

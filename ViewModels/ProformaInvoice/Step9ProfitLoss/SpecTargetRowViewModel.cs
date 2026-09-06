@@ -29,12 +29,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
-        /// <summary>Step 5 row count feeding this specification.</summary>
-        public int RowCount { get; private set; }
-
-        /// <summary>Sum of quantities across the specification's dimension rows.</summary>
-        public int PieceCount { get; private set; }
-
         /// <summary>Readable preview of the Step 5 dimension rows.</summary>
         public string DimensionsSummary { get; private set; } = "";
 
@@ -50,10 +44,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 OnPropertyChanged();
             }
         }
-
-        /// <summary>"N rows · M pieces" for the identity section of the sidebar.</summary>
-        public string SourceRowsSummary =>
-            $"{RowCount} Step 5 row(s) · {PieceCount} piece(s)";
 
         public string RequiredTargetValueDisplay => Result != null
             ? $"AED {Result.RequiredTargetValue:N2}"
@@ -72,8 +62,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             return new SpecTargetRowViewModel
             {
                 Result = result,
-                RowCount = group?.ItemRows?.Count ?? 0,
-                PieceCount = group?.ItemRows?.Sum(r => r.Qty > 0 ? r.Qty : 0) ?? 0,
                 DimensionsSummary = BuildDimensionsSummary(group)
             };
         }

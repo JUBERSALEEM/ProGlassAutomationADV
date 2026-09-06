@@ -237,6 +237,11 @@ public ProformaInvoiceViewModel() : this(
                 Step4VM.DguLamVM,
                 Step6VM);
 
+            // Step 9's Glass / Spec Comparison report references Step 6
+            // U-insert / wastage rows; wire the "Go to Step 6" jump back
+            // to the wizard's own step navigation.
+            Step9VM.NavigateToStep6Requested = () => GoToStep(6);
+
             Step7VM.PrintableInvoice.ProfitLoss = Step9VM;
             Step7VM.PrintableInvoice.Step4Pricing = Step4VM;
 
