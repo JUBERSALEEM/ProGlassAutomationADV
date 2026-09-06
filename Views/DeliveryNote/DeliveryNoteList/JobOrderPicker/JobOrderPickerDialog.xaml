@@ -16,7 +16,7 @@
         FontFamily="{DynamicResource AppFontFamily}">
 
     <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource ModuleBackgroundBrush}"
+            Background="{DynamicResource DialogSurfaceBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
             Margin="18">

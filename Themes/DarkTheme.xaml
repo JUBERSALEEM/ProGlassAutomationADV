@@ -72,6 +72,29 @@
          is a floating window, so an alpha-00 glass brush shows the
          desktop through it. -->
     <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FF1C1F26" po:Freeze="True"/>
+    <!-- ═══════════════════════════════════════════════════════════════
+         DIALOG SURFACE (2026-09-06) — the SAME bug class as
+         PopupSurfaceBrush above, one level up.
+
+         A dialog is its own top-level Window with AllowsTransparency,
+         so there is NO app stage behind it — only the desktop. Dialog
+         root cards were painted with ModuleBackgroundBrush, which
+         VisualThemeEngine deliberately makes TRANSLUCENT (0.62-0.80)
+         whenever a wallpaper or an OS backdrop is active. Correct for a
+         module sitting on the app's own stage; fatal for a floating
+         window, where it shows the user's wallpaper straight through
+         the card. Worse, the modal family was split across two tokens
+         (ModuleBackgroundBrush vs WindowBackgroundBrush), so cards in
+         the same flow did not match each other.
+
+         This token is the ONE dialog card material: always opaque,
+         never routed through SetTranslucent, repainted by every family
+         painter (ManagedKeys) so it follows the theme.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="DialogSurfaceBrush" Color="#FF161A22" po:Freeze="True"/>
+    <!-- Inset shelf inside a dialog card (footers, info strips). Always
+         opaque for the same reason. -->
+    <SolidColorBrush x:Key="DialogInsetBrush" Color="#FF1E2530" po:Freeze="True"/>
     <!-- 2026-09-05 dropdown contrast tokens (ERR white-on-white rows):
          ComboBoxItem hover/highlight must NEVER use the glass wash —
          ~40% white glass + white text is invisible on the dark popup.

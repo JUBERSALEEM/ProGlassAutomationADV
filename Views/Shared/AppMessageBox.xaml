@@ -123,7 +123,7 @@
     <!-- Outer margin carries the soft elevation shadow -->
     <Border Margin="18">
         <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{DynamicResource WindowBackgroundBrush}"
+                Background="{DynamicResource DialogSurfaceBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="1"
                 Padding="24,20,24,20"

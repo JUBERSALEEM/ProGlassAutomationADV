@@ -27,7 +27,7 @@
         AllowsTransparency="True">    <!-- 2026-09-09 shell upgrade: borderless professional chrome. -->
     <Border Margin="18"
             CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource WindowBackgroundBrush}"
+            Background="{DynamicResource DialogSurfaceBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="1"
             Padding="4"

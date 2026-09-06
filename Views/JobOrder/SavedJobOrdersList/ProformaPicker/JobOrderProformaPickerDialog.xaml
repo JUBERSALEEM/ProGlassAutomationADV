@@ -16,7 +16,7 @@
         SnapsToDevicePixels="True">
 
     <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource ModuleBackgroundBrush}"
+            Background="{DynamicResource DialogSurfaceBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
             Margin="18">
@@ -139,7 +139,7 @@
                     Margin="0,16,0,0"
                     Padding="28,16"
                     CornerRadius="0,0,16,16"
-                    Background="{DynamicResource MenuHoverBrush}"
+                    Background="{DynamicResource DialogInsetBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,1,0,0">
                 <Grid>

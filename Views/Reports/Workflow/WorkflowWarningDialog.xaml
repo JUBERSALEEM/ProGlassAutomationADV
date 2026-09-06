@@ -19,7 +19,7 @@
     UseLayoutRounding="True"
     SnapsToDevicePixels="True">
 
-    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+    <Border Background="{DynamicResource DialogSurfaceBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
             CornerRadius="{DynamicResource CardCornerRadiusLarge}"

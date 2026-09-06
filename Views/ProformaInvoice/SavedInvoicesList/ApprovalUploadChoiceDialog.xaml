@@ -22,7 +22,7 @@
          exactly as tall as its content (no spacer rows, no dead space).
          Margin is large enough for the drop shadow to render fully. -->
     <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource ModuleBackgroundBrush}"
+            Background="{DynamicResource DialogSurfaceBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
             Margin="24,20,24,28">
@@ -104,7 +104,7 @@
             <Border Grid.Row="3"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="0,1,0,0"
-                    Background="{DynamicResource MenuHoverBrush}"
+                    Background="{DynamicResource DialogInsetBrush}"
                     CornerRadius="0,0,16,16"
                     Padding="24,16"
                     Margin="0,20,0,0">

@@ -102,6 +102,13 @@
          full alpha so it can stand alone.
     ═══════════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FFF7F4EC" po:Freeze="True"/>
+    <!-- DIALOG SURFACE (2026-09-06) — see the full note in
+         DarkTheme.xaml. Same bug class as PopupSurfaceBrush, one level
+         up: a dialog is a floating Window, so the translucent
+         ModuleBackgroundBrush showed the desktop through every card.
+         Always opaque; repainted per family via ManagedKeys. -->
+    <SolidColorBrush x:Key="DialogSurfaceBrush" Color="#FFFBF9F3" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DialogInsetBrush" Color="#FFF1EDE3" po:Freeze="True"/>
     <!-- 2026-09-05 dropdown contrast tokens: see DarkTheme note. 12% black
          tint over #F7F4EC is the light-theme hover lift; selected row uses
          AccentBrush + OnAccentForegroundBrush in BOTH themes. -->

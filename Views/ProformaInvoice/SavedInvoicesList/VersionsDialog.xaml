@@ -28,7 +28,7 @@
         AllowsTransparency="True">    <!-- 2026-09-09 shell upgrade: borderless professional chrome. -->
     <Border Margin="18"
             CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource WindowBackgroundBrush}"
+            Background="{DynamicResource DialogSurfaceBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="1"
             Padding="4"
@@ -150,7 +150,7 @@
                 IsCancel="True">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
-                    <Border Background="{DynamicResource MenuHoverBrush}"
+                    <Border Background="{DynamicResource DialogInsetBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"

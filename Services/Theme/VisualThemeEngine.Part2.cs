@@ -327,6 +327,63 @@ namespace ProGlassAutomation.Services.Theme
                 ColorMath.WithAlpha(edge, primaryA));
             resources["GlassBorderBright"] = FrozenSolid(
                 ColorMath.WithAlpha(edge, brightA));
+
+            PublishDialogSurface(resources, borderTint, dark);
+        }
+
+        /// <summary>
+        /// The ONE dialog card material (2026-09-06).
+        ///
+        /// DEFECT this closes ("approve popup card is transparent, multi
+        /// cards mismatch"): dialog roots were painted with
+        /// ModuleBackgroundBrush, which ApplyModule deliberately routes
+        /// through SetTranslucent (0.62-0.80) whenever a wallpaper or an
+        /// OS backdrop is live. That is right for a module drawn on the
+        /// app's own stage and WRONG for a dialog: a dialog is its own
+        /// top-level Window with AllowsTransparency, so there is no app
+        /// stage behind it and the alpha falls through to the desktop.
+        /// Half the modal family used ModuleBackgroundBrush and half used
+        /// WindowBackgroundBrush, so cards in one flow did not even match
+        /// each other.
+        ///
+        /// Contract: ALWAYS OPAQUE (alpha forced to 0xFF), never passed
+        /// through SetTranslucent, derived from the family's own surface
+        /// so it still reads as that theme. Called from
+        /// PublishSectionGlass, which every family painter already runs —
+        /// that is what guarantees parity instead of six copies.
+        /// Both keys are ManagedKeys, so switching family clears them.
+        /// </summary>
+        private static void PublishDialogSurface(
+            ResourceDictionary resources, Color familyTint, bool dark)
+        {
+            // Base the card on the theme's own window colour so each
+            // family keeps its identity, then force it fully opaque.
+            Color baseColor = ThemeManager.GetThemeColor(
+                "WindowBackgroundBrush",
+                dark ? Color.FromRgb(0x16, 0x1A, 0x22)
+                     : Color.FromRgb(0xFB, 0xF9, 0xF3));
+
+            // A dialog floats ABOVE the app, so it must read slightly
+            // lifted from the window plane, not identical to it.
+            Color card = dark
+                ? ColorMath.Mix(baseColor, Color.FromRgb(0xFF, 0xFF, 0xFF), 0.06)
+                : ColorMath.Mix(baseColor, Color.FromRgb(0xFF, 0xFF, 0xFF), 0.55);
+
+            // Whisper of the family tint so Ocean/Crystal/Industrial
+            // dialogs are recognisably themselves.
+            card = ColorMath.Mix(card, familyTint, dark ? 0.10 : 0.05);
+
+            resources["DialogSurfaceBrush"] =
+                FrozenSolid(ColorMath.WithAlpha(card, 0xFF));
+
+            // Inset shelf (footers/info strips) — one step off the card,
+            // also opaque.
+            Color inset = dark
+                ? ColorMath.Mix(card, Color.FromRgb(0xFF, 0xFF, 0xFF), 0.07)
+                : ColorMath.Mix(card, Color.FromRgb(0x00, 0x00, 0x00), 0.05);
+
+            resources["DialogInsetBrush"] =
+                FrozenSolid(ColorMath.WithAlpha(inset, 0xFF));
         }
 
         /// <summary>

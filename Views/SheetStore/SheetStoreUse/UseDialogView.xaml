@@ -32,7 +32,7 @@
     <!-- 2026-09-09 shell upgrade: borderless professional chrome. -->
     <Border Margin="18"
             CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource WindowBackgroundBrush}"
+            Background="{DynamicResource DialogSurfaceBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="1"
             Padding="4"
@@ -57,7 +57,7 @@
             </StackPanel>
 
             <!-- Sheet info card -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource DialogInsetBrush}"
                     CornerRadius="{DynamicResource ControlCornerRadius}" Padding="16,12" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="{Binding Sheet.Category}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
@@ -95,7 +95,7 @@
                     <TextBox Text="{Binding JobOrderReference, UpdateSourceTrigger=PropertyChanged}"
                              Height="36" FontSize="{StaticResource TextBodyLarge}" Padding="12,6"
                              VerticalContentAlignment="Center"
-                             Background="{DynamicResource MenuHoverBrush}"
+                             Background="{DynamicResource DialogInsetBrush}"
                              Foreground="{DynamicResource PrimaryForegroundBrush}"
                              BorderThickness="1"
                              BorderBrush="{DynamicResource MenuHoverBrush}"
@@ -138,13 +138,13 @@
                         <TextBox Grid.Row="1" Grid.Column="0"
                                  Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
                                  Height="32" Padding="10,4" VerticalContentAlignment="Center"
-                                 Background="{DynamicResource MenuHoverBrush}"
+                                 Background="{DynamicResource DialogInsetBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
                                  BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}"/>
                         <TextBox Grid.Row="1" Grid.Column="2"
                                  Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
                                  Height="32" Padding="10,4" VerticalContentAlignment="Center"
-                                 Background="{DynamicResource MenuHoverBrush}"
+                                 Background="{DynamicResource DialogInsetBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
                                  BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}"/>
 
@@ -160,7 +160,7 @@
                         <TextBox Grid.Row="3" Grid.Column="0"
                                  Text="{Binding Salesman, UpdateSourceTrigger=PropertyChanged}"
                                  Height="32" Padding="10,4" VerticalContentAlignment="Center"
-                                 Background="{DynamicResource MenuHoverBrush}"
+                                 Background="{DynamicResource DialogInsetBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
                                  BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}"/>
                         <ComboBox Grid.Row="3" Grid.Column="2"
@@ -194,7 +194,7 @@
                                  Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"
                                  FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" TextAlignment="Center"
                                  VerticalContentAlignment="Center" Height="44"
-                                 Background="{DynamicResource MenuHoverBrush}"
+                                 Background="{DynamicResource DialogInsetBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
                                  BorderThickness="0" Margin="8,0"/>
                         <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"

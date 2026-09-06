@@ -64,6 +64,15 @@ namespace ProGlassAutomation.Services.Theme
             "WindowBackgroundBrush", "ModuleBackgroundBrush",
             "ElevatedSurfaceBrush", "SideMenuBackgroundBrush",
             "MenuHoverBrush",
+
+            // Dialog card material (2026-09-06). Managed like every
+            // other surface so a family switch cannot leave one family's
+            // dialog tint behind. NEVER routed through SetTranslucent:
+            // a dialog is a floating Window with no app stage behind it,
+            // so a translucent card shows the desktop (the "cards are
+            // transparent" defect). PublishDialogSurface() is the single
+            // painter helper every family calls.
+            "DialogSurfaceBrush", "DialogInsetBrush",
             "SecondaryForegroundBrush", "MutedForegroundBrush",
             "CardCornerRadius", "CardCornerRadiusLarge",
             "ControlCornerRadius",

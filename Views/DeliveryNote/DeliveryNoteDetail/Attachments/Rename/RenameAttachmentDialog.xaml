@@ -112,7 +112,7 @@
          drop shadow to render fully (no square clipping at the edges).
     ═══════════════════════════════════════════════════════════════════ -->
     <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource ModuleBackgroundBrush}"
+            Background="{DynamicResource DialogSurfaceBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
             Margin="24,20,24,28">
@@ -236,7 +236,7 @@
 
             <!-- ── ACTION BUTTONS ──────────────────────────────────────── -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="4"
-                    Background="{DynamicResource MenuHoverBrush}"
+                    Background="{DynamicResource DialogInsetBrush}"
                     CornerRadius="0,0,16,16"
                     Padding="24,16"
                     Margin="0,20,0,0">

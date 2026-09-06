@@ -20,7 +20,7 @@
     SnapsToDevicePixels="True"
     Loaded="OnLoaded">
 
-    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+    <Border Background="{DynamicResource DialogSurfaceBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
             CornerRadius="{DynamicResource CardCornerRadiusLarge}"
@@ -79,7 +79,7 @@
                 <Border Grid.Column="0"
                         Height="10"
                         CornerRadius="5"
-                        Background="{DynamicResource MenuHoverBrush}"
+                        Background="{DynamicResource DialogInsetBrush}"
                         ClipToBounds="True">
                     <Border Height="10"
                             HorizontalAlignment="Left"
