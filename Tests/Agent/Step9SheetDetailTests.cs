@@ -11,13 +11,14 @@
 //   2. The GLASS TYPE column shows only the build family (SGU / DGU / LAM /
 //      DGU+LAM) — never the outer/inner pane identity.
 //
-//   3. A proper three-way sheet-price reconciliation is produced per row and
-//      as an overall report: BUY sheet price, USED sheet price and WASTAGE
-//      sheet price — the wastage charge being READ FROM THE STEP 6 WASTAGE
-//      SETUP (per pane side), never a free-hand guess.
+//   3. The proforma model is strictly three-way: BUY SHEET = USED SHEET +
+//      WASTAGE (leftover). Wastage is DERIVED from cutting, never a
+//      purchased "wastage sheet", and there is no offcut concept.
 //
-//   4. There is deliberately NO offcut concept: glass bought but not used is
-//      WASTAGE, full stop.
+//   4. The Step 6 WASTAGE CHARGE is read from the matching Step 6 wastage
+//      row's SOURCE (outer / inner / lam / middle), its SQM, SHEET QTY and
+//      rate, then cross-checked — with explicit warnings when bought sheets
+//      are less than the sheets needed (a Step 6 SHEET QTY mistake).
 //
 // These are source-pinning tests (the repo's Agent convention).
 // ═══════════════════════════════════════════════════════════════════════
@@ -70,7 +71,7 @@ namespace ProGlassAutomation.Tests.Agent
                 "ViewModels/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityViewModel.cs");
 
             // Short family labels only — never "LAMINATION" and never the
-            // outer/inner pane identity.
+            // outer/inner pane identity in the glass type.
             Assert.Contains("\"DGU+LAM\"", vm, StringComparison.Ordinal);
             Assert.Contains("if (dgu) return \"DGU\";", vm, StringComparison.Ordinal);
             Assert.Contains("if (lam) return \"LAM\";", vm, StringComparison.Ordinal);
@@ -88,28 +89,20 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Sheet_price_reconciliation_is_the_three_way_buy_used_wastage_model()
+        public void Sheet_model_is_buy_used_and_wastage_leftover_only()
         {
             string vm = Read(
                 "ViewModels/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityViewModel.cs");
 
-            // Per-row figures: BUY / USED / WASTAGE sheet prices only.
+            // BUY = USED + WASTAGE (leftover). No separate purchased
+            // "wastage sheet" and no offcut.
             Assert.Contains("BuySheetPrice", vm, StringComparison.Ordinal);
             Assert.Contains("UsedSheetPrice", vm, StringComparison.Ordinal);
-            Assert.Contains("WastageSheetPrice", vm, StringComparison.Ordinal);
-            Assert.Contains("BuySheets", vm, StringComparison.Ordinal);
-            Assert.Contains("UsedSheets", vm, StringComparison.Ordinal);
-            Assert.Contains("WastageSheets", vm, StringComparison.Ordinal);
-
-            // Job-level totals + comparison.
+            Assert.Contains("WastageValue", vm, StringComparison.Ordinal);
             Assert.Contains("public decimal TotalBuyPrice", vm, StringComparison.Ordinal);
             Assert.Contains("public decimal TotalUsedPrice", vm, StringComparison.Ordinal);
-            Assert.Contains("public decimal WastageSheetPrice", vm, StringComparison.Ordinal);
-            Assert.Contains("public decimal UsedPriceSharePercent", vm, StringComparison.Ordinal);
-            Assert.Contains("public decimal WastagePriceSharePercent", vm, StringComparison.Ordinal);
-
-            // The offcut concept must NOT exist: bought-but-unused glass is
-            // wastage, full stop.
+            Assert.Contains("public decimal TotalWastageValue", vm, StringComparison.Ordinal);
+            Assert.Contains("public decimal TotalStep6Charge", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("Offcut", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("offcut", vm, StringComparison.Ordinal);
 
@@ -117,21 +110,23 @@ namespace ProGlassAutomation.Tests.Agent
                 "Views/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityView.xaml");
             Assert.Contains("BUY SHEET PRICE", view, StringComparison.Ordinal);
             Assert.Contains("USED SHEET PRICE", view, StringComparison.Ordinal);
-            Assert.Contains("WASTAGE SHEET PRICE", view, StringComparison.Ordinal);
+            Assert.Contains("WASTAGE VALUE", view, StringComparison.Ordinal);
+            Assert.Contains("WASTAGE (LEFTOVER)", view, StringComparison.Ordinal);
+            Assert.Contains("STEP 6 WASTAGE CHARGE", view, StringComparison.Ordinal);
             Assert.DoesNotContain("OFFCUT", view, StringComparison.Ordinal);
             Assert.DoesNotContain("Offcut", view, StringComparison.Ordinal);
             Assert.Contains("OVERALL REPORT", view, StringComparison.Ordinal);
         }
 
         [Fact]
-        public void Wastage_charge_is_read_from_the_step6_setup_per_pane_side()
+        public void Wastage_charge_is_read_from_the_step6_source_per_pane()
         {
             string vm = Read(
                 "ViewModels/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityViewModel.cs");
 
-            // The wastage charge is resolved from the Step 6 wastage rows,
-            // matched to the exact pane side — the same labels the canonical
-            // Step 9 cost rows use (W1/H1 outer, W2/H2 inner/lam).
+            // The charge is resolved from the Step 6 wastage rows, matched
+            // to the exact pane side (outer/inner/lam/middle) and its source
+            // SQM, SHEET QTY and rate.
             Assert.Contains("WastagesSection?.WastageRows", vm, StringComparison.Ordinal);
             Assert.Contains("AvailableSources", vm, StringComparison.Ordinal);
             Assert.Contains("\"Outer (W1/H1)\"", vm, StringComparison.Ordinal);
@@ -141,15 +136,43 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("ResultAmount", vm, StringComparison.Ordinal);
             Assert.Contains("SpecNumber", vm, StringComparison.Ordinal);
 
-            // A wastage row can cover several panes — the charge is split
-            // across checked sources by SQM share so a multi-source row is
-            // never double-counted (mirrors Step 9 AppendWastageCostRows).
+            // Split across a row's checked sources by SQM share (the same
+            // allocation Step 9 AppendWastageCostRows uses).
             Assert.Contains("src.SqmValue", vm, StringComparison.Ordinal);
-            Assert.Contains("rowTotalSqm", vm, StringComparison.Ordinal);
+            Assert.Contains("row.TotalSqm", vm, StringComparison.Ordinal);
 
-            // The view must say where the wastage charge comes from.
+            // The source identity (pane + colour + W1/H1) is surfaced so the
+            // operator can see exactly which outer/inner pane was charged.
+            Assert.Contains("src.DisplayLabel", vm, StringComparison.Ordinal);
+            Assert.Contains("SheetQuantity", vm, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Cross_check_warns_when_bought_sheets_are_short()
+        {
+            string vm = Read(
+                "ViewModels/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityViewModel.cs");
+
+            // Validation states, not blind results.
+            Assert.Contains("HasShortfall", vm, StringComparison.Ordinal);
+            Assert.Contains("HasChargeWithoutWastage", vm, StringComparison.Ordinal);
+            Assert.Contains("HasWastageWithoutCharge", vm, StringComparison.Ordinal);
+            Assert.Contains("public bool IsHealthy", vm, StringComparison.Ordinal);
+            Assert.Contains("public string StatusLabel", vm, StringComparison.Ordinal);
+            Assert.Contains("ShortfallMessages", vm, StringComparison.Ordinal);
+            Assert.Contains("ReviewMessages", vm, StringComparison.Ordinal);
+
+            // The shortfall message names the Step 6 SHEET QTY mistake.
+            Assert.Contains("bought", vm, StringComparison.Ordinal);
+            Assert.Contains("less than the", vm, StringComparison.Ordinal);
+            Assert.Contains("Step 6 SHEET QTY", vm, StringComparison.Ordinal);
+
             string view = Read(
                 "Views/ProformaInvoice/Step9ProfitLoss/SheetProfitabilityView.xaml");
+            Assert.Contains("SHORTFALL", view, StringComparison.Ordinal);
+            Assert.Contains("REVIEW", view, StringComparison.Ordinal);
+            Assert.Contains("STATUS", view, StringComparison.Ordinal);
+            Assert.Contains("CROSS-CHECK", view, StringComparison.Ordinal);
             Assert.Contains("Step 6", view, StringComparison.Ordinal);
         }
 
