@@ -8,12 +8,26 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         FontFamily="{DynamicResource AppFontFamily}"
-        Background="{DynamicResource WindowBackgroundBrush}"
+        Background="Transparent"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="ClearType"
-        TextOptions.TextHintingMode="Fixed">
+        TextOptions.TextHintingMode="Fixed"
+        WindowStyle="None"
+        AllowsTransparency="True">    <!-- 2026-09-09 shell upgrade: borderless professional chrome. -->
+    <Border Margin="18"
+            CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+            Background="{DynamicResource WindowBackgroundBrush}"
+            BorderBrush="{DynamicResource OutlineBrush}"
+            BorderThickness="1"
+            Padding="4"
+            SnapsToDevicePixels="True">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="24"
+                              ShadowDepth="0" Opacity="0.45"/>
+        </Border.Effect>
+
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
@@ -149,4 +163,6 @@
             </Button>
         </StackPanel>
     </Grid>
+
+    </Border>
 </Window>

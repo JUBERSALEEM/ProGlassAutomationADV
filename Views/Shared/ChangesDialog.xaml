@@ -19,9 +19,24 @@
         MinWidth="480" MinHeight="320"
         WindowStartupLocation="CenterOwner"
         FontFamily="{DynamicResource AppFontFamily}"
-        Background="{DynamicResource WindowBackgroundBrush}"
+        Background="Transparent"
         UseLayoutRounding="True"
-        SnapsToDevicePixels="True">
+        SnapsToDevicePixels="True"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True">    <!-- 2026-09-09 shell upgrade: borderless professional chrome. -->
+    <Border Margin="18"
+            CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+            Background="{DynamicResource WindowBackgroundBrush}"
+            BorderBrush="{DynamicResource OutlineBrush}"
+            BorderThickness="1"
+            Padding="4"
+            SnapsToDevicePixels="True">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="24"
+                              ShadowDepth="0" Opacity="0.45"/>
+        </Border.Effect>
+
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -144,4 +159,6 @@
                        FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"/>
         </Button>
     </Grid>
+
+    </Border>
 </Window>

@@ -21,12 +21,26 @@
         Width="480"
         MinWidth="480"
         SizeToContent="Height"
-        MaxHeight="600"
+        MaxHeight="640"
         WindowStartupLocation="CenterOwner"
-        ResizeMode="CanResizeWithGrip"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        ResizeMode="NoResize"
         FontFamily="{DynamicResource AppFontFamily}"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Background="Transparent">
 
+    <!-- 2026-09-09 shell upgrade: borderless professional chrome. -->
+    <Border Margin="18"
+            CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+            Background="{DynamicResource WindowBackgroundBrush}"
+            BorderBrush="{DynamicResource OutlineBrush}"
+            BorderThickness="1"
+            Padding="4"
+            SnapsToDevicePixels="True">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="24"
+                              ShadowDepth="0" Opacity="0.45"/>
+        </Border.Effect>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="28">
 
@@ -249,4 +263,5 @@
 
         </StackPanel>
     </ScrollViewer>
+    </Border>
 </Window>
