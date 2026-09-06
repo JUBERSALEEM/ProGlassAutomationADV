@@ -204,26 +204,35 @@ pauses on unload/hidden (virtualized rows stop off-screen) and honours
 `CrystalReducedMotion`. Opt any surface out with
 `crystal:CrystalWaterAttach.Attach="False"`.
 
-## 9. Visual recalibration — "liquid, transparent, ultra-clear" (2026-09-06)
+## 9. Visual recalibration — rich blue liquid glass (2026-09-06, v3)
 
-The water was reading as a saturated blue slab; the iPhone liquid-glass look is
-lighter, more transparent, glossier. Changes (all in the authored token files,
-so the six live studio axes still sit on top unchanged):
+The first "ultra-clear" pass went too far: at 15–20% alpha the water vanished
+and the card frost read as pale white — so only the authored Settings-preview
+KPI cards (their own template) looked "liquid" while the rest of the app
+looked unthemed. v3 reverses that direction: water is now a clearly visible
+RICH BLUE liquid and the card frost reads as blue glass, matching the
+"glass ERP" identity (all values still in the authored token files, so the
+six live studio axes sit on top unchanged):
 
-| Token | Before | After | Effect |
+| Token | Before (ultra-clear) | After (rich blue) | Effect |
 |---|---|---|---|
-| `CrystalWaterSurfaceColor` | `#2180DEF6` | `#268AEAF8` | brighter glassy meniscus |
-| `CrystalWaterBodyColor` | `#4A40B5DC` (29% blue) | `#2E4FC5EB` (18%) | far more transparent body |
-| `CrystalWaterDeepColor` | `#553FB9DE` | `#333FB8E0` | lighter depth |
-| `CrystalWaterCyanTintColor` | `#383FB9DE` | `#2A63C8EE` | airier depth tint |
-| `CrystalWaterHighlightColor` + brush | `#8CFFFFFF` | `#B8FFFFFF` (wider radius) | glossy top sheen |
-| `CrystalReflectionBrush` | `#7A…→#29…` | `#A6…→#3D…` | stronger diagonal specular |
-| `BaselineReflectionOpacity` (and `CrystalReflectionOpacity` token) | `0.80` | `0.95` | glass reads glossier |
-| Card `FrostFill` alphas (module / rail / elevated) | `0.30/0.12 · 0.55/0.30 · 0.62/0.40` | `0.24/0.10 · 0.46/0.24 · 0.52/0.32` | ultra-clear surfaces |
+| `CrystalWaterSurfaceColor` | `#268AEAF8` (15%) | `#8C7CC4F8` (55%) | visible blue meniscus |
+| `CrystalWaterBodyColor` | `#2E4FC5EB` (18%) | `#7A3B82F6` (48%) | rich blue body |
+| `CrystalWaterDeepColor` | `#333FB8E0` (20%) | `#8C245BD0` (55%) | deep blue depth |
+| `CrystalWaterCyanTintColor` | `#2A63C8EE` (16%) | `#6654A5F0` (40%) | blue depth tint |
+| `CrystalWaterHighlightColor` | `#B8FFFFFF` | `#E6FFFFFF` | stronger gloss |
+| `CrystalWaterCausticColor` | `#17FFFFFF` | `#1FFFFFFF` | subtle caustic |
+| Engine stage (`CrystalStageTop/Light/BaseBrush` + fallbacks) | `#F8FDFF/#EDFAFF/#DFF5FF` | `#EEF6FF/#DBEDFF/#C6E4FF` | bluer environment |
+| `FrostBrush` accent kiss | light `0.16` | light `0.30` (dark `0.32→0.38`) | blue glass, not white |
+| Card `FrostFill` alphas (module / rail / elevated) | `0.24/0.10 · 0.46/0.24 · 0.52/0.32` | `0.36/0.18 · 0.58/0.32 · 0.64/0.42` | richer surfaces |
 
-The `CrystalWaterBodyColor` drop is the single biggest win: at ~18% alpha the
-fill stops being a blue slab and becomes a transparent liquid meniscus the
-glass shows through. Authority-value tests were repointed to the new numbers
-(`CrystalFluidSettingsBridgeTests`, `CrystalFluidTokenPlaneTests`,
-`LiquidGlassThemeSourceTests`) — these are deliberate design changes, not
-drift. Reduced-motion still freezes the whole water plane to a static body.
+**About-module adaptation (same pass):** `ThemeManager.ApplyAccent` no longer
+skips the crystal family — `PublishAboutPalette` (already ultra-low-alpha
+crystal glass) now runs under Ios-17pm too, so the About cards wear the same
+accent-tinted transparent glass + water as every other card instead of
+staying pinned to base theme-file values.
+
+Authority-value tests were repointed to the new numbers
+(`CrystalFluidShellAdoptionTests`, `LiquidGlassThemeSourceTests`) — these are
+deliberate design changes, not drift. Reduced-motion still freezes the whole
+water plane to a static body.

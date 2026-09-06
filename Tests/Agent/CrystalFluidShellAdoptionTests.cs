@@ -54,9 +54,9 @@ namespace ProGlassAutomation.Tests.Agent
 
             foreach (var (key, hex) in new[]
             {
-                ("CrystalStageTopBrush",         "#F8FDFF"),
-                ("CrystalStageLightBrush",       "#EDFAFF"),
-                ("CrystalStageBaseBrush",        "#DFF5FF"),
+                ("CrystalStageTopBrush",         "#EEF6FF"),
+                ("CrystalStageLightBrush",       "#DBEDFF"),
+                ("CrystalStageBaseBrush",        "#C6E4FF"),
                 ("CrystalSceneTopBrush",         "#FDFEFF"),
                 ("CrystalSceneLitBrush",         "#F2FAFE"),
                 ("CrystalSceneAtmosphereBrush",  "#E6F6FD"),
@@ -105,11 +105,11 @@ namespace ProGlassAutomation.Tests.Agent
                     StringComparison.Ordinal);
 
             // the authored fallback literals remain byte-exact
-            Assert.Contains("Color.FromRgb(0xF8, 0xFD, 0xFF)", part3,
+            Assert.Contains("Color.FromRgb(0xEE, 0xF6, 0xFF)", part3,
                 StringComparison.Ordinal);
-            Assert.Contains("Color.FromRgb(0xED, 0xFA, 0xFF)", part3,
+            Assert.Contains("Color.FromRgb(0xDB, 0xED, 0xFF)", part3,
                 StringComparison.Ordinal);
-            Assert.Contains("Color.FromRgb(0xDF, 0xF5, 0xFF)", part3,
+            Assert.Contains("Color.FromRgb(0xC6, 0xE4, 0xFF)", part3,
                 StringComparison.Ordinal);
 
             // the stage still lands on the same pipeline key

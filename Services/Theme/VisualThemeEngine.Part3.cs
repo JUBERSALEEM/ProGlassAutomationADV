@@ -30,7 +30,9 @@ namespace ProGlassAutomation.Services.Theme
             //    · ink #102938 / muted #68808F / accent #55C9EE
             //    · glass = white .43→.14 @135° (never opaque)
             //    · 1px bright-white crystal border + inner hairline
-            //    · pale luminous environment stage (#F8FDFF/#EDFAFF/#DFF5FF)
+            //    · blue luminous environment stage (#EEF6FF/#DBEDFF/#C6E4FF)
+            //      (2026-09-06 richness pass — deeper blue than the pale
+            //      #F8FDFF/#EDFAFF/#DFF5FF stage, for a "glass ERP" read)
             //
             //  Same resource-key contract as the retired painter — the
             //  64-key ManagedKeys guarantee and the registry parity tests
@@ -54,15 +56,15 @@ namespace ProGlassAutomation.Services.Theme
                     new GradientStop(dark
                         ? Color.FromRgb(0x0E, 0x22, 0x30)
                         : TokenColor(resources, "CrystalStageTopBrush",
-                            Color.FromRgb(0xF8, 0xFD, 0xFF)), 0.0),
+                            Color.FromRgb(0xEE, 0xF6, 0xFF)), 0.0),
                     new GradientStop(dark
                         ? Color.FromRgb(0x0C, 0x1D, 0x2A)
                         : TokenColor(resources, "CrystalStageLightBrush",
-                            Color.FromRgb(0xED, 0xFA, 0xFF)), 0.45),
+                            Color.FromRgb(0xDB, 0xED, 0xFF)), 0.45),
                     new GradientStop(dark
                         ? Color.FromRgb(0x09, 0x16, 0x22)
                         : TokenColor(resources, "CrystalStageBaseBrush",
-                            Color.FromRgb(0xDF, 0xF5, 0xFF)), 1.0),
+                            Color.FromRgb(0xC6, 0xE4, 0xFF)), 1.0),
                 }
             };
             stage.Freeze();
@@ -147,13 +149,16 @@ namespace ProGlassAutomation.Services.Theme
             // white; the environment must stay perceptible, so module
             // surfaces are a whisper while elevated sheets (dialogs,
             // dropdown popups) sit one shelf higher for readability.
+            // 2026-09-06 richness pass: alphas lifted and the FrostBrush
+            // accent kiss deepened (Part2) so cards read as BLUE glass,
+            // not pale white — the "glass ERP" identity.
             resources["ModuleBackgroundBrush"] =
-                FrostFill(accent, dark ? 0.16 : 0.24, dark ? 0.08 : 0.10);
+                FrostFill(accent, dark ? 0.20 : 0.36, dark ? 0.12 : 0.18);
 
             resources["SideMenuBackgroundBrush"] =
-                FrostFill(accent, dark ? 0.22 : 0.46, dark ? 0.12 : 0.24);
+                FrostFill(accent, dark ? 0.28 : 0.58, dark ? 0.16 : 0.32);
             resources["ElevatedSurfaceBrush"] =
-                FrostFill(accent, dark ? 0.28 : 0.52, dark ? 0.16 : 0.32);
+                FrostFill(accent, dark ? 0.34 : 0.64, dark ? 0.20 : 0.42);
 
             // Sections adopt the crystal material — shared glass set
             // mirrors the bright white edge.

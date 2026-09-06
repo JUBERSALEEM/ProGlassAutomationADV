@@ -11,7 +11,7 @@
 ---
 
 ## 1. Frozen spec (verbatim from the implementation prompt)
-**Palette (§8):** ink `#102938` · muted `#68808F` · accent `#55C9EE` · environment `#EDFAFF / #DFF5FF / #F8FDFF` · water = soft cyan/transparent aqua · positive = soft green.
+**Palette (§8):** ink `#102938` · muted `#68808F` · accent `#55C9EE` · environment `#EEF6FF / #DBEDFF / #C6E4FF` (2026-09-06 richness pass — deeper blue than the original `#EDFAFF / #DFF5FF / #F8FDFF`) · water = rich translucent blue (surface `#8C7CC4F8`, body `#7A3B82F6`) · positive = soft green.
 **Glass (§10):** 135° white gradient `rgba(255,255,255,.43)` → `rgba(255,255,255,.14)`; never opaque; background stays perceptible.
 **Border (§11):** ~1 px, bright translucent white, inner highlight; no solid/neon/blue outline.
 **Shadow (§12):** large blur, low opacity, cyan/blue-gray ink; never black/hard.

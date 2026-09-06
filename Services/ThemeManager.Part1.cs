@@ -443,11 +443,15 @@ namespace ProGlassAutomation.Services
             // accent so About follows custom accents, theme-family swaps
             // and live Settings changes instead of staying fixed to one accent.
             //
-            // SKIP when Crystal Fluid is active — the family uses the
-            // theme XAML values directly (already transparent crystal glass).
-            // Overriding them here would repaint every About surface opaque.
-            if (VisualThemeEngine.Current != VisualThemeEngine.CrystalFluid)
-                PublishAboutPalette(resources, core, surface, dark, h, s, l);
+            // 2026-09-06 (About adaptation fix): this previously SKIPPED
+            // the crystal family, leaving the About cards pinned to the
+            // base theme-file values while every other surface adopted the
+            // crystal material — the About module looked like a foreign
+            // screen under Ios-17pm. PublishAboutPalette already paints
+            // ultra-low-alpha crystal glass (0x0D–0x22 fills), so running
+            // it under Crystal Fluid makes About wear the same
+            // accent-tinted transparent glass as the rest of the app.
+            PublishAboutPalette(resources, core, surface, dark, h, s, l);
 
             // ── Dashboard ambience — derived, never hard-coded ──────
             // The dashboards consume these via DynamicResource, so the

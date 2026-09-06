@@ -44,13 +44,15 @@
     <Color x:Key="CrystalHighlightMidColor">#7AFFFFFF</Color>
     <Color x:Key="CrystalHighlightLowColor">#29FFFFFF</Color>
 
-    <!-- WATER -->
-    <Color x:Key="CrystalWaterSurfaceColor">#268AEAF8</Color>
-    <Color x:Key="CrystalWaterBodyColor">#2E4FC5EB</Color>
-    <Color x:Key="CrystalWaterDeepColor">#333FB8E0</Color>
-    <Color x:Key="CrystalWaterHighlightColor">#B8FFFFFF</Color>
-    <Color x:Key="CrystalWaterCausticColor">#17FFFFFF</Color>
-    <Color x:Key="CrystalWaterCyanTintColor">#2A63C8EE</Color>
+    <!-- WATER (2026-09-06 richness pass — rich, clearly visible blue
+         liquid instead of the ultra-transparent aqua: a "glass ERP"
+         must show its water, not hide it) -->
+    <Color x:Key="CrystalWaterSurfaceColor">#8C7CC4F8</Color>
+    <Color x:Key="CrystalWaterBodyColor">#7A3B82F6</Color>
+    <Color x:Key="CrystalWaterDeepColor">#8C245BD0</Color>
+    <Color x:Key="CrystalWaterHighlightColor">#E6FFFFFF</Color>
+    <Color x:Key="CrystalWaterCausticColor">#1FFFFFFF</Color>
+    <Color x:Key="CrystalWaterCyanTintColor">#6654A5F0</Color>
 
     <!-- BUBBLE -->
     <Color x:Key="CrystalBubbleFillColor">#47FFFFFF</Color>

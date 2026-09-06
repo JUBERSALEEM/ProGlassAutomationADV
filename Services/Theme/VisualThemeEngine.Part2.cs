@@ -94,13 +94,15 @@ namespace ProGlassAutomation.Services.Theme
             Color accent, Color baseColor, bool dark,
             double topAlpha, double bottomAlpha)
         {
-            // Light: an ACCENT KISS over warm white (0.16) — the white
+            // Light: an ACCENT KISS over warm white (0.30) — the white
             // water-glass material keeps its identity but visibly
             // belongs to the chosen colour, so the frost reads
-            // saturated instead of flat white. Dark: 0.32 keeps the
-            // deep-frost hue rich against the navy stage.
+            // saturated BLUE instead of flat white (2026-09-06 richness
+            // pass: 0.16 → 0.30 — cards must read as glass, not paper).
+            // Dark: 0.38 keeps the deep-frost hue rich against the
+            // navy stage.
             Color tinted = ColorMath.Tint(accent, baseColor,
-                dark ? 0.32 : 0.16);
+                dark ? 0.38 : 0.30);
 
             byte topA = (byte)Math.Round(topAlpha * 255);
             byte bottomA = (byte)Math.Round(bottomAlpha * 255);

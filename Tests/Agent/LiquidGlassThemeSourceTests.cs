@@ -598,23 +598,23 @@ namespace ProGlassAutomation.Tests.Agent
         public void Frosted_glass_is_more_saturated_after_the_richness_pass()
         {
             // The surviving frost carries a visible accent kiss (light
-            // 0.16, dark 0.32) instead of a whisper — the whole frosted
-            // system reads saturated, not flat white.
+            // 0.30, dark 0.38) instead of a whisper — the whole frosted
+            // system reads saturated BLUE glass, not flat white.
             string engine = Engine;
-            Assert.Contains("dark ? 0.32 : 0.16", engine, StringComparison.Ordinal);
+            Assert.Contains("dark ? 0.38 : 0.30", engine, StringComparison.Ordinal);
         }
 
         [Fact]
         public void Crystal_fluid_keeps_card_text_readable()
         {
             // Crystal Fluid (Ios-17pm, replaces Ultra Transparent): the
-            // pale environment shows behind everything, but card text must
-            // never wash out: spec glass frost (.30/.12 whisper on module
-            // surfaces) plus the bright white crystal edge.
+            // blue environment shows behind everything, but card text must
+            // never wash out: glass frost (.36/.18 on module surfaces)
+            // plus the bright white crystal edge.
             string engine = Engine;
             Assert.Contains("Color.FromArgb(0x8F, 0xFF, 0xFF, 0xFF)", engine, StringComparison.Ordinal);
             Assert.Contains("CARD FROST", engine, StringComparison.Ordinal);
-            Assert.Contains("FrostFill(accent, dark ? 0.16 : 0.24, dark ? 0.08 : 0.10)", engine, StringComparison.Ordinal);
+            Assert.Contains("FrostFill(accent, dark ? 0.20 : 0.36, dark ? 0.12 : 0.18)", engine, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -836,15 +836,15 @@ namespace ProGlassAutomation.Tests.Agent
         public void Crystal_fluid_covers_rail_dialogs_and_sections()
         {
             // Crystal Fluid (Ios-17pm): the settings rail is a FLOATING
-            // crystal panel (.46/.24 white frost) and dialogs/dropdown
-            // popups sit one shelf stronger (.52/.32), so they stay
-            // readable over the pale environment.
+            // crystal panel (.58/.32 blue-white frost) and dialogs/dropdown
+            // popups sit one shelf stronger (.64/.42), so they stay
+            // readable over the blue environment.
             string engine = Engine;
             Assert.Contains(
-                "FrostFill(accent, dark ? 0.22 : 0.46, dark ? 0.12 : 0.24)",
+                "FrostFill(accent, dark ? 0.28 : 0.58, dark ? 0.16 : 0.32)",
                 engine, StringComparison.Ordinal);
             Assert.Contains(
-                "FrostFill(accent, dark ? 0.28 : 0.52, dark ? 0.16 : 0.32)",
+                "FrostFill(accent, dark ? 0.34 : 0.64, dark ? 0.20 : 0.42)",
                 engine, StringComparison.Ordinal);
         }
 

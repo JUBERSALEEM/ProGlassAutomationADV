@@ -146,7 +146,7 @@
                          RadiusY="0.35">
         <GradientStop Color="{StaticResource CrystalWaterCyanTintColor}"
                       Offset="0" />
-        <GradientStop Color="#003FB8E0" Offset="1" />
+        <GradientStop Color="#00245BD0" Offset="1" />
     </RadialGradientBrush>
 
     <LinearGradientBrush x:Key="CrystalWaterSurfaceLineBrush"
@@ -321,13 +321,15 @@
          Tests/Agent/CrystalFluidShellAdoptionTests.
          ═════════════════════════════════════════════════════════════════ -->
     <!-- ENGINE STAGE — the calm backdrop beneath everything
-         (white highlight upper-left → pale cyan lower-right) -->
+         (blue-white highlight upper-left → soft blue lower-right;
+         2026-09-06 richness pass — deeper blue than the pale
+         #F8FDFF/#EDFAFF/#DFF5FF, for the "glass ERP" read) -->
     <SolidColorBrush x:Key="CrystalStageTopBrush"
-                     Color="#F8FDFF" />
+                     Color="#EEF6FF" />
     <SolidColorBrush x:Key="CrystalStageLightBrush"
-                     Color="#EDFAFF" />
+                     Color="#DBEDFF" />
     <SolidColorBrush x:Key="CrystalStageBaseBrush"
-                     Color="#DFF5FF" />
+                     Color="#C6E4FF" />
 
     <!-- WALLPAPER SCENE — the 5-stop light choreography painted on top
          when the crystal scene is active (white light → soft cyan
