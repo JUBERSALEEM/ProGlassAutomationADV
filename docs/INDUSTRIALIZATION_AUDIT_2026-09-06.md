@@ -27,7 +27,7 @@
 - **Backup:** `BackupService` v2 — full dataset sets incl. whitelisted attachment trees (`Inquiries/`, `ProformaInvoices/`, `DeliveryNotes/`), pre-restore safety snapshot, retention, restore drill.
 - **Updates:** `VelopackUpdateService` → `GithubSource(JUBERSALEEM/ProGlassAutomationADV)` channel `stable`; `UpdateService` (classic GitHub-Release check) as the dev/portable path; Authenticode verification via `UpdateSignatureVerifier`.
 - **Licensing:** `ProGlass.Licensing` contract lib (RSA-2048-PSS, offline activation, trial ledger, machine fingerprint, feature gate). Vendor generator signs; the app verifies. Public/private key halves are pinned equal by a source test.
-- **Theming:** `Themes/Styles/` (Light/Dark design tokens + shared styles) + `Themes/CrystalFluid/` (the shipped Crystal family) + a **Theme Studio** subsystem (`Services/Theme/ThemeStudioService`, `VisualThemeEngine` (4 parts), `ThemePipeline`, `WallpaperOrchestrator`, `SystemBackdropService`, `CrystalFluidSettings`) with an Appearance settings surface.
+- **Theming:** `Themes/Styles/` (Light/Dark design tokens + shared styles) + `Themes/CrystalFluid/` (the shipped Crystal family) driven by `VisualThemeEngine` (4 parts), `ThemePipeline`, `WallpaperOrchestrator` (Wallpaper Studio), `SystemBackdropService` (Mica/Acrylic), and `CrystalFluidSettings` (single source of truth for the crystal tokens). The experimental **Theme Studio** (0–100 slider playground) and its Quick-Looks companion were **removed** (2026-09-06); the reduced-motion accessibility switch it hosted was preserved as a standalone Appearance tile.
 
 ---
 
@@ -44,7 +44,7 @@ Ranked; corroborated against the repo's own `CURRENT_PRODUCT_AUDIT_2026-09-05.md
 | 5 | P1 | **CI not active.** Build/test/release workflows live under `docs/ci/` because the sandbox GitHub App lacks `workflows` permission; activation is a manual admin copy. *(Addressed in this engagement — see C.1.)* | `docs/ci/*.yml` |
 | 6 | P1 | **Optimization module is a "coming soon" stub.** It is license-gated in nav but does nothing. | Stub views |
 | 7 | P1 | **Runtime unverified.** No Windows build/run/DPI/license/update matrix has been executed in this environment. | 🔵 MANUAL |
-| 8 | P2 | **Theme Studio / experimental theme surface** — an in-app theme playground (axis studio, wallpaper orchestration, backdrop effects) that exceeds industrial-ERP needs. | `Services/Theme/*`, `SettingsViewModel.ThemeStudio.cs`, `SettingsAppearanceSection.xaml` |
+| 8 | ~~P2~~ | **Theme Studio / experimental theme surface** — an in-app theme playground (axis studio, wallpaper orchestration, backdrop effects) that exceeds industrial-ERP needs. **Resolved 2026-09-06:** the Theme Studio slider system and its Quick-Looks companion were removed; wallpaper orchestration/backdrop/crystal token system retained as the shipped design system. | `Services/Theme/*`, `SettingsViewModel.ThemeStudio.cs`, `SettingsAppearanceSection.xaml` |
 
 ---
 
@@ -63,6 +63,15 @@ Ranked; corroborated against the repo's own `CURRENT_PRODUCT_AUDIT_2026-09-05.md
 ### C.3 Verified already-fixed (no change needed)
 - **Backup attachment gap (was P0)** — confirmed `BackupService` v2 already copies `Inquiries/`, `ProformaInvoices/`, `DeliveryNotes/` trees recursively on backup *and* restore, with a whitelist that exactly matches the real attachment storage paths (verified against all three attachment services).
 
+### C.4 Theme Studio / Quick Looks removal (this turn)
+- **Removed** the Theme Studio subsystem: `Services/Theme/ThemeStudioService.cs`, `Services/Theme/ThemeStudioSettings.cs`, `ViewModels/Settings/SettingsViewModel.ThemeStudio.cs` (659 LOC), `Views/Settings/Controls/StudioSliderControl.xaml(.cs)`, and the studio-only tests (`ThemeStudioSourceTests`, `StudioAxisManifestTests`). −~2,300 source/test lines.
+- **Unwired every hook at the root**, not by stubbing: startup restore (`App.StartupCore.cs`), accent-change re-tint (`AppearanceService.ApplyAccent`), family/density/perf re-apply (`ThemeManager.Part2`, `PerformanceProfileService`, `VisualThemeEngine.Part1`), backdrop snapshot (`SystemBackdropService`), pipeline log field (`ThemePipeline`), and the persisted `AppearanceSettings.Studio` field.
+- **Removed the studio-coupled Quick Looks** one-click row (its only purpose was to apply a studio profile) along with `AppearanceSettings.QuickLook`; no orphaned command/getter remained (grep-verified).
+- **Preserved the §43 reduced-motion accessibility toggle** (it lived inside the studio tile): moved to a standalone Appearance tile bound to a new `SettingsViewModel.ReducedMotion` property (persist + live `CrystalReducedMotion` resource + audit log), and `CrystalFluidSettings.AnimationIntensity` now derives from the persisted flag (1.0 baseline, 0.5 when reduced motion is on).
+- **Kept** the professional design system: Light/Dark token switch, the nine shipped visual families, the Crystal Fluid token surface (`CrystalFluidSettings` baselines), Wallpaper Studio (`WallpaperOrchestrator`, `BuiltinWallpaperScenes`), and Mica/Acrylic backdrop (`SystemBackdropService`) — these are the ERP's design system, not the playground.
+- **Localization:** removed 344 orphaned studio/quick-look strings across all 15 language files; renamed `Settings.StudioReducedMotion*` → `Settings.ReducedMotion*` (en-US + ar-AE).
+- **Tests:** trimmed studio-only assertions (`ThemeRegistryParityTests` F-03 preset pins + `DefaultsFor` range test; `CrystalFluidSettingsBridgeTests` studio master-mapping + default-profile tests; `CrystalFluidPreviewAdoptionTests` now pins the fixed preview `WaterLevel="0.4"`); added `ReducedMotion` to the `SettingsRedesignTests` binding pin.
+
 ---
 
 ## D. Architecture improvements
@@ -79,8 +88,9 @@ Ranked; corroborated against the repo's own `CURRENT_PRODUCT_AUDIT_2026-09-05.md
 | `Themes/CrystalFluid/incoming/` (20 scratch files) | **Removed** — dead staging artifacts |
 | `AttachmentService.OpenInDefaultApp` / `OpenInDefaultAppWithResult` (obsolete sync API) | **Removed** — dead; async form is the only caller path |
 | `.github/workflows/dotnet.yml` (Ubuntu .NET workflow) | **Removed** — un-buildable for a WPF app; superseded by `dotnet-desktop.yml` `build-test` |
+| Theme Studio (slider playground) + Quick Looks | **Removed** — `ThemeStudioService`, `ThemeStudioSettings`, `SettingsViewModel.ThemeStudio`, `StudioSliderControl`, studio tests; §43 reduced-motion toggle preserved as a standalone tile |
 
-**Deferred with a plan (not executed — see K):** the full Theme Studio subsystem and the decorative-animation behaviors, because they are deeply integrated with the shipped Light/Dark + Crystal design system and `App.xaml` startup, and removing them safely requires a Windows build to verify.
+**Still deferred (needs a UX decision + Windows build — see K):** the decorative-animation behaviors (`BounceHoverBehavior`, `ContentTransitionBehavior`, `SmoothScrollBehavior`, `GridLengthAnimation`) are referenced by active views, so removing them is a UX change, not dead-code cleanup.
 
 ---
 
@@ -143,29 +153,32 @@ The changes in this engagement were verified by **static reference analysis** (e
 7. Verify Production-stage roll-up to Job Order (8 stage views exist; status roll-up unverified 🔵).
 
 **P2 (selected)**
-8. **Theme Studio / experimental-theme removal** — detailed plan below.
+8. ~~Theme Studio / experimental-theme removal~~ **Done 2026-09-06** (see C.4/E). Remaining sibling decision: the decorative-animation behaviors (see K.15).
 9. Statement aging by amounts (post-payments).
 10. Backup scheduling (auto-daily + prune).
 11. Doc pruning: ~130 root+docs markdown files → a single `/docs/INDEX.md` entry point.
 12. Accessibility/keyboard map over the PI wizard.
+13. **Localization gap:** the 20 strings introduced by Wallpaper Studio + ProformaInvoice colour detection are English-only (missing in `ar-AE.xaml`; parity scan lists them). Back-fill translations or accept en fallback.
+14. **Reduced-motion string coverage:** `Settings.ReducedMotion*` exists only in en-US/ar-AE; the other 13 languages fall back to English for the new tile (consistent with their pre-existing studio coverage).
 
 **P3**
-13. `ConvertBack` in 3 converters throws `NotImplementedException` (idiomatic; bindings are OneWay — safe, but return `Binding.DoNothing` for defense if touched).
-14. `KeyProtection.LoadRateLimitEntries` uses a bare `catch { }` (benign: rate-limit ledger degrades to empty on parse failure).
-15. Velopack `*.pdb` include-glob vs zipExclude inconsistency — pick one policy.
+15. Decorative-animation behaviors (`BounceHoverBehavior`, `ContentTransitionBehavior`, `SmoothScrollBehavior`, `GridLengthAnimation`) are still referenced by active views — removal is a UX change needing sign-off + a Windows visual pass.
+16. `ConvertBack` in 3 converters throws `NotImplementedException` (idiomatic; bindings are OneWay — safe, but return `Binding.DoNothing` for defense if touched).
+17. `KeyProtection.LoadRateLimitEntries` uses a bare `catch { }` (benign: rate-limit ledger degrades to empty on parse failure).
+18. Velopack `*.pdb` include-glob vs zipExclude inconsistency — pick one policy.
 
 ---
 
-## Theme Studio removal plan (for execution on a Windows build box)
+## Theme Studio removal — executed (2026-09-06)
 
-The in-app Theme Studio is the one genuine "theme playground" (§5 target). It is **deeply integrated** with the shipped Light/Dark + Crystal design system, so it must be removed as a controlled refactor with a build after each step, not as a blind delete.
+The in-app Theme Studio was the one genuine "theme playground" (§5 target). It was removed as a controlled refactor (commit `24a6282`), with the plan's over-broad engine step deliberately narrowed:
 
-1. **UI:** remove the Theme Studio surface from `Views/Settings/Sections/SettingsAppearanceSection.xaml` and `ViewModels/Settings/SettingsViewModel.ThemeStudio.cs`.
-2. **Engine:** remove `Services/Theme/ThemeStudioService.cs`, `ThemeStudioSettings.cs`, `ThemePipeline.cs`, `WallpaperOrchestrator.cs`, `WallpaperProviderService.cs`, `BuiltinWallpaperScenes.cs`, `SystemBackdropService.cs`, `CrystalFluidSettings.cs`, `WallpaperModules.cs`, and the `VisualThemeEngine` parts that exist solely to drive the studio (keep the Light/Dark token switch).
-3. **Startup/DI:** unwire from `App.xaml`, `App.StartupCore.cs`, `AppearanceService.cs`, `AppConfig.cs`, `PerformanceProfileService.cs`, `ThemeManager`.
-4. **Tests:** remove `Tests/Agent/ThemeStudioSourceTests.cs`, `CrystalFluidSettingsBridgeTests.cs`, `Tests/Theme/StudioAxisManifestTests.cs`, `LiquidGlassThemeSourceTests.cs`, `ThemeRegistryParityTests.cs` (or re-target the parity tests at the retained token set).
-5. **Decorative animations** (only after a UX decision): `Behaviors/BounceHoverBehavior` (hover bounce), `Behaviors/ContentTransitionBehavior`, `SmoothScrollBehavior`, `Animations/GridLengthAnimation` — all currently referenced by active views; removing them is a UX change, not dead-code cleanup.
-6. **Keep:** `Themes/LightTheme.xaml`, `DarkTheme.xaml`, `Themes/Styles/*` (design tokens, cards, tables, dialogs, inputs, typography, list-page styles) — this is the professional ERP design system.
+- **Removed** (the playground): `ThemeStudioService`, `ThemeStudioSettings`, `SettingsViewModel.ThemeStudio`, `StudioSliderControl`, the studio tile + Quick-Looks tile in `SettingsAppearanceSection.xaml`, `AppearanceSettings.Studio`/`QuickLook`, and the studio-only tests.
+- **Kept** (the ERP design system — correcting the plan's step 2, which would have deleted the shipped Wallpaper Studio and Crystal family): `ThemePipeline`, `WallpaperOrchestrator`, `WallpaperProviderService`, `BuiltinWallpaperScenes`, `SystemBackdropService`, `CrystalFluidSettings`, `WallpaperModules`, and `VisualThemeEngine` — these drive the nine shipped visual families, the wallpaper scenes, and the Mica/Acrylic backdrop. Only the studio-specific hooks inside them were stripped.
+- **Kept** (not studio): `LiquidGlassThemeSourceTests.cs` and the bulk of `CrystalFluidSettingsBridgeTests.cs` / `ThemeRegistryParityTests.cs`, which pin the retained design system.
+- **Preserved** the §43 reduced-motion accessibility toggle as a standalone Appearance tile (new `SettingsViewModel.ReducedMotion`).
+
+**Not executed (still open):** the decorative-animation behaviors (plan step 5) — they are referenced by active views and their removal is a UX decision (see K.15).
 
 ---
 
@@ -173,7 +186,7 @@ The in-app Theme Studio is the one genuine "theme playground" (§5 target). It i
 
 The repository is structurally a **late-stage, well-audited ERP** — the business chain, data integrity, licensing, and money math are sound and, in most places, already hardened by prior passes. This engagement:
 - **fixed** the CI/OTA release wiring and removed a broken workflow and stale template commands,
-- **removed** confirmed dead theme scratch files and the last sync-over-async attachment API,
+- **removed** confirmed dead theme scratch files, the last sync-over-async attachment API, and the experimental Theme Studio / Quick Looks playground (while preserving the professional design system and the reduced-motion accessibility toggle),
 - **verified** (rather than re-broke) the backup P0, decimal money, margin math, and DB-derived numbering,
 - and **produced this honest ledger** of what remains.
 
