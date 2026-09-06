@@ -172,6 +172,58 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// Global UI font style: "Normal" | "Italic".
         /// </summary>
         public string FontStyleName { get; set; } = "Normal";
+
+        /// <summary>
+        /// Theme customization (Settings → Themes, 2026-09-06).
+        /// Family-aware: only the Crystal Fluid (Ios-17pm) material axes
+        /// are persisted here (they map 1:1 onto the Crystal*
+        /// DynamicResource tokens the engine paints). Normal/Monet keep
+        /// their existing Appearance controls (CardCornerRadius,
+        /// CardBorderThickness, UseGradientSurfaces) — no parallel state.
+        /// Defaults equal CrystalFluidSettings.Baseline* so a fresh
+        /// install renders exactly like the uncustomized design, and the
+        /// property is additive (missing in old saves → defaults).
+        /// </summary>
+        public ThemeCustomizationSettings ThemeCustomization { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Persisted Crystal Fluid (Ios-17pm) material customization. The six
+    /// live axes are the authored set with real DynamicResource consumers
+    /// (glass/glass-border/shadow opacity stay parked until a live key
+    /// exists — see CrystalFluidSettings). The baseline consts remain the
+    /// single number home for the defaults.
+    /// </summary>
+    public class ThemeCustomizationSettings
+    {
+        /// <summary>Water surface opacity (clamped 0.35–1.25).</summary>
+        public double WaterOpacity { get; set; } =
+            CrystalFluidSettings.BaselineWaterOpacity;
+
+        /// <summary>Water flow speed (clamped 0.60–1.50).</summary>
+        public double WaterSpeed { get; set; } =
+            CrystalFluidSettings.BaselineWaterSpeed;
+
+        /// <summary>Wave amplitude in DIPs (clamped 1.5–4.5).</summary>
+        public double WaveAmplitude { get; set; } =
+            CrystalFluidSettings.BaselineWaveAmplitude;
+
+        /// <summary>Caustic light-pool intensity (clamped 0.25–1.00).</summary>
+        public double CausticIntensity { get; set; } =
+            CrystalFluidSettings.BaselineCausticIntensity;
+
+        /// <summary>Bubble intensity (clamped 0.25–1.00).</summary>
+        public double BubbleIntensity { get; set; } =
+            CrystalFluidSettings.BaselineBubbleIntensity;
+
+        /// <summary>§13 specular reflection opacity (clamped 0.15–1.00).</summary>
+        public double ReflectionOpacity { get; set; } =
+            CrystalFluidSettings.BaselineReflectionOpacity;
+
+        /// <summary>Last preset that wrote these values —
+        /// "Default" | "Calm" | "Intense", or "" after a manual tweak.
+        /// Identity only (view/audit); the axes above are the truth.</summary>
+        public string CrystalPreset { get; set; } = "Default";
     }
 
     /// <summary>

@@ -118,10 +118,15 @@ namespace ProGlassAutomation.Tests.Agent
                 fac, StringComparison.Ordinal);
         }
 
-        // ── 4. SINGLE NUMBER HOME: engine baselines consume the consts ──
+        // ── 4. SINGLE NUMBER HOME: customization defaults consume the consts ──
         [Fact]
         public void Engine_baseline_block_consumes_the_baseline_consts()
         {
+            // 2026-09-06 theme customization: the Crystal axis defaults
+            // moved to ThemeCustomization (the engine delegates via
+            // ThemeCustomization.Apply). The Baseline* consts stay the
+            // single number home — now consumed by ThemeCustomization.
+            string customization = Read("Services/Theme/ThemeCustomization.cs");
             string engine = Read("Services/Theme/VisualThemeEngine.Part3.cs");
 
             foreach (var c in new[]
@@ -133,7 +138,12 @@ namespace ProGlassAutomation.Tests.Agent
                 "CrystalFluidSettings.BaselineReflectionOpacity",
                 "CrystalFluidSettings.BaselineWaveAmplitude",
             })
-                Assert.Contains(c, engine, StringComparison.Ordinal);
+            {
+                Assert.Contains(c, customization, StringComparison.Ordinal);
+            }
+
+            Assert.Contains("ThemeCustomization.Apply(resources)",
+                engine, StringComparison.Ordinal);
         }
 
         // ── 6. BUBBLE AXIS IS ABSOLUTE (0.70 authored intensity) ────────

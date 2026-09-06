@@ -217,23 +217,14 @@ namespace ProGlassAutomation.Services.Theme
             resources["CrystalPreviewHostVisibility"] = Visibility.Visible;
 
             // Token baselines (root-level): a family repaint ALWAYS
-            // restores the authored truth for every water token, so the
-            // crystal surfaces land on the family defaults cleanly.
-            // Ios-17pm P3: baselines are the AUTHORED values, homed in
-            // CrystalFluidSettings.Baseline* (single number home; XAML
-            // token defaults are pinned equal by the bridge tests).
-            resources["CrystalWaterOpacity"] =
-                CrystalFluidSettings.BaselineWaterOpacity;          // 1.0
-            resources["CrystalWaterSpeed"] =
-                CrystalFluidSettings.BaselineWaterSpeed;            // 1.0
-            resources["CrystalCausticOpacity"] =
-                CrystalFluidSettings.BaselineCausticIntensity;      // 0.70
-            resources["CrystalBubbleOpacity"] =
-                CrystalFluidSettings.BaselineBubbleIntensity;       // 0.70
-            resources["CrystalReflectionOpacity"] =
-                CrystalFluidSettings.BaselineReflectionOpacity;     // 0.80
-            resources["CrystalWaveAmplitude"] =
-                CrystalFluidSettings.BaselineWaveAmplitude;         // 3.0
+            // restores the crystal water tokens. 2026-09-06 theme
+            // customization (Settings → Themes) replaces the Theme
+            // Studio: the six live material axes now come from the
+            // persisted, CLAMPED ThemeCustomization block (defaults =
+            // the authored CrystalFluidSettings.Baseline* numbers, so an
+            // uncustomized install paints byte-identical to before).
+            // Reduced motion stays its own config-backed §43 flag.
+            ThemeCustomization.Apply(resources);
             resources["CrystalReducedMotion"] =
                 App.Config?.Appearance?.ReducedMotion == true;
 
