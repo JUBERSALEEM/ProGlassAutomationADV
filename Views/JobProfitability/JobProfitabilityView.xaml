@@ -633,29 +633,29 @@
                                                           ItemsSource="{Binding Rows}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                                                BorderThickness="0,0,0,1"
-                                                                Padding="12,5"
-                                                                Cursor="Hand">
-                                                            <Border.Style>
-                                                                <Style TargetType="Border">
-                                                                    <Setter Property="Background" Value="Transparent"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding IsSelectedRow}" Value="True">
-                                                                            <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Border.Style>
-                                                            <Border.InputBindings>
+                                                        <ContentControl Cursor="Hand">
+                                                            <ContentControl.InputBindings>
                                                                 <MouseBinding MouseAction="LeftClick"
                                                                               Command="{Binding DataContext.SelectRowCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                               CommandParameter="{Binding}"/>
                                                                 <MouseBinding MouseAction="LeftDoubleClick"
                                                                               Command="{Binding DataContext.OpenFullDetailCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                               CommandParameter="{Binding}"/>
-                                                            </Border.InputBindings>
-                                                            <Grid>
+                                                            </ContentControl.InputBindings>
+                                                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                                                    BorderThickness="0,0,0,1"
+                                                                    Padding="12,5">
+                                                                <Border.Style>
+                                                                    <Style TargetType="Border">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsSelectedRow}" Value="True">
+                                                                                <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Border.Style>
+                                                                <Grid>
                                                                 <Grid.ColumnDefinitions>
 <ColumnDefinition Width="100"/>
                                                 <ColumnDefinition Width="*" MinWidth="150"/>
@@ -767,6 +767,7 @@
                                                                 </Border>
                                                             </Grid>
                                                         </Border>
+                                                        </ContentControl>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>

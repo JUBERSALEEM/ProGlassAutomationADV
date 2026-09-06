@@ -83,6 +83,65 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("DataContext=\"{Binding JobDetail}\"", src);
         }
 
+        [Fact]
+        public void Double_click_gesture_is_hosted_on_a_control_not_a_border()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/JobProfitability/JobProfitabilityView.xaml"));
+
+            // Border is not a Control and has no MouseDoubleClick class
+            // handler; the proven pattern in every other GodView here is to
+            // attach the double-click gesture to a Control. The row template
+            // wraps its Border in a ContentControl and puts the InputBindings
+            // there.
+            Assert.Contains("<ContentControl.InputBindings>", src);
+            Assert.Contains("MouseAction=\"LeftDoubleClick\"", src);
+        }
+
+        [Fact]
+        public void Missing_target_note_binds_the_bool_flag_not_the_visibility_enum()
+        {
+            var root = LocateProjectRoot();
+
+            foreach (var rel in new[]
+            {
+                "Views/JobProfitability/JobDetailPanel.xaml",
+                "Views/JobProfitability/JobFullDetailView.xaml"
+            })
+            {
+                var src = File.ReadAllText(Path.Combine(root, rel));
+
+                // The "target data missing" note must invert a real bool.
+                Assert.Contains(
+                    "HasTargetData, Converter={StaticResource InverseBoolToVisibilityConverter}",
+                    src);
+
+                // Feeding the Visibility enum (TargetPanelVisibility) through
+                // the inverse BOOL converter always fell through to Visible,
+                // so the note was shown even when target data existed.
+                Assert.DoesNotContain(
+                    "TargetPanelVisibility, Converter={StaticResource InverseBoolToVisibilityConverter}",
+                    src);
+            }
+        }
+
+        [Fact]
+        public void Detail_load_guard_prevents_duplicate_reads_for_the_same_invoice()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "ViewModels/JobProfitability/JobDetailViewModel.cs"));
+
+            // A double-click fires two single-click toggles plus the
+            // full-detail command; without a guard that starts three identical
+            // DB reads for the same invoice.
+            Assert.Contains("_loadingProformaId", src);
+            Assert.Contains(
+                "string.Equals(_loadingProformaId, proformaId, StringComparison.Ordinal)",
+                src);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

@@ -50,6 +50,31 @@ figures.
    displays, `TargetStatusLabel` state, etc.). It adds a layout, not new
    calculations.
 
+## Post-implementation hardening (2026-09-06)
+
+Three issues found during follow-up review were fixed:
+
+1. **Missing-target note bound the wrong type.** The "target data missing"
+   note TextBlocks (sidebar + full page) fed `TargetPanelVisibility` — a
+   `System.Windows.Visibility` — through `InverseBoolToVisibilityConverter`,
+   which only inverts actual `bool`s and otherwise falls through to
+   `Visible`. The note therefore showed even when target data existed.
+   Both now bind `HasTargetData` (a real bool) instead.
+
+2. **Double-click could start several identical DB reads.** WPF delivers a
+   double-click as click → click → double-click, and `JobDetail.LoadJobDetail`
+   is `async void`, so one gesture could start up to three concurrent
+   `GetByProformaIdAsync` calls for the same invoice. `LoadJobDetail` now
+   skips a re-entrant call while the same `ProformaId` is already loading.
+
+3. **Double-click gesture moved off the `Border`.** `Border` is not a
+   `Control` and has no `MouseDoubleClick` class handler; every other
+   double-click surface in the app attaches the gesture to a `Control`
+   (e.g. the GodView `DataGrid`s). The row template now wraps its visual
+   `Border` in a `ContentControl` and carries the `LeftClick` /
+   `LeftDoubleClick` `MouseBinding`s there, keeping the row appearance
+   identical while matching the proven input pattern.
+
 ## Verification
 
 - Python DOM scan: both touched XAML files are well-formed with no

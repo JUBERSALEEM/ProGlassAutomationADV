@@ -507,7 +507,7 @@
 
                     <!-- Target note when data missing -->
                     <TextBlock Text="{Binding TargetStatusMessage}"
-                               Visibility="{Binding TargetPanelVisibility, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                               Visibility="{Binding HasTargetData, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                                FontSize="{StaticResource TextCaption}"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                TextWrapping="Wrap" Margin="0,4,0,0"/>

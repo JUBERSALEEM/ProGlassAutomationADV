@@ -32,6 +32,12 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
     {
         private readonly IProformaInvoiceRepository _invoices;
 
+        /// <summary>ProformaId of the load currently in flight. A double-click
+        /// first fires the single-click handler(s) and then the full-detail
+        /// command, so this guard keeps one gesture from starting several
+        /// identical DB reads for the same invoice.</summary>
+        private string? _loadingProformaId;
+
         public JobDetailViewModel(IProformaInvoiceRepository invoices)
         {
             _invoices = invoices;
@@ -211,6 +217,14 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 IsPanelVisible = false;
                 return;
             }
+
+            // Skip a duplicate read while this exact invoice is already
+            // loading — otherwise one double-click (two single-click toggles
+            // plus the full-detail command) starts several identical DB reads.
+            if (string.Equals(_loadingProformaId, proformaId, StringComparison.Ordinal))
+                return;
+
+            _loadingProformaId = proformaId;
 
             try
             {
@@ -424,6 +438,11 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 AppLogService.Debug($"[JobDetailVM] Load failed: {ex.Message}");
                 StatusMessage = "Could not load job detail.";
                 IsPanelVisible = false;
+            }
+            finally
+            {
+                if (string.Equals(_loadingProformaId, proformaId, StringComparison.Ordinal))
+                    _loadingProformaId = null;
             }
         }
 
