@@ -112,10 +112,10 @@
     <LinearGradientBrush x:Key="CrystalReflectionBrush"
                          StartPoint="0,0"
                          EndPoint="0.85,0.75">
-        <GradientStop Color="#7AFFFFFF" Offset="0" />
-        <GradientStop Color="#00FFFFFF" Offset="0.22" />
-        <GradientStop Color="#00FFFFFF" Offset="0.72" />
-        <GradientStop Color="#29FFFFFF" Offset="1" />
+        <GradientStop Color="#A6FFFFFF" Offset="0" />
+        <GradientStop Color="#00FFFFFF" Offset="0.24" />
+        <GradientStop Color="#00FFFFFF" Offset="0.70" />
+        <GradientStop Color="#3DFFFFFF" Offset="1" />
     </LinearGradientBrush>
 
 
@@ -131,11 +131,11 @@
     </LinearGradientBrush>
 
     <RadialGradientBrush x:Key="CrystalWaterHighlightBrush"
-                         Center="0.18,0.20"
-                         GradientOrigin="0.18,0.20"
-                         RadiusX="0.35"
-                         RadiusY="0.35">
-        <GradientStop Color="#8CFFFFFF" Offset="0" />
+                         Center="0.16,0.16"
+                         GradientOrigin="0.16,0.16"
+                         RadiusX="0.42"
+                         RadiusY="0.42">
+        <GradientStop Color="#BFFFFFFF" Offset="0" />
         <GradientStop Color="#00FFFFFF" Offset="1" />
     </RadialGradientBrush>
 
@@ -146,7 +146,7 @@
                          RadiusY="0.35">
         <GradientStop Color="{StaticResource CrystalWaterCyanTintColor}"
                       Offset="0" />
-        <GradientStop Color="#003FB9DE" Offset="1" />
+        <GradientStop Color="#003FB8E0" Offset="1" />
     </RadialGradientBrush>
 
     <LinearGradientBrush x:Key="CrystalWaterSurfaceLineBrush"

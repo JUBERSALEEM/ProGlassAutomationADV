@@ -54,7 +54,7 @@
      at startup — the original "few boxes dynamic, few not" bug.
 ═══════════════════════════════════════════════════════════════════════ -->
 
-<ResourceDictionary xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -93,7 +93,6 @@
     <!-- Primary card. DashLiquid* are defined in both themes
          (#FFFFFF light / #273449 dark) so one style serves both. -->
     <Style x:Key="DashCardStyle" TargetType="Border">
-        <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
         <Setter Property="Background"
                 Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"
@@ -112,7 +111,6 @@
 
     <!-- Inner tile: sits inside a card, one step more elevated. -->
     <Style x:Key="DashTileStyle" TargetType="Border">
-        <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
         <Setter Property="Background"
                 Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
@@ -591,7 +589,6 @@
 
     <!-- The reference's SectionBorderStyle. -->
     <Style x:Key="SoftCardStyle" TargetType="Border">
-        <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
@@ -642,7 +639,6 @@
          1.0, so on a 125%/150% display it would rasterise at 1x and upscale,
          softening the very numbers this dashboard exists to show. -->
     <Style x:Key="SoftTileStyle" TargetType="Border">
-        <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
@@ -666,7 +662,6 @@
 
     <!-- Recessed chart well — the reference's #F8FAFC radius-12 inset. -->
     <Style x:Key="SoftChartWellStyle" TargetType="Border">
-        <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>

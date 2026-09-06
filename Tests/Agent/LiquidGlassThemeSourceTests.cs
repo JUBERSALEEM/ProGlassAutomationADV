@@ -614,7 +614,7 @@ namespace ProGlassAutomation.Tests.Agent
             string engine = Engine;
             Assert.Contains("Color.FromArgb(0x8F, 0xFF, 0xFF, 0xFF)", engine, StringComparison.Ordinal);
             Assert.Contains("CARD FROST", engine, StringComparison.Ordinal);
-            Assert.Contains("FrostFill(accent, dark ? 0.16 : 0.30, dark ? 0.08 : 0.12)", engine, StringComparison.Ordinal);
+            Assert.Contains("FrostFill(accent, dark ? 0.16 : 0.24, dark ? 0.08 : 0.10)", engine, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -836,15 +836,15 @@ namespace ProGlassAutomation.Tests.Agent
         public void Crystal_fluid_covers_rail_dialogs_and_sections()
         {
             // Crystal Fluid (Ios-17pm): the settings rail is a FLOATING
-            // crystal panel (.55/.30 white frost) and dialogs/dropdown
-            // popups sit one shelf stronger (.62/.40), so they stay
+            // crystal panel (.46/.24 white frost) and dialogs/dropdown
+            // popups sit one shelf stronger (.52/.32), so they stay
             // readable over the pale environment.
             string engine = Engine;
             Assert.Contains(
-                "FrostFill(accent, dark ? 0.22 : 0.55, dark ? 0.12 : 0.30)",
+                "FrostFill(accent, dark ? 0.22 : 0.46, dark ? 0.12 : 0.24)",
                 engine, StringComparison.Ordinal);
             Assert.Contains(
-                "FrostFill(accent, dark ? 0.28 : 0.62, dark ? 0.16 : 0.40)",
+                "FrostFill(accent, dark ? 0.28 : 0.52, dark ? 0.16 : 0.32)",
                 engine, StringComparison.Ordinal);
         }
 

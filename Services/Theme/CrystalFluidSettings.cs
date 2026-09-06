@@ -45,7 +45,7 @@ namespace ProGlassAutomation.Services.Theme
 
         public const double BaselineGlassOpacity        = 1.0;
         public const double BaselineGlassBorderOpacity  = 0.72;
-        public const double BaselineReflectionOpacity   = 0.80;
+        public const double BaselineReflectionOpacity   = 0.95;
 
         public const double BaselineWaterOpacity        = 1.0;
         public const double BaselineWaterSpeed          = 1.0;

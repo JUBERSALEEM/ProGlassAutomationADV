@@ -2,23 +2,23 @@
 // FILE: Tests/Agent/CrystalFluidGlobalWaterTests.cs
 // PROJECT: ProGlassAutomation.Tests
 //
-// GLOBAL WATER MATERIAL (2026-09-06) — the Ios-17pm animated liquid fill
-// was previously confined to three hand-wired hosts (StatCard + the two
-// Settings previews). This suite pins the new global integration:
+// GLOBAL WATER MATERIAL v2 (2026-09-06) — the Ios-17pm animated liquid
+// fill is delivered to EVERY glass card through ONE app-wide class
+// handler, not per-style setters. This suite pins the wiring:
 //
-//   · an attached "water material" (CrystalWaterAttach.Attach) wraps a
-//     card Border's child in a Grid that layers CrystalWaterControl
-//     BEHIND the content (glass → water → content),
-//   · it self-gates on the global family resource
-//     CrystalWaterDefaultEnabled via SetResourceReference (live family
-//     switches — no reload), and reads the ambient level from
-//     CrystalDefaultWaterLevel,
-//   · the shared + per-module card styles opt in with a single Setter,
-//     so every module's cards carry water without re-typing the card
-//     element.
+//   · a class handler on Border.Loaded (CrystalWaterGlobal.Install,
+//     registered once at startup) routes every Border through
+//     CrystalWaterAttach.TryAutoAttach,
+//   · TryAutoAttach recognises a "card" deterministically (Background
+//     reference-equals one of the engine's glass SURFACE brushes) and
+//     wraps the Border's child in glass → water → content,
+//   · the water self-gates on CrystalWaterDefaultEnabled +
+//     CrystalDefaultWaterLevel via SetResourceReference (DynamicResource
+//     semantics → live family switch, no reload),
+//   · the material never fires under non-crystal families (the gate
+//     resource is published True only by the crystal painter).
 //
-// These are source-pinning tests (the repo's Agent convention): they read
-// the shipped files and assert the wiring is present and non-degraded.
+// These are source-pinning tests (the repo's Agent convention).
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -45,21 +45,61 @@ namespace ProGlassAutomation.Tests.Agent
             throw new FileNotFoundException("Project root not found");
         }
 
-        private const string Setter =
-            "<Setter Property=\"crystal:CrystalWaterAttach.Attach\" Value=\"True\"/>";
-
-        // ── 1. THE ATTACHED MATERIAL EXISTS AND GATES ON THE FAMILY ─────
+        // ── 1. ONE GLOBAL DELIVERY POINT ────────────────────────────────
         [Fact]
-        public void Attached_material_gates_on_the_family_resource()
+        public void Water_is_delivered_through_one_class_handler()
+        {
+            string global = Read("Controls/CrystalFluid/CrystalWaterGlobal.cs");
+
+            Assert.Contains("EventManager.RegisterClassHandler(",
+                global, StringComparison.Ordinal);
+            Assert.Contains("typeof(Border)", global, StringComparison.Ordinal);
+            Assert.Contains("FrameworkElement.LoadedEvent",
+                global, StringComparison.Ordinal);
+            Assert.Contains("CrystalWaterAttach.TryAutoAttach(border)",
+                global, StringComparison.Ordinal);
+
+            // Installed exactly once at startup, beside the existing
+            // ViewportFitBehavior class-handler registration.
+            string startup = Read("App.StartupCore.cs");
+            Assert.Contains("CrystalWaterGlobal.Install();",
+                startup, StringComparison.Ordinal);
+        }
+
+        // ── 2. DETERMINISTIC CARD RECOGNITION ───────────────────────────
+        [Fact]
+        public void Cards_are_recognised_by_glass_surface_brush_reference()
         {
             string src = Read("Controls/CrystalFluid/CrystalWaterAttach.cs");
 
-            Assert.Contains("DependencyProperty.RegisterAttached(",
+            Assert.Contains("TryAutoAttach", src, StringComparison.Ordinal);
+            Assert.Contains("IsCardSurface", src, StringComparison.Ordinal);
+            Assert.Contains("ReferenceEquals(brush, background)",
                 src, StringComparison.Ordinal);
-            Assert.Contains("\"Attach\",", src, StringComparison.Ordinal);
 
-            // Live family gate + ambient level — DynamicResource semantics
-            // (SetResourceReference), so a family switch revalues in place.
+            // The engine's glass SURFACE brushes qualify a Border as a
+            // card; hover/tint/accent fills never do.
+            Assert.Contains("\"GlassUltraClearBrush\"", src, StringComparison.Ordinal);
+            Assert.Contains("\"ModuleBackgroundBrush\"", src, StringComparison.Ordinal);
+            Assert.Contains("\"ElevatedSurfaceBrush\"", src, StringComparison.Ordinal);
+
+            // Rounded corners separate cards from rectangular glass chrome
+            // (tab strips, rails, footer bars — radius 0).
+            Assert.Contains("border.CornerRadius", src, StringComparison.Ordinal);
+
+            // Guards: no child / already-hosting-water / card ancestor.
+            Assert.Contains("ContainsWaterControl", src, StringComparison.Ordinal);
+            Assert.Contains("HasCardAncestor", src, StringComparison.Ordinal);
+        }
+
+        // ── 3. LIVE FAMILY GATE (no reload) ─────────────────────────────
+        [Fact]
+        public void Water_gates_on_the_family_resource_and_ambient_level()
+        {
+            string src = Read("Controls/CrystalFluid/CrystalWaterAttach.cs");
+
+            // SetResourceReference = DynamicResource semantics → a runtime
+            // family switch revalues the attached water in place.
             Assert.Contains("CrystalWaterControl.WaterEnabledProperty",
                 src, StringComparison.Ordinal);
             Assert.Contains("\"CrystalWaterDefaultEnabled\"",
@@ -69,53 +109,16 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("\"CrystalDefaultWaterLevel\"",
                 src, StringComparison.Ordinal);
 
-            // Water must never capture input and must follow the card radius.
+            // Water never captures input and follows the card radius.
             Assert.Contains("IsHitTestVisible = false", src,
                 StringComparison.Ordinal);
             Assert.Contains("nameof(Border.CornerRadius)", src,
                 StringComparison.Ordinal);
-        }
 
-        // ── 2. SHARED CARD STYLES OPT IN ────────────────────────────────
-        [Fact]
-        public void Shared_card_styles_attach_water()
-        {
-            string cardStyles = Read("Themes/Styles/CardStyles.xaml");
-            string dashboard = Read("Styles/DashboardStyles.xaml");
-            string design = Read("Themes/Styles/DesignTokens.xaml");
-            string dialogs = Read("Themes/Styles/DialogStyles.xaml");
-
-            // BaseCardStyle is the root of Elevated/Stat/Interactive* cards.
-            Assert.Contains(Setter, cardStyles, StringComparison.Ordinal);
-            // Dashboard tiles + section cards + dialogs.
-            Assert.Contains(Setter, dashboard, StringComparison.Ordinal);
-            Assert.Contains(Setter, design, StringComparison.Ordinal);
-            Assert.Contains(Setter, dialogs, StringComparison.Ordinal);
-
-            // The family-gate resource is still published by the crystal
-            // painter, so the attached material actually switches on.
+            // The crystal painter is still the only publisher of True.
             string engine = Read("Services/Theme/VisualThemeEngine.Part3.cs");
             Assert.Contains("resources[\"CrystalWaterDefaultEnabled\"] = true",
                 engine, StringComparison.Ordinal);
-        }
-
-        // ── 3. PER-MODULE CARDS OPT IN (NOT JUST THE SHARED SET) ────────
-        [Fact]
-        public void Per_module_card_styles_attach_water()
-        {
-            Assert.Contains(Setter, Read(
-                "Views/About/AboutStyles.xaml"), StringComparison.Ordinal);
-            Assert.Contains(Setter, Read(
-                "Views/Settings/SettingsSectionStyles.xaml"), StringComparison.Ordinal);
-            Assert.Contains(Setter, Read(
-                "Views/ProformaInvoice/Step9ProfitLoss/GlassTypeComparisonView.xaml"),
-                StringComparison.Ordinal);
-            Assert.Contains(Setter, Read(
-                "Views/Reports/StatementGenerator/Styles/WizardStyles.xaml"),
-                StringComparison.Ordinal);
-            Assert.Contains(Setter, Read(
-                "Views/DeliveryNote/DeliveryNoteList/DeliveryNoteListView.xaml"),
-                StringComparison.Ordinal);
         }
     }
 }

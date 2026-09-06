@@ -18,7 +18,7 @@
 
      All corners are the canonical 12px (CardCornerRadius etc). No pill.
 ═══════════════════════════════════════════════════════════════════════ -->
-<ResourceDictionary xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
@@ -52,7 +52,6 @@
       the gradient fill + 1px light border; the shadow is removed.
     -->
     <Style x:Key="AboutCardStyle" TargetType="Border">
-        <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
         <Setter Property="Background"          Value="{DynamicResource LiquidCard}"/>
         <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness"     Value="{DynamicResource CardBorderThickness}"/>

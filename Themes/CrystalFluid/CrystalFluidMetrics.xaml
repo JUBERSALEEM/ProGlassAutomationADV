@@ -83,7 +83,7 @@
     <!-- ─── OPACITY ─── -->
 
     <sys:Double x:Key="CrystalGlassOpacity">1.0</sys:Double>
-    <sys:Double x:Key="CrystalReflectionOpacity">0.80</sys:Double>
+    <sys:Double x:Key="CrystalReflectionOpacity">0.95</sys:Double>
     <sys:Double x:Key="CrystalWaterOpacity">1.0</sys:Double>
     <sys:Double x:Key="CrystalCausticOpacity">0.70</sys:Double>
     <sys:Double x:Key="CrystalBubbleMaxOpacity">0.70</sys:Double>

@@ -52,7 +52,7 @@ namespace ProGlassAutomation.Tests.Agent
         {
             Assert.Equal(1.0,  CrystalFluidSettings.BaselineGlassOpacity);
             Assert.Equal(0.72, CrystalFluidSettings.BaselineGlassBorderOpacity);
-            Assert.Equal(0.80, CrystalFluidSettings.BaselineReflectionOpacity);
+            Assert.Equal(0.95, CrystalFluidSettings.BaselineReflectionOpacity);
             Assert.Equal(1.0,  CrystalFluidSettings.BaselineWaterOpacity);
             Assert.Equal(1.0,  CrystalFluidSettings.BaselineWaterSpeed);
             Assert.Equal(3.0,  CrystalFluidSettings.BaselineWaveAmplitude);

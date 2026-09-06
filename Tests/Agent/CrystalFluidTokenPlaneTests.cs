@@ -18,7 +18,7 @@
 //     fallout the moment a consumer inflates),
 //   · break the authored load order in App.xaml (brushes resolve
 //     StaticResource colors only because colors merge first),
-//   · drift the adopted authority values (reflection 0.80, caustic
+//   · drift the adopted authority values (reflection 0.95, caustic
 //     0.70/11s, ambient 18s, default water level 0.30),
 //   · re-inflate the tokens file with nouns that belong to the
 //     authored trio (single-home rule).
@@ -156,7 +156,7 @@ namespace ProGlassAutomation.Tests.Agent
             string metrics = Read(Metrics);
 
             Assert.Contains(
-                "<sys:Double x:Key=\"CrystalReflectionOpacity\">0.80</sys:Double>",
+                "<sys:Double x:Key=\"CrystalReflectionOpacity\">0.95</sys:Double>",
                 metrics, StringComparison.Ordinal);
             Assert.Contains(
                 "<sys:Double x:Key=\"CrystalCausticOpacity\">0.70</sys:Double>",

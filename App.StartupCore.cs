@@ -29,6 +29,7 @@ using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.Views.Splash;
 using ProGlassAutomation.Behaviors;
+using ProGlassAutomation.Controls.CrystalFluid;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Runtime.InteropServices;
@@ -56,6 +57,13 @@ namespace ProGlassAutomation
             // Work-area caps + Ctrl+Wheel zoom. Does not Viewbox-lock
             // the shell — layouts reflow in native pixels.
             ViewportFitBehavior.Install();
+
+            // Ios-17pm global water material — one class-level handler on
+            // Border.Loaded auto-attaches the animated liquid fill to every
+            // glass card in the app (styled, inline-styled, or future
+            // views); family-gated by CrystalWaterDefaultEnabled, so it is
+            // inert under every non-crystal family. No per-style edits.
+            CrystalWaterGlobal.Install();
 
             // 0) Technical logging first — everything after can report here.
             AppLogService.Initialize();

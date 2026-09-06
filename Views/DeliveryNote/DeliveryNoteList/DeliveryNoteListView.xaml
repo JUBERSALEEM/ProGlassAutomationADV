@@ -1,5 +1,5 @@
 <!-- Delivery Note list — industrial table chrome. Tab names, click handlers, group/row commands unchanged. -->
-<UserControl xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.DeliveryNoteListView"
+<UserControl x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.DeliveryNoteListView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -23,7 +23,6 @@
 
         <Style x:Key="PendingRowCardStyle" TargetType="Border"
                BasedOn="{StaticResource ModuleListRowStyle}">
-            <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
             <Setter Property="MinHeight" Value="56"/>
             <Setter Property="Padding" Value="14,10"/>
         </Style>

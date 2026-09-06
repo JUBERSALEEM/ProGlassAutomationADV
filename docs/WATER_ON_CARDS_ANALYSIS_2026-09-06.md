@@ -1,9 +1,11 @@
 # Why cards don't get the Ios-17pm "water fill" globally — root-cause analysis
 
-**Date:** 2026-09-06 · **Scope:** diagnostics only (no code changed)
+**Date:** 2026-09-06 · **Scope:** analysis + implementation (v2 global water material
++ ultra-clear visual recalibration)
 **Question:** Why does switching to Ios-17pm restyle the glass but leave every card
 around the app without the animated water/liquid-fill effect, even though the
-water tokens are global `DynamicResource`s?
+water tokens are global `DynamicResource`s — and how to make every card accept
+it globally?
 
 ## TL;DR
 
@@ -128,55 +130,100 @@ which makes the preview look correct while the rest of the app looks broken.)
 
 So the gap is a **scoped-out feature**, not broken plumbing.
 
-## 7. Implemented: the global "water material" (2026-09-06)
+## 7. Why "one global shared style" cannot reach the cards (the WPF truth)
 
-The attached-material option was implemented (the senior choice):
+The natural first answer — "just make ONE implicit style and every Border
+inherits it" — does not work in WPF, and it is important to say exactly why:
 
-- **`Controls/CrystalFluid/CrystalWaterAttach.cs`** — an attached property
-  `crystal:CrystalWaterAttach.Attach`. When `True` on a `Border`, on `Loaded` it
-  wraps the card's single child in a `Grid` stacking
-  **glass background → `CrystalWaterControl` (ZIndex 1) → content (ZIndex 5)**,
-  reproducing the authored CrystalCard layer order on every card without
-  re-typing the `<Border>` element.
-- **Live, resource-driven:** the water self-gates on `CrystalWaterDefaultEnabled`
-  and reads the ambient level from `CrystalDefaultWaterLevel` via
-  `SetResourceReference` (DynamicResource semantics). It is Collapsed + fully
-  idle under Normal/Monet/etc., turns on live when Ios-17pm is painted (no
-  reload), and keeps flowing from the same six studio axes as the previews.
-  This also fixes the pre-existing StatCard `Loaded`-snapshot defect (the
-  attached path revalues on family switch).
+1. **Explicit `Style=` suppresses the implicit style.** A keyed card style
+   (`<Border Style="{StaticResource SoftCardStyle}">`) means the implicit
+   `<Style TargetType="Border">` is *not* applied to that element at all
+   (explicit style replaces implicit; they never merge). The census counts
+   **598 explicitly-styled Borders** — an implicit style would silently miss
+   all of them.
+2. **An implicit `Border` style is a loaded gun.** It *would* fire on the
+   ~899 unstyled Borders that are **not** cards: divider rails, icon chips,
+   accent strips, grid cell lines, backdrop fills. Water behind every one of
+   those would be noise, not design. (Measured: 1,689 Borders in `Views/` →
+   598 styled, **192 unstyled glass-surface cards**, 382 unstyled other-fill,
+   517 unstyled no-background.)
+3. **"Card" is a convention, not a type.** WPF has no "all cards" selector
+   because a card is just a `Border` wearing glass. The deterministic signal
+   that a Border *is* a card is its **`Background` being one of the glass
+   SURFACE brushes the engine repaints per family** — that is exactly what the
+   implementation below keys on, so it cannot misfire on rails/chips/tints.
+
+So the correct "global" mechanism is: one **class-level `Loaded` handler on
+`Border`** (fires for every Border, styled or not, present or future) plus a
+**deterministic glass-surface test**. No per-style setters, no per-file edits,
+no opt-in list to keep in sync.
+
+## 8. Implemented v2: global auto-detect water material (2026-09-06)
+
+- **`Controls/CrystalFluid/CrystalWaterGlobal.cs`** — `Install()` registers one
+  `EventManager.RegisterClassHandler(typeof(Border), LoadedEvent, …)` (the same
+  pattern the repo already uses in `ViewportFitBehavior.Install()`), invoked
+  once at startup in `App.StartupCoreAsync`. Every `Border` that loads is
+  offered the material.
+- **`Controls/CrystalFluid/CrystalWaterAttach.cs`** — `TryAutoAttach(border)`
+  wraps a card `Border`'s child in a `Grid` stacking **glass →
+  `CrystalWaterControl` (ZIndex 1) → content (ZIndex 5)** (authored CrystalCard
+  layer order), and recognises a card by **reference-comparing the Border's
+  effective `Background` to the engine's glass surface brushes AND requiring
+  rounded corners** (`GlassUltraClearBrush`, `GlassSurfaceBrush`,
+  `ModuleBackgroundBrush`, `ElevatedSurfaceBrush`, `SideMenuBackgroundBrush`,
+  `AboutInteractiveBrush`, `LiquidCard`, …). DynamicResource shares the brush
+  instance and `CornerRadius` is an exact DP, so the test is deterministic —
+  styled cards AND inline `<Border.Style>` cards qualify; rails/chips/tints
+  never do, and rectangular glass chrome (tab strips, station rails, footer
+  bars, work surfaces — radius 0) is excluded by the radius criterion.
+- **Guards:** skip childless Borders (rails/dividers), Borders that already
+  host a `CrystalWaterControl` (StatCard/CrystalCard — no double water), and
+  Borders inside another card surface (the outermost card per region wins, so
+  nested panels don't stack two water-lines).
+- **Tri-state override:** `crystal:CrystalWaterAttach.Attach="False"` opts a
+  specific surface out; `"True"` forces a non-glass host in. Unset = auto.
+- **Live, resource-driven:** water self-gates on `CrystalWaterDefaultEnabled`
+  + `CrystalDefaultWaterLevel` via `SetResourceReference` (DynamicResource
+  semantics). Collapsed and fully idle under Normal/Monet/etc., turns on live
+  when Ios-17pm is painted (no reload), and flows from the same six studio
+  axes as the previews. This also fixes the pre-existing StatCard
+  `Loaded`-snapshot defect (revalues on family switch).
 - **Layout fidelity:** a `Border` insets its child by `Padding` and ignores the
   child's `Margin`; the wrapper zeroes `Border.Padding` and re-applies the exact
-  inset as the content's `Margin` (honoured by the `Grid`), so content is
-  pixel-identical while the water spans the full card. Corner radius follows
-  the card's own `CornerRadius` so the water's rounded self-clip matches.
-- **Wired into every card style** (one `<Setter Property="crystal:CrystalWaterAttach.Attach"
-  Value="True"/>` per style — 27 styles across 19 files): `BaseCardStyle`
-  (⇒ Elevated/Stat/Interactive*), `TaskCardStyle`/`PriorityCardStyle`,
-  `ListRowCardStyle`/`InteractiveListRowCardStyle`, `ModuleSectionCardStyle`,
-  `DialogCardStyle`, `LiquidGlassCard`/`LiquidGlassSubtleCardStyle`,
-  `LiquidGlassStrongCardStyle`, `LiquidGlassDialogCardStyle`, `SpecGroupCardStyle`
-  (⇒ `JoFormCardStyle`), `DashCardStyle`/`CardStyle`, `SoftCardStyle`/
-  `SoftCardInteractiveStyle`/`SoftSectionStyle`, the dashboard tiles/wells
-  (`DashTileStyle`, `SoftTileStyle`, `SoftChartWellStyle`),
-  `CompactStatTileStyle`, `PiCostTileStyle`, and the per-module `KpiCardStyle`
-  (×3), `TgtCardStyle`, `AboutCardStyle`/`HeroCardStyle`, `SectionCardStyle`
-  (×2), `PdfOptionCardStyle`, `WizardCardStyle`, `LicenseMetricCardStyle`,
-  `PendingRowCardStyle`.
-- **Deliberately excluded:** the opaque `HeroCard*` accent banners (solid
-  signal fills — water would tint them), workspace canvases/stages
-  (`PiWorkSurfaceStyle`, `PiProductViewportStyle`), and non-card chrome
-  (`TabCardInactiveStyle`, `CardLabelStyle`, `WizardCardHeaderStyle`,
-  `SidebarSubMenuCard`, pills/chips/rails/bars/headers/footers). Any
-  additional surface opts in with the same one line.
-- **Regression pin:** `Tests/Agent/CrystalFluidGlobalWaterTests.cs` asserts the
-  attached material's gate wiring and the presence of the setter across the
-  shared and per-module card styles (runs on the Windows `dotnet test` gate).
+  inset as the content's `Margin` (honoured by the `Grid`), so content stays
+  pixel-identical while the water spans the full card; the water's rounded
+  self-clip follows the card's `CornerRadius`.
+- **Regression pin:** `Tests/Agent/CrystalFluidGlobalWaterTests.cs` (class
+  handler, deterministic detection, gate wiring).
 
 ### Perf note (known trade-off, reversible)
-One extra `CrystalWaterControl` per attached card (~1,689 borders). Under
-non-crystal families it is `Collapsed` with zero running storyboards; under
-Ios-17pm it animates, but the control already pauses on unload/hidden
-(virtualized rows stop off-screen) and honours `CrystalReducedMotion`. If a
-specific dense grid is ever too heavy, remove the single setter for that style
-to opt it back out.
+One extra `CrystalWaterControl` per glass card. Under non-crystal families it is
+`Collapsed` with zero running storyboards; under Ios-17pm it animates but
+pauses on unload/hidden (virtualized rows stop off-screen) and honours
+`CrystalReducedMotion`. Opt any surface out with
+`crystal:CrystalWaterAttach.Attach="False"`.
+
+## 9. Visual recalibration — "liquid, transparent, ultra-clear" (2026-09-06)
+
+The water was reading as a saturated blue slab; the iPhone liquid-glass look is
+lighter, more transparent, glossier. Changes (all in the authored token files,
+so the six live studio axes still sit on top unchanged):
+
+| Token | Before | After | Effect |
+|---|---|---|---|
+| `CrystalWaterSurfaceColor` | `#2180DEF6` | `#268AEAF8` | brighter glassy meniscus |
+| `CrystalWaterBodyColor` | `#4A40B5DC` (29% blue) | `#2E4FC5EB` (18%) | far more transparent body |
+| `CrystalWaterDeepColor` | `#553FB9DE` | `#333FB8E0` | lighter depth |
+| `CrystalWaterCyanTintColor` | `#383FB9DE` | `#2A63C8EE` | airier depth tint |
+| `CrystalWaterHighlightColor` + brush | `#8CFFFFFF` | `#B8FFFFFF` (wider radius) | glossy top sheen |
+| `CrystalReflectionBrush` | `#7A…→#29…` | `#A6…→#3D…` | stronger diagonal specular |
+| `BaselineReflectionOpacity` (and `CrystalReflectionOpacity` token) | `0.80` | `0.95` | glass reads glossier |
+| Card `FrostFill` alphas (module / rail / elevated) | `0.30/0.12 · 0.55/0.30 · 0.62/0.40` | `0.24/0.10 · 0.46/0.24 · 0.52/0.32` | ultra-clear surfaces |
+
+The `CrystalWaterBodyColor` drop is the single biggest win: at ~18% alpha the
+fill stops being a blue slab and becomes a transparent liquid meniscus the
+glass shows through. Authority-value tests were repointed to the new numbers
+(`CrystalFluidSettingsBridgeTests`, `CrystalFluidTokenPlaneTests`,
+`LiquidGlassThemeSourceTests`) — these are deliberate design changes, not
+drift. Reduced-motion still freezes the whole water plane to a static body.

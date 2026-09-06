@@ -148,12 +148,12 @@ namespace ProGlassAutomation.Services.Theme
             // surfaces are a whisper while elevated sheets (dialogs,
             // dropdown popups) sit one shelf higher for readability.
             resources["ModuleBackgroundBrush"] =
-                FrostFill(accent, dark ? 0.16 : 0.30, dark ? 0.08 : 0.12);
+                FrostFill(accent, dark ? 0.16 : 0.24, dark ? 0.08 : 0.10);
 
             resources["SideMenuBackgroundBrush"] =
-                FrostFill(accent, dark ? 0.22 : 0.55, dark ? 0.12 : 0.30);
+                FrostFill(accent, dark ? 0.22 : 0.46, dark ? 0.12 : 0.24);
             resources["ElevatedSurfaceBrush"] =
-                FrostFill(accent, dark ? 0.28 : 0.62, dark ? 0.16 : 0.40);
+                FrostFill(accent, dark ? 0.28 : 0.52, dark ? 0.16 : 0.32);
 
             // Sections adopt the crystal material — shared glass set
             // mirrors the bright white edge.

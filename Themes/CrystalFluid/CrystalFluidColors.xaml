@@ -45,12 +45,12 @@
     <Color x:Key="CrystalHighlightLowColor">#29FFFFFF</Color>
 
     <!-- WATER -->
-    <Color x:Key="CrystalWaterSurfaceColor">#2180DEF6</Color>
-    <Color x:Key="CrystalWaterBodyColor">#4A40B5DC</Color>
-    <Color x:Key="CrystalWaterDeepColor">#553FB9DE</Color>
-    <Color x:Key="CrystalWaterHighlightColor">#8CFFFFFF</Color>
+    <Color x:Key="CrystalWaterSurfaceColor">#268AEAF8</Color>
+    <Color x:Key="CrystalWaterBodyColor">#2E4FC5EB</Color>
+    <Color x:Key="CrystalWaterDeepColor">#333FB8E0</Color>
+    <Color x:Key="CrystalWaterHighlightColor">#B8FFFFFF</Color>
     <Color x:Key="CrystalWaterCausticColor">#17FFFFFF</Color>
-    <Color x:Key="CrystalWaterCyanTintColor">#383FB9DE</Color>
+    <Color x:Key="CrystalWaterCyanTintColor">#2A63C8EE</Color>
 
     <!-- BUBBLE -->
     <Color x:Key="CrystalBubbleFillColor">#47FFFFFF</Color>

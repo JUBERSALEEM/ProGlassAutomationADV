@@ -15,7 +15,7 @@
      DESIGN PATTERN: Neo-crystal surfaces
        Reference: Linear.app + Vercel + Stripe design systems
 ═══════════════════════════════════════════════════════════════ -->
-<UserControl xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
+<UserControl
     x:Class="ProGlassAutomation.Views.Reports.StatementGenerator.Filter.FilterStep"
              TextOptions.TextHintingMode="Fixed"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -365,7 +365,6 @@
              SHARED PDF OPTION CARD STYLE (was inline × 6)
         ══════════════════════════════════════════════════════════ -->
         <Style x:Key="PdfOptionCardStyle" TargetType="Border">
-            <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
             <Setter Property="Margin" Value="8"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
