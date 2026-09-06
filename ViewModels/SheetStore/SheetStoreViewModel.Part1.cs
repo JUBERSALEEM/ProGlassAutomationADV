@@ -291,6 +291,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ICommand RefreshCommand { get; }
         public ICommand SelectSheetCommand { get; }
 
+        /// <summary>Double click — opens the full-screen detail workspace.</summary>
+        public ICommand OpenSheetDetailCommand { get; }
+
         /// <summary>Escape / rail close — clears the row selection.</summary>
         public ICommand ClearSelectionCommand { get; }
         public ICommand ShowHistoryCommand { get; }
@@ -323,7 +326,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             BuyCommand = new RelayCommand(async p => await BuyAsync(p as GlassSheet ?? SelectedSheet));
             UseCommand = new RelayCommand(async p => await UseAsync(p as GlassSheet ?? SelectedSheet));
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
-            ClearSelectionCommand = new RelayCommand(_ => SelectedSheet = null);
             // 2026-09-06: single click SELECTS; it no longer toggles off.
             //
             // The old body was
@@ -352,6 +354,22 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             });
 
             ClearSelectionCommand = new RelayCommand(_ => SelectedSheet = null);
+
+            // DOUBLE click opens the full-screen detail workspace. The row's
+            // own Buy/Use commands are handed to it rather than rebuilt, so
+            // both surfaces record a movement through one code path.
+            OpenSheetDetailCommand = new RelayCommand(p =>
+            {
+                var sheet = p as GlassSheet ?? SelectedSheet;
+                if (sheet == null) return;
+
+                // Keep the list in step with what was opened: a double click
+                // is also a selection, and returning to a list highlighting a
+                // different row than the page just shown is disorienting.
+                SelectedSheet = sheet;
+                OpenSheetDetail(sheet);
+            });
+
             ShowHistoryCommand = new RelayCommand(_ => ShowHistory());
             ClearFiltersCommand = new RelayCommand(_ => ClearAllFilters());
             ExportCsvCommand = new RelayCommand(async _ => await ExportCsvAsync());

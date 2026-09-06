@@ -424,5 +424,34 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 ShowError("Could not save item.\n\n" + ExceptionMessages.Deep(ex));
             }
         }
+    
+        // ═══════════════════════════════════════════════════════════════
+        // DETAIL WORKSPACE
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Opens the full-screen detail window for a sheet. Shown modally
+        /// against the shell so an edit cannot be stranded behind the list,
+        /// and the list is reloaded afterwards because the Edit tab may
+        /// have changed the very row the grid is displaying.
+        /// </summary>
+        private void OpenSheetDetail(GlassSheet sheet)
+        {
+            try
+            {
+                var vm = new SheetDetailWindowViewModel(
+                    sheet, _historyRepo, BuyCommand, UseCommand);
+
+                _dialogs.ShowDialog<Views.SheetStore.SheetDetailWindow>(vm);
+
+                // The editor writes through its own repository call, so the
+                // in-memory row can be stale on return.
+                AsyncUtility.SafeFireAndForget(LoadAsync, "SheetStore ReloadAfterDetail");
+            }
+            catch (Exception ex)
+            {
+                ShowError("Could not open the detail page.\n\n" + ExceptionMessages.Deep(ex));
+            }
+        }
     }
 }

@@ -481,7 +481,9 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border behaviors:ClickToCommandBehavior.Command="{Binding DataContext.SelectSheetCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                            behaviors:ClickToCommandBehavior.CommandParameter="{Binding}">
+                                            behaviors:ClickToCommandBehavior.CommandParameter="{Binding}"
+                                            behaviors:ClickToCommandBehavior.DoubleClickCommand="{Binding DataContext.OpenSheetDetailCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                            behaviors:ClickToCommandBehavior.DoubleClickCommandParameter="{Binding}">
                                         <Border.Style>
                                             <Style TargetType="Border" BasedOn="{StaticResource DataRowStyle}">
                                                 <Style.Triggers>
