@@ -575,3 +575,45 @@ DeliveryNoteAnalyticsRow)`, `Services/DeliveryNote/Attachments/*`,
 `Models/JobOrder/SavedJobOrder/*`, `Models/ProformaInvoice/Common/*`,
 `ViewModels/MainViewModel.Part1/Part2.cs`, `MainWindow.xaml`,
 `IMPLEMENTATION_COMPLETE.md`, `IMPLEMENTATION_SUMMARY.md`.
+
+---
+
+## 14. Bug-fix round — filter dropdowns (commit b98e205)
+
+**Reported:** "filters dropdown not getting applied … when I open dropdown click
+on it it's still empty."
+
+**Root cause.** `Views/Reports/OrderReport/Filter/FilterStep.xaml` declared the
+four filter `ComboBox`es with `IsEditable="True"` but **no `Style`**, so they
+inherited the global implicit `ComboBox` style (`Themes/Styles/InputStyles.xaml`
+→ `BasedOn="{StaticResource ModernComboBoxStyle}"`). That template is
+non-editable and has **no `PART_EditableTextBox`**. An editable WPF ComboBox
+requires that part; without it the box opens empty and the `Text` binding never
+receives the clicked/typed value, so the filter never applied.
+
+**Fix.** Applied `ModernEditableComboBoxStyle` (editable template with
+`PART_EditableTextBox`, same style used by `InquiryEditorWindow`) to all four
+dropdowns, plus `IsTextSearchEnabled="True"`.
+
+**Additional module bugs found & fixed in the same round:**
+
+1. **Salesman filter was dead code.** `MatchesFilter` never checked
+   `_filterSalesman` — the salesman name lives in the PI snapshot
+   (`Client.SalesRepresentative`), not in `ProformaListRow`. Added
+   `ApplySalesmanFilterAsync`, reading each candidate PI's `FullSnapshotJson`
+   and matching `Client.SalesRepresentative` / `PreparedBy.Name` /
+   `Client.DocumentPreparedBy` — identical keys to
+   `StatementAggregator.SearchSalesmanInProformaInvoice`.
+2. **No cascade scoping.** Customer/Project dropdowns were flat. Added
+   `RefreshCustomersForSalesman()` and `RefreshProjectsForCustomer()`
+   (mirroring `StatementGeneratorViewModel`), with stale-selection clearing.
+   `_allClients` / `_allProjects` are kept in `LoadMasterDataAsync`.
+3. **Status chips omitted "Sent".** Hardcoded `{ Draft, Approved, Rejected,
+   Cancelled, Expired }` missed `Sent`; now uses `ProformaInvoiceStatus.All`
+   (`Draft/Sent/Approved/Rejected/Expired/Cancelled`).
+4. **Date range used `CreatedAt`, not the PI issue date.** Added
+   `ProformaListRow.IssueDate` (projected from the saved PI) and filter on it,
+   falling back to `CreatedAt` for legacy rows.
+5. **No live feedback.** Added a `MatchCountDisplay` banner on the Filter step
+   (auto-refreshes on every filter change) so users can see matches before
+   committing to Generate.
