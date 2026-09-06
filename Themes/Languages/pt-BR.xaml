@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">Produção</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">Fatura proforma</sys:String>
     <sys:String x:Key="Module.Reports">Relatórios</sys:String>
-    <sys:String x:Key="Module.SheetStore">Estoque de chapas</sys:String>
+    <sys:String x:Key="Module.SheetStore">Estoque</sys:String>
     <sys:String x:Key="Module.Statement">Extrato</sys:String>
     <sys:String x:Key="Module.SystemCenter">Central do sistema</sys:String>
     <sys:String x:Key="Module.TaxInvoice">Nota fiscal</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">Fatura proforma</sys:String>
     <sys:String x:Key="Nav.Reports">Relatórios</sys:String>
     <sys:String x:Key="Nav.SalesOrders">Vendas e pedidos</sys:String>
-    <sys:String x:Key="Nav.SheetStore">Estoque de chapas</sys:String>
+    <sys:String x:Key="Nav.SheetStore">Estoque</sys:String>
     <sys:String x:Key="Nav.Statement">Extrato</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">Gerador de extratos</sys:String>
     <sys:String x:Key="Nav.System">Sistema</sys:String>
@@ -2185,7 +2185,7 @@
     <sys:String x:Key="SheetStore.SellingValue">VALOR DE VENDA</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">Esta chapa já existe. Escolha como lidar:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">DETALHES DA CHAPA</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">Depósito de chapas — Histórico</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">Estoque — Histórico</sys:String>
     <sys:String x:Key="SheetStore.Sheets">chapas  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">Mostrar histórico</sys:String>
     <sys:String x:Key="SheetStore.Silver">Prata</sys:String>

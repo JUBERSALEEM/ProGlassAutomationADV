@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">उत्पादन</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">प्रोफ़ॉर्मा चालान</sys:String>
     <sys:String x:Key="Module.Reports">रिपोर्ट</sys:String>
-    <sys:String x:Key="Module.SheetStore">शीट स्टोर</sys:String>
+    <sys:String x:Key="Module.SheetStore">इन्वेंटरी</sys:String>
     <sys:String x:Key="Module.Statement">स्टेटमेंट</sys:String>
     <sys:String x:Key="Module.SystemCenter">सिस्टम केंद्र</sys:String>
     <sys:String x:Key="Module.TaxInvoice">टैक्स चालान</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">प्रोफ़ॉर्मा चालान</sys:String>
     <sys:String x:Key="Nav.Reports">रिपोर्ट</sys:String>
     <sys:String x:Key="Nav.SalesOrders">बिक्री और ऑर्डर</sys:String>
-    <sys:String x:Key="Nav.SheetStore">शीट स्टोर</sys:String>
+    <sys:String x:Key="Nav.SheetStore">इन्वेंटरी</sys:String>
     <sys:String x:Key="Nav.Statement">स्टेटमेंट</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">स्टेटमेंट जनरेटर</sys:String>
     <sys:String x:Key="Nav.System">सिस्टम</sys:String>
@@ -2185,7 +2185,7 @@
     <sys:String x:Key="SheetStore.SellingValue">विक्रय मूल्य</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">यह शीट पहले से मौजूद है। चुनें कि इसे कैसे संभालना है:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">शीट विवरण</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">शीट स्टोर — इतिहास</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">इन्वेंटरी — इतिहास</sys:String>
     <sys:String x:Key="SheetStore.Sheets">शीट  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">इतिहास दिखाएँ</sys:String>
     <sys:String x:Key="SheetStore.Silver">चाँदी</sys:String>

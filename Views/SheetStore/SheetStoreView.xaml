@@ -568,7 +568,7 @@
                             <emptyState:EmptyStateControl
                                 Icon="&#xE7B8;"
                                 Title="{DynamicResource SheetStore.NoGlassSheetsYet}"
-                                Message="The Sheet Store is your raw-glass inventory — sizes, thicknesses, colours, stock and value. Click '+ Add New' to add your first glass sheet."/>
+                                Message="Inventory holds your raw glass — sizes, thicknesses, colours, stock and value. Click '+ Add New' to add your first glass sheet."/>
                         </StackPanel>
                     </Grid>
                 </Border>

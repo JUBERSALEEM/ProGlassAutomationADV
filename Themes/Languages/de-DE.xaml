@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">Produktion</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">Proforma-Rechnung</sys:String>
     <sys:String x:Key="Module.Reports">Berichte</sys:String>
-    <sys:String x:Key="Module.SheetStore">Plattenlager</sys:String>
+    <sys:String x:Key="Module.SheetStore">Bestand</sys:String>
     <sys:String x:Key="Module.Statement">Kontoauszug</sys:String>
     <sys:String x:Key="Module.SystemCenter">Systemzentrale</sys:String>
     <sys:String x:Key="Module.TaxInvoice">Steuerrechnung</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">Proforma-Rechnung</sys:String>
     <sys:String x:Key="Nav.Reports">Berichte</sys:String>
     <sys:String x:Key="Nav.SalesOrders">Vertrieb und Bestellungen</sys:String>
-    <sys:String x:Key="Nav.SheetStore">Plattenlager</sys:String>
+    <sys:String x:Key="Nav.SheetStore">Bestand</sys:String>
     <sys:String x:Key="Nav.Statement">Kontoauszug</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">Kontoauszugs-Generator</sys:String>
     <sys:String x:Key="Nav.System">System</sys:String>
@@ -2185,7 +2185,7 @@
     <sys:String x:Key="SheetStore.SellingValue">VERKAUFSWERT</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">Diese Platte existiert bereits. Wählen Sie, wie sie behandelt werden soll:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">PLATTENDETAILS</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">Glaslager — Historie</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">Bestand — Verlauf</sys:String>
     <sys:String x:Key="SheetStore.Sheets">Platten  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">Historie anzeigen</sys:String>
     <sys:String x:Key="SheetStore.Silver">Silber</sys:String>

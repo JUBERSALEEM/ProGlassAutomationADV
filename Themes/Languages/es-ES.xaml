@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">Producción</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">Factura proforma</sys:String>
     <sys:String x:Key="Module.Reports">Informes</sys:String>
-    <sys:String x:Key="Module.SheetStore">Almacén de planchas</sys:String>
+    <sys:String x:Key="Module.SheetStore">Inventario</sys:String>
     <sys:String x:Key="Module.Statement">Extracto</sys:String>
     <sys:String x:Key="Module.SystemCenter">Centro del sistema</sys:String>
     <sys:String x:Key="Module.TaxInvoice">Factura fiscal</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">Factura proforma</sys:String>
     <sys:String x:Key="Nav.Reports">Informes</sys:String>
     <sys:String x:Key="Nav.SalesOrders">Ventas y pedidos</sys:String>
-    <sys:String x:Key="Nav.SheetStore">Almacén de planchas</sys:String>
+    <sys:String x:Key="Nav.SheetStore">Inventario</sys:String>
     <sys:String x:Key="Nav.Statement">Extracto</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">Generador de extractos</sys:String>
     <sys:String x:Key="Nav.System">Sistema</sys:String>
@@ -2185,7 +2185,7 @@
     <sys:String x:Key="SheetStore.SellingValue">VALOR DE VENTA</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">Esta lámina ya existe. Elija cómo manejarla:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">DETALLES DE LA LÁMINA</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">Almacén de láminas — Historial</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">Inventario — Historial</sys:String>
     <sys:String x:Key="SheetStore.Sheets">láminas  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">Mostrar historial</sys:String>
     <sys:String x:Key="SheetStore.Silver">Plata</sys:String>

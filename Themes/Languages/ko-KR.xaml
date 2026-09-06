@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">생산</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">견적 송장</sys:String>
     <sys:String x:Key="Module.Reports">보고서</sys:String>
-    <sys:String x:Key="Module.SheetStore">유리 창고</sys:String>
+    <sys:String x:Key="Module.SheetStore">재고</sys:String>
     <sys:String x:Key="Module.Statement">명세서</sys:String>
     <sys:String x:Key="Module.SystemCenter">시스템 센터</sys:String>
     <sys:String x:Key="Module.TaxInvoice">세금 계산서</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">견적 송장</sys:String>
     <sys:String x:Key="Nav.Reports">보고서</sys:String>
     <sys:String x:Key="Nav.SalesOrders">영업 및 주문</sys:String>
-    <sys:String x:Key="Nav.SheetStore">유리 창고</sys:String>
+    <sys:String x:Key="Nav.SheetStore">재고</sys:String>
     <sys:String x:Key="Nav.Statement">명세서</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">명세서 생성기</sys:String>
     <sys:String x:Key="Nav.System">시스템</sys:String>
@@ -2185,7 +2185,7 @@
     <sys:String x:Key="SheetStore.SellingValue">판매 금액</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">이 시트는 이미 존재합니다. 처리 방법을 선택하세요:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">시트 세부 정보</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">시트 스토어 — 기록</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">재고 — 이력</sys:String>
     <sys:String x:Key="SheetStore.Sheets">시트  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">기록 표시</sys:String>
     <sys:String x:Key="SheetStore.Silver">실버</sys:String>

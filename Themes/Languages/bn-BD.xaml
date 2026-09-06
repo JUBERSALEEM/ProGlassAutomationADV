@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">উৎপাদন</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">প্রোফর্মা চালান</sys:String>
     <sys:String x:Key="Module.Reports">রিপোর্ট</sys:String>
-    <sys:String x:Key="Module.SheetStore">শিট স্টোর</sys:String>
+    <sys:String x:Key="Module.SheetStore">ইনভেন্টরি</sys:String>
     <sys:String x:Key="Module.Statement">স্টেটমেন্ট</sys:String>
     <sys:String x:Key="Module.SystemCenter">সিস্টেম কেন্দ্র</sys:String>
     <sys:String x:Key="Module.TaxInvoice">ট্যাক্স চালান</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">প্রোফর্মা চালান</sys:String>
     <sys:String x:Key="Nav.Reports">রিপোর্ট</sys:String>
     <sys:String x:Key="Nav.SalesOrders">বিক্রয় ও অর্ডার</sys:String>
-    <sys:String x:Key="Nav.SheetStore">শিট স্টোর</sys:String>
+    <sys:String x:Key="Nav.SheetStore">ইনভেন্টরি</sys:String>
     <sys:String x:Key="Nav.Statement">স্টেটমেন্ট</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">স্টেটমেন্ট জেনারেটর</sys:String>
     <sys:String x:Key="Nav.System">সিস্টেম</sys:String>
@@ -2185,7 +2185,7 @@
     <sys:String x:Key="SheetStore.SellingValue">বিক্রয় মূল্য</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">এই শিটটি ইতিমধ্যে আছে। কীভাবে সামলাবেন তা চয়ন করুন:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">শিট বিবরণ</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">শিট স্টোর — ইতিহাস</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">ইনভেন্টরি — ইতিহাস</sys:String>
     <sys:String x:Key="SheetStore.Sheets">শিট •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">ইতিহাস দেখান</sys:String>
     <sys:String x:Key="SheetStore.Silver">রূপালি</sys:String>

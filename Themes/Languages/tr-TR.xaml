@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">Üretim</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">Proforma fatura</sys:String>
     <sys:String x:Key="Module.Reports">Raporlar</sys:String>
-    <sys:String x:Key="Module.SheetStore">Cam deposu</sys:String>
+    <sys:String x:Key="Module.SheetStore">Envanter</sys:String>
     <sys:String x:Key="Module.Statement">Hesap özeti</sys:String>
     <sys:String x:Key="Module.SystemCenter">Sistem merkezi</sys:String>
     <sys:String x:Key="Module.TaxInvoice">Vergi faturası</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">Proforma fatura</sys:String>
     <sys:String x:Key="Nav.Reports">Raporlar</sys:String>
     <sys:String x:Key="Nav.SalesOrders">Satış ve siparişler</sys:String>
-    <sys:String x:Key="Nav.SheetStore">Cam deposu</sys:String>
+    <sys:String x:Key="Nav.SheetStore">Envanter</sys:String>
     <sys:String x:Key="Nav.Statement">Hesap özeti</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">Özet oluşturucu</sys:String>
     <sys:String x:Key="Nav.System">Sistem</sys:String>
@@ -2185,7 +2185,7 @@
     <sys:String x:Key="SheetStore.SellingValue">SATIŞ DEĞERİ</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">Bu levha zaten var. Nasıl ele alınacağını seçin:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">LEVHA DETAYLARI</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">Levha deposu — Geçmiş</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">Envanter — Geçmiş</sys:String>
     <sys:String x:Key="SheetStore.Sheets">levha  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">Geçmişi göster</sys:String>
     <sys:String x:Key="SheetStore.Silver">Gümüş</sys:String>

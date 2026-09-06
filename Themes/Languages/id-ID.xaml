@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">Produksi</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">Faktur proforma</sys:String>
     <sys:String x:Key="Module.Reports">Laporan</sys:String>
-    <sys:String x:Key="Module.SheetStore">Gudang lembaran</sys:String>
+    <sys:String x:Key="Module.SheetStore">Inventaris</sys:String>
     <sys:String x:Key="Module.Statement">Rekening</sys:String>
     <sys:String x:Key="Module.SystemCenter">Pusat sistem</sys:String>
     <sys:String x:Key="Module.TaxInvoice">Faktur pajak</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">Faktur proforma</sys:String>
     <sys:String x:Key="Nav.Reports">Laporan</sys:String>
     <sys:String x:Key="Nav.SalesOrders">Penjualan &amp; pesanan</sys:String>
-    <sys:String x:Key="Nav.SheetStore">Gudang lembaran</sys:String>
+    <sys:String x:Key="Nav.SheetStore">Inventaris</sys:String>
     <sys:String x:Key="Nav.Statement">Rekening</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">Generator rekening</sys:String>
     <sys:String x:Key="Nav.System">Sistem</sys:String>
@@ -2185,7 +2185,7 @@
     <sys:String x:Key="SheetStore.SellingValue">NILAI JUAL</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">Lembaran ini sudah ada. Pilih cara menanganinya:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">DETAIL LEMBARAN</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">Gudang lembaran — Riwayat</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">Inventaris — Riwayat</sys:String>
     <sys:String x:Key="SheetStore.Sheets">lembaran  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">Tampilkan riwayat</sys:String>
     <sys:String x:Key="SheetStore.Silver">Perak</sys:String>
