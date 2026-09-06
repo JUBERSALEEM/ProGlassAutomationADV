@@ -34,6 +34,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguPar
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.LamParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.SguParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using ProGlassAutomation.Services.Export.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -56,6 +57,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             
             ServiceBreakdown = new ObservableCollection<ServiceProfitRow>();
             RefreshCommand = new RelayCommand(_ => RefreshAnalysis());
+            ExportCsvCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Csv), "Step9 Service CSV"));
+            ExportExcelCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Excel), "Step9 Service Excel"));
+            ExportPdfCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Pdf), "Step9 Service PDF"));
             
             // Initial load
             RefreshAnalysis();
@@ -148,6 +155,89 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public ICommand RefreshCommand { get; }
 
         // ══════════════════════════════════════════════════════════════
+        //  EXPORT (CSV / Excel / PDF) — Step 9 report output
+        // ══════════════════════════════════════════════════════════════
+
+        public ICommand ExportCsvCommand { get; }
+        public ICommand ExportExcelCommand { get; }
+        public ICommand ExportPdfCommand { get; }
+
+        private bool _isExporting;
+        /// <summary>True while an export runs (disables the toolbar).</summary>
+        public bool IsExporting
+        {
+            get => _isExporting;
+            private set
+            {
+                if (_isExporting == value) return;
+                _isExporting = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Total analysed area across services (SQM) — footer column.</summary>
+        public decimal TotalServiceArea => ServiceBreakdown.Sum(r => r.Area);
+        public string TotalServiceAreaDisplay => $"{TotalServiceArea:0.##} SQM";
+        public string TotalServiceCountDisplay => $"{ServiceBreakdown.Count} service(s)";
+
+        /// <summary>Total service cost (charge − profit) — footer column.</summary>
+        public decimal TotalServiceCost => TotalServiceCharge - TotalServiceProfit;
+        public string TotalServiceCostDisplay => $"AED {TotalServiceCost:N2}";
+
+        private async Task ExportAsync(ExportFormat format)
+        {
+            if (IsExporting || ServiceBreakdown.Count == 0) return;
+            IsExporting = true;
+            try
+            {
+                var rows = ServiceBreakdown.ToList();
+                rows.Add(BuildTotalRow());
+
+                var result = await Step9ReportExport.RunAsync(
+                    format, rows, "Service Profitability",
+                    Step9ReportExport.ServiceHeaders,
+                    Step9ReportExport.ServiceMap,
+                    Step9ReportExport.ServiceMapExcel,
+                    $"Service_Profitability_{DateTime.Now:yyyyMMdd}");
+
+                if (result.Success)
+                    StatusMessage = $"Exported {format} — {result.SavedPath}";
+                else if (!result.Cancelled)
+                    App.Dialogs.Warning(result.ErrorMessage ?? "Export failed.", "Export");
+            }
+            catch (Exception ex)
+            {
+                App.Dialogs.Error($"Export failed: {ExceptionMessages.Deep(ex)}", "Export");
+            }
+            finally
+            {
+                IsExporting = false;
+            }
+        }
+
+        /// <summary>Synthetic TOTAL row appended to the export.</summary>
+        private ServiceProfitRow BuildTotalRow()
+        {
+            decimal charge = ServiceBreakdown.Sum(r => r.Charge);
+            decimal cost = ServiceBreakdown.Sum(r => r.Cost);
+            decimal profit = ServiceBreakdown.Sum(r => r.Profit);
+            decimal margin = charge > 0m ? Math.Round(profit / charge * 100m, 1) : 0m;
+
+            return new ServiceProfitRow
+            {
+                SpecName = "",
+                ServiceName = "TOTAL",
+                Description = $"All services ({ServiceBreakdown.Count})",
+                Area = ServiceBreakdown.Sum(r => r.Area),
+                Charge = charge,
+                Cost = cost,
+                Profit = profit,
+                MarginPercent = margin,
+                IsProfitable = profit >= 0m
+            };
+        }
+
+        // ══════════════════════════════════════════════════════════════
         //  METHODS
         // ══════════════════════════════════════════════════════════════
 
@@ -167,6 +257,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (groups == null || groups.Count == 0)
                 {
                     StatusMessage = "No specifications found. Please add specifications in Step 5.";
+                    OnPropertyChanged(nameof(TotalServiceArea));
+                    OnPropertyChanged(nameof(TotalServiceAreaDisplay));
+                    OnPropertyChanged(nameof(TotalServiceCountDisplay));
+                    OnPropertyChanged(nameof(TotalServiceCost));
+                    OnPropertyChanged(nameof(TotalServiceCostDisplay));
                     return;
                 }
 
@@ -232,6 +327,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     ? Math.Round((totalProfit / totalCharge) * 100m, 1)
                     : 0m;
 
+                // Derived totals for the column-aligned footer row.
+                OnPropertyChanged(nameof(TotalServiceArea));
+                OnPropertyChanged(nameof(TotalServiceAreaDisplay));
+                OnPropertyChanged(nameof(TotalServiceCountDisplay));
+                OnPropertyChanged(nameof(TotalServiceCost));
+                OnPropertyChanged(nameof(TotalServiceCostDisplay));
                 StatusMessage = $"Analysis complete. {ServiceBreakdown.Count} service(s) analyzed.";
             }
             catch (Exception ex)

@@ -96,6 +96,14 @@
             <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="0,16,0,0"/>
         </Style>
+
+        <!-- Compact export toolbar button (CSV / Excel / PDF) -->
+        <Style x:Key="ExportToolbarButton" TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+            <Setter Property="Padding" Value="12,5"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </UserControl.Resources>
     
     <Grid Margin="16">
@@ -108,11 +116,23 @@
         </Grid.RowDefinitions>
         
         <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,16">
-            <TextBlock Text="GLASS TYPE COMPARISON" Style="{StaticResource HeaderStyle}"/>
-            <TextBlock Text="Compare profitability across glass types (DGU, SGU, LAM, DGU+LAM) to make strategic decisions about which products to promote." 
-                       Style="{StaticResource SubheaderStyle}"/>
-        </StackPanel>
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="GLASS TYPE COMPARISON" Style="{StaticResource HeaderStyle}"/>
+                <TextBlock Text="Compare profitability across glass types (DGU, SGU, LAM, DGU+LAM) to make strategic decisions about which products to promote." 
+                           Style="{StaticResource SubheaderStyle}"/>
+            </StackPanel>
+            <!-- Export toolbar (multi-generation report output) -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="12,0,0,0">
+                <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ExportToolbarButton}" ToolTip="Export this analysis as CSV."/>
+                <Button Content="EXCEL" Command="{Binding ExportExcelCommand}" Style="{StaticResource ExportToolbarButton}" ToolTip="Export this analysis as Excel."/>
+                <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ExportToolbarButton}" ToolTip="Export this analysis as PDF."/>
+            </StackPanel>
+        </Grid>
         
         <!-- KPI Cards -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
@@ -188,6 +208,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 
                 <!-- Table Header -->
@@ -345,6 +366,55 @@
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
+                </Border>
+
+                <!-- Totals footer — the same column definitions as the table,
+                     so the sums land exactly under their columns. -->
+                <Border Grid.Row="2"
+                        Background="{DynamicResource ModuleBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="0,1,0,0"
+                        Padding="8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="0.8*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="TOTAL"
+                                   Style="{StaticResource TableCellStyle}" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding TotalJobCountDisplay}"
+                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="{Binding TotalAreaDisplay}"
+                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="{Binding TotalRevenueDisplay}"
+                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="4" Text="{Binding TotalCostDisplay}"
+                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="5" Text="{Binding TotalProfitDisplay}"
+                                   HorizontalAlignment="Right" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
+                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding TotalProfit, Converter={StaticResource DecimalComparisonConverter}, ConverterParameter=0}" Value="LessThan">
+                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Grid.Column="6" Text="{Binding OverallMarginDisplay}"
+                                   Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
+                        <TextBlock Grid.Column="7" Text="—"
+                                   Style="{StaticResource TableCellStyle}"/>
+                    </Grid>
                 </Border>
             </Grid>
         </Border>

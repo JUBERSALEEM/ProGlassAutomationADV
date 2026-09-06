@@ -121,6 +121,13 @@
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
+
+        <!-- Compact export toolbar button (CSV / Excel / PDF) -->
+        <Style x:Key="SheetExportButton" TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+            <Setter Property="Padding" Value="12,5"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+            <Setter Property="FontSize" Value="11"/>
+        </Style>
     </UserControl.Resources>
 
     <Grid Margin="16">
@@ -142,14 +149,23 @@
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap" Margin="0,2,0,0"/>
                 </StackPanel>
-                <Button Grid.Column="1"
-                        Content="REFRESH"
-                        Command="{Binding RefreshCommand}"
-                        Style="{StaticResource PrimaryPillButton}"
-                        VerticalAlignment="Center"
-                        Margin="16,0,0,0"
-                        Cursor="Hand"
-                        ToolTip="Re-analyze sheet usage and cross-check the Step 6 wastage charges."/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
+                    <Button Content="CSV" Command="{Binding ExportCsvCommand}"
+                            Style="{StaticResource SheetExportButton}"
+                            ToolTip="Export this analysis as CSV."/>
+                    <Button Content="EXCEL" Command="{Binding ExportExcelCommand}"
+                            Style="{StaticResource SheetExportButton}"
+                            ToolTip="Export this analysis as Excel."/>
+                    <Button Content="PDF" Command="{Binding ExportPdfCommand}"
+                            Style="{StaticResource SheetExportButton}"
+                            ToolTip="Export this analysis as PDF."/>
+                    <Button Content="REFRESH"
+                            Command="{Binding RefreshCommand}"
+                            Style="{StaticResource PrimaryPillButton}"
+                            Margin="8,0,0,0"
+                            Cursor="Hand"
+                            ToolTip="Re-analyze sheet usage and cross-check the Step 6 wastage charges."/>
+                </StackPanel>
             </Grid>
 
             <!-- ═══ SHORTFALL BANNER (errors) ═══ -->

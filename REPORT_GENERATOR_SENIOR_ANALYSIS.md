@@ -712,3 +712,79 @@ Reports-hub screen — no new engines needed.
 all bindings verified against the VM and the new group POCOs; csproj parses as
 XML. No `Tests/` source-level contract references the old 4-step wizard, so
 nothing regresses.
+
+## 17. Round — Step 9 Profit/Loss reports: professionalise + multi-generation export
+
+**Reported:** "also include step 9 all reports also proper do a senior analysis
+how can you upgrade it … more important module integration all rounder report
+generation so should be proper separate also more professional if used multi
+generation."
+
+**Scope decision.** "Step 9 all reports" is the four analysis reports hosted by
+the Proforma Invoice wizard's **Step 9 — Profit & Loss** screen
+(`ViewModels/ProformaInvoice/Step9ProfitLoss/`, `Views/ProformaInvoice/
+Step9ProfitLoss/`): (1) Service Profitability, (2) Sheet Profitability,
+(3) Glass Type Comparison, and (4) the per-spec Target comparison in the
+GLASS/SPEC COMPARISON tab. These are the house "advanced report" modules the
+earlier §16 round referenced; the same user language ("all rounder report
+generation", "multi generation") now applies to them directly.
+
+**Senior analysis — deficiencies found.**
+
+- **D1 — No export on any of the four reports.** Every other report surface
+  (Reports hub, Delivery Note, Job Order, Step 7 print preview, and the new
+  Step 5 from §16) exports CSV/Excel/PDF through
+  `Services/Reporting/ReportingExportService`. The Step 9 reports are the only
+  profitability surfaces with zero output, so an analysis can never leave the
+  screen — the exact "multi-generation" gap the user calls out.
+- **D2 — Totals live only in KPI cards.** Glass Type and Service show sums as
+  detached cards, not under the table columns; Sheet has no column-aligned
+  total at all. §16 established the house standard (sums directly under their
+  columns, same grid definitions) and these tables break it.
+- **D3 — Exported data would have no TOTAL row.** The row models carry per-row
+  values only; a flat export loses the roll-up unless a synthetic total row is
+  appended (margins recomputed from sums, never summed).
+- **D4 — Provenance is implicit.** Cost basis (selling/purchase), wastage % and
+  PI scope are visible on screen but not carried into any output.
+- **D5 — No live export state.** No `IsExporting` guard/busy state exists to
+  prevent double-fire while a SaveFileDialog is open.
+
+**Upgrade decisions (coherent, non-breaking).**
+
+1. **Reuse, don't fork.** A new `Step9ReportExport` static helper (same
+   namespace as the row types, so ViewModels→Services dependency direction is
+   preserved) maps each row type to column arrays and hands them to the central
+   `ReportingExportService.Export{Csv,Excel,Pdf}Async<T>`. Exports therefore
+   behave identically to the Reports hub: save-dialog, auto-open,
+   `{Report}_{date}.ext` naming, and the same PDF table renderer.
+2. **TOTAL row travels with the file.** Each owning VM appends a synthetic
+   total row (Service/Sheet/Glass-type) whose margin is recomputed from the
+   column sums. The per-spec Target comparison keeps the per-spec rows and the
+   job-level KPI cards as its roll-up (its rows are a comparison unit, not a
+   ledger), documented rather than invented.
+3. **Column-aligned on-screen totals.** Glass Type and Service gain a footer
+   row using the identical column definitions as the header/data rows; Service
+   adds a computed `TotalServiceCost` (charge − profit) so COST and PROFIT both
+   total correctly. Sheet already shows a rich KPI/reconciliation strip and
+   keeps it.
+4. **Export toolbar.** Three compact CSV/EXCEL/PDF buttons per report (top-right
+   header, or beside REFRESH), styled off the existing `OutlinedPillButton`.
+5. **Safety.** Each VM exposes `IsExporting`; `ExportAsync` guards on empty rows
+   and re-entrance, reports success into the existing `StatusMessage`, and
+   surfaces failures via `App.Dialogs` (never an unhandled exception).
+
+**Implemented.** `ViewModels/ProformaInvoice/Step9ProfitLoss/Step9ReportExport.cs`
+(new); export commands/methods on `GlassTypeComparisonViewModel`,
+`ServiceProfitabilityViewModel`, `SheetProfitabilityViewModel` and the parent
+`ProfitLossStepViewModel` (target comparison); export toolbars + column-aligned
+totals footers in `GlassTypeComparisonView.xaml` and `ServiceProfitabilityView.xaml`;
+toolbar in `SheetProfitabilityView.xaml` and `ProfitLossStepView.xaml`.
+
+**Verification.** All four changed views pass `xaml_wellformed.py`,
+`stray_attr_check.py` and `dup_property_check.py` (0 issues); `binding_check.py`
+resolves every binding root (19/21/49/98, 0 unresolved) against the VMs and row
+types; `resource_check.py` resolves all StaticResource/DynamicResource keys
+(23/21/34/61, 0 unresolved). No existing Step 9 contract changed — row models,
+calculation paths, snapshots and the parent `SpecGroupsView`/`TargetSpecsView`
+are untouched; only additive export surface and read-only footer bindings were
+added.

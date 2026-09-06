@@ -51,6 +51,7 @@
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.ProformaInvoice;
@@ -120,6 +121,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             SelectTargetSpecCommand = new RelayCommand(_ => SetSelectedTargetSpec(_));
             GoToStep6Command = new RelayCommand(_ => GoToStep6());
             BackToComparisonCommand = new RelayCommand(_ => BackToComparison());
+            ExportTargetCsvCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportTargetAsync(ExportFormat.Csv), "Step9 Target CSV"));
+            ExportTargetExcelCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportTargetAsync(ExportFormat.Excel), "Step9 Target Excel"));
+            ExportTargetPdfCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportTargetAsync(ExportFormat.Pdf), "Step9 Target PDF"));
 
             Rows.CollectionChanged += OnRowsCollectionChanged;
 
@@ -185,6 +192,56 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// Compares profitability across DGU, SGU, LAM, DGU+LAM.
         /// </summary>
         public GlassTypeComparisonViewModel GlassTypeComparison { get; }
+
+        // ══════════════════════════════════════════════════════════════
+        //  TARGET-COMPARISON EXPORT (CSV / Excel / PDF)
+        // ══════════════════════════════════════════════════════════════
+
+        public ICommand ExportTargetCsvCommand { get; }
+        public ICommand ExportTargetExcelCommand { get; }
+        public ICommand ExportTargetPdfCommand { get; }
+
+        private bool _isTargetExporting;
+        /// <summary>True while a target-comparison export runs.</summary>
+        public bool IsTargetExporting
+        {
+            get => _isTargetExporting;
+            private set
+            {
+                if (_isTargetExporting == value) return;
+                _isTargetExporting = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private async Task ExportTargetAsync(ExportFormat format)
+        {
+            if (_isTargetExporting || TargetSpecsView.Count == 0) return;
+            _isTargetExporting = true;
+            try
+            {
+                var rows = TargetSpecsView.ToList();
+                var result = await Step9ReportExport.RunAsync(
+                    format, rows, "Specification Target Comparison",
+                    Step9ReportExport.TargetHeaders,
+                    Step9ReportExport.TargetMap,
+                    Step9ReportExport.TargetMapExcel,
+                    $"Target_Comparison_{DateTime.Now:yyyyMMdd}");
+
+                if (result.Success)
+                    StatusMessage = $"Exported {format} — {result.SavedPath}";
+                else if (!result.Cancelled)
+                    App.Dialogs.Warning(result.ErrorMessage ?? "Export failed.", "Export");
+            }
+            catch (Exception ex)
+            {
+                App.Dialogs.Error($"Export failed: {ExceptionMessages.Deep(ex)}", "Export");
+            }
+            finally
+            {
+                _isTargetExporting = false;
+            }
+        }
 
     }
 }

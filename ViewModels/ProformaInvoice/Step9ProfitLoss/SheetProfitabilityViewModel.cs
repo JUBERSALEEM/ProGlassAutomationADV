@@ -43,9 +43,11 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
+using ProGlassAutomation.Services.Export.Core;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
@@ -68,6 +70,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             RefreshCommand = new RelayCommand(_ => RefreshAnalysis());
             SelectRowCommand = new RelayCommand(_ => SetSelectedRow(_));
             BackCommand = new RelayCommand(_ => BackToSheetList());
+            ExportCsvCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Csv), "Step9 Sheet CSV"));
+            ExportExcelCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Excel), "Step9 Sheet Excel"));
+            ExportPdfCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Pdf), "Step9 Sheet PDF"));
 
             // Initial load
             RefreshAnalysis();
@@ -281,6 +289,88 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         /// <summary>Returns from the detail screen back to the sheet list.</summary>
         public ICommand BackCommand { get; }
+
+        // ══════════════════════════════════════════════════════════════
+        //  EXPORT (CSV / Excel / PDF) — Step 9 report output
+        // ══════════════════════════════════════════════════════════════
+
+        public ICommand ExportCsvCommand { get; }
+        public ICommand ExportExcelCommand { get; }
+        public ICommand ExportPdfCommand { get; }
+
+        private bool _isExporting;
+        /// <summary>True while an export runs (disables the toolbar).</summary>
+        public bool IsExporting
+        {
+            get => _isExporting;
+            private set
+            {
+                if (_isExporting == value) return;
+                _isExporting = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private async Task ExportAsync(ExportFormat format)
+        {
+            if (IsExporting || SheetBreakdown.Count == 0) return;
+            IsExporting = true;
+            try
+            {
+                var rows = SheetBreakdown.ToList();
+                rows.Add(BuildTotalRow());
+
+                var result = await Step9ReportExport.RunAsync(
+                    format, rows, "Sheet Profitability",
+                    Step9ReportExport.SheetHeaders,
+                    Step9ReportExport.SheetMap,
+                    Step9ReportExport.SheetMapExcel,
+                    $"Sheet_Profitability_{DateTime.Now:yyyyMMdd}");
+
+                if (result.Success)
+                    StatusMessage = $"Exported {format} — {result.SavedPath}";
+                else if (!result.Cancelled)
+                    App.Dialogs.Warning(result.ErrorMessage ?? "Export failed.", "Export");
+            }
+            catch (Exception ex)
+            {
+                App.Dialogs.Error($"Export failed: {ExceptionMessages.Deep(ex)}", "Export");
+            }
+            finally
+            {
+                IsExporting = false;
+            }
+        }
+
+        /// <summary>Synthetic TOTAL row appended to the export.</summary>
+        private SheetProfitRow BuildTotalRow()
+        {
+            return new SheetProfitRow
+            {
+                SpecName = "",
+                GlassTypeLabel = "TOTAL",
+                PaneSide = "",
+                SheetSize = "",
+                SheetSqm = SheetBreakdown.Sum(r => r.SheetSqm),
+                BuySheets = SheetBreakdown.Sum(r => r.BuySheets),
+                UsedSheets = SheetBreakdown.Sum(r => r.UsedSheets),
+                WastageSheets = SheetBreakdown.Sum(r => r.WastageSheets),
+                BuySheetArea = SheetBreakdown.Sum(r => r.BuySheetArea),
+                UsedArea = SheetBreakdown.Sum(r => r.UsedArea),
+                WastageArea = SheetBreakdown.Sum(r => r.WastageArea),
+                PricePerSqm = 0m,
+                BuySheetPrice = SheetBreakdown.Sum(r => r.BuySheetPrice),
+                UsedSheetPrice = SheetBreakdown.Sum(r => r.UsedSheetPrice),
+                WastageValue = SheetBreakdown.Sum(r => r.WastageValue),
+                Step6Charge = SheetBreakdown.Sum(r => r.Step6Charge),
+                Step6SourceLabel = "",
+                Step6SourceSqm = 0m,
+                Step6SheetQuantity = 0,
+                Step6Rate = 0m,
+                UsageEfficiencyPercent = 0m,
+                DiagnosticMessage = $"All sheet rows ({SheetBreakdown.Count})"
+            };
+        }
 
         private SheetProfitRow? _selectedRow;
         public SheetProfitRow? SelectedRow

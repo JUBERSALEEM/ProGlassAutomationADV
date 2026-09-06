@@ -29,6 +29,7 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.Services.ProformaInvoice.TargetPricing;
+using ProGlassAutomation.Services.Export.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -51,6 +52,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             
             GlassTypeRows = new ObservableCollection<GlassTypeComparisonRow>();
             RefreshCommand = new RelayCommand(_ => RefreshAnalysis());
+            ExportCsvCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Csv), "Step9 GlassType CSV"));
+            ExportExcelCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Excel), "Step9 GlassType Excel"));
+            ExportPdfCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Pdf), "Step9 GlassType PDF"));
             
             // Initial load
             RefreshAnalysis();
@@ -196,6 +203,92 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         /// <summary>Refresh command.</summary>
         public ICommand RefreshCommand { get; }
+
+        // ══════════════════════════════════════════════════════════════
+        //  EXPORT (CSV / Excel / PDF) — Step 9 report output
+        // ══════════════════════════════════════════════════════════════
+
+        public ICommand ExportCsvCommand { get; }
+        public ICommand ExportExcelCommand { get; }
+        public ICommand ExportPdfCommand { get; }
+
+        private bool _isExporting;
+        /// <summary>True while an export runs (disables the toolbar).</summary>
+        public bool IsExporting
+        {
+            get => _isExporting;
+            private set
+            {
+                if (_isExporting == value) return;
+                _isExporting = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Total analysed jobs (sum of the per-type job counts).</summary>
+        public int TotalJobCount => GlassTypeRows.Sum(r => r.JobCount);
+
+        /// <summary>Total analysed area across glass types (SQM).</summary>
+        public decimal TotalArea => GlassTypeRows.Sum(r => r.TotalArea);
+
+        public string TotalAreaDisplay => $"{TotalArea:0.##} SQM";
+        public string TotalJobCountDisplay => $"{TotalJobCount}";
+
+        private async Task ExportAsync(ExportFormat format)
+        {
+            if (IsExporting || GlassTypeRows.Count == 0) return;
+            IsExporting = true;
+            try
+            {
+                var rows = GlassTypeRows.ToList();
+                rows.Add(BuildTotalRow());
+
+                var result = await Step9ReportExport.RunAsync(
+                    format, rows, "Glass Type Comparison",
+                    Step9ReportExport.GlassTypeHeaders,
+                    Step9ReportExport.GlassTypeMap,
+                    Step9ReportExport.GlassTypeMapExcel,
+                    $"GlassType_Comparison_{DateTime.Now:yyyyMMdd}");
+
+                if (result.Success)
+                    StatusMessage = $"Exported {format} — {result.SavedPath}";
+                else if (!result.Cancelled)
+                    App.Dialogs.Warning(result.ErrorMessage ?? "Export failed.", "Export");
+            }
+            catch (Exception ex)
+            {
+                App.Dialogs.Error($"Export failed: {ExceptionMessages.Deep(ex)}", "Export");
+            }
+            finally
+            {
+                IsExporting = false;
+            }
+        }
+
+        /// <summary>
+        /// Synthetic TOTAL row appended to the export so the column-aligned
+        /// totals travel with the file. Margin is recomputed from the sums,
+        /// never summed across rows.
+        /// </summary>
+        private GlassTypeComparisonRow BuildTotalRow()
+        {
+            decimal revenue = GlassTypeRows.Sum(r => r.TotalRevenue);
+            decimal cost = GlassTypeRows.Sum(r => r.TotalCost);
+            decimal profit = GlassTypeRows.Sum(r => r.TotalProfit);
+            decimal margin = revenue > 0m ? Math.Round(profit / revenue * 100m, 1) : 0m;
+
+            return new GlassTypeComparisonRow
+            {
+                GlassType = "TOTAL",
+                JobCount = GlassTypeRows.Sum(r => r.JobCount),
+                TotalArea = GlassTypeRows.Sum(r => r.TotalArea),
+                TotalRevenue = revenue,
+                TotalCost = cost,
+                TotalProfit = profit,
+                MarginPercent = margin,
+                IsProfitable = profit >= 0m
+            };
+        }
 
         // ══════════════════════════════════════════════════════════════
         //  METHODS
@@ -356,6 +449,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     ? Math.Round((totalProfit / totalRevenue) * 100m, 1)
                     : 0m;
 
+                // Derived totals for the column-aligned footer row.
+                OnPropertyChanged(nameof(TotalJobCount));
+                OnPropertyChanged(nameof(TotalJobCountDisplay));
+                OnPropertyChanged(nameof(TotalArea));
+                OnPropertyChanged(nameof(TotalAreaDisplay));
+
                 // ── Honest status line ───────────────────────────────────
                 string basis = hasTargetModel
                     ? "Actual Step 5 given prices"
@@ -393,6 +492,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             BestPerformingGlassType = "";
             WorstPerformingGlassType = "";
             Recommendation = "";
+            OnPropertyChanged(nameof(TotalJobCount));
+            OnPropertyChanged(nameof(TotalJobCountDisplay));
+            OnPropertyChanged(nameof(TotalArea));
+            OnPropertyChanged(nameof(TotalAreaDisplay));
         }
 
         /// <summary>

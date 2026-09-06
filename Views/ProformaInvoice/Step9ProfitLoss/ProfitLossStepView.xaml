@@ -122,6 +122,14 @@
             <Setter Property="MaxWidth" Value="180"/>
             <Setter Property="Margin" Value="10,2,0,2"/>
         </Style>
+
+        <!-- Compact export toolbar button (CSV / Excel / PDF) -->
+        <Style x:Key="TgtExportButton" TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+            <Setter Property="Padding" Value="12,5"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
     </UserControl.Resources>
 
     <TabControl Margin="0" Style="{StaticResource PillTabControlStyle}">
@@ -820,15 +828,27 @@
                                        Style="{StaticResource TgtSectionLabel}"
                                        Margin="0"
                                        VerticalAlignment="Center"/>
-                            <Button Grid.Column="1"
-                                    Content="GO TO STEP 6 · OTHER CHARGES"
-                                    Command="{Binding GoToStep6Command}"
-                                    Style="{StaticResource PrimaryPillButton}"
-                                    VerticalAlignment="Center"
-                                    Margin="12,0,0,0"
-                                    Padding="16,0"
-                                    Cursor="Hand"
-                                    ToolTip="Open Step 6 (Other charges) to review U-inserts, wastage and supplementary charges."/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                                <Button Content="CSV"
+                                        Command="{Binding ExportTargetCsvCommand}"
+                                        Style="{StaticResource TgtExportButton}"
+                                        ToolTip="Export the per-spec target comparison as CSV."/>
+                                <Button Content="EXCEL"
+                                        Command="{Binding ExportTargetExcelCommand}"
+                                        Style="{StaticResource TgtExportButton}"
+                                        ToolTip="Export the per-spec target comparison as Excel."/>
+                                <Button Content="PDF"
+                                        Command="{Binding ExportTargetPdfCommand}"
+                                        Style="{StaticResource TgtExportButton}"
+                                        ToolTip="Export the per-spec target comparison as PDF."/>
+                                <Button Content="GO TO STEP 6 · OTHER CHARGES"
+                                        Command="{Binding GoToStep6Command}"
+                                        Style="{StaticResource PrimaryPillButton}"
+                                        Margin="8,0,0,0"
+                                        Padding="16,0"
+                                        Cursor="Hand"
+                                        ToolTip="Open Step 6 (Other charges) to review U-inserts, wastage and supplementary charges."/>
+                            </StackPanel>
                         </Grid>
                         <TextBlock Text="Each Step 5 specification is priced independently (never mixed Base Rates). Click a row to open its full calculation inspector."
                                    FontSize="{StaticResource TextCaption}"
