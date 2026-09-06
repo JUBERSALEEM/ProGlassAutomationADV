@@ -358,6 +358,12 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         private List<SavedClient> _allClients = new();
         private List<SavedProject> _allProjects = new();
 
+        // "Our company" — the legal entity this business issues documents
+        // under. Resolved from the Company module records (IsDefault, else
+        // the most-used company) and pre-selected so Step 1 is always scoped
+        // to our own company by default.
+        private string _ourCompany = "";
+
         // ═════════════════════════════════════════════════════════════════
         //  CORE STATE
         // ═════════════════════════════════════════════════════════════════
@@ -453,7 +459,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             CurrentStep = 1;
             _debounceTimer.Stop();
 
-            _filterCompany = item.FilterCompany ?? "";
+            _filterCompany = string.IsNullOrWhiteSpace(item.FilterCompany) ? _ourCompany : item.FilterCompany;
             _filterCustomer = item.FilterCustomer ?? "";
             _filterProject = item.FilterProject ?? "";
             _filterSalesman = item.FilterSalesman ?? "";
@@ -519,7 +525,9 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         private void ClearFilters()
         {
             _debounceTimer.Stop();
-            _filterCompany = "";
+            // Company is context, not a filter: resetting always returns to
+            // OUR company (Step 1 selected by default).
+            _filterCompany = _ourCompany;
             _filterCustomer = "";
             _filterProject = "";
             _filterSalesman = "";
@@ -783,10 +791,25 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
 
                 ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
                 {
+                    // ── Company (source sequence step 01) ────────────────
+                    // Preserve repository order (UsageCount DESC) so OUR
+                    // company naturally sits first in the dropdown.
+                    var companyNames = companies
+                        .Select(c => c.CompanyName?.Trim() ?? "")
+                        .Where(n => n.Length > 0)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .ToList();
+
                     Companies.Clear();
-                    foreach (var c in companies.Select(c => c.CompanyName)
-                        .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().OrderBy(n => n))
-                        Companies.Add(c);
+                    foreach (var n in companyNames) Companies.Add(n);
+
+                    // Resolve "our company": the default-marked profile, else
+                    // the most-used profile (first row from the repository).
+                    var ourCompany = companies.FirstOrDefault(c => c.IsDefault)
+                                  ?? companies.FirstOrDefault();
+                    _ourCompany = !string.IsNullOrWhiteSpace(ourCompany?.CompanyName)
+                        ? ourCompany.CompanyName.Trim()
+                        : companyNames.FirstOrDefault() ?? "";
 
                     // Keep the full lists so the Customer dropdown can be
                     // scoped to the chosen salesman and the Project dropdown
@@ -801,6 +824,12 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
 
                     RefreshCustomersForSalesman();
                     RefreshProjectsForCustomer();
+
+                    // Pre-select our company (Step 1 "selected by default").
+                    // Only when nothing else was restored yet; the property
+                    // setter triggers the dependents + schedules the preview.
+                    if (string.IsNullOrWhiteSpace(_filterCompany) && _ourCompany.Length > 0)
+                        FilterCompany = _ourCompany;
                 });
             }
             catch (Exception ex)

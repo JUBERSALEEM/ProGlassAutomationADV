@@ -617,3 +617,44 @@ dropdowns, plus `IsTextSearchEnabled="True"`.
 5. **No live feedback.** Added a `MatchCountDisplay` banner on the Filter step
    (auto-refreshes on every filter change) so users can see matches before
    committing to Generate.
+
+---
+
+## 15. Bug-fix round — sequence, company default & industrial redesign
+
+**Reported:** "sequence is wrong its company salesman customer project. and company
+should be auto selected as per our company module because its our company so
+company step one should be here selected by default. and they show related data
+only. and design you copied from statement generator … redesign industrial
+pattern based with proper senior analysis."
+
+**1. Field sequence.** Reordered Step 1 to `Company → Salesman → Customer →
+Project` (was Company → Customer → Project → Salesman). The Filter step now
+renders a 4-stage "SOURCE SEQUENCE" rail with numbered stage badges (01–04) and
+connector arrows so the cascade reads left-to-right exactly as the business flow.
+
+**2. Company auto-selected (our company).** `OrderReportGeneratorViewModel`
+resolves "our company" from the Company module records in
+`LoadMasterDataAsync`: `IsDefault` profile, else the most-used profile
+(`GetAllCompaniesAsync` already returns UsageCount DESC). The resolved name is
+cached in `_ourCompany` and pre-selected into `FilterCompany`:
+- first load auto-selects when nothing else is restored;
+- `ClearFilters()` resets Company back to our company (company is *context*,
+  not a clearable filter);
+- `PrepareEdit()` falls back to our company when a saved report has no company.
+
+**3. Related-data cascade.** Salesman scopes Customer (`SavedClient.SalesRepresentative`),
+Customer scopes Project (`SavedProject.CustomerName`), with stale-selection
+clearing — carried over from round 14. Note: the master-data model has **no
+company→salesman link** (`SavedSalesman` has only Name/Department), so the
+Salesman list shows all of our company's salesmen; the downstream two stages
+are the true related-data cascade.
+
+**4. Industrial redesign.** `FilterStep.xaml` rewritten away from the Statement
+Generator card layout: uppercase eyebrow headers with accent rule dividers,
+numbered stage badges, a live match-counter chip in the header, a DATE WINDOW
+section, and a STATUS GATE of LED chips (per-status LED colors via
+DataTriggers). XAML passes `xaml_wellformed.py`, `stray_attr_check.py` and
+`dup_property_check.py`; all StaticResource/DynamicResource keys verified
+against the theme dictionaries; all 18 bindings verified against
+`OrderReportGeneratorViewModel` / `StatusCheckItem`.

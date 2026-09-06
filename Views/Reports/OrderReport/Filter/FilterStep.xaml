@@ -1,12 +1,19 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Reports/OrderReport/Filter/FilterStep.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Report Generator — Step 1: Filter (2026-09-06)
+     MODULE: Report Generator — Step 1: Filter Criteria (2026-09-06)
 
-     Filters the Proforma Invoice list that drives the report. Simple,
-     self-contained form (no Statement localization keys): company /
-     customer / project / salesman dropdowns, a date range and a status
-     chip list, bound to OrderReportGeneratorViewModel.
+     Industrial scope-definition panel. Unlike the Statement Generator's
+     card wizard, this is a linear SOURCE SEQUENCE rail:
+
+        01 COMPANY  →  02 SALESMAN  →  03 CUSTOMER  →  04 PROJECT
+
+     • Company is OUR company (resolved from the Company module) and is
+       pre-selected by default — Step 1 is always scoped to us.
+     • Each stage cascades: Salesman scopes Customer, Customer scopes
+       Project — dropdowns only show RELATED records.
+     • A DATE WINDOW and a STATUS GATE complete the scope; a live match
+       counter reports how many PIs fall inside the current scope.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl
     x:Class="ProGlassAutomation.Views.Reports.OrderReport.Filter.FilterStep"
@@ -24,157 +31,371 @@
     SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <!-- Field label -->
-        <Style x:Key="FieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+
+        <!-- Small uppercase section label -->
+        <Style x:Key="IndustrialEyebrow" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+
+        <!-- Field label (uppercase, muted, engineering feel) -->
+        <Style x:Key="IndustrialFieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin" Value="2,0,0,6"/>
         </Style>
 
-        <!-- Field input (TextBox-like) -->
-        <Style x:Key="FieldInput" TargetType="Control">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="Padding" Value="12,0"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <!-- Helper caption under a field -->
+        <Style x:Key="IndustrialHint" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="2,6,0,0"/>
         </Style>
 
-        <!-- Status chip -->
-        <Style x:Key="StatusChip" TargetType="CheckBox">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="0,0,8,8"/>
-            <Setter Property="Padding" Value="12,7"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <!-- Numbered stage badge (01…04) -->
+        <Style x:Key="IndustrialStageBadge" TargetType="Border">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+            <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+
+        <!-- Status gate chip: LED dot + label, filled when active -->
+        <Style x:Key="IndustrialStatusChip" TargetType="CheckBox">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,10,10"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Border x:Name="Chip"
+                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderThickness="{DynamicResource CardBorderThickness}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="14,8">
+                            <StackPanel Orientation="Horizontal">
+                                <Border x:Name="Led" Width="8" Height="8" CornerRadius="4"
+                                        Background="{DynamicResource TintGrayBrush}"
+                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
+                                <TextBlock Text="{TemplateBinding Content}"
+                                           FontSize="{StaticResource TextBody}"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource AccentLightBrush}"/>
+                                <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chip" Property="BorderBrush" Value="{DynamicResource OutlineStrongBrush}"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding Status}" Value="Draft">
+                                <Setter TargetName="Led" Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="Sent">
+                                <Setter TargetName="Led" Property="Background" Value="{DynamicResource InfoBrush}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="Approved">
+                                <Setter TargetName="Led" Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="Rejected">
+                                <Setter TargetName="Led" Property="Background" Value="{DynamicResource DangerBrush}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="Expired">
+                                <Setter TargetName="Led" Property="Background" Value="{DynamicResource WarningBrush}"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                <Setter TargetName="Led" Property="Background" Value="{DynamicResource DangerBrush}"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <StackPanel Margin="40,28,40,28">
+            <StackPanel Margin="36,26,36,28">
 
-                <!-- Header -->
-                <TextBlock Text="Step 1 — Filter Orders"
-                           FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock Text="Choose which proforma invoices to include. The preview lists every matching PI so you can generate one overall report or a consolidated multi-PI report."
-                           FontSize="{StaticResource TextSection}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           TextWrapping="Wrap" Margin="0,6,0,0"/>
+                <!-- ═══════════════════════════════════════════════════════
+                     HEADER — title + live match counter
+                ═══════════════════════════════════════════════════════ -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                <!-- Live match count (auto-refreshes as filters change) -->
-                <Border Margin="0,14,0,0"
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="REPORT SCOPE · STEP 01"
+                                   Style="{StaticResource IndustrialEyebrow}"/>
+                        <TextBlock Text="Filter Criteria"
+                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Margin="0,4,0,0"/>
+                        <TextBlock Text="Define which proforma invoices feed this report. Each stage narrows the scope to related records only."
+                                   FontSize="{StaticResource TextBody}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   TextWrapping="Wrap" Margin="0,6,0,0" MaxWidth="640"/>
+                    </StackPanel>
+
+                    <!-- Live match counter -->
+                    <Border Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Background="{DynamicResource ModuleBackgroundBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="{DynamicResource CardBorderThickness}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            Padding="16,12" Margin="24,0,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="10" Height="10" CornerRadius="5"
+                                    Background="{DynamicResource SuccessBrush}"
+                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding MatchCountDisplay}"
+                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SOURCE SEQUENCE — Company → Salesman → Customer → Project
+                ═══════════════════════════════════════════════════════ -->
+                <Border Margin="0,22,0,0"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="14,10"
-                        HorizontalAlignment="Left">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="10" Height="10" CornerRadius="5"
-                                Background="{DynamicResource SuccessBrush}"
-                                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBlock Text="{Binding MatchCountDisplay}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   VerticalAlignment="Center"/>
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                        Padding="22,20">
+
+                    <StackPanel>
+                        <!-- Section header -->
+                        <Grid Margin="0,0,0,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="4" Height="14" CornerRadius="2"
+                                        Background="{DynamicResource AccentBrush}"
+                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
+                                <TextBlock Text="SOURCE SEQUENCE" Style="{StaticResource IndustrialEyebrow}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Height="1" Background="{DynamicResource OutlineBrush}"
+                                    VerticalAlignment="Center" Margin="14,0,0,0"/>
+                        </Grid>
+
+                        <!-- 4-stage rail -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- 01 · COMPANY -->
+                            <StackPanel Grid.Column="0">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <Border Style="{StaticResource IndustrialStageBadge}">
+                                        <TextBlock Text="01" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="COMPANY" Style="{StaticResource IndustrialFieldLabel}" Margin="0"/>
+                                        <TextBlock Text="OUR COMPANY" FontSize="{StaticResource TextXSmall}"
+                                                   FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
+                                          Height="40"
+                                          ItemsSource="{Binding Companies}"
+                                          Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"
+                                          IsTextSearchEnabled="True"/>
+                                <TextBlock Text="Issuing entity — pre-selected from the Company module."
+                                           Style="{StaticResource IndustrialHint}"/>
+                            </StackPanel>
+
+                            <!-- connector -->
+                            <TextBlock Grid.Column="1" Text="→" FontSize="{StaticResource TextSection}"
+                                       FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Top"
+                                       Margin="12,40,12,0"/>
+
+                            <!-- 02 · SALESMAN -->
+                            <StackPanel Grid.Column="2">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <Border Style="{StaticResource IndustrialStageBadge}">
+                                        <TextBlock Text="02" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="SALESMAN" Style="{StaticResource IndustrialFieldLabel}"
+                                               VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
+                                          Height="40"
+                                          ItemsSource="{Binding Salesmen}"
+                                          Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"
+                                          IsTextSearchEnabled="True"/>
+                                <TextBlock Text="Scopes the customer list to this sales representative."
+                                           Style="{StaticResource IndustrialHint}"/>
+                            </StackPanel>
+
+                            <!-- connector -->
+                            <TextBlock Grid.Column="3" Text="→" FontSize="{StaticResource TextSection}"
+                                       FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Top"
+                                       Margin="12,40,12,0"/>
+
+                            <!-- 03 · CUSTOMER -->
+                            <StackPanel Grid.Column="4">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <Border Style="{StaticResource IndustrialStageBadge}">
+                                        <TextBlock Text="03" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="CUSTOMER" Style="{StaticResource IndustrialFieldLabel}"
+                                               VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
+                                          Height="40"
+                                          ItemsSource="{Binding Customers}"
+                                          Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"
+                                          IsTextSearchEnabled="True"/>
+                                <TextBlock Text="Scopes the project list to this customer."
+                                           Style="{StaticResource IndustrialHint}"/>
+                            </StackPanel>
+
+                            <!-- connector -->
+                            <TextBlock Grid.Column="5" Text="→" FontSize="{StaticResource TextSection}"
+                                       FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Top"
+                                       Margin="12,40,12,0"/>
+
+                            <!-- 04 · PROJECT -->
+                            <StackPanel Grid.Column="6">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                    <Border Style="{StaticResource IndustrialStageBadge}">
+                                        <TextBlock Text="04" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="PROJECT" Style="{StaticResource IndustrialFieldLabel}"
+                                               VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                </StackPanel>
+                                <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
+                                          Height="40"
+                                          ItemsSource="{Binding Projects}"
+                                          Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"
+                                          IsTextSearchEnabled="True"/>
+                                <TextBlock Text="Specific project — leave empty to include all."
+                                           Style="{StaticResource IndustrialHint}"/>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
-                <!-- Filters card -->
-                <Border Margin="0,20,0,0"
+                <!-- ═══════════════════════════════════════════════════════
+                     DATE WINDOW
+                ═══════════════════════════════════════════════════════ -->
+                <Border Margin="0,16,0,0"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Padding="24">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="20"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="16"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="16"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                        Padding="22,20">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="4" Height="14" CornerRadius="2"
+                                        Background="{DynamicResource AccentBrush}"
+                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
+                                <TextBlock Text="DATE WINDOW" Style="{StaticResource IndustrialEyebrow}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Height="1" Background="{DynamicResource OutlineBrush}"
+                                    VerticalAlignment="Center" Margin="14,0,0,0"/>
+                        </Grid>
 
-                        <StackPanel Grid.Row="0" Grid.Column="0">
-                            <TextBlock Text="Company" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
-                                      Height="40"
-                                      ItemsSource="{Binding Companies}"
-                                      Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"
-                                      IsTextSearchEnabled="True"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="0" Grid.Column="2">
-                            <TextBlock Text="Customer" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
-                                      Height="40"
-                                      ItemsSource="{Binding Customers}"
-                                      Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"
-                                      IsTextSearchEnabled="True"/>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="24"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Row="2" Grid.Column="0">
-                            <TextBlock Text="Project" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
-                                      Height="40"
-                                      ItemsSource="{Binding Projects}"
-                                      Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"
-                                      IsTextSearchEnabled="True"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="2" Grid.Column="2">
-                            <TextBlock Text="Salesman" Style="{StaticResource FieldLabel}"/>
-                            <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
-                                      Height="40"
-                                      ItemsSource="{Binding Salesmen}"
-                                      Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"
-                                      IsTextSearchEnabled="True"/>
-                        </StackPanel>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="DATE FROM" Style="{StaticResource IndustrialFieldLabel}"/>
+                                <DatePicker SelectedDate="{Binding DateFrom}"
+                                            Height="40" FontSize="{StaticResource TextBodyLarge}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="DATE TO" Style="{StaticResource IndustrialFieldLabel}"/>
+                                <DatePicker SelectedDate="{Binding DateTo}"
+                                            Height="40" FontSize="{StaticResource TextBodyLarge}"/>
+                            </StackPanel>
+                        </Grid>
 
-                        <StackPanel Grid.Row="4" Grid.Column="0">
-                            <TextBlock Text="Date From" Style="{StaticResource FieldLabel}"/>
-                            <DatePicker SelectedDate="{Binding DateFrom}"
-                                        Height="40" FontSize="{StaticResource TextBodyLarge}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Row="4" Grid.Column="2">
-                            <TextBlock Text="Date To" Style="{StaticResource FieldLabel}"/>
-                            <DatePicker SelectedDate="{Binding DateTo}"
-                                        Height="40" FontSize="{StaticResource TextBodyLarge}"/>
-                        </StackPanel>
-                    </Grid>
+                        <TextBlock Text="Filters on the proforma issue date. Leave blank for an open-ended window."
+                                   Style="{StaticResource IndustrialHint}"/>
+                    </StackPanel>
                 </Border>
 
-                <!-- Status card -->
-                <Border Margin="0,20,0,0"
+                <!-- ═══════════════════════════════════════════════════════
+                     STATUS GATE
+                ═══════════════════════════════════════════════════════ -->
+                <Border Margin="0,16,0,0"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Padding="24">
+                        Padding="22,20">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <TextBlock Text="Proforma Status" FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="(leave all unchecked to ignore status)"
-                                       FontSize="{StaticResource TextCaption}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       VerticalAlignment="Bottom" Margin="10,0,0,2"/>
-                        </StackPanel>
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="4" Height="14" CornerRadius="2"
+                                        Background="{DynamicResource AccentBrush}"
+                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
+                                <TextBlock Text="STATUS GATE" Style="{StaticResource IndustrialEyebrow}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <Border Grid.Column="1" Height="1" Background="{DynamicResource OutlineBrush}"
+                                    VerticalAlignment="Center" Margin="14,0,0,0"/>
+                        </Grid>
 
                         <ItemsControl ItemsSource="{Binding StatusItems}">
                             <ItemsControl.ItemsPanel>
@@ -184,25 +405,35 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <CheckBox Style="{StaticResource StatusChip}"
+                                    <CheckBox Style="{StaticResource IndustrialStatusChip}"
                                               IsChecked="{Binding IsChecked}"
                                               Content="{Binding StatusLabel}"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+
+                        <TextBlock Text="Checked statuses are included. Leave all unchecked to ignore status."
+                                   Style="{StaticResource IndustrialHint}" Margin="2,2,0,0"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Actions -->
-                <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
-                    <Button Content="Clear Filters"
+                <!-- ═══════════════════════════════════════════════════════
+                     ACTIONS
+                ═══════════════════════════════════════════════════════ -->
+                <Grid Margin="0,22,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0" Content="Clear Filters"
                             Command="{Binding ClearFiltersCommand}"
-                            Style="{StaticResource NavButtonSecondaryStyle}"/>
-                    <Button Content="Preview Matches"
+                            Style="{StaticResource NavButtonSecondaryStyle}"
+                            HorizontalAlignment="Left"/>
+                    <Button Grid.Column="1" Content="Preview Matches"
                             Command="{Binding PreviewCommand}"
-                            Style="{StaticResource NavButtonPrimaryStyle}"
-                            Margin="12,0,0,0"/>
-                </StackPanel>
+                            Style="{StaticResource NavButtonPrimaryStyle}"/>
+                </Grid>
 
                 <TextBlock Text="{Binding StatusMessage}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
