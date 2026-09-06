@@ -77,6 +77,14 @@ Ranked; corroborated against the repo's own `CURRENT_PRODUCT_AUDIT_2026-09-05.md
 - **`KeyProtection` silent catches made observable**: the rate-limit ledger read failure and the `MachineHash` fallback now log via the generator's `AppLogService.Warning` stub. Degradation is preserved (empty ledger / `UNKNOWN` fingerprint) but the vendor is told the limiter stopped tracking.
 - **Velopack PDB policy resolved**: the shipped package now excludes `*.pdb` (`packagingScope.include` drops the glob; `**/*.pdb` added to `zipExclude`). PDBs remain in the publish output for the vendor's own symbolication; `docs/CI.md` documents the trade-off and how to reverse it.
 
+### C.6 Localization parity back-fill (this turn)
+- **Closed the K.13/K.14 gap** by back-filling the 35 English-only keys into every non-English runtime with hand-authored translations per language (no machine fallback): 5 `ProformaInvoice.Colour*` colour-detection strings + 15 `Settings.Wallpaper*` studio strings + 15 `Settings.LocaleFallback*` / `ReducedMotion*` / `Preview*` / `WallpaperNone` / `WallpaperNamed` strings.
+- **Runtime XAML (`Themes/Languages/*.xaml`):** all 14 non-English dictionaries now carry the full key set — 2,523 keys each, exact parity with `en-US.xaml` (ar-AE was missing only the 20 K.13 strings; the other 13 were missing all 35).
+- **Canonical sources (`scripts/i18n/*.py`):** the same 35 keys added to all 15 `STRINGS` dicts (en-US included) so the build-parity invariant stays green at 2,440 keys per language. English values taken verbatim from `en-US.xaml`; non-English values are authored translations.
+- **Translation authoring corpus (`scripts/i18n/translations/*.json`):** 30 `Settings.*` strings added to each `-settings.json` and the 5 `ProformaInvoice.*` strings to each `-pi.json` (their correct area chunks per `chunk-split.py`), keeping `merge-keys.py` able to re-apply them.
+- **Non-destructive by design:** insert-only script — 57 files changed, +1,490 / −0 lines; **no `build.py` regeneration was run**. Static validation passed: every XAML/JSON parses, `.py` modules compile and stay sorted/unique, key parity holds across all 15 runtimes, and no duplicate keys.
+- **Still open (pre-existing reverse drift, out of scope this phase):** `en-US.py` ↔ `en-US.xaml` drift is now 83 keys (was 118) — 83 XAML keys absent from the `.py` sources plus one drifted value (`ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5`). `build.py` regeneration stays off-limits until that drift is resolved, since it would delete 83 shipped strings.
+
 ---
 
 ## D. Architecture improvements
@@ -163,8 +171,8 @@ The changes in this engagement were verified by **static reference analysis** (e
 10. Backup scheduling (auto-daily + prune).
 11. Doc pruning: ~130 root+docs markdown files → a single `/docs/INDEX.md` entry point.
 12. Accessibility/keyboard map over the PI wizard.
-13. **Localization gap:** the 20 strings introduced by Wallpaper Studio + ProformaInvoice colour detection are English-only (missing in `ar-AE.xaml`; parity scan lists them). Back-fill translations or accept en fallback.
-14. **Reduced-motion string coverage:** `Settings.ReducedMotion*` exists only in en-US/ar-AE; the other 13 languages fall back to English for the new tile (consistent with their pre-existing studio coverage).
+13. ~~Localization gap: the 20 strings introduced by Wallpaper Studio + ProformaInvoice colour detection are English-only (missing in `ar-AE.xaml`; parity scan lists them). Back-fill translations or accept en fallback.~~ **Done 2026-09-06** — back-filled with authored translations in all 14 non-English runtimes (see C.6).
+14. ~~Reduced-motion string coverage: `Settings.ReducedMotion*` exists only in en-US/ar-AE; the other 13 languages fall back to English for the new tile (consistent with their pre-existing studio coverage).~~ **Done 2026-09-06** — `Settings.ReducedMotion*` plus the related `LocaleFallback*`/`Preview*`/`WallpaperNone`/`WallpaperNamed` strings back-filled in the other 13 languages (see C.6).
 
 **P3**
 15. Decorative-animation behaviors (`BounceHoverBehavior`, `ContentTransitionBehavior`, `SmoothScrollBehavior`, `GridLengthAnimation`) are still referenced by active views — removal is a UX change needing sign-off + a Windows visual pass.
@@ -192,6 +200,7 @@ The in-app Theme Studio was the one genuine "theme playground" (§5 target). It 
 The repository is structurally a **late-stage, well-audited ERP** — the business chain, data integrity, licensing, and money math are sound and, in most places, already hardened by prior passes. This engagement:
 - **fixed** the CI/OTA release wiring and removed a broken workflow and stale template commands,
 - **removed** confirmed dead theme scratch files, the last sync-over-async attachment API, and the experimental Theme Studio / Quick Looks playground (while preserving the professional design system and the reduced-motion accessibility toggle),
+- **back-filled** the 35 English-only localization strings across all 14 non-English runtimes, their canonical `.py` sources, and the translation authoring corpus (K.13/K.14 → done),
 - **verified** (rather than re-broke) the backup P0, decimal money, margin math, and DB-derived numbering,
 - and **produced this honest ledger** of what remains.
 

@@ -1113,6 +1113,7 @@
     <sys:String x:Key="ProformaInvoice.CloseWithoutUploading">إغلاق دون رفع</sys:String>
     <sys:String x:Key="ProformaInvoice.Color">اللون</sys:String>
     <sys:String x:Key="ProformaInvoice.Colour">اللون</sys:String>
+    <sys:String x:Key="ProformaInvoice.ColourNotDetected">اللون غير مكتشف</sys:String>
     <sys:String x:Key="ProformaInvoice.Combined">·  مجتمع</sys:String>
     <sys:String x:Key="ProformaInvoice.ComingPhase720">قادم في المرحلة 7.20</sys:String>
     <sys:String x:Key="ProformaInvoice.ConfirmInvoiceApproval">تأكيد اعتماد الفاتورة</sys:String>
@@ -1195,6 +1196,7 @@
     <sys:String x:Key="ProformaInvoice.MobileNumber">رقم الجوال:</sys:String>
     <sys:String x:Key="ProformaInvoice.Move">تحريك لأسفل</sys:String>
     <sys:String x:Key="ProformaInvoice.Move2">تحريك لأعلى</sys:String>
+    <sys:String x:Key="ProformaInvoice.MultipleColoursSelectedPickDetected">توجد ألوان متعددة في التحديد — اختر لونًا واحدًا من القائمة المكتشفة.</sys:String>
     <sys:String x:Key="ProformaInvoice.NET105">الصافي ÷ 1.05</sys:String>
     <sys:String x:Key="ProformaInvoice.NEWInquiry">جديد من استفسار</sys:String>
     <sys:String x:Key="ProformaInvoice.NetSubtotal">الإجمالي الفرعي الصافي</sys:String>
@@ -1225,6 +1227,8 @@
     <sys:String x:Key="ProformaInvoice.OuterTemper">معالجة خارجية</sys:String>
     <sys:String x:Key="ProformaInvoice.PDF">+ PDF</sys:String>
     <sys:String x:Key="ProformaInvoice.PVBTHK">سماكة PVB</sys:String>
+    <sys:String x:Key="ProformaInvoice.PaneColourDiffersFromRow">لون اللوح يختلف عن لون الصف — راجع قبل التحصيل.</sys:String>
+    <sys:String x:Key="ProformaInvoice.PaneColourMatchesRow">لون اللوح يطابق هذا الصف.</sys:String>
     <sys:String x:Key="ProformaInvoice.PanelExtra">إضافي اللوح</sys:String>
     <sys:String x:Key="ProformaInvoice.Panes">الألواح</sys:String>
     <sys:String x:Key="ProformaInvoice.PaymentLines">بنود الدفع</sys:String>
@@ -1283,6 +1287,7 @@
     <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">عروض محفوظة جاهزة للتحويل إلى أوامر عمل</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">ابحث بالمرجع أو الشركة أو العميل أو المشروع</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">الأقسام</sys:String>
+    <sys:String x:Key="ProformaInvoice.SelectDetectedColour">اللون المكتشف ▾</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectInvoiceLoadWizardCloseCancel">اختر فاتورة لتحميلها في المعالج، أو أغلق للإلغاء.</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectMetric">اختيار المقياس</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectSpecs">اختيار المواصفات</sys:String>
@@ -2072,6 +2077,21 @@
     <sys:String x:Key="Settings.Visibility">الرؤية</sys:String>
     <sys:String x:Key="Settings.VoiceDownloadRequired">التنزيل مطلوب</sys:String>
     <sys:String x:Key="Settings.VoiceInstalledOfflineSTT">مثبّت · تعرّف كلامي عصبي دون اتصال</sys:String>
+    <sys:String x:Key="Settings.WallpaperApply">تطبيق</sys:String>
+    <sys:String x:Key="Settings.WallpaperBackdrop">خلفية النافذة — تمويه على مستوى النظام (تجريبي)</sys:String>
+    <sys:String x:Key="Settings.WallpaperBackdropAcrylic">Acrylic (ويندوز 11)</sys:String>
+    <sys:String x:Key="Settings.WallpaperBackdropCaption">يعرض ويندوز 11 22H2+ تمويهًا حقيقيًا خلف التطبيق عبر DWM (خارج محرك WPF — هكذا يتجاوز النظام حد عدم التمويه في WPF). يتطلب مسرحًا شفافًا، لذا يعيد «إيقاف» مسرح الزجاج السائل المرسوم في أي وقت. تجريبي: يتراجع بصمت على ويندوز الأقدم.</sys:String>
+    <sys:String x:Key="Settings.WallpaperBackdropMica">Mica (ويندوز 11)</sys:String>
+    <sys:String x:Key="Settings.WallpaperBackdropOff">إيقاف — مسرح مرسوم</sys:String>
+    <sys:String x:Key="Settings.WallpaperBuiltin">مشاهد السمة المدمجة</sys:String>
+    <sys:String x:Key="Settings.WallpaperClearAll">مسح الكل</sys:String>
+    <sys:String x:Key="Settings.WallpaperFetch">تنزيل وتطبيق 4K</sys:String>
+    <sys:String x:Key="Settings.WallpaperLibrary">المكتبة التي تم تنزيلها</sys:String>
+    <sys:String x:Key="Settings.WallpaperMode">وضع الخلفية</sys:String>
+    <sys:String x:Key="Settings.WallpaperOnline">تنزيل 4K (إنترنت)</sys:String>
+    <sys:String x:Key="Settings.WallpaperOpenFolder">فتح المجلد</sys:String>
+    <sys:String x:Key="Settings.WallpaperStudio">استوديو الخلفيات</sys:String>
+    <sys:String x:Key="Settings.WallpaperStudioCaption">مشاهد مرتبطة بالسمة تتبع السمة واللون المميز الحاليين (وضوح 4K بأي مقاس، مرسومة بالكود)، وستة تصاميم مدمجة، وتنزيلات بنقرة واحدة من خدمات الخلفيات المجانية — تُحفظ محليًا وتُطبق فورًا ويُعاد استخدامها دون اتصال.</sys:String>
     <sys:String x:Key="Settings.Wallpapers">الخلفيات</sys:String>
     <sys:String x:Key="Settings.WhatLastRunDidWhereOutput">ما فعله آخر تشغيل وأين مخرجاته.</sys:String>
     <sys:String x:Key="Settings.WhatMeans">ماذا يعني هذا</sys:String>
