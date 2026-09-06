@@ -17,6 +17,13 @@ namespace ProGlassAutomation.Services.Database
         public DbSet<GlassSheet> GlassSheets { get; set; }
         public DbSet<SheetHistory> SheetHistories { get; set; }
 
+        /// <summary>
+        /// Non-glass consumables (spacer bar, desiccant, sealants, gas,
+        /// hardware) — see InventoryItem for why these live in their own
+        /// table rather than widening GlassSheet.
+        /// </summary>
+        public DbSet<InventoryItem> InventoryItems { get; set; }
+
         // Future modules add DbSets here:
         // public DbSet<ProformaInvoice> ProformaInvoices { get; set; }
 
@@ -68,6 +75,36 @@ namespace ProGlassAutomation.Services.Database
             modelBuilder.Entity<SheetHistory>()
                 .Property(h => h.ValueChanged)
                 .HasColumnType("TEXT");
+
+            // ── Inventory consumables ────────────────────────────────
+            // Same D-6 discipline: every decimal is TEXT affinity, and
+            // here it covers QUANTITIES too, not just money. Spacer bar
+            // is stocked in linear metres (45.55 LM), so a REAL column
+            // would accumulate binary-float drift across issues and
+            // receipts until the balance no longer matched the shelf.
+            foreach (var prop in new[]
+                     {
+                         nameof(InventoryItem.Stock),
+                         nameof(InventoryItem.Used),
+                         nameof(InventoryItem.ReorderLevel),
+                         nameof(InventoryItem.PurchasePricePerUnit),
+                         nameof(InventoryItem.SellPricePerUnit)
+                     })
+            {
+                modelBuilder.Entity<InventoryItem>()
+                    .Property(prop)
+                    .HasColumnType("TEXT");
+            }
+
+            // Enums persist as INT (their default). Members are
+            // append-only so stored values keep their meaning.
+            modelBuilder.Entity<InventoryItem>()
+                .HasIndex(i => i.Category)
+                .HasDatabaseName("IX_InventoryItem_Category");
+
+            modelBuilder.Entity<InventoryItem>()
+                .HasIndex(i => i.Supplier)
+                .HasDatabaseName("IX_InventoryItem_Supplier");
         }
     }
 }

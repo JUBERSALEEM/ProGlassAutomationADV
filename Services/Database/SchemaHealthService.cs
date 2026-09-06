@@ -178,7 +178,7 @@ namespace ProGlassAutomation.Services.Database
                 Key = "ProGlass",
                 DisplayName = "Sheet Store (proglass.db)",
                 PathProvider = () => AppDbContext.DatabaseFilePath,
-                CountTables = new[] { "GlassSheets", "SheetHistories" },
+                CountTables = new[] { "GlassSheets", "SheetHistories", "InventoryItems" },
                 Expect = Array.Empty<DatabaseSchemaExpectation>(),
                 Recreate = () =>
                 {

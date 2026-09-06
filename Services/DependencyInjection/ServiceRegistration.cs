@@ -105,6 +105,11 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<IStatementRepository, StatementRepository>();
             services.AddSingleton<IMasterDataRepository, MasterDataRepository>();
             services.AddSingleton<ISpecificationsRepository, SpecificationsRepository>();
+
+            // Inventory consumables (spacer bar, desiccant, sealants,
+            // cavity gas, hardware). Stateless like its siblings.
+            services.AddSingleton<Services.SheetStore.IInventoryItemRepository,
+                                  Services.SheetStore.InventoryItemRepository>();
             services.AddSingleton<Services.AI.IAiProviderEvents, Services.AI.AiProviderEvents>();
 
             // ── Reporting / Dashboard (stateless, singleton-safe) ─────
