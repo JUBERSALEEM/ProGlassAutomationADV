@@ -1,4 +1,4 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                     xmlns:controls="clr-namespace:ProGlassAutomation.Controls">
@@ -79,6 +79,7 @@
     </Style>
 
     <Style x:Key="LiquidGlassStrongCardStyle" TargetType="Border">
+        <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
         <Setter Property="CornerRadius" Value="26"/>
         <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
@@ -266,6 +267,7 @@
 
     <!-- ═══ DIALOG CHROME ═══ -->
     <Style x:Key="LiquidGlassDialogCardStyle" TargetType="Border">
+        <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
         <Setter Property="CornerRadius" Value="26"/>
         <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>

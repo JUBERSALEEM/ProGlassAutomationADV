@@ -8,7 +8,7 @@
     - Profit impact of offcut reusability
     - Usage efficiency percentage
 -->
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.SheetProfitabilityView"
+<UserControl xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.SheetProfitabilityView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -35,6 +35,7 @@
         
         <!-- KPI card style -->
         <Style x:Key="KpiCardStyle" TargetType="Border">
+            <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>

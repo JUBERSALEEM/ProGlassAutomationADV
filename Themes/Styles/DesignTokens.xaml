@@ -38,7 +38,7 @@
           chrome standardizes.
 ═══════════════════════════════════════════════════════════════════════ -->
 
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
@@ -61,6 +61,7 @@
     <!-- ══ SECTION CARD — the one card shape for module panels ═══════ -->
 
     <Style x:Key="ModuleSectionCardStyle" TargetType="Border">
+        <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
         <Setter Property="Background"
                 Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush"

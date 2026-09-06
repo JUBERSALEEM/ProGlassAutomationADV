@@ -3,7 +3,7 @@
     one workbench, KPI strip, always-visible build-order layers, rate-check row.
     Bindings and calculations unchanged.
 -->
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.ProfitLossStepView"
+<UserControl xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.ProfitLossStepView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -41,6 +41,7 @@
 
         <!-- Target-profitability layout styles (approved KPI redesign) -->
         <Style x:Key="TgtCardStyle" TargetType="Border">
+            <Setter Property="crystal:CrystalWaterAttach.Attach" Value="True"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>

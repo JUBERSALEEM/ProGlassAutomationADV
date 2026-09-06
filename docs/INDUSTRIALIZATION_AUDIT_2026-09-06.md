@@ -85,6 +85,11 @@ Ranked; corroborated against the repo's own `CURRENT_PRODUCT_AUDIT_2026-09-05.md
 - **Non-destructive by design:** insert-only script — 57 files changed, +1,490 / −0 lines; **no `build.py` regeneration was run**. Static validation passed: every XAML/JSON parses, `.py` modules compile and stay sorted/unique, key parity holds across all 15 runtimes, and no duplicate keys.
 - **Still open (pre-existing reverse drift, out of scope this phase):** `en-US.py` ↔ `en-US.xaml` drift is now 83 keys (was 118) — 83 XAML keys absent from the `.py` sources plus one drifted value (`ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5`). `build.py` regeneration stays off-limits until that drift is resolved, since it would delete 83 shipped strings.
 
+### C.7 Global water material (this turn)
+- **Closed CRYSTAL_FLUID_DESIGN.md deviation #4** (water previously bound only to the studio preview / StatCard / previews). Added `Controls/CrystalFluid/CrystalWaterAttach.cs` — an attached `CrystalWaterAttach.Attach` property that wraps a card `Border`'s child in a `Grid` layering `CrystalWaterControl` behind content (glass → water → content), self-gated on `CrystalWaterDefaultEnabled` + `CrystalDefaultWaterLevel` via `SetResourceReference` (live family switches, no reload). Layout fidelity preserved by transferring `Border.Padding` onto the content margin.
+- **Wired into all card styles** — 27 styles across 19 files (shared `BaseCardStyle`/`TaskCardStyle`/`ListRowCardStyle`/`ModuleSectionCardStyle`/`DialogCardStyle`/`LiquidGlass*`/`SpecGroupCardStyle`/`DashCardStyle`/`SoftCardStyle` + dashboard tiles/wells `DashTileStyle`/`SoftTileStyle`/`SoftChartWellStyle`/`CompactStatTileStyle`/`PiCostTileStyle` + per-module `KpiCardStyle`/`TgtCardStyle`/`AboutCardStyle`/`SectionCardStyle`/`PdfOptionCardStyle`/`WizardCardStyle`/`LicenseMetricCardStyle`/`PendingRowCardStyle`). Opaque `HeroCard*` banners, workspace canvases, and non-card chrome deliberately excluded. Regression pin added (`Tests/Agent/CrystalFluidGlobalWaterTests.cs`).
+- **Trade-off:** one extra `CrystalWaterControl` per card; inert (Collapsed, no storyboards) under non-crystal families, pauses off-screen / on reduced motion under Ios-17pm. Full analysis: `docs/WATER_ON_CARDS_ANALYSIS_2026-09-06.md`.
+
 ---
 
 ## D. Architecture improvements
