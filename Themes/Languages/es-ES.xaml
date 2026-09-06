@@ -2169,6 +2169,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">REVERTIDO</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">DESHACER</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">Deshacer este movimiento y restaurar el stock</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">Complete los datos y guarde.</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">IDENTIDAD</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">DIMENSIONES</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">COMERCIAL</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">m² por hoja</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">Valor total del stock</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">PRECIO DE VENTA (por m²)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">VENTA/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">SALTAR</sys:String>

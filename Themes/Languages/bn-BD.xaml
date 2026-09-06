@@ -2169,6 +2169,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">বিপরীত</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">পূর্বাবস্থা</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">এই লেনদেন পূর্বাবস্থায় ফিরিয়ে স্টক পুনরুদ্ধার করুন</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">নিচের বিবরণ পূরণ করে সংরক্ষণ করুন।</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">পরিচয়</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">মাত্রা</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">বাণিজ্যিক</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">প্রতি শিটে বর্গমিটার</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">মোট স্টক মূল্য</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">বিক্রয় মূল্য (প্রতি বর্গমিটার)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">বিক্রয় / বর্গমিটার</sys:String>
     <sys:String x:Key="SheetStore.SKIP">এড়িয়ে যান</sys:String>

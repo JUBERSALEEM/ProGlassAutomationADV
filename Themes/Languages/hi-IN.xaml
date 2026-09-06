@@ -2169,6 +2169,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">प्रतिवर्तित</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">पूर्ववत करें</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">इस गतिविधि को पूर्ववत करें और स्टॉक बहाल करें</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">नीचे विवरण भरें, फिर सहेजें।</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">पहचान</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">आयाम</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">वाणिज्यिक</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">प्रति शीट वर्ग मीटर</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">कुल स्टॉक मूल्य</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">विक्रय मूल्य (प्रति वर्ग मी)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">विक्रय / वर्ग मी</sys:String>
     <sys:String x:Key="SheetStore.SKIP">छोड़ें</sys:String>

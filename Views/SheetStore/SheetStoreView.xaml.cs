@@ -36,14 +36,37 @@ namespace ProGlassAutomation.Views.SheetStore
 
         private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != nameof(SheetStoreViewModel.IsRowSelected)) return;
-            if (DetailPanel == null) return;
+            // 2026-09-06: the EDITOR panel now shares the animated column
+            // with the stats panel, so the column reacts to either one.
+            if (e.PropertyName != nameof(SheetStoreViewModel.IsRowSelected) &&
+                e.PropertyName != nameof(SheetStoreViewModel.IsEditorOpen))
+                return;
 
-            if (_vm?.IsRowSelected == true)
+            SyncRightColumn();
+        }
+
+        /// <summary>
+        /// Drives the shared right-hand column.
+        ///
+        /// Exactly one of the two panels may occupy it, and the EDITOR
+        /// wins: if the operator hits Edit while a row is selected, they
+        /// asked for the form, not the statistics.
+        /// </summary>
+        private void SyncRightColumn()
+        {
+            if (DetailPanel == null || EditorPanel == null) return;
+
+            bool editorOpen = _vm?.IsEditorOpen == true;
+            bool statsOpen = _vm?.IsRowSelected == true && !editorOpen;
+            bool anyOpen = editorOpen || statsOpen;
+
+            EditorPanel.Visibility = editorOpen ? Visibility.Visible : Visibility.Collapsed;
+            DetailPanel.Visibility = statsOpen ? Visibility.Visible : Visibility.Collapsed;
+
+            if (anyOpen)
             {
-                DetailPanel.Visibility = Visibility.Visible;
-                // Smoothly grow the panel column so the list reflows live —
-                // no translate/timer jump, and the close is not laggy.
+                // Grow the column so the list reflows live rather than
+                // being covered over.
                 DetailColumn.BeginAnimation(
                     ColumnDefinition.WidthProperty,
                     new GridLengthAnimation
@@ -65,8 +88,14 @@ namespace ProGlassAutomation.Views.SheetStore
                 };
                 close.Completed += (_, _) =>
                 {
-                    if (_vm?.IsRowSelected != true)
+                    // Re-test on completion: the operator can reopen a
+                    // panel mid-animation, and collapsing unconditionally
+                    // here would hide a panel that is now wanted.
+                    if (_vm?.IsEditorOpen != true && _vm?.IsRowSelected != true)
+                    {
                         DetailPanel.Visibility = Visibility.Collapsed;
+                        EditorPanel.Visibility = Visibility.Collapsed;
+                    }
                 };
                 DetailColumn.BeginAnimation(ColumnDefinition.WidthProperty, close);
             }

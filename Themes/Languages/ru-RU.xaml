@@ -2169,6 +2169,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">ОТМЕНЕНО</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">ОТМЕНИТЬ</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">Отменить это движение и восстановить запас</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">Заполните данные ниже и сохраните.</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">ИДЕНТИФИКАЦИЯ</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">РАЗМЕРЫ</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">КОММЕРЦИЯ</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">м² на лист</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">Общая стоимость запаса</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">ЦЕНА ПРОДАЖИ (за м²)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">ПРОДАЖА/М²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">ПРОПУСТИТЬ</sys:String>

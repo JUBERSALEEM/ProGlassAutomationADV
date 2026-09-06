@@ -6,6 +6,7 @@
      The action menu (Refresh/Import/CSV/Excel/PDF/History/Add) stays.
 ═══════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreView"
+             xmlns:sheetstore="clr-namespace:ProGlassAutomation.Views.SheetStore"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -156,7 +157,7 @@
                     <Button Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE710;" Content="{DynamicResource SheetStore.ADDNEW}"
                             ToolTip="{DynamicResource SheetStore.AddNewGlassSheet}"
-                            Command="{Binding AddCommand}"/>
+                            Command="{Binding OpenAddPanelCommand}"/>
 
                     <!-- Dropdown popup anchored to the ACTIONS button. A Popup
                          (not a ContextMenu) so the button's own Click handler
@@ -578,6 +579,8 @@
                  in only when a row is selected (see code-behind). Full-height
                  pill-style panel showing TOTAL buy / sell / profit plus the
                  selected row's stock and its actions. -->
+            <!-- The stats panel and the EDITOR panel share this column,
+                 so the stats panel yields while the editor is open. -->
             <Grid x:Name="DetailPanel" Grid.Column="1" Margin="14,0,0,0"
                   Visibility="Collapsed">
                 <Grid.RenderTransform>
@@ -805,7 +808,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Button Style="{StaticResource RowOutlinedButton}"
                                         Tag="&#xE8E5;" Content="{DynamicResource Action.Edit}"
-                                        Command="{Binding EditCommand}"
+                                        Command="{Binding OpenEditPanelCommand}"
                                         CommandParameter="{Binding SelectedSheet}"/>
                                 <Button Grid.Column="1"
                                         Style="{StaticResource RowDangerButton}"
@@ -816,6 +819,25 @@
                         </StackPanel>
                     </ScrollViewer>
                 </Border>
+            </Grid>
+
+            <!-- ══ RIGHT SLIDE-IN EDITOR PANEL (Add / Edit) ══
+                 2026-09-06. The Add/Edit form outgrew a modal: nine fields
+                 today and more once unit-of-measure lands, while the
+                 operator needs to keep comparing against the grid. It
+                 shares the animated DetailColumn with the stats panel and
+                 uses the same GridLengthAnimation, so the list reflows
+                 live instead of being covered over.
+
+                 Buy and Use stay modal on purpose — short, single-decision
+                 confirmations where blocking the UI is correct. -->
+            <Grid x:Name="EditorPanel" Grid.Column="1" Margin="14,0,0,0"
+                  Visibility="Collapsed">
+                <sheetstore:SheetEditorPanel Width="360"
+                                             VerticalAlignment="Stretch"
+                                             DataContext="{Binding Editor}"
+                                             PanelHost="{Binding DataContext,
+                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"/>
             </Grid>
         </Grid>
     </Grid>

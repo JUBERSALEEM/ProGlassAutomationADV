@@ -827,31 +827,40 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             _dialogs.ShowDialog<AddEditSheetView>(vm);
 
             if (vm.DialogResult == true && vm.Result != null)
+                await PersistNewSheetAsync(vm.Result);
+        }
+
+        /// <summary>
+        /// Single write path for a NEW sheet — repository + history +
+        /// audit. Shared by the modal dialog and the slide-out editor
+        /// panel so the inventory ledger can never be written two
+        /// slightly different ways.
+        /// </summary>
+        internal async Task PersistNewSheetAsync(GlassSheet toAdd)
+        {
+            try
             {
+                var added = await _repo.AddAsync(toAdd);
                 try
                 {
-                    var added = await _repo.AddAsync(vm.Result);
-                    try
-                    {
-                        await _historyRepo.LogAsync(
-                            added.Id, DescribeSheet(added), "Added",
-                            $"Initial stock: {added.Stock} sheets @ {added.PurchasePricePerSqm:N2} AED/SQM. " +
-                            $"Total value: {added.TotalPurchaseValue:N2} AED.",
-                            added.Stock, added.TotalPurchaseValue);
-                    }
-                    catch { /* best-effort */ }
-                    try
-                    {
-                        AuditService.Log(AuditSections.SheetStore, "Sheet added",
-                            $"{DescribeSheet(added)} — stock {added.Stock}",
-                            "SHEET", added.Id.ToString());
-                    }
-                    catch { /* best-effort */ }
-
-                    await LoadAsync();
+                    await _historyRepo.LogAsync(
+                        added.Id, DescribeSheet(added), "Added",
+                        $"Initial stock: {added.Stock} sheets @ {added.PurchasePricePerSqm:N2} AED/SQM. " +
+                        $"Total value: {added.TotalPurchaseValue:N2} AED.",
+                        added.Stock, added.TotalPurchaseValue);
                 }
-                catch (Exception ex) { ShowError("Could not add glass sheet.\n\n" + ExceptionMessages.Deep(ex)); }
+                catch { /* best-effort */ }
+                try
+                {
+                    AuditService.Log(AuditSections.SheetStore, "Sheet added",
+                        $"{DescribeSheet(added)} — stock {added.Stock}",
+                        "SHEET", added.Id.ToString());
+                }
+                catch { /* best-effort */ }
+
+                await LoadAsync();
             }
+            catch (Exception ex) { ShowError("Could not add glass sheet.\n\n" + ExceptionMessages.Deep(ex)); }
         }
 
         private async Task EditAsync(GlassSheet? sheet)
@@ -862,56 +871,92 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 AppPermissions.SheetStoreEdit, "edit a glass sheet"))
                 return;
 
-            var oldStock = sheet.Stock;
-            var oldBuyPrice = sheet.PurchasePricePerSqm;
-            var oldSellPrice = sheet.SellPricePerSqm;
+            // Snapshot BEFORE the dialog runs. AddEditSheetViewModel sets
+            // `Result = _existing`, i.e. it MUTATES the instance it was
+            // handed — so after ShowDialog returns, `sheet` already holds
+            // the new values and is useless as a "before" reference. The
+            // change-diff (Stock/Buy/Sell) would come out empty.
+            var before = SnapshotForDiff(sheet);
 
             var vm = new AddEditSheetViewModel(sheet);
             _dialogs.ShowDialog<AddEditSheetView>(vm);
 
             if (vm.DialogResult == true && vm.Result != null)
+                await PersistEditedSheetAsync(vm.Result, before);
+        }
+
+        /// <summary>
+        /// Minimal pre-edit snapshot for the audit change-diff. Only the
+        /// three fields the diff reports are copied.
+        /// </summary>
+        private static GlassSheet SnapshotForDiff(GlassSheet s) => new()
+        {
+            Id = s.Id,
+            Stock = s.Stock,
+            PurchasePricePerSqm = s.PurchasePricePerSqm,
+            SellPricePerSqm = s.SellPricePerSqm
+        };
+
+        /// <summary>
+        /// Single write path for an EDITED sheet — repository + change
+        /// diff + history + audit. Shared by the modal dialog and the
+        /// slide-out editor panel.
+        /// </summary>
+        /// <param name="before">
+        /// Snapshot of the row BEFORE editing, used to build the diff. The
+        /// panel passes the untouched grid instance because it edits a
+        /// clone; the dialog passes the same object it mutated, which is
+        /// why the old values are captured immediately below.
+        /// </param>
+        internal async Task PersistEditedSheetAsync(GlassSheet edited, GlassSheet before)
+        {
+            var oldStock = before.Stock;
+            var oldBuyPrice = before.PurchasePricePerSqm;
+            var oldSellPrice = before.SellPricePerSqm;
+
             {
                 try
                 {
-                    await _repo.UpdateAsync(vm.Result);
+                    await _repo.UpdateAsync(edited);
+
                     // (Change-diff below is for history/audit only and is
                     // wrapped so a logging failure never blocks the reload.)
 
                     var changes = new List<string>();
                     var diff = new List<AuditChange>();
-                    if (oldStock != vm.Result.Stock)
+                    if (oldStock != edited.Stock)
                     {
-                        changes.Add($"Stock: {oldStock} → {vm.Result.Stock}");
+                        changes.Add($"Stock: {oldStock} → {edited.Stock}");
                         diff.Add(AuditChangeSerializer.Modified(
-                            "Stock", oldStock.ToString(), vm.Result.Stock.ToString()));
+                            "Stock", oldStock.ToString(), edited.Stock.ToString()));
                     }
-                    if (oldBuyPrice != vm.Result.PurchasePricePerSqm)
+                    if (oldBuyPrice != edited.PurchasePricePerSqm)
                     {
-                        changes.Add($"Buy: {oldBuyPrice:N2} → {vm.Result.PurchasePricePerSqm:N2}");
+                        changes.Add($"Buy: {oldBuyPrice:N2} → {edited.PurchasePricePerSqm:N2}");
                         diff.Add(AuditChangeSerializer.Modified(
                             "Buy price (AED/SQM)", oldBuyPrice.ToString("N2"),
-                            vm.Result.PurchasePricePerSqm.ToString("N2")));
+                            edited.PurchasePricePerSqm.ToString("N2")));
                     }
-                    if (oldSellPrice != vm.Result.SellPricePerSqm)
+                    if (oldSellPrice != edited.SellPricePerSqm)
                     {
-                        changes.Add($"Sell: {oldSellPrice:N2} → {vm.Result.SellPricePerSqm:N2}");
+                        changes.Add($"Sell: {oldSellPrice:N2} → {edited.SellPricePerSqm:N2}");
                         diff.Add(AuditChangeSerializer.Modified(
                             "Sell price (AED/SQM)", oldSellPrice.ToString("N2"),
-                            vm.Result.SellPricePerSqm.ToString("N2")));
+                            edited.SellPricePerSqm.ToString("N2")));
                     }
                     var details = changes.Count > 0 ? string.Join(" | ", changes) : "Details edited";
 
                     try
                     {
-                        await _historyRepo.LogAsync(vm.Result.Id, DescribeSheet(vm.Result), "Edited", details);
+                        await _historyRepo.LogAsync(edited.Id, DescribeSheet(edited), "Edited", details);
                     }
                     catch { /* best-effort */ }
                     try
                     {
                         AuditService.LogWithChanges(
                             AuditSections.SheetStore, "Sheet edited",
-                            $"{DescribeSheet(vm.Result)} — {details}",
-                            "SHEET", vm.Result.Id.ToString(), diff);
+                            $"{DescribeSheet(edited)} — {details}",
+                            "SHEET", edited.Id.ToString(), diff);
                     }
                     catch { /* best-effort */ }
 

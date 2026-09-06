@@ -2169,6 +2169,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">İPTAL EDİLDİ</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">GERİ AL</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">Bu hareketi geri al ve stoğu geri yükle</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">Aşağıdaki bilgileri doldurup kaydedin.</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">KİMLİK</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">BOYUTLAR</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">TİCARİ</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">Levha başına m²</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">Toplam stok değeri</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">SATIŞ FİYATI (m² başına)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">SATIŞ/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">ATLA</sys:String>

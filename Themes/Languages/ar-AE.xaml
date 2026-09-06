@@ -2171,6 +2171,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">تم العكس</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">تراجع</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">تراجع عن هذه الحركة واستعادة المخزون</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">املأ التفاصيل أدناه ثم احفظ.</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">الهوية</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">الأبعاد</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">التجاري</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">متر مربع لكل لوح</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">إجمالي قيمة المخزون</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">سعر البيع (لكل م²)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">بيع / م²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">تخطي</sys:String>

@@ -1,0 +1,354 @@
+<!--
+    ═══════════════════════════════════════════════════════════════════
+    FILE: Views/SheetStore/SheetEditorPanel.xaml
+    MODULE: Inventory (Sheet Store) — slide-out Add/Edit editor
+    ADDED: 2026-09-06
+
+    WHY THIS EXISTS
+
+    Owner: "sometimes full data is not visible what we are editing...
+    add sheet make left side bar open etc".
+
+    The Add/Edit form outgrew a modal. Nine fields today, more once
+    unit-of-measure lands. A dialog is capped by the screen, hides the
+    grid the operator is comparing against, and cannot be left open
+    while they check another row.
+
+    Buy and Use deliberately STAY modal — they are single-decision
+    confirmations where blocking the UI is the right affordance. Only
+    the long form moved.
+
+    LAYOUT: three labelled groups (IDENTITY / DIMENSIONS / COMMERCIAL)
+    instead of one flat run of nine inputs, so the eye can find a field
+    without reading every label. Each input owns its error message; the
+    footer carries only the action hierarchy and a live SQM/value
+    preview so dimension typos are caught before saving.
+    ═══════════════════════════════════════════════════════════════════
+-->
+<UserControl x:Class="ProGlassAutomation.Views.SheetStore.SheetEditorPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             mc:Ignorable="d"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             x:Name="EditorRoot"
+             d:DesignWidth="380">
+
+    <UserControl.Resources>
+
+        <!-- Group heading: a quiet all-caps rule, not a competing title. -->
+        <Style x:Key="GroupHeadingStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <Style x:Key="PanelLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Inline field error. Collapsed (not hidden) so it takes no
+             vertical space until something is actually wrong. -->
+        <Style x:Key="FieldErrorStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,3,0,0"/>
+        </Style>
+
+        <!-- Red outline while a field is rejected: the message alone is
+             easy to miss on a dense form. -->
+        <Style x:Key="PanelInputStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="GroupCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+            <Setter Property="Padding" Value="14"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Background="{DynamicResource DialogSurfaceBrush}"
+            BorderBrush="{DynamicResource OutlineBrush}"
+            BorderThickness="{DynamicResource CardBorderThickness}"
+            CornerRadius="{DynamicResource CardCornerRadius}"
+            SnapsToDevicePixels="True">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="24" ShadowDepth="5"
+                              Direction="270" Opacity="0.18" Color="#000000"/>
+        </Border.Effect>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>   <!-- title      -->
+                <RowDefinition Height="*"/>      <!-- fields     -->
+                <RowDefinition Height="Auto"/>   <!-- preview    -->
+                <RowDefinition Height="Auto"/>   <!-- actions    -->
+            </Grid.RowDefinitions>
+
+            <!-- ══ TITLE ══ -->
+            <Grid Grid.Row="0" Margin="18,16,14,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="{Binding DialogTitle}"
+                               FontSize="{StaticResource TextBodyLarge}"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="{DynamicResource SheetStore.EditorSubtitle}"
+                               FontSize="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap" Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" Width="30" Height="30"
+                        Background="Transparent" BorderThickness="0"
+                        Cursor="Hand"
+                        ToolTip="{DynamicResource Action.Close}"
+                        Command="{Binding PanelHost.CloseEditorCommand, ElementName=EditorRoot}">
+                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </Button>
+            </Grid>
+
+            <!-- ══ FIELDS ══ -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                          Padding="18,0,14,0"
+                          behaviors:SmoothScrollBehavior.IsEnabled="True">
+                <StackPanel>
+
+                    <!-- ── IDENTITY ─────────────────────────────────── -->
+                    <Border Style="{StaticResource GroupCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.GroupIdentity}"
+                                       Style="{StaticResource GroupHeadingStyle}"/>
+
+                            <TextBlock Text="{DynamicResource SheetStore.Category}"
+                                       Style="{StaticResource PanelLabelStyle}"/>
+                            <TextBox Style="{StaticResource PanelInputStyle}"
+                                     Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="{DynamicResource SheetStore.EGClearFloatGuardianClimaguard70}"/>
+                            <TextBlock Text="{Binding CategoryError}"
+                                       Style="{StaticResource FieldErrorStyle}"
+                                       Visibility="{Binding HasCategoryError,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <TextBlock Text="{DynamicResource ProformaInvoice.Color}"
+                                       Style="{StaticResource PanelLabelStyle}" Margin="0,10,0,4"/>
+                            <TextBox Style="{StaticResource PanelInputStyle}"
+                                     Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="{Binding ColorError}"
+                                       Style="{StaticResource FieldErrorStyle}"
+                                       Visibility="{Binding HasColorError,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <TextBlock Text="{DynamicResource SheetStore.Supplier}"
+                                       Style="{StaticResource PanelLabelStyle}" Margin="0,10,0,4"/>
+                            <TextBox Style="{StaticResource PanelInputStyle}"
+                                     Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="{Binding SupplierError}"
+                                       Style="{StaticResource FieldErrorStyle}"
+                                       Visibility="{Binding HasSupplierError,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ── DIMENSIONS ───────────────────────────────── -->
+                    <Border Style="{StaticResource GroupCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.GroupDimensions}"
+                                       Style="{StaticResource GroupHeadingStyle}"/>
+
+                            <TextBlock Text="{DynamicResource SheetStore.ThicknessMm}"
+                                       Style="{StaticResource PanelLabelStyle}"/>
+                            <TextBox Style="{StaticResource PanelInputStyle}"
+                                     behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
+                                     Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="{Binding ThicknessError}"
+                                       Style="{StaticResource FieldErrorStyle}"
+                                       Visibility="{Binding HasThicknessError,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{DynamicResource SheetStore.WidthMm}"
+                                               Style="{StaticResource PanelLabelStyle}"/>
+                                    <TextBox Style="{StaticResource PanelInputStyle}"
+                                             behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
+                                             Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="{Binding WidthError}"
+                                               Style="{StaticResource FieldErrorStyle}"
+                                               Visibility="{Binding HasWidthError,
+                                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="{DynamicResource SheetStore.HeightMm}"
+                                               Style="{StaticResource PanelLabelStyle}"/>
+                                    <TextBox Style="{StaticResource PanelInputStyle}"
+                                             behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
+                                             Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="{Binding HeightError}"
+                                               Style="{StaticResource FieldErrorStyle}"
+                                               Visibility="{Binding HasHeightError,
+                                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ── COMMERCIAL ───────────────────────────────── -->
+                    <Border Style="{StaticResource GroupCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.GroupCommercial}"
+                                       Style="{StaticResource GroupHeadingStyle}"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{DynamicResource SheetStore.PurchasePriceSQM}"
+                                               Style="{StaticResource PanelLabelStyle}"/>
+                                    <TextBox Style="{StaticResource PanelInputStyle}"
+                                             behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                             Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="{Binding PurchasePriceError}"
+                                               Style="{StaticResource FieldErrorStyle}"
+                                               Visibility="{Binding HasPurchasePriceError,
+                                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="{DynamicResource SheetStore.SELLPriceSQM}"
+                                               Style="{StaticResource PanelLabelStyle}"/>
+                                    <TextBox Style="{StaticResource PanelInputStyle}"
+                                             behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                             Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Text="{Binding SellPriceError}"
+                                               Style="{StaticResource FieldErrorStyle}"
+                                               Visibility="{Binding HasSellPriceError,
+                                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="{DynamicResource SheetStore.StockQuantity}"
+                                       Style="{StaticResource PanelLabelStyle}" Margin="0,10,0,4"/>
+                            <TextBox Style="{StaticResource PanelInputStyle}"
+                                     behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
+                                     Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="{Binding StockError}"
+                                       Style="{StaticResource FieldErrorStyle}"
+                                       Visibility="{Binding HasStockError,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <!-- Non-blocking margin warning. Selling below
+                                 cost is legal (clearance, samples) so this
+                                 informs rather than prevents. -->
+                            <Border Background="{DynamicResource TintAmberBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="10,7" Margin="0,10,0,0"
+                                    Visibility="{Binding HasMarginWarning,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding MarginWarning}"
+                                           FontSize="{StaticResource TextCaption}"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ══ LIVE PREVIEW ══
+                 A transposed digit in a width is otherwise invisible until
+                 the stock valuation looks wrong weeks later. -->
+            <Border Grid.Row="2" Margin="18,4,14,0"
+                    Background="{DynamicResource DialogInsetBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Padding="14,10">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,4">
+                        <TextBlock Text="{DynamicResource SheetStore.SqmPerSheetLabel}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        <TextBlock Text="{Binding SqmPerSheet, StringFormat={}{0:N4}}"
+                                   HorizontalAlignment="Right"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    </DockPanel>
+                    <DockPanel>
+                        <TextBlock Text="{DynamicResource SheetStore.TotalStockValueLabel}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        <TextBlock Text="{Binding TotalStockValue, StringFormat={}{0:N2}}"
+                                   HorizontalAlignment="Right"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ══ ACTIONS ══
+                 SAVE is primary and DEAD while the form is invalid; the
+                 summary line names the first outstanding problem so the
+                 operator knows WHY it is dead. -->
+            <StackPanel Grid.Row="3" Margin="18,12,14,16">
+                <TextBlock Text="{Binding ValidationSummary}"
+                           Style="{StaticResource FieldErrorStyle}"
+                           Margin="0,0,0,8"
+                           Visibility="{Binding HasValidationSummary,
+                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Content="{DynamicResource Action.Cancel}"
+                            Command="{Binding PanelHost.CloseEditorCommand, ElementName=EditorRoot}"/>
+
+                    <Button Grid.Column="2"
+                            Style="{StaticResource PrimaryPillButton}"
+                            Content="{Binding SaveButtonText}"
+                            Command="{Binding PanelHost.SaveEditorCommand, ElementName=EditorRoot}"/>
+                </Grid>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

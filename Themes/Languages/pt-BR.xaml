@@ -2169,6 +2169,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">ESTORNADO</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">DESFAZER</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">Desfazer este movimento e restaurar o estoque</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">Preencha os detalhes abaixo e salve.</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">IDENTIDADE</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">DIMENSÕES</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">COMERCIAL</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">m² por chapa</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">Valor total do estoque</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">PREÇO DE VENDA (por m²)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">VENDA/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">PULAR</sys:String>

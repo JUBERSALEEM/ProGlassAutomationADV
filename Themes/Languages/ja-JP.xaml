@@ -2169,6 +2169,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">取消済</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">元に戻す</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">この移動を取り消して在庫を復元します</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">以下の詳細を入力して保存してください。</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">識別情報</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">寸法</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">商務</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">1枚あたりの平方メートル</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">在庫総額</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">販売価格（m²あたり）</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">販売/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">スキップ</sys:String>

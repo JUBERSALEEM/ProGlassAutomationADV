@@ -2169,6 +2169,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">DIBALIK</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">BATALKAN</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">Batalkan pergerakan ini dan pulihkan stok</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">Isi detail di bawah, lalu simpan.</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">IDENTITAS</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">DIMENSI</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">KOMERSIAL</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">m² per lembar</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">Total nilai stok</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">HARGA JUAL (per m²)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">JUAL/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">LEWATI</sys:String>

@@ -2169,6 +2169,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">منسوخ شدہ</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">واپس کریں</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">اس حرکت کو واپس کریں اور اسٹاک بحال کریں</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">نیچے تفصیلات پُر کریں، پھر محفوظ کریں۔</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">شناخت</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">پیمائش</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">تجارتی</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">فی شیٹ مربع میٹر</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">کل اسٹاک مالیت</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">فروخت قیمت (فی مربع میٹر)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">فروخت / مربع میٹر</sys:String>
     <sys:String x:Key="SheetStore.SKIP">چھوڑیں</sys:String>

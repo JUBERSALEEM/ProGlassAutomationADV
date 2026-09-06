@@ -2169,6 +2169,12 @@
     <sys:String x:Key="SheetStore.ReversedBadge">ANNULÉ</sys:String>
     <sys:String x:Key="SheetStore.UndoMovement">ANNULER</sys:String>
     <sys:String x:Key="SheetStore.UndoMovementTooltip">Annuler ce mouvement et restaurer le stock</sys:String>
+    <sys:String x:Key="SheetStore.EditorSubtitle">Renseignez les détails ci-dessous, puis enregistrez.</sys:String>
+    <sys:String x:Key="SheetStore.GroupIdentity">IDENTITÉ</sys:String>
+    <sys:String x:Key="SheetStore.GroupDimensions">DIMENSIONS</sys:String>
+    <sys:String x:Key="SheetStore.GroupCommercial">COMMERCIAL</sys:String>
+    <sys:String x:Key="SheetStore.SqmPerSheetLabel">m² par feuille</sys:String>
+    <sys:String x:Key="SheetStore.TotalStockValueLabel">Valeur totale du stock</sys:String>
     <sys:String x:Key="SheetStore.SELLPriceSQM">PRIX DE VENTE (par m²)</sys:String>
     <sys:String x:Key="SheetStore.SELLSQM">VENTE/M²</sys:String>
     <sys:String x:Key="SheetStore.SKIP">IGNORER</sys:String>
