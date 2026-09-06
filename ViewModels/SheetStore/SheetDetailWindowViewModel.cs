@@ -26,6 +26,8 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.SheetStore;
+using ProGlassAutomation.ViewModels.SheetStore.SheetStoreBuy;
+using ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse;
 using ProGlassAutomation.Services.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Models.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Utilities;
@@ -42,6 +44,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
     public class SheetDetailWindowViewModel : ViewModelBase
     {
         public const string TabOverview  = "Overview";
+        public const string TabBuy       = "Buy";
+        public const string TabUse       = "Use";
         public const string TabEdit      = "Edit";
         public const string TabMovements = "Movements";
         public const string TabAnalysis  = "Analysis";
@@ -77,6 +81,17 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             // surfaces.
             Editor = new AddEditSheetViewModel(sheet);
 
+            // Buy and Use become TABS on an existing sheet rather than two
+            // more modal windows stacked on top of this one. Same
+            // view-models as the dialogs, so the validation, the ± stepper
+            // and the over-balance refusal all behave identically — only the
+            // container changed.
+            if (IsExisting)
+            {
+                Buy = new BuyDialogViewModel(Sheet);
+                Use = new UseDialogViewModel(Sheet);
+            }
+
             SaveCommand = new RelayCommand(_ =>
             {
                 // Materialise + re-validate inside the form. CanExecute is an
@@ -101,6 +116,17 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             });
 
             CloseCommand = new RelayCommand(_ => CloseAction?.Invoke());
+
+            // The hosted forms keep their own ConfirmCommand for the modal
+            // path; in the window we drive the commit ourselves so the tab
+            // can stay open and refresh in place rather than closing.
+            ConfirmBuyCommand = new RelayCommand(
+                _ => { if (Buy != null) BuyRequested?.Invoke(this, Buy); },
+                _ => Buy?.CanConfirm == true);
+
+            ConfirmUseCommand = new RelayCommand(
+                _ => { if (Use != null) UseRequested?.Invoke(this, Use); },
+                _ => Use?.CanConfirm == true);
         }
 
         public GlassSheet Sheet { get; }
@@ -117,6 +143,20 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public event EventHandler<GlassSheet>? SaveRequested;
 
         public ICommand SaveCommand { get; }
+
+        /// <summary>Buy form, hosted as a tab. Null while adding a new sheet.</summary>
+        public BuyDialogViewModel? Buy { get; }
+
+        /// <summary>Use form, hosted as a tab. Null while adding a new sheet.</summary>
+        public UseDialogViewModel? Use { get; }
+
+        /// <summary>
+        /// Raised when a hosted Buy/Use form is confirmed. The list owns the
+        /// ledger write (CommitBuyAsync / CommitUseAsync); this window only
+        /// collects the input.
+        /// </summary>
+        public event EventHandler<BuyDialogViewModel>? BuyRequested;
+        public event EventHandler<UseDialogViewModel>? UseRequested;
 
         /// <summary>The always-editable form behind the Edit tab.</summary>
         public AddEditSheetViewModel Editor { get; }
@@ -147,6 +187,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 _activeKey = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsOverview));
+                OnPropertyChanged(nameof(IsBuy));
+                OnPropertyChanged(nameof(IsUse));
                 OnPropertyChanged(nameof(IsEdit));
                 OnPropertyChanged(nameof(IsMovements));
                 OnPropertyChanged(nameof(IsAnalysis));
@@ -160,12 +202,70 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         }
 
         public bool IsOverview  => _activeKey == TabOverview;
+        public bool IsBuy       => _activeKey == TabBuy;
+        public bool IsUse       => _activeKey == TabUse;
         public bool IsEdit      => _activeKey == TabEdit;
         public bool IsMovements => _activeKey == TabMovements;
         public bool IsAnalysis  => _activeKey == TabAnalysis;
 
         public ICommand SelectTabCommand { get; }
+        public ICommand ConfirmBuyCommand { get; }
+        public ICommand ConfirmUseCommand { get; }
         public ICommand CloseCommand { get; }
+
+        /// <summary>
+        /// Re-reads the sheet after a hosted Buy/Use so the page reflects the
+        /// movement without being reopened.
+        ///
+        /// This window holds a CLONE (editing the grid's live row would
+        /// mutate the list as the operator types), so the stock figures it
+        /// shows go stale the moment a movement is written. Copy the three
+        /// mutable quantities back and re-announce every derived figure.
+        /// </summary>
+        public void RefreshAfterMovement()
+        {
+            AsyncUtility.SafeFireAndForget(async () =>
+            {
+                try
+                {
+                    var fresh = await new SheetStoreRepository().GetByIdAsync(Sheet.Id);
+                    if (fresh == null) return;
+
+                    UiDispatch.Run(() =>
+                    {
+                        Sheet.Stock = fresh.Stock;
+                        Sheet.Used = fresh.Used;
+                        Sheet.LastPurchaseDate = fresh.LastPurchaseDate;
+
+                        // The hosted forms cache Balance-derived limits, so
+                        // they are rebuilt rather than nudged.
+                        Buy?.ResetAfterCommit();
+                        Use?.ResetAfterCommit();
+
+                        OnPropertyChanged(nameof(Sheet));
+                        foreach (var n in new[]
+                        {
+                            nameof(StockValueAtCost), nameof(BalanceValueAtCost),
+                            nameof(BalanceValueAtSell), nameof(UsedValueAtCost),
+                            nameof(PotentialProfit), nameof(MarginPercent),
+                            nameof(HasMarginBasis), nameof(MarginDisplay),
+                            nameof(ConsumptionPercent)
+                        })
+                            OnPropertyChanged(n);
+
+                        // History gained a row; force a refetch on next view.
+                        _historyLoaded = false;
+                        if (IsMovements)
+                            AsyncUtility.SafeFireAndForget(LoadHistoryAsync, "SheetDetail ReloadHistory");
+                    });
+                }
+                catch
+                {
+                    // A stale page is recoverable by reopening it; throwing
+                    // here would kill the window after a SUCCESSFUL write.
+                }
+            }, "SheetDetail RefreshAfterMovement");
+        }
 
         // ── Movements ──────────────────────────────────────────────────
 

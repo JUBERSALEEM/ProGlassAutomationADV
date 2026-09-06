@@ -125,6 +125,22 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreBuy
             QuantityText = next.ToString(CultureInfo.CurrentCulture);
         }
 
+        /// <summary>
+        /// Resets the form after a committed movement so the SAME instance
+        /// can take another entry.
+        ///
+        /// Only needed because the full-screen workspace hosts this form as
+        /// a TAB that stays open: the modal path discards the view-model on
+        /// close. Quantity returns to 1 and every Balance-derived figure is
+        /// re-announced, since the underlying sheet has just changed.
+        /// </summary>
+        public void ResetAfterCommit()
+        {
+            _quantityText = "1";
+            Raise(nameof(QuantityText));
+            Revalidate();
+        }
+
         private void Revalidate()
         {
             // No upper bound on a PURCHASE — you can buy as many as you

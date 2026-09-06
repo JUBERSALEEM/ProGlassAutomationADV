@@ -98,6 +98,20 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             var vm = new BuyDialogViewModel(sheet);
             _dialogs.ShowDialog<BuyDialogView>(vm);
+            await CommitBuyAsync(sheet, vm);
+        }
+
+        /// <summary>
+        /// Records a purchase from an ALREADY-COMPLETED Buy form.
+        ///
+        /// Split out of BuyAsync on 2026-09-06 so the full-screen workspace
+        /// can host the same form as a tab and still write through this one
+        /// path. The repository call, the history entry and the audit record
+        /// must not exist twice: the modal and the tab are two front ends on
+        /// one ledger write.
+        /// </summary>
+        internal async Task CommitBuyAsync(GlassSheet sheet, BuyDialogViewModel vm)
+        {
 
             // 2026-09-06: this used to be the SILENT FAILURE path. When the
             // quantity was 0 the condition fell through, the dialog had
@@ -160,6 +174,15 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             var vm = new UseDialogViewModel(sheet);
             _dialogs.ShowDialog<UseDialogView>(vm);
+            await CommitUseAsync(sheet, vm);
+        }
+
+        /// <summary>
+        /// Records consumption from an ALREADY-COMPLETED Use form. See
+        /// CommitBuyAsync — same reasoning, same single-writer rule.
+        /// </summary>
+        internal async Task CommitUseAsync(GlassSheet sheet, UseDialogViewModel vm)
+        {
 
             // Same silent-failure guard as BuyAsync — see the note there.
             if (vm.DialogResult == true && !vm.IsValid)

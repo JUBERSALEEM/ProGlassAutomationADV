@@ -471,6 +471,23 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     else       await PersistEditedSheetAsync(result, sheet!);
                 };
 
+                // Buy/Use hosted as tabs commit through the SAME methods the
+                // modal dialogs use, so there is still one ledger writer.
+                // The window stays open and the tab refreshes in place —
+                // receiving two deliveries in a row should not mean opening
+                // the page twice.
+                vm.BuyRequested += async (_, form) =>
+                {
+                    await CommitBuyAsync(sheet!, form);
+                    vm.RefreshAfterMovement();
+                };
+
+                vm.UseRequested += async (_, form) =>
+                {
+                    await CommitUseAsync(sheet!, form);
+                    vm.RefreshAfterMovement();
+                };
+
                 _dialogs.ShowDialog<Views.SheetStore.SheetDetailWindow>(vm);
 
                 AsyncUtility.SafeFireAndForget(LoadAsync, "SheetStore ReloadAfterDetail");

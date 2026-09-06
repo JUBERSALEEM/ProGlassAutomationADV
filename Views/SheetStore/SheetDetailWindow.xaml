@@ -61,6 +61,71 @@
             <Setter Property="Margin" Value="0,0,0,16"/>
         </Style>
 
+        <!-- Movement row — Step 5 GridRowStyle treatment: no chrome of its
+             own, a single hairline separator, hover tint from the theme. -->
+        <Style x:Key="MovementRowStyle" TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="MinHeight" Value="42"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border x:Name="RowBorder"
+                                BorderThickness="0,0,0,1"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                Padding="0,7"
+                                Background="Transparent"
+                                HorizontalAlignment="Stretch">
+                            <ContentPresenter HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RowBorder" Property="Background"
+                                        Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <!-- A reversal is a correction, not a failure —
+                                 tinted so a corrected row is findable without
+                                 reading every Details cell. -->
+                            <DataTrigger Binding="{Binding Action}" Value="Reversed">
+                                <Setter TargetName="RowBorder" Property="Background"
+                                        Value="{DynamicResource TintAmberBrush}"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Individual rounded spec card -->
+        <Style x:Key="SpecCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
+            <Setter Property="Padding" Value="18,14"/>
+            <Setter Property="Margin" Value="0,0,12,12"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="SpecLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        </Style>
+
+        <Style x:Key="SpecValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,6,0,0"/>
+        </Style>
+
         <Style x:Key="FieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -124,16 +189,6 @@
                  here AND in the list: considered work happens here,
                  fast repetitive receiving happens in the list. -->
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                <Button Style="{StaticResource PrimaryPillButton}"
-                        Content="BUY" MinWidth="110" Margin="0,0,10,0"
-                        Command="{Binding BuyCommand}"
-                        CommandParameter="{Binding Sheet}"
-                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                <Button Style="{StaticResource OutlinedPillButton}"
-                        Content="USE" MinWidth="110" Margin="0,0,10,0"
-                        Command="{Binding UseCommand}"
-                        CommandParameter="{Binding Sheet}"
-                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button Style="{StaticResource OutlinedPillButton}"
                         Content="CLOSE" MinWidth="110"
                         Command="{Binding CloseCommand}"/>
@@ -156,6 +211,14 @@
                 <Button Style="{StaticResource TabPillButton}" Content="OVERVIEW"
                         Command="{Binding SelectTabCommand}" CommandParameter="Overview"
                         behaviors:TabState.IsActive="{Binding IsOverview, Mode=OneWay}"
+                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <Button Style="{StaticResource TabPillButton}" Content="BUY"
+                        Command="{Binding SelectTabCommand}" CommandParameter="Buy"
+                        behaviors:TabState.IsActive="{Binding IsBuy, Mode=OneWay}"
+                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <Button Style="{StaticResource TabPillButton}" Content="USE"
+                        Command="{Binding SelectTabCommand}" CommandParameter="Use"
+                        behaviors:TabState.IsActive="{Binding IsUse, Mode=OneWay}"
                         Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <Button Style="{StaticResource TabPillButton}" Content="EDIT"
                         Command="{Binding SelectTabCommand}" CommandParameter="Edit"
@@ -218,31 +281,300 @@
                         </Border>
                     </UniformGrid>
 
-                    <Border Style="{StaticResource SectionCard}">
+                    <TextBlock Text="SPECIFICATION" Style="{StaticResource StatLabel}"
+                               Margin="2,4,0,10"/>
+
+                    <!-- Each attribute gets its own rounded card rather than
+                         three columns of bare label/value pairs: the fields
+                         are unrelated readings, and a shared surface implied
+                         a grouping that does not exist. -->
+                    <UniformGrid Columns="3">
+                        <Border Style="{StaticResource SpecCard}">
+                            <StackPanel>
+                                <TextBlock Text="CATEGORY" Style="{StaticResource SpecLabel}"/>
+                                <TextBlock Text="{Binding Sheet.Category}" Style="{StaticResource SpecValue}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SpecCard}">
+                            <StackPanel>
+                                <TextBlock Text="THICKNESS" Style="{StaticResource SpecLabel}"/>
+                                <TextBlock Text="{Binding Sheet.ThicknessDisplay}" Style="{StaticResource SpecValue}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SpecCard}">
+                            <StackPanel>
+                                <TextBlock Text="COLOUR" Style="{StaticResource SpecLabel}"/>
+                                <TextBlock Text="{Binding Sheet.Color}" Style="{StaticResource SpecValue}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SpecCard}">
+                            <StackPanel>
+                                <TextBlock Text="SIZE (mm)" Style="{StaticResource SpecLabel}"/>
+                                <TextBlock Text="{Binding Sheet.SizeDisplay}" Style="{StaticResource SpecValue}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SpecCard}">
+                            <StackPanel>
+                                <TextBlock Text="SQM PER SHEET" Style="{StaticResource SpecLabel}"/>
+                                <TextBlock Text="{Binding Sheet.SqmPerSheet, StringFormat={}{0:N4}}"
+                                           Style="{StaticResource SpecValue}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SpecCard}">
+                            <StackPanel>
+                                <TextBlock Text="SUPPLIER" Style="{StaticResource SpecLabel}"/>
+                                <TextBlock Text="{Binding Sheet.Supplier}" Style="{StaticResource SpecValue}"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ─── BUY ───
+                 The dialog's own view-model, hosted as a tab. Same
+                 validation, same stepper, same refusal to over-issue —
+                 only the container changed. The tab STAYS OPEN after a
+                 commit and refreshes in place: receiving two deliveries in
+                 a row should not mean reopening the page. -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          behaviors:SmoothScrollBehavior.IsEnabled="True">
+                <ScrollViewer.Style>
+                    <Style TargetType="ScrollViewer">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsBuy}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ScrollViewer.Style>
+                <Grid MaxWidth="900" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.3*"/>
+                        <ColumnDefinition Width="18"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Entry -->
+                    <Border Grid.Column="0" Style="{StaticResource SectionCard}"
+                            DataContext="{Binding Buy}">
                         <StackPanel>
-                            <TextBlock Text="SPECIFICATION" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
-                            <UniformGrid Columns="3">
-                                <StackPanel Margin="0,0,16,0">
-                                    <TextBlock Text="Category" Style="{StaticResource FieldLabel}"/>
-                                    <TextBlock Text="{Binding Sheet.Category}" Style="{StaticResource ReadValue}"/>
-                                    <TextBlock Text="Thickness" Style="{StaticResource FieldLabel}"/>
-                                    <TextBlock Text="{Binding Sheet.ThicknessDisplay}" Style="{StaticResource ReadValue}"/>
-                                </StackPanel>
-                                <StackPanel Margin="0,0,16,0">
-                                    <TextBlock Text="Colour" Style="{StaticResource FieldLabel}"/>
-                                    <TextBlock Text="{Binding Sheet.Color}" Style="{StaticResource ReadValue}"/>
-                                    <TextBlock Text="Size (mm)" Style="{StaticResource FieldLabel}"/>
-                                    <TextBlock Text="{Binding Sheet.SizeDisplay}" Style="{StaticResource ReadValue}"/>
-                                </StackPanel>
-                                <StackPanel>
-                                    <TextBlock Text="SQM per sheet" Style="{StaticResource FieldLabel}"/>
-                                    <TextBlock Text="{Binding Sheet.SqmPerSheet, StringFormat={}{0:N4}}"
-                                               Style="{StaticResource ReadValue}"/>
-                                </StackPanel>
-                            </UniformGrid>
+                            <TextBlock Text="QUANTITY TO BUY (SHEETS)" Style="{StaticResource StatLabel}"
+                                       Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="54"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="54"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                                        Content="−" MinWidth="54"
+                                        Command="{Binding DecreaseCommand}"/>
+                                <TextBox Grid.Column="1" Margin="10,0"
+                                         Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                                         behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
+                                         FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
+                                         TextAlignment="Center" Height="52"
+                                         VerticalContentAlignment="Center"
+                                         Background="{DynamicResource DialogInsetBrush}"
+                                         Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                                <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                                        Content="+" MinWidth="54"
+                                        Command="{Binding IncreaseCommand}"/>
+                            </Grid>
+
+                            <TextBlock Text="{Binding QuantityError}"
+                                       Style="{StaticResource FieldError}" Margin="0,10,0,0"
+                                       Visibility="{Binding HasQuantityError,
+                                                   Converter={StaticResource BoolToVisibilityConverter}}"/>
                         </StackPanel>
                     </Border>
-                </StackPanel>
+
+                    <!-- Preview + commit -->
+                    <StackPanel Grid.Column="2">
+                        <Border Style="{StaticResource SectionCard}"
+                                DataContext="{Binding Buy}"
+                                Visibility="{Binding ShowPreview,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="RESULT" Style="{StaticResource StatLabel}" Margin="0,0,0,12"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Total SQM  " Style="{StaticResource SpecLabel}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
+                                               FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Value  " Style="{StaticResource SpecLabel}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}"
+                                               FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Balance after  " Style="{StaticResource SpecLabel}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding NewBalanceAfterBuy}"
+                                               FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Style="{StaticResource PrimaryPillButton}"
+                                Content="RECORD PURCHASE" MinWidth="200" HorizontalAlignment="Left"
+                                Command="{Binding ConfirmBuyCommand}"/>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
+
+            <!-- ─── USE ───
+                 The dialog's own view-model, hosted as a tab. Same
+                 validation, same stepper, same refusal to over-issue —
+                 only the container changed. The tab STAYS OPEN after a
+                 commit and refreshes in place: receiving two deliveries in
+                 a row should not mean reopening the page. -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          behaviors:SmoothScrollBehavior.IsEnabled="True">
+                <ScrollViewer.Style>
+                    <Style TargetType="ScrollViewer">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsUse}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ScrollViewer.Style>
+                <Grid MaxWidth="900" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.3*"/>
+                        <ColumnDefinition Width="18"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Entry -->
+                    <Border Grid.Column="0" Style="{StaticResource SectionCard}"
+                            DataContext="{Binding Use}">
+                        <StackPanel>
+                            <TextBlock Text="QUANTITY TO USE (SHEETS)" Style="{StaticResource StatLabel}"
+                                       Margin="0,0,0,10"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="54"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="54"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                                        Content="−" MinWidth="54"
+                                        Command="{Binding DecreaseCommand}"/>
+                                <TextBox Grid.Column="1" Margin="10,0"
+                                         Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                                         behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
+                                         FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
+                                         TextAlignment="Center" Height="52"
+                                         VerticalContentAlignment="Center"
+                                         Background="{DynamicResource DialogInsetBrush}"
+                                         Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox">
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                                <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                                        Content="+" MinWidth="54"
+                                        Command="{Binding IncreaseCommand}"/>
+                            </Grid>
+
+                            <TextBlock Text="{Binding QuantityError}"
+                                       Style="{StaticResource FieldError}" Margin="0,10,0,0"
+                                       Visibility="{Binding HasQuantityError,
+                                                   Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <!-- Traceability. Prefilled from the active
+                                 invoice when there is one, and editable
+                                 because stock is also issued off-invoice. -->
+                            <TextBlock Text="JOB / INVOICE REF" Style="{StaticResource FieldLabel}" Margin="0,18,0,6"/>
+                            <TextBox Text="{Binding JobOrderReference, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource DetailEntry}"/>
+                            <TextBlock Text="CUSTOMER" Style="{StaticResource FieldLabel}" Margin="0,12,0,6"/>
+                            <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource DetailEntry}"/>
+                            <TextBlock Text="PROJECT" Style="{StaticResource FieldLabel}" Margin="0,12,0,6"/>
+                            <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource DetailEntry}"/>
+                            <TextBlock Text="SALESMAN" Style="{StaticResource FieldLabel}" Margin="0,12,0,6"/>
+                            <TextBox Text="{Binding Salesman, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource DetailEntry}"/>
+                            <TextBlock Text="PANE POSITION" Style="{StaticResource FieldLabel}" Margin="0,12,0,6"/>
+                            <TextBox Text="{Binding PanePosition, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource DetailEntry}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Preview + commit -->
+                    <StackPanel Grid.Column="2">
+                        <Border Style="{StaticResource SectionCard}"
+                                DataContext="{Binding Use}"
+                                Visibility="{Binding ShowPreview,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="RESULT" Style="{StaticResource StatLabel}" Margin="0,0,0,12"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Total SQM  " Style="{StaticResource SpecLabel}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
+                                               FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Value  " Style="{StaticResource SpecLabel}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding TotalValue, StringFormat={}{0:N2} AED}"
+                                               FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Balance after  " Style="{StaticResource SpecLabel}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding RemainingBalance}"
+                                               FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <TextBlock Text="{Binding Use.ErrorMessage}"
+                                   Style="{StaticResource FieldError}" Margin="4,0,0,12"
+                                   Visibility="{Binding Use.HasError,
+                                               Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                        <Button Style="{StaticResource PrimaryPillButton}"
+                                Content="RECORD USAGE" MinWidth="200" HorizontalAlignment="Left"
+                                Command="{Binding ConfirmUseCommand}"/>
+                    </StackPanel>
+                </Grid>
             </ScrollViewer>
 
             <!-- ─── EDIT ───
@@ -261,113 +593,139 @@
                         </Style.Triggers>
                     </Style>
                 </ScrollViewer.Style>
-                <Border Style="{StaticResource SectionCard}">
-                    <StackPanel>
-                        <TextBlock Text="EDIT SHEET" Style="{StaticResource StatLabel}" Margin="0,0,0,6"/>
-                        <TextBlock TextWrapping="Wrap"
-                                   FontSize="{StaticResource TextBody}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Text="Fields are always editable — there is no edit mode to enter. Save stays disabled until every entry is valid."/>
-                        <!-- Bound to the DIALOG's view-model (Editor), so the
-                             validation rules live in one place. Every box is
-                             live on load — no edit mode. -->
-                        <UniformGrid Columns="3" Margin="0,18,0,0"
-                                     DataContext="{Binding Editor}">
-                            <StackPanel Margin="0,0,18,0">
+                <StackPanel MaxWidth="1100" HorizontalAlignment="Left"
+                            DataContext="{Binding Editor}">
+
+                    <TextBlock TextWrapping="Wrap" Margin="2,0,0,16"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Text="Every field is editable straight away — there is no edit mode to enter. Save stays disabled until all entries are valid."/>
+
+                    <!-- Grouped into three labelled cards. One flat run of
+                         nine inputs gave no reading order and no breathing
+                         room, which is what made the form look unfinished. -->
+                    <Border Style="{StaticResource SectionCard}">
+                        <StackPanel>
+                            <TextBlock Text="IDENTITY" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
+                            <UniformGrid Columns="3">
+                            <StackPanel Margin="0,0,16,16">
                                 <TextBlock Text="CATEGORY" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource DetailEntry}" Margin="0,0,0,4"/>
-                                <TextBlock Text="{Binding CategoryError}"
-                                           Style="{StaticResource FieldError}"
-                                           Visibility="{Binding HasCategoryError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                                <TextBlock Text="THICKNESS (mm)" Style="{StaticResource FieldLabel}" Margin="0,14,0,6"/>
+                                         Style="{StaticResource DetailEntry}"/>
+                                <TextBlock Text="{Binding CategoryError}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding HasCategoryError,
+                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,16">
+                                <TextBlock Text="THICKNESS (mm)" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                         Style="{StaticResource DetailEntry}" Margin="0,0,0,4"/>
-                                <TextBlock Text="{Binding ThicknessError}"
-                                           Style="{StaticResource FieldError}"
-                                           Visibility="{Binding HasThicknessError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                                <TextBlock Text="COLOUR" Style="{StaticResource FieldLabel}" Margin="0,14,0,6"/>
-                                <TextBox Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource DetailEntry}" Margin="0,0,0,4"/>
-                                <TextBlock Text="{Binding ColorError}"
-                                           Style="{StaticResource FieldError}"
-                                           Visibility="{Binding HasColorError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                         Style="{StaticResource DetailEntry}"/>
+                                <TextBlock Text="{Binding ThicknessError}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding HasThicknessError,
+                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
+                            <StackPanel Margin="0,0,16,16">
+                                <TextBlock Text="COLOUR" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource DetailEntry}"/>
+                                <TextBlock Text="{Binding ColorError}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding HasColorError,
+                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
 
-                            <StackPanel Margin="0,0,18,0">
+                    <Border Style="{StaticResource SectionCard}">
+                        <StackPanel>
+                            <TextBlock Text="DIMENSIONS &amp; SOURCE" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
+                            <UniformGrid Columns="3">
+                            <StackPanel Margin="0,0,16,16">
                                 <TextBlock Text="WIDTH (mm)" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                         Style="{StaticResource DetailEntry}" Margin="0,0,0,4"/>
-                                <TextBlock Text="{Binding WidthError}"
-                                           Style="{StaticResource FieldError}"
-                                           Visibility="{Binding HasWidthError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                                <TextBlock Text="HEIGHT (mm)" Style="{StaticResource FieldLabel}" Margin="0,14,0,6"/>
+                                         Style="{StaticResource DetailEntry}"/>
+                                <TextBlock Text="{Binding WidthError}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding HasWidthError,
+                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,16">
+                                <TextBlock Text="HEIGHT (mm)" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                         Style="{StaticResource DetailEntry}" Margin="0,0,0,4"/>
-                                <TextBlock Text="{Binding HeightError}"
-                                           Style="{StaticResource FieldError}"
-                                           Visibility="{Binding HasHeightError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                                <TextBlock Text="SUPPLIER" Style="{StaticResource FieldLabel}" Margin="0,14,0,6"/>
-                                <TextBox Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource DetailEntry}" Margin="0,0,0,4"/>
-                                <TextBlock Text="{Binding SupplierError}"
-                                           Style="{StaticResource FieldError}"
-                                           Visibility="{Binding HasSupplierError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                         Style="{StaticResource DetailEntry}"/>
+                                <TextBlock Text="{Binding HeightError}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding HasHeightError,
+                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
+                            <StackPanel Margin="0,0,16,16">
+                                <TextBlock Text="SUPPLIER" Style="{StaticResource FieldLabel}"/>
+                                <TextBox Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource DetailEntry}"/>
+                                <TextBlock Text="{Binding SupplierError}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding HasSupplierError,
+                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
 
-                            <StackPanel>
-                                <TextBlock Text="PURCHASE PRICE / SQM" Style="{StaticResource FieldLabel}"/>
+                    <Border Style="{StaticResource SectionCard}">
+                        <StackPanel>
+                            <TextBlock Text="PRICING &amp; STOCK" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
+                            <UniformGrid Columns="3">
+                            <StackPanel Margin="0,0,16,16">
+                                <TextBlock Text="PURCHASE / SQM" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                         Style="{StaticResource DetailEntry}" Margin="0,0,0,4"/>
-                                <TextBlock Text="{Binding PurchasePriceError}"
-                                           Style="{StaticResource FieldError}"
-                                           Visibility="{Binding HasPurchasePriceError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                                <TextBlock Text="SELL PRICE / SQM" Style="{StaticResource FieldLabel}" Margin="0,14,0,6"/>
+                                         Style="{StaticResource DetailEntry}"/>
+                                <TextBlock Text="{Binding PurchasePriceError}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding HasPurchasePriceError,
+                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,16">
+                                <TextBlock Text="SELL / SQM" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                         Style="{StaticResource DetailEntry}" Margin="0,0,0,4"/>
-                                <TextBlock Text="{Binding SellPriceError}"
-                                           Style="{StaticResource FieldError}"
-                                           Visibility="{Binding HasSellPriceError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                                <TextBlock Text="STOCK (sheets)" Style="{StaticResource FieldLabel}" Margin="0,14,0,6"/>
+                                         Style="{StaticResource DetailEntry}"/>
+                                <TextBlock Text="{Binding SellPriceError}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding HasSellPriceError,
+                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,16">
+                                <TextBlock Text="STOCK (SHEETS)" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                         Style="{StaticResource DetailEntry}" Margin="0,0,0,4"/>
-                                <TextBlock Text="{Binding StockError}"
-                                           Style="{StaticResource FieldError}"
-                                           Visibility="{Binding HasStockError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                         Style="{StaticResource DetailEntry}"/>
+                                <TextBlock Text="{Binding StockError}" Style="{StaticResource FieldError}"
+                                           Visibility="{Binding HasStockError,
+                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                        </UniformGrid>
-
-                        <!-- SAVE is the only primary action on this form.
-                             Delete is not a peer of Save — see the
-                             view-model header. -->
-                        <StackPanel Orientation="Horizontal" Margin="0,22,0,0"
-                                    HorizontalAlignment="Right">
-                            <TextBlock Text="{Binding Editor.ValidationSummary}"
-                                       VerticalAlignment="Center" Margin="0,0,16,0"
-                                       TextWrapping="Wrap" MaxWidth="460"
-                                       FontSize="{StaticResource TextCaption}"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource DangerBrush}"
-                                       Visibility="{Binding Editor.HasValidationSummary, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            <Button Style="{StaticResource PrimaryPillButton}"
-                                    MinWidth="170"
-                                    Command="{Binding SaveCommand}"
-                                    Content="{Binding SaveButtonText}"/>
+                            </UniformGrid>
                         </StackPanel>
+                    </Border>
+
+                    <!-- SAVE is the only primary action here. Delete is not a
+                         peer of Save — see the view-model header. -->
+                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0"
+                                HorizontalAlignment="Right">
+                        <TextBlock Text="{Binding ValidationSummary}"
+                                   VerticalAlignment="Center" Margin="0,0,16,0"
+                                   TextWrapping="Wrap" MaxWidth="520"
+                                   FontSize="{StaticResource TextCaption}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource DangerBrush}"
+                                   Visibility="{Binding HasValidationSummary,
+                                               Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <Button Style="{StaticResource PrimaryPillButton}"
+                                MinWidth="190"
+                                Command="{Binding DataContext.SaveCommand,
+                                          RelativeSource={RelativeSource AncestorType=Window}}"
+                                Content="{Binding DataContext.SaveButtonText,
+                                          RelativeSource={RelativeSource AncestorType=Window}}"/>
                     </StackPanel>
-                </Border>
+                </StackPanel>
             </ScrollViewer>
 
             <!-- ─── MOVEMENTS ─── -->
@@ -415,20 +773,14 @@
                     </TextBlock.Style>
                 </TextBlock>
 
-                <DataGrid ItemsSource="{Binding Movements}"
-                          AutoGenerateColumns="False"
-                          IsReadOnly="True"
-                          HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal"
-                          Background="Transparent"
-                          BorderThickness="{DynamicResource CardBorderThickness}"
-                          BorderBrush="{DynamicResource OutlineBrush}"
-                          RowBackground="Transparent"
-                          EnableRowVirtualization="True"
-                          VirtualizingPanel.IsVirtualizing="True"
-                          VirtualizingPanel.VirtualizationMode="Recycling">
-                    <DataGrid.Style>
-                        <Style TargetType="DataGrid">
+                <!-- Step 5 cut-list treatment: a styled header band over a
+                     borderless ListView, not a stock DataGrid. The default
+                     grid brings its own chrome — gridlines, header sort
+                     glyphs, focus rectangles — that ignores the theme and
+                     reads as unfinished next to the rest of the app. -->
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
                             <Setter Property="Visibility" Value="Visible"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding HasNoMovements}" Value="True">
@@ -439,22 +791,120 @@
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </DataGrid.Style>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="When" Width="170"
-                                            Binding="{Binding Timestamp, StringFormat={}{0:dd MMM yyyy HH:mm}}"/>
-                        <DataGridTextColumn Header="Action" Width="110"
-                                            Binding="{Binding Action}"/>
-                        <DataGridTextColumn Header="Qty" Width="80"
-                                            Binding="{Binding QuantityChanged}"/>
-                        <DataGridTextColumn Header="Value" Width="120"
-                                            Binding="{Binding ValueChanged, StringFormat={}{0:N2}}"/>
-                        <DataGridTextColumn Header="Details" Width="*"
-                                            Binding="{Binding Details}"/>
-                        <DataGridTextColumn Header="User" Width="140"
-                                            Binding="{Binding UserName}"/>
-                    </DataGrid.Columns>
-                </DataGrid>
+                    </StackPanel.Style>
+
+                    <Border Style="{StaticResource PiTableHeaderStyle}" Padding="10,7"
+                            CornerRadius="10,10,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.5*"/>
+                                <ColumnDefinition Width="0.9*"/>
+                                <ColumnDefinition Width="0.6*"/>
+                                <ColumnDefinition Width="0.9*"/>
+                                <ColumnDefinition Width="3*"/>
+                                <ColumnDefinition Width="1.1*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="WHEN"
+                                       Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="1" Text="ACTION"
+                                       Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="2" Text="QTY"
+                                       Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="3" Text="VALUE"
+                                       Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="4" Text="DETAILS"
+                                       Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"
+                                       Margin="12,0,0,0"/>
+                            <TextBlock Grid.Column="5" Text="USER"
+                                       Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Background="{DynamicResource DialogInsetBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="1,0,1,1"
+                            CornerRadius="0,0,10,10">
+                        <ListView ItemsSource="{Binding Movements}"
+                                  ItemContainerStyle="{StaticResource MovementRowStyle}"
+                                  Background="Transparent"
+                                  BorderThickness="0"
+                                  Padding="0" Margin="0"
+                                  Focusable="False"
+                                  HorizontalContentAlignment="Stretch"
+                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  VirtualizingStackPanel.IsVirtualizing="True"
+                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="10,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1.5*"/>
+                                            <ColumnDefinition Width="0.9*"/>
+                                            <ColumnDefinition Width="0.6*"/>
+                                            <ColumnDefinition Width="0.9*"/>
+                                            <ColumnDefinition Width="3*"/>
+                                            <ColumnDefinition Width="1.1*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" VerticalAlignment="Center"
+                                                   Text="{Binding Timestamp, StringFormat={}{0:dd MMM yyyy  HH:mm}}"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                                        <!-- Action colour comes from the model's
+                                             own ActionColor so Bought / Used /
+                                             Reversed read the same here as in
+                                             the History dialog. -->
+                                        <Border Grid.Column="1" HorizontalAlignment="Left"
+                                                VerticalAlignment="Center"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Padding="9,3"
+                                                SnapsToDevicePixels="True">
+                                            <Border.Background>
+                                                <!-- ActionColor is a hex STRING; a direct
+                                                     Background bind silently yields no brush.
+                                                     Same treatment as HistoryView. -->
+                                                <SolidColorBrush Color="{Binding ActionColor,
+                                                    Converter={StaticResource ColorStringConverter}}"/>
+                                            </Border.Background>
+                                            <TextBlock Text="{Binding Action}"
+                                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                        </Border>
+
+                                        <TextBlock Grid.Column="2" VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   Text="{Binding QuantityChanged}"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+                                        <TextBlock Grid.Column="3" VerticalAlignment="Center"
+                                                   HorizontalAlignment="Right"
+                                                   Text="{Binding ValueChanged, StringFormat={}{0:N2}}"
+                                                   FontSize="{StaticResource TextBody}"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+                                        <TextBlock Grid.Column="4" VerticalAlignment="Center"
+                                                   Margin="12,0,0,0"
+                                                   Text="{Binding Details}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding Details}"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                                        <TextBlock Grid.Column="5" VerticalAlignment="Center"
+                                                   Text="{Binding UserName}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   FontSize="{StaticResource TextCaption}"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </Border>
+                </StackPanel>
             </Grid>
 
             <!-- ─── ANALYSIS ─── -->
