@@ -1,32 +1,58 @@
-﻿using ProGlassAutomation.Commands;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// 2026-09-06 — BLOCKING VALIDATION.
+//
+// This dialog already gated ConfirmCommand on CanConfirm (the Buy dialog
+// did not — that was the reported 0-quantity bug). But it shared the
+// other, subtler fault: an INT bound with UpdateSourceTrigger=
+// PropertyChanged cannot observe an EMPTY box. Clearing the field sends
+// "", conversion fails, the setter never runs, and the stale value
+// survives behind an empty-looking control.
+//
+// It also silently CLAMPED. Typing 999 against a balance of 12 became 12
+// with no explanation; typing 0 became 1. Quietly rewriting an operator's
+// entry is how stock records drift away from physical reality — the
+// operator believes they recorded 999 and never learns otherwise.
+//
+// Now: raw text in, explicit parse, refuse-and-explain against the real
+// balance ("Only 12 sheet(s) available").
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
-using ProGlassAutomation.ViewModels;
+using ProGlassAutomation.ViewModels.Validation;
 using System;
+using System.Globalization;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse
 {
-    public class UseDialogViewModel : ViewModelBase
+    public class UseDialogViewModel : ValidatableViewModelBase
     {
         public GlassSheet Sheet { get; }
 
-        private int _quantity = 1;
-        public int Quantity
+        // ── Raw entry surface ──────────────────────────────────────────
+        private string _quantityText = "1";
+        public string QuantityText
         {
-            get => _quantity;
+            get => _quantityText;
             set
             {
-                if (value < 1) value = 1;
-                if (value > Sheet.Balance) value = Sheet.Balance;
-                _quantity = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(TotalSqm));
-                OnPropertyChanged(nameof(TotalValue));
-                OnPropertyChanged(nameof(RemainingBalance));
-                OnPropertyChanged(nameof(CanConfirm));
-                OnPropertyChanged(nameof(ErrorMessage));
+                if (_quantityText == value) return;
+                _quantityText = value;
+                Raise();
+                Revalidate();
             }
         }
+
+        /// <summary>
+        /// Parsed, validated quantity. Only trustworthy when
+        /// <see cref="IsValid"/> is true.
+        /// </summary>
+        public int Quantity { get; private set; } = 1;
+
+        /// <summary>Inline error under the quantity box.</summary>
+        public string QuantityError => ErrorFor(nameof(QuantityText));
+        public bool HasQuantityError => !string.IsNullOrEmpty(QuantityError);
 
         private string _jobOrderReference = string.Empty;
         public string JobOrderReference
@@ -77,9 +103,18 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse
         public decimal TotalValue => TotalSqm * Sheet.SellPricePerSqm;
         public int RemainingBalance => Sheet.Balance - Quantity;
 
-        public bool CanConfirm => Quantity > 0 && Quantity <= Sheet.Balance;
+        /// <summary>Previews stay hidden while the entry is invalid.</summary>
+        public bool ShowPreview => IsValid && !IsOutOfStock;
 
-        public string ErrorMessage => Sheet.Balance == 0
+        /// <summary>
+        /// Nothing on the rack — a whole-dialog blocker rather than a
+        /// field error, since no quantity could ever be valid.
+        /// </summary>
+        public bool IsOutOfStock => Sheet.Balance <= 0;
+
+        public bool CanConfirm => IsValid && !IsOutOfStock;
+
+        public string ErrorMessage => IsOutOfStock
             ? "No stock available to use."
             : string.Empty;
 
@@ -121,10 +156,53 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse
 
             Sheet = sheet;
 
-            IncreaseCommand = new RelayCommand(_ => { if (Quantity < Sheet.Balance) Quantity++; });
-            DecreaseCommand = new RelayCommand(_ => { if (Quantity > 1) Quantity--; });
-            ConfirmCommand = new RelayCommand(_ => { DialogResult = true; CloseAction?.Invoke(); }, _ => CanConfirm);
-            CancelCommand = new RelayCommand(_ => { DialogResult = false; CloseAction?.Invoke(); });
+            IncreaseCommand = new RelayCommand(_ => Nudge(+1));
+            DecreaseCommand = new RelayCommand(_ => Nudge(-1));
+            ConfirmCommand = new RelayCommand(
+                _ => { DialogResult = true; CloseAction?.Invoke(); },
+                _ => CanConfirm);
+            CancelCommand = new RelayCommand(
+                _ => { DialogResult = false; CloseAction?.Invoke(); });
+
+            Revalidate();
+        }
+
+        /// <summary>
+        /// ± stepper, bounded by the real balance. Unlike the old setter
+        /// this only constrains the BUTTON's own arithmetic — typing an
+        /// over-balance number by hand still produces a visible error
+        /// rather than a silent correction.
+        /// </summary>
+        private void Nudge(int delta)
+        {
+            int current = IsValid ? Quantity : 0;
+            int next = Math.Max(1, Math.Min(Sheet.Balance, current + delta));
+            QuantityText = next.ToString(CultureInfo.CurrentCulture);
+        }
+
+        private void Revalidate()
+        {
+            // Consumption is bounded by what is physically on the rack.
+            // The message names the real number so the operator can act
+            // on it without hunting for the balance elsewhere.
+            var parsed = ParseQuantity(
+                QuantityText,
+                nameof(QuantityText),
+                fieldLabel: "quantity",
+                max: Sheet.Balance > 0 ? Sheet.Balance : (int?)null,
+                maxMessage: $"Only {Sheet.Balance} sheet(s) available.");
+
+            if (parsed.HasValue)
+                Quantity = parsed.Value;
+
+            Raise(nameof(Quantity));
+            Raise(nameof(QuantityError));
+            Raise(nameof(HasQuantityError));
+            Raise(nameof(TotalSqm));
+            Raise(nameof(TotalValue));
+            Raise(nameof(RemainingBalance));
+            Raise(nameof(ShowPreview));
+            Raise(nameof(CanConfirm));
         }
     }
 }

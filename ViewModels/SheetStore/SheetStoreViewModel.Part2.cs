@@ -99,6 +99,19 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             var vm = new BuyDialogViewModel(sheet);
             _dialogs.ShowDialog<BuyDialogView>(vm);
 
+            // 2026-09-06: this used to be the SILENT FAILURE path. When the
+            // quantity was 0 the condition fell through, the dialog had
+            // already closed, and the operator was shown nothing at all —
+            // they walked away believing stock had been added. The dialog
+            // now blocks confirm while invalid (ConfirmCommand gates on
+            // CanConfirm), so reaching here with bad input means something
+            // bypassed the UI. Say so rather than dropping it.
+            if (vm.DialogResult == true && !vm.IsValid)
+            {
+                ShowError("Purchase not recorded — the quantity was not valid.");
+                return;
+            }
+
             if (vm.DialogResult == true && vm.Quantity > 0)
             {
                 try
@@ -147,6 +160,13 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             var vm = new UseDialogViewModel(sheet);
             _dialogs.ShowDialog<UseDialogView>(vm);
+
+            // Same silent-failure guard as BuyAsync — see the note there.
+            if (vm.DialogResult == true && !vm.IsValid)
+            {
+                ShowError("Consumption not recorded — the quantity was not valid.");
+                return;
+            }
 
             if (vm.DialogResult == true && vm.Quantity > 0)
             {

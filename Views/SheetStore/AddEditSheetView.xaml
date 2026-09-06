@@ -137,7 +137,7 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource SheetStore.ThicknessMm}" Style="{StaticResource LabelStyle}"/>
                         <ComboBox Style="{StaticResource ComboStyle}"
-                                  Text="{Binding ThicknessMm, UpdateSourceTrigger=PropertyChanged}">
+                                  Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}">
                             <ComboBoxItem Content="3"/>
                             <ComboBoxItem Content="4"/>
                             <ComboBoxItem Content="5"/>
@@ -172,12 +172,12 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource SheetStore.WidthMm}" Style="{StaticResource LabelStyle}"/>
                         <TextBox Style="{StaticResource IntInputStyle}"
-                                 Text="{Binding WidthMm, UpdateSourceTrigger=PropertyChanged}"/>
+                                 Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{DynamicResource SheetStore.HeightMm}" Style="{StaticResource LabelStyle}"/>
                         <TextBox Style="{StaticResource IntInputStyle}"
-                                 Text="{Binding HeightMm, UpdateSourceTrigger=PropertyChanged}"/>
+                                 Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </Grid>
 
@@ -194,18 +194,18 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource SheetStore.PurchasePriceSQM}" Style="{StaticResource LabelStyle}"/>
                         <TextBox Style="{StaticResource DecimalInputStyle}"
-                                 Text="{Binding PurchasePricePerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"/>
+                                 Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{DynamicResource SheetStore.SELLPriceSQM}" Style="{StaticResource LabelStyle}"/>
                         <TextBox Style="{StaticResource DecimalInputStyle}"
-                                 Text="{Binding SellPricePerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"/>
+                                 Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </Grid>
 
                 <TextBlock Text="{DynamicResource SheetStore.StockQuantity}" Style="{StaticResource LabelStyle}"/>
                 <TextBox Style="{StaticResource IntInputStyle}"
-                         Text="{Binding Stock, UpdateSourceTrigger=PropertyChanged}"/>
+                         Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"/>
 
             </StackPanel>
         </ScrollViewer>

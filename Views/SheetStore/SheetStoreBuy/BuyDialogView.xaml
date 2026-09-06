@@ -157,19 +157,49 @@
                                 ToolTip="{DynamicResource SheetStore.DecreaseQuantity}"
                                 Command="{Binding DecreaseCommand}"/>
                         <!-- Quantity TextBox — integer-only, big centered number -->
+                        <!-- Bound to RAW TEXT, not the int. An int binding
+                             with PropertyChanged cannot observe an empty box:
+                             conversion fails and the setter never runs, so the
+                             stale value survives behind an empty control. -->
                         <TextBox Grid.Column="1"
-                                 Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"
+                                 Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                  behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                  FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" TextAlignment="Center"
                                  VerticalContentAlignment="Center" Height="44"
                                  Background="{DynamicResource DialogInsetBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                 BorderThickness="0" Margin="8,0"/>
+                                 Margin="8,0">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Style.Triggers>
+                                        <!-- Red outline while the entry is
+                                             rejected: the error text alone is
+                                             easy to miss on a dense form. -->
+                                        <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
                         <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
                                 Content="+" MinWidth="50"
                                 ToolTip="{DynamicResource SheetStore.IncreaseQuantity}"
                                 Command="{Binding IncreaseCommand}"/>
                     </Grid>
+
+                    <!-- Inline field error. Attached to the OFFENDING BOX
+                         rather than a shared line at the foot of the form,
+                         so the operator is pointed at what to fix. -->
+                    <TextBlock Text="{Binding QuantityError}"
+                               Foreground="{DynamicResource DangerBrush}"
+                               FontSize="{StaticResource TextCaption}"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               Margin="0,8,0,0"
+                               Visibility="{Binding HasQuantityError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 </StackPanel>
             </Border>
 
