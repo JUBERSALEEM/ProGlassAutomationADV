@@ -480,12 +480,6 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
 
-                if (!preserveUnsetProfileFields && existing.IsDefault)
-                {
-                    foreach (var other in ctx.Companies.Where(c => c.Id != existing.Id && c.IsDefault))
-                        other.IsDefault = false;
-                }
-
                 await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 return existing;
             }
@@ -586,12 +580,6 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 existing.LpoNumber = project.LpoNumber;
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
-
-                if (!preserveUnsetProfileFields && existing.IsDefault)
-                {
-                    foreach (var other in ctx.Companies.Where(c => c.Id != existing.Id && c.IsDefault))
-                        other.IsDefault = false;
-                }
 
                 await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 return existing;
@@ -711,12 +699,6 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
-
-                if (!preserveUnsetProfileFields && existing.IsDefault)
-                {
-                    foreach (var other in ctx.Companies.Where(c => c.Id != existing.Id && c.IsDefault))
-                        other.IsDefault = false;
-                }
 
                 await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 return existing;

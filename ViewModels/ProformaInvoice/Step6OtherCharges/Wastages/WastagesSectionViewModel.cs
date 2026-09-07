@@ -599,6 +599,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             }
         }
 
+
+        private static void ApplyMetadata(
+            SpecGroupColorSide source,
+            int width,
+            int height,
+            decimal price)
+        {
+            if (width > 0)
+                source.SheetWidthMm = width;
+            if (height > 0)
+                source.SheetHeightMm = height;
+            if (price > 0m)
+                source.PricePerSqm = price;
+        }
+
         /// <summary>
         /// Legacy display-name colour scrape, hardened: the rules engine
         /// writes "Outer glass wastage" style labels when no colour was
