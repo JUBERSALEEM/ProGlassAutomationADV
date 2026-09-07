@@ -88,3 +88,7 @@ The first shared-sheet fix updated Sheet Details and the target rate helper, but
 ## Follow-up correction — Sheet Details utilization and pane identity
 
 Sheet Details now keeps the Step 6 setup utilization visible at two-decimal precision and no longer defaults a shared setup to 100% when the setup has no explicit optimization percentage; in that fallback case it infers actual utilization from selected source SQM divided by total bought sheet area. Sheet breakdown rows also now show the pane identity beside the full specification: `Spec name — Outer/Inner · Glass name`, so a clicked row clearly identifies whether it belongs to Low-E, Clear, Ramly, etc.
+
+## Follow-up correction — Target Profitability glass-cost lens
+
+The Target Profitability actual-cost summary no longer displays `glass + production cost`. It now uses a clean `glass cost only` lens. Active Step 6 add-ons (U-insert, argon, fanhole, holes, cutout, polish, custom extras) are treated as separately billed commercial lines and are not imported into that target summary. If an extra toggle is OFF, the business interpretation is that its price is included inside the Step 5 given AED/m² price/target judgement, not shown as a separate production-cost line in the glass-cost card.

@@ -572,8 +572,8 @@
                            TextWrapping="Wrap" Margin="0,12,0,0"/>
 
                 <!-- ═══ ACTUAL COST DETAIL (reference, formula-separated) ═══ -->
-                <TextBlock Text="ACTUAL COST &amp; RATE CHECK — SHEET STORE BASIS" Style="{StaticResource TgtSectionLabel}"/>
-                <TextBlock Text="Actual glass cost comes from the Sheet Store; production from Step 4 rates. The WASTAGE % box also sets the formula yield (15% → ÷0.85), so it moves the required target; Step 6 wastage charges never enter the target KPI."
+                <TextBlock Text="ACTUAL GLASS COST &amp; RATE CHECK — STEP 4 / STEP 6 SHEET BASIS" Style="{StaticResource TgtSectionLabel}"/>
+                <TextBlock Text="This Target Profitability summary keeps the commercial glass-cost lens clean: active Step 6 extras such as U-insert, argon, fanhole, holes, cutout, polish and custom charges are billed separately and are not imported here. If an extra toggle is OFF, it is treated as included inside the Step 5 given AED/m² price/target judgement, not as a separate production-cost line in this card."
                            FontSize="{StaticResource TextCaption}"
                            Foreground="{DynamicResource MutedForegroundBrush}"
                            TextWrapping="Wrap" Margin="0,0,0,10"/>
@@ -591,19 +591,16 @@
                             <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="GLASS + PRODUCTION COST" Style="{StaticResource TgtMicroLabelStyle}"/>
-                            <TextBlock Style="{StaticResource TgtMicroValueStyle}">
-                                <Run Text="{Binding GlassCostDisplay, Mode=OneWay}"/><Run Text=" + "/>
-                                <Run Text="{Binding ProductionCostDisplay, Mode=OneWay}"/>
-                            </TextBlock>
+                            <TextBlock Text="GLASS COST ONLY" Style="{StaticResource TgtMicroLabelStyle}"/>
+                            <TextBlock Text="{Binding TargetProfitabilityCostDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource TgtMicroLabelStyle}"/>
-                            <TextBlock Text="{Binding ProfitDisplay}">
+                            <TextBlock Text="{Binding TargetProfitabilityProfitLabel}" Style="{StaticResource TgtMicroLabelStyle}"/>
+                            <TextBlock Text="{Binding TargetProfitabilityProfitDisplay}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource TgtMicroValueStyle}">
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                            <DataTrigger Binding="{Binding IsTargetProfitabilityLoss}" Value="True">
                                                 <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -612,8 +609,8 @@
                             </TextBlock>
                         </StackPanel>
                         <StackPanel Grid.Column="3">
-                            <TextBlock Text="MARGINS (reference)" Style="{StaticResource TgtMicroLabelStyle}"/>
-                            <TextBlock Text="{Binding OverallMarginDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
+                            <TextBlock Text="GLASS MARGIN (reference)" Style="{StaticResource TgtMicroLabelStyle}"/>
+                            <TextBlock Text="{Binding TargetProfitabilityMarginDisplay}" Style="{StaticResource TgtMicroValueStyle}"/>
                         </StackPanel>
                     </Grid>
                 </Border>

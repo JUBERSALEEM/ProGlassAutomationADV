@@ -161,6 +161,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _netExVat = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(NetDisplay));
+                RaiseTargetProfitabilityCostNotifications();
             }
         }
 
@@ -178,6 +179,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 OnPropertyChanged(nameof(TotalCostDisplay));
                 OnPropertyChanged(nameof(MarkupPercent));
                 OnPropertyChanged(nameof(MarkupDisplay));
+                RaiseTargetProfitabilityCostNotifications();
             }
         }
 
@@ -286,6 +288,43 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string GlassCostDisplay => $"AED {TotalGlassCost:N2}";
         public string ProductionCostDisplay => $"AED {TotalProductionCost:N2}";
         public string TotalCostDisplay => $"AED {TotalGlassCost + TotalProductionCost:N2}";
+
+        // ── Target Profitability cost lens ───────────────────────────────
+        // The target dashboard is a commercial glass-price check. Active
+        // Step 6 charges (U-insert, argon, fanhole, holes, cutouts, polish,
+        // custom extras) are billed separately and must not make the glass
+        // target look expensive. If an extra toggle is OFF, its value is
+        // treated as included inside the Step 5 given AED/m² price/target
+        // judgement; it is not imported as a separate production-cost line
+        // into this summary card. The full P&L tab can still show production
+        // costs for accounting/reference.
+        public decimal TargetProfitabilityCost => TotalGlassCost;
+        public string TargetProfitabilityCostDisplay => $"AED {TargetProfitabilityCost:N2}";
+        public decimal TargetProfitabilityProfit => Math.Round(NetExVat - TargetProfitabilityCost, 2);
+        public bool IsTargetProfitabilityLoss => NetExVat > 0m && TargetProfitabilityProfit < 0m;
+        public string TargetProfitabilityProfitLabel => IsTargetProfitabilityLoss ? "LOSS" : "PROFIT";
+        public string TargetProfitabilityProfitDisplay =>
+            (!IsTargetProfitabilityLoss && TargetProfitabilityProfit < 0m)
+                ? $"AED -{Math.Abs(TargetProfitabilityProfit):N2}"
+                : $"AED {Math.Abs(TargetProfitabilityProfit):N2}";
+        public decimal TargetProfitabilityMarginPercent =>
+            TargetProfitabilityCost > 0m
+                ? Math.Round(TargetProfitabilityProfit / TargetProfitabilityCost * 100m, 2)
+                : 0m;
+        public string TargetProfitabilityMarginDisplay =>
+            $"AED {TargetProfitabilityProfit:N0} | {TargetProfitabilityMarginPercent:0.#}%";
+
+        private void RaiseTargetProfitabilityCostNotifications()
+        {
+            OnPropertyChanged(nameof(TargetProfitabilityCost));
+            OnPropertyChanged(nameof(TargetProfitabilityCostDisplay));
+            OnPropertyChanged(nameof(TargetProfitabilityProfit));
+            OnPropertyChanged(nameof(IsTargetProfitabilityLoss));
+            OnPropertyChanged(nameof(TargetProfitabilityProfitLabel));
+            OnPropertyChanged(nameof(TargetProfitabilityProfitDisplay));
+            OnPropertyChanged(nameof(TargetProfitabilityMarginPercent));
+            OnPropertyChanged(nameof(TargetProfitabilityMarginDisplay));
+        }
         /// <summary>
         /// Math.Abs is correct ONLY because the caption flips to "LOSS",
         /// so "AED 500.00" under a LOSS label reads right and avoids the
