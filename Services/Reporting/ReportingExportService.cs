@@ -161,16 +161,32 @@ namespace ProGlassAutomation.Services.Reporting
                         else cell.Value = v?.ToString() ?? "";
                         cell.Style.Font.SetFontSize(10);
                     }
-                    if ((row - headerRow) % 2 == 0)
+                    bool isTotalOrSection = vals.Length > 0 &&
+                        (vals[0]?.ToString()?.IndexOf("TOTAL", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                         vals[0]?.ToString()?.StartsWith("0") == true);
+                    if (isTotalOrSection)
+                    {
+                        for (int c = 1; c <= _headers.Length; c++)
+                        {
+                            ws.Cell(row, c).Style.Fill.SetBackgroundColor(XLColor.FromHtml("#E0ECFF"));
+                            ws.Cell(row, c).Style.Font.SetBold();
+                        }
+                    }
+                    else if ((row - headerRow) % 2 == 0)
                         for (int c = 1; c <= _headers.Length; c++)
                             ws.Cell(row, c).Style.Fill.SetBackgroundColor(XLColor.FromHtml("#F8FAFC"));
+                    for (int c = 1; c <= _headers.Length; c++)
+                    {
+                        ws.Cell(row, c).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Top);
+                        ws.Cell(row, c).Style.Alignment.SetWrapText(true);
+                    }
                     row++;
                 }
 
                 for (int c = 1; c <= _headers.Length; c++)
                 {
                     ws.Column(c).AdjustToContents();
-                    if (ws.Column(c).Width > 32) ws.Column(c).Width = 32;
+                    if (ws.Column(c).Width > 46) ws.Column(c).Width = 46;
                     if (ws.Column(c).Width < 12) ws.Column(c).Width = 12;
                 }
                 ws.SheetView.FreezeRows(headerRow);
@@ -219,28 +235,23 @@ namespace ProGlassAutomation.Services.Reporting
                     });
 
                     bool alt = false;
-                    // Paginate: first 40 rows, then continue
-                    int take = Math.Min(_rows.Count, 200);
+                    int maxCellChars = _headers.Length <= 4 ? 140 : _headers.Length <= 10 ? 70 : 42;
+                    // Detail reports must export every row. CSV/Excel remain best
+                    // for very large datasets, but PDF should still carry the full
+                    // audit trail instead of silently truncating business evidence.
+                    int take = _rows.Count;
                     for (int i = 0; i < take; i++)
                     {
                         var fields = _mapper(_rows[i]);
                         foreach (var f in fields)
                         {
                             var txt = f ?? "";
-                            if (txt.Length > 42) txt = txt.Substring(0, 39) + "…";
+                            if (txt.Length > maxCellChars) txt = txt.Substring(0, Math.Max(1, maxCellChars - 1)) + "…";
                             table.Cell().Background(alt ? "#F8FAFC" : Colors.White).BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(3).Text(txt).FontSize(6).FontColor("#1F2937");
                         }
                         alt = !alt;
                     }
-                    if (_rows.Count > take)
-                    {
-                        foreach (var _ in _headers)
-                            table.Cell().Padding(4).Text("…").FontSize(6).FontColor("#6B7280").Italic();
-                    }
                 });
-
-                if (_rows.Count > 200)
-                    column.Item().PaddingTop(6).Text($"Showing first 200 of {_rows.Count} rows — export CSV/Excel for the complete dataset.").FontSize(7).FontColor("#6B7280").Italic();
             }
         }
 

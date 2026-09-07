@@ -124,6 +124,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             SelectTargetSpecCommand = new RelayCommand(_ => SetSelectedTargetSpec(_));
             GoToStep6Command = new RelayCommand(_ => GoToStep6());
             BackToComparisonCommand = new RelayCommand(_ => BackToComparison());
+            ExportOverviewCsvCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportOverviewAsync(ExportFormat.Csv), "Step9 Overview CSV"));
+            ExportOverviewExcelCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportOverviewAsync(ExportFormat.Excel), "Step9 Overview Excel"));
+            ExportOverviewPdfCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(() => ExportOverviewAsync(ExportFormat.Pdf), "Step9 Overview PDF"));
             ExportTargetCsvCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(() => ExportTargetAsync(ExportFormat.Csv), "Step9 Target CSV"));
             ExportTargetExcelCommand = new RelayCommand(
@@ -204,6 +210,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public GlassTypeComparisonViewModel GlassTypeComparison { get; }
 
         // ══════════════════════════════════════════════════════════════
+        //  OVERVIEW EXPORT (CSV / Excel / PDF) — main section report
+        // ══════════════════════════════════════════════════════════════
+
+        public ICommand ExportOverviewCsvCommand { get; }
+        public ICommand ExportOverviewExcelCommand { get; }
+        public ICommand ExportOverviewPdfCommand { get; }
+
+        // ══════════════════════════════════════════════════════════════
         //  TARGET-COMPARISON EXPORT (CSV / Excel / PDF)
         // ══════════════════════════════════════════════════════════════
 
@@ -239,6 +253,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (_isPnlExporting == value) return;
                 _isPnlExporting = value;
                 OnPropertyChanged();
+            }
+        }
+
+        private async Task ExportOverviewAsync(ExportFormat format)
+        {
+            if (_isPnlExporting) return;
+            _isPnlExporting = true;
+            try
+            {
+                var rows = Step9ReportExport.BuildOverviewRows(this);
+                if (rows.Count == 0) return;
+
+                var result = await Step9ReportExport.RunAsync(
+                    format, rows, "Step 9 Overview Detailed Report",
+                    Step9ReportExport.OverviewHeaders,
+                    Step9ReportExport.OverviewMap,
+                    Step9ReportExport.OverviewMapExcel,
+                    $"Step9_Overview_Detailed_{DateTime.Now:yyyyMMdd}");
+
+                if (result.Success)
+                    StatusMessage = $"Exported {format} — {result.SavedPath}";
+                else if (!result.Cancelled)
+                    App.Dialogs.Warning(result.ErrorMessage ?? "Export failed.", "Export");
+            }
+            catch (Exception ex)
+            {
+                App.Dialogs.Error($"Export failed: {ExceptionMessages.Deep(ex)}", "Export");
+            }
+            finally
+            {
+                _isPnlExporting = false;
             }
         }
 
