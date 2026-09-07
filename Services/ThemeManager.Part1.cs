@@ -136,6 +136,11 @@ namespace ProGlassAutomation.Services
             // saved value after every theme swap.
             ReapplyCardBorderThickness();
 
+            // Same for the card EDGE weight (the defined card border line) —
+            // a fresh dictionary resets CardEdgeThickness, so the saved
+            // 1–100 value wins again.
+            ReapplyCardEdgeThickness();
+
             // Same for card corner radius — theme files ship 12/10/16
             // defaults, then the user's saved radius wins.
             ReapplyCardCornerRadius();

@@ -312,9 +312,20 @@ namespace ProGlassAutomation.Services.Theme
                     }
                     else
                     {
-                        resources.Remove("PrimaryForegroundBrush");
-                        resources.Remove("SecondaryForegroundBrush");
-                        resources.Remove("MutedForegroundBrush");
+                        // Normal and Monet let the theme dictionary own
+                        // their ink, so the app-level foregrounds are
+                        // removed and the theme value wins. Normal
+                        // (Industrial) paints its OWN navy ink in
+                        // ApplyIndustrial — removing it here would wipe
+                        // the family's professional slate text back to the
+                        // warm cream ink (the 2026-09-07 "industrial text
+                        // isn't navy" finding). Keep it.
+                        if (Current != NormalIndustrial)
+                        {
+                            resources.Remove("PrimaryForegroundBrush");
+                            resources.Remove("SecondaryForegroundBrush");
+                            resources.Remove("MutedForegroundBrush");
+                        }
 
                         // The wallpaper layer sets stronger secondary/
                         // muted for readability over pictures — if we

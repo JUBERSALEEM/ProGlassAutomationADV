@@ -187,6 +187,19 @@ namespace ProGlassAutomation.Services.Theme
         private static string _lastAppliedSignature = "";
         private static bool _hasAppliedOnce;
 
+        // ── Wallpaper-only fast path (2026-09-07, per-module toggle lag) ──
+        // A per-module wallpaper toggle (or its opacity slider) used to
+        // rebuild the ENTIRE family — ~60 keys torn down and republished —
+        // on every tick, because ApplyModule could not tell a wallpaper
+        // change from a family change. These three fields cache the
+        // family's post-paint, pre-wallpaper surfaces so a wallpaper-only
+        // change can restore them and re-layer the wallpaper WITHOUT the
+        // full teardown. _familyBaselineSignature is the family/mode/accent/
+        // font fingerprint (wallpaper inputs excluded).
+        private static string _familyBaselineSignature = "";
+        private static object? _familyWindowBrush;
+        private static object? _familyModuleBrush;
+
         /// <summary>
         /// Fingerprints everything ApplyModule's output depends on:
         /// colour mode, family, module key, system wallpaper + opacity and
@@ -219,6 +232,35 @@ namespace ProGlassAutomation.Services.Theme
                 family, mod, wall, op.ToString("F3",
                     System.Globalization.CultureInfo.InvariantCulture),
                 moduleWall,
+                FontPreferenceSignature());
+        }
+
+        /// <summary>
+        /// Fingerprints ONLY the family baseline (mode + family + accent +
+        /// font colour) — everything the family painters derive surfaces
+        /// from. Wallpaper inputs are deliberately EXCLUDED: when this
+        /// signature is unchanged, the family surfaces on screen are still
+        /// correct and only the wallpaper layer needs re-layering (the
+        /// 2026-09-07 fast path behind the per-module wallpaper toggle).
+        /// </summary>
+        private static string BuildFamilySignature(
+            AI.AIConfig.AppearanceSettings? appearance)
+        {
+            string family = Normalize(appearance?.VisualTheme ?? Normal);
+            // The SYSTEM wallpaper is a family input: Monet derives its
+            // window stage directly from it (ApplyMonet), so a changed
+            // system wallpaper must force a real family rebuild. The
+            // per-module wallpaper is NOT included — it only re-layers the
+            // module area, which the wallpaper fast path handles alone.
+            return string.Join("¦",
+                ThemeManager.CurrentTheme,
+                ThemeManager.AccentColor.ToString(
+                    System.Globalization.CultureInfo.InvariantCulture),
+                family,
+                appearance?.WallpaperPath ?? "",
+                ClampOpacity(appearance?.WallpaperOpacity ?? 0.85)
+                    .ToString("F3",
+                        System.Globalization.CultureInfo.InvariantCulture),
                 FontPreferenceSignature());
         }
 
@@ -341,6 +383,24 @@ namespace ProGlassAutomation.Services.Theme
                         break;
                 }
 
+                // Cache the family's pre-wallpaper surfaces so the next
+                // ApplyModule can fast-path a wallpaper-only change (see
+                // ApplyModule's familyChanged branch for the full story).
+                // The signature is built from Current (the family ACTUALLY
+                // painted) so it can never drift from what is on screen,
+                // and uses the SAME field layout as BuildFamilySignature.
+                _familyWindowBrush = resources["WindowBackgroundBrush"];
+                _familyModuleBrush = resources["ModuleBackgroundBrush"];
+                _familyBaselineSignature = string.Join("¦",
+                    ThemeManager.CurrentTheme,
+                    ThemeManager.AccentColor.ToString(
+                        System.Globalization.CultureInfo.InvariantCulture),
+                    Current,
+                    _lastWallpaperPath ?? "",
+                    ClampOpacity(_lastWallpaperOpacity).ToString("F3",
+                        System.Globalization.CultureInfo.InvariantCulture),
+                    FontPreferenceSignature());
+
                 // System-wide wallpaper chrome: paint the window
                 // background for non-Monet families (Monet handles it
                 // above). The module-area layer is owned by
@@ -424,6 +484,17 @@ namespace ProGlassAutomation.Services.Theme
             if (signature == _lastAppliedSignature && _hasAppliedOnce)
                 return;
 
+            // 2026-09-07 fast path: a wallpaper-only change (per-module
+            // toggle / opacity tick) must NOT tear the family down. If the
+            // family baseline is unchanged, only the wallpaper layer is
+            // re-layered below — the family surfaces stay untouched, so
+            // every DynamicResource-bound card repaints ZERO times instead
+            // of twice. A real family/mode/accent/font change still runs
+            // the full rebuild.
+            string familySignature = BuildFamilySignature(appearance);
+            bool familyChanged = familySignature != _familyBaselineSignature
+                                 || !_hasAppliedOnce;
+
             try
             {
                 LastRequestedModule = moduleKey ?? "";
@@ -432,45 +503,68 @@ namespace ProGlassAutomation.Services.Theme
                 _lastWallpaperOpacity =
                     ClampOpacity(appearance?.WallpaperOpacity ?? 0.85);
 
-                // Rebuild the family baseline (removes the previous
-                // module's wallpaper layer).
-                ClearOverrides(resources);
-                // Crystal Fluid gate (non-managed key by design —
-                // NOT in ManagedKeys; see tokens file). Published as an
-                // explicit FALSE at every non-crystal family switch: the
-                // indexer raises ResourcesChanged, so every
-                // CrystalWaterControl's DynamicResource reference
-                // re-evaluates immediately. Remove() did not reliably
-                // notify, which left water stuck at its TRUE DP default
-                // under Normal / Monet / Industrial (water rendering
-                // outside Ios-17pm).
-                resources["CrystalWaterDefaultEnabled"] = false;
-                // Ios-17pm P4a: family-gated shell ambient host
-                // (MainWindow wallpaper layer) — removed with the
-                // same contract as the water gate.
-                resources.Remove("CrystalAmbientHostVisibility");
-                // Ios-17pm P4e: authored preview composition gate.
-                resources.Remove("CrystalPreviewHostVisibility");
-                foreach (var ck in CrystalFluidTokenKeys)
-                    resources.Remove(ck);
-                // PRE-SEED (2026-09-05 — ERR-50472F): never leave the
-                // dictionary with absent keys between teardown and the
-                // family republish — see Apply() for the full rationale.
-                GuaranteeCriticalResources(resources, silent: true);
                 Current = Normalize(appearance?.VisualTheme ?? Normal);
 
-                switch (Current)
+                if (familyChanged)
                 {
-                    case Monet:
-                        ApplyMonet(resources, _lastWallpaperPath,
-                            _lastWallpaperOpacity);
-                        break;
-                    case CrystalFluid:
-                        ApplyCrystalFluid(resources);
-                        break;
-                    case NormalIndustrial:
-                        ApplyIndustrial(resources);
-                        break;
+                    // Rebuild the family baseline (removes the previous
+                    // module's wallpaper layer).
+                    ClearOverrides(resources);
+                    // Crystal Fluid gate (non-managed key by design —
+                    // NOT in ManagedKeys; see tokens file). Published as an
+                    // explicit FALSE at every non-crystal family switch: the
+                    // indexer raises ResourcesChanged, so every
+                    // CrystalWaterControl's DynamicResource reference
+                    // re-evaluates immediately. Remove() did not reliably
+                    // notify, which left water stuck at its TRUE DP default
+                    // under Normal / Monet / Industrial (water rendering
+                    // outside Ios-17pm).
+                    resources["CrystalWaterDefaultEnabled"] = false;
+                    // Ios-17pm P4a: family-gated shell ambient host
+                    // (MainWindow wallpaper layer) — removed with the
+                    // same contract as the water gate.
+                    resources.Remove("CrystalAmbientHostVisibility");
+                    // Ios-17pm P4e: authored preview composition gate.
+                    resources.Remove("CrystalPreviewHostVisibility");
+                    foreach (var ck in CrystalFluidTokenKeys)
+                        resources.Remove(ck);
+                    // PRE-SEED (2026-09-05 — ERR-50472F): never leave the
+                    // dictionary with absent keys between teardown and the
+                    // family republish — see Apply() for the full rationale.
+                    GuaranteeCriticalResources(resources, silent: true);
+
+                    switch (Current)
+                    {
+                        case Monet:
+                            ApplyMonet(resources, _lastWallpaperPath,
+                                _lastWallpaperOpacity);
+                            break;
+                        case CrystalFluid:
+                            ApplyCrystalFluid(resources);
+                            break;
+                        case NormalIndustrial:
+                            ApplyIndustrial(resources);
+                            break;
+                    }
+
+                    // Cache the family's pre-wallpaper surfaces so a
+                    // wallpaper-only change can restore them and skip the
+                    // teardown above.
+                    _familyWindowBrush = resources["WindowBackgroundBrush"];
+                    _familyModuleBrush = resources["ModuleBackgroundBrush"];
+                    _familyBaselineSignature = familySignature;
+                }
+                else
+                {
+                    // Wallpaper-only change: the family surfaces on screen
+                    // are still correct. Restore the cached pre-wallpaper
+                    // surfaces and clear the previous wallpaper layer, then
+                    // fall through to the SAME wallpaper layering below.
+                    if (_familyWindowBrush != null)
+                        resources["WindowBackgroundBrush"] = _familyWindowBrush;
+                    if (_familyModuleBrush != null)
+                        resources["ModuleBackgroundBrush"] = _familyModuleBrush;
+                    resources.Remove("ModuleWallpaperBrush");
                 }
 
                 if (Current != Monet &&

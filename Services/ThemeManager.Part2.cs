@@ -38,6 +38,33 @@ namespace ProGlassAutomation.Services
         public static void ReapplyCardBorderThickness()
             => ApplyCardBorderThickness(_cardBorderThickness);
 
+        private static double _cardEdgeThickness = 2.0;
+
+        /// <summary>Current global card EDGE weight in DIPs (1–100).</summary>
+        public static double CardEdgeThickness => _cardEdgeThickness;
+
+        /// <summary>
+        /// Applies the defined card-edge weight (Settings → Appearance →
+        /// Define Card Edges) to every card surface via the CardEdgeThickness
+        /// theme resource. Separate from CardBorderThickness (the subtle
+        /// input/chrome hairline) so a bold industrial edge never inflates
+        /// text boxes and gridlines.
+        /// </summary>
+        public static void ApplyCardEdgeThickness(double thickness)
+        {
+            if (thickness < 0.0) thickness = 0.0;
+            _cardEdgeThickness = thickness;
+
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
+            resources["CardEdgeThickness"] = new Thickness(thickness);
+        }
+
+        /// <summary>Re-applies the saved card-edge weight after a theme swap.</summary>
+        public static void ReapplyCardEdgeThickness()
+            => ApplyCardEdgeThickness(_cardEdgeThickness);
+
         private static double _cardCornerRadius = 12;
 
         /// <summary>Current global card corner radius in DIPs.</summary>

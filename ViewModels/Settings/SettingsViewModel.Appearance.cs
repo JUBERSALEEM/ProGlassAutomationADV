@@ -115,6 +115,57 @@ namespace ProGlassAutomation.ViewModels.Settings
         }
 
         /// <summary>
+        /// Card-edge colour plate (Settings → Appearance → Define Card
+        /// Edges). Generated from AccentPresets.All exactly like the
+        /// accent palette, so each swatch IS the colour that gets applied
+        /// to the card border line.
+        /// </summary>
+        public ObservableCollection<AccentOption> CardEdgePalette { get; } = new();
+
+        /// <summary>One-tap: apply a preset colour to every card edge.</summary>
+        public ICommand ApplyCardEdgePresetCommand { get; private set; }
+
+        private void InitializeCardEdgePalette()
+        {
+            CardEdgePalette.Clear();
+            foreach (var (key, name) in
+                ProGlassAutomation.Services.Theme.AccentPresets.All)
+            {
+                CardEdgePalette.Add(new AccentOption(
+                    key, name,
+                    ProGlassAutomation.Services.Theme.AccentPresets.SwatchFor(key)));
+            }
+        }
+
+        /// <summary>
+        /// Applies a preset (or "Auto") to the card-edge colour. The hex
+        /// is written into Appearance.CardEdgeColor and repainted live
+        /// through ThemeManager, the same path the hex field uses.
+        /// </summary>
+        private void ApplyCardEdgePreset(string key)
+        {
+            if (_config?.Appearance == null) return;
+
+            if (string.IsNullOrWhiteSpace(key) || key == "Auto")
+            {
+                CardEdgeColor = "";
+                return;
+            }
+
+            var color = ProGlassAutomation.Services.Theme.AccentPresets
+                .ColorFor(key);
+            if (color == null) return;
+
+            CardEdgeColor =
+                $"#{color.Value.R:X2}{color.Value.G:X2}{color.Value.B:X2}";
+
+            ProGlassAutomation.Services.Audit.AuditService.Log(
+                ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                "Card edge colour changed",
+                CardEdgeColor);
+        }
+
+        /// <summary>
         /// Global card border thickness (DIPs). One setting restyles every
         /// card / panel in the app through the CardBorderThickness theme
         /// resource. Persisted so the choice survives a restart.
@@ -131,6 +182,30 @@ namespace ProGlassAutomation.ViewModels.Settings
                 _config.Appearance.CardBorderThickness = v;
                 ThemeManager.ApplyCardBorderThickness(v);
                 // Debounced: no disk/audit writes per slider tick.
+                ScheduleDebouncedSave(auditBorder: true);
+
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Card EDGE weight (DIPs, 1–100) — the defined corner-border line
+        /// around cards (Settings → Appearance → Define Card Edges). One
+        /// slider restyles every card surface through the CardEdgeThickness
+        /// token; text boxes and gridlines stay on the subtle
+        /// CardBorderThickness hairline.
+        /// </summary>
+        public double CardEdgeThickness
+        {
+            get => _config?.Appearance?.CardEdgeThickness ?? 2.0;
+            set
+            {
+                if (_config?.Appearance == null) return;
+                double v = value < 1 ? 1 : (value > 100 ? 100 : value);
+                if (Math.Abs(_config.Appearance.CardEdgeThickness - v) < 0.01) return;
+
+                _config.Appearance.CardEdgeThickness = v;
+                ThemeManager.ApplyCardEdgeThickness(v);
                 ScheduleDebouncedSave(auditBorder: true);
 
                 OnPropertyChanged();

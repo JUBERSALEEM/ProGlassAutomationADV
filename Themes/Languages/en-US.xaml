@@ -198,6 +198,7 @@
     <sys:String x:Key="CompanyCenter.AccountNumberIBAN">ACCOUNT NUMBER / IBAN</sys:String>
     <sys:String x:Key="CompanyCenter.BANKNAME">BANK NAME</sys:String>
     <sys:String x:Key="CompanyCenter.ChooseLOGO">CHOOSE LOGO</sys:String>
+    <sys:String x:Key="CompanyCenter.ClickToLoadCompany">Click a card to load this company into the form</sys:String>
     <sys:String x:Key="CompanyCenter.CompaniesIdentityTRNBankingLogoDefault">Your companies — identity, TRN, banking and logo. The default company pre-fills every new proforma invoice.</sys:String>
     <sys:String x:Key="CompanyCenter.CompanyEMAIL">COMPANY E-MAIL</sys:String>
     <sys:String x:Key="CompanyCenter.CompanyNAME">COMPANY NAME *</sys:String>
@@ -1749,6 +1750,8 @@
     <sys:String x:Key="Settings.CardBorderThickness">Card Border Thickness</sys:String>
     <sys:String x:Key="Settings.CardCornerRadius">Card Corner Radius</sys:String>
     <sys:String x:Key="Settings.CardEdgeColorHint">Edge colour (hex). Empty uses the theme's strong edge.</sys:String>
+    <sys:String x:Key="Settings.CardEdgeColorLabel">EDGE COLOUR</sys:String>
+    <sys:String x:Key="Settings.CardEdgeThickness">Edge weight (1–100 DIP — higher makes the corner line bolder)</sys:String>
     <sys:String x:Key="Settings.CheckDownloadFailureRecordedMachine">Every check, download and failure recorded on this machine.</sys:String>
     <sys:String x:Key="Settings.ChooseModel">Choose a Model</sys:String>
     <sys:String x:Key="Settings.ChoosePlanRequestKeyPasteVendorSignedKey">Choose a plan and request a key, or paste your vendor-signed key to activate. The 30-day trial starts automatically.</sys:String>

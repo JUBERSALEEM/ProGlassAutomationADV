@@ -460,6 +460,11 @@ namespace ProGlassAutomation
             ProGlassAutomation.Services.ThemeManager.ApplyCardBorderThickness(
                 Config.Appearance?.CardBorderThickness ?? 1.5);
 
+            // 9g2) Restore the persisted card EDGE weight (Define Card Edges,
+            //     1–100) so the corner-border line matches what the user set.
+            ProGlassAutomation.Services.ThemeManager.ApplyCardEdgeThickness(
+                Config.Appearance?.CardEdgeThickness ?? 2.0);
+
             // 9h) Restore the persisted card corner radius (default 12).
             ProGlassAutomation.Services.ThemeManager.ApplyCardCornerRadius(
                 Config.Appearance?.CardCornerRadius ?? 12);

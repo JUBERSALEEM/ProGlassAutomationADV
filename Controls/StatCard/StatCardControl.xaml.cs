@@ -23,13 +23,22 @@ namespace ProGlassAutomation.Controls.StatCard
         private void OnStatCardLoaded(object sender, RoutedEventArgs e)
         {
             // Local value wins (a page may opt a card in or out
-            // explicitly); unset cards follow the family gate.
+            // explicitly); unset cards FOLLOW the family gate live.
+            //
+            // 2026-09-07 (water-leak fix): the old code copied the gate
+            // into a LOCAL value here (WaterEnabled = TryFindResource(...)
+            // is bool on && on). A StatCard loaded while Ios-17pm was
+            // active therefore kept water=true as a local value forever —
+            // switching to Normal/Monet/Industrial did NOT re-gate it, so
+            // a few KPI cards kept their animated water fill. A resource
+            // reference instead of a local value makes the gate a live
+            // DynamicResource: it re-evaluates on every family switch
+            // exactly like the wrapped cards' CrystalWaterControl.
             if (ReadLocalValue(WaterEnabledProperty) ==
                 DependencyProperty.UnsetValue)
             {
-                WaterEnabled =
-                    TryFindResource("CrystalWaterDefaultEnabled") is bool on
-                    && on;
+                SetResourceReference(
+                    WaterEnabledProperty, "CrystalWaterDefaultEnabled");
             }
         }
 

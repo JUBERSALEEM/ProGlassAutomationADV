@@ -303,6 +303,13 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplyCustomAccentCommand = new RelayCommand(_ => ApplyCustomAccent());
             InitializeAccentPalette();
 
+            // 2026-09-07 — card-edge colour plate: the same preset palette
+            // (AccentPresets.All) drives the "Define Card Edges" swatches;
+            // picking one applies it to every card border app-wide.
+            ApplyCardEdgePresetCommand = new RelayCommand(param =>
+                ApplyCardEdgePreset(param as string ?? ""));
+            InitializeCardEdgePalette();
+
             // 2026-08-25 — global font colour: one user-chosen text
             // colour for the whole UI (Auto = theme/family palette).
             ApplyFontColorCommand = new RelayCommand(param =>

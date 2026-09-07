@@ -434,30 +434,62 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Defined card edges -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                    <!-- Defined card edges: on/off + edge weight (1–100) + colour plate -->
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE71B;"/>
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.DefinedCardEdges}"/>
+                                <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}">
+                                    <Run Text="{Binding CardEdgeThickness, Mode=OneWay, StringFormat={}{0:0.#}}"/>
+                                    <Run Text="{DynamicResource Settings.DIP}"/>
+                                </TextBlock>
                             </StackPanel>
-                            <TextBlock Grid.Row="1"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{DynamicResource Settings.AddsStrongDarkOutlineRoundedCardsPillButtons}"/>
-                            <ToggleButton Grid.Row="3"
-                                          HorizontalAlignment="Left"
+                            <ToggleButton HorizontalAlignment="Left" Margin="0,8,0,0"
                                           IsChecked="{Binding UseDefinedOutline, Mode=TwoWay}"
                                           Style="{StaticResource ModernToggleSwitch}"/>
-                            <!-- Edge colour: type any hex, the card border line
-                                 repaints live app-wide (empty = theme strong edge). -->
-                            <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,10,0,0">
+
+                            <!-- Edge weight 1–100 -->
+                            <TextBlock Margin="0,16,0,0"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="{DynamicResource Settings.CardEdgeThickness}"/>
+                            <Slider Style="{StaticResource ModernSliderStyle}"
+                                    Minimum="1" Maximum="100"
+                                    Value="{Binding CardEdgeThickness, Mode=TwoWay}"
+                                    VerticalAlignment="Center" Margin="0,4,0,0"/>
+
+                            <!-- Edge colour plate (same palette as the accent section) -->
+                            <TextBlock Margin="0,16,0,4"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="{DynamicResource Settings.CardEdgeColorLabel}"/>
+                            <ItemsControl ItemsSource="{Binding CardEdgePalette}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.ApplyCardEdgePresetCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding Key}"
+                                                Style="{StaticResource AccentChipStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
+                                                         VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Custom edge colour -->
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                                 <Ellipse Width="14" Height="14"
                                          Fill="{Binding CardEdgeSwatch}"
                                          Stroke="{DynamicResource OutlineBrush}" StrokeThickness="1"
@@ -469,7 +501,7 @@
                                            Style="{StaticResource SettingsTileCaptionStyle}"
                                            Text="{DynamicResource Settings.CardEdgeColorHint}"/>
                             </StackPanel>
-                        </Grid>
+                        </StackPanel>
                     </Border>
 
                     <!-- Gradient surfaces (adaptive-theme depth) -->
@@ -493,28 +525,6 @@
                                           IsChecked="{Binding UseGradientSurfaces, Mode=TwoWay}"
                                           Style="{StaticResource ModernToggleSwitch}"/>
                         </Grid>
-                    </Border>
-
-                    <!-- Card border thickness -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
-                        <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE72D;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.CardBorderThickness}"/>
-                                <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
-                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                           Foreground="{DynamicResource AccentBrush}">
-                                    <Run Text="{Binding CardBorderThickness, Mode=OneWay, StringFormat={}{0:0.#}}"/>
-                                    <Run Text="{DynamicResource Settings.DIP}"/>
-                                </TextBlock>
-                            </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="{DynamicResource Settings.EdgeWeightCardPanelApp0NoBorder}"/>
-                            <Slider Style="{StaticResource ModernSliderStyle}"
-                                    Minimum="0" Maximum="4"
-                                    Value="{Binding CardBorderThickness, Mode=TwoWay}"
-                                    VerticalAlignment="Center"/>
-                        </StackPanel>
                     </Border>
 
                     <!-- Corner radius -->

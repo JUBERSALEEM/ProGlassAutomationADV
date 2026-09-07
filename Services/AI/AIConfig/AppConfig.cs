@@ -81,6 +81,16 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public double CardBorderThickness { get; set; } = 1.5;
 
         /// <summary>
+        /// Card EDGE weight (in DIPs, 1–100) — the defined corner-border
+        /// line around cards (Settings → Appearance → Define Card Edges).
+        /// Consumed by the card surface styles through the CardEdgeThickness
+        /// token, separate from <see cref="CardBorderThickness"/> (the
+        /// subtle input/chrome hairline) so a bold industrial edge never
+        /// inflates text boxes and table gridlines. Default 2.
+        /// </summary>
+        public double CardEdgeThickness { get; set; } = 2.0;
+
+        /// <summary>
         /// Uniform corner radius (DIPs) for every card / panel. Defaults
         /// to 12 — the tighter industrial look. Applied globally through
         /// CardCornerRadius so one slider restyles the whole app.

@@ -65,7 +65,7 @@
                 Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush"
                 Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="CornerRadius"
                 Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="{DynamicResource DensityCardPadding}"/>

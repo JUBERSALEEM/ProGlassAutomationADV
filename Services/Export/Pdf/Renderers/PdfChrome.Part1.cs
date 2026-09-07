@@ -75,7 +75,9 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 : LogoH(info);
             container
                 .Background(T.White)
-                .Padding(2)
+                .Border(0.5f)
+                .BorderColor(T.Border)
+                .Padding(3)
                 .Width(LogoW(info), Unit.Millimetre)
                 .Height(h, Unit.Millimetre)
                 .Image(bytes)
@@ -89,24 +91,101 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
         public static void Letterhead(IContainer container, LetterheadInfo info)
         {
             Reset();
+
+            // TopPanel (2026-09-07): the logo lives in a FULL-WIDTH masthead
+            // band across the top of the page, with the company identity and
+            // document reference beside it. The regular composition follows
+            // below with its inline logo suppressed so the logo never
+            // renders twice. LeftPortrait / None render exactly as before
+            // (logo inline at the left of the company identity).
+            if (info.LogoLayout == CompanyLogoLayout.TopPanel && HasLogo(info))
+            {
+                container.Column(col =>
+                {
+                    col.Item().Element(c => TopPanelMasthead(c, info));
+                    col.Item().PaddingTop(8)
+                        .Element(c => RenderHeader(c, info, suppressLogo: true));
+                });
+                return;
+            }
+
+            RenderHeader(container, info, suppressLogo: false);
+        }
+
+        private static void RenderHeader(
+            IContainer container, LetterheadInfo info, bool suppressLogo)
+        {
             switch (K)
             {
                 case PdfLayoutKind.SplitConsole:
-                    LetterheadSplit(container, info);
+                    LetterheadSplit(container, info, suppressLogo);
                     break;
                 case PdfLayoutKind.Editorial:
-                    LetterheadEditorial(container, info);
+                    LetterheadEditorial(container, info, suppressLogo);
                     break;
                 case PdfLayoutKind.Workshop:
-                    LetterheadWorkshop(container, info);
+                    LetterheadWorkshop(container, info, suppressLogo);
                     break;
                 case PdfLayoutKind.QuietForm:
-                    LetterheadQuiet(container, info);
+                    LetterheadQuiet(container, info, suppressLogo);
                     break;
                 default:
-                    LetterheadFormal(container, info);
+                    LetterheadFormal(container, info, suppressLogo);
                     break;
             }
+        }
+
+        /// <summary>
+        /// Full-width industrial masthead for the TopPanel logo layout: the
+        /// logo sits in a framed white chip on the left, the company identity
+        /// beside it, and the document title + reference on the right — all
+        /// on one accent band that spans the whole page width.
+        /// </summary>
+        private static void TopPanelMasthead(IContainer container, LetterheadInfo info)
+        {
+            byte[]? bytes = LoadLogoBytes(info);
+            if (bytes == null) return;
+
+            container.Background(T.Accent)
+                .PaddingHorizontal(12).PaddingVertical(8)
+                .Row(row =>
+                {
+                    row.AutoItem()
+                        .AlignMiddle()
+                        .Background(T.White)
+                        .Border(0.5f)
+                        .BorderColor(T.Border)
+                        .Padding(2)
+                        .Width(LogoW(info), Unit.Millimetre)
+                        .Height(Math.Clamp(LogoH(info), 8f, 14f), Unit.Millimetre)
+                        .Image(bytes)
+                        .FitArea();
+
+                    row.RelativeItem().PaddingLeft(10).Column(left =>
+                    {
+                        left.Item().Text(info.CompanyName ?? "")
+                            .FontSize(T.TitleSize).Bold().FontColor(T.AccentOn);
+
+                        var sub = info.CompanyLocation ?? "";
+                        if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
+                            sub = string.IsNullOrWhiteSpace(sub)
+                                ? $"TRN {info.CompanyTrn}"
+                                : $"{sub}  ·  TRN {info.CompanyTrn}";
+                        if (!string.IsNullOrWhiteSpace(sub))
+                            left.Item().PaddingTop(2).Text(sub)
+                                .FontSize(8).FontColor(T.AccentSoft);
+                    });
+
+                    row.ConstantItem(200).AlignRight().Column(right =>
+                    {
+                        right.Item().AlignRight()
+                            .Text((info.DocumentTitle ?? "").ToUpperInvariant())
+                            .FontSize(8).Bold().FontColor(T.AccentOn);
+                        right.Item().AlignRight().PaddingTop(2)
+                            .Text(info.DocumentId ?? "")
+                            .FontSize(T.IdSize).Bold().FontColor(T.Highlight);
+                    });
+                });
         }
 
         public static void Continuation(IContainer container, LetterheadInfo info)
@@ -173,7 +252,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             }
         }
 
-        private static void LetterheadFormal(IContainer container, LetterheadInfo info)
+        private static void LetterheadFormal(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
             container.Column(col =>
             {
@@ -181,7 +260,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                     .PaddingHorizontal(12).PaddingVertical(10)
                     .Row(row =>
                     {
-                        if (HasLogo(info))
+                        if (!suppressLogo && HasLogo(info))
                             row.AutoItem().PaddingRight(12)
                                 .AlignMiddle()
                                 .Element(c => LogoBox(c, info));
@@ -222,7 +301,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             });
         }
 
-        private static void LetterheadSplit(IContainer container, LetterheadInfo info)
+        private static void LetterheadSplit(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
             container.Column(col =>
             {
@@ -248,7 +327,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         {
                             right.Item().Row(r =>
                             {
-                                if (HasLogo(info))
+                                if (!suppressLogo && HasLogo(info))
                                     r.AutoItem().PaddingRight(8)
                                         .AlignMiddle()
                                         .Element(c => LogoBox(c, info));
@@ -286,13 +365,13 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             });
         }
 
-        private static void LetterheadEditorial(IContainer container, LetterheadInfo info)
+        private static void LetterheadEditorial(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
             container.Column(col =>
             {
                 col.Item().Row(row =>
                 {
-                    if (HasLogo(info))
+                    if (!suppressLogo && HasLogo(info))
                         row.AutoItem().PaddingRight(12)
                             .AlignMiddle()
                             .Element(c => LogoBox(c, info));
@@ -342,7 +421,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             });
         }
 
-        private static void LetterheadWorkshop(IContainer container, LetterheadInfo info)
+        private static void LetterheadWorkshop(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
             container.Column(col =>
             {
@@ -353,7 +432,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         .PaddingHorizontal(10).PaddingVertical(10)
                         .Row(inner =>
                         {
-                            if (HasLogo(info))
+                            if (!suppressLogo && HasLogo(info))
                                 inner.AutoItem().PaddingRight(10)
                                     .AlignMiddle()
                                     .Element(c => LogoBox(c, info));
@@ -413,13 +492,13 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             });
         }
 
-        private static void LetterheadQuiet(IContainer container, LetterheadInfo info)
+        private static void LetterheadQuiet(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
             container.Column(col =>
             {
                 col.Item().Row(row =>
                 {
-                    if (HasLogo(info))
+                    if (!suppressLogo && HasLogo(info))
                         row.AutoItem().PaddingRight(8)
                             .AlignMiddle()
                             .Element(c => LogoBox(c, info));
