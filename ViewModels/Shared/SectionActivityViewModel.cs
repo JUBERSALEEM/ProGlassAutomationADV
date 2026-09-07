@@ -45,6 +45,9 @@ namespace ProGlassAutomation.ViewModels.Shared
         /// <summary>Shows the GitHub-style before/after diff for a row.</summary>
         public ICommand ShowChangesCommand { get; }
 
+        /// <summary>Shows the complete who/when/what/why audit report.</summary>
+        public ICommand ShowAuditReportCommand { get; }
+
         public SectionActivityViewModel(string? section)
         {
             _section = section;
@@ -58,6 +61,17 @@ namespace ProGlassAutomation.ViewModels.Shared
                     Views.Shared.ChangesDialog.Show(
                         System.Windows.Application.Current?.MainWindow,
                         $"{row.Section} — {row.Action} — {row.Username}",
+                        AuditService_ChangesFromRow(row));
+                }
+            });
+
+            ShowAuditReportCommand = new RelayCommand(param =>
+            {
+                if (param is ActivityRowViewModel row)
+                {
+                    Views.Shared.AuditReportDialog.Show(
+                        System.Windows.Application.Current?.MainWindow,
+                        row,
                         AuditService_ChangesFromRow(row));
                 }
             });
@@ -102,12 +116,26 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             return new ActivityRowViewModel
             {
+                Id = e.Id,
+                TimestampUtc = e.TimestampUtc,
                 TimeDisplay = e.TimestampUtc.ToLocalTime()
                     .ToString("dd MMM yyyy  HH:mm:ss"),
+                UtcTimeDisplay = e.TimestampUtc
+                    .ToString("dd MMM yyyy  HH:mm:ss 'UTC'"),
                 Username = e.Username,
+                UserDisplayName = e.UserDisplayName,
+                UserRole = e.UserRole,
                 Action = e.Action,
                 Details = e.Details,
                 Section = e.Section,
+                EntityType = e.EntityType,
+                EntityId = e.EntityId,
+                SessionId = e.SessionId,
+                OperationId = e.OperationId,
+                MachineName = e.MachineName,
+                AppVersion = e.AppVersion,
+                LocalTimeZone = e.LocalTimeZone,
+                CurrentViewerUsername = AuditService.CurrentUsername,
                 ChangesJson = e.ChangesJson ?? "",
                 Reason = e.Reason ?? ""
             };

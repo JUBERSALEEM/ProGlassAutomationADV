@@ -8,6 +8,7 @@ using ProGlassAutomation.Models.Audit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -177,6 +178,12 @@ namespace ProGlassAutomation.Services.Audit
             {
                 TimestampUtc = DateTime.UtcNow,
                 Username = CurrentUsername,
+                UserDisplayName = Truncate(_currentUser?.DisplayName ?? CurrentUsername, 120),
+                UserRole = Truncate(_currentUser?.Role ?? "System", 30),
+                MachineName = Truncate(Environment.MachineName, 80),
+                AppVersion = Truncate(GetAppVersion(), 40),
+                LocalTimeZone = Truncate(GetLocalTimeZone(), 80),
+                OperationId = "OP-" + Guid.NewGuid().ToString("N")[..12].ToUpperInvariant(),
                 SessionId = SessionId,
                 Section = section ?? "",
                 Action = action ?? "",
@@ -185,6 +192,26 @@ namespace ProGlassAutomation.Services.Audit
                 EntityId = Truncate(entityId, 60),
                 Reason = Truncate(reason, 500)
             };
+        }
+
+
+        private static string GetAppVersion()
+        {
+            try
+            {
+                var asm = Assembly.GetEntryAssembly() ?? typeof(AuditService).Assembly;
+                return asm.GetName().Version?.ToString() ?? "";
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        private static string GetLocalTimeZone()
+        {
+            try { return TimeZoneInfo.Local.Id; }
+            catch { return ""; }
         }
 
         private static void WriteEntry(ActivityLogEntry entry)

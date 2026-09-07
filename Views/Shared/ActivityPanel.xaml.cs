@@ -85,22 +85,42 @@ namespace ProGlassAutomation.Views.Shared
             actionLine.Children.Add(section);
             stack.Children.Add(actionLine);
 
+            string actor = string.IsNullOrWhiteSpace(e.UserDisplayName)
+                ? e.Username
+                : e.UserDisplayName;
+            if (string.IsNullOrWhiteSpace(actor)) actor = "system";
+            if (!string.IsNullOrWhiteSpace(e.UserRole))
+                actor += $" ({e.UserRole})";
+
+            var whoWhat = new TextBlock
+            {
+                Text = $"{actor} · {e.Action}",
+                FontSize = 10.5,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = (Brush)FindResource("PrimaryForegroundBrush"),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(14, 3, 0, 0),
+                MaxHeight = 32
+            };
+            stack.Children.Add(whoWhat);
+
             var detail = new TextBlock
             {
-                Text = string.IsNullOrWhiteSpace(e.Details)
-                    ? e.Action
-                    : $"{e.Action}: {e.Details}",
+                Text = string.IsNullOrWhiteSpace(e.Details) ? "No details captured" : e.Details,
                 FontSize = 10.5,
                 Foreground = (Brush)FindResource("SecondaryForegroundBrush"),
                 TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(14, 3, 0, 0),
-                MaxHeight = 36
+                Margin = new Thickness(14, 2, 0, 0),
+                MaxHeight = 34
             };
             stack.Children.Add(detail);
 
+            string record = string.IsNullOrWhiteSpace(e.EntityId)
+                ? "No record id"
+                : $"{e.EntityType} {e.EntityId}".Trim();
             var time = new TextBlock
             {
-                Text = e.TimestampUtc.ToLocalTime().ToString("dd MMM HH:mm"),
+                Text = $"{e.TimestampUtc.ToLocalTime():dd MMM HH:mm} · {record} · {e.SessionId}",
                 FontSize = 9,
                 Foreground = (Brush)FindResource("MutedForegroundBrush"),
                 Margin = new Thickness(14, 4, 0, 0)

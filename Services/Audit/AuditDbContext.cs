@@ -72,6 +72,10 @@ namespace ProGlassAutomation.Services.Audit
                     .HasDatabaseName("IX_ActivityLog_Section");
                 entity.HasIndex(e => e.Username)
                     .HasDatabaseName("IX_ActivityLog_Username");
+                entity.HasIndex(e => new { e.EntityType, e.EntityId })
+                    .HasDatabaseName("IX_ActivityLog_Entity");
+                entity.HasIndex(e => e.OperationId)
+                    .HasDatabaseName("IX_ActivityLog_OperationId");
             });
 
             base.OnModelCreating(modelBuilder);

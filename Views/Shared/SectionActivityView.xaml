@@ -1,14 +1,3 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/Shared/SectionActivityView.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Shared — per-section Activity tab
-
-     Renders the live audit feed for one section. DataContext must be
-     a SectionActivityViewModel. Used inside the module tab strips
-     (Delivery Note / Job Order / Tax Invoice) so each section shows
-     its own user-action history, updating live as actions happen.
-═══════════════════════════════════════════════════════════════════════ -->
-
 <UserControl x:Class="ProGlassAutomation.Views.Shared.SectionActivityView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
@@ -20,9 +9,6 @@
              SnapsToDevicePixels="True">
 
     <Grid Margin="20">
-
-        <!-- Fade-in uses the hardware-scaled motion token: snappier on
-             120/144/165 Hz panels, calmer on 60 Hz (PerformanceProfileService). -->
         <Grid.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                 <BeginStoryboard>
@@ -40,39 +26,46 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══ HEADER ═════════════════════════════════════════════════ -->
-        <Grid Grid.Row="0" Margin="0,0,0,12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <!-- Professional audit header -->
+        <Border Grid.Row="0"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                Background="{DynamicResource AccentBrush}"
+                Padding="18,14"
+                Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextTitle}"
-                               Foreground="{DynamicResource AccentBrush}"
-                               VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                               VerticalAlignment="Center">
-                        <Run Text="{DynamicResource Shared.Activity}"/>
-                        <Run Text="{Binding Section, Mode=OneWay}"/>
-                    </TextBlock>
+                <StackPanel Grid.Column="0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="{StaticResource TextTitle}"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                   VerticalAlignment="Center">
+                            <Run Text="AUDIT TRAIL · "/>
+                            <Run Text="{Binding Section, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <TextBlock Text="Who did what, when, why, from which session/workstation, with before/after values when captured."
+                               FontSize="{StaticResource TextBody}" Margin="0,3,0,0"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               Opacity="0.84"/>
                 </StackPanel>
-                <TextBlock Text="{DynamicResource Shared.UserActionSectionRecordedAuditSystem}"
-                           FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </StackPanel>
 
-            <Button Grid.Column="1"
-                    Command="{Binding RefreshCommand}"
-                    Style="{StaticResource PrimaryPillButton}"
-                    Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
-                    ToolTip="{DynamicResource Shared.ReloadActivityFeed}"/>
-        </Grid>
+                <Button Grid.Column="1"
+                        Command="{Binding RefreshCommand}"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE72C;" Content="Refresh"
+                        ToolTip="Reload activity feed"/>
+            </Grid>
+        </Border>
 
-        <!-- ══ FEED ═══════════════════════════════════════════════════ -->
+        <!-- Feed -->
         <Border Grid.Row="1"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 BorderBrush="{DynamicResource OutlineBrush}"
@@ -86,71 +79,54 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- v2: column headers with tooltips -->
-                <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
-                        Background="{DynamicResource AccentBrush}"
-                        BorderBrush="{DynamicResource AccentBrush}"
+                <!-- Column headers -->
+                <Border Grid.Row="0"
+                        Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                        Padding="16,8">
+                        Padding="16,9">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="190"/>
                             <ColumnDefinition Width="170"/>
-                            <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="130"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{DynamicResource Shared.DATETIME}"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   ToolTip="{DynamicResource Shared.WhenActionHappened}"/>
-                        <TextBlock Grid.Column="1" Text="{DynamicResource Shared.Action}"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   ToolTip="{DynamicResource Shared.WhatDone}"/>
-                        <TextBlock Grid.Column="2" Text="{DynamicResource Shared.Details}"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   Margin="12,0,0,0"
-                                   ToolTip="{DynamicResource Shared.FullDetailAction}"/>
-                        <TextBlock Grid.Column="3" Text="{DynamicResource Reports.StatementGenerator.Diff}"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   Margin="10,0,0,0"
-                                   ToolTip="{DynamicResource Shared.BeforeAfterChangesWhenRecorded}"/>
+                        <TextBlock Grid.Column="0" Text="WHEN" Style="{StaticResource ModuleColumnHeaderStyle}" ToolTip="Local time and UTC time are available in the report."/>
+                        <TextBlock Grid.Column="1" Text="WHO" Style="{StaticResource ModuleColumnHeaderStyle}" ToolTip="Display name, login and role."/>
+                        <TextBlock Grid.Column="2" Text="WHAT / RECORD" Style="{StaticResource ModuleColumnHeaderStyle}" ToolTip="Action and entity id."/>
+                        <TextBlock Grid.Column="3" Text="DETAILS / WHY / BEFORE-AFTER" Style="{StaticResource ModuleColumnHeaderStyle}" ToolTip="Details, reason and change summary."/>
+                        <TextBlock Grid.Column="4" Text="REPORT" Style="{StaticResource ModuleColumnHeaderStyle}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
                 <!-- Empty state -->
                 <StackPanel Grid.Row="1"
                             VerticalAlignment="Center"
-                            HorizontalAlignment="Center">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsEmpty}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
+                            HorizontalAlignment="Center"
+                            Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
                                FontSize="{StaticResource TextDisplayLarge}"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                HorizontalAlignment="Center"/>
-                    <TextBlock Text="{DynamicResource Shared.NoActivityRecordedYet}"
+                    <TextBlock Text="No audit activity recorded yet"
                                FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                HorizontalAlignment="Center"
                                Margin="0,10,0,3"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="{DynamicResource Shared.ActionsTakeSectionAppearHereInstantly}"
+                    <TextBlock Text="User actions in this section will appear here instantly."
                                FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
 
                 <!-- Rows -->
-                <!-- Virtualized: stays smooth even with thousands of rows -->
                 <ScrollViewer Grid.Row="1"
                               VerticalScrollBarVisibility="Auto"
                               CanContentScroll="True"
                               VirtualizingPanel.IsVirtualizing="True"
-                              VirtualizingPanel.VirtualizationMode="Recycling">
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              Visibility="{Binding IsEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <ItemsControl ItemsSource="{Binding Rows}"
                                   VirtualizingPanel.IsVirtualizing="True"
                                   VirtualizingPanel.VirtualizationMode="Recycling">
@@ -161,95 +137,107 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,10"
+                                <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Margin="10,8,10,0"
+                                        Padding="14,12"
+                                        Background="{DynamicResource Surface.Primary.BackgroundBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
+                                        BorderThickness="{DynamicResource CardBorderThickness}"
                                         ToolTip="{Binding RowTooltip}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="190"/>
                                             <ColumnDefinition Width="170"/>
-                                            <ColumnDefinition Width="110"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="130"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0"
-                                                   Text="{Binding TimeDisplay}"
-                                                   FontSize="{StaticResource TextBody}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   VerticalAlignment="Center"
-                                                   ToolTip="{DynamicResource Shared.DateTimeAction}"/>
-
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="1"
-                                                Background="{DynamicResource TintIndigoBrush}"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="8,3"
-                                                HorizontalAlignment="Left"
-                                                VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Action}"
+                                        <!-- WHEN -->
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding TimeDisplay}"
                                                        FontSize="{StaticResource TextBody}"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource AccentBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                        </Border>
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            <TextBlock Text="{Binding UtcTimeDisplay}"
+                                                       FontSize="{StaticResource TextCaption}"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                        </StackPanel>
 
-                                        <!-- Details + PHASE D "Why" note -->
-                                        <StackPanel Grid.Column="2"
-                                                    Margin="12,0,0,0"
-                                                    VerticalAlignment="Center">
-                                            <TextBlock FontSize="{StaticResource TextBody}"
+                                        <!-- WHO -->
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,0">
+                                            <TextBlock Text="{Binding ActorDisplay}"
+                                                       FontSize="{StaticResource TextBody}"
+                                                       FontWeight="SemiBold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       Text="{Binding Details}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding Username, StringFormat=login: {0}}"
+                                                       FontSize="{StaticResource TextCaption}"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding OtherUserNotice}"
+                                                       FontSize="{StaticResource TextCaption}"
+                                                       Foreground="{DynamicResource WarningBrush}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+
+                                        <!-- WHAT / RECORD -->
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="10,0,0,0">
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
+                                                    Background="{DynamicResource TintIndigoBrush}"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Padding="8,3"
+                                                    HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding Action}"
+                                                           FontSize="{StaticResource TextCaption}"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource AccentBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </Border>
+                                            <TextBlock Text="{Binding EntityLine}"
+                                                       Margin="0,4,0,0"
+                                                       FontSize="{StaticResource TextCaption}"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+
+                                        <!-- DETAILS / WHY / DIFF -->
+                                        <StackPanel Grid.Column="3" Margin="12,0,0,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Details}"
+                                                       FontSize="{StaticResource TextBody}"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                        TextTrimming="CharacterEllipsis"
                                                        ToolTip="{Binding Details}"/>
-
-                                            <!-- The human reason behind the action -->
-                                            <TextBlock FontSize="{StaticResource TextBody}"
-                                                       FontStyle="Italic"
+                                            <TextBlock Text="{Binding WhySummary, StringFormat=Why: {0}}"
+                                                       FontSize="{StaticResource TextCaption}"
                                                        Margin="0,3,0,0"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        TextTrimming="CharacterEllipsis"
-                                                       ToolTip="{Binding Reason}">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding HasReason}" Value="True">
-                                                                <Setter Property="Visibility" Value="Visible"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                                <Run Text="{DynamicResource Shared.Why}"/><Run Text="{Binding Reason, Mode=OneWay}"/>
-                                            </TextBlock>
+                                                       ToolTip="{Binding WhySummary}"/>
+                                            <TextBlock Text="{Binding ChangeSummary}"
+                                                       FontSize="{StaticResource TextCaption}"
+                                                       Margin="0,2,0,0"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                                       TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
 
-                                        <!-- GitHub-style diff viewer -->
-                                        <Button Grid.Column="3"
-                                                Margin="10,0,0,0"
-                                                Content="{DynamicResource Shared.Changes2}"
-                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                Padding="9,3"
-                                                Cursor="Hand"
-                                                BorderThickness="{DynamicResource Border.NoneThickness}"
-                                                Background="{DynamicResource TintIndigoBrush}"
-                                                Foreground="{DynamicResource AccentBrush}"
-                                                VerticalAlignment="Center"
-                                                Command="{Binding DataContext.ShowChangesCommand,
-                                                            RelativeSource={RelativeSource
-                                                                AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding HasChanges}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
+                                        <!-- REPORT BUTTONS -->
+                                        <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <Button Content="Diff"
+                                                    Margin="0,0,6,0"
+                                                    Padding="9,4"
+                                                    FontSize="{StaticResource TextCaption}"
+                                                    Style="{StaticResource OutlinedPillButton}"
+                                                    Command="{Binding DataContext.ShowChangesCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    Visibility="{Binding HasChanges, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                            <Button Content="Report"
+                                                    Padding="11,4"
+                                                    FontSize="{StaticResource TextCaption}"
+                                                    Style="{StaticResource PrimaryPillButton}"
+                                                    Command="{Binding DataContext.ShowAuditReportCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

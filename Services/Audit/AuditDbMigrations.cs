@@ -39,6 +39,28 @@ namespace ProGlassAutomation.Services.Audit
                 AddColumnIfMissing(connection,
                     "ActivityLog", "Reason", "TEXT NOT NULL DEFAULT ''");
 
+                // Professional audit context — who/where/version/operation.
+                AddColumnIfMissing(connection,
+                    "ActivityLog", "UserDisplayName", "TEXT NOT NULL DEFAULT ''");
+                AddColumnIfMissing(connection,
+                    "ActivityLog", "UserRole", "TEXT NOT NULL DEFAULT ''");
+                AddColumnIfMissing(connection,
+                    "ActivityLog", "MachineName", "TEXT NOT NULL DEFAULT ''");
+                AddColumnIfMissing(connection,
+                    "ActivityLog", "AppVersion", "TEXT NOT NULL DEFAULT ''");
+                AddColumnIfMissing(connection,
+                    "ActivityLog", "LocalTimeZone", "TEXT NOT NULL DEFAULT ''");
+                AddColumnIfMissing(connection,
+                    "ActivityLog", "OperationId", "TEXT NOT NULL DEFAULT ''");
+
+                Execute(connection, @"
+                    CREATE INDEX IF NOT EXISTS IX_ActivityLog_Entity
+                    ON ActivityLog (EntityType, EntityId);");
+
+                Execute(connection, @"
+                    CREATE INDEX IF NOT EXISTS IX_ActivityLog_OperationId
+                    ON ActivityLog (OperationId);");
+
                 // PHASE 13 — persisted login lockout state on users.
                 // These columns are additive so existing installs keep their
                 // users; a fresh DB gets them from the EF model on EnsureCreated.

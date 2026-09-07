@@ -35,6 +35,30 @@ namespace ProGlassAutomation.Models.Audit
         [Required, MaxLength(60)]
         public string Username { get; set; } = "";
 
+        /// <summary>Display name captured at the time of action.</summary>
+        [MaxLength(120)]
+        public string UserDisplayName { get; set; } = "";
+
+        /// <summary>User role captured at the time of action.</summary>
+        [MaxLength(30)]
+        public string UserRole { get; set; } = "";
+
+        /// <summary>Machine/workstation that produced the entry.</summary>
+        [MaxLength(80)]
+        public string MachineName { get; set; } = "";
+
+        /// <summary>Application version captured with the entry.</summary>
+        [MaxLength(40)]
+        public string AppVersion { get; set; } = "";
+
+        /// <summary>Local timezone of the workstation at the time of write.</summary>
+        [MaxLength(80)]
+        public string LocalTimeZone { get; set; } = "";
+
+        /// <summary>Unique operation id for this audit write.</summary>
+        [MaxLength(40)]
+        public string OperationId { get; set; } = "";
+
         /// <summary>
         /// Module where the action happened.
         /// Use constants from Services/Audit/AuditSections.cs
