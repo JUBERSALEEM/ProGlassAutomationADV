@@ -70,3 +70,12 @@ Sheet Details has also been changed to build rows directly from the Step 6 Wasta
 - Used sheets = Step 6 sheet quantity.
 - Utilization/wastage area is derived from the Step 6 optimization percentage.
 - Step 9 P&L glass rows are used only as a fallback for panes that have no Step 6 setup source.
+
+
+## Follow-up correction — shared Step 6 wastage rows across multiple specs
+
+When one Step 6 wastage setup row has multiple checked sources, it means the operator intentionally mixed matching glass across specifications (for example Low-E outer panes from Spec 1 and Spec 2). Step 9 must not duplicate the full Step 6 sheet quantity on every spec.
+
+A shared allocator now splits the Step 6 total sheet quantity back across the checked sources by each source's Step 5 SQM demand and the Step 6 optimization percentage. Example: at 72% utilization, a 7.2225 m² sheet contributes 5.2002 useful m². The allocator uses that useful sheet area to apportion the shared total, then rounds by largest remainder so the per-spec sheet quantities always sum back to the exact Step 6 setup quantity.
+
+This allocator is used by both Sheet Details and Target Profitability so a shared 17-sheet Low-E setup can display as an intelligent split such as 11 sheets for one spec and 6 for another, instead of 17 + 17.

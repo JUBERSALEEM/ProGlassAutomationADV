@@ -748,18 +748,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 if (row == null || row.SheetQuantity <= 0) continue;
 
-                var src = row.AvailableSources.FirstOrDefault(s =>
-                    s.IsChecked
-                    && s.SpecNumber == group.GroupNumber
-                    && Step6SourceMatchesSide(s.SideLabel, paneSide));
+                var sources = row.AvailableSources
+                    .Where(s => s != null && s.IsChecked)
+                    .ToList();
+                if (sources.Count == 0) continue;
 
-                if (src == null || src.SheetWidthMm <= 0 || src.SheetHeightMm <= 0)
+                var allocation = Step6SheetAllocation.Allocate(row, sources)
+                    .FirstOrDefault(a =>
+                        a.Source.SpecNumber == group.GroupNumber
+                        && Step6SourceMatchesSide(a.Source.SideLabel, paneSide));
+
+                if (allocation == null || allocation.SheetQuantity <= 0)
                     continue;
 
-                decimal sheetSqm = Math.Round(src.SheetWidthMm * src.SheetHeightMm / 1_000_000m, 4);
-                if (sheetSqm <= 0m) continue;
-
-                decimal sheetCost = sheetSqm * row.SheetQuantity * paneBoxRate;
+                decimal sheetCost = allocation.SheetSqm * allocation.SheetQuantity * paneBoxRate;
                 return Math.Round(sheetCost / finishedArea, 2);
             }
 

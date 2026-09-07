@@ -490,28 +490,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         if (totalSourceSqm <= 0m)
                             totalSourceSqm = setup.TotalSqm;
 
-                        foreach (var src in sources)
+                        var allocations = Step6SheetAllocation.Allocate(setup, sources);
+
+                        foreach (var allocation in allocations)
                         {
-                            if (src.SheetWidthMm <= 0 || src.SheetHeightMm <= 0)
-                                continue;
-
-                            decimal sheetSqm = SqmCalculator.CalculateSheetArea(
-                                src.SheetWidthMm, src.SheetHeightMm);
-                            if (sheetSqm <= 0m) continue;
-
+                            var src = allocation.Source;
+                            decimal sheetSqm = allocation.SheetSqm;
                             decimal unitRate = src.PricePerSqm > 0m
                                 ? src.PricePerSqm
                                 : setup.FormulaPricePerSqm;
 
-                            decimal buySheets = setup.SheetQuantity;
-                            decimal usedSheets = setup.SheetQuantity;
+                            decimal buySheets = allocation.SheetQuantity;
+                            decimal usedSheets = allocation.SheetQuantity;
                             decimal buySheetArea = Math.Round(buySheets * sheetSqm, 4);
-                            decimal utilizationPercent = setup.OptimizationPercent > 0m
-                                ? setup.OptimizationPercent
-                                : buySheetArea > 0m && src.SqmValue > 0m
-                                    ? Math.Min(100m, Math.Round(src.SqmValue / buySheetArea * 100m, 2))
-                                    : 0m;
-
+                            decimal utilizationPercent = allocation.UtilizationPercent;
                             decimal usedArea = utilizationPercent > 0m
                                 ? Math.Round(buySheetArea * utilizationPercent / 100m, 4)
                                 : src.SqmValue;
@@ -523,9 +515,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             decimal charge = setup.IsActive && setup.ResultAmount > 0m && totalSourceSqm > 0m
                                 ? Math.Round(setup.ResultAmount * (src.SqmValue / totalSourceSqm), 2)
                                 : 0m;
-                            string diagnostic = charge > 0m || wastageArea <= 0m
-                                ? "Step 6 wastage setup source — bought and used sheet quantity both read from Step 6."
-                                : "Step 6 setup is present, but no active wastage charge is posted for the leftover area.";
+
+                            bool mixedSetup = sources.Count > 1;
+                            string diagnostic = mixedSetup
+                                ? $"Shared Step 6 setup: {setup.SheetQuantity} sheet(s) split by source SQM and {utilizationPercent:0.##}% utilization. This spec receives {allocation.SheetQuantity} sheet(s)."
+                                : "Step 6 wastage setup source — bought and used sheet quantity both read from Step 6.";
+                            if (charge <= 0m && wastageArea > 0m)
+                                diagnostic += " No active wastage charge is posted for the leftover area.";
 
                             string key = SheetSourceKey(src.SpecNumber, src.SideLabel);
                             step6HandledSources.Add(key);
@@ -551,7 +547,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 Step6Charge = charge,
                                 Step6SourceLabel = src.DisplayLabel,
                                 Step6SourceSqm = src.SqmValue,
-                                Step6SheetQuantity = setup.SheetQuantity,
+                                Step6SheetQuantity = allocation.SheetQuantity,
                                 Step6Rate = setup.Rate,
                                 UsageEfficiencyPercent = utilizationPercent,
                                 DiagnosticMessage = diagnostic
