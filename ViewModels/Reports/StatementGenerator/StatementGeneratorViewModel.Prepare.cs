@@ -237,6 +237,9 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     // be scoped to the selected salesman.
                     _allClients = clients ?? new List<SavedClient>();
 
+                    // Keep full company records for v3 letterhead branding.
+                    _allCompanies = companies ?? new List<SavedCompany>();
+
                     // Keep the full project list so the Project dropdown can
                     // be scoped to the selected customer.
                     _allProjects = projects ?? new List<SavedProject>();

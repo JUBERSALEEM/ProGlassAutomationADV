@@ -53,6 +53,24 @@ namespace ProGlassAutomation.Models.MasterData
         [MaxLength(500)]
         public string LogoPath { get; set; } = "";
 
+        /// <summary>
+        /// How the logo is placed on printed documents:
+        /// 0 = None (text), 1 = LeftPortrait, 2 = TopPanel.
+        /// </summary>
+        public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;
+
+        /// <summary>
+        /// Printed logo width in millimetres (portrait layout). Clamped to
+        /// 8–60 mm by the renderer; the stored value is the operator's intent.
+        /// </summary>
+        public double LogoWidthMm { get; set; } = 22;
+
+        /// <summary>
+        /// Printed logo height in millimetres (portrait layout). Clamped to
+        /// 8–60 mm by the renderer; the stored value is the operator's intent.
+        /// </summary>
+        public double LogoHeightMm { get; set; } = 26;
+
         /// <summary>Authorized representative / contact person.</summary>
         [MaxLength(120)]
         public string Representative { get; set; } = "";

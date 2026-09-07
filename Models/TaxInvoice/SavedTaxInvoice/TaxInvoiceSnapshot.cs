@@ -1,4 +1,5 @@
-﻿using System;
+using ProGlassAutomation.Models.MasterData;
+using System;
 using System.Collections.Generic;
 
 namespace ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice
@@ -145,6 +146,18 @@ namespace ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice
         /// Empty string = no logo. Decoded to byte[] by PDF generator.
         /// </summary>
         public string LogoBase64 { get; set; } = "";
+
+        /// <summary>
+        /// Path to the company logo image. Preferred over LogoBase64 when both
+        /// are set (the file is the live source of truth). Empty = no logo.
+        /// </summary>
+        public string LogoPath { get; set; } = "";
+
+        // v3 — logo placement (Company Center branding) so the Tax Invoice
+        // letterhead matches the Proforma Invoice letterhead.
+        public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;
+        public double LogoWidthMm { get; set; } = 22;
+        public double LogoHeightMm { get; set; } = 26;
     }
 
     // ════════════════════════════════════════════════════════════════════════

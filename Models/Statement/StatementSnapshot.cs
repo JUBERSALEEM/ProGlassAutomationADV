@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/Statement/StatementSnapshot.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 16)
@@ -19,6 +19,7 @@
 //     └── StatementAgingBuckets    — 5 aging buckets
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Models.Statement.Reconciliation;
 using System;
 using System.Collections.Generic;
@@ -71,6 +72,13 @@ namespace ProGlassAutomation.Models.Statement
         public string ProjectName { get; set; } = "";
         public string SalesmanName { get; set; } = "";
         public string ContactPerson { get; set; } = "";
+
+        // v3 — issuing company branding (resolved from master data at
+        // generation time) so the statement letterhead carries the logo.
+        public string LogoPath { get; set; } = "";
+        public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;
+        public double LogoWidthMm { get; set; } = 22;
+        public double LogoHeightMm { get; set; } = 26;
     }
 
     // ─────────────────────────────────────────────────────────────────────

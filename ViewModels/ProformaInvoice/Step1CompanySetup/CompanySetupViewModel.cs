@@ -253,7 +253,60 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
             }
         }
 
-        public string LogoPath { get; set; } = "";
+        private string _logoPath = "";
+        public string LogoPath
+        {
+            get => _logoPath;
+            set
+            {
+                if (_logoPath == value) return;
+                _logoPath = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasLogo));
+            }
+        }
+
+        /// <summary>True when a company logo is loaded.</summary>
+        public bool HasLogo => !string.IsNullOrEmpty(_logoPath);
+
+        // v3 — logo placement carried from the Company Center record so the
+        // printed letterhead matches the branding the operator configured.
+        private Models.MasterData.CompanyLogoLayout _logoLayout
+            = Models.MasterData.CompanyLogoLayout.None;
+        public Models.MasterData.CompanyLogoLayout LogoLayout
+        {
+            get => _logoLayout;
+            set
+            {
+                if (_logoLayout == value) return;
+                _logoLayout = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(LogoLayoutLabel));
+            }
+        }
+
+        /// <summary>Human label for the chosen logo layout.</summary>
+        public string LogoLayoutLabel => _logoLayout switch
+        {
+            Models.MasterData.CompanyLogoLayout.LeftPortrait => "Left portrait logo",
+            Models.MasterData.CompanyLogoLayout.TopPanel => "Top panel logo",
+            _ => "No logo"
+        };
+
+        private double _logoWidthMm = 22;
+        public double LogoWidthMm
+        {
+            get => _logoWidthMm;
+            set { if (_logoWidthMm == value) return; _logoWidthMm = value; OnPropertyChanged(); }
+        }
+
+        private double _logoHeightMm = 26;
+        public double LogoHeightMm
+        {
+            get => _logoHeightMm;
+            set { if (_logoHeightMm == value) return; _logoHeightMm = value; OnPropertyChanged(); }
+        }
+
         public int CompanyRecordId { get; set; }
 
         public string? CompanyNameValidationMessage =>
@@ -342,6 +395,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         public ICommand GoToGridCommand { get; }
         public ICommand ShowAllCompaniesCommand { get; }
         public ICommand RefreshCardsCommand { get; }
+        public ICommand PickLogoCommand { get; }
+        public ICommand ClearLogoCommand { get; }
 
         // ═══════════════════════════════════════════════════════════════
         //  CONSTRUCTORS
@@ -395,6 +450,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 
             RefreshCardsCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(LoadCardsAsync, "PI Step1"));
+
+            // v3 — Step 1 is hard-connected to the Company module: the same
+            // logo picker so the operator can attach branding without leaving
+            // the wizard. Picking a card later overrides with that record.
+            PickLogoCommand = new RelayCommand(_ => PickLogo());
+            ClearLogoCommand = new RelayCommand(_ => LogoPath = "");
+        }
+
+        private void PickLogo()
+        {
+            var dialog = new Microsoft.Win32.OpenFileDialog
+            {
+                Title = "Company logo",
+                Filter = "Images|*.png;*.jpg;*.jpeg;*.bmp|All files|*.*"
+            };
+            if (dialog.ShowDialog() == true)
+                LogoPath = dialog.FileName;
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -432,6 +504,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                         CompanyEmail = c.CompanyEmail ?? "",
                         AccountNumber = c.AccountNumber ?? "",
                         BankName = c.BankName ?? "",
+                        LogoLayout = c.LogoLayout,
+                        LogoWidthMm = c.LogoWidthMm > 0 ? c.LogoWidthMm : 22,
+                        LogoHeightMm = c.LogoHeightMm > 0 ? c.LogoHeightMm : 26,
                         // 2026-09-04: IsDefault no longer mapped — the
                         // default-mark mechanism is removed product-wide.
                         // E-FIX: DateTime is non-nullable — check against default
@@ -552,6 +627,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 CompanyEmail = profile.CompanyEmail;
                 AccountNumber = profile.AccountNumber;
                 BankName = profile.BankName;
+                LogoLayout = profile.LogoLayout;
+                LogoWidthMm = profile.LogoWidthMm;
+                LogoHeightMm = profile.LogoHeightMm;
                 CompanyRecordId = profile.Id;
             }
             finally

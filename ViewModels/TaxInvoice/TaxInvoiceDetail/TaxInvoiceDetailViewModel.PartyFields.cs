@@ -74,6 +74,25 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public string CompanyEmail
         { get => _companyEmail; set { _companyEmail = value; OnPropertyChanged(); } }
 
+        // v3 — company branding (logo + placement) carried from the source PI
+        // so the Tax Invoice letterhead matches the Proforma Invoice.
+        private string _logoPath = "";
+        public string LogoPath
+        { get => _logoPath; set { _logoPath = value; OnPropertyChanged(); } }
+
+        private Models.MasterData.CompanyLogoLayout _logoLayout
+            = Models.MasterData.CompanyLogoLayout.None;
+        public Models.MasterData.CompanyLogoLayout LogoLayout
+        { get => _logoLayout; set { _logoLayout = value; OnPropertyChanged(); } }
+
+        private double _logoWidthMm = 22;
+        public double LogoWidthMm
+        { get => _logoWidthMm; set { _logoWidthMm = value; OnPropertyChanged(); } }
+
+        private double _logoHeightMm = 26;
+        public double LogoHeightMm
+        { get => _logoHeightMm; set { _logoHeightMm = value; OnPropertyChanged(); } }
+
         private string _customerName = "";
         public string CustomerName
         { get => _customerName; set { _customerName = value; OnPropertyChanged(); } }

@@ -90,7 +90,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     DocumentId = DocumentId,
                     SubtitleLine = _includeProfitLoss
                         ? "INTERNAL — contains cost and margin. Not for customer release."
-                        : null
+                        : null,
+                    LogoPath = _snap.Company?.LogoPath ?? "",
+                    LogoLayout = _snap.Company?.LogoLayout
+                        ?? ProGlassAutomation.Models.MasterData.CompanyLogoLayout.None,
+                    LogoWidthMm = _snap.Company?.LogoWidthMm ?? 22,
+                    LogoHeightMm = _snap.Company?.LogoHeightMm ?? 26
                 };
 
                 // A document without its criteria printed on it is

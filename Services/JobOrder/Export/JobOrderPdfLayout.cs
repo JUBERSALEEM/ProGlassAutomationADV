@@ -77,7 +77,12 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                     CompanyTrn = _invoice.Company?.CompanyTrn ?? string.Empty,
                     DocumentTitle = DocumentTitle,
                     DocumentId = DocumentId,
-                    SubtitleLine = BuildSubtitle()
+                    SubtitleLine = BuildSubtitle(),
+                    LogoPath = _invoice.Company?.LogoPath ?? string.Empty,
+                    LogoLayout = _invoice.Company?.LogoLayout
+                        ?? ProGlassAutomation.Models.MasterData.CompanyLogoLayout.None,
+                    LogoWidthMm = _invoice.Company?.LogoWidthMm ?? 22,
+                    LogoHeightMm = _invoice.Company?.LogoHeightMm ?? 26
                 };
                 info.Meta.Add(("Status", FormatStatus(_snapshot.Production?.Status)));
                 info.Meta.Add(("Priority", _snapshot.Production?.Priority ?? "Medium"));

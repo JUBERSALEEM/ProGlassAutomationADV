@@ -71,6 +71,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
                 if (token.IsCancellationRequested) return;
 
+                // v3 — the preview letterhead shows the same branding as the
+                // final PDF.
+                await EnrichCustomerBrandingAsync(snapshot);
+
                 PreviewSnapshot = snapshot;
 
                 ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() => PreviewVM.UpdateFromSnapshot(snapshot));

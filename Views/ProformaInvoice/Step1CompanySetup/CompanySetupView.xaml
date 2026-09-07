@@ -107,6 +107,74 @@
                     </StackPanel>
                 </Grid>
 
+                <!-- ══ LETTERHEAD LOGO (bound to the Company module) ══
+                     The logo travels with the company: pick it here or in
+                     Company Center — either way it lands on every printed
+                     document and is saved back to the company record. -->
+                <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="12" Margin="0,0,0,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="14"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Width="48" Height="54" Background="White"
+                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                CornerRadius="6" VerticalAlignment="Center">
+                            <Grid>
+                                <TextBlock Text="LOGO" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasLogo}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <Image Source="{Binding LogoPath}" Stretch="Uniform" Margin="4">
+                                    <Image.Style>
+                                        <Style TargetType="Image">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasLogo}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Image.Style>
+                                </Image>
+                            </Grid>
+                        </Border>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                            <TextBlock Style="{StaticResource PiFieldLabelStyle}" Margin="0">
+                                <Run Text="{DynamicResource CompanyCenter.ChooseLOGO}"/>
+                                <Run Text=" — "/>
+                                <Run Text="{Binding LogoLayoutLabel, Mode=OneWay}" FontWeight="Bold"/>
+                            </TextBlock>
+                            <TextBlock Text="{Binding LogoPath}" FontSize="{StaticResource TextCaption}"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding LogoPath}"
+                                       Margin="0,4,0,0"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Button Style="{StaticResource OutlinedPillButton}" Tag="&#xE8B9;"
+                                        Content="{DynamicResource CompanyCenter.ChooseLOGO}"
+                                        Command="{Binding PickLogoCommand}"/>
+                                <Button Style="{StaticResource RowOutlinedButton}" Tag="&#xE711;"
+                                        Content="{DynamicResource Action.Clear}"
+                                        Command="{Binding ClearLogoCommand}" Margin="10,0,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>

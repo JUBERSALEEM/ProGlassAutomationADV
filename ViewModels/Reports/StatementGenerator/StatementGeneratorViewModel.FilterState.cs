@@ -220,6 +220,11 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         // salesman. Loaded once in LoadMasterDataAsync.
         private List<SavedClient> _allClients = new();
 
+        // Full company records (v3 branding) kept so the statement letterhead
+        // can resolve the issuing company's logo synchronously at preview /
+        // generation time. Loaded once in LoadMasterDataAsync.
+        private List<SavedCompany> _allCompanies = new();
+
         // Full project list (name + owning customer) kept so the Project
         // dropdown can be filtered to only the projects of the selected
         // customer. Loaded once in LoadMasterDataAsync.

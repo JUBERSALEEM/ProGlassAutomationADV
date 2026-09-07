@@ -2,6 +2,7 @@
 // FILE: PdfChrome.Part1.cs (Phase 3.8 split — member census verified)
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.MasterData;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using System;
@@ -17,6 +18,69 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
         private static int _sectionIndex;
 
         public static void Reset() => _sectionIndex = 0;
+
+        // ═════════════════════════════════════════════════════════════
+        //  COMPANY LOGO — loaded from the saved company record and placed
+        //  per the chosen layout (None / LeftPortrait / TopPanel). Loading is
+        //  fully defensive: a missing file or corrupt image must never crash
+        //  a money document; the letterhead simply falls back to text.
+        // ═════════════════════════════════════════════════════════════
+
+        private static byte[]? LoadLogoBytes(LetterheadInfo info)
+        {
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(info.LogoBase64))
+                {
+                    byte[] b64 = Convert.FromBase64String(info.LogoBase64);
+                    if (b64.Length > 0) return b64;
+                }
+                if (!string.IsNullOrWhiteSpace(info.LogoPath)
+                    && System.IO.File.Exists(info.LogoPath))
+                    return System.IO.File.ReadAllBytes(info.LogoPath);
+            }
+            catch
+            {
+                // invalid logo must never crash the document
+            }
+            return null;
+        }
+
+        private static bool HasLogo(LetterheadInfo info) =>
+            info.LogoLayout != CompanyLogoLayout.None
+            && LoadLogoBytes(info) != null;
+
+        private static float LogoW(LetterheadInfo info) =>
+            Math.Clamp((float)(info.LogoWidthMm > 0 ? info.LogoWidthMm : 22), 8f, 60f);
+
+        private static float LogoH(LetterheadInfo info) =>
+            Math.Clamp((float)(info.LogoHeightMm > 0 ? info.LogoHeightMm : 26), 8f, 60f);
+
+        /// <summary>
+        /// Renders the sized logo box on a white chip (so a transparent PNG
+        /// stays legible on the navy / steel mastheads). No-op without a logo.
+        ///
+        /// Two layouts:
+        ///   LeftPortrait — portrait box at the configured W × H.
+        ///   TopPanel     — the box is capped to masthead height (≤14 mm) so
+        ///                  it reads as a top-panel lockup rather than a tall
+        ///                  portrait.
+        /// </summary>
+        private static void LogoBox(IContainer container, LetterheadInfo info)
+        {
+            byte[]? bytes = LoadLogoBytes(info);
+            if (bytes == null) return;
+            float h = info.LogoLayout == CompanyLogoLayout.TopPanel
+                ? Math.Clamp(LogoH(info), 8f, 14f)
+                : LogoH(info);
+            container
+                .Background(T.White)
+                .Padding(2)
+                .Width(LogoW(info), Unit.Millimetre)
+                .Height(h, Unit.Millimetre)
+                .Image(bytes)
+                .FitArea();
+        }
 
         // ═════════════════════════════════════════════════════════════
         //  LETTERHEAD — five page-1 compositions
@@ -117,6 +181,11 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                     .PaddingHorizontal(12).PaddingVertical(10)
                     .Row(row =>
                     {
+                        if (HasLogo(info))
+                            row.AutoItem().PaddingRight(12)
+                                .AlignMiddle()
+                                .Element(c => LogoBox(c, info));
+
                         row.RelativeItem().Column(left =>
                         {
                             left.Item().Text(info.CompanyName ?? "")
@@ -177,18 +246,28 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         .Padding(10)
                         .Column(right =>
                         {
-                            right.Item().Text(info.CompanyName ?? "")
-                                .FontSize(11).Bold().FontColor(T.Accent);
-                            if (!string.IsNullOrWhiteSpace(info.CompanyLocation))
-                                right.Item().PaddingTop(2)
-                                    .Text(info.CompanyLocation)
-                                    .FontSize(8).FontColor(T.Muted);
-                            if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
-                                right.Item().PaddingTop(4)
-                                    .Background(T.Accent)
-                                    .PaddingHorizontal(6).PaddingVertical(2)
-                                    .Text($"TRN  {info.CompanyTrn}")
-                                    .FontSize(7).Bold().FontColor(T.AccentOn);
+                            right.Item().Row(r =>
+                            {
+                                if (HasLogo(info))
+                                    r.AutoItem().PaddingRight(8)
+                                        .AlignMiddle()
+                                        .Element(c => LogoBox(c, info));
+                                r.RelativeItem().Column(txt =>
+                                {
+                                    txt.Item().Text(info.CompanyName ?? "")
+                                        .FontSize(11).Bold().FontColor(T.Accent);
+                                    if (!string.IsNullOrWhiteSpace(info.CompanyLocation))
+                                        txt.Item().PaddingTop(2)
+                                            .Text(info.CompanyLocation)
+                                            .FontSize(8).FontColor(T.Muted);
+                                    if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
+                                        txt.Item().PaddingTop(4)
+                                            .Background(T.Accent)
+                                            .PaddingHorizontal(6).PaddingVertical(2)
+                                            .Text($"TRN  {info.CompanyTrn}")
+                                            .FontSize(7).Bold().FontColor(T.AccentOn);
+                                });
+                            });
                             foreach (var (label, value) in info.Meta.Take(3))
                             {
                                 if (string.IsNullOrWhiteSpace(value)) continue;
@@ -213,6 +292,11 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             {
                 col.Item().Row(row =>
                 {
+                    if (HasLogo(info))
+                        row.AutoItem().PaddingRight(12)
+                            .AlignMiddle()
+                            .Element(c => LogoBox(c, info));
+
                     row.RelativeItem().Text(info.DocumentTitle ?? "")
                         .FontSize(T.TitleSize).FontColor(T.Text);
                     row.ConstantItem(160).AlignRight().Column(right =>
@@ -269,6 +353,11 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         .PaddingHorizontal(10).PaddingVertical(10)
                         .Row(inner =>
                         {
+                            if (HasLogo(info))
+                                inner.AutoItem().PaddingRight(10)
+                                    .AlignMiddle()
+                                    .Element(c => LogoBox(c, info));
+
                             inner.RelativeItem().Column(left =>
                             {
                                 left.Item().Text(info.CompanyName ?? "")
@@ -328,19 +417,30 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
         {
             container.Column(col =>
             {
-                col.Item().Text(info.CompanyName ?? "")
-                    .FontSize(11).FontColor(T.Text);
-                if (!string.IsNullOrWhiteSpace(info.CompanyLocation)
-                    || !string.IsNullOrWhiteSpace(info.CompanyTrn))
+                col.Item().Row(row =>
                 {
-                    var line = info.CompanyLocation ?? "";
-                    if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
-                        line = string.IsNullOrWhiteSpace(line)
-                            ? $"TRN {info.CompanyTrn}"
-                            : $"{line}  ·  TRN {info.CompanyTrn}";
-                    col.Item().PaddingTop(1).Text(line)
-                        .FontSize(8).FontColor(T.Muted);
-                }
+                    if (HasLogo(info))
+                        row.AutoItem().PaddingRight(8)
+                            .AlignMiddle()
+                            .Element(c => LogoBox(c, info));
+
+                    row.RelativeItem().Column(col2 =>
+                    {
+                        col2.Item().Text(info.CompanyName ?? "")
+                            .FontSize(11).FontColor(T.Text);
+                        if (!string.IsNullOrWhiteSpace(info.CompanyLocation)
+                            || !string.IsNullOrWhiteSpace(info.CompanyTrn))
+                        {
+                            var line = info.CompanyLocation ?? "";
+                            if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
+                                line = string.IsNullOrWhiteSpace(line)
+                                    ? $"TRN {info.CompanyTrn}"
+                                    : $"{line}  ·  TRN {info.CompanyTrn}";
+                            col2.Item().PaddingTop(1).Text(line)
+                                .FontSize(8).FontColor(T.Muted);
+                        }
+                    });
+                });
 
                 col.Item().PaddingTop(8).Height(0.4f).Background(T.Text);
 

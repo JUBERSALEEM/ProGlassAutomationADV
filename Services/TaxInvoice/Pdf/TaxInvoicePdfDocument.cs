@@ -89,7 +89,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                     CompanyTrn = _ctx.CompanyTrn,
                     DocumentTitle = DocumentTitle,
                     DocumentId = DocumentId,
-                    SubtitleLine = _ctx.Status
+                    SubtitleLine = _ctx.Status,
+                    LogoPath = _ctx.LogoPath,
+                    LogoBase64 = _ctx.LogoBase64,
+                    LogoLayout = _ctx.LogoLayout,
+                    LogoWidthMm = _ctx.LogoWidthMm,
+                    LogoHeightMm = _ctx.LogoHeightMm
                 };
                 info.Meta.Add(("Issue", _ctx.IssueDateDisplay));
                 info.Meta.Add(("Due", _ctx.DueDateDisplay));
@@ -516,6 +521,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 CompanyLocation = snap.Company?.CompanyLocation ?? "",
                 CompanyPhone = snap.Company?.CompanyPhone ?? "",
                 CompanyEmail = snap.Company?.CompanyEmail ?? "",
+                LogoPath = snap.Company?.LogoPath ?? "",
+                LogoBase64 = snap.Company?.LogoBase64 ?? "",
+                LogoLayout = snap.Company?.LogoLayout
+                    ?? ProGlassAutomation.Models.MasterData.CompanyLogoLayout.None,
+                LogoWidthMm = snap.Company?.LogoWidthMm ?? 22,
+                LogoHeightMm = snap.Company?.LogoHeightMm ?? 26,
 
                 CustomerName = snap.Customer?.CustomerName ?? "",
                 CustomerTrn = snap.Customer?.CustomerTrn ?? "",
@@ -707,6 +718,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             public string CompanyLocation { get; set; } = "";
             public string CompanyPhone { get; set; } = "";
             public string CompanyEmail { get; set; } = "";
+            public string LogoPath { get; set; } = "";
+            public string LogoBase64 { get; set; } = "";
+            public ProGlassAutomation.Models.MasterData.CompanyLogoLayout LogoLayout
+                { get; set; } = ProGlassAutomation.Models.MasterData.CompanyLogoLayout.None;
+            public double LogoWidthMm { get; set; } = 22;
+            public double LogoHeightMm { get; set; } = 26;
 
             public string CustomerName { get; set; } = "";
             public string CustomerTrn { get; set; } = "";

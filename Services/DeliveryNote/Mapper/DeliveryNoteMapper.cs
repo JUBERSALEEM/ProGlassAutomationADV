@@ -1,4 +1,5 @@
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
@@ -488,6 +489,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                     CompanyName = pi?.Company?.CompanyName ?? "",
                     CompanyTrn = pi?.Company?.CompanyTrn ?? "",
                     CompanyLocation = pi?.Company?.CompanyLocation ?? "",
+
+                    // v3 — company branding so the DN letterhead matches the PI.
+                    LogoPath = pi?.Company?.LogoPath ?? "",
+                    LogoLayout = pi?.Company?.LogoLayout
+                        ?? CompanyLogoLayout.None,
+                    LogoWidthMm = pi?.Company?.LogoWidthMm ?? 22,
+                    LogoHeightMm = pi?.Company?.LogoHeightMm ?? 26,
 
                     // BUG-22: use SqmCalculator instead of inline formula
                     SpecGroups = pi?.SpecGroups?.Select(g => new DnJoSpecGroupSnapshot

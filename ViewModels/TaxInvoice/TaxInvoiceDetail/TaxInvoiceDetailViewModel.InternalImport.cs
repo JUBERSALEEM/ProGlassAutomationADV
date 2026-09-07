@@ -96,6 +96,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     CompanyAddress = piSnapshot.Company.CompanyLocation;
                 BankName = piSnapshot.Company.BankName;
                 BankAccountNumber = piSnapshot.Company.AccountNumber;
+
+                // v3 — branding: the Tax Invoice letterhead mirrors the PI.
+                LogoPath = piSnapshot.Company.LogoPath ?? "";
+                LogoLayout = piSnapshot.Company.LogoLayout;
+                LogoWidthMm = piSnapshot.Company.LogoWidthMm > 0
+                    ? piSnapshot.Company.LogoWidthMm : 22;
+                LogoHeightMm = piSnapshot.Company.LogoHeightMm > 0
+                    ? piSnapshot.Company.LogoHeightMm : 26;
             }
 
             if (piSnapshot.Client != null)

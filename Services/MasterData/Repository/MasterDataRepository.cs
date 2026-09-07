@@ -113,6 +113,9 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 ("AccountNumber", "TEXT NOT NULL DEFAULT ''"),
                 ("BankName", "TEXT NOT NULL DEFAULT ''"),
                 ("IsDefault", "INTEGER NOT NULL DEFAULT 0"),
+                ("LogoLayout", "INTEGER NOT NULL DEFAULT 0"),
+                ("LogoWidthMm", "REAL NOT NULL DEFAULT 22"),
+                ("LogoHeightMm", "REAL NOT NULL DEFAULT 26"),
             };
 
             foreach (var (name, ddl) in columns)
@@ -203,6 +206,9 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 // trail, not guesswork.
                 string beforeLocation = existing.CompanyLocation;
                 string beforeLogo = existing.LogoPath;
+                var beforeLogoLayout = existing.LogoLayout;
+                double beforeLogoW = existing.LogoWidthMm;
+                double beforeLogoH = existing.LogoHeightMm;
                 string beforeRep = existing.Representative;
                 string beforeRepMobile = existing.RepresentativeMobile;
                 string beforeEmail = existing.CompanyEmail;
@@ -230,6 +236,16 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                         company.AccountNumber);
                     SetIfProvided(v => existing.BankName = v,
                         company.BankName);
+
+                    // Branding: the invoice path only carries the logo path.
+                    // Layout / size come from Company Center, so a blank invoice
+                    // value must never reset them (None → 0 → untouched here).
+                    if (company.LogoLayout != CompanyLogoLayout.None)
+                        existing.LogoLayout = company.LogoLayout;
+                    if (company.LogoWidthMm > 0)
+                        existing.LogoWidthMm = company.LogoWidthMm;
+                    if (company.LogoHeightMm > 0)
+                        existing.LogoHeightMm = company.LogoHeightMm;
                 }
                 else
                 {
@@ -252,6 +268,17 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                     existing.AccountNumber =
                         company.AccountNumber?.Trim() ?? "";
                     existing.BankName = company.BankName?.Trim() ?? "";
+
+                    // Editor (Company Center): latest data wins for branding.
+                    // Width/height fall back to the industrial defaults when
+                    // the operator leaves them blank so a broken 0mm box can
+                    // never reach the renderer.
+                    existing.LogoLayout = company.LogoLayout;
+                    existing.LogoWidthMm =
+                        company.LogoWidthMm > 0 ? company.LogoWidthMm : 22;
+                    existing.LogoHeightMm =
+                        company.LogoHeightMm > 0 ? company.LogoHeightMm : 26;
+
                     // 2026-09-04: IsDefault is no longer WRITTEN anywhere —
                     // the default-mark mechanism (checkbox, badge, Step 1
                     // prefill, clearing loop) is removed. The column stays
@@ -269,6 +296,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 LogCompanyChanges(
                     existing, preserveUnsetProfileFields,
                     beforeName, beforeTrn, beforeLocation, beforeLogo,
+                    beforeLogoLayout, beforeLogoW, beforeLogoH,
                     beforeRep, beforeRepMobile, beforeEmail,
                     beforeAccount, beforeBank);
 
@@ -304,6 +332,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             bool preserveMode,
             string beforeName, string beforeTrn,
             string beforeLocation, string beforeLogo,
+            CompanyLogoLayout beforeLogoLayout,
+            double beforeLogoW, double beforeLogoH,
             string beforeRep, string beforeRepMobile,
             string beforeEmail, string beforeAccount, string beforeBank)
         {
@@ -327,6 +357,14 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             Add(changes, "TRN", beforeTrn, after.CompanyTrn);
             Add(changes, "Location", beforeLocation, after.CompanyLocation);
             Add(changes, "Logo", beforeLogo, after.LogoPath);
+            Add(changes, "Logo layout",
+                beforeLogoLayout.ToString(), after.LogoLayout.ToString());
+            Add(changes, "Logo width (mm)",
+                beforeLogoW.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture),
+                after.LogoWidthMm.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture));
+            Add(changes, "Logo height (mm)",
+                beforeLogoH.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture),
+                after.LogoHeightMm.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture));
             Add(changes, "Representative", beforeRep, after.Representative);
             Add(changes, "Rep mobile", beforeRepMobile, after.RepresentativeMobile);
             Add(changes, "Email", beforeEmail, after.CompanyEmail);
@@ -757,7 +795,10 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             string? companyRepresentativeMobile = null,
             string? companyEmail = null,
             string? companyAccountNumber = null,
-            string? companyBankName = null)
+            string? companyBankName = null,
+            CompanyLogoLayout companyLogoLayout = CompanyLogoLayout.None,
+            double companyLogoWidthMm = 0,
+            double companyLogoHeightMm = 0)
         {
             ReadOnlyGate.Demand("auto-save master data from an invoice");
             // ── Company ──────────────────────────────────────────────────
@@ -780,7 +821,10 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                             (companyRepresentativeMobile ?? "").Trim(),
                         CompanyEmail = (companyEmail ?? "").Trim(),
                         AccountNumber = (companyAccountNumber ?? "").Trim(),
-                        BankName = (companyBankName ?? "").Trim()
+                        BankName = (companyBankName ?? "").Trim(),
+                        LogoLayout = companyLogoLayout,
+                        LogoWidthMm = companyLogoWidthMm,
+                        LogoHeightMm = companyLogoHeightMm
                     }, preserveUnsetProfileFields: true);
                 }
                 catch (Exception ex)

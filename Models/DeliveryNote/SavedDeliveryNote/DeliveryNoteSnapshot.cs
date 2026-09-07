@@ -1,3 +1,4 @@
+using ProGlassAutomation.Models.MasterData;
 using System;
 using System.Collections.Generic;
 
@@ -67,6 +68,13 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public string CompanyName { get; set; } = "";
         public string CompanyTrn { get; set; } = "";
         public string CompanyLocation { get; set; } = "";
+
+        // v3 — company branding (logo + placement) carried from the source PI
+        // so the Delivery Note letterhead matches the invoice letterhead.
+        public string LogoPath { get; set; } = "";
+        public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;
+        public double LogoWidthMm { get; set; } = 22;
+        public double LogoHeightMm { get; set; } = 26;
 
         /// <summary>Spec groups from JO — used to display JO context in DN detail.</summary>
         public List<DnJoSpecGroupSnapshot> SpecGroups { get; set; } = new();

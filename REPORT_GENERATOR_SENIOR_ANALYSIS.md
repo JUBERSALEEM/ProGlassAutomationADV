@@ -791,3 +791,123 @@ types; `resource_check.py` resolves all StaticResource/DynamicResource keys
 calculation paths, snapshots and the parent `SpecGroupsView`/`TargetSpecsView`
 are untouched; only additive export surface and read-only footer bindings were
 added.
+
+---
+
+## §18 — Company module save fix, Step 1 ↔ Company hard-link, and logo on every printed document (2026-09-07)
+
+### 18.1 Scope of the request
+
+The operator reported three things:
+
+1. **"Company module saving not working."** The Company Center page opened, but
+   nothing could be created or updated.
+2. **"Step 1 should have it saved / connected with the company module."** The
+   Proforma Invoice wizard's Step 1 and the Company Center are meant to read and
+   write the *same* master-data company records.
+3. **Logo branding.** Add a logo upload with an industrial **left small portrait
+   logo** layout, millimetre **width/height** controls and a **top panel**
+   masthead, then carry the logo into **Proforma Invoice, Job Order, Delivery
+   Note, Tax Invoice and Statement Generator** PDF letterheads, in **two layouts**.
+
+### 18.2 Root cause — Company Center save was dead (DI greedy-constructor bug)
+
+`CompanyCenterViewModel` has two constructors:
+
+- `(IDialogService?, IMasterDataRepository?)` — the **greedy** overload, and
+- a parameterless fallback that used to carry **all** command wiring
+  (`SaveCompanyCommand`, `NewCompanyCommand`, …) and the first `LoadAsync()`.
+
+Microsoft.Extensions.DependencyInjection selects the constructor with the most
+resolvable parameters. Both `IDialogService` and `IMasterDataRepository` are
+registered singletons, so the container **always** resolved the greedy overload
+— which was an empty body (`_dialogs = dialogs!; _masterData = masterData!;`
+and nothing else). The commands were `null` and the card list never loaded.
+`Save` was bound to a null command, so clicking it did nothing; the page
+showed an empty list. This is exactly the "greedy ctor" anti-pattern the
+codebase already documents for `SpecificationsCenterViewModel` and guards
+against with explicit factories for the Statement/Order-Report modules
+(`ERR-633EEB`), but Company Center was still registered with a bare
+`AddTransient<CompanyCenterViewModel>()`.
+
+**Fix.** Command wiring + first load moved into a shared `Initialize()` invoked
+from the greedy constructor; the parameterless constructor now just chains.
+The registration was also changed to an explicit factory so the behaviour can
+never regress through overload selection.
+
+### 18.3 Step 1 ↔ Company module hard-link (verification + completion)
+
+The connection already exists end-to-end and was verified, then completed for
+the new branding fields:
+
+- **Read:** Step 1 loads cards from `IMasterDataRepository.GetAllCompaniesAsync()`
+  (`CompanySetupViewModel.LoadCardsAsync`); picking a card hydrates the header.
+- **Write:** `ProformaInvoiceMapper` calls
+  `AutoSaveFromInvoiceAsync(...)` on every invoice save, upserting the company
+  into `masterdata.db` with **preserve-on-blank** semantics (a blank invoice
+  field can never erase a stored value).
+- **Branding round-trip added:** `LogoLayout` / `LogoWidthMm` / `LogoHeightMm`
+  now travel Company Center → `SavedCompany` → Step 1 card → `CompanySnapshot`
+  → `AutoSaveFromInvoiceAsync` → repository, and back again on deserialization.
+  Step 1 also gained a logo preview + picker so the operator can attach branding
+  without leaving the wizard.
+
+### 18.4 Logo data model (additive, backward compatible)
+
+- `CompanyLogoLayout` enum: `None` (text-only), `LeftPortrait`, `TopPanel`.
+- `SavedCompany` gains `LogoLayout` (INTEGER), `LogoWidthMm`, `LogoHeightMm`
+  (REAL, defaults 22 × 26 mm). `MasterDataRepository.InitializeAsync` evolves
+  existing databases with `ALTER TABLE ADD COLUMN`; new databases get the
+  columns from the model. Old invoice JSON deserializes to the defaults (no
+  logo) — 100% backward compatible.
+- The same three fields are mirrored additively onto `CompanySnapshot` (PI),
+  `DnJobOrderRefSnapshot` (DN), `InvCompanySnapshot` (TI), and
+  `StatementCustomerInfo` (Statement), so every document type carries branding
+  without re-querying the DB at render time.
+
+### 18.5 PDF letterhead integration (all five document types, two layouts)
+
+`LetterheadInfo` now carries `LogoPath` / `LogoBase64` / `LogoLayout` /
+`LogoWidthMm` / `LogoHeightMm`. `PdfChrome` gained a defensive logo loader
+(`LoadLogoBytes`: path first, then base64; try/catch — a missing file or corrupt
+image can never crash a money document) and a `LogoBox` renderer that draws the
+image on a white chip, sized in millimetres and clamped to 8–60 mm:
+
+- **LeftPortrait** — the configured portrait box (W × H).
+- **TopPanel** — the same box capped to masthead height (≤ 14 mm) so it reads as
+  a top-panel lockup.
+
+The logo is placed at the left of the company identity in **all five** theme
+compositions (`FormalBand`, `SplitConsole`, `Editorial`, `Workshop`,
+`QuietForm`), so branding survives any user-chosen PDF theme. Builders populate
+the data from their snapshots: PI and Dossier from `CompanySnapshot`, JO from
+the embedded PI snapshot, DN from `DnJobOrderRefSnapshot`, TI from
+`InvCompanySnapshot`, and the Statement resolves the issuing company's branding
+from master data at generation time (cached list, then targeted lookup — a miss
+falls back to the text-only letterhead, never a block).
+
+### 18.6 Company Center & Step 1 UI
+
+Company Center gained a live industrial **top panel** masthead (logo slot,
+company name, TRN/location, layout label), and a logo section with a left
+portrait preview chip, Choose/Clear, millimetre width × height inputs (via a new
+`DoubleTypingConverter`), and a three-way layout selector (Text only / Left
+portrait / Top panel). Step 1 gained the same logo preview + picker bound to the
+selected company card.
+
+### 18.7 Verification & known scope
+
+- XAML: `xaml_wellformed` / `stray_attr_check` / `dup_property_check` clean on
+  both edited views; `binding_check` 27 and 38 roots with 0 unresolved;
+  `resource_check` 44 and 57 refs with 0 unresolved.
+- C#: brace/balance checks pass on all edited files; all new enum references
+  resolve through `ProGlassAutomation.Models.MasterData`; the
+  `AutoSaveFromInvoiceAsync` signature matches interface, implementation and
+  mapper call site.
+- The sandbox cannot compile WPF; verification is source-level (same constraint
+  as every prior round).
+- **Out of scope (documented, deliberate):** the Sheet Store inventory report
+  (hard-coded "ProGlass Automation" letterhead) and the internal cut-list layout
+  (no company identity) were left text-only; the operator's list was PI, JO, DN,
+  TI and Statement. Continuation (page 2+) headers remain text-only by design —
+  the logo prints on page 1 only.

@@ -18,6 +18,7 @@
 //   All other snapshot classes preserved EXACTLY.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
@@ -117,6 +118,12 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string LogoPath { get; set; } = "";
         /// <summary>Id of the Company Center record this invoice uses.</summary>
         public int CompanyRecordId { get; set; }
+
+        // v3 — logo placement on printed documents (Company Center branding).
+        // Additive: older invoice JSON deserializes with defaults (no logo).
+        public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;
+        public double LogoWidthMm { get; set; } = 22;
+        public double LogoHeightMm { get; set; } = 26;
     }
 
     // ── Project data ────────────────────────────────────────────────────

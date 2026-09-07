@@ -79,7 +79,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     CompanyTrn = _snapshot.Company?.CompanyTrn ?? "",
                     DocumentTitle = DocumentTitle,
                     DocumentId = DocumentId,
-                    SubtitleLine = _ctx.ProformaStatus
+                    SubtitleLine = _ctx.ProformaStatus,
+                    LogoPath = _snapshot.Company?.LogoPath ?? "",
+                    LogoLayout = _snapshot.Company?.LogoLayout
+                        ?? ProGlassAutomation.Models.MasterData.CompanyLogoLayout.None,
+                    LogoWidthMm = _snapshot.Company?.LogoWidthMm ?? 22,
+                    LogoHeightMm = _snapshot.Company?.LogoHeightMm ?? 26
                 };
                 info.Meta.Add(("Date", _ctx.IssueDate));
                 info.Meta.Add(("Valid until", _ctx.ValidUntil));

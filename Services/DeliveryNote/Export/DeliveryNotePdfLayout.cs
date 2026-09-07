@@ -74,7 +74,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                     CompanyTrn = _joRef.CompanyTrn,
                     DocumentTitle = DocumentTitle,
                     DocumentId = DocumentId,
-                    SubtitleLine = BuildSubtitle()
+                    SubtitleLine = BuildSubtitle(),
+                    LogoPath = _joRef.LogoPath ?? "",
+                    LogoLayout = _joRef.LogoLayout,
+                    LogoWidthMm = _joRef.LogoWidthMm,
+                    LogoHeightMm = _joRef.LogoHeightMm
                 };
                 info.Meta.Add(("Date", _entity.DeliveryDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)));
                 info.Meta.Add(("Status", _entity.Status ?? ""));

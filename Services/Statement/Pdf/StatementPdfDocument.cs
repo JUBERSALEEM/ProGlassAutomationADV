@@ -150,9 +150,14 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             var info = new LetterheadInfo
             {
                 CompanyName = _snap.CustomerInfo.CompanyName ?? "",
+                CompanyTrn = _snap.CustomerInfo.CompanyTrn ?? "",
                 DocumentTitle = "ACCOUNT STATEMENT",
                 DocumentId = _snap.Header.StatementNumber ?? "",
-                SubtitleLine = _snap.Header.Title
+                SubtitleLine = _snap.Header.Title,
+                LogoPath = _snap.CustomerInfo.LogoPath ?? "",
+                LogoLayout = _snap.CustomerInfo.LogoLayout,
+                LogoWidthMm = _snap.CustomerInfo.LogoWidthMm,
+                LogoHeightMm = _snap.CustomerInfo.LogoHeightMm
             };
             info.Meta.Add(("Period", _snap.Header.PeriodDisplay ?? ""));
             info.Meta.Add(("Generated",

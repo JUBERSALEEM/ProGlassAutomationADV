@@ -53,6 +53,7 @@
     <conv:ColorStringConverter              x:Key="ColorStringConverter"/>
     <conv:DecimalIsPositiveConverter        x:Key="DecimalIsPositiveConverter"/>
     <conv:DecimalTypingConverter            x:Key="DecimalTypingConverter"/>
+    <conv:DoubleTypingConverter             x:Key="DoubleTypingConverter"/>
     <conv:ReferenceEqualityConverter        x:Key="ReferenceEqualityConverter"/>
     <conv:IndexEqualsConverter              x:Key="IndexEqualsConverter"/>
     <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>

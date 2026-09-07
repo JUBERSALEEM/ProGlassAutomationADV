@@ -31,6 +31,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         public string CompanyEmail { get; set; } = "";
         public string AccountNumber { get; set; } = "";
         public string BankName { get; set; } = "";
+
+        // v3 — logo placement carried from the Company Center record.
+        public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;
+        public double LogoWidthMm { get; set; } = 22;
+        public double LogoHeightMm { get; set; } = 26;
         // IsDefault removed 2026-09-04: default-mark mechanism deleted;
         // Step 1 loads a company only when the user picks it (or it is
         // restored from a saved invoice's snapshot).

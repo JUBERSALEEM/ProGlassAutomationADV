@@ -43,6 +43,12 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         // IsDefault removed 2026-09-04 (default-mark mechanism deleted).
         public int UsageCount { get; set; }
 
+        // v3 — branding carried onto the card so the editor hydrates it
+        // without a second DB round-trip.
+        public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;
+        public double LogoWidthMm { get; set; } = 22;
+        public double LogoHeightMm { get; set; } = 26;
+
         private bool _isSelected;
         public bool IsSelected
         {
@@ -60,6 +66,14 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         {
             _dialogs = dialogs!;
             _masterData = masterData!;
+
+            // BUG FIX (2026-09-07): command wiring + first load MUST live in
+            // this constructor. The container resolves the GREEDY overload
+            // (IDialogService + IMasterDataRepository are both registered), so
+            // the parameterless ctor was never reached through DI — leaving
+            // every command null and the card list empty. That is why "Save"
+            // appeared to do nothing: SaveCompanyCommand was bound to null.
+            Initialize();
         }
 
         private readonly ObservableCollection<CompanyCard> _companies = new();
@@ -106,6 +120,94 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             set { _logoPath = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasLogo)); }
         }
         public bool HasLogo => !string.IsNullOrEmpty(_logoPath);
+
+        // v3 — logo placement controls (two industrial layouts + mm sizing).
+        private CompanyLogoLayout _logoLayout = CompanyLogoLayout.None;
+        public CompanyLogoLayout LogoLayout
+        {
+            get => _logoLayout;
+            set
+            {
+                if (_logoLayout == value) return;
+                _logoLayout = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsNoLogoLayout));
+                OnPropertyChanged(nameof(IsLeftPortraitLayout));
+                OnPropertyChanged(nameof(IsTopPanelLayout));
+                OnPropertyChanged(nameof(LogoLayoutLabel));
+            }
+        }
+
+        /// <summary>Human label for the chosen logo layout, bound by the masthead.</summary>
+        public string LogoLayoutLabel => LayoutLabel(_logoLayout);
+
+        /// <summary>True when no logo (text-only letterhead) is chosen.</summary>
+        public bool IsNoLogoLayout
+        {
+            get => _logoLayout == CompanyLogoLayout.None;
+            set { if (value) LogoLayout = CompanyLogoLayout.None; }
+        }
+
+        /// <summary>True when the "left small portrait logo" layout is chosen.</summary>
+        public bool IsLeftPortraitLayout
+        {
+            get => _logoLayout == CompanyLogoLayout.LeftPortrait;
+            set { if (value) LogoLayout = CompanyLogoLayout.LeftPortrait; }
+        }
+
+        /// <summary>True when the "top panel" industrial layout is chosen.</summary>
+        public bool IsTopPanelLayout
+        {
+            get => _logoLayout == CompanyLogoLayout.TopPanel;
+            set { if (value) LogoLayout = CompanyLogoLayout.TopPanel; }
+        }
+
+        private double _logoWidthMm = 22;
+        public double LogoWidthMm
+        {
+            get => _logoWidthMm;
+            set
+            {
+                if (_logoWidthMm == value) return;
+                _logoWidthMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(LogoWidthDisplay));
+            }
+        }
+
+        private double _logoHeightMm = 26;
+        public double LogoHeightMm
+        {
+            get => _logoHeightMm;
+            set
+            {
+                if (_logoHeightMm == value) return;
+                _logoHeightMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(LogoHeightDisplay));
+            }
+        }
+
+        /// <summary>Display text for the logo width spin — "22 mm".</summary>
+        public string LogoWidthDisplay => $"{_logoWidthMm:0.#} mm";
+        public string LogoHeightDisplay => $"{_logoHeightMm:0.#} mm";
+
+        /// <summary>
+        /// Sanitised width used when persisting: outside 8–60 mm the value is
+        /// clamped so a typo can never produce a degenerate PDF box.
+        /// </summary>
+        public double SanitizedLogoWidthMm => Math.Clamp(
+            _logoWidthMm > 0 ? _logoWidthMm : 22, 8, 60);
+        public double SanitizedLogoHeightMm => Math.Clamp(
+            _logoHeightMm > 0 ? _logoHeightMm : 26, 8, 60);
+
+        /// <summary>Human label for a layout value, used by the selector.</summary>
+        public static string LayoutLabel(CompanyLogoLayout layout) => layout switch
+        {
+            CompanyLogoLayout.LeftPortrait => "Left portrait logo",
+            CompanyLogoLayout.TopPanel => "Top panel logo",
+            _ => "No logo (text only)"
+        };
         public string Representative
         {
             get => _representative;
@@ -163,7 +265,15 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         public CompanyCenterViewModel()
          : this(
             App.ServiceProvider?.GetService<IDialogService>()?? new DialogService(),
-            App.ServiceProvider?.GetService<IMasterDataRepository>()!){
+            App.ServiceProvider?.GetService<IMasterDataRepository>()!)
+        {
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  INITIALIZATION — commands + first load. Shared by both ctors.
+        // ══════════════════════════════════════════════════════════════
+        private void Initialize()
+        {
             NewCompanyCommand = new RelayCommand(_ => BeginEdit(null));
             SelectCompanyCommand = new RelayCommand(p =>
                 BeginEdit(p as CompanyCard));
@@ -199,6 +309,9 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         CompanyEmail = CompanyEmail.Trim(),
                         AccountNumber = AccountNumber.Trim(),
                         BankName = BankName.Trim(),
+                        LogoLayout = LogoLayout,
+                        LogoWidthMm = SanitizedLogoWidthMm,
+                        LogoHeightMm = SanitizedLogoHeightMm,
                         UsageCount = 1,
                         LastUsedAt = DateTime.Now,
                         CreatedAt = DateTime.Now
@@ -312,6 +425,15 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             Compare("Name", before.CompanyName, after.CompanyName);
             Compare("TRN", before.CompanyTrn, after.CompanyTrn);
             Compare("Location", before.CompanyLocation, after.CompanyLocation);
+            Compare("Logo", before.LogoPath, after.LogoPath);
+            Compare("Logo layout",
+                before.LogoLayout.ToString(), after.LogoLayout.ToString());
+            Compare("Logo width (mm)",
+                before.LogoWidthMm.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture),
+                after.LogoWidthMm.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture));
+            Compare("Logo height (mm)",
+                before.LogoHeightMm.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture),
+                after.LogoHeightMm.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture));
             Compare("Representative", before.Representative, after.Representative);
             Compare("Mobile", before.RepresentativeMobile, after.RepresentativeMobile);
             Compare("Email", before.CompanyEmail, after.CompanyEmail);
@@ -342,7 +464,10 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         CompanyLocation = c.CompanyLocation,
                         LogoPath = c.LogoPath ?? "",
                         Representative = c.Representative ?? "",
-                        UsageCount = c.UsageCount
+                        UsageCount = c.UsageCount,
+                        LogoLayout = c.LogoLayout,
+                        LogoWidthMm = c.LogoWidthMm > 0 ? c.LogoWidthMm : 22,
+                        LogoHeightMm = c.LogoHeightMm > 0 ? c.LogoHeightMm : 26
                     });
                 }
             }
@@ -364,6 +489,11 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             CompanyEmail = "";
             AccountNumber = "";
             BankName = "";
+            // Branding: card carries it; new records start with the
+            // industrial defaults (text-only until the operator adds a logo).
+            LogoLayout = card?.LogoLayout ?? CompanyLogoLayout.None;
+            LogoWidthMm = card != null && card.LogoWidthMm > 0 ? card.LogoWidthMm : 22;
+            LogoHeightMm = card != null && card.LogoHeightMm > 0 ? card.LogoHeightMm : 26;
             // mark-to-use-in-invoice removed 2026-09-04: no IsDefault hydration.
             OnPropertyChanged(nameof(EditorTitle));
 
@@ -389,6 +519,11 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 CompanyEmail = entity.CompanyEmail ?? "";
                 AccountNumber = entity.AccountNumber ?? "";
                 BankName = entity.BankName ?? "";
+                // Hydration must not stomp values BeginEdit already took from
+                // the card; it only tops up the fields the card didn't carry.
+                LogoLayout = entity.LogoLayout;
+                if (entity.LogoWidthMm > 0) LogoWidthMm = entity.LogoWidthMm;
+                if (entity.LogoHeightMm > 0) LogoHeightMm = entity.LogoHeightMm;
             }
             catch (System.Exception ex)
             {

@@ -1,3 +1,4 @@
+using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
@@ -351,7 +352,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
                     CompanyLocation = state.CompanyLocation,
                     CompanyPhone = state.CompanyPhone,
                     CompanyEmail = state.CompanyEmail,
-                    LogoBase64 = state.LogoBase64
+                    LogoBase64 = state.LogoBase64,
+                    LogoPath = state.LogoPath,
+                    LogoLayout = state.LogoLayout,
+                    LogoWidthMm = state.LogoWidthMm,
+                    LogoHeightMm = state.LogoHeightMm
                 },
                 Customer = new InvCustomerSnapshot
                 {
@@ -506,6 +511,10 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
         public string CompanyPhone { get; set; } = "";
         public string CompanyEmail { get; set; } = "";
         public string LogoBase64 { get; set; } = "";
+        public string LogoPath { get; set; } = "";
+        public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;
+        public double LogoWidthMm { get; set; } = 22;
+        public double LogoHeightMm { get; set; } = 26;
 
         // Customer
         public string CustomerName { get; set; } = "";

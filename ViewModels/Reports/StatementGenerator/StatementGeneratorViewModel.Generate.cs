@@ -48,6 +48,47 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         //  GENERATE — INLINE EXECUTION (unchanged from Chat 21 v2)
         // ═════════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// v3 — resolves the issuing company's branding (logo + placement)
+        /// from master data and stamps it onto the statement snapshot so the
+        /// letterhead matches the invoices listed. Uses the cached company
+        /// list first, then a targeted lookup; a miss leaves the text-only
+        /// letterhead (never a crash, never a block).
+        /// </summary>
+        private async Task EnrichCustomerBrandingAsync(StatementSnapshot? snapshot)
+        {
+            try
+            {
+                if (snapshot?.CustomerInfo == null || _masterData == null) return;
+                string name = snapshot.CustomerInfo.CompanyName ?? "";
+                if (string.IsNullOrWhiteSpace(name)) return;
+
+                SavedCompany? match = _allCompanies.FirstOrDefault(c =>
+                    string.Equals(c.CompanyName, name, StringComparison.OrdinalIgnoreCase));
+                if (match == null)
+                {
+                    match = (await _masterData.SearchCompaniesAsync(name))
+                        .FirstOrDefault(c => string.Equals(
+                            c.CompanyName, name, StringComparison.OrdinalIgnoreCase));
+                }
+                if (match == null) return;
+
+                snapshot.CustomerInfo.CompanyTrn = match.CompanyTrn ?? "";
+                snapshot.CustomerInfo.LogoPath = match.LogoPath ?? "";
+                snapshot.CustomerInfo.LogoLayout = match.LogoLayout;
+                snapshot.CustomerInfo.LogoWidthMm =
+                    match.LogoWidthMm > 0 ? match.LogoWidthMm : 22;
+                snapshot.CustomerInfo.LogoHeightMm =
+                    match.LogoHeightMm > 0 ? match.LogoHeightMm : 26;
+            }
+            catch (Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "[StatementGenerator] Branding enrichment failed: " +
+                    ExceptionMessages.Deep(ex));
+            }
+        }
+
         private async Task RunGenerateAsync()
         {
             if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
@@ -176,6 +217,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 wfResult.TaxInvoicePdfs = wfResult.TaxInvoicePdfs
                     .Where(p => selectedSet.Contains(p.InvoiceNumber))
                     .ToList();
+
+                // v3 — attach the issuing company's branding (logo + layout)
+                // so the statement letterhead matches the invoices it lists.
+                await EnrichCustomerBrandingAsync(wfResult.Snapshot);
 
                 StatusMessage = "Generating final PDF…";
                 LiveAddLogEntry(LogSeverity.Section, "═══ PDF GENERATION ═══");

@@ -131,6 +131,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     companyEmail: company.CompanyEmail ?? "",
                     companyAccountNumber: company.AccountNumber ?? "",
                     companyBankName: company.BankName ?? "",
+                    companyLogoLayout: company.LogoLayout,
+                    companyLogoWidthMm: company.LogoWidthMm,
+                    companyLogoHeightMm: company.LogoHeightMm,
 
                     customerName: client.CustomerName ?? "",
                     customerTrn: client.CustomerTrn ?? "",
@@ -183,7 +186,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     AccountNumber = company.AccountNumber ?? "",
                     BankName = company.BankName ?? "",
                     LogoPath = company.LogoPath ?? "",
-                    CompanyRecordId = company.CompanyRecordId
+                    CompanyRecordId = company.CompanyRecordId,
+                    LogoLayout = company.LogoLayout,
+                    LogoWidthMm = company.LogoWidthMm,
+                    LogoHeightMm = company.LogoHeightMm
                 },
 
                 Client = new ClientSnapshot
@@ -575,6 +581,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 company.BankName = snap.Company.BankName ?? "";
                 company.LogoPath = snap.Company.LogoPath ?? "";
                 company.CompanyRecordId = snap.Company.CompanyRecordId;
+                company.LogoLayout = snap.Company.LogoLayout;
+                company.LogoWidthMm = snap.Company.LogoWidthMm;
+                company.LogoHeightMm = snap.Company.LogoHeightMm;
             }
 
             // ── Step 2: Client ─────────────────────────────────────────

@@ -214,7 +214,14 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddTransient<DoublingLaminationViewModel>();
             services.AddTransient<SalesReportViewModel>();
             services.AddTransient<JobProfitabilityViewModel>();
-            services.AddTransient<CompanyCenterViewModel>();
+            // Company Center: explicit factory so the greedy (DI-resolved)
+            // ctor — which is the one that wires every command and loads the
+            // card list — can never be bypassed by an overload-selection
+            // change. (Its parameterless ctor is design-time only.)
+            services.AddTransient<CompanyCenterViewModel>(sp =>
+                new CompanyCenterViewModel(
+                    sp.GetService<Services.Dialogs.IDialogService>(),
+                    sp.GetService<IMasterDataRepository>()));
             services.AddTransient<UserCenterViewModel>();
             services.AddTransient<DiagnosticsViewModel>();
             services.AddTransient<AppLogPanelViewModel>();
