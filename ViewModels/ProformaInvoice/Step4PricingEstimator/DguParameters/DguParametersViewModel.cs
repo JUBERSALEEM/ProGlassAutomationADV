@@ -180,9 +180,41 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             {
                 _panelExtra = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(EffectivePanelExtra));
                 OnPropertyChanged(nameof(GeneratedSpecName));
             }
         }
+
+        private bool _useCustomPanelExtra;
+        public bool UseCustomPanelExtra
+        {
+            get => _useCustomPanelExtra;
+            set
+            {
+                if (_useCustomPanelExtra == value) return;
+                _useCustomPanelExtra = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(EffectivePanelExtra));
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
+        }
+
+        private string _customPanelExtra = "With Fanhole and Argon Gas As Per DWG";
+        public string CustomPanelExtra
+        {
+            get => _customPanelExtra;
+            set
+            {
+                _customPanelExtra = value ?? string.Empty;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(EffectivePanelExtra));
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
+        }
+
+        public string EffectivePanelExtra => UseCustomPanelExtra
+            ? (CustomPanelExtra ?? string.Empty).Trim()
+            : (PanelExtra ?? string.Empty).Trim();
 
         // ===================== Row 4: Inner Glass =====================
 
@@ -282,10 +314,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 // Inner glass segment — may include a panel extra
                 // (Overlap, Fanhole, Cutout, Holes, Shutter Bonding, Argon Gas)
                 var inner = $"{InnerThickness} {InnerGlassColor} {InnerTreatment} Glass";
-                if (!string.IsNullOrWhiteSpace(PanelExtra) &&
-                    !PanelExtra.Equals("None", System.StringComparison.OrdinalIgnoreCase))
+                var panelExtra = EffectivePanelExtra;
+                if (!string.IsNullOrWhiteSpace(panelExtra) &&
+                    !panelExtra.Equals("None", System.StringComparison.OrdinalIgnoreCase))
                 {
-                    inner += $" {PanelExtra}";
+                    inner += $" {panelExtra}";
                 }
 
                 return $"{outer} + {spacer} + {inner}";

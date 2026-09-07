@@ -53,6 +53,9 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
         private static float LogoW(LetterheadInfo info) =>
             Math.Clamp((float)(info.LogoWidthMm > 0 ? info.LogoWidthMm : 22), 8f, 60f);
 
+        private static float MastheadLogoW(LetterheadInfo info) =>
+            Math.Clamp(LogoW(info), 8f, 28f);
+
         private static float LogoH(LetterheadInfo info) =>
             Math.Clamp((float)(info.LogoHeightMm > 0 ? info.LogoHeightMm : 26), 8f, 60f);
 
@@ -98,7 +101,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             // below with its inline logo suppressed so the logo never
             // renders twice. LeftPortrait / None render exactly as before
             // (logo inline at the left of the company identity).
-            if (info.LogoLayout == CompanyLogoLayout.TopPanel && HasLogo(info))
+            if (info.LogoLayout == CompanyLogoLayout.TopPanel)
             {
                 container.Column(col =>
                 {
@@ -144,24 +147,26 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
         private static void TopPanelMasthead(IContainer container, LetterheadInfo info)
         {
             byte[]? bytes = LoadLogoBytes(info);
-            if (bytes == null) return;
 
             container.Background(T.Accent)
                 .PaddingHorizontal(12).PaddingVertical(8)
                 .Row(row =>
                 {
-                    row.AutoItem()
-                        .AlignMiddle()
-                        .Background(T.White)
-                        .Border(0.5f)
-                        .BorderColor(T.Border)
-                        .Padding(2)
-                        .Width(LogoW(info), Unit.Millimetre)
-                        .Height(Math.Clamp(LogoH(info), 8f, 14f), Unit.Millimetre)
-                        .Image(bytes)
-                        .FitArea();
+                    if (bytes != null)
+                    {
+                        row.AutoItem()
+                            .AlignMiddle()
+                            .Background(T.White)
+                            .Border(0.5f)
+                            .BorderColor(T.Border)
+                            .Padding(2)
+                            .Width(MastheadLogoW(info), Unit.Millimetre)
+                            .Height(Math.Clamp(LogoH(info), 8f, 14f), Unit.Millimetre)
+                            .Image(bytes)
+                            .FitArea();
+                    }
 
-                    row.RelativeItem().PaddingLeft(10).Column(left =>
+                    row.RelativeItem().PaddingLeft(bytes != null ? 10 : 0).Column(left =>
                     {
                         left.Item().Text(info.CompanyName ?? "")
                             .FontSize(T.TitleSize).Bold().FontColor(T.AccentOn);

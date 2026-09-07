@@ -520,6 +520,10 @@
     <CornerRadius x:Key="CardCornerRadiusLarge">16</CornerRadius>
     <Thickness x:Key="CardBorderThickness">1.5</Thickness>
     <Thickness x:Key="CardEdgeThickness">2</Thickness>
+    <Thickness x:Key="CardEdgePaddingBase">24</Thickness>
+    <Thickness x:Key="CardEdgePaddingStat">18,16</Thickness>
+    <Thickness x:Key="CardEdgePaddingTask">18,14</Thickness>
+    <Thickness x:Key="CardEdgePaddingList">16,12</Thickness>
 
 
     <!-- ═══════════════════════════════════════════════════════════════

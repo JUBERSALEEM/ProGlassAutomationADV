@@ -60,7 +60,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Text="{DynamicResource ProformaInvoice.PriceSQM}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                            <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                            <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="{DynamicResource ProformaInvoice.SheetW}" Style="{StaticResource ModuleFieldLabelStyle}"/>

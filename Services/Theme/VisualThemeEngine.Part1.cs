@@ -909,18 +909,21 @@ namespace ProGlassAutomation.Services.Theme
             resources["MutedForegroundBrush"] = muted;
         }
 
+        private sealed record WallpaperCacheEntry(DateTime LastWriteUtc, BitmapImage Image);
+        private static readonly Dictionary<string, WallpaperCacheEntry> _wallpaperImageCache =
+            new(StringComparer.OrdinalIgnoreCase);
+
         private static ImageBrush? BuildWallpaperBrush(
             string path, double opacity)
         {
             try
             {
-                var image = new BitmapImage();
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.UriSource = new Uri(path, UriKind.Absolute);
-                image.EndInit();
-                image.Freeze();
+                var image = GetCachedWallpaperImage(path);
+                if (image == null) return null;
 
+                // Opacity is the only slider-tick variable, so only rebuild the
+                // lightweight ImageBrush wrapper; the decoded frozen bitmap is
+                // cached by path + last-write time.
                 var brush = new ImageBrush(image)
                 {
                     Stretch = Stretch.UniformToFill,
@@ -933,6 +936,30 @@ namespace ProGlassAutomation.Services.Theme
             {
                 return null;
             }
+        }
+
+        private static BitmapImage? GetCachedWallpaperImage(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                return null;
+
+            var fullPath = Path.GetFullPath(path);
+            var lastWrite = File.GetLastWriteTimeUtc(fullPath);
+            if (_wallpaperImageCache.TryGetValue(fullPath, out var cached)
+                && cached.LastWriteUtc == lastWrite)
+            {
+                return cached.Image;
+            }
+
+            var image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.UriSource = new Uri(fullPath, UriKind.Absolute);
+            image.EndInit();
+            image.Freeze();
+
+            _wallpaperImageCache[fullPath] = new WallpaperCacheEntry(lastWrite, image);
+            return image;
         }
 
         // ── MONET — colour-adaptive glass (Material-You style) ──────────

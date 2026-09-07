@@ -83,6 +83,9 @@
                                     BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                     ToolTip="{DynamicResource CompanyCenter.ClickToLoadCompany}"
+                                    Focusable="True"
+                                    AutomationProperties.Name="{Binding CompanyName}"
+                                    AutomationProperties.HelpText="Load saved company into editor"
                                     SnapsToDevicePixels="True">
                                 <!-- The WHOLE card is a click target: one click loads the
                                      company into the editor (same command as the Edit
@@ -94,6 +97,14 @@
                                                   Command="{Binding DataContext.SelectCompanyCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                   CommandParameter="{Binding}"/>
+                                    <KeyBinding Key="Return"
+                                                    Command="{Binding DataContext.SelectCompanyCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"/>
+                                    <KeyBinding Key="Space"
+                                                    Command="{Binding DataContext.SelectCompanyCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"/>
                                 </Border.InputBindings>
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -329,6 +340,12 @@
                             </StackPanel>
                         </Grid>
 
+                        <CheckBox Margin="0,14,0,0"
+                                  IsChecked="{Binding IsDefaultCompany, Mode=TwoWay}"
+                                  Content="Use as default company in new proforma invoices"
+                                  FontWeight="SemiBold"
+                                  Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
                         <!-- ══ LOGO & LETTERHEAD — left portrait / top panel · width/height ══
                              Two industrial letterhead layouts are offered
                              (LeftPortrait / TopPanel) plus the text-only fallback. -->
@@ -500,7 +517,7 @@
 
                         <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                             <Button Style="{StaticResource SuccessPillButton}"
-                                    Tag="&#xE74E;" Content="{DynamicResource CompanyCenter.SAVECompany}"
+                                    Tag="&#xE74E;" Content="{Binding SaveButtonText}"
                                     Command="{Binding SaveCompanyCommand}"/>
                         </StackPanel>
 

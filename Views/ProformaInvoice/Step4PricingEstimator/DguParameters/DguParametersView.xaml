@@ -62,7 +62,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Price}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SheetW}" Style="{StaticResource ModuleFieldLabelStyle}"/>
@@ -97,7 +97,7 @@
                             </StackPanel>
                             <StackPanel Grid.Column="4">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SpacerSQM}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
                             </StackPanel>
                         </Grid>
                         <Grid Margin="0,8,0,0">
@@ -113,6 +113,24 @@
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.PanelExtra}" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <ComboBox ItemsSource="{Binding PanelExtraOptions}" SelectedItem="{Binding PanelExtra}" Style="{StaticResource Step4ComboStyle}"/>
+                                <CheckBox Margin="0,6,0,0"
+                                          Content="Combine panel extras"
+                                          IsChecked="{Binding UseCustomPanelExtra, Mode=TwoWay}"
+                                          Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                <TextBox Margin="0,4,0,0"
+                                         Text="{Binding CustomPanelExtra, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Example: With Fanhole and Argon Gas As Per DWG">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource Step4InputStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding UseCustomPanelExtra}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
                             </StackPanel>
                             <StackPanel Grid.Column="4">
                                 <StackPanel.Style>
@@ -126,7 +144,7 @@
                                     </Style>
                                 </StackPanel.Style>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.UInsertSQM}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding UInsertPricePerSqm, StringFormat={}{0:0.##}}"
+                                <TextBox Text="{Binding UInsertPricePerSqm, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource Step4InputStyle}"
                                          ToolTip="{DynamicResource ProformaInvoice.SeparateFabricationChargeSQMForwardedStep6}"/>
                             </StackPanel>
@@ -165,7 +183,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Price}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SheetW}" Style="{StaticResource ModuleFieldLabelStyle}"/>

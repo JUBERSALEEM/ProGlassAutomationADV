@@ -278,16 +278,17 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                         company.LogoWidthMm > 0 ? company.LogoWidthMm : 22;
                     existing.LogoHeightMm =
                         company.LogoHeightMm > 0 ? company.LogoHeightMm : 26;
-
-                    // 2026-09-04: IsDefault is no longer WRITTEN anywhere —
-                    // the default-mark mechanism (checkbox, badge, Step 1
-                    // prefill, clearing loop) is removed. The column stays
-                    // for storage compatibility (no destructive migration);
-                    // legacy values are inert — nothing reads them.
+                    existing.IsDefault = company.IsDefault;
                 }
 
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
+
+                if (!preserveUnsetProfileFields && existing.IsDefault)
+                {
+                    foreach (var other in ctx.Companies.Where(c => c.Id != existing.Id && c.IsDefault))
+                        other.IsDefault = false;
+                }
 
                 await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
 
@@ -309,6 +310,12 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             company.UsageCount = 1;
             company.CreatedAt = now;
             company.LastUsedAt = now;
+
+            if (!preserveUnsetProfileFields && company.IsDefault)
+            {
+                foreach (var other in ctx.Companies.Where(c => c.IsDefault))
+                    other.IsDefault = false;
+            }
 
             ctx.Companies.Add(company);
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
@@ -473,6 +480,12 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
 
+                if (!preserveUnsetProfileFields && existing.IsDefault)
+                {
+                    foreach (var other in ctx.Companies.Where(c => c.Id != existing.Id && c.IsDefault))
+                        other.IsDefault = false;
+                }
+
                 await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 return existing;
             }
@@ -573,6 +586,12 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 existing.LpoNumber = project.LpoNumber;
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
+
+                if (!preserveUnsetProfileFields && existing.IsDefault)
+                {
+                    foreach (var other in ctx.Companies.Where(c => c.Id != existing.Id && c.IsDefault))
+                        other.IsDefault = false;
+                }
 
                 await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 return existing;
@@ -692,6 +711,12 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
+
+                if (!preserveUnsetProfileFields && existing.IsDefault)
+                {
+                    foreach (var other in ctx.Companies.Where(c => c.Id != existing.Id && c.IsDefault))
+                        other.IsDefault = false;
+                }
 
                 await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 return existing;

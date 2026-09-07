@@ -221,6 +221,7 @@ public ProformaInvoiceViewModel() : this(
             Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
             Step6VM.BindStep4Pricing(() => Step4VM.CaptureSectionSnapshots());
             Step6VM.BindLaminationEditors(Step4VM.LamVM, Step4VM.DguLamVM);
+            Step4VM.PropertyChanged += OnStep4PropertyChanged;
 
             Step7VM = new Step7PrintPreview.PrintPreviewViewModel(
                 _dialogs, _invoices, Step1VM, Step2VM, Step3VM, Step5VM, Step6VM);
@@ -340,6 +341,8 @@ public ProformaInvoiceViewModel() : this(
 
             try { Step2VM.PropertyChanged -= OnStep2PropertyChanged; }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
+            try { Step4VM.PropertyChanged -= OnStep4PropertyChanged; }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort Step4 teardown: " + ExceptionMessages.Deep(ex)); }
 
             try { Step8VM.AttachmentUploaded -= OnStep8AttachmentUploaded; }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
@@ -362,6 +365,22 @@ public ProformaInvoiceViewModel() : this(
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
 
             GC.SuppressFinalize(this);
+        }
+
+
+        private void OnStep4PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (CurrentStepNumber < 5)
+                return;
+
+            if (e.PropertyName is nameof(Step4PricingEstimator.PricingEstimatorViewModel.EstimatedRatePerSqm)
+                or nameof(Step4PricingEstimator.PricingEstimatorViewModel.SelectedGlassType)
+                or null
+                or "")
+            {
+                SyncStep5SelectionsFromStep4();
+                Step6VM.RefreshWorkspace();
+            }
         }
 
         private void OnStep2PropertyChanged(object? sender, PropertyChangedEventArgs e)

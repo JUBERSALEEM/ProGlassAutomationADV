@@ -42,6 +42,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         public string Representative { get; set; } = "";
         // IsDefault removed 2026-09-04 (default-mark mechanism deleted).
         public int UsageCount { get; set; }
+        public bool IsDefault { get; set; }
 
         // v3 — branding carried onto the card so the editor hydrates it
         // without a second DB round-trip.
@@ -95,6 +96,10 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         // only way a company lands on an invoice. The DB column is kept
         // (storage-compat, inert); see repository notes.
         private string _status = "";
+        private bool _isDefaultCompany;
+        private bool _isHydratingEditor;
+        private string _lastCleanSignature = "";
+
 
         public string EditorTitle => _editingId == 0
             ? "NEW COMPANY" : "EDIT COMPANY";
@@ -102,22 +107,22 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         public string CompanyName
         {
             get => _name;
-            set { _name = value; OnPropertyChanged(); }
+            set { _name = value; OnPropertyChanged(); MarkDirtyChanged(); }
         }
         public string CompanyTrn
         {
             get => _trn;
-            set { _trn = value; OnPropertyChanged(); }
+            set { _trn = value; OnPropertyChanged(); MarkDirtyChanged(); }
         }
         public string CompanyLocation
         {
             get => _location;
-            set { _location = value; OnPropertyChanged(); }
+            set { _location = value; OnPropertyChanged(); MarkDirtyChanged(); }
         }
         public string LogoPath
         {
             get => _logoPath;
-            set { _logoPath = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasLogo)); }
+            set { _logoPath = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasLogo)); MarkDirtyChanged(); }
         }
         public bool HasLogo => !string.IsNullOrEmpty(_logoPath);
 
@@ -135,6 +140,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 OnPropertyChanged(nameof(IsLeftPortraitLayout));
                 OnPropertyChanged(nameof(IsTopPanelLayout));
                 OnPropertyChanged(nameof(LogoLayoutLabel));
+                MarkDirtyChanged();
             }
         }
 
@@ -172,6 +178,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 _logoWidthMm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(LogoWidthDisplay));
+                MarkDirtyChanged();
             }
         }
 
@@ -185,6 +192,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 _logoHeightMm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(LogoHeightDisplay));
+                MarkDirtyChanged();
             }
         }
 
@@ -211,33 +219,45 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         public string Representative
         {
             get => _representative;
-            set { _representative = value; OnPropertyChanged(); }
+            set { _representative = value; OnPropertyChanged(); MarkDirtyChanged(); }
         }
         public string RepresentativeMobile
         {
             get => _mobile;
-            set { _mobile = value; OnPropertyChanged(); }
+            set { _mobile = value; OnPropertyChanged(); MarkDirtyChanged(); }
         }
         public string CompanyEmail
         {
             get => _email;
-            set { _email = value; OnPropertyChanged(); }
+            set { _email = value; OnPropertyChanged(); MarkDirtyChanged(); }
         }
         public string AccountNumber
         {
             get => _account;
-            set { _account = value; OnPropertyChanged(); }
+            set { _account = value; OnPropertyChanged(); MarkDirtyChanged(); }
         }
         public string BankName
         {
             get => _bank;
-            set { _bank = value; OnPropertyChanged(); }
+            set { _bank = value; OnPropertyChanged(); MarkDirtyChanged(); }
         }
         public string Status
         {
             get => _status;
             private set { _status = value; OnPropertyChanged(); }
         }
+
+        public bool IsDefaultCompany
+        {
+            get => _isDefaultCompany;
+            set { _isDefaultCompany = value; OnPropertyChanged(); MarkDirtyChanged(); }
+        }
+
+        public bool IsEditingExisting => _editingId != 0;
+        public string SaveButtonText => IsEditingExisting ? "UPDATE Company" : "SAVE Company";
+
+        public bool HasUnsavedEditorChanges => !_isHydratingEditor
+            && !string.Equals(CurrentEditorSignature(), _lastCleanSignature, StringComparison.Ordinal);
 
         // ── commands ─────────────────────────────────────────────────
         private string _reasonNote = "";
@@ -251,7 +271,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         public string ReasonNote
         {
             get => _reasonNote;
-            set { _reasonNote = value ?? ""; OnPropertyChanged(); }
+            set { _reasonNote = value ?? ""; OnPropertyChanged(); MarkDirtyChanged(); }
         }
 
         public ICommand NewCompanyCommand { get; private set; }
@@ -312,6 +332,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         LogoLayout = LogoLayout,
                         LogoWidthMm = SanitizedLogoWidthMm,
                         LogoHeightMm = SanitizedLogoHeightMm,
+                        IsDefault = IsDefaultCompany,
                         UsageCount = 1,
                         LastUsedAt = DateTime.Now,
                         CreatedAt = DateTime.Now
@@ -359,6 +380,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
 
                     Status = "Saved ✔ " + entity.CompanyName;
                     ReasonNote = "";
+                    _lastCleanSignature = CurrentEditorSignature();
                     BeginEdit(null);
                     await LoadAsync();
                 }
@@ -367,6 +389,9 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                     Status = "Save failed: " + ExceptionMessages.Deep(ex);
                 }
             });
+
+            _lastCleanSignature = CurrentEditorSignature();
+            RaiseEditorStateChanged();
 
             DeleteCompanyCommand = new RelayCommand(async p =>
             {
@@ -439,6 +464,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             Compare("Email", before.CompanyEmail, after.CompanyEmail);
             Compare("Account", before.AccountNumber, after.AccountNumber);
             Compare("Bank", before.BankName, after.BankName);
+            Compare("Default company", before.IsDefault ? "Yes" : "No", after.IsDefault ? "Yes" : "No");
             return changes;
         }
 
@@ -465,6 +491,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         LogoPath = c.LogoPath ?? "",
                         Representative = c.Representative ?? "",
                         UsageCount = c.UsageCount,
+                        IsDefault = c.IsDefault,
                         LogoLayout = c.LogoLayout,
                         LogoWidthMm = c.LogoWidthMm > 0 ? c.LogoWidthMm : 22,
                         LogoHeightMm = c.LogoHeightMm > 0 ? c.LogoHeightMm : 26
@@ -479,23 +506,40 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
 
         private void BeginEdit(CompanyCard? card)
         {
-            _editingId = card?.Id ?? 0;
-            CompanyName = card?.CompanyName ?? "";
-            CompanyTrn = card?.CompanyTrn ?? "";
-            CompanyLocation = card?.CompanyLocation ?? "";
-            LogoPath = card?.LogoPath ?? "";
-            Representative = card?.Representative ?? "";
-            RepresentativeMobile = "";
-            CompanyEmail = "";
-            AccountNumber = "";
-            BankName = "";
-            // Branding: card carries it; new records start with the
-            // industrial defaults (text-only until the operator adds a logo).
-            LogoLayout = card?.LogoLayout ?? CompanyLogoLayout.None;
-            LogoWidthMm = card != null && card.LogoWidthMm > 0 ? card.LogoWidthMm : 22;
-            LogoHeightMm = card != null && card.LogoHeightMm > 0 ? card.LogoHeightMm : 26;
-            // mark-to-use-in-invoice removed 2026-09-04: no IsDefault hydration.
-            OnPropertyChanged(nameof(EditorTitle));
+            if (card != null && card.Id == _editingId)
+                return;
+
+            if (!ConfirmDiscardUnsavedChanges(card))
+                return;
+
+            _isHydratingEditor = true;
+            try
+            {
+                _editingId = card?.Id ?? 0;
+                CompanyName = card?.CompanyName ?? "";
+                CompanyTrn = card?.CompanyTrn ?? "";
+                CompanyLocation = card?.CompanyLocation ?? "";
+                LogoPath = card?.LogoPath ?? "";
+                Representative = card?.Representative ?? "";
+                RepresentativeMobile = "";
+                CompanyEmail = "";
+                AccountNumber = "";
+                BankName = "";
+                IsDefaultCompany = card?.IsDefault ?? _companies.Count == 0;
+                // Branding: card carries it; new records start with the
+                // industrial defaults (text-only until the operator adds a logo).
+                LogoLayout = card?.LogoLayout ?? CompanyLogoLayout.None;
+                LogoWidthMm = card != null && card.LogoWidthMm > 0 ? card.LogoWidthMm : 22;
+                LogoHeightMm = card != null && card.LogoHeightMm > 0 ? card.LogoHeightMm : 26;
+                ReasonNote = "";
+            }
+            finally
+            {
+                _isHydratingEditor = false;
+            }
+
+            _lastCleanSignature = CurrentEditorSignature();
+            RaiseEditorStateChanged();
 
             // When editing, hydrate the remaining profile fields.
             if (card != null && _masterData != null)
@@ -505,6 +549,48 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
 
             foreach (var c in _companies)
                 c.IsSelected = c.Id == _editingId && _editingId != 0;
+        }
+
+
+        private bool ConfirmDiscardUnsavedChanges(CompanyCard? target)
+        {
+            if (!HasUnsavedEditorChanges)
+                return true;
+
+            string targetName = target?.CompanyName ?? "a new company";
+            var result = _dialogs.Show(
+                $"You have unsaved company changes. Discard them and load {targetName}?",
+                "Unsaved company changes",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Warning);
+            return result == System.Windows.MessageBoxResult.Yes;
+        }
+
+        private string CurrentEditorSignature() => string.Join("\u001f", new[]
+        {
+            _editingId.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            CompanyName ?? "", CompanyTrn ?? "", CompanyLocation ?? "",
+            LogoPath ?? "", Representative ?? "", RepresentativeMobile ?? "",
+            CompanyEmail ?? "", AccountNumber ?? "", BankName ?? "",
+            LogoLayout.ToString(),
+            SanitizedLogoWidthMm.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture),
+            SanitizedLogoHeightMm.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture),
+            IsDefaultCompany ? "1" : "0",
+            ReasonNote ?? ""
+        });
+
+        private void MarkDirtyChanged()
+        {
+            if (_isHydratingEditor) return;
+            OnPropertyChanged(nameof(HasUnsavedEditorChanges));
+        }
+
+        private void RaiseEditorStateChanged()
+        {
+            OnPropertyChanged(nameof(EditorTitle));
+            OnPropertyChanged(nameof(IsEditingExisting));
+            OnPropertyChanged(nameof(SaveButtonText));
+            OnPropertyChanged(nameof(HasUnsavedEditorChanges));
         }
 
         private async System.Threading.Tasks.Task HydrateAsync(int id)
@@ -524,6 +610,9 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 LogoLayout = entity.LogoLayout;
                 if (entity.LogoWidthMm > 0) LogoWidthMm = entity.LogoWidthMm;
                 if (entity.LogoHeightMm > 0) LogoHeightMm = entity.LogoHeightMm;
+                IsDefaultCompany = entity.IsDefault;
+                _lastCleanSignature = CurrentEditorSignature();
+                RaiseEditorStateChanged();
             }
             catch (System.Exception ex)
             {

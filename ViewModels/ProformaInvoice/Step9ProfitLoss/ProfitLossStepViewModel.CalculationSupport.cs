@@ -86,18 +86,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     rows, ref productionCost, ref uInsertInProduction,
                     charge, billedCoverage);
 
-            // ══════════════════════════════════════════════════════════════
-            //  STEP 6 WASTAGE COSTS NOW FLOW INTO STEP 9 — PER SPEC, PER SIDE
-            //
-            //  Wastage was deliberately excluded while sheet optimization was
-            //  unimplemented. It is a real cost the business enters in
-            //  Step 6 (outer + inner per specification), so excluding it
-            //  overstated profit. Each active wastage row is split across its
-            //  checked sources (Spec → Outer / Inner / Lam sides) in SQM
-            //  proportion, so the OUTER and INNER quantities appear per spec
-            //  and the P&L total reconciles exactly with the Step 6 row.
-            // ══════════════════════════════════════════════════════════════
-            AppendWastageCostRows(rows, ref productionCost);
+            // 2026-09-07 business rule: Step 6 wastage is a quotation/support
+            // setup only and must NOT create Profit & Loss cost rows. Clear
+            // glass wastage is also excluded unconditionally (advanced on/off
+            // does not matter). P&L keeps material usage/sheet optimisation in
+            // its own sheet-cost model and avoids double-counting Step 6.
 
             if (_otherChargesVm.UseAdvancedAutomation)
                 AppendAdvancedSuggestedCharges(
@@ -112,91 +105,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     custom.Unit.ToString().ToUpperInvariant());
         }
 
-        /// <summary>
-        /// Adds one Step 9 cost line per checked wastage source
-        /// (specification side: outer / inner / lam outer / lam inner).
-        /// The Step 6 row's total is allocated across its checked sources by
-        /// SQM share so the two screens always reconcile to the penny.
-        /// </summary>
-        private void AppendWastageCostRows(
-            List<ProfitLossRow> rows,
-            ref decimal productionCost)
-        {
-            var wastage = _otherChargesVm?.WastagesSection?.WastageRows;
-            if (wastage == null) return;
-
-            foreach (var row in wastage)
-            {
-                if (row == null || !row.IsActive) continue;
-                if (row.ResultAmount <= 0m) continue;
-
-                var sources = row.AvailableSources
-                    .Where(s => s != null && s.IsChecked && s.SqmValue > 0m)
-                    .ToList();
-
-                if (sources.Count == 0) continue;
-
-                decimal totalSqm = row.TotalSqm;
-                if (totalSqm <= 0m) continue;
-
-                // The row's Rate is its effective per-SQM cost in BOTH modes:
-                // manual mode keeps the typed rate, optimization mode stores
-                // the calculated BaseResultValue. The Step 6 total is
-                // rate × combined SQM × sheet quantity, so each source line
-                // reuses the same rate with its own costed SQM.
-                decimal ratePerSqm = row.Rate;
-                decimal remaining = row.ResultAmount;
-
-                for (int i = 0; i < sources.Count; i++)
-                {
-                    var src = sources[i];
-
-                    // Last source absorbs the rounding residue so Σ amounts
-                    // equals the Step 6 total exactly.
-                    decimal amount = i == sources.Count - 1
-                        ? Math.Round(remaining, 2)
-                        : Math.Round(row.ResultAmount * (src.SqmValue / totalSqm), 2);
-
-                    if (amount <= 0m)
-                    {
-                        remaining -= amount;
-                        continue;
-                    }
-
-                    remaining -= amount;
-
-                    decimal sourceSqm = Math.Round(src.SqmValue, 2);
-                    decimal costedSqm = Math.Round(
-                        sourceSqm * row.SheetQuantity, 2);
-
-                    string side = src.SideLabel ?? "Side";
-                    string color = string.IsNullOrWhiteSpace(src.ColorName)
-                        ? ""
-                        : $" · {src.ColorName}";
-
-                    string specName = FindSpecName(src.SpecNumber);
-                    string kind = "Wastage";
-
-                    rows.Add(new ProfitLossRow
-                    {
-                        Kind = kind,
-                        SpecNumber = src.SpecNumber,
-                        SpecName = specName,
-                        Description = PnLMeasurement.BuildRowDescription(
-                            FindSpecGroup(src.SpecNumber),
-                            $"Wastage · {side}{color}",
-                            $"{sourceSqm:0.###} SQM"),
-                        Quantity = costedSqm,
-                        PricePerSqm = ratePerSqm,
-                        UnitLabel = "SQM",
-                        Amount = amount
-                    });
-
-                    productionCost += amount;
-                }
-            }
-        }
-
         private void AppendPredefinedChargeRows(
             List<ProfitLossRow> rows,
             ref decimal productionCost,
@@ -204,6 +112,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             Models.ProformaInvoice.Step6OtherCharges.OtherChargeRow charge,
             HashSet<string> billedCoverage)
         {
+            if (IsExcludedSupplementalPnLCharge(charge.TemplateKey))
+                return;
+
             if (charge.IsDeliveryRow)
             {
                 AppendInvoiceWideCharge(rows, ref productionCost,
@@ -286,6 +197,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         suggestion.TemplateKey,
                         group.GroupNumber);
                     if (billedCoverage.Contains(coverageKey))
+                        continue;
+
+                    if (IsExcludedSupplementalPnLCharge(suggestion.TemplateKey))
                         continue;
 
                     var charge = _otherChargesVm.ChargeRows.FirstOrDefault(r =>
@@ -534,6 +448,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 "SILICON_BED_SQM" => "SILICON_BED",
                 _ => (templateKey ?? string.Empty).Trim().ToUpperInvariant()
             };
+        }
+
+
+        private static bool IsExcludedSupplementalPnLCharge(string? templateKey)
+        {
+            // Argon / fan holes / cutouts / holes are commercial add-ons that
+            // belong in Step 6 / the quoted DGU specification text. Do not pull
+            // them into Step 9 as standalone profit-loss cost lines unless a
+            // future dedicated production-cost model is introduced.
+            string key = (templateKey ?? string.Empty).Trim().ToUpperInvariant();
+            return key is "ARGON_GAS" or "FAN_HOLES" or "CUTOUT" or "HOLES" or "COUNTERSUNK_HOLES";
         }
 
         private static string BuildChargeKind(string? label)

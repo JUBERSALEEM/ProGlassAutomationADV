@@ -504,6 +504,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                         CompanyEmail = c.CompanyEmail ?? "",
                         AccountNumber = c.AccountNumber ?? "",
                         BankName = c.BankName ?? "",
+                        IsDefault = c.IsDefault,
                         LogoLayout = c.LogoLayout,
                         LogoWidthMm = c.LogoWidthMm > 0 ? c.LogoWidthMm : 22,
                         LogoHeightMm = c.LogoHeightMm > 0 ? c.LogoHeightMm : 26,
@@ -518,13 +519,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 
                 RebuildVisibleCards();
 
-                // 2026-09-04 (reverses F-3 by explicit user direction):
-                // default-company adoption REMOVED. A new invoice no
-                // longer inherits a module-marked "default" — with the
-                // complete field-level hard link to the Company module,
-                // the selected company is the only authority; a silent
-                // inherited default could put the WRONG legal entity on a
-                // money document without anyone noticing.
+                // 2026-09-07: new proforma invoices now adopt the Company
+                // module's saved default (or the most-used company when no
+                // explicit default exists). This keeps Step 1 legally populated
+                // by default while still letting the operator pick another card.
+                if (!HasLoadedProfile && string.IsNullOrWhiteSpace(CompanyName))
+                {
+                    var defaultProfile = _allCompanyCards.FirstOrDefault(c => c.IsDefault)
+                        ?? _allCompanyCards.FirstOrDefault();
+                    if (defaultProfile != null)
+                        LoadProfile(defaultProfile);
+                }
             }
             catch (Exception ex)
             {

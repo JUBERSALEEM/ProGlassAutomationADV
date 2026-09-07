@@ -11,6 +11,8 @@
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.ViewModels;
+using System;
+using System.Windows.Threading;
 
 namespace ProGlassAutomation.ViewModels.Settings
 {
@@ -21,12 +23,25 @@ namespace ProGlassAutomation.ViewModels.Settings
         public string Label { get; }
 
                 private readonly AppConfig _config = null!;
+        private readonly DispatcherTimer _opacityApplyDebouncer;
+        private bool _pendingOpacityApply;
 
-public ModuleWallpaperRow(string key, string label, AppConfig? config)
+        public ModuleWallpaperRow(string key, string label, AppConfig? config)
         {
             _config = config!;
             Key = key;
             Label = label;
+            _opacityApplyDebouncer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(40)
+            };
+            _opacityApplyDebouncer.Tick += (_, _) =>
+            {
+                _opacityApplyDebouncer.Stop();
+                if (!_pendingOpacityApply) return;
+                _pendingOpacityApply = false;
+                Refresh();
+            };
         }
 
         private ModuleWallpaperSettings Settings()
@@ -71,7 +86,7 @@ public ModuleWallpaperRow(string key, string label, AppConfig? config)
             {
                 Settings().Opacity = value;
                 Save();
-                Refresh();
+                DebounceRefresh();
                 OnPropertyChanged();
             }
         }
@@ -109,6 +124,13 @@ public ModuleWallpaperRow(string key, string label, AppConfig? config)
         /// Re-layer the wallpaper of whichever module is on screen
         /// right now, so changes are visible immediately.
         /// </summary>
+        private void DebounceRefresh()
+        {
+            _pendingOpacityApply = true;
+            _opacityApplyDebouncer.Stop();
+            _opacityApplyDebouncer.Start();
+        }
+
         private void Refresh() =>
             VisualThemeEngine.ApplyModule(
                 VisualThemeEngine.LastRequestedModule,

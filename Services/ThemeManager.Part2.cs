@@ -29,6 +29,11 @@ namespace ProGlassAutomation.Services
             if (resources == null) return;
 
             resources["CardBorderThickness"] = new Thickness(thickness);
+            if (!_definedOutline)
+            {
+                resources["CardEdgeThickness"] = new Thickness(thickness);
+                ApplyCardEdgePaddingResources(thickness);
+            }
         }
 
         /// <summary>
@@ -58,7 +63,21 @@ namespace ProGlassAutomation.Services
             var resources = Application.Current?.Resources;
             if (resources == null) return;
 
-            resources["CardEdgeThickness"] = new Thickness(thickness);
+            var effective = _definedOutline ? thickness : _cardBorderThickness;
+            resources["CardEdgeThickness"] = new Thickness(effective);
+            ApplyCardEdgePaddingResources(effective);
+        }
+
+        private static void ApplyCardEdgePaddingResources(double effectiveEdgeThickness)
+        {
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
+            double extra = Math.Max(0, effectiveEdgeThickness - 2.0);
+            resources["CardEdgePaddingBase"] = new Thickness(24 + extra);
+            resources["CardEdgePaddingStat"] = new Thickness(18 + extra, 16 + extra, 18 + extra, 16 + extra);
+            resources["CardEdgePaddingTask"] = new Thickness(18 + extra, 14 + extra, 18 + extra, 14 + extra);
+            resources["CardEdgePaddingList"] = new Thickness(16 + extra, 12 + extra, 16 + extra, 12 + extra);
         }
 
         /// <summary>Re-applies the saved card-edge weight after a theme swap.</summary>

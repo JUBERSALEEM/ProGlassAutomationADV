@@ -842,6 +842,12 @@ namespace ProGlassAutomation.Services
             }
 
             FreezeAndSet(resources, "OutlineBrush", edge);
+            // The ON/OFF switch controls the visible edge weight too. Keep the
+            // user's 1-100 DIP slider value stored, but collapse cards back to
+            // the normal subtle card border thickness while OFF.
+            double effectiveEdge = defined ? _cardEdgeThickness : _cardBorderThickness;
+            resources["CardEdgeThickness"] = new Thickness(effectiveEdge);
+            ApplyCardEdgePaddingResources(effectiveEdge);
 
             // 2026-09-07 — "Define Card Edges" now reaches EVERY card.
             // Base/Task/Stat/Section/Tile/Soft/Dash cards all bind
@@ -850,11 +856,8 @@ namespace ProGlassAutomation.Services
             // one colour). When the toggle is OFF the Glass* tokens are
             // deliberately left alone so the active visual family keeps its
             // own authored edge (industrial slate, crystal white, cream soft).
-            if (defined)
-            {
-                FreezeAndSet(resources, "GlassBorderSoft", edge);
-                FreezeAndSet(resources, "GlassBorderGradientCrystal", edge);
-            }
+            FreezeAndSet(resources, "GlassBorderSoft", edge);
+            FreezeAndSet(resources, "GlassBorderGradientCrystal", edge);
         }
 
         /// <summary>

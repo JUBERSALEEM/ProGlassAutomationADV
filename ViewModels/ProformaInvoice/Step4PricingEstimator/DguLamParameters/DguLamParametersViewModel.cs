@@ -183,8 +183,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         public string PanelExtra
         {
             get => _panelExtra;
-            set { if (_panelExtra == value) return; _panelExtra = value; Changed(); }
+            set { if (_panelExtra == value) return; _panelExtra = value; Changed(); OnPropertyChanged(nameof(EffectivePanelExtra)); }
         }
+
+        private bool _useCustomPanelExtra;
+        public bool UseCustomPanelExtra
+        {
+            get => _useCustomPanelExtra;
+            set { if (_useCustomPanelExtra == value) return; _useCustomPanelExtra = value; Changed(); OnPropertyChanged(nameof(EffectivePanelExtra)); }
+        }
+
+        private string _customPanelExtra = "With Fanhole and Argon Gas As Per DWG";
+        public string CustomPanelExtra
+        {
+            get => _customPanelExtra;
+            set { if (_customPanelExtra == value) return; _customPanelExtra = value ?? string.Empty; Changed(); OnPropertyChanged(nameof(EffectivePanelExtra)); }
+        }
+
+        public string EffectivePanelExtra => UseCustomPanelExtra
+            ? (CustomPanelExtra ?? string.Empty).Trim()
+            : (PanelExtra ?? string.Empty).Trim();
 
         private string _edgePolish = "None";
         public string EdgePolish
@@ -561,7 +579,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 string interlayer = $"{InterlayerThickness} {InterlayerColor} {InterlayerType}";
 
                 string lamInner = $"{LamInnerThickness} {LamInnerColor} {LamInnerTreatment} Glass";
-                if (Has(PanelExtra)) lamInner += $" {PanelExtra}";
+                if (Has(EffectivePanelExtra)) lamInner += $" {EffectivePanelExtra}";
 
                 string spec = $"{outer} + {spacer} + {lamOuter} + {interlayer} + {lamInner}";
 

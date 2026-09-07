@@ -31,6 +31,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         public string CompanyEmail { get; set; } = "";
         public string AccountNumber { get; set; } = "";
         public string BankName { get; set; } = "";
+        public bool IsDefault { get; set; }
 
         // v3 — logo placement carried from the Company Center record.
         public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;

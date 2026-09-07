@@ -510,15 +510,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 return null;
 
             var snapshot = sections[group.GroupNumber - 1];
-            if (snapshot == null
-                || string.IsNullOrWhiteSpace(snapshot.GeneratedSpecName)
-                || string.IsNullOrWhiteSpace(group.SelectedSpecName)
-                || !string.Equals(snapshot.GeneratedSpecName, group.SelectedSpecName,
-                    StringComparison.OrdinalIgnoreCase))
+            if (snapshot == null)
+                return null;
+
+            bool namesMatch = !string.IsNullOrWhiteSpace(snapshot.GeneratedSpecName)
+                && !string.IsNullOrWhiteSpace(group.SelectedSpecName)
+                && string.Equals(snapshot.GeneratedSpecName, group.SelectedSpecName,
+                    StringComparison.OrdinalIgnoreCase);
+            bool groupStillOwnedByStep4 = !group.HasManualStep5SpecOverride
+                && !group.HasManualStep5GlassTypeOverride;
+            if (!namesMatch && !groupStillOwnedByStep4)
             {
                 // The group was manually pointed at another catalog spec. Do
                 // not leak the indexed Step 4 section's sheet/rate metadata
-                // into that unrelated source.
+                // into that unrelated source. Step-4-owned groups are allowed
+                // to use the indexed live snapshot even while Step 5 is still
+                // catching up to an edited generated name.
                 return null;
             }
 
@@ -543,13 +550,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 return;
 
             string type = (effectiveGlassType ?? string.Empty).Trim().ToUpperInvariant();
-            string color = (source.ColorName ?? string.Empty).Trim();
-
             if (type == "SGU")
             {
                 var sgu = snapshot.Sgu ?? new SguPricingPanelSnapshot();
-                ApplyIfMatch(source, color, sgu.GlassColor,
-                    sgu.SheetWidthMm, sgu.SheetHeightMm,
+                ApplyMetadata(source, sgu.SheetWidthMm, sgu.SheetHeightMm,
                     sgu.BasePricePerSqm);
                 return;
             }
@@ -558,8 +562,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             {
                 var dgu = snapshot.Dgu ?? new DguPricingPanelSnapshot();
                 bool inner = source.SemanticSideLabel == "Inner";
-                ApplyIfMatch(source, color,
-                    inner ? dgu.InnerGlassColor : dgu.OuterGlassColor,
+                ApplyMetadata(source,
                     inner ? dgu.InnerSheetWidthMm : dgu.OuterSheetWidthMm,
                     inner ? dgu.InnerSheetHeightMm : dgu.OuterSheetHeightMm,
                     inner ? dgu.InnerBasePrice : dgu.OuterBasePrice);
@@ -570,8 +573,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             {
                 var lam = snapshot.Lam ?? new LamPricingPanelSnapshot();
                 bool inner = source.SemanticSideLabel == "Inner";
-                ApplyIfMatch(source, color,
-                    inner ? lam.InnerGlassColor : lam.OuterGlassColor,
+                ApplyMetadata(source,
                     inner ? lam.InnerSheetWidthMm : lam.OuterSheetWidthMm,
                     inner ? lam.InnerSheetHeightMm : lam.OuterSheetHeightMm,
                     inner ? lam.InnerBasePrice : lam.OuterBasePrice);
@@ -584,62 +586,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
                 if (source.SemanticSideLabel == "Lam Inner")
                 {
-                    ApplyIfMatch(source, color, dguLam.LamInnerColor,
-                        0, 0, dguLam.LamInnerBasePrice);
+                    ApplyMetadata(source, 0, 0, dguLam.LamInnerBasePrice);
                 }
                 else if (source.SemanticSideLabel == "Lam Outer")
                 {
-                    ApplyIfMatch(source, color, dguLam.LamOuterColor,
-                        0, 0, dguLam.LamOuterBasePrice);
+                    ApplyMetadata(source, 0, 0, dguLam.LamOuterBasePrice);
                 }
                 else
                 {
-                    ApplyIfMatch(source, color, dguLam.OuterGlassColor,
-                        0, 0, dguLam.OuterBasePrice);
+                    ApplyMetadata(source, 0, 0, dguLam.OuterBasePrice);
                 }
             }
-        }
-
-        private static void ApplyIfMatch(
-            SpecGroupColorSide source,
-            string sourceColor,
-            string? candidateColor,
-            int width,
-            int height,
-            decimal price)
-        {
-            if (!ColorsMatch(sourceColor, candidateColor))
-                return;
-
-            ApplyMetadata(source, width, height, price);
-        }
-
-        private static void ApplyMetadata(
-            SpecGroupColorSide source,
-            int width,
-            int height,
-            decimal price)
-        {
-            if (width > 0)
-                source.SheetWidthMm = width;
-            if (height > 0)
-                source.SheetHeightMm = height;
-            if (price > 0m)
-                source.PricePerSqm = price;
-        }
-
-        private static bool ColorsMatch(string? left, string? right)
-        {
-            string normalizedLeft = (left ?? string.Empty).Trim();
-            string normalizedRight = (right ?? string.Empty).Trim();
-
-            // Empty strings are not a colour match. Treating blank == blank as
-            // a match let an unresolved source borrow arbitrary Step 4 sheet
-            // metadata simply because both sides happened to be empty.
-            return normalizedLeft.Length > 0
-                && normalizedRight.Length > 0
-                && string.Equals(normalizedLeft, normalizedRight,
-                    StringComparison.OrdinalIgnoreCase);
         }
 
         /// <summary>
