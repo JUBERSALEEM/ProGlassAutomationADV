@@ -59,7 +59,8 @@
              model's emoji StatusIcon is never rendered.
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="TiRecentInvoiceTemplate">
-            <Border Margin="0,0,0,8"
+            <Border Style="{StaticResource IndustrialDashboardRowCardStyle}"
+                    Margin="0,0,0,8"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="12,10"
                     Cursor="Hand"
@@ -170,7 +171,8 @@
              not exactly 260px wide.
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="TiAgingRowTemplate">
-            <Border Margin="0,0,0,10"
+            <Border Style="{StaticResource IndustrialDashboardRowCardStyle}"
+                    Margin="0,0,0,10"
                     Padding="12,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True"
@@ -238,7 +240,8 @@
              model's medal emoji.
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="TiTopCustomerTemplate">
-            <Border BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="{DynamicResource Border.HairlineThickness}" Margin="0,0,0,10"
+            <Border Style="{StaticResource IndustrialDashboardRowCardStyle}"
+                    BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="{DynamicResource Border.HairlineThickness}" Margin="0,0,0,10"
                     Padding="12,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True"
@@ -327,7 +330,7 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="20,16,20,20">
+            <Grid Margin="{StaticResource IndustrialDashboardPageMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -425,7 +428,7 @@
                         <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
+                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}"
                             Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
@@ -434,7 +437,8 @@
                                 <TextBlock Text="{DynamicResource Dashboard.InvoicedVATPaidPending}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
-                            <ItemsControl ItemsSource="{Binding KpiTiles}"
+                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding KpiTiles}"
                                           ItemTemplate="{StaticResource SoftKpiTileTemplate}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -445,7 +449,7 @@
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
+                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Dashboard.AgeingMix}"
@@ -461,7 +465,7 @@
                     </Border>
 
                     <StackPanel Grid.Column="2">
-                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,18" Padding="16,12">
+                        <Border Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Overdue}"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -480,7 +484,7 @@
                                            Style="{StaticResource SoftKpiFootStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SoftCardStyle}" Padding="16,12">
+                        <Border Style="{StaticResource IndustrialDashboardCardStyle}" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Dashboard.OverdueAED}"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -504,7 +508,7 @@
                         <ColumnDefinition Width="1.2*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
+                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.RevenueTrend}"
@@ -514,7 +518,7 @@
                                            HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid>
-                                <Border Style="{StaticResource SoftChartWellStyle}"
+                                <Border Style="{StaticResource IndustrialDashboardChartWellStyle}"
                                         Visibility="{Binding HasRevenueData,
                                             Converter={StaticResource BoolToVisibilityConverter}}">
                                     <trend:TrendChartControl
@@ -541,7 +545,7 @@
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
+                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.RecentInvoices}"
@@ -556,7 +560,8 @@
                                           behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           Visibility="{Binding HasRecentInvoices,
                                               Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl ItemsSource="{Binding RecentInvoices}"
+                                <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding RecentInvoices}"
                                               ItemTemplate="{StaticResource TiRecentInvoiceTemplate}"/>
                             </ScrollViewer>
                             <Border Padding="0,40"
@@ -580,7 +585,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
+                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.TopCustomers}"
@@ -594,7 +599,8 @@
                                           HorizontalScrollBarVisibility="Disabled"
                                           Visibility="{Binding HasTopCustomers,
                                               Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl ItemsSource="{Binding TopCustomers}"
+                                <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding TopCustomers}"
                                               ItemTemplate="{StaticResource TiTopCustomerTemplate}"/>
                             </ScrollViewer>
                             <Border Padding="0,30"
@@ -610,7 +616,7 @@
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}" Margin="18,0,0,0">
+                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="18,0,0,0">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.AgeingBrackets}"
@@ -624,7 +630,8 @@
                                           HorizontalScrollBarVisibility="Disabled"
                                           Visibility="{Binding HasAgingData,
                                               Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl ItemsSource="{Binding AgingBrackets}"
+                                <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding AgingBrackets}"
                                               ItemTemplate="{StaticResource TiAgingRowTemplate}"/>
                             </ScrollViewer>
                             <Border Padding="0,30"

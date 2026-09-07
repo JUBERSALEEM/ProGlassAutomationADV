@@ -153,7 +153,7 @@ namespace ProGlassAutomation.Controls.TrendChart
         {
             var primary = SeriesBrush ?? Res("AccentBrush", Brushes.SteelBlue);
             var end = SeriesEndBrush;
-            if (end == null || primary is not SolidColorBrush sb)
+            if (end == null || primary is not SolidColorBrush sb || end is not SolidColorBrush eb)
                 return primary;
 
             return new LinearGradientBrush
@@ -163,7 +163,7 @@ namespace ProGlassAutomation.Controls.TrendChart
                 GradientStops =
                 {
                     new GradientStop(sb.Color, 0.0),
-                    new GradientStop(((SolidColorBrush)end).Color, 1.0)
+                    new GradientStop(eb.Color, 1.0)
                 }
             };
         }
@@ -460,27 +460,74 @@ namespace ProGlassAutomation.Controls.TrendChart
         private void DrawBars(Brush series, double slot, double baseline)
         {
             // Bar width leaves a gap either side; capped so a 3-point
-            // series does not render slabs.
-            double barW = Math.Min(38, Math.Max(6, slot * 0.55));
+            // series does not render slabs. The side highlight and foot
+            // shadow give the dashboard a modern dimensional/3D read
+            // without using an expensive Effect on every bar.
+            double barW = Math.Min(42, Math.Max(7, slot * 0.58));
+            var highlightBrush = Res("OnAccentForegroundBrush", Brushes.White);
+            var shadowBrush = Res("PrimaryForegroundBrush", Brushes.Black);
 
             foreach (var p in _points)
             {
                 double h = Math.Max(1, baseline - p.Y);
+                double left = p.X - barW / 2;
+
+                var footShadow = new Rectangle
+                {
+                    Width = barW + 6,
+                    Height = 5,
+                    RadiusX = 3,
+                    RadiusY = 3,
+                    Fill = shadowBrush,
+                    Opacity = 0.10,
+                    SnapsToDevicePixels = true
+                };
+                Canvas.SetLeft(footShadow, left - 3);
+                Canvas.SetTop(footShadow, baseline - 3);
+                SeriesLayer.Children.Add(footShadow);
 
                 var r = new Rectangle
                 {
                     Width = barW,
                     Height = h,
                     Fill = series,
-                    RadiusX = 4,
-                    RadiusY = 4,
+                    RadiusX = 5,
+                    RadiusY = 5,
                     SnapsToDevicePixels = true
                 };
 
-                Canvas.SetLeft(r, p.X - barW / 2);
+                Canvas.SetLeft(r, left);
                 Canvas.SetTop(r, p.Y);
                 SeriesLayer.Children.Add(r);
                 p.Visual = r;
+
+                if (h > 12)
+                {
+                    var shine = new Rectangle
+                    {
+                        Width = Math.Max(2, barW * 0.28),
+                        Height = Math.Max(1, h - 7),
+                        RadiusX = 3,
+                        RadiusY = 3,
+                        Fill = highlightBrush,
+                        Opacity = 0.18,
+                        SnapsToDevicePixels = true
+                    };
+                    Canvas.SetLeft(shine, left + 3);
+                    Canvas.SetTop(shine, p.Y + 4);
+                    SeriesLayer.Children.Add(shine);
+
+                    if (ShouldAnimate)
+                    {
+                        shine.BeginAnimation(OpacityProperty, new DoubleAnimation
+                        {
+                            From = 0,
+                            To = 0.18,
+                            Duration = TimeSpan.FromMilliseconds(520),
+                            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                        });
+                    }
+                }
 
                 if (ShouldAnimate)
                 {
@@ -490,7 +537,7 @@ namespace ProGlassAutomation.Controls.TrendChart
                     {
                         From = 0,
                         To = h,
-                        Duration = TimeSpan.FromMilliseconds(420),
+                        Duration = TimeSpan.FromMilliseconds(480),
                         EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
                     });
 
@@ -498,35 +545,37 @@ namespace ProGlassAutomation.Controls.TrendChart
                     {
                         From = baseline,
                         To = p.Y,
-                        Duration = TimeSpan.FromMilliseconds(420),
+                        Duration = TimeSpan.FromMilliseconds(480),
                         EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
                     };
                     r.BeginAnimation(Canvas.TopProperty, top);
+
+                    footShadow.BeginAnimation(OpacityProperty, new DoubleAnimation
+                    {
+                        From = 0,
+                        To = 0.10,
+                        Duration = TimeSpan.FromMilliseconds(540),
+                        EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                    });
                 }
             }
         }
 
         private void DrawLine(Brush series, bool fillArea)
         {
-            var figure = new PathFigure { StartPoint = new Point(_points[0].X, _points[0].Y) };
-            for (int i = 1; i < _points.Count; i++)
-                figure.Segments.Add(new LineSegment(new Point(_points[i].X, _points[i].Y), true));
-
-            var geo = new PathGeometry();
-            geo.Figures.Add(figure);
+            var geo = BuildSmoothLineGeometry();
 
             if (fillArea)
             {
                 double baseY = _plotH;
-                var af = new PathFigure { StartPoint = new Point(_points[0].X, baseY) };
-                af.Segments.Add(new LineSegment(new Point(_points[0].X, _points[0].Y), true));
-                for (int i = 1; i < _points.Count; i++)
-                    af.Segments.Add(new LineSegment(new Point(_points[i].X, _points[i].Y), true));
-                af.Segments.Add(new LineSegment(new Point(_points[^1].X, baseY), true));
-                af.IsClosed = true;
+                var area = BuildSmoothLineFigure();
+                area.Segments.Insert(0, new LineSegment(new Point(_points[0].X, _points[0].Y), true));
+                area.StartPoint = new Point(_points[0].X, baseY);
+                area.Segments.Add(new LineSegment(new Point(_points[^1].X, baseY), true));
+                area.IsClosed = true;
 
                 var ageo = new PathGeometry();
-                ageo.Figures.Add(af);
+                ageo.Figures.Add(area);
 
                 SeriesLayer.Children.Add(new Path
                 {
@@ -537,11 +586,24 @@ namespace ProGlassAutomation.Controls.TrendChart
                 });
             }
 
+            var glow = new Path
+            {
+                Data = geo,
+                Stroke = series,
+                StrokeThickness = 6,
+                StrokeLineJoin = PenLineJoin.Round,
+                StrokeStartLineCap = PenLineCap.Round,
+                StrokeEndLineCap = PenLineCap.Round,
+                Opacity = 0.16,
+                IsHitTestVisible = false
+            };
+            SeriesLayer.Children.Add(glow);
+
             var line = new Path
             {
                 Data = geo,
                 Stroke = series,
-                StrokeThickness = 2,
+                StrokeThickness = 2.4,
                 StrokeLineJoin = PenLineJoin.Round,
                 StrokeStartLineCap = PenLineCap.Round,
                 StrokeEndLineCap = PenLineCap.Round
@@ -553,12 +615,14 @@ namespace ProGlassAutomation.Controls.TrendChart
             {
                 var dot = new Ellipse
                 {
-                    Width = 6,
-                    Height = 6,
-                    Fill = series
+                    Width = 7,
+                    Height = 7,
+                    Fill = series,
+                    Stroke = Res("WindowBackgroundBrush", Brushes.White),
+                    StrokeThickness = 1.5
                 };
-                Canvas.SetLeft(dot, p.X - 3);
-                Canvas.SetTop(dot, p.Y - 3);
+                Canvas.SetLeft(dot, p.X - 3.5);
+                Canvas.SetTop(dot, p.Y - 3.5);
                 SeriesLayer.Children.Add(dot);
                 p.Visual = dot;
             }
@@ -569,9 +633,53 @@ namespace ProGlassAutomation.Controls.TrendChart
                 {
                     From = 0,
                     To = 1,
-                    Duration = TimeSpan.FromMilliseconds(380)
+                    Duration = TimeSpan.FromMilliseconds(420),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
                 });
             }
+        }
+
+        private PathGeometry BuildSmoothLineGeometry()
+        {
+            var geo = new PathGeometry();
+            geo.Figures.Add(BuildSmoothLineFigure());
+            return geo;
+        }
+
+        private PathFigure BuildSmoothLineFigure()
+        {
+            var figure = new PathFigure { StartPoint = new Point(_points[0].X, _points[0].Y) };
+            if (_points.Count == 1)
+                return figure;
+
+            if (_points.Count == 2)
+            {
+                figure.Segments.Add(new LineSegment(new Point(_points[1].X, _points[1].Y), true));
+                return figure;
+            }
+
+            var curves = new PointCollection();
+            for (int i = 0; i < _points.Count - 1; i++)
+            {
+                var p0 = i == 0 ? _points[i] : _points[i - 1];
+                var p1 = _points[i];
+                var p2 = _points[i + 1];
+                var p3 = i + 2 < _points.Count ? _points[i + 2] : p2;
+
+                var c1 = new Point(
+                    p1.X + (p2.X - p0.X) / 6.0,
+                    p1.Y + (p2.Y - p0.Y) / 6.0);
+                var c2 = new Point(
+                    p2.X - (p3.X - p1.X) / 6.0,
+                    p2.Y - (p3.Y - p1.Y) / 6.0);
+
+                curves.Add(c1);
+                curves.Add(c2);
+                curves.Add(new Point(p2.X, p2.Y));
+            }
+
+            figure.Segments.Add(new PolyBezierSegment(curves, true));
+            return figure;
         }
 
         // ═════════════════════════════════════════════════════════════

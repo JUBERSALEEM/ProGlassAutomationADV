@@ -22,7 +22,7 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="20,16,20,20">
+            <Grid Margin="{StaticResource IndustrialDashboardPageMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -88,7 +88,7 @@
                         <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
+                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}"
                             Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
@@ -97,7 +97,8 @@
                                 <TextBlock Text="{DynamicResource Dashboard.NotesPendingPcsReturns}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
-                            <ItemsControl ItemsSource="{Binding KpiCards}"
+                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding KpiCards}"
                                           ItemTemplate="{StaticResource SoftKpiCardTemplate}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
@@ -108,7 +109,7 @@
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
+                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Dashboard.DeliveryMix}"
@@ -123,7 +124,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}">
+                    <Border Grid.Column="2" Style="{StaticResource IndustrialDashboardCardStyle}">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.Type}"
@@ -131,7 +132,7 @@
                                 <TextBlock Text="{DynamicResource Dashboard.DummySplitMaster}"
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
-                            <Border Style="{StaticResource SoftChartWellStyle}">
+                            <Border Style="{StaticResource IndustrialDashboardChartWellStyle}">
                                 <trend:TrendChartControl
                                     Points="{Binding TypeBars}"
                                     SeriesKind="Bar"
@@ -153,7 +154,7 @@
                         <ColumnDefinition Width="1.2*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
+                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.StatusDistribution}"
@@ -163,7 +164,7 @@
                                            HorizontalAlignment="Right"/>
                             </Grid>
                             <Grid>
-                                <Border Style="{StaticResource SoftChartWellStyle}"
+                                <Border Style="{StaticResource IndustrialDashboardChartWellStyle}"
                                         Visibility="{Binding HasStatusData,
                                             Converter={StaticResource BoolToVisibilityConverter}}">
                                     <trend:TrendChartControl
@@ -189,7 +190,7 @@
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
+                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.RecentDeliveries}"
@@ -204,7 +205,8 @@
                                           behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           Visibility="{Binding HasRecentFeed,
                                               Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl ItemsSource="{Binding RecentFeed}"
+                                <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding RecentFeed}"
                                               ItemTemplate="{StaticResource SoftFeedRowTemplate}"/>
                             </ScrollViewer>
                             <Border Padding="0,40"

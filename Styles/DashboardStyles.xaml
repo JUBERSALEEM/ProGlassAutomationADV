@@ -962,6 +962,51 @@
         </Border>
     </DataTemplate>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         INDUSTRIAL DASHBOARD 2026 PASS
+
+         These keys are intentionally structural, not a skin-only patch:
+         every dashboard page uses the same page margin, deep card shell,
+         minimum card height, stretch containers and chart wells so lower
+         generated detail cards fill the available width instead of
+         floating as narrow cards under cards.
+    ═══════════════════════════════════════════════════════════════ -->
+    <Thickness x:Key="IndustrialDashboardPageMargin">18,14,18,18</Thickness>
+    <Thickness x:Key="IndustrialDashboardCardPadding">18,15</Thickness>
+
+    <Style x:Key="IndustrialDashboardCardStyle" TargetType="Border"
+           BasedOn="{StaticResource SoftCardStyle}">
+        <Setter Property="Padding" Value="{StaticResource IndustrialDashboardCardPadding}"/>
+        <Setter Property="MinHeight" Value="118"/>
+        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
+    </Style>
+
+    <Style x:Key="IndustrialDashboardChartWellStyle" TargetType="Border"
+           BasedOn="{StaticResource SoftChartWellStyle}">
+        <Setter Property="MinHeight" Value="210"/>
+        <Setter Property="Padding" Value="12"/>
+        <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
+    </Style>
+
+    <Style x:Key="IndustrialDashboardFeedItemsStyle" TargetType="ItemsControl">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="IndustrialDashboardRowCardStyle" TargetType="Border"
+           BasedOn="{StaticResource SoftInsetStyle}">
+        <Setter Property="Margin" Value="0,0,0,10"/>
+        <Setter Property="Padding" Value="14,12"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.StrongThickness}"/>
+        <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
+    </Style>
+
     <!-- KPI row host: equal columns, reference's 10px gutter handled by
          the card margin below. UniformGrid keeps columns equal at any
          width, which is what makes the row read as one band.
@@ -980,7 +1025,8 @@
          on the Overview dashboard they read as coloured bands rather than
          cards. Same accent keyline and weight as every other card. -->
     <DataTemplate x:Key="SoftFeedRowTemplate">
-        <Border Background="{Binding TintColor,
+        <Border Style="{StaticResource IndustrialDashboardRowCardStyle}"
+                Background="{Binding TintColor,
                              Converter={StaticResource BrushKeyConverter}}"
                 BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
                 BorderThickness="{DynamicResource Border.StrongThickness}"

@@ -23,7 +23,7 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="20,16,20,20">
+            <Grid Margin="{StaticResource IndustrialDashboardPageMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -168,7 +168,7 @@
                         </Grid>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
+                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Dashboard.DeliveryMix}"
@@ -184,7 +184,7 @@
                     </Border>
 
                     <StackPanel Grid.Column="2">
-                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,18" Padding="16,12">
+                        <Border Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Dashboard.Production}"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -193,7 +193,7 @@
                                            Foreground="{DynamicResource InfoBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,18" Padding="16,12">
+                        <Border Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Overdue}"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -210,7 +210,7 @@
                                 </TextBlock>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SoftCardStyle}" Padding="16,12">
+                        <Border Style="{StaticResource IndustrialDashboardCardStyle}" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Dashboard.PendingPCS}"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -230,7 +230,7 @@
                         <ColumnDefinition Width="1.2*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
+                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.RevenueTrend}"
@@ -239,7 +239,7 @@
                                            Style="{StaticResource SoftMetaStyle}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
-                            <Border Style="{StaticResource SoftChartWellStyle}">
+                            <Border Style="{StaticResource IndustrialDashboardChartWellStyle}">
                                 <trend:TrendChartControl
                                     Points="{Binding MonthlySalesBars}"
                                     SeriesKind="Bar"
@@ -253,7 +253,7 @@
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
+                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}">
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Dashboard.RecentDocuments}"
                                        Style="{StaticResource SoftSectionTitleStyle}"
@@ -274,7 +274,8 @@
                                           behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           Focusable="False"
                                           FocusVisualStyle="{x:Null}">
-                                <ItemsControl ItemsSource="{Binding RecentActivity}"
+                                <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding RecentActivity}"
                                               ItemTemplate="{StaticResource SoftFeedRowTemplate}"/>
                             </ScrollViewer>
                         </DockPanel>
@@ -294,26 +295,29 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
+                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,18,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Nav.GroupSales}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
-                            <ItemsControl ItemsSource="{Binding SalesTiles}"
+                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding SalesTiles}"
                                           ItemTemplate="{StaticResource SoftKpiTileTemplate}"
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
+                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Module.Production}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
-                            <ItemsControl ItemsSource="{Binding ProductionTiles}"
+                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding ProductionTiles}"
                                           ItemTemplate="{StaticResource SoftKpiTileTemplate}"
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}" Margin="18,0,0,0">
+                    <Border Grid.Column="2" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="18,0,0,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Module.SheetStore}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
-                            <ItemsControl ItemsSource="{Binding InventoryTiles}"
+                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding InventoryTiles}"
                                           ItemTemplate="{StaticResource SoftKpiTileTemplate}"
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
                         </StackPanel>
@@ -321,10 +325,11 @@
                     <!-- Delivery KPIs — same shared template and panel as the
                          other three, so this adds a card without adding any
                          new hardcoded tile markup. -->
-                    <Border Grid.Column="3" Style="{StaticResource SoftCardStyle}" Margin="18,0,0,0">
+                    <Border Grid.Column="3" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="18,0,0,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Nav.Delivery}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
-                            <ItemsControl ItemsSource="{Binding DeliveryTiles}"
+                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                          ItemsSource="{Binding DeliveryTiles}"
                                           ItemTemplate="{StaticResource SoftKpiTileTemplate}"
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
                         </StackPanel>
