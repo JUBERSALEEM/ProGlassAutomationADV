@@ -144,7 +144,7 @@
                     <TextBlock Text="SHEET PROFITABILITY ANALYSIS"
                                FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="Buy sheet = used sheet + wastage (leftover). The Step 6 wastage charge is cross-checked per pane."
+                    <TextBlock Text="Simple order: alerts first, sheet totals second, detailed pane/sheet rows after. Buy sheet = used sheet + wastage."
                                FontSize="{StaticResource TextCaption}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap" Margin="0,2,0,0"/>
@@ -210,6 +210,8 @@
                 </StackPanel>
             </Border>
 
+            <TextBlock Text="MAIN RESULT — SHEET QUANTITY, WASTAGE AND EFFICIENCY"
+                       Style="{StaticResource SheetSectionLabel}" Margin="0,8,0,8"/>
             <!-- ═══ KPI STRIP (4 × 2, uniform cards) ═══ -->
             <Grid>
                 <Grid.RowDefinitions>
@@ -297,8 +299,10 @@
                 </Border>
             </Grid>
 
+            <TextBlock Text="SECONDARY CHECK — MONEY RECONCILIATION"
+                       Style="{StaticResource SheetSectionLabel}" Margin="0,16,0,8"/>
             <!-- ═══ SHEET PRICE RECONCILIATION — OVERALL REPORT ═══ -->
-            <Border Style="{StaticResource SheetCardStyle}" Margin="0,16,0,0">
+            <Border Style="{StaticResource SheetCardStyle}" Margin="0,0,0,0">
                 <StackPanel>
                     <TextBlock Text="SHEET PRICE RECONCILIATION — OVERALL REPORT" Style="{StaticResource SheetCaptionStyle}"/>
                     <Grid Margin="0,10,0,0">

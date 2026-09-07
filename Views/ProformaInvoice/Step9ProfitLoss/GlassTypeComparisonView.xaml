@@ -1,6 +1,6 @@
 <!--
     Glass Type Comparison View - Separate Tab for Strategic Analysis
-    
+
     Shows:
     - DGU (Double Glazed Unit) profitability
     - SGU (Single Glazed Unit) profitability
@@ -16,7 +16,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="1000">
-    
+
     <UserControl.Resources>
         <!-- Header style -->
         <Style x:Key="HeaderStyle" TargetType="TextBlock">
@@ -25,7 +25,7 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
         </Style>
-        
+
         <!-- Subheader style -->
         <Style x:Key="SubheaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
@@ -33,28 +33,28 @@
             <Setter Property="Margin" Value="0,0,0,16"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
-        
+
         <!-- KPI card style -->
         <Style x:Key="KpiCardStyle" TargetType="Border" BasedOn="{StaticResource ErpKpiSurfaceStyle}">
 
             <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="0,0,8,0"/>
         </Style>
-        
+
         <!-- KPI label style -->
         <Style x:Key="KpiLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
-        
+
         <!-- KPI value style -->
         <Style x:Key="KpiValueStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         </Style>
-        
+
         <!-- Table header style -->
         <Style x:Key="TableHeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
@@ -62,7 +62,7 @@
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Padding" Value="8,6"/>
         </Style>
-        
+
         <!-- Table cell style -->
         <Style x:Key="TableCellStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
@@ -70,7 +70,7 @@
             <Setter Property="Padding" Value="8,8"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
-        
+
         <!-- Best performer row style -->
         <Style x:Key="BestPerformerRowStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background" Value="Transparent"/>
@@ -83,7 +83,7 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-        
+
         <!-- Recommendation box style -->
         <Style x:Key="RecommendationBoxStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -102,7 +102,7 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
-    
+
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -111,7 +111,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
+
         <!-- Header -->
         <Grid Grid.Row="0" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
@@ -120,7 +120,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock Text="GLASS TYPE COMPARISON" Style="{StaticResource HeaderStyle}"/>
-                <TextBlock Text="Compare profitability across glass types (DGU, SGU, LAM, DGU+LAM) to make strategic decisions about which products to promote." 
+                <TextBlock Text="Extra strategy view: totals first, product comparison table second, recommendation last."
                            Style="{StaticResource SubheaderStyle}"/>
             </StackPanel>
             <!-- Export toolbar (multi-generation report output) -->
@@ -130,9 +130,11 @@
                 <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ExportToolbarButton}" ToolTip="Export this analysis as PDF."/>
             </StackPanel>
         </Grid>
-        
-        <!-- KPI Cards -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+
+        <!-- Main result first -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,16">
+            <TextBlock Text="MAIN RESULT — PRODUCT TYPE TOTALS" Style="{StaticResource KpiLabelStyle}" FontWeight="Bold" Margin="0,0,0,8"/>
+            <StackPanel Orientation="Horizontal">
             <!-- Total Revenue -->
             <Border Style="{StaticResource KpiCardStyle}" Width="180">
                 <StackPanel>
@@ -140,7 +142,7 @@
                     <TextBlock Text="{Binding TotalRevenueDisplay}" Style="{StaticResource KpiValueStyle}"/>
                 </StackPanel>
             </Border>
-            
+
             <!-- Total Cost -->
             <Border Style="{StaticResource KpiCardStyle}" Width="180">
                 <StackPanel>
@@ -148,7 +150,7 @@
                     <TextBlock Text="{Binding TotalCostDisplay}" Style="{StaticResource KpiValueStyle}"/>
                 </StackPanel>
             </Border>
-            
+
             <!-- Total Profit -->
             <Border Style="{StaticResource KpiCardStyle}" Width="180">
                 <StackPanel>
@@ -166,7 +168,7 @@
                     </TextBlock>
                 </StackPanel>
             </Border>
-            
+
             <!-- Overall Margin -->
             <Border Style="{StaticResource KpiCardStyle}" Width="180">
                 <StackPanel>
@@ -184,19 +186,20 @@
                     </TextBlock>
                 </StackPanel>
             </Border>
-            
+
             <!-- Refresh Button -->
-            <Button Content="REFRESH" 
+            <Button Content="REFRESH"
                     Command="{Binding RefreshCommand}"
                     Width="120"
                     Height="40"
                     Margin="16,0,0,0"
                     VerticalAlignment="Center"
                     Style="{StaticResource PrimaryPillButton}"/>
+            </StackPanel>
         </StackPanel>
-        
+
         <!-- Glass Type Comparison Table -->
-        <Border Grid.Row="2" 
+        <Border Grid.Row="2"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
@@ -207,9 +210,9 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                
+
                 <!-- Table Header -->
-                <Border Grid.Row="0" 
+                <Border Grid.Row="0"
                         Background="{DynamicResource AccentBrush}"
                         CornerRadius="{DynamicResource Radius.Top.Medium}"
                         Padding="8">
@@ -224,7 +227,7 @@
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="1.2*"/>
                         </Grid.ColumnDefinitions>
-                        
+
                         <TextBlock Grid.Column="0" Text="GLASS TYPE" Style="{StaticResource TableHeaderStyle}"/>
                         <TextBlock Grid.Column="1" Text="JOBS" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="2" Text="AREA" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
@@ -235,7 +238,7 @@
                         <TextBlock Grid.Column="7" Text="STATUS" Style="{StaticResource TableHeaderStyle}"/>
                     </Grid>
                 </Border>
-                
+
                 <!-- Table Rows -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding GlassTypeRows}">
@@ -253,40 +256,40 @@
                                             <ColumnDefinition Width="1*"/>
                                             <ColumnDefinition Width="1.2*"/>
                                         </Grid.ColumnDefinitions>
-                                        
+
                                         <!-- Glass Type -->
-                                        <TextBlock Grid.Column="0" 
-                                                   Text="{Binding GlassType}" 
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding GlassType}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    FontWeight="Bold"/>
-                                        
+
                                         <!-- Job Count -->
-                                        <TextBlock Grid.Column="1" 
-                                                   Text="{Binding JobCountDisplay}" 
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding JobCountDisplay}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
-                                        
+
                                         <!-- Total Area -->
-                                        <TextBlock Grid.Column="2" 
-                                                   Text="{Binding TotalAreaDisplay}" 
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding TotalAreaDisplay}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
-                                        
+
                                         <!-- Total Revenue -->
-                                        <TextBlock Grid.Column="3" 
-                                                   Text="{Binding TotalRevenueDisplay}" 
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding TotalRevenueDisplay}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
-                                        
+
                                         <!-- Total Cost -->
-                                        <TextBlock Grid.Column="4" 
-                                                   Text="{Binding TotalCostDisplay}" 
+                                        <TextBlock Grid.Column="4"
+                                                   Text="{Binding TotalCostDisplay}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
-                                        
+
                                         <!-- Total Profit -->
-                                        <TextBlock Grid.Column="5" 
-                                                   Text="{Binding TotalProfitDisplay}" 
+                                        <TextBlock Grid.Column="5"
+                                                   Text="{Binding TotalProfitDisplay}"
                                                    HorizontalAlignment="Right"
                                                    FontWeight="SemiBold">
                                             <TextBlock.Style>
@@ -300,10 +303,10 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        
+
                                         <!-- Margin % -->
-                                        <TextBlock Grid.Column="6" 
-                                                   Text="{Binding MarginDisplay}" 
+                                        <TextBlock Grid.Column="6"
+                                                   Text="{Binding MarginDisplay}"
                                                    HorizontalAlignment="Right"
                                                    FontWeight="Bold">
                                             <TextBlock.Style>
@@ -317,9 +320,9 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        
+
                                         <!-- Status -->
-                                        <TextBlock Grid.Column="7" 
+                                        <TextBlock Grid.Column="7"
                                                    FontWeight="SemiBold">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource TableCellStyle}">
@@ -342,15 +345,15 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-                
+
                 <!-- Empty State -->
-                <Border Grid.Row="1" 
+                <Border Grid.Row="1"
                         Visibility="{Binding GlassTypeRows.Count, Converter={StaticResource CountToVisibilityConverter}}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Padding="32">
                     <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="No glass types found" 
+                        <TextBlock Text="No glass types found"
                                    FontSize="{StaticResource TextSection}"
                                    FontWeight="SemiBold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -415,37 +418,37 @@
                 </Border>
             </Grid>
         </Border>
-        
+
         <!-- Recommendation Box -->
         <Border Grid.Row="3" Style="{StaticResource RecommendationBoxStyle}"
                 Visibility="{Binding Recommendation, Converter={StaticResource StringToVisibilityConverter}}">
             <StackPanel>
-                <TextBlock Text="STRATEGIC RECOMMENDATION" 
+                <TextBlock Text="STRATEGIC RECOMMENDATION"
                            FontSize="{StaticResource TextCaption}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource AccentBrush}"
                            Margin="0,0,0,8"/>
-                <TextBlock Text="{Binding Recommendation}" 
+                <TextBlock Text="{Binding Recommendation}"
                            FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                            TextWrapping="Wrap"/>
             </StackPanel>
         </Border>
-        
+
         <!-- Status Bar -->
         <Border Grid.Row="4" Margin="0,8,0,0">
-            <TextBlock Text="{Binding StatusMessage}" 
+            <TextBlock Text="{Binding StatusMessage}"
                        FontSize="{StaticResource TextXSmall}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        TextWrapping="Wrap"/>
         </Border>
-        
+
         <!-- Loading Overlay -->
-        <Border Grid.RowSpan="5" 
+        <Border Grid.RowSpan="5"
                 Background="{DynamicResource LiquidOverlayBrush}"
                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="Analyzing..." 
+                <TextBlock Text="Analyzing..."
                            FontSize="{StaticResource TextSection}"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource OnAccentForegroundBrush}"

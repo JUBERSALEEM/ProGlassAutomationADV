@@ -1,6 +1,6 @@
 <!--
     Service Profitability View - Separate Tab for Detailed Service Analysis
-    
+
     Shows breakdown of profit by service type:
     - Glass margin (buying vs selling)
     - Spacer/ASP service (DGU only)
@@ -8,7 +8,7 @@
     - Tempering service (SGU only)
     - PVB interlayer service (LAM only)
     - U-insert service
-    
+
     Each service shows:
     - Charge (what customer pays)
     - Cost (actual cost)
@@ -22,7 +22,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="1000">
-    
+
     <UserControl.Resources>
         <!-- Header style -->
         <Style x:Key="HeaderStyle" TargetType="TextBlock">
@@ -31,7 +31,7 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
         </Style>
-        
+
         <!-- Subheader style -->
         <Style x:Key="SubheaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
@@ -39,28 +39,28 @@
             <Setter Property="Margin" Value="0,0,0,16"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
-        
+
         <!-- KPI card style -->
         <Style x:Key="KpiCardStyle" TargetType="Border" BasedOn="{StaticResource ErpKpiSurfaceStyle}">
 
             <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="0,0,8,0"/>
         </Style>
-        
+
         <!-- KPI label style -->
         <Style x:Key="KpiLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
-        
+
         <!-- KPI value style -->
         <Style x:Key="KpiValueStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         </Style>
-        
+
         <!-- Table header style -->
         <Style x:Key="TableHeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
@@ -68,7 +68,7 @@
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Padding" Value="8,6"/>
         </Style>
-        
+
         <!-- Table cell style -->
         <Style x:Key="TableCellStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
@@ -76,7 +76,7 @@
             <Setter Property="Padding" Value="8,8"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
-        
+
         <!-- Profitable row style -->
         <Style x:Key="ProfitableRowStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background" Value="Transparent"/>
@@ -95,7 +95,7 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
     </UserControl.Resources>
-    
+
     <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -103,7 +103,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
+
         <!-- Header -->
         <Grid Grid.Row="0" Margin="0,0,0,16">
             <Grid.ColumnDefinitions>
@@ -112,7 +112,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock Text="SERVICE PROFITABILITY ANALYSIS" Style="{StaticResource HeaderStyle}"/>
-                <TextBlock Text="Detailed breakdown of profit by service type. Shows which services are profitable and which are losing money." 
+                <TextBlock Text="Simple order: service totals first, then detailed service rows, then recommendation/status. Use this after the Overview decision."
                            Style="{StaticResource SubheaderStyle}"/>
             </StackPanel>
             <!-- Export toolbar (multi-generation report output) -->
@@ -122,9 +122,11 @@
                 <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ServiceExportButton}" ToolTip="Export this analysis as PDF."/>
             </StackPanel>
         </Grid>
-        
-        <!-- KPI Cards -->
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+
+        <!-- Main result first -->
+        <StackPanel Grid.Row="1" Margin="0,0,0,16">
+            <TextBlock Text="MAIN RESULT — SERVICE TOTALS" Style="{StaticResource KpiLabelStyle}" FontWeight="Bold" Margin="0,0,0,8"/>
+            <StackPanel Orientation="Horizontal">
             <!-- Total Service Charge -->
             <Border Style="{StaticResource KpiCardStyle}" Width="200">
                 <StackPanel>
@@ -132,7 +134,7 @@
                     <TextBlock Text="{Binding TotalServiceChargeDisplay}" Style="{StaticResource KpiValueStyle}"/>
                 </StackPanel>
             </Border>
-            
+
             <!-- Total Service Profit -->
             <Border Style="{StaticResource KpiCardStyle}" Width="200">
                 <StackPanel>
@@ -150,7 +152,7 @@
                     </TextBlock>
                 </StackPanel>
             </Border>
-            
+
             <!-- Overall Service Margin -->
             <Border Style="{StaticResource KpiCardStyle}" Width="200">
                 <StackPanel>
@@ -168,19 +170,20 @@
                     </TextBlock>
                 </StackPanel>
             </Border>
-            
+
             <!-- Refresh Button -->
-            <Button Content="REFRESH" 
+            <Button Content="REFRESH"
                     Command="{Binding RefreshCommand}"
                     Width="120"
                     Height="40"
                     Margin="16,0,0,0"
                     VerticalAlignment="Center"
                     Style="{StaticResource PrimaryPillButton}"/>
+            </StackPanel>
         </StackPanel>
-        
-        <!-- Service Breakdown Table -->
-        <Border Grid.Row="2" 
+
+        <!-- Extra details after the main result -->
+        <Border Grid.Row="2"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
@@ -191,9 +194,9 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                
+
                 <!-- Table Header -->
-                <Border Grid.Row="0" 
+                <Border Grid.Row="0"
                         Background="{DynamicResource AccentBrush}"
                         CornerRadius="{DynamicResource Radius.Top.Medium}"
                         Padding="8">
@@ -208,7 +211,7 @@
                             <ColumnDefinition Width="1.2*"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
-                        
+
                         <TextBlock Grid.Column="0" Text="SPEC" Style="{StaticResource TableHeaderStyle}"/>
                         <TextBlock Grid.Column="1" Text="SERVICE" Style="{StaticResource TableHeaderStyle}"/>
                         <TextBlock Grid.Column="2" Text="DESCRIPTION" Style="{StaticResource TableHeaderStyle}"/>
@@ -219,7 +222,7 @@
                         <TextBlock Grid.Column="7" Text="MARGIN %" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
-                
+
                 <!-- Table Rows -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding ServiceBreakdown}">
@@ -237,47 +240,47 @@
                                             <ColumnDefinition Width="1.2*"/>
                                             <ColumnDefinition Width="1*"/>
                                         </Grid.ColumnDefinitions>
-                                        
+
                                         <!-- Spec Name -->
-                                        <TextBlock Grid.Column="0" 
-                                                   Text="{Binding SpecName}" 
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding SpecName}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{DynamicResource AccentBrush}"/>
-                                        
+
                                         <!-- Service Name -->
-                                        <TextBlock Grid.Column="1" 
-                                                   Text="{Binding ServiceName}" 
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding ServiceName}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    FontWeight="SemiBold"/>
-                                        
+
                                         <!-- Description -->
-                                        <TextBlock Grid.Column="2" 
-                                                   Text="{Binding Description}" 
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding Description}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    TextWrapping="Wrap"/>
-                                        
+
                                         <!-- Area -->
-                                        <TextBlock Grid.Column="3" 
-                                                   Text="{Binding AreaDisplay}" 
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding AreaDisplay}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
-                                        
+
                                         <!-- Charge -->
-                                        <TextBlock Grid.Column="4" 
-                                                   Text="{Binding ChargeDisplay}" 
+                                        <TextBlock Grid.Column="4"
+                                                   Text="{Binding ChargeDisplay}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
-                                        
+
                                         <!-- Cost -->
-                                        <TextBlock Grid.Column="5" 
-                                                   Text="{Binding CostDisplay}" 
+                                        <TextBlock Grid.Column="5"
+                                                   Text="{Binding CostDisplay}"
                                                    Style="{StaticResource TableCellStyle}"
                                                    HorizontalAlignment="Right"/>
-                                        
+
                                         <!-- Profit -->
-                                        <TextBlock Grid.Column="6" 
-                                                   Text="{Binding ProfitDisplay}" 
+                                        <TextBlock Grid.Column="6"
+                                                   Text="{Binding ProfitDisplay}"
                                                    HorizontalAlignment="Right"
                                                    FontWeight="SemiBold">
                                             <TextBlock.Style>
@@ -291,10 +294,10 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        
+
                                         <!-- Margin % -->
-                                        <TextBlock Grid.Column="7" 
-                                                   Text="{Binding MarginDisplay}" 
+                                        <TextBlock Grid.Column="7"
+                                                   Text="{Binding MarginDisplay}"
                                                    HorizontalAlignment="Right"
                                                    FontWeight="Bold">
                                             <TextBlock.Style>
@@ -314,15 +317,15 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-                
+
                 <!-- Empty State -->
-                <Border Grid.Row="1" 
+                <Border Grid.Row="1"
                         Visibility="{Binding ServiceBreakdown.Count, Converter={StaticResource CountToVisibilityConverter}}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Padding="32">
                     <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="No services found" 
+                        <TextBlock Text="No services found"
                                    FontSize="{StaticResource TextSection}"
                                    FontWeight="SemiBold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -387,20 +390,20 @@
                 </Border>
             </Grid>
         </Border>
-        
+
         <!-- Status Bar -->
         <Border Grid.Row="3" Margin="0,8,0,0">
-            <TextBlock Text="{Binding StatusMessage}" 
+            <TextBlock Text="{Binding StatusMessage}"
                        FontSize="{StaticResource TextXSmall}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
         </Border>
-        
+
         <!-- Loading Overlay -->
-        <Border Grid.RowSpan="4" 
+        <Border Grid.RowSpan="4"
                 Background="{DynamicResource LiquidOverlayBrush}"
                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="Analyzing..." 
+                <TextBlock Text="Analyzing..."
                            FontSize="{StaticResource TextSection}"
                            FontWeight="SemiBold"
                            Foreground="{DynamicResource OnAccentForegroundBrush}"
