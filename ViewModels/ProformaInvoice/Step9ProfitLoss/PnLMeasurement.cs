@@ -26,9 +26,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             yieldFactor <= 0m ? 1m : yieldFactor;
 
         /// <summary>
-        /// Totals physical cut area (SQM) and perimeter (linear metres) for
-        /// every priced row in a spec group. Uses the single authoritative
-        /// physical panel area (no billable floor) from SqmCalculator.
+        /// Totals billable cut area (SQM) and perimeter (linear metres) for
+        /// every priced row in a spec group. Step 5 charges every panel with
+        /// the 0.5 m² minimum floor, so Step 9 must use the same billable
+        /// SQM source of truth instead of raw width × height / 1,000,000.
         /// </summary>
         public static (decimal CutSqm, decimal PerimeterLm) MeasureGroup(
             SpecGroup group)
@@ -46,14 +47,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 int qty = row.Qty > 0 ? row.Qty : 0;
                 if (qty == 0) continue;
 
-                // Phase 5/11: single authoritative physical panel area (no
-                // billable floor) from SqmCalculator - identical formula.
-                decimal area = SqmCalculator
-                    .CalculatePhysicalPanelArea(row.W1, row.H1);
+                // Step 5's SQM boxes use CalculatePanel(), including the
+                // UAE glass-industry 0.5 m² minimum per panel. P&L charges
+                // (glass, spacer, production) must reconcile to those same
+                // billable Step 5 SQM values, not raw physical cut area.
+                decimal area = SqmCalculator.CalculatePanel(row.W1, row.H1);
 
                 if (row.W2 > 0 && row.H2 > 0)
-                    area += SqmCalculator
-                        .CalculatePhysicalPanelArea(row.W2, row.H2);
+                    area += SqmCalculator.CalculatePanel(row.W2, row.H2);
 
                 cutSqm += area * qty;
 

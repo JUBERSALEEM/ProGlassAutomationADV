@@ -45,6 +45,7 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Export.Core;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -445,6 +446,120 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 decimal wastageValueSum = 0m;
                 decimal step6ChargeSum = 0m;
 
+                var step6HandledSources = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                void AddSheetRow(SheetProfitRow row)
+                {
+                    SheetBreakdown.Add(row);
+
+                    if (row.HasShortfall)
+                        ShortfallMessages.Add($"{row.SpecName} · {row.PaneSide} — {row.DiagnosticMessage}");
+                    else if (row.HasChargeWithoutWastage || row.HasWastageWithoutCharge)
+                        ReviewMessages.Add($"{row.SpecName} · {row.PaneSide} — {row.DiagnosticMessage}");
+
+                    buySheetsSum += row.BuySheets;
+                    usedSheetsSum += row.UsedSheets;
+                    wastageSheetsSum += Math.Max(0m, row.WastageSheets);
+                    buyAreaSum += row.BuySheetArea;
+                    usedAreaSum += row.UsedArea;
+                    buyPriceSum += row.BuySheetPrice;
+                    usedPriceSum += row.UsedSheetPrice;
+                    wastageValueSum += row.WastageValue;
+                    step6ChargeSum += row.Step6Charge;
+                }
+
+                // Senior ERP rule: the Sheet Details tab must be driven by
+                // the Step 6 WASTAGE CHARGE SETUP whenever it exists. That
+                // setup is where the operator chose the pane source, the
+                // sheet size, the exact sheet quantity and the optimization
+                // percentage. The Step 9 P&L glass rows are only a fallback
+                // for panes that do not yet have a Step 6 setup source.
+                var setupRows = _parentViewModel._otherChargesVm?.WastagesSection?.WastageRows;
+                if (setupRows != null)
+                {
+                    foreach (var setup in setupRows)
+                    {
+                        if (setup == null || setup.SheetQuantity <= 0) continue;
+
+                        var sources = setup.AvailableSources
+                            .Where(s => s != null && s.IsChecked)
+                            .ToList();
+                        if (sources.Count == 0) continue;
+
+                        decimal totalSourceSqm = sources.Sum(s => s.SqmValue);
+                        if (totalSourceSqm <= 0m)
+                            totalSourceSqm = setup.TotalSqm;
+
+                        foreach (var src in sources)
+                        {
+                            if (src.SheetWidthMm <= 0 || src.SheetHeightMm <= 0)
+                                continue;
+
+                            decimal sheetSqm = SqmCalculator.CalculateSheetArea(
+                                src.SheetWidthMm, src.SheetHeightMm);
+                            if (sheetSqm <= 0m) continue;
+
+                            decimal unitRate = src.PricePerSqm > 0m
+                                ? src.PricePerSqm
+                                : setup.FormulaPricePerSqm;
+
+                            decimal buySheets = setup.SheetQuantity;
+                            decimal usedSheets = setup.SheetQuantity;
+                            decimal buySheetArea = Math.Round(buySheets * sheetSqm, 4);
+                            decimal utilizationPercent = setup.OptimizationPercent > 0m
+                                ? setup.OptimizationPercent
+                                : buySheetArea > 0m && src.SqmValue > 0m
+                                    ? Math.Min(100m, Math.Round(src.SqmValue / buySheetArea * 100m, 2))
+                                    : 0m;
+
+                            decimal usedArea = utilizationPercent > 0m
+                                ? Math.Round(buySheetArea * utilizationPercent / 100m, 4)
+                                : src.SqmValue;
+                            decimal wastageArea = buySheetArea - usedArea;
+
+                            decimal buySheetPrice = Math.Round(buySheetArea * unitRate, 2);
+                            decimal usedSheetPrice = Math.Round(usedArea * unitRate, 2);
+                            decimal wastageValue = Math.Max(0m, buySheetPrice - usedSheetPrice);
+                            decimal charge = setup.IsActive && setup.ResultAmount > 0m && totalSourceSqm > 0m
+                                ? Math.Round(setup.ResultAmount * (src.SqmValue / totalSourceSqm), 2)
+                                : 0m;
+                            string diagnostic = charge > 0m || wastageArea <= 0m
+                                ? "Step 6 wastage setup source — bought and used sheet quantity both read from Step 6."
+                                : "Step 6 setup is present, but no active wastage charge is posted for the leftover area.";
+
+                            string key = SheetSourceKey(src.SpecNumber, src.SideLabel);
+                            step6HandledSources.Add(key);
+
+                            AddSheetRow(new SheetProfitRow
+                            {
+                                SpecName = src.SpecName,
+                                SpecNumber = src.SpecNumber,
+                                GlassTypeLabel = FamilyLabelFor(src.SpecName),
+                                PaneSide = src.SemanticSideLabel,
+                                SheetSize = $"{src.SheetWidthMm} × {src.SheetHeightMm} mm",
+                                SheetSqm = sheetSqm,
+                                BuySheets = buySheets,
+                                UsedSheets = usedSheets,
+                                WastageSheets = 0m,
+                                BuySheetArea = buySheetArea,
+                                UsedArea = usedArea,
+                                WastageArea = wastageArea,
+                                PricePerSqm = unitRate,
+                                BuySheetPrice = buySheetPrice,
+                                UsedSheetPrice = usedSheetPrice,
+                                WastageValue = wastageValue,
+                                Step6Charge = charge,
+                                Step6SourceLabel = src.DisplayLabel,
+                                Step6SourceSqm = src.SqmValue,
+                                Step6SheetQuantity = setup.SheetQuantity,
+                                Step6Rate = setup.Rate,
+                                UsageEfficiencyPercent = utilizationPercent,
+                                DiagnosticMessage = diagnostic
+                            });
+                        }
+                    }
+                }
+
                 foreach (var specGroup in groups)
                 {
                     var specName = specGroup.SpecName ?? "";
@@ -462,6 +577,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         var unitRate = glassRow.PricePerSqm;
 
                         string paneSide = PaneSideFrom(glassRow.Description);
+                        string? paneStep6SideLabel = Step6SideLabelForPane(paneSide);
+                        if (paneStep6SideLabel != null
+                            && step6HandledSources.Contains(SheetSourceKey(specGroup.SpecNumber, paneStep6SideLabel)))
+                        {
+                            continue;
+                        }
 
                         // ── Step 6 linkage ────────────────────────────────
                         int step6SheetQuantity = ResolveStep6SheetQuantity(
@@ -566,22 +687,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             DiagnosticMessage = diagnostic
                         };
 
-                        SheetBreakdown.Add(row);
-
-                        if (row.HasShortfall)
-                            ShortfallMessages.Add($"{specName} · {paneSide} — {diagnostic}");
-                        else if (row.HasChargeWithoutWastage || row.HasWastageWithoutCharge)
-                            ReviewMessages.Add($"{specName} · {paneSide} — {diagnostic}");
-
-                        buySheetsSum += buySheets;
-                        usedSheetsSum += usedSheets;
-                        wastageSheetsSum += Math.Max(0m, wastageSheets);
-                        buyAreaSum += buySheetArea;
-                        usedAreaSum += usedArea;
-                        buyPriceSum += buySheetPrice;
-                        usedPriceSum += usedSheetPrice;
-                        wastageValueSum += wastageValue;
-                        step6ChargeSum += step6.Charge;
+                        AddSheetRow(row);
                     }
                 }
 
@@ -672,6 +778,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             string side = idx > 0 ? description[..idx].Trim() : "Outer";
             return side.Length == 0 ? "Outer" : side;
         }
+
+        private static string SheetSourceKey(int specNumber, string sideLabel) =>
+            $"{specNumber}|{(sideLabel ?? string.Empty).Trim()}";
 
         /// <summary>
         /// Maps a Step 9 pane side to the exact Step 6 wastage source label.

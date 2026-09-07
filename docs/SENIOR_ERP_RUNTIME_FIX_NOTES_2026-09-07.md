@@ -56,3 +56,17 @@ For the user-provided scenario, Step 9 should now price pane sheets from the exa
 ## Build note
 
 The sandbox still does not contain the .NET SDK, so `dotnet build` cannot be executed here. Final compile validation must be run in Visual Studio or another machine with the project SDK installed.
+
+
+## Follow-up correction — Step 9 SQM and Sheet Details
+
+User correction: Step 9 must not use raw `width × height / 1,000,000` for chargeable glass SQM when a panel is below 0.5 m². Step 5 already applies the UAE glass minimum billable area (`SqmCalculator.CalculatePanel`), so Step 9 measurement now uses that same Step 5 billable SQM source for glass/spacer/production rows.
+
+Sheet Details has also been changed to build rows directly from the Step 6 Wastage Charge Setup first. For every checked Step 6 wastage source with a sheet quantity:
+
+- Sheet size is read from the Step 6 source.
+- Price per SQM is read from the Step 6/Step 4 source price.
+- Bought sheets = Step 6 sheet quantity.
+- Used sheets = Step 6 sheet quantity.
+- Utilization/wastage area is derived from the Step 6 optimization percentage.
+- Step 9 P&L glass rows are used only as a fallback for panes that have no Step 6 setup source.

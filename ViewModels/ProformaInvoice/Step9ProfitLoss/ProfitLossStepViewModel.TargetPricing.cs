@@ -725,12 +725,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         private bool HasStep6SheetSetup(SpecGroup group)
         {
-            if (group == null || _otherChargesVm?.Wastages?.Rows == null) return false;
-            return _otherChargesVm.Wastages.Rows.Any(row =>
+            if (group == null || _otherChargesVm?.WastagesSection?.WastageRows == null) return false;
+            return _otherChargesVm.WastagesSection.WastageRows.Any(row =>
                 row != null
                 && row.SheetQuantity > 0
                 && row.AvailableSources.Any(src =>
-                    src.IsChecked && src.GroupNumber == group.SpecNumber));
+                    src.IsChecked && src.SpecNumber == group.GroupNumber));
         }
 
         private decimal Step6ActualRatePerFinishedSqm(
@@ -740,18 +740,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             decimal finishedArea = group.FooterTotalSqm > 0m
                 ? group.FooterTotalSqm
-                : group.Rows.Sum(r => r.TotalSqm);
-            if (finishedArea <= 0m || _otherChargesVm?.Wastages?.Rows == null)
+                : group.ItemRows.Sum(r => r.TotalSqm);
+            if (finishedArea <= 0m || _otherChargesVm?.WastagesSection?.WastageRows == null)
                 return paneBoxRate;
 
-            foreach (var row in _otherChargesVm.Wastages.Rows)
+            foreach (var row in _otherChargesVm.WastagesSection.WastageRows)
             {
                 if (row == null || row.SheetQuantity <= 0) continue;
 
                 var src = row.AvailableSources.FirstOrDefault(s =>
                     s.IsChecked
-                    && s.GroupNumber == group.SpecNumber
-                    && Step6SourceMatchesSide(s.PaneSide, paneSide));
+                    && s.SpecNumber == group.GroupNumber
+                    && Step6SourceMatchesSide(s.SideLabel, paneSide));
 
                 if (src == null || src.SheetWidthMm <= 0 || src.SheetHeightMm <= 0)
                     continue;
