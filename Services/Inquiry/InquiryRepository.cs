@@ -143,6 +143,11 @@ namespace ProGlassAutomation.Services.Inquiry
             if (inquiryId <= 0) throw new ArgumentException(
                 "Line items belong to a saved inquiry.", nameof(inquiryId));
             items ??= Array.Empty<InquiryLineItem>();
+            var validationErrors = InquiryValidationRules.ValidateLineItems(items);
+            if (validationErrors.Count > 0)
+                throw new InvalidOperationException(
+                    "Inquiry scope-of-supply is not safe to save: " +
+                    string.Join(" ", validationErrors.Take(5)));
 
             await using var db = new InquiryDbContext();
             var stored = await db.Inquiries

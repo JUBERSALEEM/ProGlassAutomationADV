@@ -253,6 +253,8 @@ public PrintableInvoiceViewModel(
         {
             try
             {
+                if (!EnsureCustomerDocumentCalculationsValid("print")) return;
+
                 var dialog = new System.Windows.Controls.PrintDialog();
                 if (dialog.ShowDialog() != true) return;
 
@@ -376,10 +378,22 @@ public PrintableInvoiceViewModel(
                 ActiveChargeRows = OtherCharges?.ChargeRows?.Count(r => r.IsActive) ?? 0,
                 HasWastageRows = OtherCharges?.WastagesSection?.WastageRows?.Any(r => r.IsActive) ?? false,
 
-                // Step 7: Summary
+                // Step 7: Summary — include the full waterfall so save can
+                // fail closed if a stale snapshot or missed recalculation ever
+                // makes Step 7 disagree with Step 5/6 or VAT law.
+                SummaryGlassMaterialsSubtotal = MainSummary?.GlassMaterialsSubtotal ?? 0m,
+                SummaryOtherChargesSubtotal = MainSummary?.OtherChargesSubtotal ?? 0m,
+                NetSubtotal = MainSummary?.NetSubtotal ?? 0m,
+                DiscountAmount = MainSummary?.DiscountAmount ?? 0m,
+                SubtotalBeforeVat = MainSummary?.SubtotalBeforeVat ?? 0m,
                 GrandTotal = MainSummary?.GrandTotalVatInclusive ?? 0m,
                 VatAmount = MainSummary?.VatAmount ?? 0m,
-                DiscountPercent = 0m, // DiscountValue can be % or fixed AED; skip for now
+                VatPercent = MainSummary?.VatPercent ?? 0m,
+                IsVatApplicable = MainSummary?.IsVatApplicable ?? false,
+                DiscountPercent = (MainSummary?.NetSubtotal ?? 0m) > 0m
+                    ? Math.Round((MainSummary?.DiscountAmount ?? 0m) /
+                        (MainSummary?.NetSubtotal ?? 1m) * 100m, 2)
+                    : 0m,
 
                 // Step 9: Profit & Loss
                 ProfitMarginPercent = ProfitLoss?.MarginPercent ?? 0m,
@@ -388,6 +402,43 @@ public PrintableInvoiceViewModel(
             };
         }
         // ── END CROSS-STEP VALIDATION SNAPSHOT ─────────────────────
+
+        /// <summary>
+        /// Customer-facing output gate. Printing/exporting without this check
+        /// is as dangerous as saving a bad invoice: it can send a wrong total
+        /// to a customer before anyone notices. Errors block; warnings require
+        /// explicit operator confirmation.
+        /// </summary>
+        private bool EnsureCustomerDocumentCalculationsValid(string operationLabel)
+        {
+            var validationResult = ProGlassAutomation.Services.ProformaInvoice
+                .Validation.CrossStepValidator.Validate(BuildValidationSnapshot());
+
+            if (!validationResult.IsValid)
+            {
+                _dialogs.Show(
+                    $"Cannot {operationLabel} until these issues are fixed:\n\n" +
+                    string.Join("\n\n", validationResult.Errors),
+                    "Calculation Validation Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (validationResult.HasWarnings)
+            {
+                var proceed = _dialogs.Show(
+                    $"Review these warnings before {operationLabel}:\n\n" +
+                    string.Join("\n\n", validationResult.Warnings) +
+                    "\n\nProceed anyway?",
+                    "Calculation Warnings",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+                return proceed == MessageBoxResult.Yes;
+            }
+
+            return true;
+        }
 
         private async Task ExecuteSaveInvoiceAsync()
         {
@@ -443,11 +494,18 @@ public PrintableInvoiceViewModel(
             }
             catch (Exception valEx)
             {
-                // Validation itself failed — log but don't block save.
-                // The validator is defensive and should never throw, but
-                // if it does, the save should still work.
+                // Fail closed: if the industrial validator itself cannot
+                // evaluate the invoice, saving/exporting a potentially wrong
+                // financial document is riskier than asking the operator to
+                // retry after fixing the underlying state.
                 ProGlassAutomation.Services.Logging.AppLogService.Debug(
                     $"[PI Save] Cross-step validation error: {ExceptionMessages.Deep(valEx)}");
+                _dialogs.Show(
+                    "Unable to validate invoice calculations. Save is blocked to prevent an incorrect customer document. Reopen the invoice or recalculate the affected steps, then try again.",
+                    "Validation Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
             }
             // ── END CROSS-STEP VALIDATION ──────────────────────────
 
@@ -787,7 +845,7 @@ public PrintableInvoiceViewModel(
                     MessageBoxImage.Warning);
                 return false;
             }
-            return true;
+            return EnsureCustomerDocumentCalculationsValid($"export {formatLabel}");
         }
 
         private void ShowExportFailureIfAny(ExportResult result, string formatLabel)

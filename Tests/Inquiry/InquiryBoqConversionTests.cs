@@ -9,8 +9,8 @@
 //
 //   1. Glass-type normalisation: DGU+LAM matched EXACTLY and FIRST —
 //      a starts-with "DGU" rule would silently downgrade the most
-//      expensive spec type. Unknown labels normalise to "" (the grid
-//      keeps its current type) — never guessed.
+//      expensive spec type. Unknown labels normalise to "" and complete
+//      rows with unknown builds are not imported — never guessed.
 //   2. Only IsImportable rows (spec name + W×H + qty) convert; partial
 //      rows stay on the inquiry as notes.
 //   3. Stable ordering by SortOrder — the PI grid mirrors the BOQ grid.
@@ -85,6 +85,18 @@ namespace ProGlassAutomation.Tests.Inquiry
         }
 
         [Fact]
+        public void ToImportRows_UnknownCompleteBuild_IsNotImportedAsDefault()
+        {
+            var items = new List<InquiryLineItem>
+            {
+                MakeRow(sort: 0, spec: "Customer typed build", w: 700, h: 900, qty: 2)
+            };
+            items[0].GlassType = "Tempered";
+
+            Assert.Empty(InquiryBoqConversion.ToImportRows(items));
+        }
+
+        [Fact]
         public void ToImportRows_NonPositiveRate_IsNotForcedIntoPricing()
         {
             var items = new List<InquiryLineItem>
@@ -127,6 +139,7 @@ namespace ProGlassAutomation.Tests.Inquiry
             int sort, string spec, int w, int h, int qty, decimal rate = 85m) => new()
             {
                 SpecName = spec,
+                GlassType = "SGU",
                 WidthMm = w,
                 HeightMm = h,
                 Qty = qty,

@@ -82,17 +82,23 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             return items
                 .Where(x => x.IsImportable)
                 .OrderBy(x => x.SortOrder)
+                .Select(x => new { Source = x, GlassType = NormalizeGlassType(x.GlassType) })
+                // Fail safe: a complete BOQ row with an unknown build must not
+                // inherit whatever default type the Step 5 group currently has.
+                // The eligibility validator surfaces this to the operator; the
+                // pure converter also refuses the unsafe row for direct callers.
+                .Where(x => !string.IsNullOrWhiteSpace(x.GlassType))
                 .Select(x => new BoqImportRow
                 {
-                    GlassType = NormalizeGlassType(x.GlassType),
-                    SpecName = (x.SpecName ?? "").Trim(),
-                    OuterGlassColor = (x.OuterGlassColor ?? "").Trim(),
-                    InnerGlassColor = (x.InnerGlassColor ?? "").Trim(),
-                    WidthMm = x.WidthMm,
-                    HeightMm = x.HeightMm,
-                    Qty = x.Qty,
-                    RatePerSqm = x.RatePerSqm,
-                    HasRate = x.RatePerSqm > 0m
+                    GlassType = x.GlassType,
+                    SpecName = (x.Source.SpecName ?? "").Trim(),
+                    OuterGlassColor = (x.Source.OuterGlassColor ?? "").Trim(),
+                    InnerGlassColor = (x.Source.InnerGlassColor ?? "").Trim(),
+                    WidthMm = x.Source.WidthMm,
+                    HeightMm = x.Source.HeightMm,
+                    Qty = x.Source.Qty,
+                    RatePerSqm = x.Source.RatePerSqm,
+                    HasRate = x.Source.RatePerSqm > 0m
                 })
                 .ToList();
         }

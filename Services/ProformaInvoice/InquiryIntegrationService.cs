@@ -16,7 +16,9 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Inquiry;
+using ProGlassAutomation.Services.Inquiry;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.ProformaInvoice
@@ -99,6 +101,19 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     $"Inquiry {inquiry.InquiryNumber} already has a Proforma Invoice " +
                     $"({inquiry.ProformaNumber}). Delete the existing PI first or " +
                     $"open it via Load Invoice.");
+            }
+
+            // Industrial hard gate: complete BOQ rows must be safe to price.
+            // An unknown glass build is never imported as a default SGU/DGU,
+            // and negative/implausible dimensions or rates must be corrected
+            // before the PI wizard can inherit them.
+            var boqErrors = InquiryValidationRules.ValidateLineItems(
+                inquiry.LineItems ?? Array.Empty<InquiryLineItem>());
+            if (boqErrors.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    "Inquiry BOQ is not safe for Proforma creation: " +
+                    string.Join(" ", boqErrors.Take(5)));
             }
         }
 

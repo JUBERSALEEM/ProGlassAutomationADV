@@ -88,6 +88,8 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             LineItems.Add(row);
             IsDirty = true;
             OnPropertyChanged(nameof(HasLineItems));
+            OnPropertyChanged(nameof(CanSave));
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         private void RemoveLineItem(object? parameter)
@@ -97,11 +99,15 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             LineItems.Remove(row);
             IsDirty = true;
             OnPropertyChanged(nameof(HasLineItems));
+            OnPropertyChanged(nameof(CanSave));
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         private void OnLineItemDirtyChanged(object? sender, EventArgs e)
         {
             IsDirty = true;
+            OnPropertyChanged(nameof(CanSave));
+            ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
         }
 
         public Func<string[]?>? SelectFilesRequested { get; set; }
@@ -207,10 +213,19 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 }
             }
         }
-        public bool HasValueError => _valueText.Trim().Length > 0 && !decimal.TryParse(
-            _valueText, NumberStyles.Number, CultureInfo.CurrentCulture, out _);
+        public bool HasValueError
+        {
+            get
+            {
+                var text = _valueText.Trim();
+                if (text.Length == 0) return false;
+                if (!decimal.TryParse(text, NumberStyles.Number, CultureInfo.CurrentCulture, out var value))
+                    return true;
+                return value < 0m || value > InquiryValidationRules.MaxInquiryValue;
+            }
+        }
         public string ValueHint => HasValueError
-            ? "Numbers only — thousands separators are allowed."
+            ? $"Enter an AED amount from 0 to {InquiryValidationRules.MaxInquiryValue:N0}."
             : "Estimated inquiry value in AED.";
 
         // Received time is preserved from the original record; the date box only
@@ -353,7 +368,9 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public bool CanSave =>
             !string.IsNullOrWhiteSpace(CustomerName)
             && !string.IsNullOrWhiteSpace(ProjectName)
-            && !HasValueError;
+            && !HasValueError
+            && InquiryValidationRules.ValidateLineItems(
+                LineItems.Select(r => r.ToEntity()).ToList()).Count == 0;
 
         // Customer-context-menu gate: true when the typed customer exists in
         // master data (so "Open in master data" is a real action, not a
@@ -546,8 +563,17 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 return null;
             }
             ApplyToRecord();
-            // PHASE 2: build the scope-of-supply entities once.
+            // PHASE 2: build the scope-of-supply entities once, then run the
+            // shared industrial gate. The button CanSave uses the same rules,
+            // but SaveAsync is the non-bypassable boundary for shortcuts,
+            // attachment auto-save, agent actions and tests.
             var boqToPersist = LineItems.Select(r => r.ToEntity()).ToList();
+            var blockingIssues = InquiryValidationRules.ValidateForSave(Record, boqToPersist);
+            if (blockingIssues.Count > 0)
+            {
+                SetMessage(string.Join(" ", blockingIssues.Take(3)), isError: true);
+                return null;
+            }
             // A fresh record must go to CreateAsync HEADER-ONLY: EF would
             // otherwise graph-insert the rows via the navigation, and the
             // replace-all call below would then re-write them (doubling

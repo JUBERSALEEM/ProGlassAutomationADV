@@ -72,8 +72,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Validation
         public bool HasWastageRows { get; init; }
 
         // Step 7
+        public decimal SummaryGlassMaterialsSubtotal { get; init; }
+        public decimal SummaryOtherChargesSubtotal { get; init; }
+        public decimal NetSubtotal { get; init; }
+        public decimal DiscountAmount { get; init; }
+        public decimal SubtotalBeforeVat { get; init; }
         public decimal GrandTotal { get; init; }
         public decimal VatAmount { get; init; }
+        public decimal VatPercent { get; init; }
+        public bool IsVatApplicable { get; init; }
         public decimal DiscountPercent { get; init; }
 
         // Step 9
@@ -135,6 +142,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Validation
             if (snap.SpecGroupCount == 0)
                 errors.Add("At least one spec group is required (Step 5).");
 
+            if (snap.TotalSqm < 0 || snap.TotalPieces < 0 || snap.TotalAmount < 0)
+                errors.Add("Step 5 totals cannot be negative — check dimensions, quantity and rates.");
+
             if (snap.TotalSqm <= 0 && snap.TotalPieces > 0)
                 warnings.Add("Total SQM is zero but pieces exist — check sizes (Step 5).");
 
@@ -142,15 +152,50 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Validation
                 warnings.Add("No glass pieces entered — check item rows (Step 5).");
 
             // ── Step 6: Other charges ──────────────────────────────
+            if (snap.TotalOtherCharges < 0m)
+                errors.Add("Step 6 other charges total cannot be negative.");
+
             if (snap.TotalSqm > 10m && snap.TotalOtherCharges == 0m)
                 warnings.Add("No other charges for a large order — verify this is intentional (Step 6).");
 
             // ── Step 7: Totals ─────────────────────────────────────
+            if (snap.SummaryGlassMaterialsSubtotal < 0 || snap.SummaryOtherChargesSubtotal < 0 ||
+                snap.NetSubtotal < 0 || snap.DiscountAmount < 0 || snap.SubtotalBeforeVat < 0 ||
+                snap.VatAmount < 0)
+                errors.Add("Invoice financial totals cannot be negative (Step 7).");
+
+            if (Math.Abs(snap.SummaryGlassMaterialsSubtotal - snap.TotalAmount) > 0.01m)
+                errors.Add($"Step 7 glass subtotal ({snap.SummaryGlassMaterialsSubtotal:N2}) does not match Step 5 total ({snap.TotalAmount:N2}). Recalculate before saving.");
+
+            var expectedNet = Math.Round(snap.SummaryGlassMaterialsSubtotal + snap.SummaryOtherChargesSubtotal, 2);
+            if (Math.Abs(snap.NetSubtotal - expectedNet) > 0.01m)
+                errors.Add($"Net subtotal mismatch: Step 7 shows {snap.NetSubtotal:N2}, expected {expectedNet:N2}.");
+
             if (snap.DiscountPercent > MAXIMUM_DISCOUNT_PERCENT)
                 warnings.Add($"Discount is {snap.DiscountPercent:F1}% — exceeds {MAXIMUM_DISCOUNT_PERCENT:F0}% threshold.");
 
             if (snap.DiscountPercent < 0)
                 errors.Add("Discount percentage cannot be negative (Step 7).");
+
+            if (snap.DiscountAmount > snap.NetSubtotal + 0.01m)
+                errors.Add("Discount cannot exceed the net subtotal (Step 7).");
+
+            var expectedBeforeVat = Math.Round(snap.NetSubtotal - snap.DiscountAmount, 2);
+            if (Math.Abs(snap.SubtotalBeforeVat - expectedBeforeVat) > 0.01m)
+                errors.Add($"Subtotal-before-VAT mismatch: Step 7 shows {snap.SubtotalBeforeVat:N2}, expected {expectedBeforeVat:N2}.");
+
+            if (snap.VatPercent < 0m || snap.VatPercent > 100m)
+                errors.Add("VAT percent must be between 0 and 100 (Step 7).");
+
+            var expectedVat = snap.IsVatApplicable
+                ? Math.Round(snap.SubtotalBeforeVat * (snap.VatPercent / 100m), 2)
+                : 0m;
+            if (Math.Abs(snap.VatAmount - expectedVat) > 0.01m)
+                errors.Add($"VAT amount mismatch: Step 7 shows {snap.VatAmount:N2}, expected {expectedVat:N2}.");
+
+            var expectedGrand = Math.Round(snap.SubtotalBeforeVat + snap.VatAmount, 2);
+            if (Math.Abs(snap.GrandTotal - expectedGrand) > 0.01m)
+                errors.Add($"Grand total mismatch: Step 7 shows {snap.GrandTotal:N2}, expected {expectedGrand:N2}.");
 
             if (snap.GrandTotal < 0)
                 errors.Add("Grand total is negative — check pricing (Step 7).");
