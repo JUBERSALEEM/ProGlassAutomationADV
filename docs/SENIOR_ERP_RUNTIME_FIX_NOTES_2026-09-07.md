@@ -79,3 +79,8 @@ When one Step 6 wastage setup row has multiple checked sources, it means the ope
 A shared allocator now splits the Step 6 total sheet quantity back across the checked sources by each source's Step 5 SQM demand and the Step 6 optimization percentage. Example: at 72% utilization, a 7.2225 m² sheet contributes 5.2002 useful m². The allocator uses that useful sheet area to apportion the shared total, then rounds by largest remainder so the per-spec sheet quantities always sum back to the exact Step 6 setup quantity.
 
 This allocator is used by both Sheet Details and Target Profitability so a shared 17-sheet Low-E setup can display as an intelligent split such as 11 sheets for one spec and 6 for another, instead of 17 + 17.
+
+
+## Follow-up correction — actual-cost target rows also use shared sheet allocation
+
+The first shared-sheet fix updated Sheet Details and the target rate helper, but the actual-cost rows shown inside Step 9 Target Profitability still called the older `ResolveStep6WastageSheetQuantity` method. That method returned the full Step 6 row sheet quantity for every matching spec source. It is now changed to use the same `Step6SheetAllocation` allocator, so a shared Low-E setup with 17 total sheets is split per related spec in the actual-cost target rows as well.

@@ -494,17 +494,34 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             var rows = _otherChargesVm?.WastagesSection?.WastageRows;
             if (rows == null) return 0;
 
-            var row = rows
-                .Where(r => r.AvailableSources.Any(s =>
-                    s.IsChecked
-                    && s.SpecNumber == specNumber
-                    && string.Equals(
-                        s.SideLabel, sideLabel,
-                        StringComparison.OrdinalIgnoreCase)))
-                .OrderByDescending(r => r.IsActive)
-                .FirstOrDefault();
+            foreach (var row in rows.OrderByDescending(r => r.IsActive))
+            {
+                if (row == null || row.SheetQuantity <= 0) continue;
 
-            return row?.SheetQuantity ?? 0;
+                var sources = row.AvailableSources
+                    .Where(s => s != null && s.IsChecked)
+                    .ToList();
+                if (sources.Count == 0) continue;
+
+                // A single Step 6 wastage row may intentionally combine the
+                // same glass across two specs. In that case the setup's sheet
+                // quantity is TOTAL shared sheets, not the quantity for each
+                // spec. Use the same allocator as Sheet Details/Target so the
+                // actual-cost rows split 17 shared sheets into e.g. 16 + 1,
+                // instead of showing 17 on every related spec.
+                var allocation = Step6SheetAllocation.Allocate(row, sources)
+                    .FirstOrDefault(a =>
+                        a.Source.SpecNumber == specNumber
+                        && string.Equals(
+                            a.Source.SideLabel,
+                            sideLabel,
+                            StringComparison.OrdinalIgnoreCase));
+
+                if (allocation != null)
+                    return allocation.SheetQuantity;
+            }
+
+            return 0;
         }
 
     }
