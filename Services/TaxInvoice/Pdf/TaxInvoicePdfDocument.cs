@@ -107,6 +107,8 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
         public void RenderContent(ColumnDescriptor content)
         {
+            content.Item().Element(RenderIndustrialControlPanel);
+
             if (_ctx.IsPartial)
             {
                 content.Item()
@@ -172,6 +174,21 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             "Issued" => AMBER,
             _ => DARK
         };
+
+
+        private void RenderIndustrialControlPanel(IContainer container)
+        {
+            int totalQty = _ctx.SpecGroups.Sum(g => g.TotalQty);
+            decimal totalSqm = _ctx.SpecGroups.Sum(g => g.TotalSqm);
+            PdfChrome.IndustrialDocumentPanel(container,
+                "VAT invoice fiscal control",
+                "Industrial ERP tax invoice: VAT registration, customer/project references, delivery links, taxable value and balance controls are consolidated for finance approval.",
+                ("Status", _ctx.Status, DocumentStyle.ColorAccent),
+                ("Type", _ctx.IsPartial ? $"Partial {_ctx.SequenceLetter}" : "Final / Full", null),
+                ("Pieces", totalQty.ToString(CultureInfo.InvariantCulture), null),
+                ("Total SQM", totalSqm.ToString("0.000", CultureInfo.InvariantCulture), DocumentStyle.ColorAccent),
+                ("Grand Total", $"AED {_ctx.GrandTotal:N2}", DocumentStyle.ColorSuccess));
+        }
 
         private void RenderSupplierBlock(IContainer container)
         {

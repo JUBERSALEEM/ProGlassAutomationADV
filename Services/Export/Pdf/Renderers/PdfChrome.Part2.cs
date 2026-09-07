@@ -12,7 +12,115 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 {
         public static partial class PdfChrome
     {
-            // ═════════════════════════════════════════════════════════════
+
+        // ═════════════════════════════════════════════════════════════
+        //  INDUSTRIAL ERP DOCUMENT CONTROL PANEL
+        // ═════════════════════════════════════════════════════════════
+
+        public static void IndustrialDocumentPanel(
+            IContainer container,
+            string title,
+            string subtitle,
+            params (string Label, string Value, string? Color)[] metrics)
+        {
+            var shown = (metrics ?? Array.Empty<(string, string, string?)>())
+                .Where(m => !string.IsNullOrWhiteSpace(m.Label)
+                    && !string.IsNullOrWhiteSpace(m.Value))
+                .Take(5)
+                .ToList();
+
+            IContainer box = K switch
+            {
+                PdfLayoutKind.Workshop => container.BorderLeft(4).BorderColor(T.Highlight)
+                    .Background(T.AccentDark),
+                PdfLayoutKind.SplitConsole => container.BorderLeft(3).BorderColor(T.Accent)
+                    .Background(T.Surface),
+                PdfLayoutKind.Editorial => container.BorderTop(1.2f).BorderBottom(0.6f)
+                    .BorderColor(T.Highlight),
+                PdfLayoutKind.QuietForm => container.BorderTop(0.8f).BorderBottom(0.4f)
+                    .BorderColor(T.Text),
+                _ => container.Border(0.6f).BorderColor(T.Border)
+                    .Background(T.Surface)
+            };
+
+            bool dark = K == PdfLayoutKind.Workshop;
+            string titleColor = dark ? T.AccentOn : T.Accent;
+            string subtitleColor = dark ? T.AccentSoft : T.Muted;
+            string valueFallback = dark ? T.AccentOn : T.Text;
+
+            box.PaddingHorizontal(10).PaddingVertical(8).Column(col =>
+            {
+                col.Item().Row(row =>
+                {
+                    row.RelativeItem().Column(left =>
+                    {
+                        left.Item().Text((title ?? "").ToUpperInvariant())
+                            .FontSize(9).Bold().FontColor(titleColor);
+                        if (!string.IsNullOrWhiteSpace(subtitle))
+                            left.Item().PaddingTop(2).Text(subtitle)
+                                .FontSize(7.5f).FontColor(subtitleColor);
+                    });
+
+                    row.AutoItem().AlignMiddle()
+                        .Background(dark ? T.Highlight : T.Accent)
+                        .PaddingHorizontal(7).PaddingVertical(3)
+                        .Text("ERP CONTROLLED")
+                        .FontSize(7).Bold()
+                        .FontColor(dark ? T.AccentDark : T.AccentOn);
+                });
+
+                if (shown.Count > 0)
+                {
+                    col.Item().PaddingTop(8).Row(row =>
+                    {
+                        foreach (var metric in shown)
+                        {
+                            row.RelativeItem().Element(c =>
+                                IndustrialMetric(c, metric.Label, metric.Value,
+                                    metric.Color ?? valueFallback, dark));
+                        }
+                    });
+                }
+            });
+        }
+
+        private static void IndustrialMetric(
+            IContainer container,
+            string label,
+            string value,
+            string valueColor,
+            bool dark)
+        {
+            container.BorderLeft(1.4f)
+                .BorderColor(dark ? T.Highlight : T.Accent)
+                .PaddingLeft(6)
+                .Column(col =>
+                {
+                    col.Item().Text(label.ToUpperInvariant())
+                        .FontSize(6.5f)
+                        .FontColor(dark ? T.AccentSoft : T.Muted);
+                    col.Item().PaddingTop(1).Text(value)
+                        .FontSize(10).Bold()
+                        .FontColor(valueColor);
+                });
+        }
+
+        public static void IndustrialAssuranceNote(
+            IContainer container,
+            string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return;
+
+            container.BorderLeft(2).BorderColor(T.Accent)
+                .Background(T.Surface)
+                .PaddingHorizontal(8).PaddingVertical(5)
+                .Text(text)
+                .FontSize(7.5f)
+                .Italic()
+                .FontColor(T.Muted);
+        }
+
+        // ═════════════════════════════════════════════════════════════
         //  TOTALS
         // ═════════════════════════════════════════════════════════════
 

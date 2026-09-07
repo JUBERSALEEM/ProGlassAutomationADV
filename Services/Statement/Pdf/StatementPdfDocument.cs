@@ -103,6 +103,8 @@ namespace ProGlassAutomation.Services.Statement.Pdf
         {
             container.Column(col =>
             {
+                col.Item().Element(RenderIndustrialControlPanel);
+
                 col.Item().Element(RenderCustomerBlock);
 
                 col.Item().PaddingTop(8).Element(RenderAppliedFilters);
@@ -130,6 +132,20 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                          "Please contact us if you find discrepancies.")
                    .FontSize(8).Italic().FontColor(MUTED);
             });
+        }
+
+
+        private void RenderIndustrialControlPanel(IContainer container)
+        {
+            var fin = _snap.Financial;
+            PdfChrome.IndustrialDocumentPanel(container,
+                "Receivables control statement",
+                "Industrial ERP account statement for management review: invoice exposure, payments, outstanding value, aging and collection sign-off are visible in one pack.",
+                ("Invoices", fin.TotalInvoiceCount.ToString(CultureInfo.InvariantCulture), null),
+                ("Total Qty", fin.TotalQty.ToString(CultureInfo.InvariantCulture), null),
+                ("Total SQM", fin.TotalSqm.ToString("0.000", CultureInfo.InvariantCulture), DocumentStyle.ColorAccent),
+                ("Paid", $"AED {fin.TotalPaid:N2}", DocumentStyle.ColorSuccess),
+                ("Outstanding", $"AED {fin.TotalOutstanding:N2}", fin.TotalOutstanding > 0 ? DocumentStyle.ColorWarning : DocumentStyle.ColorSuccess));
         }
 
         // ═════════════════════════════════════════════════════════════════

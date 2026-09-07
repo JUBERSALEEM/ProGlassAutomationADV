@@ -91,6 +91,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
 
         public void RenderContent(ColumnDescriptor content)
         {
+            content.Item().Element(RenderIndustrialControlPanel);
+
             // ── Delivery logistics ────────────────────────────────────────
             content.Item().Element(c =>
                 SectionHeaderRenderer.Render(c, "DELIVERY DETAILS"));
@@ -127,6 +129,20 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             content.Item().Element(c =>
                 SectionHeaderRenderer.Render(c, "SIGN-OFF"));
             content.Item().Element(RenderSignatureBlock);
+        }
+
+
+        private void RenderIndustrialControlPanel(IContainer container)
+        {
+            decimal totalWeight = (_entity.Items ?? Enumerable.Empty<DeliveryNoteItem>()).Sum(i => i.TotalWeight);
+            PdfChrome.IndustrialDocumentPanel(container,
+                "Dispatch and receiving control",
+                "Industrial ERP delivery note for warehouse release, driver handover, receiver confirmation, delivered balance and glass weight traceability.",
+                ("Status", _entity.Status ?? "", DocumentStyle.ColorAccent),
+                ("This DN", _entity.TotalDeliveredQty.ToString(CultureInfo.InvariantCulture), DocumentStyle.ColorSuccess),
+                ("Balance", _entity.TotalBalanceQty.ToString(CultureInfo.InvariantCulture), _entity.TotalBalanceQty > 0 ? DocumentStyle.ColorWarning : DocumentStyle.ColorSuccess),
+                ("Sequence", _entity.SequenceNumber > 0 ? _entity.SequenceNumber.ToString(CultureInfo.InvariantCulture) : "—", null),
+                ("Weight", totalWeight > 0 ? $"{totalWeight:N2} kg" : "—", null));
         }
 
         // ═════════════════════════════════════════════════════════════════

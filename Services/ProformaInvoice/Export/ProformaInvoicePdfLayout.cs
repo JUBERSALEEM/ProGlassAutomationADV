@@ -96,6 +96,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         public void RenderContent(ColumnDescriptor content)
         {
+            content.Item().Element(RenderIndustrialControlPanel);
+
             content.Item().Row(row =>
             {
                 row.RelativeItem().Element(c => RenderClientBlock(c));
@@ -136,6 +138,21 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             }
 
             content.Item().Element(c => RenderSignatureBlocks(c));
+        }
+
+
+        private void RenderIndustrialControlPanel(IContainer container)
+        {
+            int totalQty = _ctx.SpecGroups.Sum(g => g.TotalQty);
+            decimal totalArea = _ctx.SpecGroups.Sum(g => g.TotalArea);
+            PdfChrome.IndustrialDocumentPanel(container,
+                "Commercial estimate control",
+                "Industrial ERP quotation pack: customer, project, glass specifications, charges, VAT and approval sign-off are presented as one controlled commercial record.",
+                ("Status", _ctx.ProformaStatus, DocumentStyle.ColorAccent),
+                ("Specs", _ctx.SpecGroups.Count.ToString(CultureInfo.InvariantCulture), null),
+                ("Pieces", totalQty.ToString(CultureInfo.InvariantCulture), null),
+                ("Total SQM", totalArea.ToString("0.000", CultureInfo.InvariantCulture), DocumentStyle.ColorAccent),
+                ("Grand Total", $"AED {_ctx.GrandTotal:N2}", DocumentStyle.ColorSuccess));
         }
 
         // ════════════════════════════════════════════════════════════════════

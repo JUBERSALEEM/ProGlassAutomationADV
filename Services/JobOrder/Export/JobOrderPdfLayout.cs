@@ -98,9 +98,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
 
         public void RenderContent(ColumnDescriptor content)
         {
-            if (DocumentStyle.Kind is PdfLayoutKind.SplitConsole
-                or PdfLayoutKind.QuietForm)
-                content.Item().Element(RenderStatusStrip);
+            content.Item().Element(RenderIndustrialControlPanel);
 
             // ── Client + Site Delivery ────────────────────────────────
             content.Item().Element(c =>
@@ -137,6 +135,22 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             content.Item().Element(c =>
                 SectionHeaderRenderer.Render(c, "SIGN-OFF"));
             content.Item().Element(RenderSignatureBlock);
+        }
+
+
+        private void RenderIndustrialControlPanel(IContainer container)
+        {
+            var rows = (_invoice.SpecGroups ?? Enumerable.Empty<GlassSpecGroupSnapshot>())
+                .SelectMany(g => g.ItemRows ?? Enumerable.Empty<GlassItemRowSnapshot>())
+                .ToList();
+            PdfChrome.IndustrialDocumentPanel(container,
+                "Production release control",
+                "Workshop-ready ERP document for cutting, fabrication, QA and delivery planning. Commercial prices stay out; production quantities and risks stay visible.",
+                ("Status", FormatStatus(_snapshot.Production?.Status), DocumentStyle.ColorAccent),
+                ("Priority", _snapshot.Production?.Priority ?? "Medium", ResolvePriorityColor(_snapshot.Production?.Priority)),
+                ("Spec Groups", (_invoice.SpecGroups?.Count ?? 0).ToString(CultureInfo.InvariantCulture), null),
+                ("Pieces", rows.Sum(r => r.Qty).ToString(CultureInfo.InvariantCulture), null),
+                ("Total SQM", rows.Sum(r => r.TotalSqm).ToString("0.000", CultureInfo.InvariantCulture), DocumentStyle.ColorAccent));
         }
 
         // ═════════════════════════════════════════════════════════════

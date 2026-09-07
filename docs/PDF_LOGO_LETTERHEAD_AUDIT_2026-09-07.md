@@ -10,6 +10,7 @@ Company logo rendering and PDF letterhead behavior were audited across Proforma 
 4. **Company/PI selection defaults allowed logo + None layout**: importing/selecting a logo did not always force a printable layout, allowing a valid image to be saved in a non-rendering state.
 
 ## Fix implemented
+- Added a shared industrial ERP document-control panel that adapts across the five print theme styles (`FormalBand`, `SplitConsole`, `Editorial`, `Workshop`, and `QuietForm`) and is now used by the five primary business PDFs.
 - Central `PdfChrome` now renders a valid logo even for legacy records where the layout is `None`.
 - Wide/landscape logo dimensions auto-promote to the top-panel masthead so long logos are not squeezed into the left portrait slot.
 - Logo path resolution is more defensive and supports direct paths, relative paths, application directory, current directory, local app data, and pictures-folder filename fallback.
@@ -20,12 +21,12 @@ Company logo rendering and PDF letterhead behavior were audited across Proforma 
 - Tax Invoice import now preserves the embedded PI logo into its saved/exported PDF state.
 
 ## Affected document paths
-- Proforma Invoice: shared letterhead with path + embedded logo fallback.
-- Proforma Dossier: shared letterhead with path + embedded logo fallback.
-- Job Order: uses PI company snapshot logo path/base64/layout.
-- Delivery Note: uses job-order reference snapshot logo path/base64/layout.
-- Tax Invoice: uses imported/saved logo path/base64/layout.
-- Account Statement: direct QuestPDF document but now uses the shared `PdfChrome.Letterhead` with path/base64/layout.
+- Proforma Invoice: shared letterhead with path + embedded logo fallback plus commercial-control summary panel.
+- Job Order: uses PI company snapshot logo path/base64/layout plus production-release control panel.
+- Delivery Note: uses job-order reference snapshot logo path/base64/layout plus dispatch/receiving control panel.
+- Tax Invoice: uses imported/saved logo path/base64/layout plus VAT fiscal-control panel.
+- Account Statement: direct QuestPDF document but now uses the shared `PdfChrome.Letterhead` with path/base64/layout plus receivables-control panel.
+- Proforma Dossier also receives the shared letterhead/logo improvements.
 
 ## Validation notes
 - The change is centralized to avoid duplicating header code per document.
