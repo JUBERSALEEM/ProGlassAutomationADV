@@ -28,7 +28,17 @@ Company logo rendering and PDF letterhead behavior were audited across Proforma 
 - Account Statement: direct QuestPDF document but now uses the shared `PdfChrome.Letterhead` with path/base64/layout plus receivables-control panel.
 - Proforma Dossier also receives the shared letterhead/logo improvements.
 
+## PDF layout formats in Settings
+The five Settings → PDF Layout formats were upgraded as professional industrial ERP presets, not only colour swaps:
+
+1. **Classic Navy** — executive industrial letterhead with deep navy command band, brass approval accent, disciplined commercial cards, strong totals and stamp-ready signatures.
+2. **Modern Teal** — factory-console style with teal/cyan status rail, technical soft cards, modern metrics and airy management scanning.
+3. **Editorial Ink** — premium board-report style with black-ink hierarchy, copper audit accent, numbered sections and high-end whitespace.
+4. **Industrial Steel** — heavy workshop docket with graphite header, safety-amber rail, dense QA grid, high-contrast totals and production-floor sign-off.
+5. **Minimal Ivory** — clean archive-grade executive form with warm paper tone, sharp black rules, silent ERP metrics and refined amount emphasis.
+
 ## Validation notes
 - The change is centralized to avoid duplicating header code per document.
 - Existing `None`, `LeftPortrait`, and `TopPanel` enum values are preserved for data compatibility.
+- The five Settings PDF layout formats keep their existing IDs/display names so saved user configuration remains compatible.
 - Build could not be executed in this sandbox because the .NET SDK is not installed; syntax/consistency checks were run separately before commit.
