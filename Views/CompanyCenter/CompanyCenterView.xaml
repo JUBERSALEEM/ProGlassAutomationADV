@@ -189,7 +189,13 @@
                                         CornerRadius="6"
                                         VerticalAlignment="Center">
                                     <Border.Style>
-                                        <Style TargetType="Border" BasedOn="{StaticResource {x:Type Border}}">
+                                        <!-- No BasedOn here: there is no global implicit
+                                             Border style, so '{StaticResource {x:Type Border}}'
+                                             threw 'Cannot find resource named
+                                             System.Windows.Controls.Border' (ERR-C90647).
+                                             This style only toggles Visibility; the slot's
+                                             size/edge/paint are local values above. -->
+                                        <Style TargetType="Border">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasLogo}" Value="True">

@@ -32,11 +32,12 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// does. 2026-09-06 theme reduction removed the six families
         /// (Professional, iOS Liquid Glass, Ocean, Industrial
         /// White/Grey/Dark); 2026-09-07 restores the industrial look as
-        /// "Normal (Industrial)". Legacy industrial values migrate back
-        /// to it; any other unknown legacy value migrates to Normal.
-        /// Default: Normal.
+        /// "Normal (Industrial)" and makes it the constant default.
+        /// Legacy industrial values migrate back to it; any other
+        /// unknown legacy value migrates to Normal.
+        /// Default: Normal (Industrial).
         /// </summary>
-        public string VisualTheme { get; set; } = "Normal";
+        public string VisualTheme { get; set; } = "Normal (Industrial)";
 
         /// <summary>
         /// Global font colour override (Settings → Appearance → Font

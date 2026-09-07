@@ -67,14 +67,14 @@ namespace ProGlassAutomation.Tests.Agent
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
-        public void Removed_families_are_gone_and_normal_is_the_default_family()
+        public void Removed_families_are_gone_and_normal_industrial_is_the_default_family()
         {
             // 2026-08-29 rewrite removed the two confusing "Glass"/"Glassy"
             // families. 2026-09-06 theme reduction then removed the iOS
-            // Liquid Glass, Ocean, Professional and Industrial families;
-            // Normal is now the app-wide default. No legacy migration maps
-            // a saved value onto a removed family — every unknown/removed
-            // value resolves to Normal.
+            // Liquid Glass, Ocean, Professional and Industrial families.
+            // 2026-09-07 restored the industrial look as Normal
+            // (Industrial) and made it the constant app-wide default;
+            // every unknown/removed value resolves to Normal.
             string engine = Engine;
             Assert.DoesNotContain("public const string Glass =", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("public const string Glassy =", engine, StringComparison.Ordinal);
@@ -86,12 +86,12 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("\"Glassy\" => LiquidGlass", engine, StringComparison.Ordinal);
 
             string config = Read("Services/AI/AIConfig/AppConfig.cs");
-            Assert.Contains("= \"Normal\";", config, StringComparison.Ordinal);
+            Assert.Contains("= \"Normal (Industrial)\";", config, StringComparison.Ordinal);
             Assert.DoesNotContain("= \"iOS Liquid Glass\";", config, StringComparison.Ordinal);
 
             // App.StartupCore.cs is pulled in by the App.*.cs convention.
             string appCs = Read("App.xaml.cs");
-            Assert.Contains("?? VisualThemeEngine.Normal", appCs, StringComparison.Ordinal);
+            Assert.Contains("?? VisualThemeEngine.NormalIndustrial", appCs, StringComparison.Ordinal);
             Assert.DoesNotContain("?? \"iOS Liquid Glass\"", appCs, StringComparison.Ordinal);
 
             // The settings options list ships the retained families

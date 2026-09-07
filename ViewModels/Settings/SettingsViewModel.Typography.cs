@@ -226,9 +226,10 @@ namespace ProGlassAutomation.ViewModels.Settings
                     var ap = _config?.Appearance;
                     if (ap == null) return;
 
-                    // 1) Reset the persisted values to factory defaults.
+                    // 1) Reset the persisted values to factory defaults
+                    //    (the constant industrial theme).
                     SetResetStatus("Resetting configuration...");
-                    ap.VisualTheme = ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal;
+                    ap.VisualTheme = ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial;
                     ap.Theme = "Light";
                     ap.UseDefinedOutline = false;
                     ap.UseGradientSurfaces = true;

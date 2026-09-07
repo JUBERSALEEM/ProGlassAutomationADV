@@ -85,7 +85,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public string SelectedVisualTheme
         {
             get => _config?.Appearance?.VisualTheme
-                ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal;
+                ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial;
             set
             {
                 if (_config == null || string.IsNullOrEmpty(value))

@@ -252,37 +252,24 @@ namespace ProGlassAutomation.Services.Theme
         /// </para>
         /// The family signature is the DEFINED CARD EDGE — a slate
         /// hairline on every card corner/edge — which the cream families
-        /// deliberately soften away. Surfaces are SOLID and opaque
-        /// (never frosted glass): white cards on a white-blue stage.
-        /// Nothing here touches the base theme dictionaries, so the
-        /// cream Normal stays byte-identical.
+        /// deliberately soften away. Surfaces are SOLID and opaque and
+        /// the stage is FLAT (constant colour, no gradient): white cards
+        /// on a white-blue stage, for a denser, unmistakably industrial
+        /// read. Nothing here touches the base theme dictionaries, so
+        /// the cream Normal stays byte-identical.
         /// </summary>
         private static void ApplyIndustrial(ResourceDictionary resources)
         {
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
 
-            // ── 1) WINDOW — white/blue industrial stage (light) and
-            // professional navy (dark), matching the old Professional
-            // family ramp (#ECF2F9→#D9E5F2 / #0A1326→#16233E). ────────
-            var stage = new LinearGradientBrush
-            {
-                StartPoint = new Point(0, 0),
-                EndPoint = new Point(1, 1),
-                GradientStops =
-                {
-                    new GradientStop(dark
-                        ? Color.FromRgb(0x0A, 0x13, 0x26)
-                        : Color.FromRgb(0xF8, 0xFA, 0xFC), 0.0),
-                    new GradientStop(dark
-                        ? Color.FromRgb(0x11, 0x1D, 0x38)
-                        : Color.FromRgb(0xF1, 0xF5, 0xF9), 0.5),
-                    new GradientStop(dark
-                        ? Color.FromRgb(0x16, 0x23, 0x3E)
-                        : Color.FromRgb(0xE7, 0xEE, 0xF6), 1.0),
-                }
-            };
-            stage.Freeze();
-            resources["WindowBackgroundBrush"] = stage;
+            // ── 1) WINDOW — constant (flat) industrial stage. The
+            // industrial design system's background is a single solid
+            // colour, never a gradient: #F8FAFC light / #0A1326 dark.
+            // Flat reads denser, sharper and more industrial than a soft
+            // sweep, and keeps every surface "constant". ──────────────
+            resources["WindowBackgroundBrush"] = FrozenSolid(dark
+                ? Color.FromRgb(0x0A, 0x13, 0x26)
+                : Color.FromRgb(0xF8, 0xFA, 0xFC));
 
             // ── 2) SURFACES — solid, opaque, industrial. ──────────────
             Color surface = dark
@@ -305,12 +292,13 @@ namespace ProGlassAutomation.Services.Theme
             // hairline the owner asked for. Every card style (Base /
             // Task / Stat / KPI…) binds these border tokens, so the
             // slate edge reaches every card corner without touching
-            // CardStyles.xaml. Light #E2E8F0 (slate-200) sits at ~1.5:1
-            // against white cards — a crisp line, never a heavy box. ──
+            // CardStyles.xaml. Slate-300 (#CBD5E1) on white reads as a
+            // DEFINED line (≈2:1) — clearly visible, still a hairline,
+            // never a heavy box. ──────────────────────────────────────
             Color edge = dark
-                ? Color.FromRgb(0x33, 0x41, 0x55) : Color.FromRgb(0xE2, 0xE8, 0xF0);
-            Color edgeStrong = dark
                 ? Color.FromRgb(0x47, 0x55, 0x69) : Color.FromRgb(0xCB, 0xD5, 0xE1);
+            Color edgeStrong = dark
+                ? Color.FromRgb(0x64, 0x74, 0x8B) : Color.FromRgb(0x94, 0xA3, 0xB8);
             resources["GlassBorderGradientCrystal"] = FrozenSolid(edge);
             resources["GlassBorderSoft"] = FrozenSolid(edge);
             resources["GlassBorderPrimary"] = FrozenSolid(edgeStrong);

@@ -100,7 +100,34 @@ so the cream Normal and its source-level pins stay byte-identical.
 
 ## 6. What did NOT change
 
-- Cream Normal (default) — palette, hairline, shadows, fallbacks: untouched.
+- Cream Normal palette, hairline, shadows, fallbacks: untouched (it stays a
+  selectable family — just no longer the default).
 - `LightTheme.xaml` / `DarkTheme.xaml` — untouched (all industrial values are
   runtime overrides, removed again by `ClearOverrides` on family switch).
 - Monet, Crystal Fluid (Ios-17pm), wallpaper pipeline, accent system — untouched.
+
+---
+
+## 7. Follow-up (same day, 2026-09-07) — "more industrial", constant default, crash fix
+
+**Crash (ERR-C90647) — Settings/Company module rendered empty.**
+`Views/CompanyCenter/CompanyCenterView.xaml:192` used
+`BasedOn="{StaticResource {x:Type Border}}"`. There is no global implicit
+`Border` style anywhere in the app, so WPF threw
+`Cannot find resource named 'System.Windows.Controls.Border'` during template
+measure and the module stayed blank (logged repeatedly as an unhandled UI
+exception). Fix: the logo-slot style no longer derives from `{x:Type Border}`;
+it only toggles `Visibility`, so the `BasedOn` was removed.
+
+**More industrial + constant.**
+`ApplyIndustrial` now paints a **flat (constant) stage** — single solid
+`#F8FAFC` light / `#0A1326` dark instead of a gradient — and a **stronger
+card edge** (`#CBD5E1` slate-300 light / `#475569` slate-600 dark) so the
+corner border line is unmistakably defined.
+
+**Normal (Industrial) is now the constant default theme.**
+`AppConfig.VisualTheme` default, the `App.StartupCore` fallback, the
+Settings `SelectedVisualTheme` fallback and the appearance-reset path all
+resolve to `Normal (Industrial)`. The cream Normal remains selectable.
+Source tests re-pinned (`= "Normal (Industrial)";`,
+`?? VisualThemeEngine.NormalIndustrial`).
