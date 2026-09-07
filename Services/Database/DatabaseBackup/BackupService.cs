@@ -185,17 +185,7 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
 
             foreach (var db in source.GetFiles("*.db"))
             {
-                try
-                {
-                    db.CopyTo(Path.Combine(setFolder, db.Name), overwrite: true);
-                    copied++;
-                }
-                catch (Exception ex)
-                {
-                    AppLogService.Warning(
-                        $"Could not back up {db.Name}: {ex.Message}",
-                        new LogContext { Module = "Backup", Operation = "Copy" });
-                }
+                copied += CopySqliteFileSet(db.FullName, setFolder);
             }
 
             var config = Path.Combine(AppDataFolder, "config.json");
@@ -227,6 +217,35 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                 }
             }
 
+            return copied;
+        }
+
+
+        /// <summary>
+        /// Copies a SQLite database plus live sidecars. In local WAL mode,
+        /// recent committed pages may still be in *.db-wal when the backup
+        /// starts; copying only *.db can produce a stale/incomplete backup.
+        /// In shared-root mode the sidecars normally do not exist because
+        /// the network profile uses DELETE journal, but this remains safe.
+        /// </summary>
+        private static int CopySqliteFileSet(string dbPath, string targetFolder)
+        {
+            int copied = 0;
+            foreach (var path in new[] { dbPath, dbPath + "-wal", dbPath + "-shm" })
+            {
+                if (!File.Exists(path)) continue;
+                try
+                {
+                    File.Copy(path, Path.Combine(targetFolder, Path.GetFileName(path)), overwrite: true);
+                    copied++;
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Warning(
+                        $"Could not back up {Path.GetFileName(path)}: {ex.Message}",
+                        new LogContext { Module = "Backup", Operation = "Copy" });
+                }
+            }
             return copied;
         }
 

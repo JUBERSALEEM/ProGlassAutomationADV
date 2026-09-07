@@ -3,6 +3,7 @@ using ProGlassAutomation.Services.Logging;
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 
 namespace ProGlassAutomation.Services.Database
 {
@@ -21,6 +22,7 @@ namespace ProGlassAutomation.Services.Database
     /// </summary>
     public static class SharedDataRootService
     {
+        private const string ManifestFileName = "proglass_shared_root.json";
         private static readonly string[] ExtraDataSubfolders =
             { "Inquiries", "ProformaInvoices", "DeliveryNotes" };
 
@@ -46,14 +48,24 @@ namespace ProGlassAutomation.Services.Database
                 _ = File.ReadAllText(testFile);
                 File.Delete(testFile);
 
+                int dbCount = Directory.GetFiles(normalized, "*.db", SearchOption.TopDirectoryOnly).Length;
+                bool hasManifest = File.Exists(Path.Combine(normalized, ManifestFileName));
+                string dataHint = dbCount > 0
+                    ? $" {dbCount} database file(s) found."
+                    : " No database files found yet; Prepare Folder can seed it.";
+                string manifestHint = hasManifest
+                    ? " Shared-root manifest found."
+                    : " Shared-root manifest not found yet.";
+
                 return new SharedDataRootProbeResult
                 {
                     Ok = true,
                     NormalizedPath = normalized,
                     LooksLikeNetworkPath = LooksNetworkBased(normalized),
-                    Message = LooksNetworkBased(normalized)
-                        ? "✓ Shared data folder is reachable and writable on the network. Restart ProGlass on each workstation after enabling."
-                        : "✓ Folder is writable. It is not a UNC path; confirm this mapped/local drive is shared to all workstations before using it company-wide."
+                    Message = (LooksNetworkBased(normalized)
+                        ? "✓ Shared data folder is reachable and writable on the network."
+                        : "✓ Folder is writable. It is not a UNC path; confirm this mapped/local drive is shared to all workstations before using it company-wide.")
+                        + dataHint + manifestHint + " Restart ProGlass on each workstation after enabling."
                 };
             }
             catch (Exception ex)
@@ -87,6 +99,8 @@ namespace ProGlassAutomation.Services.Database
                 if (copyLocalData && IsFolderEmptyOfProGlassData(probe.NormalizedPath))
                     copied = CopyLocalDatasetTo(probe.NormalizedPath);
 
+                WriteManifest(probe.NormalizedPath);
+
                 return (true, copied > 0
                     ? $"✓ Shared folder prepared and {copied} local data item(s) copied. Save settings and restart all workstations."
                     : "✓ Shared folder prepared. Save settings and restart all workstations.");
@@ -111,6 +125,30 @@ namespace ProGlassAutomation.Services.Database
                 config.DataConnectivity.WorkstationName = Environment.MachineName;
         }
 
+
+        private static void WriteManifest(string root)
+        {
+            try
+            {
+                var manifest = new
+                {
+                    Product = "ProGlass Automation",
+                    Purpose = "Shared LAN/Wi-Fi company database root",
+                    CreatedOrUpdatedAtUtc = DateTime.UtcNow,
+                    Workstation = Environment.MachineName,
+                    AppVersion = typeof(SharedDataRootService).Assembly.GetName().Version?.ToString() ?? "",
+                    Warning = "Do not edit database files manually. Do not use cloud-sync folders for live database files."
+                };
+                File.WriteAllText(Path.Combine(root, ManifestFileName),
+                    JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true }));
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning("Shared-root manifest could not be written: " + ex.Message,
+                    new LogContext { Module = "Database", Operation = "WriteSharedRootManifest" });
+            }
+        }
+
         private static bool IsFolderEmptyOfProGlassData(string folder)
         {
             if (!Directory.Exists(folder)) return true;
@@ -126,8 +164,7 @@ namespace ProGlassAutomation.Services.Database
 
             foreach (var file in Directory.GetFiles(sourceRoot, "*.db", SearchOption.TopDirectoryOnly))
             {
-                File.Copy(file, Path.Combine(targetRoot, Path.GetFileName(file)), overwrite: false);
-                copied++;
+                copied += CopySqliteFileSet(file, targetRoot);
             }
 
             foreach (var sub in ExtraDataSubfolders)
@@ -139,6 +176,21 @@ namespace ProGlassAutomation.Services.Database
                 copied++;
             }
 
+            return copied;
+        }
+
+
+        private static int CopySqliteFileSet(string dbPath, string targetRoot)
+        {
+            int copied = 0;
+            foreach (var path in new[] { dbPath, dbPath + "-wal", dbPath + "-shm" })
+            {
+                if (!File.Exists(path)) continue;
+                var target = Path.Combine(targetRoot, Path.GetFileName(path));
+                if (File.Exists(target)) continue;
+                File.Copy(path, target, overwrite: false);
+                copied++;
+            }
             return copied;
         }
 

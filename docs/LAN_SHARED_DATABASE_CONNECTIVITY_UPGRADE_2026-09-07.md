@@ -49,6 +49,14 @@ Updated the central data root so all shared-capable databases resolve through `A
 
 This avoids unsafe WAL behavior over a shared LAN/Wi-Fi folder while still keeping foreign keys and lock retries.
 
+### Safety hardening added after senior review
+The follow-up senior pass added three important production safeguards:
+
+- backup sets now include SQLite live sidecar files (`*.db-wal`, `*.db-shm`) so local WAL-mode databases are not backed up stale/incomplete;
+- Prepare Folder creates a safety backup before seeding a shared root;
+- prepared shared roots receive `proglass_shared_root.json`, making it clear the folder is a controlled ProGlass company data root;
+- Test Connection reports whether database files and the shared-root manifest already exist.
+
 ### Settings UI
 Settings → Data now has a **Company LAN / Wi-Fi Database** panel:
 

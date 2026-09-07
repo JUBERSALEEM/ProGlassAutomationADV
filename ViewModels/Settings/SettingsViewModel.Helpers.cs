@@ -453,6 +453,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                     System.Windows.MessageBoxImage.Warning);
                 if (confirm != System.Windows.MessageBoxResult.Yes) return;
 
+                var backup = Services.Database.DatabaseBackup.BackupService
+                    .CreateFullBackupSet("before shared database preparation");
+                if (string.IsNullOrWhiteSpace(backup))
+                {
+                    NetworkDataRootStatus = "✗ Safety backup failed. Shared database preparation was cancelled.";
+                    return;
+                }
+
                 var (ok, message) = SharedDataRootService.PrepareSharedFolder(
                     SharedDataRootPath, CopyLocalDataOnEnable);
                 NetworkDataRootStatus = message;
@@ -488,6 +496,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "DataConnectivity",
                     "Company LAN/Wi-Fi database connectivity setting changed.");
                 NetworkDataRootStatus = "✓ Connectivity settings saved. Restart ProGlass on every workstation so all modules open the same database root.";
+
+                var restart = _dialogs.Show(
+                    "Connectivity settings were saved. ProGlass must restart before any module opens the new database root.\n\nRestart this workstation now?",
+                    "Restart required",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
+                if (restart == System.Windows.MessageBoxResult.Yes)
+                    RestartApplication();
             });
 
             // ── Backup commands ───────────────────────────────────────
