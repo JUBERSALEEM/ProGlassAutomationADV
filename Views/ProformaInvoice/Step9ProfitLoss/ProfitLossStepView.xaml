@@ -413,28 +413,52 @@
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                 </Border>
                             </Grid>
-                            <TextBlock Text="{Binding BaseMarginPercentDisplay}"
-                                       FontSize="30" FontWeight="Bold" Margin="0,2,2,0"
-                                       TextWrapping="Wrap"
-                                       ToolTip="Margin against the BASE price: (given judged − base) ÷ base. Example: 170 against 135.58 = 25.38%.">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsBaseMarginBelow}" Value="True">
-                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
-                                                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <TextBlock Text="margin against base price"
-                                       FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,0,0,10"/>
+                            <Grid Margin="0,6,0,10"
+                                  ToolTip="Base margin = (given judged − base) ÷ base. Target margin = (given judged − required target) ÷ required target.">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="BASE" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                    <TextBlock Text="{Binding BaseMarginPercentDisplay}"
+                                               FontSize="28" FontWeight="Bold" TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsBaseMarginBelow}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="TARGET" Style="{StaticResource TgtMicroLabelStyle}"/>
+                                    <TextBlock Text="{Binding TargetMarginPercentDisplay}"
+                                               FontSize="28" FontWeight="Bold" TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsTargetMarginBelow}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                             <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,0,0,10"/>
                             <StackPanel>
                                 <Grid>

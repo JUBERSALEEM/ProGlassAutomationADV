@@ -101,3 +101,9 @@ The third Target Profitability KPI card now exposes both industrial margin lense
 - Margin against TARGET price: `(given judged - required target) / required target`, e.g. target AED 155.92 and given AED 170 = +9.03%.
 
 The card now shows base margin, base AED/m² balance, base total value balance, target margin, target AED/m² balance and target total value balance. The per-spec detail panel also shows base price, base margin and base balance before the target result. A signed-total bug was also corrected: target difference totals now preserve negative balances instead of clamping them to zero.
+
+## Follow-up correction — target formula must use Step 4 pane rates, not sheet allocation rates
+
+A senior review found the Target Profitability formula had been polluted by the actual sheet-cost model. When Step 6 sheet setup existed, the target rate card converted allocated sheet cost into AED/m² over finished area and forced yield to 1.00. That caused formulas like `((61.05 + 29.35) / 1 + 45) * 1.15` instead of the commercial Step 4 target formula.
+
+Target Profitability now uses the correct commercial formula again: exact Step 4 pane box rates plus spacer/processing, divided by the Step 9 wastage yield, then uplifted by the expected profit margin. Example: `(52 + 25) / 0.85 + 45 = 135.58`, target at 15% = `155.92`. Step 6 allocated sheets remain only in actual sheet-cost rows and Sheet Details.
