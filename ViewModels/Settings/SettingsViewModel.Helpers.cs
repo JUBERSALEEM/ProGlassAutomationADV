@@ -436,6 +436,60 @@ namespace ProGlassAutomation.ViewModels.Settings
                 Services.Updates.UpdateService.InstallAndRestart();
             });
 
+            // ── LAN / Wi-Fi shared database commands ──────────────────
+            TestSharedDataRootCommand = new RelayCommand(_ =>
+            {
+                var result = SharedDataRootService.Probe(SharedDataRootPath);
+                NetworkDataRootStatus = result.Message;
+            });
+
+            PrepareSharedDataRootCommand = new RelayCommand(_ =>
+            {
+                var confirm = _dialogs.Show(
+                    "This will verify the shared folder and, if enabled, copy the current local ProGlass dataset only when the shared folder is empty.\n\n" +
+                    "Use a reliable Windows shared folder on the same LAN/Wi-Fi. Do not use cloud-sync folders for live databases. Continue?",
+                    "Prepare shared company database folder",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning);
+                if (confirm != System.Windows.MessageBoxResult.Yes) return;
+
+                var (ok, message) = SharedDataRootService.PrepareSharedFolder(
+                    SharedDataRootPath, CopyLocalDataOnEnable);
+                NetworkDataRootStatus = message;
+                if (ok)
+                {
+                    UseSharedDataRoot = true;
+                    SharedDataRootService.ApplyToConfig(_config, true,
+                        SharedDataRootPath, CopyLocalDataOnEnable);
+                    ConfigService.Save(_config);
+                    OnPropertyChanged(nameof(CurrentDataRootDisplay));
+                }
+            });
+
+            ApplySharedDataRootCommand = new RelayCommand(_ =>
+            {
+                var probe = SharedDataRootService.Probe(SharedDataRootPath);
+                if (UseSharedDataRoot && !probe.Ok)
+                {
+                    NetworkDataRootStatus = probe.Message;
+                    return;
+                }
+
+                SharedDataRootService.ApplyToConfig(_config, UseSharedDataRoot,
+                    SharedDataRootPath, CopyLocalDataOnEnable);
+                ConfigService.Save(_config);
+                Services.Audit.AuditService.Log(
+                    Services.Audit.AuditSections.Settings,
+                    UseSharedDataRoot ? "Shared database enabled" : "Shared database disabled",
+                    UseSharedDataRoot
+                        ? $"Shared data root saved: {_config.DataConnectivity.SharedDataRootPath}"
+                        : "Workstation will use local AppData database root after restart.",
+                    "Settings",
+                    "DataConnectivity",
+                    "Company LAN/Wi-Fi database connectivity setting changed.");
+                NetworkDataRootStatus = "✓ Connectivity settings saved. Restart ProGlass on every workstation so all modules open the same database root.";
+            });
+
             // ── Backup commands ───────────────────────────────────────
             RefreshBackupsCommand = new RelayCommand(_ =>
             {
@@ -538,10 +592,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 try
                 {
-                    var folder = System.IO.Path.Combine(
-                        System.Environment.GetFolderPath(
-                            System.Environment.SpecialFolder.ApplicationData),
-                        "ProGlassAutomation", "Backups");
+                    var folder = Services.Database.DatabaseBackup.BackupService.GetBackupsFolder();
 
                     System.IO.Directory.CreateDirectory(folder);
                                 ProcessStartGuard.TryOpenFolder(folder, CorrelationContext.NewId());

@@ -148,7 +148,7 @@ namespace ProGlassAutomation.Services.Audit
             {
                 using var cmd = connection.CreateCommand();
                 cmd.CommandText = ProGlassAutomation.Services.Database
-                    .SqliteResilience.PragmaScript;
+                    .SqliteResilience.PragmaScriptFor(AuditDbContext.DatabaseFilePath);
                 cmd.ExecuteNonQuery();
             }
             catch (System.Exception ex)

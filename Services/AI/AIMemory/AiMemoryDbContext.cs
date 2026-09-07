@@ -31,9 +31,8 @@ namespace ProGlassAutomation.Services.AI.AIMemory
         public DbSet<AiMemoryEntry> Memories { get; set; }
 
         public static string DatabaseFilePath => Path.Combine(
-            Environment.GetFolderPath(
-                Environment.SpecialFolder.ApplicationData),
-            "ProGlassAutomation", "aimemory.db");
+            ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
+            "aimemory.db");
 
         protected override void OnConfiguring(
             DbContextOptionsBuilder optionsBuilder)

@@ -53,11 +53,9 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
     /// </summary>
     public static class BackupService
     {
-        private static readonly string AppDataFolder = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ProGlassAutomation");
+        private static string AppDataFolder => AppDataRoot.CurrentFolder;
 
-        private static readonly string BackupFolder =
+        private static string BackupFolder =>
             Path.Combine(AppDataFolder, "Backups");
 
         /// <summary>

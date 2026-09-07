@@ -96,6 +96,88 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand RebuildAllDatabasesCommand { get; private set; }
 
 
+
+        // ══════════════════════════════════════════════════════════════
+        //  LAN / Wi-Fi SHARED DATABASE CONNECTIVITY
+        // ══════════════════════════════════════════════════════════════
+
+        public bool UseSharedDataRoot
+        {
+            get => _config?.DataConnectivity?.UseSharedDataRoot ?? false;
+            set
+            {
+                if (_config?.DataConnectivity == null) return;
+                if (_config.DataConnectivity.UseSharedDataRoot == value) return;
+                _config.DataConnectivity.UseSharedDataRoot = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(DataRootModeDisplay));
+                NetworkDataRootStatus = value
+                    ? "Shared database mode selected. Test/prepare the folder, save, then restart all workstations."
+                    : "Local database mode selected. Save and restart to return this workstation to local AppData.";
+                ScheduleDebouncedSave();
+            }
+        }
+
+        public string SharedDataRootPath
+        {
+            get => _config?.DataConnectivity?.SharedDataRootPath ?? "";
+            set
+            {
+                if (_config?.DataConnectivity == null) return;
+                var v = value ?? "";
+                if (_config.DataConnectivity.SharedDataRootPath == v) return;
+                _config.DataConnectivity.SharedDataRootPath = v;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentDataRootDisplay));
+                NetworkDataRootStatus = "Shared folder changed. Run Test Connection before enabling across the company.";
+                ScheduleDebouncedSave();
+            }
+        }
+
+        public bool CopyLocalDataOnEnable
+        {
+            get => _config?.DataConnectivity?.CopyLocalDataOnEnable ?? true;
+            set
+            {
+                if (_config?.DataConnectivity == null) return;
+                if (_config.DataConnectivity.CopyLocalDataOnEnable == value) return;
+                _config.DataConnectivity.CopyLocalDataOnEnable = value;
+                OnPropertyChanged();
+                ScheduleDebouncedSave();
+            }
+        }
+
+        public string WorkstationName
+        {
+            get => string.IsNullOrWhiteSpace(_config?.DataConnectivity?.WorkstationName)
+                ? Environment.MachineName
+                : _config!.DataConnectivity.WorkstationName;
+            set
+            {
+                if (_config?.DataConnectivity == null) return;
+                _config.DataConnectivity.WorkstationName = value ?? "";
+                OnPropertyChanged();
+                ScheduleDebouncedSave();
+            }
+        }
+
+        private string _networkDataRootStatus = "Local database mode. Use this only after creating a reliable shared Windows folder on the same LAN/Wi-Fi.";
+        public string NetworkDataRootStatus
+        {
+            get => _networkDataRootStatus;
+            private set { _networkDataRootStatus = value; OnPropertyChanged(); }
+        }
+
+        public string DataRootModeDisplay => UseSharedDataRoot
+            ? "Shared LAN/Wi-Fi database mode"
+            : "Local workstation database mode";
+
+        public string CurrentDataRootDisplay => Services.Database.AppDataRoot.CurrentFolder;
+
+        public ICommand TestSharedDataRootCommand { get; private set; }
+        public ICommand PrepareSharedDataRootCommand { get; private set; }
+        public ICommand ApplySharedDataRootCommand { get; private set; }
+
         // ══════════════════════════════════════════════════════════════
         //  v2 — BACKUP & RESTORE (full dataset sets)
         // ══════════════════════════════════════════════════════════════

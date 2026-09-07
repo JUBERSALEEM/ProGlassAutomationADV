@@ -54,9 +54,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Attachments
         public ProformaAttachmentService()
         {
             _rootFolder = Path.Combine(
-                Environment.GetFolderPath(
-                    Environment.SpecialFolder.ApplicationData),
-                "ProGlassAutomation",
+                ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
                 "ProformaInvoices",
                 "Attachments");
 

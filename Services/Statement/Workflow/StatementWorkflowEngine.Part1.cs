@@ -55,16 +55,14 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         // Structure: Attachments\Images\{DeliveryNoteId}\{filename}
         //        or: Attachments\PDFs\{DeliveryNoteId}\{filename}
         private static string DnAttachmentRoot => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ProGlassAutomation",
+            ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
             "DeliveryNotes",
             "Attachments");
 
         // Proforma Invoice Step 8 attachment root (matches ProformaAttachmentService)
         // Structure: ProformaInvoices\\Attachments\\{ProformaId}\\{Images|PDFs}\\{filename}
         private static string PiAttachmentRoot => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ProGlassAutomation",
+            ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
             "ProformaInvoices",
             "Attachments");
 

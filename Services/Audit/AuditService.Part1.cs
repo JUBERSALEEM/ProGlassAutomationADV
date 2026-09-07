@@ -180,7 +180,7 @@ namespace ProGlassAutomation.Services.Audit
                 Username = CurrentUsername,
                 UserDisplayName = Truncate(_currentUser?.DisplayName ?? CurrentUsername, 120),
                 UserRole = Truncate(_currentUser?.Role ?? "System", 30),
-                MachineName = Truncate(Environment.MachineName, 80),
+                MachineName = Truncate(GetWorkstationName(), 80),
                 AppVersion = Truncate(GetAppVersion(), 40),
                 LocalTimeZone = Truncate(GetLocalTimeZone(), 80),
                 OperationId = "OP-" + Guid.NewGuid().ToString("N")[..12].ToUpperInvariant(),
@@ -194,6 +194,21 @@ namespace ProGlassAutomation.Services.Audit
             };
         }
 
+
+        private static string GetWorkstationName()
+        {
+            try
+            {
+                var configured = ProGlassAutomation.App.Config?.DataConnectivity?.WorkstationName;
+                return string.IsNullOrWhiteSpace(configured)
+                    ? Environment.MachineName
+                    : configured.Trim();
+            }
+            catch
+            {
+                return Environment.MachineName;
+            }
+        }
 
         private static string GetAppVersion()
         {

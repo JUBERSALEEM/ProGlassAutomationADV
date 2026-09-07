@@ -261,6 +261,11 @@ namespace ProGlassAutomation
             // 1) Load persisted config
             Config = ConfigService.Load();
 
+            // 1a) DATA ROOT — must be applied BEFORE any DbContext opens.
+            // When Settings enables a LAN/Wi-Fi shared data folder, every
+            // business DbContext now resolves through AppDataRoot.CurrentFolder.
+            AppDataRoot.ConfigureFrom(Config);
+
             // 1b) GLOBAL LOCALE — language, currency, country.
             //     • GeoService: cached country first, IP refresh after.
             //     • CurrencyService: cached FX rates, live internet

@@ -41,16 +41,16 @@ namespace ProGlassAutomation.Services.Security
     {
         // ── Allowed roots ──────────────────────────────────────────────
 
-        private static string AppDataRoot => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ProGlassAutomation");
+        private static string AppDataRoot => ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder;
 
-        private static readonly HashSet<string> AllowedRoots = new(StringComparer.OrdinalIgnoreCase)
+        private static IEnumerable<string> AllowedRoots()
         {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ProGlassAutomation"),
-            Path.GetTempPath(),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"),
-        };
+            yield return ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder;
+            yield return ProGlassAutomation.Services.Database.AppDataRoot.ProductionFolder;
+            yield return ProGlassAutomation.Services.Database.AppDataRoot.DemoFolder;
+            yield return Path.GetTempPath();
+            yield return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        }
 
         // ── Allowed extensions for document open ───────────────────────
 
@@ -72,23 +72,42 @@ namespace ProGlassAutomation.Services.Security
             try
             {
                 string full = Path.GetFullPath(path);
-                // No UNC
-                if (full.StartsWith(@"\\", StringComparison.Ordinal)) return false;
+                // UNC is allowed only when it is the configured shared data root.
+                if (full.StartsWith(@"\\", StringComparison.Ordinal)
+                    && !IsInsideRoot(full, ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder))
+                    return false;
                 // No ADS (alternate data stream)
                 if (full.Contains(':') && full.IndexOf(':', 2) != -1) return false; // allow C:\ but not file:stream
 
-                foreach (var root in AllowedRoots)
+                foreach (var root in AllowedRoots())
                 {
-                    string rootFull = Path.GetFullPath(root);
-                    if (full.StartsWith(rootFull, StringComparison.OrdinalIgnoreCase))
+                    if (IsInsideRoot(full, root))
                         return true;
                 }
 
-                // Also allow if file is inside AppDataRoot subfolder (already in AllowedRoots, but double-check)
-                if (full.StartsWith(Path.GetFullPath(AppDataRoot), StringComparison.OrdinalIgnoreCase))
+                // Also allow if file is inside current AppDataRoot subfolder.
+                if (IsInsideRoot(full, AppDataRoot))
                     return true;
 
                 return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static bool IsInsideRoot(string fullPath, string root)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(root)) return false;
+                string rootFull = Path.GetFullPath(root)
+                    .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+                string full = Path.GetFullPath(fullPath);
+                return full.Equals(rootFull, StringComparison.OrdinalIgnoreCase)
+                    || full.StartsWith(rootFull + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+                    || full.StartsWith(rootFull + Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
             }
             catch
             {

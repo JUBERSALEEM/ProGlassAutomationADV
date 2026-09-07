@@ -12,6 +12,22 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public double Opacity { get; set; } = 0.85;
     }
 
+    /// <summary>Professional local/LAN database connectivity settings.</summary>
+    public class DataConnectivitySettings
+    {
+        /// <summary>Use a shared LAN/Wi-Fi folder for all business SQLite databases.</summary>
+        public bool UseSharedDataRoot { get; set; }
+
+        /// <summary>UNC or mapped-drive folder, e.g. \\SERVER\ProGlassData.</summary>
+        public string SharedDataRootPath { get; set; } = "";
+
+        /// <summary>When true, copy the current local data set into an empty shared folder before switching.</summary>
+        public bool CopyLocalDataOnEnable { get; set; } = true;
+
+        /// <summary>Station label for audit/support; defaults to machine name when blank.</summary>
+        public string WorkstationName { get; set; } = "";
+    }
+
     /// <summary>
     /// Appearance preferences (v2 visual theme engine + wallpaper).
     /// No secrets here — plain settings only.
@@ -557,6 +573,9 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public AiSettings Ai { get; set; } = new AiSettings();
         public bool OnlineFeaturesEnabled { get; set; } = true;
         public AppearanceSettings Appearance { get; set; } = new();
+
+        /// <summary>Local/LAN database pipeline settings.</summary>
+        public DataConnectivitySettings DataConnectivity { get; set; } = new();
         public LocalizationSettings Localization { get; set; } = new();
 
         /// <summary>

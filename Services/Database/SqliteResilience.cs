@@ -128,6 +128,36 @@ namespace ProGlassAutomation.Services.Database
             "PRAGMA mmap_size    = 67108864;" +   // 64 MB
             "PRAGMA cache_size   = -16000;";      // 16 MB (negative = kB)
 
+        internal const string NetworkSharePragmaScript =
+            "PRAGMA journal_mode = DELETE;" +     // WAL shared memory is unsafe on SMB/NAS
+            "PRAGMA synchronous  = FULL;" +
+            "PRAGMA busy_timeout = 15000;" +
+            "PRAGMA foreign_keys = ON;" +
+            "PRAGMA temp_store   = MEMORY;" +
+            "PRAGMA cache_size   = -12000;";
+
+        internal static string PragmaScriptFor(string? databaseFilePath) =>
+            IsSharedRootDatabase(databaseFilePath) ? NetworkSharePragmaScript : PragmaScript;
+
+        private static bool IsSharedRootDatabase(string? databaseFilePath)
+        {
+            try
+            {
+                if (!AppDataRoot.IsSharedDataRootEnabled || string.IsNullOrWhiteSpace(databaseFilePath))
+                    return false;
+                string db = System.IO.Path.GetFullPath(databaseFilePath);
+                string root = System.IO.Path.GetFullPath(AppDataRoot.SharedDataRoot)
+                    .TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar);
+                return db.Equals(root, StringComparison.OrdinalIgnoreCase)
+                    || db.StartsWith(root + System.IO.Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+                    || db.StartsWith(root + System.IO.Path.AltDirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         // ── Public helpers ──────────────────────────────────────────────
 
         /// <summary>
@@ -148,7 +178,9 @@ namespace ProGlassAutomation.Services.Database
             {
                 DataSource = databaseFilePath,
                 Mode = SqliteOpenMode.ReadWriteCreate,
-                Cache = SqliteCacheMode.Shared,
+                Cache = IsSharedRootDatabase(databaseFilePath)
+                    ? SqliteCacheMode.Default
+                    : SqliteCacheMode.Shared,
                 // 30 s default statement timeout is fine for a desktop
                 // app; the busy_timeout PRAGMA above already covers
                 // transient lock waits. The connection-string
@@ -265,7 +297,7 @@ namespace ProGlassAutomation.Services.Database
                 try
                 {
                     using var cmd = sqlite.CreateCommand();
-                    cmd.CommandText = PragmaScript;
+                    cmd.CommandText = PragmaScriptFor(sqlite.DataSource);
                     cmd.CommandType = CommandType.Text;
                     cmd.ExecuteNonQuery();
                 }

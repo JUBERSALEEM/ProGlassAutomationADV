@@ -4,7 +4,7 @@
 // MODULE: Audit / Activity Logging
 //
 // Dedicated SQLite DbContext for users + activity log.
-// Database file: %AppData%\ProGlassAutomation\audit.db
+// Database file: AppDataRoot.CurrentFolder\audit.db (local or shared LAN root)
 //
 // Kept isolated from all business databases so the audit trail can be
 // backed up / inspected independently (same pattern as
@@ -28,18 +28,9 @@ namespace ProGlassAutomation.Services.Audit
         public DbSet<ActivityLogEntry> ActivityLog { get; set; }
 
         /// <summary>Pure path computation — no side effects.</summary>
-        public static string DatabaseFilePath
-        {
-            get
-            {
-                var appDataFolder = Path.Combine(
-                    Environment.GetFolderPath(
-                        Environment.SpecialFolder.ApplicationData),
-                    "ProGlassAutomation");
-
-                return Path.Combine(appDataFolder, "audit.db");
-            }
-        }
+        public static string DatabaseFilePath => Path.Combine(
+            ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
+            "audit.db");
 
         protected override void OnConfiguring(
             DbContextOptionsBuilder optionsBuilder)

@@ -128,6 +128,7 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 // dereferences these on every render so a null here
                 // is a crash surface.
                 config.Appearance ??= new AppearanceSettings();
+                config.DataConnectivity ??= new DataConnectivitySettings();
 
                 // ── One-time theme migration (2026-09-07) ────────────────
                 // Saved configs created before the industrial restoration

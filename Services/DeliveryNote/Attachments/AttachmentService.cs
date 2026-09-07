@@ -35,9 +35,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         public AttachmentService()
         {
             _rootFolder = Path.Combine(
-                Environment.GetFolderPath(
-                    Environment.SpecialFolder.ApplicationData),
-                "ProGlassAutomation",
+                ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
                 "DeliveryNotes",
                 "Attachments");
 

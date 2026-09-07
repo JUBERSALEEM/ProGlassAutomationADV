@@ -98,6 +98,8 @@ namespace ProGlassAutomation.ViewModels.Settings
         // and the DI-selected parameterized ctor initialize fully.
         private void InitializeCore()
         {
+            _config.DataConnectivity ??= new DataConnectivitySettings();
+
             // v2 shell: navigation between the settings pages.
             SwitchSettingsPageCommand = new RelayCommand(
                 p => SettingsPage = p as string ?? "Appearance");
