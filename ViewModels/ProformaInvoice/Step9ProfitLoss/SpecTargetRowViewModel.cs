@@ -188,6 +188,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         // ── SECTION 5 — RESULT ──────────────────────────────────────────
 
+        public string BasePriceDisplay => FormatRate(Result?.BasePricePerSqm);
+
+        public string BaseDifferencePerSqmDisplay => Result?.ExtraProfitPerSqm switch
+        {
+            null => "—",
+            var d when d < 0m => $"-AED {Math.Abs(d.Value):N2}/m²",
+            var d => $"AED {d.Value:N2}/m²"
+        };
+
+        public string BaseDifferenceValueDisplay
+        {
+            get
+            {
+                if (Result?.ExtraProfitPerSqm == null || Result.AreaSqm <= 0m)
+                    return "—";
+                decimal value = Math.Round(Result.ExtraProfitPerSqm.Value * Result.AreaSqm, 2);
+                return value < 0m
+                    ? $"-AED {Math.Abs(value):N2}"
+                    : $"AED {value:N2}";
+            }
+        }
+
+        public string BaseMarginDisplay =>
+            Result?.ExtraProfitMarginPercent switch
+            {
+                null => "—",
+                var m => $"{m.Value:+0.##;-0.##;0.##}%"
+            };
+
+        public bool IsBelowBase => (Result?.ExtraProfitMarginPercent ?? 0m) < 0m;
+
         public string FinalRequiredTargetDisplay => FormatRate(Result?.FinalRequiredTargetPerSqm);
         public string DifferencePerSqmDisplay => Result?.DifferencePerSqm switch
         {

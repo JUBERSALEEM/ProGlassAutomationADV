@@ -359,6 +359,49 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         /// <summary>Area-weighted average base price (pre-uplift formula), AED/m².</summary>
+
+        public string BaseMarginPercentDisplay =>
+            JobTargetResult?.ExtraProfitMarginPercent switch
+            {
+                null => "—",
+                var m => $"{m.Value:+0.##;-0.##;0.##}%"
+            };
+
+        public string BaseBalancePerSqmDisplay => ExtraProfitPerSqmDisplay;
+
+        public string BaseBalanceValueDisplay
+        {
+            get
+            {
+                var specs = JobTargetResult?.Specifications;
+                if (specs == null || specs.Count == 0) return "—";
+
+                decimal total = specs
+                    .Where(s => s.HasValidExtraProfit && s.AreaSqm > 0m)
+                    .Sum(s => (s.ExtraProfitPerSqm ?? 0m) * s.AreaSqm);
+                return total < 0m
+                    ? $"-AED {Math.Abs(total):N2}"
+                    : $"AED {total:N2}";
+            }
+        }
+
+        public bool IsBaseMarginBelow =>
+            (JobTargetResult?.ExtraProfitMarginPercent ?? 0m) < 0m;
+
+        public string TargetMarginPercentDisplay =>
+            JobTargetResult?.MarginAgainstTargetPercent switch
+            {
+                null => "—",
+                var m => $"{m.Value:+0.##;-0.##;0.##}%"
+            };
+
+        public string TargetBalancePerSqmDisplay => DifferencePerSqmDisplay;
+
+        public string TargetBalanceValueDisplay => TotalDifferenceValueDisplay;
+
+        public bool IsTargetMarginBelow =>
+            (JobTargetResult?.MarginAgainstTargetPercent ?? 0m) < 0m;
+
         public string BasePriceAverageDisplay => FormatRateCard(JobTargetResult?.AverageBasePricePerSqm);
 
         /// <summary>Area-weighted average given price as judged for the margin.</summary>
@@ -654,6 +697,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             OnPropertyChanged(nameof(ExtraProfitPerSqmDisplay));
             OnPropertyChanged(nameof(IsExtraProfitLoss));
             OnPropertyChanged(nameof(ExtraProfitMarginPercentDisplay));
+            OnPropertyChanged(nameof(BaseMarginPercentDisplay));
+            OnPropertyChanged(nameof(BaseBalancePerSqmDisplay));
+            OnPropertyChanged(nameof(BaseBalanceValueDisplay));
+            OnPropertyChanged(nameof(IsBaseMarginBelow));
+            OnPropertyChanged(nameof(TargetMarginPercentDisplay));
+            OnPropertyChanged(nameof(TargetBalancePerSqmDisplay));
+            OnPropertyChanged(nameof(TargetBalanceValueDisplay));
+            OnPropertyChanged(nameof(IsTargetMarginBelow));
             OnPropertyChanged(nameof(TargetJobStatusLabel));
             OnPropertyChanged(nameof(IsTargetBelow));
             OnPropertyChanged(nameof(IsTargetAbove));

@@ -92,3 +92,12 @@ Sheet Details now keeps the Step 6 setup utilization visible at two-decimal prec
 ## Follow-up correction — Target Profitability glass-cost lens
 
 The Target Profitability actual-cost summary no longer displays `glass + production cost`. It now uses a clean `glass cost only` lens. Active Step 6 add-ons (U-insert, argon, fanhole, holes, cutout, polish, custom extras) are treated as separately billed commercial lines and are not imported into that target summary. If an extra toggle is OFF, the business interpretation is that its price is included inside the Step 5 given AED/m² price/target judgement, not shown as a separate production-cost line in the glass-cost card.
+
+## Follow-up correction — Target Profitability base-vs-target balance
+
+The third Target Profitability KPI card now exposes both industrial margin lenses instead of mixing the wording:
+
+- Margin against BASE price: `(given judged - base price) / base price`, e.g. base AED 135.58 and given AED 170 = +25.39%.
+- Margin against TARGET price: `(given judged - required target) / required target`, e.g. target AED 155.92 and given AED 170 = +9.03%.
+
+The card now shows base margin, base AED/m² balance, base total value balance, target margin, target AED/m² balance and target total value balance. The per-spec detail panel also shows base price, base margin and base balance before the target result. A signed-total bug was also corrected: target difference totals now preserve negative balances instead of clamping them to zero.

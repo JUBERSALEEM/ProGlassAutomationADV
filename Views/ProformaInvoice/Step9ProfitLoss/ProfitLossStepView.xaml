@@ -392,7 +392,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="MARGIN AGAINST TARGET" Style="{StaticResource TgtCaptionStyle}" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="0" Text="PRICE BALANCE — BASE / TARGET" Style="{StaticResource TgtCaptionStyle}" VerticalAlignment="Center"/>
                                 <!-- Status pill -->
                                 <Border Grid.Column="1">
                                     <Border.Style>
@@ -413,15 +413,15 @@
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                 </Border>
                             </Grid>
-                            <TextBlock Text="{Binding ExtraProfitPerSqmDisplay}"
+                            <TextBlock Text="{Binding BaseMarginPercentDisplay}"
                                        FontSize="30" FontWeight="Bold" Margin="0,2,2,0"
                                        TextWrapping="Wrap"
-                                       ToolTip="Extra profit over the base price — judged on the given price against the base price, never against the final required target.">
+                                       ToolTip="Margin against the BASE price: (given judged − base) ÷ base. Example: 170 against 135.58 = 25.38%.">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsExtraProfitLoss}" Value="True">
+                                            <DataTrigger Binding="{Binding IsBaseMarginBelow}" Value="True">
                                                 <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
@@ -431,7 +431,7 @@
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
-                            <TextBlock Text="{Binding ExtraProfitMarginPercentDisplay}"
+                            <TextBlock Text="margin against base price"
                                        FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,0,0,10"/>
@@ -481,6 +481,35 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Margin against BASE price" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding BaseMarginPercentDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}" FontWeight="SemiBold"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Base balance" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding BaseBalancePerSqmDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Base balance value" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding BaseBalanceValueDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="Required target price (base + margin %)" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding RequiredTargetPriceDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
@@ -491,8 +520,27 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Given judged vs required target" Style="{StaticResource TgtKvLabelStyle}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding DifferencePerSqmDisplay}"
+                                    <TextBlock Grid.Column="0" Text="Margin against TARGET" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding TargetMarginPercentDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}" FontWeight="SemiBold"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Target balance" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding TargetBalancePerSqmDisplay}"
+                                               Style="{StaticResource TgtKvValueStyle}"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                </Grid>
+                                <Grid Margin="0,6,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Target balance value" Style="{StaticResource TgtKvLabelStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding TargetBalanceValueDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                 </Grid>
@@ -1271,8 +1319,33 @@
                                                    TextWrapping="Wrap" Margin="0,6,0,0"/>
 
                                         <!-- 5 · RESULT -->
-                                        <TextBlock Text="5 · RESULT" Style="{StaticResource TgtSideHeadingStyle}"/>
+                                        <TextBlock Text="5 · RESULT — BASE AND TARGET BALANCE" Style="{StaticResource TgtSideHeadingStyle}"/>
                                         <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Base price" Style="{StaticResource TgtSideLabelStyle}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding BasePriceDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                        </Grid>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Margin against base" Style="{StaticResource TgtSideLabelStyle}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding BaseMarginDisplay}"
+                                                       Style="{StaticResource TgtSideValueStyle}" FontWeight="Bold"/>
+                                        </Grid>
+                                        <Grid Margin="0,4,0,0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Base balance" Style="{StaticResource TgtSideLabelStyle}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding BaseDifferencePerSqmDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
+                                        </Grid>
+                                        <Grid Margin="0,8,0,0">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
@@ -1290,7 +1363,7 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="Difference" Style="{StaticResource TgtSideLabelStyle}"/>
+                                            <TextBlock Grid.Column="0" Text="Target balance" Style="{StaticResource TgtSideLabelStyle}"/>
                                             <TextBlock Grid.Column="1" Text="{Binding DifferencePerSqmDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
                                         </Grid>
                                         <Grid>

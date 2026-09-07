@@ -442,7 +442,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 result.TotalSpecificationTargetValue += Math.Max(0m,
                     Math.Round(Math.Max(0m, spec.SpecificationTargetPerSqm) * area, 2));
                 result.TotalRequiredTargetValue += Math.Max(0m, spec.RequiredTargetValue);
-                result.TotalDifferenceValue += Math.Max(0m, spec.DifferenceValue);
+                // Difference is a balance, not income. Preserve the sign so
+                // totals can show how far the job is above or below target.
+                result.TotalDifferenceValue += spec.DifferenceValue;
 
                 // Base-price judgement (KPI trigger): area-weighted sums of
                 // the per-spec base price and given-judged price.
