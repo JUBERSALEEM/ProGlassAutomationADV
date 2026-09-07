@@ -538,6 +538,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
+        public string TargetFormulaAllSpecsText =>
+            TargetSpecsView.Count > 0
+                ? string.Join(Environment.NewLine, TargetSpecsView.Select(r => r.FormulaSummaryLine))
+                : "—";
+
         // ── Value totals (compact fields under the cards) ───────────────
 
         public string TotalGivenValueDisplay => JobTargetResult != null
@@ -712,6 +717,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             OnPropertyChanged(nameof(TargetFormulaPreview));
             OnPropertyChanged(nameof(TargetFormulaSpecLabel));
             OnPropertyChanged(nameof(TargetFormulaStepsText));
+            OnPropertyChanged(nameof(TargetFormulaAllSpecsText));
             OnPropertyChanged(nameof(TargetScopeNote));
             OnPropertyChanged(nameof(TotalGivenValueDisplay));
             OnPropertyChanged(nameof(TotalRequiredTargetValueDisplay));
@@ -774,6 +780,80 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
 
+        private decimal ResolveTargetPaneRate(
+            SpecGroup group,
+            string paneSide,
+            string paneColor,
+            decimal groupRate,
+            decimal liveFallback)
+        {
+            var rowSources = _otherChargesVm?.WastagesSection?.WastageRows
+                .SelectMany(r => r.AvailableSources)
+                .Where(s => s != null
+                    && s.IsChecked
+                    && s.SpecNumber == group.GroupNumber
+                    && s.PricePerSqm > 0m
+                    && Step6PaneSideMatches(s.SideLabel, paneSide))
+                .ToList();
+
+            if (rowSources != null && rowSources.Count > 0)
+            {
+                string color = (paneColor ?? string.Empty).Trim();
+                if (color.Length > 0)
+                {
+                    var exact = rowSources.FirstOrDefault(s =>
+                        string.Equals((s.ColorName ?? string.Empty).Trim(),
+                            color, StringComparison.OrdinalIgnoreCase));
+                    if (exact != null)
+                        return exact.PricePerSqm;
+                }
+
+                var distinctPrices = rowSources
+                    .Select(s => s.PricePerSqm)
+                    .Distinct()
+                    .ToList();
+                if (distinctPrices.Count == 1)
+                    return distinctPrices[0];
+            }
+
+            return groupRate > 0m ? groupRate : liveFallback;
+        }
+
+        private static bool Step6PaneSideMatches(string sourceSide, string paneSide)
+        {
+            string src = sourceSide ?? string.Empty;
+            string pane = paneSide ?? string.Empty;
+
+            if (pane.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                return src.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (pane.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0)
+                return src.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (pane.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                return src.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0
+                    || src.IndexOf("Middle", StringComparison.OrdinalIgnoreCase) >= 0;
+            return src.IndexOf("Outer", StringComparison.OrdinalIgnoreCase) >= 0
+                && src.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) < 0;
+        }
+
+        private static string PaneColor(SpecGroup group, string paneSide)
+        {
+            var panes = PnLSpecParser.ResolveAllPanes(group?.SelectedSpecName);
+            if (panes.Count > 0)
+            {
+                if (paneSide.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return panes.Count >= 3 ? panes[^1].Color : panes[^1].Color;
+                if (paneSide.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return panes.Count >= 2 ? panes[1].Color : string.Empty;
+                if (paneSide.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return panes.Count >= 2 ? panes[^1].Color : string.Empty;
+                return panes[0].Color;
+            }
+
+            if (paneSide.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                return group?.InnerGlassColor ?? string.Empty;
+            return group?.OuterGlassColor ?? string.Empty;
+        }
+
         /// <summary>
         /// Builds the commercial target-rate card from the spec group's
         /// exact Step 4 handoff metadata first, then falls back to the bound
@@ -797,8 +877,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     return new SpecificationRateCard
                     {
                         BuildType = GlassBuildType.Dgu,
-                        OuterGlassRatePerSqm = group.OuterSheetPricePerSqm > 0m ? group.OuterSheetPricePerSqm : _dguVm.OuterBasePrice,
-                        InnerGlassRatePerSqm = group.InnerSheetPricePerSqm > 0m ? group.InnerSheetPricePerSqm : _dguVm.InnerBasePrice,
+                        OuterGlassRatePerSqm = ResolveTargetPaneRate(group, "Outer", PaneColor(group, "Outer"), group.OuterSheetPricePerSqm, _dguVm.OuterBasePrice),
+                        InnerGlassRatePerSqm = ResolveTargetPaneRate(group, "Inner", PaneColor(group, "Inner"), group.InnerSheetPricePerSqm, _dguVm.InnerBasePrice),
                         AspRatePerSqm = group.Step4SpacerPricePerSqm ?? _dguVm.SpacerPrice,
                         ProcessingRatePerSqm = 0m,
                         YieldFactor = yield,
@@ -810,7 +890,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     return new SpecificationRateCard
                     {
                         BuildType = GlassBuildType.Sgu,
-                        OuterGlassRatePerSqm = group.OuterSheetPricePerSqm > 0m ? group.OuterSheetPricePerSqm : _sguVm.BasePricePerSqm,
+                        OuterGlassRatePerSqm = ResolveTargetPaneRate(group, "Outer", PaneColor(group, "Outer"), group.OuterSheetPricePerSqm, _sguVm.BasePricePerSqm),
                         InnerGlassRatePerSqm = 0m,
                         AspRatePerSqm = 0m,
                         ProcessingRatePerSqm = group.Step4CuttingCostPerSqm ?? (_sguVm.CuttingCostPerSqm + _sguVm.TemperingCostPerSqm),
@@ -823,8 +903,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     return new SpecificationRateCard
                     {
                         BuildType = GlassBuildType.Lam,
-                        OuterGlassRatePerSqm = group.OuterSheetPricePerSqm > 0m ? group.OuterSheetPricePerSqm : _lamVm.OuterBasePrice,
-                        InnerGlassRatePerSqm = group.InnerSheetPricePerSqm > 0m ? group.InnerSheetPricePerSqm : _lamVm.InnerBasePrice,
+                        OuterGlassRatePerSqm = ResolveTargetPaneRate(group, "Outer", PaneColor(group, "Outer"), group.OuterSheetPricePerSqm, _lamVm.OuterBasePrice),
+                        InnerGlassRatePerSqm = ResolveTargetPaneRate(group, "Inner", PaneColor(group, "Inner"), group.InnerSheetPricePerSqm, _lamVm.InnerBasePrice),
                         AspRatePerSqm = 0m,
                         ProcessingRatePerSqm = (group.Step4InterlayerCostPerSqm ?? _lamVm.PvbMaterialRate)
                                                + (group.Step4CuttingCostPerSqm ?? (_lamVm.OuterCuttingCost + _lamVm.InnerCuttingCost
@@ -838,9 +918,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     return new SpecificationRateCard
                     {
                         BuildType = GlassBuildType.DguLam,
-                        OuterGlassRatePerSqm = group.OuterSheetPricePerSqm > 0m ? group.OuterSheetPricePerSqm : _dguLamVm.OuterBasePrice,
-                        InnerGlassRatePerSqm = group.InnerSheetPricePerSqm > 0m ? group.InnerSheetPricePerSqm : _dguLamVm.LamInnerBasePrice,
-                        ThirdGlassRatePerSqm = _dguLamVm.LamOuterBasePrice,
+                        OuterGlassRatePerSqm = ResolveTargetPaneRate(group, "Outer", PaneColor(group, "Outer"), group.OuterSheetPricePerSqm, _dguLamVm.OuterBasePrice),
+                        InnerGlassRatePerSqm = ResolveTargetPaneRate(group, "Lam Inner", PaneColor(group, "Lam Inner"), group.InnerSheetPricePerSqm, _dguLamVm.LamInnerBasePrice),
+                        ThirdGlassRatePerSqm = ResolveTargetPaneRate(group, "Lam Outer", PaneColor(group, "Lam Outer"), 0m, _dguLamVm.LamOuterBasePrice),
                         AspRatePerSqm = group.Step4SpacerPricePerSqm ?? _dguLamVm.SpacerPrice,
                         ProcessingRatePerSqm = (group.Step4CuttingCostPerSqm ?? _dguLamVm.TotalCuttingCost)
                                                + (group.Step4TemperingCostPerSqm ?? _dguLamVm.TotalTemperingCost)

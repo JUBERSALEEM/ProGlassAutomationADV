@@ -129,6 +129,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             ? $"{Result.TargetUpliftPercent:0.#}%"
             : "—";
         public string FormulaText => Result?.FormulaText ?? "—";
+
+        public string FormulaSummaryLine
+        {
+            get
+            {
+                if (Result == null) return "—";
+
+                var panes = PnLSpecParser.ResolveAllPanes(Result.SpecName);
+                string outerName = panes.Count > 0 ? panes[0].Color : "outer";
+                string innerName = panes.Count > 1 ? panes[^1].Color : "inner";
+                string thirdName = panes.Count > 2 ? panes[1].Color : "lam outer";
+
+                string glass = Result.BuildType switch
+                {
+                    GlassBuildType.Dgu or GlassBuildType.Lam =>
+                        $"{Fmt(Result.OuterGlassRatePerSqm)}({CleanName(outerName)}) + {Fmt(Result.InnerGlassRatePerSqm)}({CleanName(innerName)})",
+                    GlassBuildType.DguLam =>
+                        $"{Fmt(Result.OuterGlassRatePerSqm)}({CleanName(outerName)}) + {Fmt(Result.ThirdGlassRatePerSqm)}({CleanName(thirdName)}) + {Fmt(Result.InnerGlassRatePerSqm)}({CleanName(innerName)})",
+                    _ => $"{Fmt(Result.OuterGlassRatePerSqm)}({CleanName(outerName)})"
+                };
+
+                string addons = Result.AspRatePerSqm > 0m
+                    ? $" + {Fmt(Result.AspRatePerSqm)}(Spacer)"
+                    : string.Empty;
+                if (Result.ProcessingRatePerSqm > 0m)
+                    addons += $" + {Fmt(Result.ProcessingRatePerSqm)}(Processing)";
+
+                string baseMargin = Result.ExtraProfitMarginPercent.HasValue
+                    ? $" · base margin {Result.ExtraProfitMarginPercent.Value:+0.##;-0.##;0.##}%"
+                    : string.Empty;
+                string targetMargin = Result.MarginAgainstTargetPercent.HasValue
+                    ? $" · target margin {Result.MarginAgainstTargetPercent.Value:+0.##;-0.##;0.##}%"
+                    : string.Empty;
+
+                return $"SPEC {Result.SpecNumber} · ({glass}) / {Fmt(Result.YieldFactor)}(Wastage yield){addons} + {Fmt(Result.TargetUpliftPercent)}%(Profit margin) = AED {Result.BasePricePerSqm:N2}/m² base → AED {Result.FinalRequiredTargetPerSqm:N2}/m² target · given AED {Result.GivenPricePerSqm:N2}/m²{baseMargin}{targetMargin} · {Result.SpecName}";
+            }
+        }
+
         public string SpecificationTargetDisplay => FormatRate(Result?.SpecificationTargetPerSqm);
         public bool HasSpecificationTarget => (Result?.SpecificationTargetPerSqm ?? 0m) > 0m;
 
@@ -305,6 +343,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 sb.Append($"+{total - lines} more row(s)");
 
             return sb.ToString().TrimEnd('\r', '\n');
+        }
+
+        private static string Fmt(decimal value) =>
+            value == decimal.Truncate(value)
+                ? value.ToString("0")
+                : value.ToString("0.##");
+
+        private static string CleanName(string? name)
+        {
+            string value = (name ?? string.Empty).Trim();
+            return string.IsNullOrWhiteSpace(value) ? "glass" : value;
         }
 
         private static string FormatRate(decimal? value)

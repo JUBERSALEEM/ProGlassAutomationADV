@@ -263,11 +263,11 @@
                      Card 3: margin against target (red/green status pill) -->
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25*"/>
                         <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="25*"/>
                         <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="50*"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- CARD 1 — REQUIRED TARGET PRICE -->
@@ -615,16 +615,11 @@
                             </StackPanel>
                         </Grid>
                         <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,12,0,10"/>
-                        <TextBlock Text="SPECIFICATION FORMULA" Style="{StaticResource TgtMicroLabelStyle}"/>
-                        <TextBlock FontFamily="Consolas" FontSize="{StaticResource TextBody}"
+                        <TextBlock Text="SPECIFICATION FORMULAS — STEP 5 SPECS" Style="{StaticResource TgtMicroLabelStyle}"/>
+                        <TextBlock Text="{Binding TargetFormulaAllSpecsText}"
+                                   FontFamily="Consolas" FontSize="{StaticResource TextCaption}"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   TextWrapping="Wrap" Margin="0,2,0,0">
-                            <Run Text="{Binding TargetFormulaSpecLabel, Mode=OneWay}"/><Run Text="  "/>
-                            <Run Text="{Binding TargetFormulaPreview, Mode=OneWay}"/>
-                            <Run Text="  →  " Foreground="{DynamicResource AccentBrush}"/>
-                            <Run Text="{Binding TargetFormulaStepsText, Mode=OneWay}"
-                                 Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        </TextBlock>
+                                   TextWrapping="Wrap" Margin="0,4,0,0"/>
                         <TextBlock Text="{Binding CalculationWarningSummary}"
                                    FontSize="{StaticResource TextCaption}"
                                    TextWrapping="Wrap"
@@ -971,7 +966,7 @@
                                         <TextBlock Grid.Column="5" Text="U-INSERT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
                                         <TextBlock Grid.Column="6" Text="FINAL TGT /M²" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
                                         <TextBlock Grid.Column="7" Text="DIFF /M²" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                        <TextBlock Grid.Column="8" Text="MARGIN" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="8" Text="BASE/TGT %" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
                                         <TextBlock Grid.Column="9" Text="STATUS" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
                                     </Grid>
                                 </Border>
@@ -1031,6 +1026,12 @@
                                                                    TextTrimming="CharacterEllipsis">
                                                             <Run Text="{Binding BuildTypeLabel, Mode=OneWay}"/>
                                                         </TextBlock>
+                                                        <TextBlock Text="{Binding FormulaSummaryLine}"
+                                                                   FontFamily="Consolas"
+                                                                   FontSize="10"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,2,0,0"/>
                                                     </StackPanel>
 
                                                     <TextBlock Grid.Column="2" Text="{Binding AreaSqmDisplay}"
@@ -1047,23 +1048,17 @@
                                                                FontWeight="SemiBold"/>
                                                     <TextBlock Grid.Column="7" Text="{Binding DifferencePerSqmDisplay}"
                                                                Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"/>
-                                                    <TextBlock Grid.Column="8" Text="{Binding MarginAgainstTargetDisplay}"
-                                                               HorizontalAlignment="Right">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock" BasedOn="{StaticResource PlCellStyle}">
-                                                                <Setter Property="FontWeight" Value="Bold"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsBelowTarget}" Value="True">
-                                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding HasValidMargin}" Value="False">
-                                                                        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-                                                                        <Setter Property="FontWeight" Value="Normal"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
+                                                    <StackPanel Grid.Column="8" HorizontalAlignment="Right">
+                                                        <TextBlock Text="{Binding BaseMarginDisplay}"
+                                                                   Style="{StaticResource PlCellStyle}"
+                                                                   HorizontalAlignment="Right"
+                                                                   FontWeight="Bold"/>
+                                                        <TextBlock Text="{Binding MarginAgainstTargetDisplay}"
+                                                                   Style="{StaticResource PlCellStyle}"
+                                                                   HorizontalAlignment="Right"
+                                                                   FontSize="10"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    </StackPanel>
 
                                                     <Border Grid.Column="9" HorizontalAlignment="Left" VerticalAlignment="Center">
                                                         <Border.Style>

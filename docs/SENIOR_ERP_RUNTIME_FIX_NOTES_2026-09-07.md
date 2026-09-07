@@ -107,3 +107,9 @@ The card now shows base margin, base AED/m² balance, base total value balance, 
 A senior review found the Target Profitability formula had been polluted by the actual sheet-cost model. When Step 6 sheet setup existed, the target rate card converted allocated sheet cost into AED/m² over finished area and forced yield to 1.00. That caused formulas like `((61.05 + 29.35) / 1 + 45) * 1.15` instead of the commercial Step 4 target formula.
 
 Target Profitability now uses the correct commercial formula again: exact Step 4 pane box rates plus spacer/processing, divided by the Step 9 wastage yield, then uplifted by the expected profit margin. Example: `(52 + 25) / 0.85 + 45 = 135.58`, target at 15% = `155.92`. Step 6 allocated sheets remain only in actual sheet-cost rows and Sheet Details.
+
+## Follow-up correction — per-spec target formulas and quote-basis UI
+
+Target Profitability now resolves each pane rate per specification and pane/colour. If Step 6 has exact checked sources, those source prices are used as the authoritative Step 4 pane-box handoff for display/calculation before falling back to the spec group's stored rate. This prevents Spec 1 Clear and Spec 2 Ramly from sharing the wrong inner-pane quote basis when multiple specs exist.
+
+The calculation summary now prints every Step 5 specification formula instead of only the first spec preview. Each line shows the component numbers with glass names, wastage yield, spacer, profit uplift, base price, target price, given price, margin against base and margin against target. The top KPI strip was also changed to a 25/25/50 layout so the first two compact cards stop wasting space and the base/target balance card has room for both percentages.
