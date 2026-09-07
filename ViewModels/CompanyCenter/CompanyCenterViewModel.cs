@@ -254,13 +254,13 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             set { _reasonNote = value ?? ""; OnPropertyChanged(); }
         }
 
-        public ICommand NewCompanyCommand { get; }
+        public ICommand NewCompanyCommand { get; private set; }
         public ICommand SaveCompanyCommand { get; private set; }
         public ICommand DeleteCompanyCommand { get; private set; }
-        public ICommand SelectCompanyCommand { get; }
-        public ICommand PickLogoCommand { get; }
-        public ICommand ClearLogoCommand { get; }
-        public ICommand RefreshCommand { get; }
+        public ICommand SelectCompanyCommand { get; private set; }
+        public ICommand PickLogoCommand { get; private set; }
+        public ICommand ClearLogoCommand { get; private set; }
+        public ICommand RefreshCommand { get; private set; }
 
         public CompanyCenterViewModel()
          : this(
