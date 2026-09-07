@@ -35,7 +35,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             decimal utilizationPercent = setup.OptimizationPercent > 0m
                 ? setup.OptimizationPercent
-                : 100m;
+                : ResolveActualUtilizationPercent(setup, sources);
             decimal utilizationFactor = utilizationPercent / 100m;
             if (utilizationFactor <= 0m) utilizationFactor = 1m;
 
@@ -111,6 +111,42 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 })
                 .Where(a => a.SheetQuantity > 0)
                 .ToList();
+        }
+
+        private static decimal ResolveActualUtilizationPercent(
+            WastageRow setup,
+            IReadOnlyList<SpecGroupColorSide> sources)
+        {
+            if (setup == null || setup.SheetQuantity <= 0 || sources == null || sources.Count == 0)
+                return 100m;
+
+            var valid = sources
+                .Where(s => s != null && s.IsChecked && s.SheetWidthMm > 0 && s.SheetHeightMm > 0)
+                .ToList();
+            if (valid.Count == 0) return 100m;
+
+            decimal totalSourceSqm = valid.Sum(s => Math.Max(0m, s.SqmValue));
+            if (totalSourceSqm <= 0m) return 100m;
+
+            var sheetAreas = valid
+                .Select(s => SqmCalculator.CalculateSheetArea(s.SheetWidthMm, s.SheetHeightMm))
+                .Where(a => a > 0m)
+                .Distinct()
+                .ToList();
+
+            // The usual industrial case is one glass type / one stock sheet
+            // shared across specs. If Step 6 has no explicit optimization %,
+            // infer utilization from the setup's selected SQM and total
+            // bought sheet area rather than defaulting the Sheet Details KPI
+            // to a misleading 100%.
+            if (sheetAreas.Count == 1)
+            {
+                decimal boughtArea = setup.SheetQuantity * sheetAreas[0];
+                if (boughtArea > 0m)
+                    return Math.Round(totalSourceSqm / boughtArea * 100m, 2);
+            }
+
+            return 100m;
         }
 
         private sealed class WeightedSource

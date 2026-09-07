@@ -190,7 +190,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             private set => SetTotals(ref _usageEfficiencyPercent, value, nameof(UsageEfficiencyDisplay));
         }
 
-        public string UsageEfficiencyDisplay => $"{UsageEfficiencyPercent:0.#}%";
+        public string UsageEfficiencyDisplay => $"{UsageEfficiencyPercent:0.##}%";
 
         /// <summary>Reconciliation balance: buy − used − wastage value (0 when healthy).</summary>
         public decimal ReconciliationBalance => Math.Round(TotalBuyPrice - TotalUsedPrice - TotalWastageValue, 2);
@@ -532,6 +532,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 SpecNumber = src.SpecNumber,
                                 GlassTypeLabel = FamilyLabelFor(src.SpecName),
                                 PaneSide = src.SemanticSideLabel,
+                                GlassName = src.ColorName,
                                 SheetSize = $"{src.SheetWidthMm} × {src.SheetHeightMm} mm",
                                 SheetSqm = sheetSqm,
                                 BuySheets = buySheets,
@@ -662,6 +663,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             SpecNumber = specGroup.SpecNumber,
                             GlassTypeLabel = glassFamilyLabel,
                             PaneSide = paneSide,
+                            GlassName = GlassNameFromDescription(glassRow.Description),
                             SheetSize = $"{glassRow.SheetWidthMm} × {glassRow.SheetHeightMm} mm",
                             SheetSqm = sheetSqm,
                             BuySheets = buySheets,
@@ -773,6 +775,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             int idx = description.IndexOf(" pane", StringComparison.OrdinalIgnoreCase);
             string side = idx > 0 ? description[..idx].Trim() : "Outer";
             return side.Length == 0 ? "Outer" : side;
+        }
+
+        private static string GlassNameFromDescription(string description)
+        {
+            string text = description ?? string.Empty;
+            int paneToken = text.IndexOf("pane", StringComparison.OrdinalIgnoreCase);
+            int marker = text.IndexOf("mm", paneToken >= 0 ? paneToken : 0, StringComparison.OrdinalIgnoreCase);
+            if (marker < 0) return string.Empty;
+
+            int start = marker + 2;
+            while (start < text.Length && char.IsWhiteSpace(text[start])) start++;
+
+            int end = text.IndexOf('·', start);
+            if (end < 0) end = text.Length;
+
+            return text[start..end].Trim();
         }
 
         private static string SheetSourceKey(int specNumber, string sideLabel) =>
@@ -934,6 +952,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (_specName == value) return;
                 _specName = value ?? "";
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(SpecPaneGlassDisplay));
             }
         }
 
@@ -972,6 +991,39 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (_paneSide == value) return;
                 _paneSide = value ?? "";
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(PaneGlassDisplay));
+                OnPropertyChanged(nameof(SpecPaneGlassDisplay));
+            }
+        }
+
+        private string _glassName = "";
+        /// <summary>Glass colour/brand for this pane, e.g. Low-E, Clear or Ramly.</summary>
+        public string GlassName
+        {
+            get => _glassName;
+            set
+            {
+                string next = value ?? "";
+                if (_glassName == next) return;
+                _glassName = next;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PaneGlassDisplay));
+                OnPropertyChanged(nameof(SpecPaneGlassDisplay));
+            }
+        }
+
+        public string PaneGlassDisplay => string.IsNullOrWhiteSpace(GlassName)
+            ? PaneSide
+            : $"{PaneSide} · {GlassName}";
+
+        public string SpecPaneGlassDisplay
+        {
+            get
+            {
+                string pane = PaneGlassDisplay;
+                if (string.IsNullOrWhiteSpace(SpecName)) return pane;
+                if (string.IsNullOrWhiteSpace(pane)) return SpecName;
+                return $"{SpecName} — {pane}";
             }
         }
 
@@ -1156,7 +1208,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             set => SetRow(ref _usageEfficiencyPercent, value, nameof(UsageEfficiencyDisplay));
         }
 
-        public string UsageEfficiencyDisplay => $"{UsageEfficiencyPercent:0.#}%";
+        public string UsageEfficiencyDisplay => $"{UsageEfficiencyPercent:0.##}%";
 
         private string _diagnosticMessage = "";
         public string DiagnosticMessage

@@ -429,7 +429,7 @@
 
                                         <!-- Specification + sheet size -->
                                         <StackPanel Grid.Column="1" Margin="0,0,8,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding SpecName}"
+                                            <TextBlock Text="{Binding SpecPaneGlassDisplay}"
                                                        Style="{StaticResource SheetTableCellStyle}"
                                                        FontWeight="SemiBold"
                                                        TextWrapping="Wrap"/>
@@ -538,7 +538,7 @@
                     <TextBlock Text="{Binding GlassTypeLabel}"
                                FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}"/>
-                    <TextBlock Text="{Binding SpecName}"
+                    <TextBlock Text="{Binding SpecPaneGlassDisplay}"
                                FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                TextWrapping="Wrap"/>
@@ -559,15 +559,19 @@
                             <TextBlock Text="{Binding GlassTypeLabel}"
                                        FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Text="{Binding SpecPaneGlassDisplay}"
+                                       FontSize="{StaticResource TextCaption}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       Opacity="0.95" TextWrapping="Wrap" Margin="0,2,0,0"/>
                             <TextBlock Text="{Binding SpecName}"
                                        FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       Opacity="0.9" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                       Opacity="0.75" TextWrapping="Wrap" Margin="0,2,0,0"/>
                             <TextBlock FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        Opacity="0.9" Margin="0,2,0,0">
-                                <Run Text="{Binding PaneSide, Mode=OneWay}"/>
-                                <Run Text=" pane · "/>
+                                <Run Text="{Binding PaneGlassDisplay, Mode=OneWay}"/>
+                                <Run Text=" · "/>
                                 <Run Text="{Binding SheetSize, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
@@ -589,8 +593,8 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Pane side" Style="{StaticResource SheetKvLabelStyle}"/>
-                                <TextBlock Grid.Column="1" Text="{Binding PaneSide}" Style="{StaticResource SheetKvValueStyle}"/>
+                                <TextBlock Grid.Column="0" Text="Pane / glass" Style="{StaticResource SheetKvLabelStyle}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding PaneGlassDisplay}" Style="{StaticResource SheetKvValueStyle}"/>
                             </Grid>
                             <Grid>
                                 <Grid.ColumnDefinitions>

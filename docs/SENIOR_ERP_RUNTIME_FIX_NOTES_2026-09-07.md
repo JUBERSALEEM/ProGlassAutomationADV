@@ -84,3 +84,7 @@ This allocator is used by both Sheet Details and Target Profitability so a share
 ## Follow-up correction — actual-cost target rows also use shared sheet allocation
 
 The first shared-sheet fix updated Sheet Details and the target rate helper, but the actual-cost rows shown inside Step 9 Target Profitability still called the older `ResolveStep6WastageSheetQuantity` method. That method returned the full Step 6 row sheet quantity for every matching spec source. It is now changed to use the same `Step6SheetAllocation` allocator, so a shared Low-E setup with 17 total sheets is split per related spec in the actual-cost target rows as well.
+
+## Follow-up correction — Sheet Details utilization and pane identity
+
+Sheet Details now keeps the Step 6 setup utilization visible at two-decimal precision and no longer defaults a shared setup to 100% when the setup has no explicit optimization percentage; in that fallback case it infers actual utilization from selected source SQM divided by total bought sheet area. Sheet breakdown rows also now show the pane identity beside the full specification: `Spec name — Outer/Inner · Glass name`, so a clicked row clearly identifies whether it belongs to Low-E, Clear, Ramly, etc.
