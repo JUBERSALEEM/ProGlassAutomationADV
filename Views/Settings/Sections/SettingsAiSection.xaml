@@ -182,7 +182,7 @@
                             <DockPanel LastChildFill="False">
                                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
                                     <Ellipse Width="12" Height="12"
-                                             Fill="{StaticResource ProviderDotBlue}"
+                                             Fill="{DynamicResource ProviderDotBlue}"
                                              VerticalAlignment="Center"
                                              Margin="0,0,10,0"
                                              IsHitTestVisible="False"/>
@@ -252,7 +252,7 @@
                             <DockPanel LastChildFill="False">
                                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
                                     <Ellipse Width="12" Height="12"
-                                             Fill="{StaticResource ProviderDotAmber}"
+                                             Fill="{DynamicResource ProviderDotAmber}"
                                              VerticalAlignment="Center"
                                              Margin="0,0,10,0"
                                              IsHitTestVisible="False"/>
@@ -322,7 +322,7 @@
                             <DockPanel LastChildFill="False">
                                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
                                     <Ellipse Width="12" Height="12"
-                                             Fill="{StaticResource ProviderDotViolet}"
+                                             Fill="{DynamicResource ProviderDotViolet}"
                                              VerticalAlignment="Center"
                                              Margin="0,0,10,0"
                                              IsHitTestVisible="False"/>

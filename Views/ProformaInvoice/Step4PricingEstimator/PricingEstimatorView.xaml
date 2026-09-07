@@ -17,7 +17,7 @@
         <Border DockPanel.Dock="Bottom"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="0,1,0,0"
+                BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                 Padding="18,12">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -68,13 +68,13 @@
                                     <Button Command="{Binding DataContext.ToggleSpecGroupCommand,
                                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
-                                            Background="Transparent" BorderThickness="0" Padding="0"
+                                            Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Padding="0"
                                             Margin="0,0,8,4" Cursor="Hand">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="ChipBorder"
                                                         CornerRadius="{DynamicResource CardCornerRadius}"
-                                                        Padding="12,6" BorderThickness="1">
+                                                        Padding="12,6" BorderThickness="{DynamicResource Border.HairlineThickness}">
                                                     <TextBlock x:Name="NameText" Text="{Binding Name}"
                                                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"/>
                                                 </Border>
@@ -105,7 +105,7 @@
                                        Margin="0,0,8,0"/>
                             <Border Background="{DynamicResource TintBlueBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="10,4"
                                     Margin="0,0,8,0">
@@ -227,7 +227,7 @@
                         <Button Command="{Binding DataContext.SelectGlassTypeCommand,
                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
-                                Background="Transparent" BorderThickness="0" Padding="0"
+                                Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Padding="0"
                                 Margin="0,0,8,0" Cursor="Hand" FocusVisualStyle="{x:Null}"
                                 ToolTip="{Binding Description}">
                             <Button.Template>
@@ -235,7 +235,7 @@
                                     <Border x:Name="Card"
                                             Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
-                                            BorderThickness="1"
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             Padding="12,8"
                                             Height="40">

@@ -196,7 +196,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="0,0,0,1"
+                                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                     Padding="10,6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -290,7 +290,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="0,0,0,1"
+                                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                     Padding="8,8">
                                 <StackPanel>
                                     <Grid>
@@ -396,7 +396,7 @@
                                                     <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
                                                             Background="{DynamicResource PopupSurfaceBrush}"
                                                             BorderBrush="{DynamicResource AccentBrush}"
-                                                            BorderThickness="1"
+                                                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="14"
                                                             MinWidth="480"
@@ -429,7 +429,7 @@
                                                                            Style="{StaticResource PiSectionLabelStyle}"/>
                                                                 <ListBox ItemsSource="{Binding AvailableMetrics}"
                                                                          SelectedItem="{Binding SelectedMetric, Mode=TwoWay}"
-                                                                         BorderThickness="0"
+                                                                         BorderThickness="{DynamicResource Border.NoneThickness}"
                                                                          Background="Transparent"
                                                                          Margin="0,0,0,10">
                                                                     <ListBox.ItemTemplate>
@@ -455,7 +455,7 @@
                                                                                         <Border x:Name="ItemBd"
                                                                                                 Background="Transparent"
                                                                                                 Padding="{TemplateBinding Padding}"
-                                                                                                CornerRadius="3">
+                                                                                                CornerRadius="{DynamicResource Radius.XSmall}">
                                                                                             <ContentPresenter/>
                                                                                         </Border>
                                                                                         <ControlTemplate.Triggers>

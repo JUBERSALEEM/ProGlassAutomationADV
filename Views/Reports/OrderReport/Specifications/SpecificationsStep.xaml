@@ -56,7 +56,7 @@
         </Style>
 
         <!-- Numbered badge (Spec 1 …) -->
-        <Style x:Key="SpecBadge" TargetType="Border">
+        <Style x:Key="SpecBadge" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="MinWidth" Value="30"/>
             <Setter Property="Height" Value="26"/>
             <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
@@ -88,7 +88,7 @@
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Border x:Name="Dot" Width="8" Height="8" CornerRadius="4"
+                                <Border x:Name="Dot" Width="8" Height="8" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
                                         VerticalAlignment="Center" Margin="0,0,8,0"/>
                                 <ContentPresenter VerticalAlignment="Center"/>
@@ -196,7 +196,7 @@
                                                            FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                                            Foreground="{DynamicResource AccentBrush}"/>
                                                 <Border Background="{DynamicResource TintIndigoBrush}"
-                                                        CornerRadius="8" Padding="8,1" Margin="10,0,0,0"
+                                                        CornerRadius="{DynamicResource Radius.Small}" Padding="8,1" Margin="10,0,0,0"
                                                         VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding PiStatus}"
                                                                FontSize="{StaticResource TextCaption}"
@@ -304,7 +304,7 @@
                                                     <ItemsControl ItemsSource="{Binding Rows}">
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate>
-                                                                <Border Padding="12,8" BorderThickness="0,0,0,1"
+                                                                <Border Padding="12,8" BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                                         BorderBrush="{DynamicResource OutlineBrush}">
                                                                     <Grid>
                                                                         <Grid.ColumnDefinitions>

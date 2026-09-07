@@ -29,11 +29,11 @@
     </UserControl.Resources>
 
     <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            BorderThickness="1"
+            BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
             MinWidth="170"
             SnapsToDevicePixels="True">
         <Border.Style>
-            <Style TargetType="Border">
+            <Style TargetType="Border" BasedOn="{StaticResource ErpKpiSurfaceStyle}">
                 <Setter Property="Background"
                         Value="{DynamicResource ElevatedSurfaceBrush}"/>
                 <Setter Property="BorderBrush"
@@ -71,7 +71,7 @@
                             <Setter.Value>
                                 <DropShadowEffect
                                         Color="{DynamicResource CrystalShadowColor}"
-                                        BlurRadius="40" ShadowDepth="14"
+                                        BlurRadius="22" ShadowDepth="8"
                                         Direction="270" Opacity="0.30"/>
                             </Setter.Value>
                         </Setter>

@@ -195,7 +195,7 @@
                     </Grid.RowDefinitions>
 
                     <!-- View Mode Tabs -->
-                    <Border Grid.Row="0" BorderBrush="{DynamicResource GlassBorderSoft}" BorderThickness="0,0,0,1" Background="{DynamicResource GlassUltraClearBrush}">
+                    <Border Grid.Row="0" BorderBrush="{DynamicResource GlassBorderSoft}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}" Background="{DynamicResource GlassUltraClearBrush}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -205,14 +205,14 @@
                             </Grid.ColumnDefinitions>
 
                             <Button Grid.Column="0" Command="{Binding ChangeViewModeCommand}" CommandParameter="Detail"
-                                    Cursor="Hand" Height="40" Background="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}">
+                                    Cursor="Hand" Height="40" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" FocusVisualStyle="{x:Null}">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
                                                 <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.DetailView}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
-                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="1"/>
+                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}"/>
                                             </Grid>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -234,14 +234,14 @@
                             </Button>
 
                             <Button Grid.Column="1" Command="{Binding ChangeViewModeCommand}" CommandParameter="BySalesman"
-                                    Cursor="Hand" Height="40" Background="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}">
+                                    Cursor="Hand" Height="40" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" FocusVisualStyle="{x:Null}">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
                                                 <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.Salesman}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
-                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="1"/>
+                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}"/>
                                             </Grid>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -263,14 +263,14 @@
                             </Button>
 
                             <Button Grid.Column="2" Command="{Binding ChangeViewModeCommand}" CommandParameter="ByCompany"
-                                    Cursor="Hand" Height="40" Background="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}">
+                                    Cursor="Hand" Height="40" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" FocusVisualStyle="{x:Null}">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
                                                 <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.Company}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
-                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="1"/>
+                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}"/>
                                             </Grid>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -292,14 +292,14 @@
                             </Button>
 
                             <Button Grid.Column="3" Command="{Binding ChangeViewModeCommand}" CommandParameter="ByProject"
-                                    Cursor="Hand" Height="40" Background="Transparent" BorderThickness="0" FocusVisualStyle="{x:Null}">
+                                    Cursor="Hand" Height="40" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" FocusVisualStyle="{x:Null}">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="Transparent" Padding="8,0" SnapsToDevicePixels="True">
                                             <Grid>
                                                 <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.Project}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
-                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="1"/>
+                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}"/>
                                             </Grid>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -365,7 +365,7 @@
 
                         <!-- Error State -->
                         <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
-                                Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+                                Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
@@ -414,7 +414,7 @@
                                             <TextBlock Grid.Column="5" Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
                                             <!-- Status Badge -->
-                                            <Border Grid.Column="6" CornerRadius="6" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Border Grid.Column="6" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
                                                         <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
@@ -499,7 +499,7 @@
                                                 <TextBlock Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
 
-                                            <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding InvoiceCount}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                                             </Border>
 
@@ -561,7 +561,7 @@
                                                 <TextBlock Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
 
-                                            <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding InvoiceCount}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                                             </Border>
 
@@ -628,7 +628,7 @@
 
                                             <TextBlock Grid.Column="1" Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
-                                            <Border Grid.Column="2" Background="{DynamicResource TintBlueBrush}" CornerRadius="10" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Border Grid.Column="2" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding InvoiceCount}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                                             </Border>
 
@@ -646,7 +646,7 @@
                 <!-- ══════════════════════════════════════════════════════════
                      4. PAGINATION FOOTER
                 ══════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="3" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="3" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.TopHairlineThickness}" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

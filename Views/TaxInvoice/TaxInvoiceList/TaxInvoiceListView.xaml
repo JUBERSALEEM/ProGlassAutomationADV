@@ -96,7 +96,7 @@
                     <Border Grid.Column="3"
                             Background="{DynamicResource TintGrayBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="8,3"
                             VerticalAlignment="Center"
@@ -116,9 +116,9 @@
                             <Run Text="%"/>
                         </TextBlock>
                         <Border x:Name="ProgressTrack"
-                                CornerRadius="4" Height="6"
+                                CornerRadius="{DynamicResource Radius.XSmall}" Height="6"
                                 Background="{DynamicResource BorderBrush}">
-                            <Border CornerRadius="4" HorizontalAlignment="Left">
+                            <Border CornerRadius="{DynamicResource Radius.XSmall}" HorizontalAlignment="Left">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
@@ -164,7 +164,7 @@
                                              Converter={StaticResource BrushKeyConverter}}">
                             <TextBlock Text="{Binding FamilyStatus}"
                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                       Foreground="White"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"/>
                         </Border>
                         <Border Background="{DynamicResource TintRedBrush}"
@@ -459,7 +459,7 @@
                         <ListBox ItemsSource="{Binding AllFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
                                  ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -515,7 +515,7 @@
                         <ListBox ItemsSource="{Binding DraftFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
                                  ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -567,7 +567,7 @@
                         <ListBox ItemsSource="{Binding IssuedFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
                                  ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -619,7 +619,7 @@
                         <ListBox ItemsSource="{Binding PaidFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
                                  ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"

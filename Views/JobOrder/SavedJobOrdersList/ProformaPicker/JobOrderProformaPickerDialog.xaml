@@ -21,8 +21,8 @@
             BorderThickness="{DynamicResource CardBorderThickness}"
             Margin="18">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="32" ShadowDepth="0"
-                              Opacity="0.22" Color="#000000"/>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="0"
+                              Opacity="0.22" Color="{DynamicResource LiquidShadowColor}"/>
         </Border.Effect>
 
         <Grid>
@@ -38,7 +38,7 @@
             <!-- ── HEADER ──────────────────────────────────────────────── -->
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="16,16,0,0"
+                    CornerRadius="{DynamicResource Radius.Top.Medium}"
                     Padding="28,18">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -78,7 +78,7 @@
                          Background="{DynamicResource ModuleBackgroundBrush}"
                          Foreground="{DynamicResource PrimaryForegroundBrush}"
                          BorderBrush="{DynamicResource BorderBrush}"
-                         BorderThickness="1"
+                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                          ToolTip="{DynamicResource JobOrder.SearchPINumberCustomerProject}"/>
 
                 <!-- Off by default: production should normally only start
@@ -138,10 +138,10 @@
             <Border Grid.Row="5"
                     Margin="0,16,0,0"
                     Padding="28,16"
-                    CornerRadius="0,0,16,16"
+                    CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                     Background="{DynamicResource MenuHoverBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="0,1,0,0">
+                    BorderThickness="{DynamicResource Border.TopHairlineThickness}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

@@ -11,13 +11,13 @@
     <Grid Margin="10,8,10,16">
     <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="24" ShadowDepth="3"
-                              Opacity="0.18" Color="#000000" Direction="270"/>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="3"
+                              Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
         </Border.Effect>
         <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 Background="{DynamicResource ShellLiquidBrush}"
                 BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
-                BorderThickness="1"
+                BorderThickness="{DynamicResource Border.HairlineThickness}"
                 ClipToBounds="True">
 
         <Grid>
@@ -30,7 +30,7 @@
             <!-- ── Header ───────────────────────────────────────────── -->
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="16,16,0,0"
+                    CornerRadius="{DynamicResource Radius.Top.Medium}"
                     Padding="18,12">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Login.SwitchUser}"
@@ -71,7 +71,7 @@
                                  Background="{DynamicResource ModuleBackgroundBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
                                  BorderBrush="{DynamicResource BorderBrush}"
-                                 BorderThickness="1"
+                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                  KeyDown="PasswordBox_KeyDown"/>
                     <TextBlock x:Name="ErrorText"
                                FontSize="{StaticResource TextCaption}"
@@ -86,10 +86,10 @@
             <Border Grid.Row="2"
                     Margin="0,14,0,0"
                     Padding="16,12"
-                    CornerRadius="0,0,16,16"
+                    CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                     Background="{DynamicResource MenuHoverBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="0,1,0,0">
+                    BorderThickness="{DynamicResource Border.TopHairlineThickness}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

@@ -29,7 +29,7 @@
     <UserControl.Resources>
 
         <!-- Message bubbles -->
-        <Style x:Key="AgentUserBubble" TargetType="Border">
+        <Style x:Key="AgentUserBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="CornerRadius" Value="16,16,4,16"/>
             <Setter Property="Padding" Value="14,10"/>
@@ -39,7 +39,7 @@
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
-        <Style x:Key="AgentReplyBubble" TargetType="Border">
+        <Style x:Key="AgentReplyBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -114,11 +114,11 @@
         </Grid.RowDefinitions>
 
         <!-- ══ HEADER ══════════════════════════════════════════════════ -->
-        <Border CornerRadius="16,16,0,0" Grid.Row="0"
+        <Border CornerRadius="{DynamicResource Radius.Top.Medium}" Grid.Row="0"
                 Padding="20,16"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="0,0,0,1">
+                BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -262,11 +262,11 @@
         </ScrollViewer>
 
         <!-- ══ COMPOSER ════════════════════════════════════════════════ -->
-        <Border CornerRadius="0,0,16,16" Grid.Row="2"
+        <Border CornerRadius="{DynamicResource Radius.Bottom.Medium}" Grid.Row="2"
                 Padding="20,16"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="0,1,0,0">
+                BorderThickness="{DynamicResource Border.TopHairlineThickness}">
             <StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -294,9 +294,9 @@
                          applied exactly.
                     ══════════════════════════════════════════════ -->
                     <Border Grid.Column="0"
-                            Background="White"
+                            Background="{DynamicResource Surface.Primary.BackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="14,0"
                             Height="40"
@@ -309,9 +309,9 @@
                                  MinHeight="0"
                                  Padding="0"
                                  Background="Transparent"
-                                 BorderThickness="0"
-                                 Foreground="#1F2937"
-                                 CaretBrush="#1F2937"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
+                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                 CaretBrush="{DynamicResource PrimaryForegroundBrush}"
                                  SelectionBrush="{DynamicResource AccentBrush}"
                                  FontSize="{StaticResource TextBodyLarge}"
                                  VerticalAlignment="Center"
@@ -342,10 +342,10 @@
                             Content="&#xE725;"
                             FontFamily="Segoe MDL2 Assets"
                             FontSize="{StaticResource TextSubhead}"
-                            Foreground="White"
+                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                             Cursor="Hand"
                             FocusVisualStyle="{x:Null}"
-                            BorderThickness="0"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
                             Command="{Binding SendCommand}"
                             IsDefault="True"
                             ToolTip="Send (Enter)">

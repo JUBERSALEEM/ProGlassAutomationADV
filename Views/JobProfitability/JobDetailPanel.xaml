@@ -36,7 +36,7 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
         </Style>
-        <Style x:Key="DetailDivider" TargetType="Border">
+        <Style x:Key="DetailDivider" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Height" Value="1"/>
             <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="Margin" Value="0,8"/>
@@ -46,13 +46,13 @@
     <Grid Margin="0,8,8,16">
         <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="24" ShadowDepth="3"
-                                  Opacity="0.18" Color="#000000" Direction="270"/>
+                <DropShadowEffect BlurRadius="22" ShadowDepth="3"
+                                  Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
             </Border.Effect>
             <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Background="{DynamicResource ShellLiquidBrush}"
                     BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
-                    BorderThickness="1"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                     ClipToBounds="True">
 
                 <Grid>
@@ -63,7 +63,7 @@
 
                     <!-- ═══ HEADER ═══ -->
                     <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                            CornerRadius="16,16,0,0"
+                            CornerRadius="{DynamicResource Radius.Top.Medium}"
                             Padding="18,12">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -93,7 +93,7 @@
                                     ToolTip="Close detail panel"
                                     Cursor="Hand"
                                     Background="Transparent"
-                                    BorderThickness="0"
+                                    BorderThickness="{DynamicResource Border.NoneThickness}"
                                     Padding="8,4"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="&#xE711;"
@@ -152,7 +152,7 @@
                             <TextBlock Text="TARGET PRICE MODEL" Style="{StaticResource DetailSectionLabel}"/>
 
                             <!-- Status pill -->
-                            <Border HorizontalAlignment="Left" CornerRadius="10" Padding="10,4" Margin="0,0,0,10">
+                            <Border HorizontalAlignment="Left" CornerRadius="{DynamicResource Radius.Medium}" Padding="10,4" Margin="0,0,0,10">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -203,7 +203,7 @@
                             <Border Visibility="{Binding TargetPanelVisibility}"
                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1" CornerRadius="10" Padding="14,10">
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10">
                                 <StackPanel>
                                     <Grid Margin="0,0,0,4">
                                         <Grid.ColumnDefinitions>
@@ -311,7 +311,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="0,0,0,1"
+                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                 Padding="0,8"
                                                 Margin="0,4,0,0">
                                             <StackPanel>
@@ -322,10 +322,10 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11"
+                                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="{DynamicResource Radius.Medium}"
                                                             Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
                                                         <TextBlock Text="{Binding SpecNumber}"
-                                                                   FontSize="10" FontWeight="Bold"
+                                                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
@@ -334,7 +334,7 @@
                                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                TextTrimming="CharacterEllipsis"
                                                                Margin="8,0,8,0" VerticalAlignment="Center"/>
-                                                    <Border Grid.Column="2" CornerRadius="8" Padding="8,2"
+                                                    <Border Grid.Column="2" CornerRadius="{DynamicResource Radius.Small}" Padding="8,2"
                                                             VerticalAlignment="Center">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
@@ -358,7 +358,7 @@
                                                             </Style>
                                                         </Border.Style>
                                                         <TextBlock Text="{Binding StatusLabel}"
-                                                                   FontSize="10" FontWeight="Bold">
+                                                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold">
                                                             <TextBlock.Style>
                                                                 <Style TargetType="TextBlock">
                                                                     <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -440,7 +440,7 @@
                             <TextBlock Text="REVENUE BREAKDOWN" Style="{StaticResource DetailSectionLabel}"/>
                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1" CornerRadius="10" Padding="14,10">
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -470,7 +470,7 @@
                             <TextBlock Text="COST BREAKDOWN" Style="{StaticResource DetailSectionLabel}"/>
                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1" CornerRadius="10" Padding="14,10">
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -497,7 +497,7 @@
                             </Border>
 
                             <!-- ── PROFIT / LOSS ── -->
-                            <Border Margin="0,14,0,0" Padding="14,12" CornerRadius="12">
+                            <Border Margin="0,14,0,0" Padding="14,12" CornerRadius="{DynamicResource Radius.Large}">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -555,7 +555,7 @@
                             <TextBlock Text="MARGIN ANALYSIS" Style="{StaticResource DetailSectionLabel}"/>
                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1" CornerRadius="10" Padding="14,10">
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10">
                                 <StackPanel>
                                     <!-- Cost-Based (without U-insert) -->
                                     <Grid Margin="0,0,0,6">
@@ -626,7 +626,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="0,0,0,1"
+                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                 Padding="0,8">
                                             <StackPanel>
                                                 <!-- Row 1: Icon + Description + Amount -->
@@ -641,7 +641,7 @@
                                                     <TextBlock Grid.Column="0"
                                                                Text="{Binding KindIcon}"
                                                                FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="14"
+                                                               FontSize="{StaticResource TextBodyLarge}"
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                VerticalAlignment="Center"
                                                                HorizontalAlignment="Center"/>

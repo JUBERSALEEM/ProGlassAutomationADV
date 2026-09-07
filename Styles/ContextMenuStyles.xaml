@@ -39,7 +39,7 @@
                         <Border.Effect>
                             <DropShadowEffect BlurRadius="20" ShadowDepth="4"
                                               Direction="270" Opacity="0.25"
-                                              Color="#000000"/>
+                                              Color="{DynamicResource LiquidShadowColor}"/>
                         </Border.Effect>
                         <StackPanel IsItemsHost="True"
                                     KeyboardNavigation.DirectionalNavigation="Cycle"/>
@@ -68,7 +68,7 @@
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Stretch"
                                 Margin="0,4"
-                                CornerRadius="1.5"
+                                CornerRadius="{DynamicResource Radius.XSmall}"
                                 Background="{DynamicResource AccentBrush}"
                                 Opacity="0"/>
                         <!-- Item chrome -->
@@ -109,14 +109,14 @@
                                PopupAnimation="Fade">
                             <Border Background="{DynamicResource PopupSurfaceBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     Padding="6"
                                     SnapsToDevicePixels="True">
                                 <Border.Effect>
                                     <DropShadowEffect BlurRadius="18" ShadowDepth="4"
                                                       Direction="270" Opacity="0.22"
-                                                      Color="#000000"/>
+                                                      Color="{DynamicResource LiquidShadowColor}"/>
                                 </Border.Effect>
                                 <StackPanel IsItemsHost="True"
                                             KeyboardNavigation.DirectionalNavigation="Cycle"/>
@@ -159,7 +159,7 @@
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Stretch"
                                 Margin="0,4"
-                                CornerRadius="1.5"
+                                CornerRadius="{DynamicResource Radius.XSmall}"
                                 Background="{DynamicResource AccentBrush}"
                                 Opacity="0"/>
                         <Border x:Name="Bg"
@@ -210,14 +210,14 @@
                                PopupAnimation="Fade">
                             <Border Background="{DynamicResource PopupSurfaceBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     Padding="6"
                                     SnapsToDevicePixels="True">
                                 <Border.Effect>
                                     <DropShadowEffect BlurRadius="18" ShadowDepth="4"
                                                       Direction="270" Opacity="0.22"
-                                                      Color="#000000"/>
+                                                      Color="{DynamicResource LiquidShadowColor}"/>
                                 </Border.Effect>
                                 <StackPanel IsItemsHost="True"
                                             KeyboardNavigation.DirectionalNavigation="Cycle"/>

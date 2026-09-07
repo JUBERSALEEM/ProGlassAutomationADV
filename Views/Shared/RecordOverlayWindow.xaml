@@ -77,13 +77,13 @@
     <Border
             CornerRadius="{DynamicResource CardCornerRadius}"
             Padding="10,6"
-            BorderThickness="1"
+            BorderThickness="{DynamicResource Border.HairlineThickness}"
             BorderBrush="{DynamicResource GlassBorderSoft}"
             Cursor="SizeAll"
             ToolTip="{DynamicResource Shared.DragMoveRecorder}"
             MouseLeftButtonDown="HudDrag_MouseLeftButtonDown">
         <Border.Background>
-            <SolidColorBrush Color="#E6101824"/>
+            <SolidColorBrush Color="{DynamicResource LiquidOverlayColor}"/>
         </Border.Background>
 
         <StackPanel>
@@ -99,7 +99,7 @@
 
                 <TextBlock DockPanel.Dock="Left"
                            Text="{Binding TimeText}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
-                           Foreground="White" VerticalAlignment="Center"
+                           Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"
                            MinWidth="52" TextAlignment="Right"/>
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"

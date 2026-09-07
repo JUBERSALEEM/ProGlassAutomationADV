@@ -35,11 +35,8 @@
         </Style>
         
         <!-- KPI card style -->
-        <Style x:Key="KpiCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="8"/>
+        <Style x:Key="KpiCardStyle" TargetType="Border" BasedOn="{StaticResource ErpKpiSurfaceStyle}">
+
             <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="0,0,8,0"/>
         </Style>
@@ -75,7 +72,7 @@
         </Style>
         
         <!-- Best performer row style -->
-        <Style x:Key="BestPerformerRowStyle" TargetType="Border">
+        <Style x:Key="BestPerformerRowStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background" Value="Transparent"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsBestPerformer}" Value="True">
@@ -88,7 +85,7 @@
         </Style>
         
         <!-- Recommendation box style -->
-        <Style x:Key="RecommendationBoxStyle" TargetType="Border">
+        <Style x:Key="RecommendationBoxStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
@@ -202,8 +199,8 @@
         <Border Grid.Row="2" 
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1"
-                CornerRadius="8">
+                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                CornerRadius="{DynamicResource Radius.Small}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -214,7 +211,7 @@
                 <!-- Table Header -->
                 <Border Grid.Row="0" 
                         Background="{DynamicResource AccentBrush}"
-                        CornerRadius="8,8,0,0"
+                        CornerRadius="{DynamicResource Radius.Top.Medium}"
                         Padding="8">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -244,7 +241,7 @@
                     <ItemsControl ItemsSource="{Binding GlassTypeRows}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource BestPerformerRowStyle}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
+                                <Border Style="{StaticResource BestPerformerRowStyle}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="2*"/>
@@ -354,13 +351,13 @@
                         Padding="32">
                     <StackPanel HorizontalAlignment="Center">
                         <TextBlock Text="No glass types found" 
-                                   FontSize="16"
+                                   FontSize="{StaticResource TextSection}"
                                    FontWeight="SemiBold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    Margin="0,0,0,8"/>
                         <TextBlock Text="Add specifications in Step 5 and press REFRESH to compare glass type profitability."
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextCaption}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    TextAlignment="Center"
@@ -373,7 +370,7 @@
                 <Border Grid.Row="2"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource BorderBrush}"
-                        BorderThickness="0,1,0,0"
+                        BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                         Padding="8">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -424,12 +421,12 @@
                 Visibility="{Binding Recommendation, Converter={StaticResource StringToVisibilityConverter}}">
             <StackPanel>
                 <TextBlock Text="STRATEGIC RECOMMENDATION" 
-                           FontSize="12"
+                           FontSize="{StaticResource TextCaption}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource AccentBrush}"
                            Margin="0,0,0,8"/>
                 <TextBlock Text="{Binding Recommendation}" 
-                           FontSize="13"
+                           FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                            TextWrapping="Wrap"/>
             </StackPanel>
@@ -438,20 +435,20 @@
         <!-- Status Bar -->
         <Border Grid.Row="4" Margin="0,8,0,0">
             <TextBlock Text="{Binding StatusMessage}" 
-                       FontSize="11"
+                       FontSize="{StaticResource TextXSmall}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        TextWrapping="Wrap"/>
         </Border>
         
         <!-- Loading Overlay -->
         <Border Grid.RowSpan="5" 
-                Background="#80000000"
+                Background="{DynamicResource LiquidOverlayBrush}"
                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="Analyzing..." 
-                           FontSize="16"
+                           FontSize="{StaticResource TextSection}"
                            FontWeight="SemiBold"
-                           Foreground="White"
+                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,8"/>
                 <ProgressBar IsIndeterminate="True" Width="200" Height="4"/>

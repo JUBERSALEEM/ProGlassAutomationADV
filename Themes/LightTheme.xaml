@@ -40,37 +40,37 @@
          SECTION 1 — RAW COLORS
          Base Color values used by semantic brushes below.
     ═══════════════════════════════════════════════════════════════ -->
-    <Color x:Key="PrimaryForegroundColor">#1C1917</Color>
-    <Color x:Key="SecondaryForegroundColor">#57534E</Color>
-    <Color x:Key="MutedForegroundColor">#78716C</Color>
-    <Color x:Key="BorderColor">#EBE3D6</Color>
-    <Color x:Key="ModuleBackgroundColor">#FFFFFF</Color>
-    <Color x:Key="SideMenuBackgroundColor">#FFFFFF</Color>
-    <Color x:Key="TextPrimaryColor">#1D1D1F</Color>
-    <Color x:Key="TextSecondaryColor">#9957534E</Color>
-    <Color x:Key="LiquidShadowColor">#4D231B12</Color>
+    <Color x:Key="PrimaryForegroundColor">#111827</Color>
+    <Color x:Key="SecondaryForegroundColor">#475569</Color>
+    <Color x:Key="MutedForegroundColor">#64748B</Color>
+    <Color x:Key="BorderColor">#CBD5E1</Color>
+    <Color x:Key="ModuleBackgroundColor">#F8FAFC</Color>
+    <Color x:Key="SideMenuBackgroundColor">#F8FAFC</Color>
+    <Color x:Key="TextPrimaryColor">#111827</Color>
+    <Color x:Key="TextSecondaryColor">#99475569</Color>
+    <Color x:Key="LiquidShadowColor">#331E293B</Color>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
          SECTION 2 — SEMANTIC COLORS
          Accent, Status, and Tint color tokens.
     ═══════════════════════════════════════════════════════════════ -->
-    <Color x:Key="AccentColor">#0369A1</Color>
-    <Color x:Key="AccentHoverColor">#0284C7</Color>
-    <Color x:Key="AccentDarkColor">#075985</Color>
-    <Color x:Key="AccentLightColor">#38BDF8</Color>
+    <Color x:Key="AccentColor">#0F6FA8</Color>
+    <Color x:Key="AccentHoverColor">#1287C8</Color>
+    <Color x:Key="AccentDarkColor">#0B5D89</Color>
+    <Color x:Key="AccentLightColor">#47B6E8</Color>
     <Color x:Key="AccentBlueColor">#28BEFF</Color>
     <Color x:Key="SuccessColor">#059669</Color>
     <Color x:Key="WarningColor">#D97706</Color>
     <Color x:Key="DangerColor">#DC2626</Color>
 
     <!-- Tint palette -->
-    <Color x:Key="TintIndigoColor">#EEF2FF</Color>
-    <Color x:Key="TintRedColor">#FEF2F2</Color>
-    <Color x:Key="TintGreenColor">#E8F6EC</Color>
-    <Color x:Key="TintAmberColor">#FFFBEB</Color>
-    <Color x:Key="TintPurpleColor">#F5F3FF</Color>
-    <Color x:Key="TintGrayColor">#F6F3EE</Color>
+    <Color x:Key="TintIndigoColor">#EEF6FF</Color>
+    <Color x:Key="TintRedColor">#FFF1F2</Color>
+    <Color x:Key="TintGreenColor">#ECFDF3</Color>
+    <Color x:Key="TintAmberColor">#FFF7E6</Color>
+    <Color x:Key="TintPurpleColor">#F4F0FF</Color>
+    <Color x:Key="TintGrayColor">#F1F5F9</Color>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -79,7 +79,7 @@
     <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="{StaticResource PrimaryForegroundColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="{StaticResource SecondaryForegroundColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="MutedForegroundBrush" Color="{StaticResource MutedForegroundColor}" po:Freeze="True"/>
-    <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="#FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="#F8FAFC" po:Freeze="True"/>
     <SolidColorBrush x:Key="OnAccentSecondaryForegroundBrush" Color="#CCFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" po:Freeze="True"/>
@@ -101,11 +101,11 @@
          This is the frosted-white the glass brushes tint toward, but at
          full alpha so it can stand alone.
     ═══════════════════════════════════════════════════════════════════ -->
-    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FFF7F4EC" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FFF8FAFC" po:Freeze="True"/>
     <!-- 2026-09-05 dropdown contrast tokens: see DarkTheme note. 12% black
          tint over #F7F4EC is the light-theme hover lift; selected row uses
          AccentBrush + OnAccentForegroundBrush in BOTH themes. -->
-    <SolidColorBrush x:Key="ComboBoxItemHoverBrush" Color="#1F000000" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ComboBoxItemHoverBrush" Color="#140F172A" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleWallpaperBrush" Color="Transparent" po:Freeze="True"/>
     <LinearGradientBrush x:Key="ElevatedSurfaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#90FFFCF5" Offset="0.00"/>
@@ -129,12 +129,13 @@
         <GradientStop Color="#40FFFCF5" Offset="0.95"/>
         <GradientStop Color="#50FFFCF5" Offset="1.00"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="SidebarCardBrush" Color="#10FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="MenuHoverBrush" Color="#1457534E" po:Freeze="True"/>
-    <SolidColorBrush x:Key="OverlayButtonBackgroundBrush" Color="#0369A1" po:Freeze="True"/>
-    <SolidColorBrush x:Key="OverlayButtonForegroundBrush" Color="#FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidOverlayBrush" Color="#59061724" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidDialogVeilBrush" Color="#3D1E2832" po:Freeze="True"/>
+    <SolidColorBrush x:Key="SidebarCardBrush" Color="#66FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="MenuHoverBrush" Color="#155E6B7A" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OverlayButtonBackgroundBrush" Color="#0F6FA8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OverlayButtonForegroundBrush" Color="#F8FAFC" po:Freeze="True"/>
+    <Color x:Key="LiquidOverlayColor">#400F172A</Color>
+    <SolidColorBrush x:Key="LiquidOverlayBrush" Color="{StaticResource LiquidOverlayColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidDialogVeilBrush" Color="#33111827" po:Freeze="True"/>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -195,7 +196,7 @@
     <!-- UltraClear: Almost invisible glass with crystal edges.
          Use for: decorative panels, secondary containers. -->
     <LinearGradientBrush x:Key="LiquidGlassUltraClearBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#10FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#66FFFFFF" Offset="0.0"/>
         <GradientStop Color="#0AFFFFFF" Offset="0.5"/>
         <GradientStop Color="#12FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
@@ -247,7 +248,7 @@
     <!-- Crystal edge: bright top fading to soft sides and deeper bottom.
          Use as BorderBrush on glass cards/panels. -->
     <LinearGradientBrush x:Key="LiquidEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#F8FAFCFF" Offset="0.0"/>
         <GradientStop Color="#59B9D1EE" Offset="0.5"/>
         <GradientStop Color="#73A9C4DE" Offset="1.0"/>
     </LinearGradientBrush>
@@ -255,7 +256,7 @@
     <!-- Top crystal edge: very bright horizontal line at the top of glass. -->
     <LinearGradientBrush x:Key="LiquidGlassEdgeTopBrush" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
         <GradientStop Color="#E0FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#FFFFFFFF" Offset="0.3"/>
+        <GradientStop Color="#F8FAFCFF" Offset="0.3"/>
         <GradientStop Color="#C0FFFFFF" Offset="0.7"/>
         <GradientStop Color="#90FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
@@ -287,7 +288,7 @@
     <!-- Reflection gradient: diagonal light sweep across the surface. -->
     <LinearGradientBrush x:Key="LiquidGlassReflectionBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
         <GradientStop Color="#40FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#10FFFFFF" Offset="0.3"/>
+        <GradientStop Color="#66FFFFFF" Offset="0.3"/>
         <GradientStop Color="#00FFFFFF" Offset="0.6"/>
     </LinearGradientBrush>
     <!-- Legacy alias (existing) -->
@@ -363,10 +364,10 @@
         <GradientStop Color="#A62F7DE6" Offset="1.0"/>
     </LinearGradientBrush>
     <!-- About page liquid palette -->
-    <SolidColorBrush x:Key="LiquidIce" Color="#1E293B" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidFrost" Color="#334155" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidIce" Color="#111827" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidFrost" Color="#475569" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidCerulean" Color="{StaticResource AccentLightColor}"/>
-    <SolidColorBrush x:Key="LiquidSnow" Color="#0F172A" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidSnow" Color="#111827" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidAccent" Color="{StaticResource AccentColor}"/>
     <SolidColorBrush x:Key="LiquidAccentDeep" Color="{StaticResource AccentDarkColor}"/>
     <SolidColorBrush x:Key="LiquidMuted" Color="#64748B" po:Freeze="True"/>
@@ -376,27 +377,27 @@
          SECTION 10 — BORDER & OUTLINE BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" po:Freeze="True"/>
-    <SolidColorBrush x:Key="DividerBrush" Color="#E9E1D3" po:Freeze="True"/>
-    <SolidColorBrush x:Key="OutlineBrush" Color="#D8D0C2" po:Freeze="True"/>
-    <SolidColorBrush x:Key="OutlineDefaultBrush" Color="#D8D0C2" po:Freeze="True"/>
-    <SolidColorBrush x:Key="OutlineStrongBrush" Color="#A8A095" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DividerBrush" Color="#E2E8F0" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OutlineBrush" Color="#CBD5E1" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OutlineDefaultBrush" Color="#CBD5E1" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OutlineStrongBrush" Color="#94A3B8" po:Freeze="True"/>
 
     <!-- Semantic status brushes -->
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" po:Freeze="True"/>
-    <SolidColorBrush x:Key="DangerLightBrush" Color="#FCA5A5" po:Freeze="True"/>
-    <SolidColorBrush x:Key="DangerSurfaceBrush" Color="#33DC2626" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DangerLightBrush" Color="#FDA4AF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DangerSurfaceBrush" Color="#22E11D48" po:Freeze="True"/>
     <SolidColorBrush x:Key="WarningSurfaceBrush" Color="#22F59E0B" po:Freeze="True"/>
     <SolidColorBrush x:Key="InfoBrush" Color="#0EA5E9" po:Freeze="True"/>
     <SolidColorBrush x:Key="NeutralBrush" Color="#94A3B8" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassDangerBrush" Color="#B91C1C" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassDangerBorderBrush" Color="#E2B91C1C" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassDangerBrush" Color="#BE123C" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassDangerBorderBrush" Color="#CCBE123C" po:Freeze="True"/>
 
     <!-- Accent brushes -->
-        <SolidColorBrush x:Key="LiquidBlueBrush" Color="#5FCDFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidBlueSurfaceBrush" Color="#145FCDFF" po:Freeze="True"/>
-    <Color x:Key="LiquidBlueColor">#5FCDFF</Color>
+        <SolidColorBrush x:Key="LiquidBlueBrush" Color="#38BDF8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidBlueSurfaceBrush" Color="#1438BDF8" po:Freeze="True"/>
+    <Color x:Key="LiquidBlueColor">#38BDF8</Color>
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentDarkBrush" Color="{StaticResource AccentDarkColor}" po:Freeze="True"/>
@@ -419,24 +420,24 @@
     <!-- Ambient shadows — soft, large, low opacity -->
     
     <!-- ═══ Phase 1 Consolidated Shadow Tokens ═══ -->
-    <DropShadowEffect x:Key="ShadowSoft" Color="#2A2118" Opacity="0.12" BlurRadius="32" ShadowDepth="10" Direction="270" po:Freeze="True"/>
-    <DropShadowEffect x:Key="ShadowElevated" Color="#33291B" Opacity="0.18" BlurRadius="48" ShadowDepth="16" Direction="270" po:Freeze="True"/>
-    <DropShadowEffect x:Key="ShadowDeep" Color="#302619" Opacity="0.12" BlurRadius="24" ShadowDepth="8" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="ShadowSoft" Color="#1E293B" Opacity="0.08" BlurRadius="18" ShadowDepth="4" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="ShadowElevated" Color="#1E293B" Opacity="0.12" BlurRadius="24" ShadowDepth="8" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="ShadowDeep" Color="#1E293B" Opacity="0.10" BlurRadius="22" ShadowDepth="7" Direction="270" po:Freeze="True"/>
 
-    <DropShadowEffect x:Key="GlassShadowSoft" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftBorder" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftButton" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftTextBox" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftToggle" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoft" Color="#5C4A38" Opacity="0.03" BlurRadius="6" ShadowDepth="1" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="GlassShadowSoftBorder" Color="#5C4A38" Opacity="0.03" BlurRadius="6" ShadowDepth="1" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="GlassShadowSoftButton" Color="#5C4A38" Opacity="0.03" BlurRadius="6" ShadowDepth="1" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#5C4A38" Opacity="0.03" BlurRadius="6" ShadowDepth="1" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="GlassShadowSoftTextBox" Color="#5C4A38" Opacity="0.03" BlurRadius="6" ShadowDepth="1" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="GlassShadowSoftToggle" Color="#5C4A38" Opacity="0.03" BlurRadius="6" ShadowDepth="1" Direction="270" po:Freeze="True"/>
 
     <!-- Panel shadows — medium, for large containers -->
-    <DropShadowEffect x:Key="GlassShadowPanel" Color="#5C4A38" Opacity="0.06" BlurRadius="12" ShadowDepth="4" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowPanelBorder" Color="#5C4A38" Opacity="0.06" BlurRadius="12" ShadowDepth="4" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanel" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="GlassShadowPanelBorder" Color="#5C4A38" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270" po:Freeze="True"/>
 
     <!-- Active shadows — glow for focused/pressed state -->
-    <DropShadowEffect x:Key="GlassShadowActive" Color="#5C4A30" Opacity="0.08" BlurRadius="10" ShadowDepth="3" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#5C4A30" Opacity="0.08" BlurRadius="10" ShadowDepth="3" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActive" Color="#5C4A30" Opacity="0.06" BlurRadius="8" ShadowDepth="2" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#5C4A30" Opacity="0.06" BlurRadius="8" ShadowDepth="2" Direction="270" po:Freeze="True"/>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -531,10 +532,10 @@
     ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="GlassSwitchInnerHighlightBrush" Color="#F2FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="GlassSwitchShineFillBrush" Color="#E6FFFFFF" po:Freeze="True"/>
-    <Color x:Key="GlassSwitchThumbColor1">#FFFFFFFF</Color>
+    <Color x:Key="GlassSwitchThumbColor1">#F8FAFCFF</Color>
     <Color x:Key="GlassSwitchThumbColor2">#B7FFFFFF</Color>
     <Color x:Key="GlassSwitchThumbColor3">#4DD2F0FF</Color>
-    <Color x:Key="GlassSwitchThumbActiveColor1">#FFFFFFFF</Color>
+    <Color x:Key="GlassSwitchThumbActiveColor1">#F8FAFCFF</Color>
     <Color x:Key="GlassSwitchThumbActiveColor2">#D8EBFAFF</Color>
     <Color x:Key="GlassSwitchThumbActiveColor3">#59AAE6FF</Color>
 
@@ -565,9 +566,9 @@
         <GradientStop Color="#20FFFFFF" Offset="0.5"/>
         <GradientStop Color="#28FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
-    <DropShadowEffect x:Key="DashCardShadowEffect" Color="#2A2118" Opacity="0.06" BlurRadius="12" ShadowDepth="3" Direction="270"/>
-    <DropShadowEffect x:Key="DashInteractiveShadowEffect" Color="#5A4634" Opacity="0.12" BlurRadius="10" ShadowDepth="2" Direction="270"/>
-    <DropShadowEffect x:Key="DashSubtleShadowEffect" Color="#302619" Opacity="0.03" BlurRadius="4" ShadowDepth="1" Direction="270"/>
+    <DropShadowEffect x:Key="DashCardShadowEffect" Color="#2A2118" Opacity="0.06" BlurRadius="12" ShadowDepth="3" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="DashInteractiveShadowEffect" Color="#5A4634" Opacity="0.12" BlurRadius="10" ShadowDepth="2" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="DashSubtleShadowEffect" Color="#302619" Opacity="0.03" BlurRadius="4" ShadowDepth="1" Direction="270" po:Freeze="True"/>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -685,5 +686,34 @@
     ═══════════════════════════════════════════════════════════════ -->
     <sys:Boolean x:Key="RichEffectsEnabled">True</sys:Boolean>
     <sys:Boolean x:Key="UltraSmoothEnabled">True</sys:Boolean>
+
+
+
+    <!-- Dynamic shape/border primitives used by non-print XAML. ThemeManager
+         re-publishes them from Appearance sliders at runtime. -->
+    <CornerRadius x:Key="Radius.None">0</CornerRadius>
+    <CornerRadius x:Key="Radius.XSmall">3</CornerRadius>
+    <CornerRadius x:Key="Radius.Small">6</CornerRadius>
+    <CornerRadius x:Key="Radius.Medium">10</CornerRadius>
+    <CornerRadius x:Key="Radius.Large">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Hero">18</CornerRadius>
+    <CornerRadius x:Key="Radius.Top.Medium">10,10,0,0</CornerRadius>
+    <CornerRadius x:Key="Radius.Bottom.Medium">0,0,10,10</CornerRadius>
+    <CornerRadius x:Key="Radius.Left.Medium">10,0,0,10</CornerRadius>
+    <CornerRadius x:Key="Radius.Right.Medium">0,10,10,0</CornerRadius>
+    <CornerRadius x:Key="Radius.Asymmetric.Brand">12,12,12,4</CornerRadius>
+
+    <Thickness x:Key="Border.NoneThickness">0</Thickness>
+    <Thickness x:Key="Border.HairlineThickness">1</Thickness>
+    <Thickness x:Key="Border.StrongThickness">1.5</Thickness>
+    <Thickness x:Key="Border.TopHairlineThickness">0,1,0,0</Thickness>
+    <Thickness x:Key="Border.BottomHairlineThickness">0,0,0,1</Thickness>
+    <Thickness x:Key="Border.LeftHairlineThickness">1,0,0,0</Thickness>
+    <Thickness x:Key="Border.RightHairlineThickness">0,0,1,0</Thickness>
+    <Thickness x:Key="Border.VerticalHairlineThickness">1,0,1,0</Thickness>
+    <Thickness x:Key="Border.HorizontalHairlineThickness">0,1,0,1</Thickness>
+    <Thickness x:Key="Border.BoxNoLeftThickness">0,1,1,1</Thickness>
+    <Thickness x:Key="Border.BoxNoTopThickness">1,0,1,1</Thickness>
+    <Thickness x:Key="Border.RightBottomHairlineThickness">0,0,1,1</Thickness>
 
 </ResourceDictionary>

@@ -60,11 +60,11 @@
              JoCompactDateStyle - DatePicker matching the compact input.
         ═══════════════════════════════════════════════════════════════ -->
 
-        <Style x:Key="JoFieldTileStyle" TargetType="Border">
-            <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness"     Value="{DynamicResource CardBorderThickness}"/>
-            <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadius}"/>
+        <Style x:Key="JoFieldTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
+            <Setter Property="Background"          Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
+            <Setter Property="BorderBrush"         Value="{DynamicResource Surface.Detail.BorderBrush}"/>
+            <Setter Property="BorderThickness"     Value="{DynamicResource Surface.Detail.BorderThickness}"/>
+            <Setter Property="CornerRadius"        Value="{DynamicResource Surface.Detail.CornerRadius}"/>
             <Setter Property="Padding"             Value="12,10"/>
             <Setter Property="Margin"              Value="0,0,12,12"/>
             <!-- Auto-compact: tiles live in a WrapPanel so a hidden field

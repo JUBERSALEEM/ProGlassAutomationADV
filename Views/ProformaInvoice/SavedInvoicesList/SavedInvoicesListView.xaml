@@ -243,7 +243,7 @@
                     <ListBox Panel.ZIndex="0"
                              ItemsSource="{Binding FilteredItems}"
                              ItemContainerStyle="{StaticResource InvoiceListBoxItemStyle}"
-                             BorderThickness="0"
+                             BorderThickness="{DynamicResource Border.NoneThickness}"
                              Background="Transparent"
                              Focusable="False"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -357,7 +357,7 @@
                                             <TextBlock Text="{Binding DisplayStatus}"
                                                        FontSize="{StaticResource TextCaption}"
                                                        FontWeight="Bold"
-                                                       Foreground="White"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                        HorizontalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </Border>

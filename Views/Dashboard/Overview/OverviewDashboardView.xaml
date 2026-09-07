@@ -116,7 +116,7 @@
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             ClipToBounds="True"
                             BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             SnapsToDevicePixels="True">
                         <Grid>
                             <!-- Glass specular highlight -->
@@ -128,13 +128,13 @@
                                      HorizontalAlignment="Right"
                                      VerticalAlignment="Top"
                                      Margin="0,-70,-60,0"
-                                     Fill="White" Opacity="0.06"
+                                     Fill="{DynamicResource Surface.Primary.BorderBrush}" Opacity="0.06"
                                      IsHitTestVisible="False"/>
                             <Ellipse Width="140" Height="140"
                                      HorizontalAlignment="Right"
                                      VerticalAlignment="Bottom"
                                      Margin="0,0,-30,-50"
-                                     Fill="White" Opacity="0.04"
+                                     Fill="{DynamicResource Surface.Primary.BorderBrush}" Opacity="0.04"
                                      IsHitTestVisible="False"/>
                             <Grid Margin="18,16">
                                 <Grid.ColumnDefinitions>
@@ -150,7 +150,7 @@
                                              StretchDirection="DownOnly" Margin="0,8,12,4">
                                         <TextBlock Text="{Binding PulseDisplay}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                   FontSize="30" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                                    Margin="0"/>
                                     </Viewbox>
                                     <TextBlock Text="{Binding PulseHint}"

@@ -338,7 +338,7 @@
                             <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                     Background="{DynamicResource ElevatedSurfaceBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     Margin="0,8,0,0"
                                     Height="150"
                                     SnapsToDevicePixels="True">

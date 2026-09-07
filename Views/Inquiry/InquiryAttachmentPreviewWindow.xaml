@@ -31,7 +31,7 @@
         </Grid.RowDefinitions>
 
         <!-- Command strip -->
-        <Border Padding="16,10" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1"
+        <Border Padding="16,10" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                 Background="{DynamicResource ElevatedSurfaceBrush}">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -39,7 +39,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Border Width="38" Height="38" CornerRadius="10"
+                <Border Width="38" Height="38" CornerRadius="{DynamicResource Radius.Medium}"
                         Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                     <TextBlock x:Name="IconGlyph" Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
                                Foreground="{DynamicResource AccentBrush}"
@@ -66,7 +66,7 @@
                     <SolidColorBrush Color="Transparent"/>
                 </Border.Background>
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
-                    <Border Width="62" Height="62" CornerRadius="16"
+                    <Border Width="62" Height="62" CornerRadius="{DynamicResource Radius.Large}"
                             Background="{DynamicResource TintRedBrush}" HorizontalAlignment="Center">
                         <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}"
                                    Foreground="{DynamicResource DangerBrush}"
@@ -84,7 +84,7 @@
 
             <Border x:Name="UnsupportedPanel" Background="Transparent" Visibility="Collapsed">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
-                    <Border Width="62" Height="62" CornerRadius="16"
+                    <Border Width="62" Height="62" CornerRadius="{DynamicResource Radius.Large}"
                             Background="{DynamicResource TintGrayBrush}" HorizontalAlignment="Center">
                         <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"

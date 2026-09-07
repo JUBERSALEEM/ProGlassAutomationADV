@@ -82,7 +82,7 @@
         <!-- ══════════════════════════════════════════════════════════
              FLAT PIPELINE STEP ROW — tinted + thin border line
         ══════════════════════════════════════════════════════════ -->
-        <Style x:Key="PipelineStepStyle" TargetType="Border">
+        <Style x:Key="PipelineStepStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Padding" Value="14,12"/>
             <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -111,7 +111,7 @@
         </Style>
 
         <!-- Circular step status badge -->
-        <Style x:Key="PipelineStepBadgeStyle" TargetType="Border">
+        <Style x:Key="PipelineStepBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Width" Value="30"/>
             <Setter Property="Height" Value="30"/>
             <Setter Property="CornerRadius" Value="15"/>
@@ -136,7 +136,7 @@
         </Style>
 
         <!-- KPI metric tile -->
-        <Style x:Key="MetricTileStyle" TargetType="Border">
+        <Style x:Key="MetricTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
@@ -165,23 +165,23 @@
                 <StackPanel VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <Border Width="6" Height="6"
-                                Background="{StaticResource IndigoPrimary}"
-                                CornerRadius="3"
+                                Background="{DynamicResource IndigoPrimary}"
+                                CornerRadius="{DynamicResource Radius.XSmall}"
                                 VerticalAlignment="Center"
                                 Margin="0,0,12,0"/>
                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.STEP34}"
                                    FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource IndigoPrimary}"
+                                   Foreground="{DynamicResource IndigoPrimary}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock Text="{DynamicResource Reports.StatementGenerator.ExecutePipeline}"
                                FontSize="{StaticResource TextDisplayLarge}"
                                FontWeight="Bold"
-                               Foreground="{StaticResource TextPrimary}"/>
+                               Foreground="{DynamicResource TextPrimary}"/>
                     <TextBlock Text="{DynamicResource Reports.StatementGenerator.8StepWorkflowProcessingDataRealTimeWatchStep}"
                                FontSize="{StaticResource TextSection}"
-                               Foreground="{StaticResource TextSecondary}"
+                               Foreground="{DynamicResource TextSecondary}"
                                TextWrapping="Wrap"
                                Margin="0,8,0,0"/>
                 </StackPanel>
@@ -213,14 +213,14 @@
                                     Orientation="Horizontal"
                                     VerticalAlignment="Center">
                             <Border Width="12" Height="12"
-                                    CornerRadius="6"
-                                    Background="{StaticResource GreenLed}"
+                                    CornerRadius="{DynamicResource Radius.Small}"
+                                    Background="{DynamicResource GreenLed}"
                                     Effect="{StaticResource GreenLedGlow}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,12,0"/>
                             <TextBlock Text="{Binding LastWorkflowStatusText}"
                                        FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                       Foreground="{StaticResource TextPrimary}"
+                                       Foreground="{DynamicResource TextPrimary}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
 
@@ -231,13 +231,13 @@
                                    VerticalAlignment="Center"/>
 
                         <Border Grid.Row="2" Grid.ColumnSpan="3"
-                                Height="8" CornerRadius="4"
-                                Background="{StaticResource ProgressTrack}"
+                                Height="8" CornerRadius="{DynamicResource Radius.XSmall}"
+                                Background="{DynamicResource ProgressTrack}"
                                 ClipToBounds="True"
                                 SnapsToDevicePixels="True">
                             <Border HorizontalAlignment="Left"
-                                    CornerRadius="4"
-                                    Background="{StaticResource ProgressGradient}">
+                                    CornerRadius="{DynamicResource Radius.XSmall}"
+                                    Background="{DynamicResource ProgressGradient}">
                                 <Border.Width>
                                     <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
                                         <Binding Path="LastWorkflowProgressPercent"/>
@@ -268,11 +268,11 @@
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding OrderedQtyDisplay}"
                                        FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
-                                       Foreground="{StaticResource MetricOrdered}"
+                                       Foreground="{DynamicResource MetricOrdered}"
                                        HorizontalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Common.Ordered}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"
+                                       Foreground="{DynamicResource TextSecondary}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"/>
                         </StackPanel>
@@ -282,11 +282,11 @@
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding DeliveredQtyDisplay}"
                                        FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
-                                       Foreground="{StaticResource MetricDelivered}"
+                                       Foreground="{DynamicResource MetricDelivered}"
                                        HorizontalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Common.Delivered}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"
+                                       Foreground="{DynamicResource TextSecondary}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"/>
                         </StackPanel>
@@ -296,11 +296,11 @@
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding BalanceQtyDisplay}"
                                        FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
-                                       Foreground="{StaticResource MetricBalance}"
+                                       Foreground="{DynamicResource MetricBalance}"
                                        HorizontalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Common.Balance}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"
+                                       Foreground="{DynamicResource TextSecondary}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"/>
                         </StackPanel>
@@ -310,11 +310,11 @@
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding DeliveryRateDisplay}"
                                        FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
-                                       Foreground="{StaticResource MetricRate}"
+                                       Foreground="{DynamicResource MetricRate}"
                                        HorizontalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Common.Rate}"
                                        FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"
+                                       Foreground="{DynamicResource TextSecondary}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"/>
                         </StackPanel>
@@ -337,13 +337,13 @@
                     <StackPanel Grid.Column="0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <Border Width="4" Height="16"
-                                    CornerRadius="2"
+                                    CornerRadius="{DynamicResource Radius.XSmall}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,12,0"
-                                    Background="{StaticResource IndigoPrimary}"/>
+                                    Background="{DynamicResource IndigoPrimary}"/>
                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.PipelineSteps}"
                                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                       Foreground="{StaticResource IndigoPrimary}"
+                                       Foreground="{DynamicResource IndigoPrimary}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
 
@@ -368,7 +368,7 @@
 
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                 <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                           Foreground="{StaticResource TextPrimary}">
+                                                           Foreground="{DynamicResource TextPrimary}">
                                                     <Run Text="{DynamicResource Reports.StatementGenerator.Step}"/>
                                                     <Run Text="{Binding Order, Mode=OneWay}"/>
                                                     <Run Text=" · "/>
@@ -391,7 +391,7 @@
 
                     <!-- ═══ COLUMN 2: PROCESSING LOG (second) ═══ -->
                     <Border Grid.Column="2"
-                            Background="{StaticResource TerminalBg}"
+                            Background="{DynamicResource TerminalBg}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
@@ -412,7 +412,7 @@
                                          VerticalAlignment="Center" Margin="0,0,14,0"/>
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.ProcessingLOG}"
                                            FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                           Foreground="{StaticResource TerminalTitle}"
+                                           Foreground="{DynamicResource TerminalTitle}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
@@ -464,17 +464,17 @@
 
                             <Border Grid.Column="0"
                                     Width="4" Height="16"
-                                    CornerRadius="2"
+                                    CornerRadius="{DynamicResource Radius.XSmall}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,12,0"
-                                    Background="{StaticResource AmberAccent}"/>
+                                    Background="{DynamicResource AmberAccent}"/>
                             <TextBlock Grid.Column="1"
                                        Text="{DynamicResource Reports.StatementGenerator.WarningsAlerts}"
                                        FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                       Foreground="{StaticResource AmberAccent}"
+                                       Foreground="{DynamicResource AmberAccent}"
                                        VerticalAlignment="Center"/>
                             <Border Grid.Column="2"
-                                    Background="{StaticResource WarnBadgeBg}"
+                                    Background="{DynamicResource WarnBadgeBg}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="10,3"
                                     VerticalAlignment="Center">
@@ -490,7 +490,7 @@
                                     <Border CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="14,12"
                                             Margin="0,0,0,8"
-                                            BorderThickness="1"
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             BorderBrush="{Binding TitleBrushKey,
                                                 Converter={StaticResource BrushKeyConverter}}"
                                             Background="{Binding BackgroundBrushKey,
@@ -513,7 +513,7 @@
                                                 <!-- Originating step (same detail as pipeline steps) -->
                                                 <TextBlock Text="{Binding StepLabel}"
                                                            FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                           Foreground="{StaticResource TextMuted}"
+                                                           Foreground="{DynamicResource TextMuted}"
                                                            Margin="0,0,0,4"/>
 
                                                 <TextBlock Text="{Binding Title}"
@@ -524,7 +524,7 @@
 
                                                 <TextBlock Text="{Binding Detail}"
                                                            FontSize="{StaticResource TextBody}"
-                                                           Foreground="{StaticResource TextSecondary}"
+                                                           Foreground="{DynamicResource TextSecondary}"
                                                            TextWrapping="Wrap"
                                                            Margin="0,0,0,8"/>
 
@@ -538,9 +538,9 @@
                                                             Padding="8,3" Margin="0,0,8,0">
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="{DynamicResource Common.Ordered}" FontSize="{StaticResource TextCaption}"
-                                                                       Foreground="{StaticResource TextMuted}"/>
+                                                                       Foreground="{DynamicResource TextMuted}"/>
                                                             <TextBlock Text="{Binding OrderedText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                       Foreground="{StaticResource TextPrimary}"/>
+                                                                       Foreground="{DynamicResource TextPrimary}"/>
                                                         </StackPanel>
                                                     </Border>
                                                     <Border Background="{DynamicResource TintGreenBrush}"
@@ -548,7 +548,7 @@
                                                             Padding="8,3" Margin="0,0,8,0">
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="{DynamicResource Common.Delivered}" FontSize="{StaticResource TextCaption}"
-                                                                       Foreground="{StaticResource TextMuted}"/>
+                                                                       Foreground="{DynamicResource TextMuted}"/>
                                                             <TextBlock Text="{Binding DeliveredText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                        Foreground="{DynamicResource SuccessBrush}"/>
                                                         </StackPanel>
@@ -558,7 +558,7 @@
                                                             Padding="8,3">
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.Diff}" FontSize="{StaticResource TextCaption}"
-                                                                       Foreground="{StaticResource TextMuted}"/>
+                                                                       Foreground="{DynamicResource TextMuted}"/>
                                                             <TextBlock Text="{Binding DifferenceText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                        Foreground="{DynamicResource DangerBrush}"/>
                                                         </StackPanel>
@@ -575,7 +575,7 @@
                                                     <!-- Actionable button — routes to the related document -->
                                                     <Button Cursor="Hand"
                                                             Padding="10,3"
-                                                            BorderThickness="1"
+                                                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                             Visibility="{Binding HasAction,
                                                                 Converter={StaticResource BoolToVisibilityConverter}}"
                                                             Command="{Binding DataContext.OpenWarningActionCommand,
@@ -587,7 +587,7 @@
                                                                         Background="{DynamicResource ModuleBackgroundBrush}"
                                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                                         Padding="{TemplateBinding Padding}"
-                                                                        BorderThickness="1"
+                                                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                                         BorderBrush="{Binding ActionBrushKey,
                                                                             Converter={StaticResource BrushKeyConverter}}"
                                                                         SnapsToDevicePixels="True">

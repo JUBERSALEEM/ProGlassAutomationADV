@@ -26,8 +26,8 @@
             CornerRadius="{DynamicResource CardCornerRadiusLarge}"
             Margin="16">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="28" ShadowDepth="0"
-                              Opacity="0.22" Color="#000000"/>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="0"
+                              Opacity="0.22" Color="{DynamicResource LiquidShadowColor}"/>
         </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
@@ -46,7 +46,7 @@
             <!-- ══ HEADER — indigo bar with statement info ══ -->
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="16,16,0,0"
+                    CornerRadius="{DynamicResource Radius.Top.Medium}"
                     Padding="28,20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
@@ -78,12 +78,12 @@
 
                 <Border Grid.Column="0"
                         Height="10"
-                        CornerRadius="5"
+                        CornerRadius="{DynamicResource Radius.Small}"
                         Background="{DynamicResource MenuHoverBrush}"
                         ClipToBounds="True">
                     <Border Height="10"
                             HorizontalAlignment="Left"
-                            CornerRadius="5"
+                            CornerRadius="{DynamicResource Radius.Small}"
                             Background="{DynamicResource AccentBrush}">
                         <Border.Width>
                             <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
@@ -132,7 +132,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Step icon -->
-                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="0"
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="0"
                                             Width="32" Height="32"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Background="{DynamicResource ModuleBackgroundBrush}"
@@ -192,7 +192,7 @@
 
                                         <!-- Warning badge -->
                                         <Border Background="{DynamicResource WarningBrush}"
-                                                CornerRadius="5"
+                                                CornerRadius="{DynamicResource Radius.Small}"
                                                 Padding="6,2"
                                                 Margin="0,6,0,0"
                                                 HorizontalAlignment="Left"
@@ -200,7 +200,7 @@
                                                     Converter={StaticResource BoolToVisibilityConverter}}">
                                             <TextBlock FontSize="{StaticResource TextCaption}"
                                                        FontWeight="Bold"
-                                                       Foreground="White">
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}">
                                                 <Run Text="&#xE7BA; " FontFamily="Segoe MDL2 Assets"/>
                                                 <Run Text="{Binding Warnings.Count, Mode=OneWay}"/>
                                                 <Run Text="{DynamicResource Reports.StatementGenerator.WarningS}"/>
@@ -244,7 +244,7 @@
                     Margin="24,4,24,12"
                     Padding="14,10"
                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                    BorderThickness="1"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                     Visibility="{Binding HasResult,
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <Border.Background>
@@ -287,9 +287,9 @@
             <!-- ══ FOOTER BUTTONS ══ -->
             <Border Grid.Row="4"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
-                    BorderThickness="0,1,0,0"
+                    BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    CornerRadius="0,0,16,16"
+                    CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                     Padding="28,16">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -302,7 +302,7 @@
                     <Button Grid.Column="0"
                             Command="{Binding ViewWarningsCommand}"
                             Height="38" Padding="16,0"
-                            Cursor="Hand" BorderThickness="0"
+                            Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                             Visibility="{Binding HasWarnings,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <Button.Template>
@@ -315,13 +315,13 @@
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="White"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,6,0"/>
                                         <TextBlock Text="{DynamicResource Reports.VIEWWarnings}"
                                                    FontSize="{StaticResource TextBody}"
                                                    FontWeight="Bold"
-                                                   Foreground="White"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
@@ -355,7 +355,7 @@
                     <Button Grid.Column="2"
                             Command="{Binding CloseCommand}"
                             Height="38" Padding="24,0"
-                            Cursor="Hand" BorderThickness="0"
+                            Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                             IsDefault="True">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">

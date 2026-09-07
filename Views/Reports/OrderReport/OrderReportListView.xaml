@@ -46,28 +46,28 @@
                     <Border Grid.Column="0" Width="56" Height="56"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,18,0">
-                        <TextBlock Text="≡" FontSize="28" FontWeight="Bold"
+                        <TextBlock Text="≡" FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="Report Generator" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                   Foreground="White" Margin="0,0,0,4"/>
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,0,0,4"/>
                         <TextBlock Text="Overall Order Reports" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                   Foreground="White"/>
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Text="{Binding StatusMessage}" FontSize="{StaticResource TextBody}"
-                                   Foreground="White" Opacity="0.9" Margin="0,4,0,0"/>
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.9" Margin="0,4,0,0"/>
                     </StackPanel>
 
                     <Button Grid.Column="2" Command="{Binding NewReportCommand}"
                             VerticalAlignment="Center" Height="40" Padding="20,0"
                             FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                            Cursor="Hand" BorderThickness="0">
+                            Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd" Background="{DynamicResource ModuleBackgroundBrush}"
-                                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="{TemplateBinding Padding}">
                                     <StackPanel Orientation="Horizontal">
@@ -107,20 +107,20 @@
             <Border Grid.Column="0" Background="{DynamicResource AccentBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
                 <StackPanel>
-                    <TextBlock Text="Reports" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Reports" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{Binding TotalReportsDisplay}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                               Foreground="White" Margin="0,6,0,2"/>
-                    <TextBlock Text="Total saved" FontSize="{StaticResource TextBody}" Foreground="White" Opacity="0.85"/>
+                               Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,2"/>
+                    <TextBlock Text="Total saved" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"/>
                 </StackPanel>
             </Border>
 
             <Border Grid.Column="2" Background="{DynamicResource SuccessBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
                 <StackPanel>
-                    <TextBlock Text="Invoiced Value" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Invoiced Value" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{Binding TotalInvoicedValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
-                               Foreground="White" Margin="0,6,0,2"/>
-                    <TextBlock Text="Across all reports" FontSize="{StaticResource TextBody}" Foreground="White" Opacity="0.85"/>
+                               Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,2"/>
+                    <TextBlock Text="Across all reports" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"/>
                 </StackPanel>
             </Border>
 
@@ -197,15 +197,15 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0" Background="{DynamicResource WindowBackgroundBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                         CornerRadius="{DynamicResource ControlCornerRadius}" Height="38">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="40"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Background="{DynamicResource AccentBrush}" CornerRadius="10,0,0,10">
-                            <TextBlock Text="⌕" FontSize="{StaticResource TextSubhead}" Foreground="White"
+                        <Border Grid.Column="0" Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource Radius.Left.Medium}">
+                            <TextBlock Text="⌕" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <Grid Grid.Column="1" Margin="10,0,0,0">
@@ -216,7 +216,7 @@
                                        Visibility="{Binding HasSearchText, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                      FontSize="{StaticResource TextBodyLarge}" Background="Transparent"
-                                     BorderThickness="0" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                     BorderThickness="{DynamicResource Border.NoneThickness}" Foreground="{DynamicResource PrimaryForegroundBrush}"
                                      VerticalContentAlignment="Center" CaretBrush="{DynamicResource AccentBrush}"/>
                         </Grid>
                     </Grid>
@@ -225,11 +225,11 @@
                 <Button Grid.Column="2" Command="{Binding ClearSearchCommand}"
                         Visibility="{Binding HasSearchText, Converter={StaticResource BoolToVisibilityConverter}}"
                         Height="38" Width="38" FontSize="{StaticResource TextBody}" Cursor="Hand"
-                        BorderThickness="0" ToolTip="Clear search">
+                        BorderThickness="{DynamicResource Border.NoneThickness}" ToolTip="Clear search">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd" Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}">
                                 <TextBlock Text="✕" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -248,16 +248,16 @@
                 <Button Grid.Column="2" Command="{Binding RefreshCommand}"
                         Visibility="{Binding HasSearchText, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                         Height="38" Padding="16,0" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                        Cursor="Hand" BorderThickness="0">
+                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd" Background="{DynamicResource AccentBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{TemplateBinding Padding}">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="↻" FontSize="{StaticResource TextSection}" Foreground="White"
+                                    <TextBlock Text="↻" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                VerticalAlignment="Center" Margin="0,0,6,0"/>
                                     <TextBlock Text="Refresh" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                               Foreground="White" VerticalAlignment="Center"/>
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -309,7 +309,7 @@
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,48,0,48">
-                    <TextBlock Text="↻" FontSize="32" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="↻" FontSize="{StaticResource TextDisplay}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Text="Loading order reports…" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"
                                Margin="0,18,0,0"/>
@@ -330,8 +330,8 @@
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,24"/>
                     <Button Content="+ New Report" Command="{Binding NewReportCommand}"
                             Height="40" Padding="28,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
-                            Cursor="Hand" BorderThickness="0" HorizontalAlignment="Center"
-                            Background="{DynamicResource AccentBrush}" Foreground="White">
+                            Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" HorizontalAlignment="Center"
+                            Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentForegroundBrush}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd" Background="{DynamicResource AccentBrush}"
@@ -351,7 +351,7 @@
 
             <ListView ItemsSource="{Binding Rows}"
                       SelectedItem="{Binding SelectedRow}"
-                      Background="Transparent" BorderThickness="0"
+                      Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}"
                       HorizontalContentAlignment="Stretch"
                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                       VirtualizingPanel.IsVirtualizing="True"
@@ -391,7 +391,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Border Grid.Column="0" CornerRadius="12,0,0,12">
+                                <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Left.Medium}">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
@@ -445,7 +445,7 @@
                                         Margin="0,10,8,10" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10">
                                     <TextBlock Text="{Binding TotalInvoicedValueDisplay, Mode=OneWay}"
                                                FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                               Foreground="White" VerticalAlignment="Center"/>
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"/>
                                 </Border>
 
                                 <!-- Missing docs -->
@@ -461,7 +461,7 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="White">
+                                    <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="Complete"/>
@@ -483,14 +483,14 @@
                                                 IsEnabled="{Binding HasPdf}"
                                                 Height="34" Padding="12,0" Margin="0,0,6,0"
                                                 FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                Cursor="Hand" BorderThickness="0">
+                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd" Background="{DynamicResource AccentBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="PDF" FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                                   Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
@@ -508,14 +508,14 @@
                                                 CommandParameter="{Binding}"
                                                 Height="34" Padding="12,0" Margin="0,0,6,0"
                                                 FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                                Cursor="Hand" BorderThickness="0">
+                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd" Background="{DynamicResource WarningBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="Open" FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                                   Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
@@ -529,13 +529,13 @@
                                         <Button Command="{Binding DataContext.DeleteReportCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                 CommandParameter="{Binding}"
                                                 Width="34" Height="34" FontSize="{StaticResource TextBodyLarge}"
-                                                Cursor="Hand" BorderThickness="0">
+                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd" Background="{DynamicResource DangerBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}">
                                                         <TextBlock Text="✕" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                                                   Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">

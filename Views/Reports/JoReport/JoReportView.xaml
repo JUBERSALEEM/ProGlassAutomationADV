@@ -259,7 +259,7 @@
                     <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="{DynamicResource Reports.JoReport.NoJobOrdersFound}" Message="Adjust your filters or convert a Proforma Invoice to a Job Order." Icon="&#xE8B7;"/>
 
                     <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
-                            Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+                            Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
@@ -301,7 +301,7 @@
                                             <TextBlock Grid.Column="4" Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
                                             <TextBlock Grid.Column="5" Text="{Binding PreparedBy}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
-                                            <Border Grid.Column="6" CornerRadius="6" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Border Grid.Column="6" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
                                                         <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
@@ -369,7 +369,7 @@
                                                     HorizontalAlignment="Left"
                                                     ToolTip="{DynamicResource Reports.JoReport.OpenOriginalJobOrderWorkspace}"/>
 
-                                            <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                                            <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="108"/>
@@ -420,7 +420,7 @@
                                                 </Grid>
                                             </Border>
 
-                                            <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
+                                            <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>
@@ -442,7 +442,7 @@
                                                 </Grid>
                                             </Border>
 
-                                            <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
+                                            <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0">
                                                 <StackPanel>
                                                     <TextBlock Text="{DynamicResource Reports.JoReport.Audit}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"/>
                                                     <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}">
@@ -465,7 +465,7 @@
                 <!-- ══════════════════════════════════════════════════════════
                      5. PAGINATION FOOTER
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.TopHairlineThickness}" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

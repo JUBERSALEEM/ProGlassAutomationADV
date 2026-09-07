@@ -111,9 +111,9 @@
                             <Border x:Name="BarTrack"
                                     Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3"
                                     Height="4" Margin="0,4,0,0"
-                                    CornerRadius="2"
+                                    CornerRadius="{DynamicResource Radius.XSmall}"
                                     Background="{DynamicResource GlassSurfaceElevated}">
-                                <Border CornerRadius="2"
+                                <Border CornerRadius="{DynamicResource Radius.XSmall}"
                                         HorizontalAlignment="Left"
                                         Background="{DynamicResource AccentBrush}">
                                     <!--

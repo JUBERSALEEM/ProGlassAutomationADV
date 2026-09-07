@@ -18,45 +18,45 @@
 
     <!-- ═══ STAGE — deep navy (translucent when over the splash) ═══ -->
     <LinearGradientBrush x:Key="PageBg" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#D9040B1C" Offset="0.0"/>
-        <GradientStop Color="#D90A1A44" Offset="0.45"/>
-        <GradientStop Color="#D90B2A6E" Offset="1.0"/>
+        <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
+        <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="0.45"/>
+        <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1.0"/>
     </LinearGradientBrush>
     <RadialGradientBrush x:Key="OrbRight" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-        <GradientStop Color="#4D82F6FF" Offset="0.0"/>
-        <GradientStop Color="#1D4ED84D" Offset="0.55"/>
-        <GradientStop Color="#1D4ED800" Offset="1.0"/>
+        <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.0"/>
+        <GradientStop Color="{DynamicResource AccentColor}" Offset="0.55"/>
+        <GradientStop Color="{DynamicResource AccentColor}" Offset="1.0"/>
     </RadialGradientBrush>
     <RadialGradientBrush x:Key="OrbLeft" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-        <GradientStop Color="#60A5FA66" Offset="0.0"/>
-        <GradientStop Color="#3B82F633" Offset="0.55"/>
-        <GradientStop Color="#3B82F600" Offset="1.0"/>
+        <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.0"/>
+        <GradientStop Color="{DynamicResource AccentColor}" Offset="0.55"/>
+        <GradientStop Color="{DynamicResource AccentColor}" Offset="1.0"/>
     </RadialGradientBrush>
 
     <!-- ═══ FROSTED CARD ═══ -->
     <LinearGradientBrush x:Key="LiquidCard" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#0CFFFFFF" Offset="1.0"/>
+        <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
+        <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="CardSheen" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#1AFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#00FFFFFF" Offset="0.55"/>
+        <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
+        <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.55"/>
     </LinearGradientBrush>
-    <DropShadowEffect x:Key="CardShadow" Color="#000000"
-                      BlurRadius="40" ShadowDepth="6" Opacity="0.45"/>
+    <DropShadowEffect x:Key="CardShadow" Color="{DynamicResource LiquidShadowColor}"
+                      BlurRadius="22" ShadowDepth="6" Opacity="0.28"/>
 
     <!-- ═══ BRAND / TEXT ═══ -->
     <LinearGradientBrush x:Key="NameGradient" StartPoint="0,0" EndPoint="1,0">
-        <GradientStop Color="#FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#BFDBFE" Offset="0.5"/>
-        <GradientStop Color="#93C5FD" Offset="1.0"/>
+        <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
+        <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.5"/>
+        <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1.0"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="Ice" Color="#DBEAFE" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Frost" Color="#BFDBFE" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Cerulean" Color="#93C5FD" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Snow" Color="#F8FAFC" po:Freeze="True"/>
-    <SolidColorBrush x:Key="DangerOnLiquid" Color="#FCA5A5" po:Freeze="True"/>
-    <SolidColorBrush x:Key="WarningOnLiquid" Color="#FCD34D" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ice" Color="{DynamicResource PrimaryForegroundColor}"/>
+    <SolidColorBrush x:Key="Frost" Color="{DynamicResource AccentLightColor}"/>
+    <SolidColorBrush x:Key="Cerulean" Color="{DynamicResource AccentLightColor}"/>
+    <SolidColorBrush x:Key="Snow" Color="{DynamicResource PrimaryForegroundColor}"/>
+    <SolidColorBrush x:Key="DangerOnLiquid" Color="{DynamicResource DangerColor}"/>
+    <SolidColorBrush x:Key="WarningOnLiquid" Color="{DynamicResource WarningColor}"/>
 
     <!-- ═══ FIELD LABEL ═══ -->
     <Style x:Key="FieldLabel" TargetType="TextBlock">
@@ -76,10 +76,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Chrome"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource Radius.Medium}"
                             Background="{DynamicResource GlassSurfaceBrush}"
                             BorderBrush="{DynamicResource GlassBorderSoft}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             SnapsToDevicePixels="True">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -92,7 +92,7 @@
                                        FontSize="{StaticResource TextSubhead}"
                                        Margin="16,0,0,0"
                                        VerticalAlignment="Center"
-                                       Foreground="{StaticResource Cerulean}"/>
+                                       Foreground="{DynamicResource Cerulean}"/>
                             <ScrollViewer Grid.Column="1"
                                           x:Name="PART_ContentHost"
                                           Margin="12,0,16,0"
@@ -129,10 +129,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="PasswordBox">
                     <Border x:Name="Chrome"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource Radius.Medium}"
                             Background="{DynamicResource GlassSurfaceBrush}"
                             BorderBrush="{DynamicResource GlassBorderSoft}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             SnapsToDevicePixels="True">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -145,7 +145,7 @@
                                        FontSize="{StaticResource TextSubhead}"
                                        Margin="16,0,0,0"
                                        VerticalAlignment="Center"
-                                       Foreground="{StaticResource Cerulean}"/>
+                                       Foreground="{DynamicResource Cerulean}"/>
                             <ScrollViewer Grid.Column="1"
                                           x:Name="PART_ContentHost"
                                           Margin="12,0,16,0"
@@ -185,10 +185,10 @@
                     <StackPanel Orientation="Horizontal">
                         <Border x:Name="Box"
                                 Width="18" Height="18"
-                                CornerRadius="5"
+                                CornerRadius="{DynamicResource Radius.Small}"
                                 Background="{DynamicResource GlassSurfaceBrush}"
                                 BorderBrush="{DynamicResource GlassBorderSoft}"
-                                BorderThickness="1"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True">
                             <TextBlock x:Name="Glyph"
@@ -229,7 +229,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource Radius.Medium}"
                             SnapsToDevicePixels="True">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">

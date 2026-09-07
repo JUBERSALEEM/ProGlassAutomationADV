@@ -151,7 +151,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <TextBlock FontSize="32" FontWeight="Bold"
+                        <TextBlock FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center">
                             <TextBlock.Style>
@@ -206,7 +206,7 @@
                     <Border Grid.Column="3"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource WarningBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="14,8"
                             VerticalAlignment="Center"
@@ -256,7 +256,7 @@
                         <TextBlock Text="{Binding LastFinancial.TotalVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="4" Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource SuccessBrush}" BorderThickness="1" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
+                <Border Grid.Column="4" Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource SuccessBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="PAID" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                         <TextBlock Text="{Binding LastFinancial.TotalPaid, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
@@ -268,7 +268,7 @@
                         <TextBlock Text="{Binding LastFinancial.TotalOutstanding, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Grid.Column="8" Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
+                <Border Grid.Column="8" Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                         <TextBlock Text="{Binding LastFinancial.OverdueAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,0"/>
@@ -387,7 +387,7 @@
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
                                 Visibility="{Binding HasReconciliationJobOrder, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Button Margin="0,0,8,0" Cursor="Hand" BorderThickness="0"
+                        <Button Margin="0,0,8,0" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Command="{Binding PrepareDeliveryNoteCommand}"
                                 ToolTip="{DynamicResource Reports.StatementGenerator.CreateBalanceDeliveryNoteRelatedJobOrder}">
                             <Button.Template>
@@ -401,7 +401,7 @@
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
-                        <Button Cursor="Hand" BorderThickness="0"
+                        <Button Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Command="{Binding OpenJobOrderCommand}"
                                 ToolTip="{DynamicResource Reports.StatementGenerator.OpenRelatedJobOrderFullSpecificationRowData}">
                             <Button.Template>
@@ -427,7 +427,7 @@
                     <StackPanel>
                         <!-- Tabs -->
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                            <Button Command="{Binding SelectReconciliationTabCommand}" CommandParameter="Included" Cursor="Hand" BorderThickness="0" Margin="0,0,6,0">
+                            <Button Command="{Binding SelectReconciliationTabCommand}" CommandParameter="Included" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Margin="0,0,6,0">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,7">
@@ -473,7 +473,7 @@
                                 </Button.Template>
                             </Button>
 
-                            <Button Command="{Binding SelectReconciliationTabCommand}" CommandParameter="Due" Cursor="Hand" BorderThickness="0">
+                            <Button Command="{Binding SelectReconciliationTabCommand}" CommandParameter="Due" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,7">
@@ -559,7 +559,7 @@
                                             <ItemsControl ItemsSource="{Binding Rows}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Border Padding="10,5" Margin="0,0,0,2" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerBrush}">
+                                                        <Border Padding="10,5" Margin="0,0,0,2" BorderThickness="{DynamicResource Border.BottomHairlineThickness}" BorderBrush="{DynamicResource DividerBrush}">
                                                             <Grid>
                                                                 <Grid.ColumnDefinitions>
                                                                     <ColumnDefinition Width="80"/>
@@ -640,7 +640,7 @@
                                             <ItemsControl ItemsSource="{Binding Rows}">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Border Padding="10,5" Margin="0,0,0,2" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerBrush}">
+                                                        <Border Padding="10,5" Margin="0,0,0,2" BorderThickness="{DynamicResource Border.BottomHairlineThickness}" BorderBrush="{DynamicResource DividerBrush}">
                                                             <Grid>
                                                                 <Grid.ColumnDefinitions>
                                                                     <ColumnDefinition Width="80"/>
@@ -707,7 +707,7 @@
 
                         <!-- Header with green gradient -->
                         <Border Grid.Row="0"
-                                CornerRadius="12,12,0,0"
+                                CornerRadius="{DynamicResource Radius.Top.Medium}"
                                 Padding="24,20">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -760,12 +760,12 @@
                                 <Grid>
                                     <TextBlock Text="PDF"
                                                FontSize="{StaticResource TextDisplay}" FontWeight="Black"
-                                               Foreground="White"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
                                     <Border Width="24" Height="24"
                                             Background="{DynamicResource GlassSurfaceBrush}"
-                                            CornerRadius="0,0,0,8"
+                                            CornerRadius="{DynamicResource Radius.Medium}"
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Top">
                                         <TextBlock Text="&#xE723;"
@@ -790,7 +790,7 @@
                                         Margin="0,10,0,0">
                                 <Border Background="{DynamicResource TintIndigoBrush}"
                                         BorderBrush="{DynamicResource TintIndigoBrush}"
-                                        BorderThickness="1"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="8,4"
                                         Margin="0,0,6,0">
@@ -800,7 +800,7 @@
                                 </Border>
                                 <Border Background="{DynamicResource TintPurpleBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="1"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="8,4">
                                     <TextBlock Text="{Binding LastPdfSize}"
@@ -814,7 +814,7 @@
                         <Button Grid.Row="2"
                                 Command="{Binding DownloadLastPdfCommand}"
                                 Height="52" Margin="24,0,24,12"
-                                Cursor="Hand" BorderThickness="0">
+                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd" CornerRadius="{DynamicResource CardCornerRadius}">
@@ -857,7 +857,7 @@
                         <Button Grid.Row="3"
                                 Command="{Binding CopyPdfPathCommand}"
                                 Height="40" Margin="24,0,24,24"
-                                Cursor="Hand" BorderThickness="0">
+                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd"
@@ -928,7 +928,7 @@
 
                         <!-- Tabs -->
                         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
-                                BorderThickness="0,0,0,1"
+                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 Padding="16,10">
                             <StackPanel Orientation="Horizontal">
@@ -936,7 +936,7 @@
                                 <!-- Merged tab -->
                                 <Button Command="{Binding SelectMergedTabCommand}"
                                         Height="36" Padding="14,0" Margin="0,0,6,0"
-                                        Cursor="Hand" BorderThickness="0">
+                                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -1012,7 +1012,7 @@
                                 <!-- Balance tab -->
                                 <Button Command="{Binding SelectBalanceTabCommand}"
                                         Height="36" Padding="14,0" Margin="0,0,6,0"
-                                        Cursor="Hand" BorderThickness="0">
+                                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -1086,7 +1086,7 @@
                                 <!-- Alerts tab -->
                                 <Button Command="{Binding SelectAlertsTabCommand}"
                                         Height="36" Padding="14,0"
-                                        Cursor="Hand" BorderThickness="0">
+                                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"

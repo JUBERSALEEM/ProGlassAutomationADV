@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Theme;
+using ProGlassAutomation.Services.AI.AIConfig;
 using System;
 using System.Linq;
 using System.Windows;
@@ -29,6 +30,7 @@ namespace ProGlassAutomation.Services
             if (resources == null) return;
 
             resources["CardBorderThickness"] = new Thickness(thickness);
+            ApplyDynamicBorderPrimitives(resources, thickness);
             if (!_definedOutline)
             {
                 resources["CardEdgeThickness"] = new Thickness(thickness);
@@ -65,6 +67,7 @@ namespace ProGlassAutomation.Services
 
             var effective = _definedOutline ? thickness : _cardBorderThickness;
             resources["CardEdgeThickness"] = new Thickness(effective);
+            resources["Border.StrongThickness"] = new Thickness(Math.Max(1.0, effective));
             ApplyCardEdgePaddingResources(effective);
         }
 
@@ -108,6 +111,7 @@ namespace ProGlassAutomation.Services
             resources["CardCornerRadius"] = cr;
             resources["ControlCornerRadius"] = cr;
             resources["CardCornerRadiusLarge"] = cr;
+            ApplyDynamicRadiusPrimitives(resources, radius);
         }
 
         /// <summary>
@@ -173,6 +177,198 @@ namespace ProGlassAutomation.Services
             resources["DensityCardPadding"] = cardPad;
             resources["DensityStripPadding"] = stripPad;
             resources["DensityPageMargin"] = pageMargin;
+            ApplySemanticSurfacePadding(resources, cardPad, stripPad);
+        }
+
+
+        private static void ApplyDynamicBorderPrimitives(ResourceDictionary resources, double thickness)
+        {
+            var hair = new Thickness(Math.Max(0.5, Math.Min(4.0, thickness)));
+            resources["Border.HairlineThickness"] = hair;
+            resources["Border.TopHairlineThickness"] = new Thickness(0, hair.Top, 0, 0);
+            resources["Border.BottomHairlineThickness"] = new Thickness(0, 0, 0, hair.Bottom);
+            resources["Border.LeftHairlineThickness"] = new Thickness(hair.Left, 0, 0, 0);
+            resources["Border.RightHairlineThickness"] = new Thickness(0, 0, hair.Right, 0);
+            resources["Border.VerticalHairlineThickness"] = new Thickness(hair.Left, 0, hair.Right, 0);
+            resources["Border.HorizontalHairlineThickness"] = new Thickness(0, hair.Top, 0, hair.Bottom);
+            resources["Border.BoxNoLeftThickness"] = new Thickness(0, hair.Top, hair.Right, hair.Bottom);
+            resources["Border.BoxNoTopThickness"] = new Thickness(hair.Left, 0, hair.Right, hair.Bottom);
+            resources["Border.RightBottomHairlineThickness"] = new Thickness(0, 0, hair.Right, hair.Bottom);
+        }
+
+        private static void ApplyDynamicRadiusPrimitives(ResourceDictionary resources, double radius)
+        {
+            double medium = Math.Max(0, Math.Min(48, radius));
+            double small = Math.Max(0, Math.Round(medium * 0.55));
+            double xsmall = Math.Max(0, Math.Round(medium * 0.30));
+            double large = Math.Max(medium, Math.Round(medium * 1.20));
+            double hero = Math.Max(large, Math.Round(medium * 1.50));
+
+            resources["Radius.None"] = new CornerRadius(0);
+            resources["Radius.XSmall"] = new CornerRadius(xsmall);
+            resources["Radius.Small"] = new CornerRadius(small);
+            resources["Radius.Medium"] = new CornerRadius(medium);
+            resources["Radius.Large"] = new CornerRadius(large);
+            resources["Radius.Hero"] = new CornerRadius(hero);
+            resources["Radius.Top.Medium"] = new CornerRadius(medium, medium, 0, 0);
+            resources["Radius.Bottom.Medium"] = new CornerRadius(0, 0, medium, medium);
+            resources["Radius.Left.Medium"] = new CornerRadius(medium, 0, 0, medium);
+            resources["Radius.Right.Medium"] = new CornerRadius(0, medium, medium, 0);
+            resources["Radius.Asymmetric.Brand"] = new CornerRadius(medium, medium, medium, small);
+        }
+
+        private static void ApplySemanticSurfacePadding(
+            ResourceDictionary resources, Thickness cardPad, Thickness stripPad)
+        {
+            resources["Surface.Primary.Padding"] = cardPad;
+            resources["Surface.Secondary.Padding"] = stripPad;
+            resources["Surface.Detail.Padding"] = new Thickness(
+                Math.Max(8, cardPad.Left - 2),
+                Math.Max(5, cardPad.Top - 2),
+                Math.Max(8, cardPad.Right - 2),
+                Math.Max(5, cardPad.Bottom - 2));
+        }
+
+        /// <summary>
+        /// Applies the semantic three-level ERP surface layer. This sits on
+        /// top of the existing Light/Dark + visual-family engine; it publishes
+        /// resources consumed by SurfacePrimary/Secondary/Detail styles and by
+        /// migrated legacy card styles. Missing persisted values fall back to
+        /// the existing Card* settings, so old config files remain valid.
+        /// </summary>
+        public static void ApplySemanticSurfaces(AppearanceSettings? appearance = null)
+        {
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
+            appearance ??= App.Config?.Appearance;
+
+            string mode = (appearance?.SurfaceMaterialMode ?? "Glass").Trim();
+            if (mode is not ("Glass" or "Solid" or "Transparent"))
+                mode = "Glass";
+
+            double primaryOpacity = Clamp01(appearance?.SurfacePrimaryOpacity ?? 1.0, 0.30, 1.0);
+            double secondaryOpacity = Clamp01(appearance?.SurfaceSecondaryOpacity ?? 0.94, 0.25, 1.0);
+            double detailOpacity = Clamp01(appearance?.SurfaceDetailOpacity ?? 0.86, 0.15, 1.0);
+
+            string primaryKey = mode switch
+            {
+                "Solid" => "ElevatedSurfaceBrush",
+                "Transparent" => "ModuleBackgroundBrush",
+                _ => "GlassSurfaceBrush"
+            };
+            string secondaryKey = mode switch
+            {
+                "Solid" => "WindowBackgroundBrush",
+                "Transparent" => "GlassSurfaceUltra",
+                _ => "GlassSurfaceUltra"
+            };
+            string detailKey = mode switch
+            {
+                "Solid" => "MenuHoverBrush",
+                "Transparent" => "ModuleBackgroundBrush",
+                _ => "ModuleBackgroundBrush"
+            };
+
+            SetBrushResource(resources, "Surface.Primary.BackgroundBrush", primaryKey, primaryOpacity);
+            ApplyPrimarySurfaceOverlay(resources,
+                Clamp01(appearance?.PrimarySurfaceOverlayOpacity ?? 0.0, 0.0, 0.35));
+            SetBrushResource(resources, "Surface.Secondary.BackgroundBrush", secondaryKey, secondaryOpacity);
+            SetBrushResource(resources, "Surface.Detail.BackgroundBrush", detailKey, detailOpacity);
+            SetBrushResource(resources, "Surface.Primary.BorderBrush", "GlassBorderSoft", 1.0);
+            SetBrushResource(resources, "Surface.Secondary.BorderBrush", "OutlineBrush", 1.0);
+            SetBrushResource(resources, "Surface.Detail.BorderBrush", "OutlineBrush", 0.92);
+            SetBrushResource(resources, "Surface.Primary.OverlayBrush", "AccentBrush",
+                Clamp01(appearance?.PrimarySurfaceOverlayOpacity ?? 0.0, 0.0, 0.35));
+
+            double effectiveCardEdge = _definedOutline ? _cardEdgeThickness : _cardBorderThickness;
+            SetThickness(resources, "Surface.Primary.BorderThickness",
+                appearance?.SurfacePrimaryBorderThickness ?? effectiveCardEdge);
+            SetThickness(resources, "Surface.Secondary.BorderThickness",
+                appearance?.SurfaceSecondaryBorderThickness ?? _cardBorderThickness);
+            SetThickness(resources, "Surface.Detail.BorderThickness",
+                appearance?.SurfaceDetailBorderThickness ?? 1.0);
+
+            bool rounded = appearance?.UseRoundedSurfaces ?? true;
+            SetRadius(resources, "Surface.Primary.CornerRadius",
+                rounded ? appearance?.SurfacePrimaryRadius ?? _cardCornerRadius : 0);
+            SetRadius(resources, "Surface.Secondary.CornerRadius",
+                rounded ? appearance?.SurfaceSecondaryRadius ?? _cardCornerRadius : 0);
+            SetRadius(resources, "Surface.Detail.CornerRadius",
+                rounded ? appearance?.SurfaceDetailRadius ?? _cardCornerRadius : 0);
+
+            if (appearance?.UsePrimarySurfaceElevation == true)
+            {
+                var fx = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    BlurRadius = 18,
+                    ShadowDepth = 0,
+                    Opacity = 0.12,
+                    Color = Color.FromArgb(0xFF, 0x0F, 0x17, 0x2A)
+                };
+                if (fx.CanFreeze) fx.Freeze();
+                resources["Surface.Primary.Effect"] = fx;
+            }
+            else
+            {
+                resources["Surface.Primary.Effect"] = null;
+            }
+        }
+
+        public static void ReapplySemanticSurfaces()
+            => ApplySemanticSurfaces(App.Config?.Appearance);
+
+        private static double Clamp01(double value, double min, double max)
+            => value < min ? min : (value > max ? max : value);
+
+        private static double ClampNonNegative(double value, double max)
+            => value < 0 ? 0 : (value > max ? max : value);
+
+        private static void SetThickness(ResourceDictionary resources, string key, double value)
+            => resources[key] = new Thickness(ClampNonNegative(value, 100));
+
+        private static void SetRadius(ResourceDictionary resources, string key, double value)
+            => resources[key] = new CornerRadius(ClampNonNegative(value, 48));
+
+        private static void ApplyPrimarySurfaceOverlay(
+            ResourceDictionary resources, double overlayOpacity)
+        {
+            if (overlayOpacity <= 0.001) return;
+            if (resources["Surface.Primary.BackgroundBrush"] is not SolidColorBrush surface) return;
+            if (resources["AccentBrush"] is not SolidColorBrush accent) return;
+
+            byte Mix(byte a, byte b)
+                => (byte)Math.Round(a * (1.0 - overlayOpacity) + b * overlayOpacity);
+
+            var mixed = new SolidColorBrush(Color.FromArgb(
+                surface.Color.A,
+                Mix(surface.Color.R, accent.Color.R),
+                Mix(surface.Color.G, accent.Color.G),
+                Mix(surface.Color.B, accent.Color.B)));
+            mixed.Opacity = surface.Opacity;
+            mixed.Freeze();
+            resources["Surface.Primary.BackgroundBrush"] = mixed;
+        }
+
+        private static void SetBrushResource(
+            ResourceDictionary resources, string targetKey, string sourceKey, double opacity)
+        {
+            opacity = Clamp01(opacity, 0.0, 1.0);
+            if (opacity <= 0.001)
+            {
+                var transparent = new SolidColorBrush(Colors.Transparent);
+                transparent.Freeze();
+                resources[targetKey] = transparent;
+                return;
+            }
+
+            if (resources[sourceKey] is Brush brush)
+            {
+                var clone = brush.CloneCurrentValue();
+                clone.Opacity = Math.Min(clone.Opacity, opacity);
+                if (clone.CanFreeze) clone.Freeze();
+                resources[targetKey] = clone;
+            }
         }
 
         public static void ReapplyDisplayDensity()

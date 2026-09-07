@@ -7,25 +7,20 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- Outer list card -->
-    <Style x:Key="ModuleListShellStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness" Value="0.5"/>
-        <Setter Property="CornerRadius" Value="12"/>
+    <Style x:Key="ModuleListShellStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="ClipToBounds" Value="True"/>
     </Style>
 
     <!-- Compact KPI strip inside the shell -->
-    <Style x:Key="ModuleListKpiStripStyle" TargetType="Border">
+    <Style x:Key="ModuleListKpiStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Padding" Value="{DynamicResource DensityStripPadding}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="ModuleListKpiIconStyle" TargetType="Border">
+    <Style x:Key="ModuleListKpiIconStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Width" Value="36"/>
         <Setter Property="Height" Value="36"/>
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
@@ -53,7 +48,7 @@
         <Setter Property="Margin" Value="0,2,0,0"/>
     </Style>
 
-    <Style x:Key="ModuleListKpiDividerStyle" TargetType="Border">
+    <Style x:Key="ModuleListKpiDividerStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Width" Value="1"/>
         <Setter Property="Height" Value="40"/>
         <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
@@ -63,11 +58,9 @@
     </Style>
 
     <!-- Filter / toolbar row -->
-    <Style x:Key="ModuleListFilterBarStyle" TargetType="Border">
+    <Style x:Key="ModuleListFilterBarStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Padding" Value="16,12"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -108,7 +101,7 @@
     </Style>
 
     <!-- Pale table header (one-sided 12 px — cannot bind CornerRadius resource) -->
-    <Style x:Key="ModuleListTableHeaderStyle" TargetType="Border">
+    <Style x:Key="ModuleListTableHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -144,7 +137,7 @@
     </Style>
 
     <!-- Row hover surface — selection / status accents stay per-view -->
-    <Style x:Key="ModuleListRowStyle" TargetType="Border">
+    <Style x:Key="ModuleListRowStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -235,7 +228,7 @@
                                     Height="2"
                                     VerticalAlignment="Bottom"
                                     Background="Transparent"
-                                    CornerRadius="1"/>
+                                    CornerRadius="{DynamicResource Radius.XSmall}"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>

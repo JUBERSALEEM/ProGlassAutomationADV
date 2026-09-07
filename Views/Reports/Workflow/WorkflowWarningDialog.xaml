@@ -25,8 +25,8 @@
             CornerRadius="{DynamicResource CardCornerRadiusLarge}"
             Margin="16">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="28" ShadowDepth="0"
-                              Opacity="0.22" Color="#000000"/>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="0"
+                              Opacity="0.22" Color="{DynamicResource LiquidShadowColor}"/>
         </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
@@ -45,7 +45,7 @@
             <!-- ══ HEADER — amber warning bar ══ -->
             <Border Grid.Row="0"
                     Background="{DynamicResource WarningBrush}"
-                    CornerRadius="16,16,0,0"
+                    CornerRadius="{DynamicResource Radius.Top.Medium}"
                     Padding="28,20">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
@@ -59,7 +59,7 @@
                     </StackPanel>
                     <TextBlock Text="{DynamicResource Reports.MissingInvoiceDetected}"
                                FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
-                               Foreground="White"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Margin="0,4,0,0"/>
                     <TextBlock Text="{DynamicResource Reports.SomeDeliveredItemsNoMatchingTaxInvoice}"
                                FontSize="{StaticResource TextBody}"
@@ -88,7 +88,7 @@
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Margin="0,4,0,0">
                             <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
                             <Run Text=" pcs"/>
@@ -124,7 +124,7 @@
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Margin="0,4,0,0">
                             <Run Text="{Binding UninvoicedDeliveredQty, Mode=OneWay}"/>
                             <Run Text=" pcs"/>
@@ -201,7 +201,7 @@
                                                     VerticalAlignment="Center">
                                                 <TextBlock FontSize="{StaticResource TextBody}"
                                                            FontWeight="Bold"
-                                                           Foreground="White">
+                                                           Foreground="{DynamicResource OnAccentForegroundBrush}">
                                                     <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
                                                     <Run Text=" pcs"/>
                                                 </TextBlock>
@@ -227,9 +227,9 @@
             <!-- ══ ACTION BUTTONS ══ -->
             <Border Grid.Row="4"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
-                    BorderThickness="0,1,0,0"
+                    BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    CornerRadius="0,0,16,16"
+                    CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                     Padding="24,16">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -245,7 +245,7 @@
                             Command="{Binding CreateInvoiceCommand}"
                             Height="52"
                             Cursor="Hand"
-                            BorderThickness="0">
+                            BorderThickness="{DynamicResource Border.NoneThickness}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
@@ -279,7 +279,7 @@
                             Command="{Binding SkipCommand}"
                             Height="52"
                             Cursor="Hand"
-                            BorderThickness="0"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
                             IsDefault="True">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -291,7 +291,7 @@
                                         <TextBlock Text="{DynamicResource Reports.SKIPContinue}"
                                                    FontSize="{StaticResource TextBody}"
                                                    FontWeight="Bold"
-                                                   Foreground="White"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="{DynamicResource Reports.GenerateWarning}"
                                                    FontSize="{StaticResource TextCaption}"
@@ -314,7 +314,7 @@
                             Command="{Binding AbortCommand}"
                             Height="52"
                             Cursor="Hand"
-                            BorderThickness="0"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
                             IsCancel="True">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
@@ -324,7 +324,7 @@
                                         Padding="12,10">
                                     <StackPanel>
                                         <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                   Foreground="White"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center">
                                             <Run Text="&#xE711; " FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource Reports.Abort}"/>
                                         </TextBlock>

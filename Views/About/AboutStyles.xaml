@@ -51,12 +51,12 @@
       UI freeze on every tab click. The glass identity survives via
       the gradient fill + 1px light border; the shadow is removed.
     -->
-    <Style x:Key="AboutCardStyle" TargetType="Border">
-        <Setter Property="Background"          Value="{DynamicResource LiquidCard}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness"     Value="{DynamicResource CardBorderThickness}"/>
+    <Style x:Key="AboutCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Background"          Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+        <Setter Property="BorderThickness"     Value="{DynamicResource Surface.Primary.BorderThickness}"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
-        <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadiusLarge}"/>
+        <Setter Property="CornerRadius"        Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding"             Value="30,26"/>
         <Setter Property="Margin"              Value="0,0,0,20"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -65,25 +65,25 @@
 
     <Style x:Key="HeroCardStyle" TargetType="Border"
            BasedOn="{StaticResource AboutCardStyle}">
-        <Setter Property="BorderBrush" Value="{DynamicResource AboutInteractiveBorderStrongBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Primary.BorderThickness}"/>
     </Style>
 
-    <Style x:Key="AboutSectionPanelStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource AboutInteractiveBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AboutInteractiveBorderBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+    <Style x:Key="AboutSectionPanelStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
         <Setter Property="Padding" Value="18,16"/>
         <Setter Property="Margin" Value="0,0,0,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="AboutHeaderBadgeStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource AboutInteractiveHoverBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AboutInteractiveBorderStrongBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+    <Style x:Key="AboutHeaderBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
+        <Setter Property="Background" Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Detail.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Detail.BorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Detail.CornerRadius}"/>
         <Setter Property="Padding" Value="12,6"/>
         <Setter Property="VerticalAlignment" Value="Top"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -159,17 +159,17 @@
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
-    <Style x:Key="ChipStyle" TargetType="Border">
-        <Setter Property="Background"        Value="{DynamicResource AboutInteractiveBrush}"/>
-        <Setter Property="BorderBrush"       Value="{DynamicResource AboutInteractiveBorderBrush}"/>
-        <Setter Property="BorderThickness"   Value="{DynamicResource CardBorderThickness}"/>
-        <Setter Property="CornerRadius"      Value="{DynamicResource CardCornerRadius}"/>
+    <Style x:Key="ChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
+        <Setter Property="Background"        Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
+        <Setter Property="BorderBrush"       Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+        <Setter Property="BorderThickness"   Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
+        <Setter Property="CornerRadius"      Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
         <Setter Property="Padding"           Value="16,8"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="IconTileStyle" TargetType="Border">
-        <Setter Property="Background"        Value="{DynamicResource AboutInteractiveBrush}"/>
+    <Style x:Key="IconTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
+        <Setter Property="Background"        Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
         <Setter Property="CornerRadius"      Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -185,14 +185,14 @@
     <!-- ═══ TEMPLATES (glass) ═══ -->
 
     <DataTemplate x:Key="HeroPillarTemplate">
-        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+        <Border CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
                 Width="148"
                 Height="94"
                 Padding="16,14"
                 Margin="6"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource AboutInteractiveBrush}"
-                BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
+                BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
+                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
                 SnapsToDevicePixels="True">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="{Binding Icon}"
@@ -220,14 +220,14 @@
     </DataTemplate>
 
     <DataTemplate x:Key="ModuleChipTemplate">
-        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+        <Border CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
                 MinHeight="140"
                 Padding="18,16"
                 Margin="7"
                 HorizontalAlignment="Stretch"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource AboutInteractiveBrush}"
-                BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
+                BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
+                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
                 SnapsToDevicePixels="True">
             <Grid>
                 <Grid.RowDefinitions>
@@ -249,10 +249,10 @@
                                IsHitTestVisible="False"/>
 
                     <Border Grid.Column="1"
-                            Background="{DynamicResource AboutInteractiveHoverBrush}"
-                            BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
-                            BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Background="{DynamicResource Surface.Detail.BackgroundBrush}"
+                            BorderBrush="{DynamicResource Surface.Primary.BorderBrush}"
+                            BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
+                            CornerRadius="{DynamicResource Surface.Detail.CornerRadius}"
                             Padding="8,3"
                             VerticalAlignment="Center"
                             SnapsToDevicePixels="True">
@@ -303,14 +303,14 @@
     </DataTemplate>
 
     <DataTemplate x:Key="TechItemTemplate">
-        <Border CornerRadius="{DynamicResource ControlCornerRadius}"
+        <Border CornerRadius="{DynamicResource Surface.Detail.CornerRadius}"
                 MinHeight="84"
                 Padding="16,14"
                 Margin="7"
                 HorizontalAlignment="Stretch"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource AboutInteractiveBrush}"
-                BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
+                BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
+                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
                 SnapsToDevicePixels="True">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -342,14 +342,14 @@
     </DataTemplate>
 
     <DataTemplate x:Key="CapabilityCardTemplate">
-        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+        <Border CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
                 MinHeight="176"
                 Padding="20,20"
                 Margin="8"
                 HorizontalAlignment="Stretch"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource AboutInteractiveBrush}"
-                BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
+                BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
+                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
                 SnapsToDevicePixels="True">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Border Style="{StaticResource IconTileStyle}"
@@ -383,14 +383,14 @@
     </DataTemplate>
 
     <DataTemplate x:Key="WorkflowCardTemplate">
-        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+        <Border CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
                 MinHeight="196"
                 Padding="20,18"
                 Margin="7"
                 HorizontalAlignment="Stretch"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource AboutInteractiveBrush}"
-                BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
+                BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
+                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
                 SnapsToDevicePixels="True">
             <Grid>
                 <Grid.RowDefinitions>
@@ -479,8 +479,8 @@
         <Setter Property="FontWeight"   Value="Bold"/>
         <Setter Property="Foreground"   Value="{DynamicResource LiquidAccent}"/>
         <Setter Property="Background"   Value="Transparent"/>
-        <Setter Property="BorderBrush"   Value="{DynamicResource AboutInteractiveBorderStrongBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="BorderBrush"   Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
         <Setter Property="MinHeight"   Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="MinWidth"    Value="{DynamicResource DensityButtonMinWidth}"/>
         <Setter Property="Padding"      Value="12,4"/>
@@ -493,7 +493,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>
@@ -501,11 +501,11 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource AboutInteractiveBrush}"/>
+                                    Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource AboutInteractiveHoverBrush}"/>
+                                    Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Bd" Property="BorderBrush"

@@ -273,7 +273,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
-                                                    BorderThickness="0,0,0,1"
+                                                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                     Padding="2,7">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>

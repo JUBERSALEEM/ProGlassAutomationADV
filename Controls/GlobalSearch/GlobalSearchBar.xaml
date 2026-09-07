@@ -131,7 +131,7 @@
                         Width="20" Height="20"
                         Padding="0"
                         Cursor="Hand"
-                        BorderThickness="0"
+                        BorderThickness="{DynamicResource Border.NoneThickness}"
                         Background="Transparent"
                         Foreground="{DynamicResource MutedForegroundBrush}"
                         VerticalAlignment="Center"
@@ -179,7 +179,7 @@
                              ItemsSource="{Binding Results}"
                              SelectedItem="{Binding SelectedResult, Mode=TwoWay}"
                              Background="Transparent"
-                             BorderThickness="0"
+                             BorderThickness="{DynamicResource Border.NoneThickness}"
                              MaxHeight="400"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              VirtualizingPanel.IsVirtualizing="True"
@@ -196,7 +196,7 @@
                                 <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,9"
                                         Background="Transparent"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="0,0,0,1">
+                                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -270,7 +270,7 @@
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1"
                             Padding="12,7"
                             Background="{DynamicResource PopupSurfaceBrush}"
-                            CornerRadius="0,0,12,12">
+                            CornerRadius="{DynamicResource Radius.Bottom.Medium}">
                         <TextBlock Text="{Binding StatusMessage}"
                                    FontSize="{StaticResource TextCaption}"
                                    Foreground="{DynamicResource MutedForegroundBrush}"/>

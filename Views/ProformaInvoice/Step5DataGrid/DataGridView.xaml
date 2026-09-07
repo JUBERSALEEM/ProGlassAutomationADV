@@ -62,7 +62,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ListViewItem">
                         <Border x:Name="RowBorder"
-                                BorderThickness="0,0,0,1"
+                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 Padding="0,2"
                                 Background="Transparent"
@@ -347,7 +347,7 @@
                                 <ListView ItemsSource="{Binding ItemRows}"
                                           ItemContainerStyle="{StaticResource GridRowStyle}"
                                           Background="Transparent"
-                                          BorderThickness="0"
+                                          BorderThickness="{DynamicResource Border.NoneThickness}"
                                           Padding="0"
                                           Margin="0"
                                           MinHeight="44"
@@ -421,7 +421,7 @@
                                     </ListView.ItemTemplate>
                                 </ListView>
 
-                                <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="0,8,0,0" SnapsToDevicePixels="True">
+                                <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.TopHairlineThickness}" Margin="0,8,0,0" Padding="0,8,0,0" SnapsToDevicePixels="True">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="28"/>

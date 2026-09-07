@@ -73,7 +73,7 @@
         </Style>
 
         <!-- Data row style with hover -->
-        <Style x:Key="DataRowStyle" TargetType="Border">
+        <Style x:Key="DataRowStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="2"/>
@@ -172,14 +172,14 @@
                            PopupAnimation="Fade">
                         <Border Background="{DynamicResource PopupSurfaceBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="1"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="6"
                                 SnapsToDevicePixels="True">
                             <Border.Effect>
                                 <DropShadowEffect BlurRadius="20" ShadowDepth="4"
                                                   Direction="270" Opacity="0.25"
-                                                  Color="#000000"/>
+                                                  Color="{DynamicResource LiquidShadowColor}"/>
                             </Border.Effect>
                             <StackPanel>
                                 <Button Style="{StaticResource SheetMenuActionItem}"
@@ -303,7 +303,7 @@
                             <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}"
                                        Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
-                                     BorderThickness="0" Background="Transparent"
+                                     BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                      FontSize="{StaticResource TextBodyLarge}" Foreground="{DynamicResource PrimaryForegroundBrush}"
                                      VerticalAlignment="Center"/>
                         </DockPanel>
@@ -416,7 +416,7 @@
                         Background="{DynamicResource AccentBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="12,12,0,0" Padding="24,10"
+                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="24,10"
                         SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -450,13 +450,13 @@
                 <Border Grid.Row="1"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1,0,1,1"
-                        CornerRadius="0,0,12,12"
+                        BorderThickness="{DynamicResource Border.BoxNoTopThickness}"
+                        CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                         SnapsToDevicePixels="True">
                     <Grid>
                         <ListBox ItemsSource="{Binding Sheets}"
                                  ItemContainerStyle="{StaticResource SheetListBoxItemStyle}"
-                                 BorderThickness="0"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
                                  Background="Transparent"
                                  Padding="10,6,10,10"
                                  Focusable="False"
@@ -593,9 +593,9 @@
                         Padding="20"
                         SnapsToDevicePixels="True">
                     <Border.Effect>
-                        <DropShadowEffect BlurRadius="24" ShadowDepth="5"
+                        <DropShadowEffect BlurRadius="22" ShadowDepth="5"
                                           Direction="270" Opacity="0.18"
-                                          Color="#000000"/>
+                                          Color="{DynamicResource LiquidShadowColor}"/>
                     </Border.Effect>
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
@@ -646,7 +646,7 @@
                                     Margin="0,0,0,10"
                                     Background="{DynamicResource TintRedBrush}"
                                     BorderBrush="{DynamicResource DangerBrush}"
-                                    BorderThickness="1"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     SnapsToDevicePixels="True">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
@@ -660,7 +660,7 @@
                                     Margin="0,0,0,10"
                                     Background="{DynamicResource TintGreenBrush}"
                                     BorderBrush="{DynamicResource SuccessBrush}"
-                                    BorderThickness="1"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     SnapsToDevicePixels="True">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
@@ -674,7 +674,7 @@
                                     Margin="0,0,0,16"
                                     Background="{DynamicResource TintBlueBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}"
-                                    BorderThickness="1"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     SnapsToDevicePixels="True">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
@@ -700,7 +700,7 @@
                                         Margin="0,0,3,10"
                                         Background="{DynamicResource TintGreenBrush}"
                                         BorderBrush="{DynamicResource SuccessBrush}"
-                                        BorderThickness="1">
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource SheetStore.Stock}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                         <TextBlock Text="{Binding DisplayStock}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
@@ -710,7 +710,7 @@
                                         Margin="3,0,3,10"
                                         Background="{DynamicResource TintRedBrush}"
                                         BorderBrush="{DynamicResource DangerBrush}"
-                                        BorderThickness="1">
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource SheetStore.USED}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                                         <TextBlock Text="{Binding DisplayUsed}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
@@ -720,7 +720,7 @@
                                         Margin="3,0,0,10"
                                         Background="{DynamicResource TintAmberBrush}"
                                         BorderBrush="{DynamicResource WarningBrush}"
-                                        BorderThickness="1">
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Common.Balance}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                         <TextBlock Text="{Binding DisplayBalance}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2,0,0"/>
@@ -747,7 +747,7 @@
                                             Margin="0,0,3,0"
                                             Background="{DynamicResource TintBlueBrush}"
                                             BorderBrush="{DynamicResource AccentBrush}"
-                                            BorderThickness="1">
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}">
                                         <StackPanel>
                                             <TextBlock Text="SQM/SHEET" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                             <TextBlock Text="{Binding DisplaySqmPerSheet, StringFormat={}{0:0.####}}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
@@ -757,7 +757,7 @@
                                             Margin="3,0,0,0"
                                             Background="{DynamicResource TintRedBrush}"
                                             BorderBrush="{DynamicResource DangerBrush}"
-                                            BorderThickness="1">
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}">
                                         <StackPanel>
                                             <TextBlock Text="{DynamicResource SheetStore.BUYSQM}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                                             <TextBlock Text="{Binding DisplayBuyPricePerSqm, StringFormat={}{0:0.##} AED}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
@@ -768,7 +768,7 @@
                                         Margin="0,6,0,0"
                                         Background="{DynamicResource TintGreenBrush}"
                                         BorderBrush="{DynamicResource SuccessBrush}"
-                                        BorderThickness="1">
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource SheetStore.SELLSQM}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                         <TextBlock Text="{Binding DisplaySellPricePerSqm, StringFormat={}{0:0.##} AED}" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>

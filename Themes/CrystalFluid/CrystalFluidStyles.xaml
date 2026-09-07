@@ -83,7 +83,7 @@
                                 <!-- Inner top highlight -->
                                 <Border CornerRadius="{StaticResource
                                             CrystalRadiusSmall}"
-                                        BorderThickness="0,1,0,0"
+                                        BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                                         BorderBrush="{StaticResource
                                             CrystalHighlightBrush}"
                                         Background="Transparent"
@@ -185,7 +185,7 @@
                             <Grid>
                                 <Border CornerRadius="{StaticResource
                                             CrystalRadiusSmall}"
-                                        BorderThickness="0,1,0,0"
+                                        BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                                         BorderBrush="{StaticResource
                                             CrystalHighlightBrush}"
                                         Background="Transparent"
@@ -384,7 +384,7 @@
                             Focusable="False"
                             ClickMode="Press"
                             Background="Transparent"
-                            BorderThickness="0">
+                            BorderThickness="{DynamicResource Border.NoneThickness}">
                             <ToggleButton.Style>
                                 <Style TargetType="ToggleButton">
                                     <Setter Property="Template">
@@ -419,13 +419,13 @@
                                         CrystalPopupBackgroundBrush}"
                                     BorderBrush="{StaticResource
                                         CrystalGlassBorderBrush}"
-                                    BorderThickness="1">
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}">
                                 <Border.Effect>
                                     <DropShadowEffect
                                         Color="{StaticResource
                                             CrystalShadowColor}"
-                                        BlurRadius="30"
-                                        ShadowDepth="10"
+                                        BlurRadius="24"
+                                        ShadowDepth="8"
                                         Direction="270"
                                         Opacity="0.25" />
                                 </Border.Effect>
@@ -476,7 +476,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBoxItem">
                     <Border x:Name="Bd"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource Radius.Medium}"
                             Background="Transparent"
                             Padding="{TemplateBinding Padding}"
                             Margin="2">

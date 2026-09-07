@@ -99,7 +99,7 @@
             <!-- Top glare (frosted glass catch-light) -->
             <Border x:Name="Glare"
                     Height="14"
-                    CornerRadius="14,14,0,0"
+                    CornerRadius="{DynamicResource Radius.Top.Medium}"
                     VerticalAlignment="Top"
                     Background="{DynamicResource GlassTopReflectionGradient}"
                     Opacity="0.5"
@@ -288,7 +288,7 @@
                     Background="{DynamicResource GlassSpecularHighlight}"
                     Opacity="0.5" Margin="1,0,1,0" IsHitTestVisible="False"/>
             <!-- Top glare -->
-            <Border x:Name="Glare" Height="8" CornerRadius="8,8,0,0" VerticalAlignment="Top"
+            <Border x:Name="Glare" Height="8" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
                     Background="{DynamicResource GlassTopReflectionGradient}"
                     Opacity="0.45" Margin="1,1,1,0" IsHitTestVisible="False"/>
         </Grid>

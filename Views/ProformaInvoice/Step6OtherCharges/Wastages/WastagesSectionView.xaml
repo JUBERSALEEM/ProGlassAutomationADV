@@ -113,7 +113,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="0,0,0,1"
+                            BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                             Padding="8,6">
                         <StackPanel>
                             <Grid>
@@ -202,7 +202,7 @@
                                         <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
                                                 Background="{DynamicResource PopupSurfaceBrush}"
                                                 BorderBrush="{DynamicResource AccentBrush}"
-                                                BorderThickness="1.5"
+                                                BorderThickness="{DynamicResource Border.StrongThickness}"
                                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Padding="12"
                                                 MaxHeight="320"
@@ -342,7 +342,7 @@
                                         <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
                                                 Background="{DynamicResource PopupSurfaceBrush}"
                                                 BorderBrush="{DynamicResource AccentBrush}"
-                                                BorderThickness="1.5"
+                                                BorderThickness="{DynamicResource Border.StrongThickness}"
                                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Padding="14"
                                                 Width="520"

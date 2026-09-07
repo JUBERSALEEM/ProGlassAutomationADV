@@ -11,7 +11,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
 
-    <Style x:Key="LineItemsTableStyle" TargetType="Border">
+    <Style x:Key="LineItemsTableStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
@@ -20,7 +20,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="LineItemsHeaderStyle" TargetType="Border">
+    <Style x:Key="LineItemsHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -36,7 +36,7 @@
         <Setter Property="HorizontalAlignment" Value="Center"/>
     </Style>
 
-    <Style x:Key="LineItemsFooterStyle" TargetType="Border">
+    <Style x:Key="LineItemsFooterStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
@@ -90,7 +90,7 @@
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="InputBorder"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="0"
+                            CornerRadius="{DynamicResource Radius.None}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             SnapsToDevicePixels="True">
@@ -127,6 +127,70 @@
            BasedOn="{StaticResource LineItemsIntCellStyle}">
         <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="False"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    </Style>
+
+
+    <!-- Enterprise ERP grid chrome — opt-in for legacy screens and the
+         default target for new grids. Keeps virtualization on, row heights
+         density-aware and focus/selection visible for keyboard operators. -->
+    <Style x:Key="ErpDataGridStyle" TargetType="DataGrid">
+        <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
+        <Setter Property="RowHeight" Value="{DynamicResource DensityRowHeight}"/>
+        <Setter Property="MinRowHeight" Value="28"/>
+        <Setter Property="ColumnHeaderHeight" Value="34"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="VerticalGridLinesBrush" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="CanUserResizeColumns" Value="True"/>
+        <Setter Property="EnableRowVirtualization" Value="True"/>
+        <Setter Property="EnableColumnVirtualization" Value="True"/>
+        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="ErpDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Setter Property="Padding" Value="8,6"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="ErpDataGridCellStyle" TargetType="DataGridCell">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="ErpDataGridRowStyle" TargetType="DataGridRow">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="MinHeight" Value="{DynamicResource DensityRowHeight}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
 </ResourceDictionary>

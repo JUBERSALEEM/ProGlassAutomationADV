@@ -22,7 +22,7 @@
     <UserControl.Resources>
         <Style x:Key="PlInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -40,11 +40,11 @@
         </Style>
 
         <!-- Target-profitability layout styles (approved KPI redesign) -->
-        <Style x:Key="TgtCardStyle" TargetType="Border">
+        <Style x:Key="TgtCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
             <Setter Property="Padding" Value="18,14"/>
         </Style>
 
@@ -71,7 +71,7 @@
             <Setter Property="MaxWidth" Value="190"/>
         </Style>
 
-        <Style x:Key="TgtPillBase" TargetType="Border">
+        <Style x:Key="TgtPillBase" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Padding" Value="10,3"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -137,7 +137,7 @@
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                    <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
                     <TextBlock Text="TARGET PROFITABILITY" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -275,7 +275,7 @@
                         <StackPanel>
                             <TextBlock Text="REQUIRED TARGET PRICE" Style="{StaticResource TgtCaptionStyle}"/>
                             <TextBlock Text="{Binding RequiredTargetPriceDisplay}"
-                                       FontSize="30" FontWeight="Bold"
+                                       FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        Margin="0,2,0,10"/>
                             <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,0,0,10"/>
@@ -341,7 +341,7 @@
                         <StackPanel>
                             <TextBlock Text="EXPECTED PROFIT MARGIN" Style="{StaticResource TgtCaptionStyle}"/>
                             <TextBlock Text="{Binding ExpectedProfitMarginDisplay}"
-                                       FontSize="30" FontWeight="Bold"
+                                       FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        Margin="0,2,0,10"/>
                             <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,0,0,10"/>
@@ -423,7 +423,7 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="BASE" Style="{StaticResource TgtMicroLabelStyle}"/>
                                     <TextBlock Text="{Binding BaseMarginPercentDisplay}"
-                                               FontSize="28" FontWeight="Bold" TextWrapping="Wrap">
+                                               FontSize="{StaticResource TextDisplay}" FontWeight="Bold" TextWrapping="Wrap">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -442,7 +442,7 @@
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="TARGET" Style="{StaticResource TgtMicroLabelStyle}"/>
                                     <TextBlock Text="{Binding TargetMarginPercentDisplay}"
-                                               FontSize="28" FontWeight="Bold" TextWrapping="Wrap">
+                                               FontSize="{StaticResource TextDisplay}" FontWeight="Bold" TextWrapping="Wrap">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -687,7 +687,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border BorderBrush="{DynamicResource DividerBrush}"
-                                    BorderThickness="0,1,0,0"
+                                    BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                                     Padding="0,12,0,4"
                                     Margin="0,8,0,0">
                             <StackPanel>
@@ -741,7 +741,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                                    BorderThickness="0,0,0,1"
+                                                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                     Padding="0,6">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
@@ -836,7 +836,7 @@
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                    <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
                     <TextBlock Text="SERVICE DETAIL" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -860,7 +860,7 @@
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                    <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
                     <TextBlock Text="SHEET DETAIL" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -884,7 +884,7 @@
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                    <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
                     <TextBlock Text="GLASS / SPEC COMPARISON" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -975,7 +975,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                                    BorderThickness="0,0,0,1"
+                                                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                     Padding="0,8"
                                                     Cursor="Hand">
                                                 <Border.InputBindings>
@@ -1007,11 +1007,11 @@
                                                         <ColumnDefinition Width="112"/>
                                                     </Grid.ColumnDefinitions>
 
-                                                    <Border Grid.Column="0" Width="20" Height="20" CornerRadius="10"
+                                                    <Border Grid.Column="0" Width="20" Height="20" CornerRadius="{DynamicResource Radius.Medium}"
                                                             Background="{DynamicResource AccentBrush}"
                                                             VerticalAlignment="Center" HorizontalAlignment="Left">
                                                         <TextBlock Text="{Binding SpecNumber}"
-                                                                   FontSize="10" FontWeight="Bold"
+                                                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
@@ -1028,7 +1028,7 @@
                                                         </TextBlock>
                                                         <TextBlock Text="{Binding FormulaSummaryLine}"
                                                                    FontFamily="Consolas"
-                                                                   FontSize="10"
+                                                                   FontSize="{StaticResource TextXSmall}"
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                    TextWrapping="Wrap"
                                                                    Margin="0,2,0,0"/>
@@ -1056,7 +1056,7 @@
                                                         <TextBlock Text="{Binding MarginAgainstTargetDisplay}"
                                                                    Style="{StaticResource PlCellStyle}"
                                                                    HorizontalAlignment="Right"
-                                                                   FontSize="10"
+                                                                   FontSize="{StaticResource TextXSmall}"
                                                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
                                                     </StackPanel>
 
@@ -1078,7 +1078,7 @@
                                                             </Style>
                                                         </Border.Style>
                                                         <TextBlock Text="{Binding StatusLabel}"
-                                                                   FontSize="10" FontWeight="Bold"
+                                                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    TextTrimming="CharacterEllipsis"/>
                                                     </Border>
@@ -1155,7 +1155,7 @@
                                 </Grid.RowDefinitions>
 
                                 <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="14,14,0,0" Padding="18,14">
+                                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="18,14">
                                     <StackPanel DataContext="{Binding SelectedTargetSpec}">
                                         <TextBlock FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}">
@@ -1285,8 +1285,8 @@
                                             <TextBlock Grid.Column="1" Text="{Binding TargetUpliftDisplay}" Style="{StaticResource TgtSideValueStyle}"/>
                                         </Grid>
                                         <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                                                CornerRadius="8" Padding="10,8" Margin="0,8,0,0">
+                                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                                CornerRadius="{DynamicResource Radius.Small}" Padding="10,8" Margin="0,8,0,0">
                                             <TextBlock FontFamily="Consolas" FontSize="{StaticResource TextCaption}"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                        TextWrapping="Wrap" Text="{Binding FormulaText}"/>
@@ -1435,7 +1435,7 @@
                                                 </Style>
                                             </Border.Style>
                                             <TextBlock Text="{Binding StatusLabel}"
-                                                       FontSize="10" FontWeight="Bold"
+                                                       FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                         </Border>
                                         <TextBlock Text="{Binding WarningSummary}"

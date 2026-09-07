@@ -51,7 +51,7 @@ namespace ProGlassAutomation.Services
         private static ResourceDictionary? _lightDict;
         private static ResourceDictionary? _darkDict;
 
-        public static void ApplyTheme(AppTheme theme)
+        public static void ApplyTheme(AppTheme theme, bool deferPostProcessing = false)
         {
             string themeUri = theme == AppTheme.Dark
                 ? "pack://application:,,,/Themes/DarkTheme.xaml"
@@ -116,47 +116,22 @@ namespace ProGlassAutomation.Services
             // the previous theme reporting itself).
             _currentTheme = theme;
 
-            // Publish the canonical Liquid Glass reference palette for
-            // this mode BEFORE the accent re-derive: every adopted
-            // style binds these keys through DynamicResource, so the
-            // whole frosted-glass system re-tints on Light/Dark.
-            PublishLiquidReference(theme == AppTheme.Dark);
-
-            // NEW: re-derive the accent family against the fresh theme
-            // surfaces so hover/tint/contrast stay correct.
-            ApplyAccent(_customAccent, raiseEvent: false);
-
-            // Loading a theme dictionary restores that theme's own
-            // OutlineBrush, which would silently discard the user's
-            // "defined edge" choice on every Light/Dark swap.
-            ReapplyOutline();
-
-            // Same for the card border thickness — a fresh dictionary resets
-            // CardBorderThickness to the theme default, so re-apply the user's
-            // saved value after every theme swap.
-            ReapplyCardBorderThickness();
-
-            // Same for the card EDGE weight (the defined card border line) —
-            // a fresh dictionary resets CardEdgeThickness, so the saved
-            // 1–100 value wins again.
-            ReapplyCardEdgeThickness();
-
-            // Same for card corner radius — theme files ship 12/10/16
-            // defaults, then the user's saved radius wins.
-            ReapplyCardCornerRadius();
-
-            // The colour mode is an input to VisualThemeEngine's scene
-            // fingerprint (splash colour-bounce fix, 2026-09-02). Drop the
-            // cache so the next ApplyModule re-renders against the new
-            // Light/Dark palette instead of being skipped as a duplicate.
-            try { Theme.VisualThemeEngine.InvalidateSceneCache(); }
-            catch (Exception ex)
+            if (!deferPostProcessing)
             {
-                Logging.AppLogService.Debug(
-                    "[ThemeManager] scene-cache invalidation failed: " + ex.Message);
+                ApplyThemePostProcessing(theme);
+                ThemeChanged?.Invoke(null, EventArgs.Empty);
             }
-
-            ThemeChanged?.Invoke(null, EventArgs.Empty);
+            else
+            {
+                // ThemePipeline performs the family/accent/outline/surface
+                // sequence once, after the dictionary swap. Keep only the
+                // cheap Liquid reference palette update here; skipping the
+                // duplicate accent/outline/family work removes a visible
+                // switching stutter on large modules without changing the
+                // public ApplyTheme behavior.
+                PublishLiquidReference(theme == AppTheme.Dark);
+                InvalidateVisualThemeSceneCache();
+            }
         }
 
         public static void ToggleTheme()
@@ -858,6 +833,11 @@ namespace ProGlassAutomation.Services
             // own authored edge (industrial slate, crystal white, cream soft).
             FreezeAndSet(resources, "GlassBorderSoft", edge);
             FreezeAndSet(resources, "GlassBorderGradientCrystal", edge);
+
+
+            // Semantic surface border resources are derived from the final
+            // card edge/keyline choice, so repaint them in the same live tick.
+            ReapplySemanticSurfaces();
         }
 
         /// <summary>

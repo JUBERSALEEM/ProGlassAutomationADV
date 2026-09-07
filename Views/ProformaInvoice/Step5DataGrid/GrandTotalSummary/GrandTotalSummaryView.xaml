@@ -47,7 +47,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="0,0,0,1"
+                            BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                             Padding="0,6">
                         <Grid>
                             <Grid.ColumnDefinitions>

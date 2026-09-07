@@ -40,7 +40,7 @@
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Background="#040B1C"
+        Background="{DynamicResource AppBackgroundBrush}"
         ShowInTaskbar="False"
         Topmost="True"
         behaviors:ViewportFitBehavior.DisableZoom="True"
@@ -67,9 +67,9 @@
         <Color x:Key="FrostColor">#BFDBFE</Color>
         <Color x:Key="SplashCeruleanDarkColor">#2563EB</Color>
 
-        <SolidColorBrush x:Key="Cerulean" Color="#93C5FD" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Cerulean" Color="{DynamicResource AccentLightColor}"/>
         <SolidColorBrush x:Key="Frost"    Color="{StaticResource FrostColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="Ice"      Color="#DBEAFE" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Ice"      Color="{DynamicResource PrimaryForegroundColor}"/>
 
         <!-- ═══════════════════════════════════════════════════════════
              FROZEN SPLASH PALETTE
@@ -79,62 +79,62 @@
              theme engaged. Every color below is frozen at design time;
              NOTHING inside the splash can morph anymore.
         ═══════════════════════════════════════════════════════════ -->
-        <SolidColorBrush x:Key="SplashCerulean"      Color="#60A5FA" po:Freeze="True"/>
+        <SolidColorBrush x:Key="SplashCerulean"      Color="{DynamicResource AccentLightColor}"/>
         <SolidColorBrush x:Key="SplashCeruleanDark"  Color="{StaticResource SplashCeruleanDarkColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashCeruleanLite"  Color="#93C5FD" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashCeruleanDeep"  Color="#1D4ED8" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashOutline"       Color="#1F99C8FF" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashPillBg"        Color="#0FFFFFFF" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashTrackBg"       Color="#14FFFFFF" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashTextPrimary"   Color="#F8FAFC" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashTextSecondary" Color="#8FA3C8" po:Freeze="True"/>
-        <SolidColorBrush x:Key="SplashOnAccent"      Color="#FFFFFF" po:Freeze="True"/>
+        <SolidColorBrush x:Key="SplashCeruleanLite"  Color="{DynamicResource AccentLightColor}"/>
+        <SolidColorBrush x:Key="SplashCeruleanDeep"  Color="{DynamicResource AccentDarkColor}"/>
+        <SolidColorBrush x:Key="SplashOutline"       Color="{DynamicResource BorderColor}"/>
+        <SolidColorBrush x:Key="SplashPillBg"        Color="{DynamicResource ModuleBackgroundColor}"/>
+        <SolidColorBrush x:Key="SplashTrackBg"       Color="{DynamicResource ModuleBackgroundColor}"/>
+        <SolidColorBrush x:Key="SplashTextPrimary"   Color="{DynamicResource PrimaryForegroundColor}"/>
+        <SolidColorBrush x:Key="SplashTextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
+        <SolidColorBrush x:Key="SplashOnAccent"      Color="{DynamicResource ModuleBackgroundColor}"/>
         <CornerRadius  x:Key="SplashCorner">10</CornerRadius>
         <CornerRadius  x:Key="SplashCornerLarge">16</CornerRadius>
 
         <!-- ═══ STAGE — dusk-navy mesh ═══ -->
         <LinearGradientBrush x:Key="PageBg" StartPoint="0,0" EndPoint="0.65,1">
-            <GradientStop Color="#04080F" Offset="0.0"/>
-            <GradientStop Color="#071226" Offset="0.45"/>
-            <GradientStop Color="#0A1A3A" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="0.45"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
         <!-- Soft spotlight behind the hero brand block -->
         <RadialGradientBrush x:Key="HeroGlow"
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#383B82F6" Offset="0.0"/>
-            <GradientStop Color="#172563EB" Offset="0.6"/>
-            <GradientStop Color="#001D4ED8" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0.6"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1.0"/>
         </RadialGradientBrush>
         <RadialGradientBrush x:Key="OrbRight"
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#325EA5FF" Offset="0.0"/>
-            <GradientStop Color="#143B82F6" Offset="0.55"/>
-            <GradientStop Color="#003B82F6" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0.55"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="1.0"/>
         </RadialGradientBrush>
         <RadialGradientBrush x:Key="OrbLeft"
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#4060A5FA" Offset="0.0"/>
-            <GradientStop Color="#1D3B82F6" Offset="0.55"/>
-            <GradientStop Color="#003B82F6" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0.55"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="1.0"/>
         </RadialGradientBrush>
 
         <!-- ═══ BRAND NAME — metallic crystal gradient + glow ═══ -->
         <LinearGradientBrush x:Key="NameGradient" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#DBEAFE" Offset="0.5"/>
+            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource PrimaryForegroundColor}" Offset="0.5"/>
             <GradientStop Color="{StaticResource FrostColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
         <!-- ═══ LOGO TILE — crystal plate + sheen ═══ -->
         <LinearGradientBrush x:Key="SplashPlate" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#FAFFFFFF" Offset="0.0"/>
-            <GradientStop Color="#EDF3FCFF" Offset="0.5"/>
-            <GradientStop Color="#D6E5F7FF" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="0.5"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1.0"/>
         </LinearGradientBrush>
         <LinearGradientBrush x:Key="TileSheen" StartPoint="0,0" EndPoint="0.6,1">
-            <GradientStop Color="#B3FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#00FFFFFF" Offset="0.55"/>
+            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.55"/>
         </LinearGradientBrush>
 
         <!-- ═══ PROGRESS — luminous ═══ -->
@@ -145,18 +145,18 @@
         </LinearGradientBrush>
 
         <!-- ═══ CRYSTAL SHADOWS ═══ -->
-        <DropShadowEffect x:Key="IconShadow" Color="{StaticResource SplashCeruleanDarkColor}"
-                          BlurRadius="52" ShadowDepth="0" Opacity="0.55"/>
-        <DropShadowEffect x:Key="SplashGlow" Color="{StaticResource SplashCeruleanDarkColor}"
+        <DropShadowEffect x:Key="IconShadow" Color="{DynamicResource AccentColor}"
+                          BlurRadius="22" ShadowDepth="0" Opacity="0.28"/>
+        <DropShadowEffect x:Key="SplashGlow" Color="{DynamicResource AccentColor}"
                           BlurRadius="18" ShadowDepth="0" Opacity="0.35"/>
 
         <!-- ═══ TRUST CHIP (top badges) — slim glass ═══ -->
-        <Style x:Key="TrustChipStyle" TargetType="Border">
+        <Style x:Key="TrustChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#1AFFFFFF" Offset="0.0"/>
-                        <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
+                        <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
+                        <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="1.0"/>
                     </LinearGradientBrush>
                 </Setter.Value>
             </Setter>
@@ -189,11 +189,11 @@
             <Border Height="38"
                     Margin="6,4"
                     Padding="14,0"
-                    CornerRadius="10"
+                    CornerRadius="{DynamicResource Radius.Medium}"
                     HorizontalAlignment="Stretch"
-                    BorderBrush="{StaticResource SplashOutline}"
-                    BorderThickness="1"
-                    Background="{StaticResource SplashPillBg}"
+                    BorderBrush="{DynamicResource SplashOutline}"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    Background="{DynamicResource SplashPillBg}"
                     SnapsToDevicePixels="True"
                     UseLayoutRounding="True"
                     IsHitTestVisible="False">
@@ -213,7 +213,7 @@
                                Text="{Binding Label}"
                                FontSize="{StaticResource TextBody}"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource SplashTextPrimary}"
+                               Foreground="{DynamicResource SplashTextPrimary}"
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
                                TextWrapping="NoWrap"/>
@@ -232,8 +232,8 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                BorderBrush="{StaticResource SplashOutline}"
-                                BorderThickness="1"
+                                BorderBrush="{DynamicResource SplashOutline}"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{StaticResource SplashCorner}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -260,8 +260,8 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
-                                Background="{StaticResource SplashCerulean}"
-                                BorderThickness="0"
+                                Background="{DynamicResource SplashCerulean}"
+                                BorderThickness="{DynamicResource Border.NoneThickness}"
                                 CornerRadius="{StaticResource SplashCorner}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -287,19 +287,19 @@
 
     </Window.Resources>
 
-    <Grid Background="{StaticResource PageBg}">
+    <Grid Background="{DynamicResource PageBg}">
 
         <!-- ── ATMOSPHERE — soft accent orbs + hero spotlight ── -->
         <Ellipse Width="520" Height="520"
-                 Fill="{StaticResource OrbRight}"
+                 Fill="{DynamicResource OrbRight}"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
                  Margin="0,-160,-160,0" IsHitTestVisible="False"/>
         <Ellipse Width="440" Height="440"
-                 Fill="{StaticResource OrbLeft}"
+                 Fill="{DynamicResource OrbLeft}"
                  HorizontalAlignment="Left" VerticalAlignment="Bottom"
                  Margin="-140,0,0,-140" IsHitTestVisible="False"/>
         <Ellipse Width="620" Height="620"
-                 Fill="{StaticResource HeroGlow}"
+                 Fill="{DynamicResource HeroGlow}"
                  HorizontalAlignment="Center" VerticalAlignment="Center"
                  Margin="0,-40,0,0" IsHitTestVisible="False"/>
 
@@ -362,19 +362,19 @@
                         <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92"/>
                     </Border.RenderTransform>
                     <Grid>
-                        <Ellipse Width="152" Height="152" Fill="{StaticResource SplashCerulean}" Opacity="0.22" Effect="{StaticResource HaloBlur}"/>
+                        <Ellipse Width="152" Height="152" Fill="{DynamicResource SplashCerulean}" Opacity="0.22" Effect="{StaticResource HaloBlur}"/>
                         <Ellipse Width="142" Height="142"
-                                 Stroke="{StaticResource SplashCerulean}" Opacity="0.5" StrokeThickness="1"
+                                 Stroke="{DynamicResource SplashCerulean}" Opacity="0.5" StrokeThickness="1"
                                  StrokeDashArray="2 6"/>
                         <Ellipse Width="120" Height="120"
-                                 Stroke="{StaticResource SplashOutline}" StrokeThickness="1"/>
-                        <Border Width="104" Height="104" CornerRadius="26"
+                                 Stroke="{DynamicResource SplashOutline}" StrokeThickness="1"/>
+                        <Border Width="104" Height="104" CornerRadius="{DynamicResource Radius.Hero}"
                                 Effect="{StaticResource IconShadow}"
-                                Background="{StaticResource SplashPlate}"
+                                Background="{DynamicResource SplashPlate}"
                                 SnapsToDevicePixels="True">
                             <Grid>
-                                <Border Width="96" Height="96" CornerRadius="22"
-                                        BorderBrush="#88FFFFFF" BorderThickness="1"
+                                <Border Width="96" Height="96" CornerRadius="{DynamicResource Radius.Hero}"
+                                        BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         ClipToBounds="True">
                                     <Border.Background>
                                         <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
@@ -383,8 +383,8 @@
                                     </Border.Background>
                                 </Border>
                                 <!-- Top-edge crystal sheen on the tile -->
-                                <Border Width="96" Height="96" CornerRadius="22"
-                                        Background="{StaticResource TileSheen}"
+                                <Border Width="96" Height="96" CornerRadius="{DynamicResource Radius.Hero}"
+                                        Background="{DynamicResource TileSheen}"
                                         IsHitTestVisible="False"/>
                             </Grid>
                         </Border>
@@ -398,7 +398,7 @@
                            FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Margin="0,20,0,0"
-                           Foreground="{StaticResource NameGradient}"
+                           Foreground="{DynamicResource NameGradient}"
                            Opacity="0">
                     <TextBlock.RenderTransform>
                         <TranslateTransform x:Name="AppNameTranslate" Y="12"/>
@@ -410,7 +410,7 @@
                            FontSize="{StaticResource TextBodyLarge}"
                            HorizontalAlignment="Center"
                            Margin="0,8,0,0"
-                           Foreground="{StaticResource SplashCerulean}"
+                           Foreground="{DynamicResource SplashCerulean}"
                            Opacity="0"/>
 
                 <!-- Module chips — 6-wide uniform grid, one clean block -->
@@ -432,12 +432,12 @@
                 <Grid x:Name="ProgressTrack"
                       MaxWidth="320" Height="3"
                       Margin="0,26,0,0" HorizontalAlignment="Stretch">
-                    <Border Height="3" CornerRadius="1.5" Background="{StaticResource SplashTrackBg}"/>
+                    <Border Height="3" CornerRadius="{DynamicResource Radius.XSmall}" Background="{DynamicResource SplashTrackBg}"/>
                     <Border x:Name="ProgressFill"
                             Height="3" Width="0"
                             HorizontalAlignment="Left"
-                            CornerRadius="1.5"
-                            Background="{StaticResource ProgressGradient}"/>
+                            CornerRadius="{DynamicResource Radius.XSmall}"
+                            Background="{DynamicResource ProgressGradient}"/>
                 </Grid>
 
                 <!-- Status — quiet line (dots animated by code-behind) -->
@@ -446,11 +446,11 @@
                         <TextBlock x:Name="LoadingText"
                                    Text="{DynamicResource Splash.Starting}"
                                    FontSize="{StaticResource TextBody}"
-                                   Foreground="{StaticResource SplashTextSecondary}"/>
+                                   Foreground="{DynamicResource SplashTextSecondary}"/>
                         <TextBlock x:Name="LoadingDots"
                                    Text=""
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                   Foreground="{StaticResource SplashCerulean}"/>
+                                   Foreground="{DynamicResource SplashCerulean}"/>
                     </StackPanel>
                 </Grid>
             </StackPanel>
@@ -460,12 +460,12 @@
                     HorizontalAlignment="Center"
                     Margin="0,0,0,10"
                     Padding="16,6"
-                    CornerRadius="10"
-                    BorderBrush="{StaticResource SplashOutline}"
-                    BorderThickness="1"
-                    Background="{StaticResource SplashPillBg}">
+                    CornerRadius="{DynamicResource Radius.Medium}"
+                    BorderBrush="{DynamicResource SplashOutline}"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    Background="{DynamicResource SplashPillBg}">
                 <TextBlock FontSize="{StaticResource TextBody}"
-                           Foreground="{StaticResource SplashTextSecondary}"
+                           Foreground="{DynamicResource SplashTextSecondary}"
                            Opacity="0.75"
                            HorizontalAlignment="Center">
                     <Run Text="{DynamicResource Splash.Copyright}"/>
@@ -495,7 +495,7 @@
 
         <!-- ═══ TERMS GATE — FULL PAGE (defs unchanged, legal copy intact) ═══ -->
         <Grid x:Name="TermsPanel"
-              Background="{StaticResource PageBg}"
+              Background="{DynamicResource PageBg}"
               Visibility="Collapsed"
               Opacity="0"
               Panel.ZIndex="10">
@@ -511,19 +511,19 @@
                 <TextBlock Text="{DynamicResource Splash.TermsTitle}"
                            FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                            HorizontalAlignment="Center"
-                           Foreground="{StaticResource SplashTextPrimary}">
+                           Foreground="{DynamicResource SplashTextPrimary}">
                     <TextBlock.Effect>
-                        <DropShadowEffect Color="{StaticResource SplashCeruleanDarkColor}" BlurRadius="14"
-                                          ShadowDepth="0" Opacity="0.6"/>
+                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="14"
+                                          ShadowDepth="0" Opacity="0.28"/>
                     </TextBlock.Effect>
                 </TextBlock>
                 <TextBlock Text="{DynamicResource Splash.UaeIntro}"
                            FontSize="{StaticResource TextBodyLarge}"
                            HorizontalAlignment="Center"
                            Margin="0,6,0,0"
-                           Foreground="{StaticResource SplashTextSecondary}"/>
+                           Foreground="{DynamicResource SplashTextSecondary}"/>
                 <Rectangle Height="1" Width="360" Margin="0,18,0,0"
-                           Opacity="0.5" Fill="{StaticResource SplashCerulean}"/>
+                           Opacity="0.5" Fill="{DynamicResource SplashCerulean}"/>
             </StackPanel>
 
             <!-- Crystal terms card -->
@@ -532,49 +532,49 @@
                     Margin="60,26,60,10"
                     Padding="42,34"
                     CornerRadius="{StaticResource SplashCornerLarge}"
-                    BorderBrush="{StaticResource SplashOutline}"
-                    BorderThickness="1"
-                    Background="{StaticResource SplashPillBg}">
+                    BorderBrush="{DynamicResource SplashOutline}"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    Background="{DynamicResource SplashPillBg}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               PanningMode="VerticalOnly">
-                    <TextBlock Foreground="{StaticResource SplashTextSecondary}"
+                    <TextBlock Foreground="{DynamicResource SplashTextSecondary}"
                                FontSize="{StaticResource TextBodyLarge}"
                                LineHeight="25"
                                TextWrapping="Wrap">
-                        <Run Text="{DynamicResource Splash.Term1}" FontWeight="Bold" Foreground="{StaticResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term1}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.SoftwareAssistsPreparingTaxInvoicesRecords}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term2}" FontWeight="Bold" Foreground="{StaticResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term2}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.UAETaxLawRequiresAccountingRecordsTax}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term3}" FontWeight="Bold" Foreground="{StaticResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term3}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.FederalDecreeLawNo462021Electronic}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term4}" FontWeight="Bold" Foreground="{StaticResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term4}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.FederalDecreeLawNo452021ProtectionPersonal}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term5}" FontWeight="Bold" Foreground="{StaticResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term5}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.GrantedNonTransferableLicenceUseSoftware}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term6}" FontWeight="Bold" Foreground="{StaticResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term6}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.AgreeUseSoftwareProduceFalseMisleading}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term7}" FontWeight="Bold" Foreground="{StaticResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term7}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.SoftwareProvidedWithoutWarrantyKindExpress}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term8}" FontWeight="Bold" Foreground="{StaticResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term8}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.UpdatesMayOfferedTimeTimeInstallingChoice}"/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="{DynamicResource Splash.Term9}" FontWeight="Bold" Foreground="{StaticResource SplashTextPrimary}"/>
+                        <Run Text="{DynamicResource Splash.Term9}" FontWeight="Bold" Foreground="{DynamicResource SplashTextPrimary}"/>
                         <LineBreak/>
                         <Run Text="{DynamicResource Splash.TermsGovernedLawsUnitedArabEmiratesEmirate}"/>
                     </TextBlock>
@@ -584,10 +584,10 @@
             <!-- Accept bar -->
             <Border x:Name="TermsBar"
                     CornerRadius="{StaticResource SplashCornerLarge}" Grid.Row="2"
-                    BorderBrush="{StaticResource SplashOutline}"
-                    BorderThickness="0,1,0,0"
+                    BorderBrush="{DynamicResource SplashOutline}"
+                    BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                     Padding="60,20"
-                    Background="{StaticResource SplashPillBg}">
+                    Background="{DynamicResource SplashPillBg}">
                 <DockPanel LastChildFill="True" MaxWidth="980">
                     <StackPanel DockPanel.Dock="Right"
                                 Orientation="Horizontal"
@@ -608,7 +608,7 @@
                     </StackPanel>
                     <CheckBox x:Name="AcceptTermsCheck"
                               VerticalAlignment="Center"
-                              Foreground="{StaticResource SplashTextSecondary}"
+                              Foreground="{DynamicResource SplashTextSecondary}"
                               FontSize="{StaticResource TextBodyLarge}"
                               Cursor="Hand"
                               Margin="0,8,0,0"

@@ -11,13 +11,13 @@
     <Grid Margin="10,8,10,16">
     <Border Width="380" CornerRadius="{DynamicResource CardCornerRadiusLarge}">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="24" ShadowDepth="3"
-                              Opacity="0.18" Color="#000000" Direction="270"/>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="3"
+                              Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
         </Border.Effect>
         <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 Background="{DynamicResource ShellLiquidBrush}"
                 BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
-                BorderThickness="1"
+                BorderThickness="{DynamicResource Border.HairlineThickness}"
                 ClipToBounds="True">
 
         <Grid>
@@ -28,7 +28,7 @@
 
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="16,16,0,0"
+                    CornerRadius="{DynamicResource Radius.Top.Medium}"
                     Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Shared.ScreenRecording}"
@@ -102,7 +102,7 @@
                             FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                             Foreground="{DynamicResource OnAccentForegroundBrush}"
                             Background="{DynamicResource AccentBrush}"
-                            BorderThickness="0"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
                             Visibility="{Binding IsIdle,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
                     <Button Content="{DynamicResource Shared.PauseResume}"
@@ -113,7 +113,7 @@
                             Foreground="{DynamicResource PrimaryForegroundBrush}"
                             Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             Visibility="{Binding IsRecording,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
                     <Button Content="{DynamicResource Shared.STOPSAVE}"
@@ -124,7 +124,7 @@
                             FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                             Foreground="{DynamicResource OnAccentForegroundBrush}"
                             Background="{DynamicResource DangerBrush}"
-                            BorderThickness="0"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
                             Visibility="{Binding IsRecording,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
                     <Button Content="{DynamicResource About.OPENFolder}"
@@ -135,7 +135,7 @@
                             Foreground="{DynamicResource PrimaryForegroundBrush}"
                             Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="1"/>
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"/>
                 </WrapPanel>
 
                 <TextBlock Text="{Binding Status}"

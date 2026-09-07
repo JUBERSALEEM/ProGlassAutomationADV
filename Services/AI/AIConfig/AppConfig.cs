@@ -181,6 +181,60 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public bool UseGradientSurfaces { get; set; } = true;
 
         /// <summary>
+        /// Semantic ERP surface material mode. "Glass" keeps the current
+        /// frosted/translucent family identity; "Solid" calms surfaces for
+        /// high-density production use; "Transparent" lets wallpaper/scene
+        /// layers show through more strongly. Runtime-only theme tokens are
+        /// derived from this and the per-level opacity/border/radius values.
+        /// </summary>
+        public string SurfaceMaterialMode { get; set; } = "Glass";
+
+        /// <summary>Opacity of the major module/page surface level.</summary>
+        public double SurfacePrimaryOpacity { get; set; } = 1.0;
+
+        /// <summary>Opacity of nested group/filter/KPI surface level.</summary>
+        public double SurfaceSecondaryOpacity { get; set; } = 0.94;
+
+        /// <summary>Opacity of compact chip/badge/detail surface level.</summary>
+        public double SurfaceDetailOpacity { get; set; } = 0.86;
+
+        /// <summary>Optional Primary radius override. Null follows CardCornerRadius.</summary>
+        public double? SurfacePrimaryRadius { get; set; }
+
+        /// <summary>Optional Secondary radius override. Null follows CardCornerRadius.</summary>
+        public double? SurfaceSecondaryRadius { get; set; }
+
+        /// <summary>Optional Detail radius override. Null follows ControlCornerRadius.</summary>
+        public double? SurfaceDetailRadius { get; set; }
+
+        /// <summary>Optional Primary border override. Null follows CardEdgeThickness.</summary>
+        public double? SurfacePrimaryBorderThickness { get; set; }
+
+        /// <summary>Optional Secondary border override. Null follows CardBorderThickness.</summary>
+        public double? SurfaceSecondaryBorderThickness { get; set; }
+
+        /// <summary>Optional Detail border override. Null follows a 1 DIP hairline.</summary>
+        public double? SurfaceDetailBorderThickness { get; set; }
+
+        /// <summary>
+        /// False makes all semantic ERP surfaces square while preserving the
+        /// saved radius numbers, useful for strict industrial workstation UI.
+        /// </summary>
+        public bool UseRoundedSurfaces { get; set; } = true;
+
+        /// <summary>
+        /// Enables lightweight elevation only for semantic primary surfaces.
+        /// Kept off by default to preserve performance on older WPF/GPU hosts.
+        /// </summary>
+        public bool UsePrimarySurfaceElevation { get; set; } = false;
+
+        /// <summary>
+        /// Primary overlay opacity for glass/wallpaper families. 0 = disabled.
+        /// The runtime token is separate from business content and print output.
+        /// </summary>
+        public double PrimarySurfaceOverlayOpacity { get; set; } = 0.0;
+
+        /// <summary>
         /// Print layout id: ClassicNavy | ModernTeal | EditorialInk |
         /// IndustrialSteel | MinimalIvory. Applied to every PDF.
         /// </summary>

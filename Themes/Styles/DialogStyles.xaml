@@ -16,11 +16,8 @@
     ═══════════════════════════════════════════════════════════════════ -->
 
     <!-- Floating dialog card — layered glass with crystal edge and shadow. -->
-    <Style x:Key="DialogCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
+    <Style x:Key="DialogCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+
         <Setter Property="Padding" Value="24"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
@@ -28,11 +25,11 @@
     </Style>
 
     <!-- Rounded dialog footer strip (buttons row). -->
-    <Style x:Key="DialogFooterStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+    <Style x:Key="DialogFooterStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
-        <Setter Property="CornerRadius" Value="0,0,16,16"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
         <Setter Property="Padding" Value="24,16"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>

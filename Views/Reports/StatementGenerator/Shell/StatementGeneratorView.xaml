@@ -112,7 +112,7 @@
         ═══════════════════════════════════════════════════════════ -->
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                 Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderThickness="0,0,0,1"
+                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                 BorderBrush="{DynamicResource OutlineBrush}">
             <Grid Margin="20,0">
                 <Grid.ColumnDefinitions>
@@ -160,7 +160,7 @@
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
-                                                                          Opacity="0.5" Color="{DynamicResource AccentColor}"/>
+                                                                          Opacity="0.28" Color="{DynamicResource AccentColor}"/>
                                                     </Setter.Value>
                                                 </Setter>
                                             </DataTrigger>
@@ -242,7 +242,7 @@
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
-                                                                          Opacity="0.5" Color="{DynamicResource AccentColor}"/>
+                                                                          Opacity="0.28" Color="{DynamicResource AccentColor}"/>
                                                     </Setter.Value>
                                                 </Setter>
                                             </DataTrigger>
@@ -324,7 +324,7 @@
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
-                                                                          Opacity="0.5" Color="{DynamicResource AccentColor}"/>
+                                                                          Opacity="0.28" Color="{DynamicResource AccentColor}"/>
                                                     </Setter.Value>
                                                 </Setter>
                                             </DataTrigger>
@@ -406,7 +406,7 @@
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
-                                                                          Opacity="0.5" Color="{DynamicResource AccentColor}"/>
+                                                                          Opacity="0.28" Color="{DynamicResource AccentColor}"/>
                                                     </Setter.Value>
                                                 </Setter>
                                             </DataTrigger>
@@ -456,7 +456,7 @@
                 <Button Grid.Column="2"
                         Command="{Binding CancelCommand}"
                         Width="38" Height="38"
-                        Cursor="Hand" BorderThickness="0"
+                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                         Background="Transparent"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
@@ -557,7 +557,7 @@
         ═══════════════════════════════════════════════════════════ -->
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
                 Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderThickness="0,1,0,0"
+                BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                 BorderBrush="{DynamicResource OutlineBrush}">
             <Grid Margin="20,0">
                 <Grid.ColumnDefinitions>

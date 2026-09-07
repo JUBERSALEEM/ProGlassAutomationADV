@@ -65,9 +65,9 @@
                     </Style>
                 </StackPanel.Style>
 
-                <Border Width="64" Height="64" CornerRadius="32"
+                <Border Width="64" Height="64" CornerRadius="{DynamicResource Radius.Hero}"
                         Background="{DynamicResource SuccessBrush}" HorizontalAlignment="Center">
-                    <TextBlock Text="✓" FontSize="28" FontWeight="Bold" Foreground="White"
+                    <TextBlock Text="✓" FontSize="{StaticResource TextDisplay}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <TextBlock FontSize="{StaticResource TextSubhead}" FontWeight="Bold"

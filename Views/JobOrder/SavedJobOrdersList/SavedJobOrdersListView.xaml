@@ -237,7 +237,7 @@
                 <Grid Grid.Row="3">
                     <ListBox ItemsSource="{Binding DisplayedJobs}"
                              ItemContainerStyle="{StaticResource JobListBoxItemStyle}"
-                             BorderThickness="0"
+                             BorderThickness="{DynamicResource Border.NoneThickness}"
                              Background="Transparent"
                              Focusable="False"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -285,7 +285,7 @@
                                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                                 <Border Background="{DynamicResource TintGrayBrush}"
                                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                                        BorderThickness="1"
+                                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="8,2"
                                                         Margin="0,0,6,0">
@@ -297,7 +297,7 @@
                                                 </Border>
                                                 <Border Background="{DynamicResource TintBlueBrush}"
                                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                                        BorderThickness="1"
+                                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="8,2"
                                                         Margin="0,0,6,0">
@@ -363,7 +363,7 @@
                                         <StackPanel Grid.Column="6"
                                                     VerticalAlignment="Center"
                                                     HorizontalAlignment="Center">
-                                            <Border CornerRadius="6"
+                                            <Border CornerRadius="{DynamicResource Radius.Small}"
                                                     Padding="8,2"
                                                     HorizontalAlignment="Center"
                                                     Background="{Binding StatusBrushKey,
@@ -371,10 +371,10 @@
                                                     ToolTip="{DynamicResource JobOrder.ProductionStatus}">
                                                 <TextBlock Text="{Binding StatusLabel}"
                                                            FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                           Foreground="White"/>
+                                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                             </Border>
                                             <Border Margin="0,2,0,0"
-                                                    CornerRadius="6"
+                                                    CornerRadius="{DynamicResource Radius.Small}"
                                                     Padding="8,2"
                                                     HorizontalAlignment="Center"
                                                     Background="{Binding DisplayStatusBrushKey,
@@ -382,7 +382,7 @@
                                                     ToolTip="{DynamicResource JobOrder.DeliveryStatus}">
                                                 <TextBlock Text="{Binding DisplayStatus}"
                                                            FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                           Foreground="White"/>
+                                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                             </Border>
                                         </StackPanel>
 
@@ -395,7 +395,7 @@
                                                              Converter={StaticResource BrushKeyConverter}}">
                                             <TextBlock Text="{Binding PriorityLabel}"
                                                        FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                       Foreground="White"/>
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                         </Border>
 
                                         <StackPanel Grid.Column="8"

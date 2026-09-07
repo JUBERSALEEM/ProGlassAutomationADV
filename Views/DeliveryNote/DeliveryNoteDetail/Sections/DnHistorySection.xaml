@@ -115,7 +115,7 @@
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="{Binding DeliveryNoteId}"
                                                                        Style="{StaticResource HistoryRowDnIdStyle}"/>
-                                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="4" Padding="5,1"
+                                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
                                                                     Margin="5,0,0,0"
                                                                     Background="{DynamicResource MenuHoverBrush}"
                                                                     VerticalAlignment="Center">
@@ -125,16 +125,16 @@
                                                                     <Run Text="{Binding SequenceNumber, Mode=OneWay}"/>
                                                                 </TextBlock>
                                                             </Border>
-                                                            <Border CornerRadius="4" Padding="7,2"
+                                                            <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="7,2"
                                                                     Margin="6,0,0,0"
                                                                     Background="{DynamicResource SuccessBrush}"
                                                                     VerticalAlignment="Center"
                                                                     Visibility="{Binding IsCurrentDn,
                                                                         Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                           Foreground="White"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource DeliveryNote.Editing}"/></TextBlock>
+                                                                           Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource DeliveryNote.Editing}"/></TextBlock>
                                                             </Border>
-                                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="4" Padding="5,1"
+                                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
         Margin="5,0,0,0"
         Background="{DynamicResource TintIndigoBrush}"
         VerticalAlignment="Center"
@@ -150,7 +150,7 @@
                                                             <!-- CHAT 19 INVOICED: invoiced badge in history row
      Shows a CHECK badge (TI number) when this DN has been invoiced.
      Hidden when InvoicedBadgeText is empty (not yet invoiced). -->
-                                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="4" Padding="7,2"
+                                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="7,2"
         Margin="5,0,0,0"
         Background="{DynamicResource TintGreenBrush}"
         VerticalAlignment="Center"

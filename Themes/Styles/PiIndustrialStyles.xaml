@@ -15,11 +15,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- One steel work surface — replaces nested stripe cards. -->
-    <Style x:Key="PiWorkSurfaceStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius"    Value="12"/>
+    <Style x:Key="PiWorkSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+
         <Setter Property="Padding"         Value="12,8"/>
         <Setter Property="Effect"          Value="{DynamicResource ShadowSoft}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -40,7 +37,7 @@
     </Style>
 
     <!-- Slim letterhead / saved-profile row. -->
-    <Style x:Key="PiSlimRowStyle" TargetType="Border">
+    <Style x:Key="PiSlimRowStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Background"      Value="Transparent"/>
         <Setter Property="BorderBrush"     Value="Transparent"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -57,7 +54,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="PiUsageBadgeStyle" TargetType="Border">
+    <Style x:Key="PiUsageBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Background"   Value="{DynamicResource TintIndigoBrush}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="Padding"      Value="6,2"/>
@@ -65,11 +62,8 @@
     </Style>
 
     <!-- KPI strip cell — one row of metrics, not a pile of cards. -->
-    <Style x:Key="PiKpiCellStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{DynamicResource GlassSurfaceElevated}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius"    Value="12"/>
+    <Style x:Key="PiKpiCellStyle" TargetType="Border" BasedOn="{StaticResource ErpKpiSurfaceStyle}">
+
         <Setter Property="Padding"         Value="12,4"/>
         <Setter Property="Margin"          Value="0,0,6,0"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -139,7 +133,7 @@
 
     <!-- ══ WIZARD RAIL / FOOTER ══════════════════════════════════════ -->
 
-    <Style x:Key="PiRailBarStyle" TargetType="Border">
+    <Style x:Key="PiRailBarStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource WindowBackgroundBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -148,7 +142,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="PiFooterBarStyle" TargetType="Border">
+    <Style x:Key="PiFooterBarStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
@@ -172,7 +166,7 @@
                     <Border x:Name="Root"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="14,0"
                             SnapsToDevicePixels="True">
@@ -231,7 +225,7 @@
 
     <!-- ══ STEP 4 — type chip / layer strip / apply bar ══════════════ -->
 
-    <Style x:Key="PiLayerStripStyle" TargetType="Border">
+    <Style x:Key="PiLayerStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -243,7 +237,7 @@
     </Style>
 
     <!-- Framed 3D product well — theme surface, never hardcoded paper. -->
-    <Style x:Key="PiShowcaseWellStyle" TargetType="Border">
+    <Style x:Key="PiShowcaseWellStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceElevated}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -253,7 +247,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="PiNumberBadgeStyle" TargetType="Border">
+    <Style x:Key="PiNumberBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Width"             Value="22"/>
         <Setter Property="Height"            Value="22"/>
         <Setter Property="CornerRadius"      Value="11"/>
@@ -271,7 +265,7 @@
         <Setter Property="Margin"          Value="0"/>
     </Style>
 
-    <Style x:Key="PiLetterheadZoneStyle" TargetType="Border">
+    <Style x:Key="PiLetterheadZoneStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -282,7 +276,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="PiMetricStripStyle" TargetType="Border">
+    <Style x:Key="PiMetricStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="Transparent"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -290,7 +284,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="PiCostTileStyle" TargetType="Border">
+    <Style x:Key="PiCostTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -317,7 +311,7 @@
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
-    <Style x:Key="PiStickyApplyBarStyle" TargetType="Border">
+    <Style x:Key="PiStickyApplyBarStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
@@ -325,13 +319,13 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="PiVerticalRuleStyle" TargetType="Border">
+    <Style x:Key="PiVerticalRuleStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Width"      Value="1"/>
         <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="Margin"     Value="10,0"/>
     </Style>
 
-    <Style x:Key="PiTableHeaderStyle" TargetType="Border">
+    <Style x:Key="PiTableHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -427,7 +421,7 @@
                                 <Border x:Name="TabBd"
                                         Background="Transparent"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="0,0,0,2"
+                                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                         Padding="{TemplateBinding Padding}"
                                         Margin="0,0,8,0"
                                         SnapsToDevicePixels="True">
@@ -495,8 +489,8 @@
                     <Border x:Name="Root"
                             Background="Transparent"
                             BorderBrush="{DynamicResource AccentBrush}"
-                            BorderThickness="1"
-                            CornerRadius="0"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            CornerRadius="{DynamicResource Radius.None}"
                             Padding="10,4"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
@@ -531,7 +525,7 @@
 
     <!-- ══ INDUSTRIAL STATION DECK ══════════════════════════════════ -->
 
-    <Style x:Key="PiStationRailStyle" TargetType="Border">
+    <Style x:Key="PiStationRailStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,1,0"/>
@@ -540,7 +534,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="PiStationHeaderBarStyle" TargetType="Border">
+    <Style x:Key="PiStationHeaderBarStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -549,7 +543,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="PiWorkDeckStyle" TargetType="Border">
+    <Style x:Key="PiWorkDeckStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="CornerRadius"    Value="0"/>
         <Setter Property="Padding"         Value="8,4"/>
@@ -560,7 +554,7 @@
         <Setter Property="Padding" Value="0"/>
     </Style>
 
-    <Style x:Key="PiZoneHeaderStyle" TargetType="Border">
+    <Style x:Key="PiZoneHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -571,7 +565,7 @@
 
     <Style x:Key="PiVaultHeaderStyle" TargetType="Border" BasedOn="{StaticResource PiZoneHeaderStyle}"/>
 
-    <Style x:Key="PiProductViewportStyle" TargetType="Border">
+    <Style x:Key="PiProductViewportStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -612,7 +606,7 @@
                 <ControlTemplate TargetType="ToggleButton">
                     <Grid SnapsToDevicePixels="True">
                         <Border x:Name="Track"
-                                CornerRadius="13"
+                                CornerRadius="{DynamicResource Radius.Large}"
                                 Background="{TemplateBinding Background}"
                                 SnapsToDevicePixels="True"/>
                         <TextBlock x:Name="OffLabel" Text="OFF"
@@ -689,7 +683,7 @@
         </Setter>
     </Style>
 
-    <Style x:Key="PiStationIdentityStyle" TargetType="Border">
+    <Style x:Key="PiStationIdentityStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -733,7 +727,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
                             Background="Transparent"
-                            CornerRadius="0"
+                            CornerRadius="{DynamicResource Radius.None}"
                             Padding="6,4">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>

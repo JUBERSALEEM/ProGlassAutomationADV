@@ -52,7 +52,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="0,0,0,1"
+                                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                     Padding="14,10">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -128,7 +128,7 @@
                 Margin="0,14,0,0"
                 Padding="22,9"
                 Cursor="Hand"
-                BorderThickness="0"
+                BorderThickness="{DynamicResource Border.NoneThickness}"
                 IsCancel="True">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
@@ -140,7 +140,7 @@
                     </Border>
                 </ControlTemplate>
             </Button.Template>
-            <TextBlock Text="{DynamicResource Action.Close}" Foreground="White"
+            <TextBlock Text="{DynamicResource Action.Close}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                        FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"/>
         </Button>
     </Grid>

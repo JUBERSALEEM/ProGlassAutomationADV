@@ -89,9 +89,9 @@
                             <Run Text="{DynamicResource God.Percent}"/>
                         </TextBlock>
                         <Border x:Name="ProgressTrack"
-                                CornerRadius="4" Height="6"
+                                CornerRadius="{DynamicResource Radius.XSmall}" Height="6"
                                 Background="{DynamicResource BorderBrush}">
-                            <Border CornerRadius="4" HorizontalAlignment="Left">
+                            <Border CornerRadius="{DynamicResource Radius.XSmall}" HorizontalAlignment="Left">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
@@ -483,7 +483,7 @@
                         <ListBox ItemsSource="{Binding AllItemsGrouped}"
                                  ItemTemplate="{StaticResource JoGroupRowTemplate}"
                                  ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -538,7 +538,7 @@
                         <ListBox ItemsSource="{Binding PreparedItemsGrouped}"
                                  ItemTemplate="{StaticResource JoGroupRowTemplate}"
                                  ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -589,7 +589,7 @@
                         <ListBox ItemsSource="{Binding DeliveredItemsGrouped}"
                                  ItemTemplate="{StaticResource JoGroupRowTemplate}"
                                  ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -639,7 +639,7 @@
                         </Grid.Style>
                         <ListBox ItemsSource="{Binding PendingItems}"
                                  ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -689,9 +689,9 @@
                                                     <Run Text="{DynamicResource God.Percent}"/>
                                                 </TextBlock>
                                                 <Border x:Name="PendingTrack"
-                                                        CornerRadius="4" Height="6"
+                                                        CornerRadius="{DynamicResource Radius.XSmall}" Height="6"
                                                         Background="{DynamicResource BorderBrush}">
-                                                    <Border CornerRadius="4"
+                                                    <Border CornerRadius="{DynamicResource Radius.XSmall}"
                                                             HorizontalAlignment="Left"
                                                             Background="{DynamicResource AccentBrush}">
                                                         <Border.Width>
@@ -742,7 +742,7 @@
                         <ListBox ItemsSource="{Binding ReworkItemsGrouped}"
                                  ItemTemplate="{StaticResource JoGroupRowTemplate}"
                                  ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -793,7 +793,7 @@
                         <ListBox ItemsSource="{Binding ReturnedItemsGrouped}"
                                  ItemTemplate="{StaticResource JoGroupRowTemplate}"
                                  ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"

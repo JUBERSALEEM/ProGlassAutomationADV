@@ -101,6 +101,7 @@ namespace ProGlassAutomation.Services.Settings
                 string v = string.IsNullOrWhiteSpace(density) ? "Compact" : density.Trim();
                 App.Config.Appearance.DisplayDensity = v;
                 ThemeManager.ApplyDisplayDensity(v);
+                ThemeManager.ApplySemanticSurfaces(App.Config.Appearance);
                 SaveConfig();
 
                 AppLogService.Info($"Density applied: {v}",

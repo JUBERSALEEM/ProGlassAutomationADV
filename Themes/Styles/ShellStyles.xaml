@@ -22,22 +22,22 @@
 
         <DropShadowEffect x:Key="CardShadow"
                           BlurRadius="4" ShadowDepth="1"
-                          Opacity="0.03" Color="#000000" Direction="270"
-                          po:Freeze="True"/>
+                          Opacity="0.03" Color="{DynamicResource LiquidShadowColor}" Direction="270"
+                         />
 
         <DropShadowEffect x:Key="LogoGlow"
                           BlurRadius="10" ShadowDepth="3"
                           Opacity="0.30" Color="{DynamicResource AccentColor}"/>
 
         <DropShadowEffect x:Key="DrawerLeftShadow"
-                          BlurRadius="30" ShadowDepth="6"
-                          Opacity="0.15" Color="Black" Direction="0"
-                          po:Freeze="True"/>
+                          BlurRadius="22" ShadowDepth="6"
+                          Opacity="0.15" Color="{DynamicResource LiquidShadowColor}" Direction="0"
+                         />
 
         <!-- Glow behind the active sidebar item (theme-accent). -->
         <DropShadowEffect x:Key="NavActiveGlow"
                           BlurRadius="14" ShadowDepth="0"
-                          Opacity="0.45" Color="{DynamicResource AccentColor}"/>
+                          Opacity="0.28" Color="{DynamicResource AccentColor}"/>
 
         <!-- Theme-based accent gradients (use AccentColor resources so they
              follow the chosen accent + Light/Dark). -->
@@ -172,7 +172,7 @@
                                 Padding="12,0"
                                 Background="{DynamicResource TintBlueBrush}"
                                 BorderBrush="{DynamicResource AccentBrush}"
-                                BorderThickness="1"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{StaticResource TopPillCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -311,7 +311,7 @@
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Stretch"
                                         Margin="0,10,0,10"
-                                        CornerRadius="2"
+                                        CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
                                         Opacity="0"
                                         IsHitTestVisible="False"/>
@@ -460,7 +460,7 @@
         </Style>
 
         <!-- SUB-MENU CONTAINER — frosted rounded card -->
-        <Style x:Key="SidebarSubMenuCard" TargetType="Border">
+        <Style x:Key="SidebarSubMenuCard" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -497,7 +497,7 @@
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <Border x:Name="Dot"
                                             Width="6" Height="6"
-                                            CornerRadius="3"
+                                            CornerRadius="{DynamicResource Radius.XSmall}"
                                             Background="{DynamicResource MutedForegroundBrush}"
                                             Margin="0,0,10,0"
                                             VerticalAlignment="Center"
@@ -515,7 +515,7 @@
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Stretch"
                                         Margin="0,8,0,8"
-                                        CornerRadius="2"
+                                        CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
                                         Opacity="0"
                                         IsHitTestVisible="False"/>

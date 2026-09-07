@@ -223,7 +223,7 @@
                 <!-- Payment — printed on PDF. Bank/account come from PI. -->
                 <Border Background="{DynamicResource TintGrayBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="12,10"
                         Margin="0,4,0,12">
@@ -359,7 +359,7 @@
                         </Style>
                     </Border.Style>
                     <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="36"
+                        <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}"
                                    HorizontalAlignment="Center" Opacity="0.3"/>
                         <TextBlock Text="{DynamicResource TaxInvoice.NoGlassItemsYet}"
                                    FontSize="{StaticResource TextSubhead}" FontWeight="SemiBold"
@@ -378,7 +378,7 @@
                                     <StackPanel>
                                         <Border Background="{DynamicResource MenuHoverBrush}"
                                                 BorderBrush="{DynamicResource DividerBrush}"
-                                                BorderThickness="0,0,0,1"
+                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                 Padding="12,8">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -404,7 +404,7 @@
                                                          FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                          Background="Transparent"
                                                          Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                         BorderThickness="0"
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}"
                                                          Padding="4,2"
                                                          MinWidth="160"
                                                          VerticalContentAlignment="Center"/>
@@ -439,7 +439,7 @@
 
                                         <Border Background="{DynamicResource MenuHoverBrush}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="0,0,0,1"
+                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                 Padding="4,6">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -495,7 +495,7 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                                            BorderThickness="0,0,0,1"
+                                                            BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                             Padding="4,3">
                                                         <Grid>
                                                             <Grid.ColumnDefinitions>
@@ -577,9 +577,9 @@
 
                                         <Border Background="{DynamicResource TintIndigoBrush}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="0,1,0,0"
+                                                BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                                                 Padding="12,8"
-                                                CornerRadius="0,0,12,12">
+                                                CornerRadius="{DynamicResource Radius.Bottom.Medium}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="28"/>

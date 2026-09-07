@@ -169,7 +169,7 @@
                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock Margin="10,0,0,0" VerticalAlignment="Center"
                                            FontSize="{StaticResource TextCaption}"
-                                           Foreground="{StaticResource TextSecondaryBrush}">
+                                           Foreground="{DynamicResource TextSecondaryBrush}">
                                     <Run Text="{Binding SelectedModel.SizeText, Mode=OneWay}"/>
                                     <Run Text=" · "/>
                                     <Run Text="{Binding SelectedModel.RamText, Mode=OneWay}"/>
@@ -326,7 +326,7 @@
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="0,0,0,1"
+                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                 Padding="0,10">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>

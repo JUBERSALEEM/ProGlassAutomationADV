@@ -11,7 +11,7 @@
         WindowStyle="None"
         ResizeMode="NoResize"
         ShowInTaskbar="True"
-        Background="#040B1C"
+        Background="{DynamicResource AppBackgroundBrush}"
         FontFamily="{DynamicResource AppFontFamily}"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">

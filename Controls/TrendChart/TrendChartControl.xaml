@@ -68,7 +68,7 @@
         <Border x:Name="FocusRing"
                 Grid.Row="0" Grid.RowSpan="2"
                 BorderBrush="{DynamicResource AccentBrush}"
-                BorderThickness="1"
+                BorderThickness="{DynamicResource Border.HairlineThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}"
                 Margin="-2"
                 Visibility="Collapsed"
@@ -127,7 +127,7 @@
                PopupAnimation="Fade">
             <Border Background="{DynamicResource PopupSurfaceBrush}"
                     BorderBrush="{DynamicResource AccentBrush}"
-                    BorderThickness="1"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="9,6"
                     SnapsToDevicePixels="True">

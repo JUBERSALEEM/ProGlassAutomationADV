@@ -52,14 +52,14 @@
                     </LinearGradientBrush>
                 </Border.Background>
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="30"
+                    <DropShadowEffect BlurRadius="22"
                                       ShadowDepth="5"
                                       Opacity="0.30"
-                                      Color="Black"/>
+                                      Color="{DynamicResource LiquidShadowColor}"/>
                 </Border.Effect>
                 <TextBlock Text="{Binding Icon}"
                            FontFamily="Segoe MDL2 Assets"
-                           FontSize="46"
+                           FontSize="{StaticResource TextDisplayLarge}"
                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"

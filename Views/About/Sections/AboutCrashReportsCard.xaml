@@ -21,7 +21,7 @@
                 <ResourceDictionary Source="../AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <Style x:Key="CrashReportRowStyle" TargetType="Border">
+            <Style x:Key="CrashReportRowStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
                 <Setter Property="Margin" Value="0,0,0,10"/>
                 <Setter Property="Padding" Value="16,14"/>
                 <Setter Property="Background" Value="{DynamicResource AboutInteractiveHoverBrush}"/>

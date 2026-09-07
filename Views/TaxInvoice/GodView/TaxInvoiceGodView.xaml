@@ -76,7 +76,7 @@
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center">
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
-                         BorderThickness="0"
+                         BorderThickness="{DynamicResource Border.NoneThickness}"
                          Background="Transparent"
                          FontSize="{StaticResource TextBodyLarge}"
                          VerticalAlignment="Center"
@@ -165,7 +165,7 @@
                                         Cursor="Hand"
                                         FontSize="{StaticResource TextBody}"
                                         Padding="10,3"
-                                        BorderThickness="0"
+                                        BorderThickness="{DynamicResource Border.NoneThickness}"
                                         Background="{DynamicResource AccentBrush}"
                                         Foreground="{DynamicResource OnAccentForegroundBrush}"
                                         Command="{Binding DataContext.OpenCommand,

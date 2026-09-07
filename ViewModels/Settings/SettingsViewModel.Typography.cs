@@ -235,6 +235,19 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ap.UseGradientSurfaces = true;
                     ap.CardBorderThickness = 1.5;
                     ap.CardCornerRadius = 12;
+                    ap.SurfaceMaterialMode = "Glass";
+                    ap.SurfacePrimaryOpacity = 1.0;
+                    ap.SurfaceSecondaryOpacity = 0.94;
+                    ap.SurfaceDetailOpacity = 0.86;
+                    ap.SurfacePrimaryRadius = null;
+                    ap.SurfaceSecondaryRadius = null;
+                    ap.SurfaceDetailRadius = null;
+                    ap.SurfacePrimaryBorderThickness = null;
+                    ap.SurfaceSecondaryBorderThickness = null;
+                    ap.SurfaceDetailBorderThickness = null;
+                    ap.UseRoundedSurfaces = true;
+                    ap.UsePrimarySurfaceElevation = false;
+                    ap.PrimarySurfaceOverlayOpacity = 0.0;
                     ap.DisplayDensity = "Compact";
                     ap.UiScale = 1.0;
                     ap.WallpaperPath = "";
@@ -266,6 +279,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     System.Windows.Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                     {
                         ThemeManager.ApplyDisplayDensity("Compact");
+                        ThemeManager.ApplySemanticSurfaces(_config?.Appearance);
                         ThemeManager.ApplyUiScale(1.0);
                     }));
 
@@ -306,6 +320,19 @@ namespace ProGlassAutomation.ViewModels.Settings
                     OnPropertyChanged(nameof(UseGradientSurfaces));
                     OnPropertyChanged(nameof(CardBorderThickness));
                     OnPropertyChanged(nameof(CardCornerRadius));
+                    OnPropertyChanged(nameof(SurfaceMaterialMode));
+                    OnPropertyChanged(nameof(SurfacePrimaryOpacity));
+                    OnPropertyChanged(nameof(SurfaceSecondaryOpacity));
+                    OnPropertyChanged(nameof(SurfaceDetailOpacity));
+                    OnPropertyChanged(nameof(SurfacePrimaryRadius));
+                    OnPropertyChanged(nameof(SurfaceSecondaryRadius));
+                    OnPropertyChanged(nameof(SurfaceDetailRadius));
+                    OnPropertyChanged(nameof(SurfacePrimaryBorderThickness));
+                    OnPropertyChanged(nameof(SurfaceSecondaryBorderThickness));
+                    OnPropertyChanged(nameof(SurfaceDetailBorderThickness));
+                    OnPropertyChanged(nameof(UseRoundedSurfaces));
+                    OnPropertyChanged(nameof(UsePrimarySurfaceElevation));
+                    OnPropertyChanged(nameof(PrimarySurfaceOverlayOpacity));
                     OnPropertyChanged(nameof(DisplayDensity));
                     OnPropertyChanged(nameof(UiScale));
                     OnPropertyChanged(nameof(UiScalePercent));

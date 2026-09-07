@@ -83,7 +83,7 @@
                              VerticalContentAlignment="Center"
                              Background="{DynamicResource MenuHoverBrush}"
                              Foreground="{DynamicResource PrimaryForegroundBrush}"
-                             BorderThickness="1"
+                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                              BorderBrush="{DynamicResource MenuHoverBrush}"
                              ToolTip="{DynamicResource SheetStore.EGJO2025001CustomerName}"/>
                     <TextBlock Text="{DynamicResource SheetStore.TrackWhichJobOrderCustomerConsumingSheets}"
@@ -126,13 +126,13 @@
                                  Height="32" Padding="10,4" VerticalContentAlignment="Center"
                                  Background="{DynamicResource MenuHoverBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                 BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}"/>
+                                 BorderThickness="{DynamicResource Border.HairlineThickness}" BorderBrush="{DynamicResource MenuHoverBrush}"/>
                         <TextBox Grid.Row="1" Grid.Column="2"
                                  Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
                                  Height="32" Padding="10,4" VerticalContentAlignment="Center"
                                  Background="{DynamicResource MenuHoverBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                 BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}"/>
+                                 BorderThickness="{DynamicResource Border.HairlineThickness}" BorderBrush="{DynamicResource MenuHoverBrush}"/>
 
                         <TextBlock Grid.Row="2" Grid.Column="0"
                                    Text="{DynamicResource SheetStore.Salesman}"
@@ -148,7 +148,7 @@
                                  Height="32" Padding="10,4" VerticalContentAlignment="Center"
                                  Background="{DynamicResource MenuHoverBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                 BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}"/>
+                                 BorderThickness="{DynamicResource Border.HairlineThickness}" BorderBrush="{DynamicResource MenuHoverBrush}"/>
                         <ComboBox Grid.Row="3" Grid.Column="2"
                                   Text="{Binding PanePosition, UpdateSourceTrigger=PropertyChanged}"
                                   IsEditable="True"
@@ -182,7 +182,7 @@
                                  VerticalContentAlignment="Center" Height="44"
                                  Background="{DynamicResource MenuHoverBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                 BorderThickness="0" Margin="8,0"/>
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Margin="8,0"/>
                         <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
                                 Content="+" MinWidth="50"
                                 ToolTip="{DynamicResource SheetStore.IncreaseQuantity}"

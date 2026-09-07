@@ -59,7 +59,7 @@
             <Border Margin="0,0,0,16" Padding="16,12" CornerRadius="{DynamicResource ControlCornerRadius}"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource WarningBrush}"
-                    BorderThickness="1"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                     Visibility="{Binding IsDefaultPasswordInUse,
                                  Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel Orientation="Horizontal">
@@ -138,7 +138,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Width="44" Height="44"
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Width="44" Height="44"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             VerticalAlignment="Center"
                                             Background="{DynamicResource TintIndigoBrush}">

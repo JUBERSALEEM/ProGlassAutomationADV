@@ -32,6 +32,11 @@
                 <!-- ── Global type scale (TextXSmall…TextDisplayLarge).
                      Every FontSize below 30 DIPs references these tokens. ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/TypeScaleTokens.xaml"/>
+
+                <!-- v2 design system: semantic ERP surfaces and shared module primitives.
+                     Loaded before Shell/Card/List/Dialog/module dictionaries so all
+                     non-print XAML can consume SurfacePrimary/Secondary/Detail. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ShellStyles.xaml"/>
 
                 <!-- ── Shared style dictionaries (order matters for BasedOn chains) ── -->
@@ -40,9 +45,6 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PillStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/CardStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/SharedSectionStyles.xaml"/>
-
-                <!-- v2 design system: shared module-screen primitives -->
-                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>
                 <!-- CRYSTAL FLUID "Ios-17pm" token plane (P1 2026-09-05).
                      Authored source-of-truth trio, load order per the
                      theme master (colors → brushes → metrics; brushes

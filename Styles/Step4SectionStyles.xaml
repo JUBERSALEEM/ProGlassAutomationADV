@@ -157,7 +157,7 @@
                                           Focusable="False"
                                           Cursor="Hand"
                                           Background="Transparent"
-                                          BorderThickness="0"
+                                          BorderThickness="{DynamicResource Border.NoneThickness}"
                                           Padding="0"
                                           HorizontalContentAlignment="Stretch"
                                           VerticalContentAlignment="Stretch"

@@ -59,7 +59,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="0,0,0,1"
+                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                 Padding="4,10">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -110,7 +110,7 @@
                     Cursor="Hand" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                     Padding="18,9" Margin="0,0,10,0"
                     IsCancel="True"
-                    BorderThickness="0">
+                    BorderThickness="{DynamicResource Border.NoneThickness}">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{DynamicResource MenuHoverBrush}"
@@ -129,7 +129,7 @@
                     Cursor="Hand" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                     Padding="18,9"
                     IsDefault="True"
-                    BorderThickness="0">
+                    BorderThickness="{DynamicResource Border.NoneThickness}">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"

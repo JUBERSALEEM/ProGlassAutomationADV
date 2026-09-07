@@ -107,7 +107,7 @@
                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                     CommandParameter="{Binding}"
                     Background="Transparent"
-                    BorderThickness="0"
+                    BorderThickness="{DynamicResource Border.NoneThickness}"
                     Padding="0"
                     Margin="1,0"
                     Cursor="Hand"

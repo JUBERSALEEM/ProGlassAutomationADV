@@ -38,8 +38,8 @@
             BorderThickness="{DynamicResource CardBorderThickness}"
             Margin="24,20,24,28">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="28" ShadowDepth="4"
-                              Opacity="0.28" Color="#000000"/>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="4"
+                              Opacity="0.28" Color="{DynamicResource LiquidShadowColor}"/>
         </Border.Effect>
 
         <Grid>
@@ -66,7 +66,7 @@
                         </Border.Background>
                         <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets"
                                    FontSize="{StaticResource TextTitleLarge}"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
                     </Border>
@@ -97,9 +97,9 @@
             <!-- ═══ FOOTER ═══ -->
             <Border Grid.Row="2"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="0,1,0,0"
+                    BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                     Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="0,0,16,16"
+                    CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                     Padding="24,16"
                     Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

@@ -22,11 +22,11 @@
                 <ResourceDictionary Source="../AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <Style x:Key="LicensePanelStyle" TargetType="Border">
-                <Setter Property="Background" Value="{DynamicResource AboutInteractiveBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource AboutInteractiveBorderBrush}"/>
-                <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-                <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+            <Style x:Key="LicensePanelStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+                <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+                <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
+                <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
                 <Setter Property="Padding" Value="20,18"/>
                 <Setter Property="SnapsToDevicePixels" Value="True"/>
             </Style>
@@ -82,10 +82,10 @@
                 <Border Grid.Column="1"
                         MinWidth="168"
                         Padding="16,8"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Background="{DynamicResource AboutInteractiveHoverBrush}"
-                        BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource Surface.Detail.CornerRadius}"
+                        Background="{DynamicResource Surface.Detail.BackgroundBrush}"
+                        BorderBrush="{DynamicResource Surface.Primary.BorderBrush}"
+                        BorderThickness="{DynamicResource Surface.Detail.BorderThickness}"
                         VerticalAlignment="Top">
                     <TextBlock Text="{Binding StatusBadge}"
                                FontSize="{StaticResource TextBody}"

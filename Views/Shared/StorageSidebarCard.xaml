@@ -25,7 +25,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource SidebarCardBrush}"
                         BorderBrush="{DynamicResource BorderBrush}"
-                        BorderThickness="1"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"
                         Padding="14,12"
                         SnapsToDevicePixels="True">
                     <ContentPresenter/>
@@ -66,11 +66,11 @@
             </Grid>
             <Border Height="6"
                     Background="{DynamicResource BorderBrush}"
-                    CornerRadius="3">
+                    CornerRadius="{DynamicResource Radius.XSmall}">
                 <Border Width="180"
                         HorizontalAlignment="Left"
-                        CornerRadius="3"
-                        Background="{StaticResource StorageBarGradient}"/>
+                        CornerRadius="{DynamicResource Radius.XSmall}"
+                        Background="{DynamicResource StorageBarGradient}"/>
             </Border>
             <TextBlock Text="{Binding StorageSubtitle, FallbackValue='Storage unavailable'}"
                        FontSize="{StaticResource TextCaption}"

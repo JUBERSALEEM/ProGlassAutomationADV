@@ -258,7 +258,7 @@
                 Height="48"
                 Background="{DynamicResource GlassSurfaceElevated}"
                 BorderBrush="{DynamicResource GlassBorderGradientSoft}"
-                BorderThickness="0,0,0,1"
+                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                 Panel.ZIndex="50"
                 SnapsToDevicePixels="True">
             <!-- Top bar glass composition: specular highlight at top edge -->
@@ -389,7 +389,7 @@
                     <Border Height="36"
                             Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{StaticResource TopPillCornerRadius}"
                             Padding="10,0"
                             Margin="0,0,10,0"
@@ -398,12 +398,12 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28"
                                     CornerRadius="{StaticResource TopPillCornerRadius}"
-                                    Background="{StaticResource DateTimeIconGradient}"
+                                    Background="{DynamicResource DateTimeIconGradient}"
                                     Margin="0,0,10,0">
                                 <TextBlock Text="&#xE787;"
                                            FontFamily="Segoe MDL2 Assets"
                                            FontSize="{StaticResource TextBodyLarge}"
-                                           Foreground="White"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
                             </Border>
@@ -425,7 +425,7 @@
                             Padding="12,0"
                             Margin="0,0,10,0"
                             BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             SnapsToDevicePixels="True"
                             ToolTip="{DynamicResource ToolTip.NetworkState}">
                         <Border.Style>
@@ -441,7 +441,7 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock FontFamily="Segoe MDL2 Assets"
                                        FontSize="{StaticResource TextBodyLarge}"
-                                       Foreground="White"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0">
                                 <TextBlock.Style>
@@ -458,7 +458,7 @@
                             <TextBlock Text="{Binding ConnectivityLabel}"
                                        Style="{StaticResource TopPillTitleStyle}"
                                        FontWeight="Bold"
-                                       Foreground="White"/>
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </StackPanel>
                     </Border>
 
@@ -471,7 +471,7 @@
                                 ToolTip="{DynamicResource ToolTip.RecentActivity}"/>
                         <Ellipse Width="10" Height="10"
                                  Fill="{DynamicResource DangerBrush}"
-                                 Stroke="White"
+                                 Stroke="{DynamicResource OnAccentForegroundBrush}"
                                  StrokeThickness="2"
                                  HorizontalAlignment="Right"
                                  VerticalAlignment="Top"
@@ -520,7 +520,7 @@
                          never blocks the module content behind it. -->
                     <Button x:Name="UserCardButton"
                             Background="Transparent"
-                            BorderThickness="0"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
                             Cursor="Hand"
                             FocusVisualStyle="{x:Null}"
                             Command="{Binding TogglePopupCommand}" CommandParameter="UserSwitch"
@@ -531,17 +531,17 @@
                                         Height="36"
                                         Background="{DynamicResource MenuHoverBrush}"
                                         BorderBrush="{DynamicResource BorderBrush}"
-                                        BorderThickness="1"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{StaticResource TopPillCornerRadius}"
                                         Padding="6,0,14,0"
                                         SnapsToDevicePixels="True">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Border Width="30" Height="30"
                                                 CornerRadius="{StaticResource TopPillCornerRadius}"
-                                                Background="{StaticResource AvatarGradient}"
+                                                Background="{DynamicResource AvatarGradient}"
                                                 Margin="0,0,10,0">
                                             <TextBlock Text="{Binding CurrentUserInitials, FallbackValue=&apos;?&apos;}"
-                                                       Foreground="White"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                        FontSize="{StaticResource TextBody}"
                                                        FontWeight="Bold"
                                                        HorizontalAlignment="Center"
@@ -592,8 +592,8 @@
             <!-- CONTENT CARD — iOS glass: transparent, minimal margin -->
             <Border Background="Transparent"
                     BorderBrush="{DynamicResource GlassBorderSoft}"
-                    BorderThickness="0"
-                    CornerRadius="0"
+                    BorderThickness="{DynamicResource Border.NoneThickness}"
+                    CornerRadius="{DynamicResource Radius.None}"
                     Margin="0"
                     ClipToBounds="True"
                     SnapsToDevicePixels="True">
@@ -617,7 +617,7 @@
             </Border>
 
             <!-- DIM OVERLAY (only when the drawer is open) -->
-            <Rectangle Fill="Black" Opacity="0.35"
+            <Rectangle Fill="{DynamicResource LiquidOverlayBrush}" Opacity="0.35"
                        behaviors:ClickToCommandBehavior.Command="{Binding CloseAllPopupsCommand}">
                 <Rectangle.Style>
                     <Style TargetType="Rectangle">
@@ -638,7 +638,7 @@
             <Border Width="292"
                     HorizontalAlignment="Left"
                     Margin="12"
-                    BorderThickness="1"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                     CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Background="{DynamicResource ShellLiquidBrush}"
                     BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
@@ -669,7 +669,7 @@
 
                 <!-- Accent edge — modern 2050 top accent line -->
                 <Border Grid.Row="0" VerticalAlignment="Top" Height="3"
-                        CornerRadius="0,0,3,0"
+                        CornerRadius="{DynamicResource Radius.XSmall}"
                         IsHitTestVisible="False">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -688,13 +688,13 @@
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Border Width="30" Height="30"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Background="{StaticResource AvatarGradient}"
+                                Background="{DynamicResource AvatarGradient}"
                                 Margin="0,0,10,0"
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="&#xE700;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="{StaticResource TextBody}"
-                                       Foreground="White"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
@@ -1039,9 +1039,9 @@
                     VerticalAlignment="Top"
                     Padding="16,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="#FFF6C244"
-                    BorderBrush="#FFB8860B"
-                    BorderThickness="1"
+                    Background="{DynamicResource TintAmberBrush}"
+                    BorderBrush="{DynamicResource WarningBrush}"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                     SnapsToDevicePixels="True"
                     Visibility="{Binding IsReadOnly,
                         Source={x:Static vmLicensing:LicenseStatusViewModel.Instance},
@@ -1057,16 +1057,16 @@
                                Text="&#xE7BA;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="{StaticResource TextTitle}"
-                               Foreground="#FF3D2C00"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,12,0"/>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="{DynamicResource Shell.ReadOnly}"
                                    FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
-                                   Foreground="#FF3D2C00"/>
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock FontSize="{StaticResource TextBody}"
-                                   Foreground="#FF3D2C00"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    TextWrapping="Wrap"
                                    Text="{Binding StatusDescription,
                                           Source={x:Static vmLicensing:LicenseStatusViewModel.Instance}}"/>
@@ -1077,9 +1077,9 @@
                             Padding="14,6"
                             VerticalAlignment="Center"
                             Command="{Binding OpenLicenseSettingsCommand}"
-                            Background="#FF3D2C00"
-                            Foreground="White"
-                            BorderThickness="0"
+                            Background="{DynamicResource WarningBrush}"
+                            Foreground="{DynamicResource OnAccentForegroundBrush}"
+                            BorderThickness="{DynamicResource Border.NoneThickness}"
                             Cursor="Hand"/>
                 </Grid>
             </Border>
@@ -1116,7 +1116,7 @@
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource AccentBrush}"
-                    BorderThickness="2"
+                    BorderThickness="{DynamicResource Border.StrongThickness}"
                     SnapsToDevicePixels="True"
                     Visibility="{Binding IsLicenseRequired,
                         Source={x:Static vmLicensing:LicenseStatusViewModel.Instance},

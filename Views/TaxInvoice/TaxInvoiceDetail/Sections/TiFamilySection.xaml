@@ -109,18 +109,18 @@
                                                                    Style="{StaticResource FamilyInvoiceNumberStyle}"/>
 
                                                         <!-- Editing badge -->
-                                                        <Border CornerRadius="4" Padding="6,1"
+                                                        <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="6,1"
                                                                 Margin="6,0,0,0"
                                                                 Background="{DynamicResource SuccessBrush}"
                                                                 VerticalAlignment="Center"
                                                                 Visibility="{Binding IsCurrentInvoice,
                                                                     Converter={StaticResource BoolToVisibilityConverter}}">
                                                             <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                                                       Foreground="White"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource DeliveryNote.Editing}"/></TextBlock>
+                                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="{DynamicResource DeliveryNote.Editing}"/></TextBlock>
                                                         </Border>
 
                                                         <!-- Attachment count badge -->
-                                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="4" Padding="5,1"
+                                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
                                                                 Margin="5,0,0,0"
                                                                 Background="{DynamicResource TintIndigoBrush}"
                                                                 VerticalAlignment="Center"
@@ -150,7 +150,7 @@
 
                                                 <!-- Row 2: Type + date + amount -->
                                                 <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                    <Border CornerRadius="4" Padding="5,1"
+                                                    <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1"
                                                             VerticalAlignment="Center">
                                                         <Border.Background>
                                                             <Binding Path="InvoiceTypeBrushKey"
@@ -243,7 +243,7 @@
                             </Grid>
 
                             <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="0,1,0,0"
+                                    BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                                     Padding="0,6,0,0">
                                 <Grid>
                                     <TextBlock Text="{DynamicResource Common.Balance}"

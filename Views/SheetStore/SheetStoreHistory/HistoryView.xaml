@@ -45,7 +45,7 @@
         
 
         <!-- Log entry row style with hover -->
-        <Style x:Key="LogEntryStyle" TargetType="Border">
+        <Style x:Key="LogEntryStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
@@ -195,7 +195,7 @@
                     <DockPanel>
                         <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
-                                 BorderThickness="0" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                  VerticalAlignment="Center" FontSize="{StaticResource TextBodyLarge}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </DockPanel>
@@ -218,7 +218,7 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False"
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="60" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Text="{DynamicResource SheetStore.NoHistoryYet}" FontSize="{StaticResource TextTitle}" FontWeight="SemiBold"
                                Margin="0,16,0,4" HorizontalAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -230,7 +230,7 @@
                 <!-- Virtualized log list -->
                 <ListBox ItemsSource="{Binding Entries}"
                          ItemContainerStyle="{StaticResource HistoryListBoxItemStyle}"
-                         BorderThickness="0"
+                         BorderThickness="{DynamicResource Border.NoneThickness}"
                          Background="Transparent"
                          Focusable="False"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -270,7 +270,7 @@
                                         </Border.Background>
                                         <TextBlock Text="{Binding Action}"
                                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                   Foreground="White"/>
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                     </Border>
 
                                     <!-- Content -->

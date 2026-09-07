@@ -27,7 +27,7 @@
                     <Border x:Name="Edge"
                             Background="{DynamicResource GlassUltraClearBrush}"
                             BorderBrush="{DynamicResource GlassBorderSoft}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{TemplateBinding CornerRadius}"
                             Effect="{DynamicResource ShadowSoft}"
                             SnapsToDevicePixels="True">
@@ -36,7 +36,7 @@
                                  glass catch-light hugging the top edge -->
                             <Border x:Name="Meniscus"
                                     Height="16"
-                                    CornerRadius="14,14,0,0"
+                                    CornerRadius="{DynamicResource Radius.Top.Medium}"
                                     VerticalAlignment="Top"
                                     Background="{DynamicResource GlassTopReflection}"
                                     Opacity="0.7"
@@ -116,12 +116,12 @@
                             <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
                         </Grid.RenderTransform>
                         <Border x:Name="Bg"
-                                CornerRadius="18"
+                                CornerRadius="{DynamicResource Radius.Hero}"
                                 Background="{DynamicResource GlassUltraClearBrush}"
                                 BorderBrush="{DynamicResource GlassDangerBorderBrush}"
-                                BorderThickness="1"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 Effect="{DynamicResource ShadowSoft}"/>
-                        <Border Height="14" CornerRadius="18,18,0,0" VerticalAlignment="Top"
+                        <Border Height="14" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.65" Margin="1,1,1,0"/>
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
                     </Grid>
@@ -238,13 +238,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
-                    <Border x:Name="Bg" CornerRadius="16" Padding="14,9"
+                    <Border x:Name="Bg" CornerRadius="{DynamicResource Radius.Large}" Padding="14,9"
                             Background="{DynamicResource GlassSurfaceUltra}"
                             BorderBrush="{DynamicResource GlassBorderPrimary}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             Effect="{DynamicResource ShadowSoft}">
                         <Grid>
-                            <Border Height="9" CornerRadius="16,16,0,0" VerticalAlignment="Top"
+                            <Border Height="9" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
                                     Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"
                                     IsHitTestVisible="False"/>
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>

@@ -221,7 +221,7 @@
                                      FontSize="{StaticResource TextBodyLarge}"
                                      Background="{DynamicResource MenuHoverBrush}"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                     BorderThickness="0"
+                                     BorderThickness="{DynamicResource Border.NoneThickness}"
                                      PasswordChanged="NewPasswordBox_PasswordChanged"/>
 
                         <Button Style="{StaticResource PrimaryPillButton}"
@@ -274,7 +274,7 @@
                                      FontSize="{StaticResource TextBodyLarge}"
                                      Background="{DynamicResource MenuHoverBrush}"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                     BorderThickness="0"
+                                     BorderThickness="{DynamicResource Border.NoneThickness}"
                                      PasswordChanged="SwitchPasswordBox_PasswordChanged"/>
 
                         <Button Style="{StaticResource PrimaryPillButton}"
@@ -635,7 +635,7 @@
                             </Style>
                         </StackPanel.Style>
                         <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="36"
+                                   FontSize="{StaticResource TextDisplayLarge}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center"
                                    Opacity="0.6"/>
@@ -666,7 +666,7 @@
                                 <DataTemplate>
                                     <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,10"
                                             BorderBrush="{DynamicResource OutlineBrush}"
-                                            BorderThickness="0,0,0,1"
+                                            BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                             ToolTip="{Binding RowTooltip}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>

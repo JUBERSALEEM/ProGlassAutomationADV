@@ -38,11 +38,11 @@
 
     <UserControl.Resources>
         <!-- Card: matches the TgtCardStyle used across Step 9. -->
-        <Style x:Key="SheetCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="14"/>
+        <Style x:Key="SheetCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+            <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
             <Setter Property="Padding" Value="18,14"/>
         </Style>
 
@@ -169,9 +169,9 @@
             </Grid>
 
             <!-- ═══ SHORTFALL BANNER (errors) ═══ -->
-            <Border Background="#1AFF3B30"
-                    BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
-                    CornerRadius="10" Padding="14,10" Margin="0,0,0,10"
+            <Border Background="{DynamicResource TintRedBrush}"
+                    BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10" Margin="0,0,0,10"
                     Visibility="{Binding HasShortfalls, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="⚠ STEP 6 SHORTFALL — BOUGHT SHEETS ARE LESS THAN THE SHEETS NEEDED"
@@ -190,9 +190,9 @@
             </Border>
 
             <!-- ═══ REVIEW BANNER (warnings) ═══ -->
-            <Border Background="#1AFFA500"
-                    BorderBrush="{DynamicResource WarningBrush}" BorderThickness="1"
-                    CornerRadius="10" Padding="14,10" Margin="0,0,0,10"
+            <Border Background="{DynamicResource TintAmberBrush}"
+                    BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10" Margin="0,0,0,10"
                     Visibility="{Binding HasReviewItems, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="⚠ REVIEW AGAINST THE STEP 6 WASTAGE SETUP"
@@ -389,7 +389,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="0,0,0,1"
+                                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                         Padding="0,7"
                                         Cursor="Hand"
                                         ToolTip="{Binding DiagnosticMessage}">
@@ -434,7 +434,7 @@
                                                        FontWeight="SemiBold"
                                                        TextWrapping="Wrap"/>
                                             <TextBlock Text="{Binding SheetSize}"
-                                                       FontSize="10"
+                                                       FontSize="{StaticResource TextXSmall}"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                                        TextTrimming="CharacterEllipsis"
                                                        Margin="6,-3,6,2"/>
@@ -469,7 +469,7 @@
                                         <!-- Status badge -->
                                         <Border Grid.Column="8" HorizontalAlignment="Right"
                                                 VerticalAlignment="Center"
-                                                CornerRadius="8" Padding="7,2" Margin="6,0,0,0">
+                                                CornerRadius="{DynamicResource Radius.Small}" Padding="7,2" Margin="6,0,0,0">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -500,11 +500,11 @@
             <StackPanel HorizontalAlignment="Center" Margin="0,24,0,0"
                         Visibility="{Binding SheetBreakdown.Count, Converter={StaticResource CountToVisibilityConverter}}">
                 <TextBlock Text="No sheet data found"
-                           FontSize="16" FontWeight="SemiBold"
+                           FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            HorizontalAlignment="Center" Margin="0,0,0,8"/>
                 <TextBlock Text="Add specifications in Step 5 and press REFRESH to analyze sheet profitability."
-                           FontSize="12"
+                           FontSize="{StaticResource TextCaption}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
             </StackPanel>
@@ -554,7 +554,7 @@
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                            CornerRadius="14,14,0,0" Padding="18,14">
+                            CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="18,14">
                         <StackPanel DataContext="{Binding SelectedRow}">
                             <TextBlock Text="{Binding GlassTypeLabel}"
                                        FontSize="{StaticResource TextSection}" FontWeight="Bold"
@@ -734,8 +734,8 @@
 
                             <!-- Comparison box -->
                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                                    CornerRadius="8" Padding="12,10" Margin="0,10,0,0">
+                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                    CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,10,0,0">
                                 <StackPanel>
                                     <TextBlock Text="COMPARISON" Style="{StaticResource SheetCaptionStyle}" Margin="0,0,0,6"/>
                                     <TextBlock FontSize="{StaticResource TextCaption}"
@@ -829,7 +829,7 @@
                     </Grid>
 
                     <!-- Diagnostic result -->
-                    <Border BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,10,0,0">
+                    <Border BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,10,0,0">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
@@ -955,12 +955,12 @@
         </StackPanel>
 
         <!-- Loading overlay -->
-        <Border Background="#80000000"
+        <Border Background="{DynamicResource LiquidOverlayBrush}"
                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="Analyzing..."
-                           FontSize="16" FontWeight="SemiBold"
-                           Foreground="White"
+                           FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
+                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                            HorizontalAlignment="Center"
                            Margin="0,0,0,8"/>
                 <ProgressBar IsIndeterminate="True" Width="200" Height="4"/>

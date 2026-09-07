@@ -42,6 +42,109 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SEMANTIC ERP SURFACES — the canonical three-level surface system.
+         These keys are deliberately resource-driven: ThemeManager publishes
+         their brushes/thickness/radius from Appearance settings after every
+         Light/Dark/family/accent change. Modules should choose one level by
+         information hierarchy, not invent per-page card species.
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <StaticResource x:Key="Surface.Primary.BackgroundBrush" ResourceKey="GlassSurfaceBrush"/>
+    <StaticResource x:Key="Surface.Secondary.BackgroundBrush" ResourceKey="GlassSurfaceUltra"/>
+    <StaticResource x:Key="Surface.Detail.BackgroundBrush" ResourceKey="ModuleBackgroundBrush"/>
+    <StaticResource x:Key="Surface.Primary.BorderBrush" ResourceKey="GlassBorderSoft"/>
+    <StaticResource x:Key="Surface.Secondary.BorderBrush" ResourceKey="OutlineBrush"/>
+    <StaticResource x:Key="Surface.Detail.BorderBrush" ResourceKey="OutlineBrush"/>
+    <StaticResource x:Key="Surface.Primary.OverlayBrush" ResourceKey="ModuleBackgroundBrush"/>
+
+    <Thickness x:Key="Surface.Primary.BorderThickness">1.5</Thickness>
+    <Thickness x:Key="Surface.Secondary.BorderThickness">1</Thickness>
+    <Thickness x:Key="Surface.Detail.BorderThickness">1</Thickness>
+    <CornerRadius x:Key="Surface.Primary.CornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="Surface.Secondary.CornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="Surface.Detail.CornerRadius">10</CornerRadius>
+    <Thickness x:Key="Surface.Primary.Padding">12,9</Thickness>
+    <Thickness x:Key="Surface.Secondary.Padding">14,9</Thickness>
+    <Thickness x:Key="Surface.Detail.Padding">10,6</Thickness>
+    <x:Null x:Key="Surface.Primary.Effect"/>
+
+
+    <!-- Dynamic shape/border primitives for legacy XAML migration. These
+         preserve proportional shape while allowing Appearance to update all
+         non-print screens from one place. -->
+    <CornerRadius x:Key="Radius.None">0</CornerRadius>
+    <CornerRadius x:Key="Radius.XSmall">3</CornerRadius>
+    <CornerRadius x:Key="Radius.Small">6</CornerRadius>
+    <CornerRadius x:Key="Radius.Medium">10</CornerRadius>
+    <CornerRadius x:Key="Radius.Large">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Hero">18</CornerRadius>
+    <CornerRadius x:Key="Radius.Top.Medium">10,10,0,0</CornerRadius>
+    <CornerRadius x:Key="Radius.Bottom.Medium">0,0,10,10</CornerRadius>
+    <CornerRadius x:Key="Radius.Left.Medium">10,0,0,10</CornerRadius>
+    <CornerRadius x:Key="Radius.Right.Medium">0,10,10,0</CornerRadius>
+    <CornerRadius x:Key="Radius.Asymmetric.Brand">12,12,12,4</CornerRadius>
+
+    <Thickness x:Key="Border.NoneThickness">0</Thickness>
+    <Thickness x:Key="Border.HairlineThickness">1</Thickness>
+    <Thickness x:Key="Border.StrongThickness">1.5</Thickness>
+    <Thickness x:Key="Border.TopHairlineThickness">0,1,0,0</Thickness>
+    <Thickness x:Key="Border.BottomHairlineThickness">0,0,0,1</Thickness>
+    <Thickness x:Key="Border.LeftHairlineThickness">1,0,0,0</Thickness>
+    <Thickness x:Key="Border.RightHairlineThickness">0,0,1,0</Thickness>
+    <Thickness x:Key="Border.VerticalHairlineThickness">1,0,1,0</Thickness>
+    <Thickness x:Key="Border.HorizontalHairlineThickness">0,1,0,1</Thickness>
+    <Thickness x:Key="Border.BoxNoLeftThickness">0,1,1,1</Thickness>
+    <Thickness x:Key="Border.BoxNoTopThickness">1,0,1,1</Thickness>
+    <Thickness x:Key="Border.RightBottomHairlineThickness">0,0,1,1</Thickness>
+
+    <Style x:Key="SurfacePrimaryStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Primary.BorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
+        <Setter Property="Padding" Value="{DynamicResource Surface.Primary.Padding}"/>
+        <Setter Property="Effect" Value="{DynamicResource Surface.Primary.Effect}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+
+    <Style x:Key="SurfaceSecondaryStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Secondary.BorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Secondary.CornerRadius}"/>
+        <Setter Property="Padding" Value="{DynamicResource Surface.Secondary.Padding}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+
+    <Style x:Key="SurfaceDetailStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Surface.Detail.BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Surface.Detail.BorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Surface.Detail.CornerRadius}"/>
+        <Setter Property="Padding" Value="{DynamicResource Surface.Detail.Padding}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+
+    <Style x:Key="PrimarySurfaceCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="SecondarySurfaceCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}"/>
+    <Style x:Key="DetailSurfaceCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+
+    <Style x:Key="ErpKpiSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="MinHeight" Value="86"/>
+    </Style>
+
+    <Style x:Key="ErpInlineStatusSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+
+    <Style x:Key="ErpEmptyStateSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Padding" Value="24"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+
     <!-- ══ PAGE HEADER ════════════════════════════════════════════════ -->
 
     <Style x:Key="ModulePageTitleStyle" TargetType="TextBlock">
@@ -60,17 +163,7 @@
 
     <!-- ══ SECTION CARD — the one card shape for module panels ═══════ -->
 
-    <Style x:Key="ModuleSectionCardStyle" TargetType="Border">
-        <Setter Property="Background"
-                Value="{DynamicResource GlassSurfaceUltra}"/>
-        <Setter Property="BorderBrush"
-                Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
-        <Setter Property="CornerRadius"
-                Value="{DynamicResource CardCornerRadius}"/>
-        <Setter Property="Padding" Value="{DynamicResource DensityCardPadding}"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-    </Style>
+    <Style x:Key="ModuleSectionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
 
     <!-- ══ COLUMN / FIELD LABELS ═════════════════════════════════════ -->
 
@@ -160,21 +253,11 @@
                 Value="{DynamicResource TextPrimaryBrush}"/>
     </Style>
 
-    <Style x:Key="ModuleDetailActionBarStyle" TargetType="Border">
-        <Setter Property="Background"
-                Value="{DynamicResource GlassSurfaceUltra}"/>
-        <Setter Property="BorderBrush"
-                Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness"
-                Value="{DynamicResource CardBorderThickness}"/>
-        <Setter Property="CornerRadius"
-                Value="{DynamicResource CardCornerRadius}"/>
-        <Setter Property="Padding" Value="{DynamicResource DensityCardPadding}"/>
+    <Style x:Key="ModuleDetailActionBarStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Margin" Value="0,0,0,12"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="ModuleWizardStepIconStyle" TargetType="Border">
+    <Style x:Key="ModuleWizardStepIconStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Width" Value="44"/>
         <Setter Property="Height" Value="44"/>
         <Setter Property="Background"
@@ -185,7 +268,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="ModuleErrorBannerStyle" TargetType="Border">
+    <Style x:Key="ModuleErrorBannerStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"
                 Value="{DynamicResource TintRedBrush}"/>
         <Setter Property="BorderBrush"
@@ -198,7 +281,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <Style x:Key="ModuleSuccessBannerStyle" TargetType="Border">
+    <Style x:Key="ModuleSuccessBannerStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Background"
                 Value="{DynamicResource TintGreenBrush}"/>
         <Setter Property="BorderBrush"

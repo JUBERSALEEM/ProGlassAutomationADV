@@ -24,7 +24,7 @@
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
     <!-- ══ TAB STRIP CONTAINER — floating transparent glass ══════════ -->
-    <Style x:Key="ModuleTabStripStyle" TargetType="Border">
+    <Style x:Key="ModuleTabStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background"
@@ -77,7 +77,7 @@
                                         IsHitTestVisible="False"/>
                                 <!-- Top glare -->
                                 <Border x:Name="Glare" Height="10"
-                                        CornerRadius="10,10,0,0"
+                                        CornerRadius="{DynamicResource Radius.Top.Medium}"
                                         VerticalAlignment="Top"
                                         Background="{DynamicResource GlassTopReflectionGradient}"
                                         Opacity="0.3"
@@ -151,7 +151,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="0"
+                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="0"
                         Width="40" Height="40"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource ModuleBackgroundBrush}"
@@ -181,18 +181,11 @@
     </DataTemplate>
 
     <!-- ══ GOD VIEW — THEMED DATAGRID ═════════════════════════════════ -->
-    <Style x:Key="GodViewGridStyle" TargetType="DataGrid">
+    <Style x:Key="GodViewGridStyle" TargetType="DataGrid" BasedOn="{StaticResource ErpDataGridStyle}">
         <Setter Property="AutoGenerateColumns" Value="False"/>
         <Setter Property="IsReadOnly" Value="True"/>
         <Setter Property="HeadersVisibility" Value="Column"/>
         <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-        <Setter Property="HorizontalGridLinesBrush"
-                Value="{DynamicResource DividerBrush}"/>
-        <Setter Property="Background"
-                Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"
-                Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="RowBackground"
                 Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="AlternatingRowBackground"
@@ -200,7 +193,7 @@
         <Setter Property="Foreground"
                 Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="RowHeight" Value="36"/>
+        <Setter Property="RowHeight" Value="{DynamicResource DensityRowHeight}"/>
         <Setter Property="SelectionMode" Value="Single"/>
         <Setter Property="CanUserAddRows" Value="False"/>
         <Setter Property="CanUserDeleteRows" Value="False"/>
@@ -266,7 +259,7 @@
                     <Border x:Name="TabBorder"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             Margin="{TemplateBinding Margin}"
@@ -320,7 +313,7 @@
                         <!-- Tab content with fade transition -->
                         <Border Grid.Row="1"
                                 Background="Transparent"
-                                BorderThickness="0">
+                                BorderThickness="{DynamicResource Border.NoneThickness}">
                             <ContentPresenter x:Name="PART_SelectedContentHost"
                                               ContentSource="SelectedContent">
                                 <ContentPresenter.RenderTransform>
@@ -335,11 +328,8 @@
     </Style>
 
     <!-- ═══ KPI TILE HOVER LIFT — subtle scale on mouse-over ═══════ -->
-    <Style x:Key="KpiTileHoverStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="CornerRadius" Value="12"/>
+    <Style x:Key="KpiTileHoverStyle" TargetType="Border" BasedOn="{StaticResource ErpKpiSurfaceStyle}">
+
         <Setter Property="Padding" Value="18,14"/>
         <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
         <Setter Property="RenderTransform">

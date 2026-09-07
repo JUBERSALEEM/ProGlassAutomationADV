@@ -149,7 +149,7 @@
                                      Grid.Column="0"
                                      Style="{x:Null}"
                                      Background="Transparent"
-                                     BorderThickness="0"
+                                     BorderThickness="{DynamicResource Border.NoneThickness}"
                                      Foreground="{TemplateBinding Foreground}"
                                      FontSize="{TemplateBinding FontSize}"
                                      CaretBrush="{DynamicResource AccentBrush}"
@@ -162,7 +162,7 @@
                                           ClickMode="Press"
                                           IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
                                           Background="Transparent"
-                                          BorderThickness="0"
+                                          BorderThickness="{DynamicResource Border.NoneThickness}"
                                           Padding="0,0,12,0"
                                           Cursor="Hand">
                                 <TextBlock Text="&#xE70D;"
@@ -179,7 +179,7 @@
                                    StaysOpen="False">
                                 <Border Background="{DynamicResource PopupSurfaceBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="1"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="6"
                                         MinWidth="{TemplateBinding ActualWidth}">
@@ -299,7 +299,7 @@
                                    StaysOpen="False">
                                 <Border Background="{DynamicResource PopupSurfaceBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="1"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="6"
                                         MinWidth="{TemplateBinding ActualWidth}">

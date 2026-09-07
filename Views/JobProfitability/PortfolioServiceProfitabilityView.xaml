@@ -55,7 +55,7 @@
         <Border Grid.Row="0" Margin="16,16,16,0" Padding="16"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1" CornerRadius="8">
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
             <StackPanel>
                 <TextBlock Text="Service Profitability — All Confirmed Jobs"
                            FontSize="{StaticResource TextTitle}"
@@ -83,8 +83,8 @@
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16,12">
+                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="JOBS ANALYZED" FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
@@ -96,8 +96,8 @@
             </Border>
 
             <Border Grid.Column="2" Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16,12">
+                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="TOTAL SERVICE CHARGE" FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
@@ -109,8 +109,8 @@
             </Border>
 
             <Border Grid.Column="4" Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16,12">
+                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="TOTAL SERVICE PROFIT" FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
@@ -122,8 +122,8 @@
             </Border>
 
             <Border Grid.Column="6" Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16,12">
+                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="OVERALL MARGIN" FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
@@ -135,8 +135,8 @@
             </Border>
 
             <Border Grid.Column="8" Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                    CornerRadius="8" Padding="16,12">
+                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="BEST PERFORMER" FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
@@ -153,7 +153,7 @@
         <Border Grid.Row="2" Margin="16,12,16,0"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1" CornerRadius="8">
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -162,7 +162,7 @@
 
                 <!-- Table Header -->
                 <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                        CornerRadius="8,8,0,0" Padding="16,10">
+                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
@@ -189,7 +189,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="0,0,0,1" Padding="16,10">
+                                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}" Padding="16,10">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="2*"/>
@@ -259,7 +259,7 @@
                         </Style>
                     </Border.Style>
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="30"
+                        <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
                                    HorizontalAlignment="Center" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,12"/>
                         <TextBlock Text="No service data available"
                                    FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
@@ -281,7 +281,7 @@
 
         <!-- ═══════ LOADING OVERLAY ═══════ -->
         <Border Grid.RowSpan="4"
-                Background="#40000000"
+                Background="{DynamicResource LiquidOverlayBrush}"
                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
             <Border.Resources>
                 <Storyboard x:Key="PulseAnimation" RepeatBehavior="Forever">
@@ -293,7 +293,7 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Border Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1" CornerRadius="12"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}"
                         Padding="28,16">
                     <StackPanel Orientation="Horizontal">
                         <ProgressBar IsIndeterminate="True" Width="20" Height="20"

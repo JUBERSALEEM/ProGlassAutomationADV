@@ -92,13 +92,8 @@
 
     <!-- Primary card. DashLiquid* are defined in both themes
          (#FFFFFF light / #273449 dark) so one style serves both. -->
-    <Style x:Key="DashCardStyle" TargetType="Border">
-        <Setter Property="Background"
-                Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush"
-                Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+    <Style x:Key="DashCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+
         <Setter Property="Padding" Value="{StaticResource DashCardPadding}"/>
         <Setter Property="Margin" Value="{StaticResource DashCardMargin}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -110,12 +105,8 @@
            BasedOn="{StaticResource DashCardStyle}"/>
 
     <!-- Inner tile: sits inside a card, one step more elevated. -->
-    <Style x:Key="DashTileStyle" TargetType="Border">
-        <Setter Property="Background"
-                Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+    <Style x:Key="DashTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+
         <Setter Property="Padding" Value="12,10"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -235,7 +226,7 @@
          Driven by KpiTileModel.Accent / KpiCardModel.BadgeColor:
          Green | Blue | Amber | Red | (default accent).
     ═══════════════════════════════════════════════════════════════ -->
-    <Style x:Key="DashAccentRailStyle" TargetType="Border">
+    <Style x:Key="DashAccentRailStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Width" Value="3"/>
         <Setter Property="CornerRadius" Value="2"/>
         <Setter Property="Margin" Value="0,0,10,0"/>
@@ -260,7 +251,7 @@
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="DashIconChipStyle" TargetType="Border">
+    <Style x:Key="DashIconChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Width" Value="26"/>
         <Setter Property="Height" Value="26"/>
         <Setter Property="CornerRadius" Value="7"/>
@@ -288,7 +279,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          STATUS PILL
     ═══════════════════════════════════════════════════════════════ -->
-    <Style x:Key="DashPillStyle" TargetType="Border">
+    <Style x:Key="DashPillStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="Padding" Value="7,2"/>
         <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
@@ -318,7 +309,7 @@
                     <Border x:Name="Chrome"
                             Background="{DynamicResource GlassSurfaceBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Height="30"
                             Padding="12,0"
@@ -365,7 +356,7 @@
                     <Border x:Name="Chrome"
                             Background="{DynamicResource AccentBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Height="30"
                             Padding="12,0"
@@ -582,18 +573,14 @@
                       ShadowDepth="2"
                       Opacity="0.08"
                       Direction="270"
-                      Color="#0F172A"
-                      po:Freeze="True"/>
+                      Color="{DynamicResource LiquidShadowColor}"
+                     />
 
     <!-- ── Surfaces ────────────────────────────────────────────────── -->
 
     <!-- The reference's SectionBorderStyle. -->
-    <Style x:Key="SoftCardStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
+    <Style x:Key="SoftCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
-        <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Effect"          Value="{DynamicResource ShadowSoft}"/>
@@ -638,7 +625,7 @@
          BitmapCache was considered and rejected: RenderAtScale defaults to
          1.0, so on a 125%/150% display it would rasterise at 1x and upscale,
          softening the very numbers this dashboard exists to show. -->
-    <Style x:Key="SoftTileStyle" TargetType="Border">
+    <Style x:Key="SoftTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
@@ -649,7 +636,7 @@
     </Style>
 
     <!-- Hero band — radius 22, no border, per the reference. -->
-    <Style x:Key="SoftHeroStyle" TargetType="Border">
+    <Style x:Key="SoftHeroStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="Background"   Value="{DynamicResource GlassUltraClearBrush}"/>
@@ -661,7 +648,7 @@
     </Style>
 
     <!-- Recessed chart well — the reference's #F8FAFC radius-12 inset. -->
-    <Style x:Key="SoftChartWellStyle" TargetType="Border">
+    <Style x:Key="SoftChartWellStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
@@ -672,7 +659,7 @@
     </Style>
 
     <!-- Inner neutral tile (sales-team chips, list rows). -->
-    <Style x:Key="SoftInsetStyle" TargetType="Border">
+    <Style x:Key="SoftInsetStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
@@ -770,7 +757,7 @@
     <!-- ── Ornaments ───────────────────────────────────────────────── -->
 
     <!-- 40x40 tinted badge, top-right of a KPI card. -->
-    <Style x:Key="SoftBadgeStyle" TargetType="Border">
+    <Style x:Key="SoftBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Width"               Value="40"/>
         <Setter Property="Height"              Value="40"/>
         <Setter Property="CornerRadius"        Value="{DynamicResource ControlCornerRadius}"/>
@@ -792,7 +779,7 @@
     </Style>
 
     <!-- Small live/status chip (reference's green "Live" pill). -->
-    <Style x:Key="SoftChipStyle" TargetType="Border">
+    <Style x:Key="SoftChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="CornerRadius" Value="20"/>
         <Setter Property="Padding"      Value="12,6"/>
         <Setter Property="Background"   Value="{DynamicResource TintGreenBrush}"/>
@@ -996,7 +983,7 @@
         <Border Background="{Binding TintColor,
                              Converter={StaticResource BrushKeyConverter}}"
                 BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
-                BorderThickness="1.5"
+                BorderThickness="{DynamicResource Border.StrongThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}"
                 Padding="12,10"
                 Margin="0,0,0,8"

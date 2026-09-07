@@ -214,7 +214,7 @@
         <Border Grid.Row="2"
                 Background="{DynamicResource TintRedBrush}"
                 BorderBrush="{DynamicResource DangerBrush}"
-                BorderThickness="1"
+                BorderThickness="{DynamicResource Border.HairlineThickness}"
                 CornerRadius="{DynamicResource ControlCornerRadius}"
                 Padding="14,12"
                 Margin="0,16,0,0"

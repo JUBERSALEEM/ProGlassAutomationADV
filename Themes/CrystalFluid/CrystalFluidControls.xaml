@@ -69,10 +69,10 @@
                                         TemplatedParent}}"
                                 Background="{StaticResource
                                     CrystalWaterBodyBrush}"
-                                BorderThickness="0,1,0,0"
+                                BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                                 BorderBrush="{StaticResource
                                     CrystalWaterSurfaceLineBrush}"
-                                CornerRadius="0"
+                                CornerRadius="{DynamicResource Radius.None}"
                                 IsHitTestVisible="False">
 
                             <Grid>
@@ -229,7 +229,7 @@
                                 <!-- INNER TOP HIGHLIGHT (tokenized) -->
                                 <Border CornerRadius="{TemplateBinding
                                             CornerRadius}"
-                                        BorderThickness="0,1,0,0"
+                                        BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                                         BorderBrush="{StaticResource
                                             CrystalHighlightBrush}"
                                         Background="Transparent"
@@ -286,8 +286,8 @@
                                 <DropShadowEffect
                                     Color="{StaticResource
                                         CrystalShadowColor}"
-                                    BlurRadius="40"
-                                    ShadowDepth="14"
+                                    BlurRadius="24"
+                                    ShadowDepth="8"
                                     Direction="270"
                                     Opacity="0.30" />
                             </Border.Effect>
@@ -360,7 +360,7 @@
                                                     CrystalButtonBackgroundBrush}"
                                                 BorderBrush="{StaticResource
                                                     CrystalGlassBorderSubtleBrush}"
-                                                BorderThickness="1">
+                                                BorderThickness="{DynamicResource Border.HairlineThickness}">
                                             <ContentPresenter
                                                 Content="{TemplateBinding Icon}"
                                                 HorizontalAlignment="Center"
@@ -460,7 +460,7 @@
                                 <!-- INNER HIGHLIGHT (tokenized) -->
                                 <Border CornerRadius="{TemplateBinding
                                             CornerRadius}"
-                                        BorderThickness="0,1,0,0"
+                                        BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                                         BorderBrush="{StaticResource
                                             CrystalHighlightBrush}"
                                         Background="Transparent"
@@ -503,7 +503,7 @@
                                 CrystalButtonBackgroundBrush}"
                             BorderBrush="{StaticResource
                                 CrystalGlassBorderSubtleBrush}"
-                            BorderThickness="1"
+                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                             Padding="{TemplateBinding Padding}">
 
                         <StackPanel Orientation="Horizontal">
@@ -573,7 +573,7 @@
                                 CrystalProgressTrackBrush}"
                             BorderBrush="{StaticResource
                                 CrystalGlassBorderSubtleBrush}"
-                            BorderThickness="1">
+                            BorderThickness="{DynamicResource Border.HairlineThickness}">
 
                         <Grid>
                             <Border x:Name="PART_Track"

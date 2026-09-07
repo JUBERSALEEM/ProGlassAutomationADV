@@ -77,7 +77,7 @@
             </ContextMenu>
 
             <!-- Workflow step node: dot + label + timestamp -->
-            <Style x:Key="StepDotStyle" TargetType="Border">
+            <Style x:Key="StepDotStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
                 <Setter Property="Width" Value="30"/>
                 <Setter Property="Height" Value="30"/>
                 <Setter Property="CornerRadius" Value="15"/>
@@ -103,11 +103,11 @@
             </Style>
 
             <!-- Section card heading row -->
-            <Style x:Key="SectionCardStyle" TargetType="Border">
-                <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="CornerRadius" Value="16"/>
+            <Style x:Key="SectionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+                <Setter Property="BorderThickness" Value="{DynamicResource Surface.Primary.BorderThickness}"/>
+                <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
                 <Setter Property="Padding" Value="16,13"/>
                 <Setter Property="Margin" Value="0,0,0,12"/>
                 <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -132,7 +132,7 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="Bg" CornerRadius="7" Background="Transparent"
+                            <Border x:Name="Bg" CornerRadius="{DynamicResource Radius.Small}" Background="Transparent"
                                     Padding="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -146,13 +146,13 @@
                     </Setter.Value>
                 </Setter>
             </Style>
-            <Style x:Key="InqDropZoneStyle" TargetType="Border">
+            <Style x:Key="InqDropZoneStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
                 <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
                 <Setter Property="CornerRadius" Value="10"/>
                 <Setter Property="Padding" Value="18,14"/>
                 <Setter Property="SnapsToDevicePixels" Value="True"/>
             </Style>
-            <Style x:Key="InqTimelineLineStyle" TargetType="Border">
+            <Style x:Key="InqTimelineLineStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
                 <Setter Property="Width" Value="2"/>
                 <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
                 <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -171,7 +171,7 @@
         <!-- ══ HEADER ═════════════════════════════════════════════════ -->
         <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,12">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.09" Color="#1E293B"/>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.09" Color="{DynamicResource LiquidShadowColor}"/>
             </Border.Effect>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -179,7 +179,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
-                    <Border Width="40" Height="40" CornerRadius="10"
+                    <Border Width="40" Height="40" CornerRadius="{DynamicResource Radius.Medium}"
                             Background="{DynamicResource AccentBrush}">
                         <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -193,7 +193,7 @@
                                        Foreground="{DynamicResource WarningBrush}"
                                        ToolTip="{DynamicResource Inquiry.UnsavedChanges}"
                                        Visibility="{Binding IsDirty, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            <Border Margin="11,0,0,0" Padding="9,3" CornerRadius="12"
+                            <Border Margin="11,0,0,0" Padding="9,3" CornerRadius="{DynamicResource Radius.Large}"
                                     Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding Status}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}"/>
@@ -527,7 +527,11 @@
                                            Foreground="{DynamicResource MutedForegroundBrush}"/>
                             </StackPanel>
 
-                            <DataGrid ItemsSource="{Binding LineItems}"
+                            <DataGrid Style="{StaticResource ErpDataGridStyle}"
+                                      ColumnHeaderStyle="{StaticResource ErpDataGridColumnHeaderStyle}"
+                                      RowStyle="{StaticResource ErpDataGridRowStyle}"
+                                      CellStyle="{StaticResource ErpDataGridCellStyle}"
+                                      ItemsSource="{Binding LineItems}"
                                       AutoGenerateColumns="False"
                                       CanUserAddRows="False" CanUserDeleteRows="False"
                                       GridLinesVisibility="Horizontal"
@@ -535,7 +539,7 @@
                                       HeadersVisibility="Column" RowHeaderWidth="0"
                                       MinHeight="120" MaxHeight="260"
                                       Background="Transparent"
-                                      BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                                      BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                       Margin="0,8,0,6">
                                 <DataGrid.Columns>
                                     <DataGridTemplateColumn Header="Build" Width="86">
@@ -543,7 +547,7 @@
                                             <DataTemplate>
                                                 <ComboBox SelectedItem="{Binding GlassType, UpdateSourceTrigger=PropertyChanged}"
                                                           ItemsSource="{Binding DataContext.BoqGlassTypes, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                          IsEditable="False" BorderThickness="0"
+                                                          IsEditable="False" BorderThickness="{DynamicResource Border.NoneThickness}"
                                                           Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
@@ -552,7 +556,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding SpecName, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="0" Background="Transparent" Padding="4,2"
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"
                                                          ToolTip="Generated-style spec (e.g. 6 CL FT + 12 AS + 6 CL TPR) or the customer's own wording."/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
@@ -561,7 +565,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -569,7 +573,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -577,7 +581,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding WidthMm, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -585,7 +589,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding HeightMm, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -593,7 +597,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding Qty, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -601,7 +605,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding RatePerSqm, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -609,7 +613,7 @@
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
-                                                         BorderThickness="0" Background="Transparent" Padding="4,2"/>
+                                                         BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -619,9 +623,9 @@
                                                 <Button Content="✕"
                                                         Command="{Binding DataContext.RemoveLineItemCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                                         CommandParameter="{Binding}"
-                                                        Background="Transparent" BorderThickness="0"
+                                                        Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}"
                                                         Foreground="{DynamicResource DangerBrush}"
-                                                        FontSize="12" Padding="4,2"/>
+                                                        FontSize="{StaticResource TextCaption}" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -659,7 +663,7 @@
                             <!-- Dashed drop zone -->
                             <Grid Margin="0,8,0,4" Cursor="Hand">
                                 <Button Command="{Binding AddAttachmentCommand}" HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch" Background="Transparent" BorderThickness="0"
+                                        VerticalAlignment="Stretch" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}"
                                         Focusable="False">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
@@ -675,7 +679,7 @@
                                                        Opacity="0.55"/>
                                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                                                         Margin="14,12">
-                                                <Border Width="40" Height="40" CornerRadius="10"
+                                                <Border Width="40" Height="40" CornerRadius="{DynamicResource Radius.Medium}"
                                                         Background="{DynamicResource ElevatedSurfaceBrush}"
                                                         HorizontalAlignment="Center">
                                                     <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
@@ -697,9 +701,9 @@
                             <ItemsControl ItemsSource="{Binding AttachmentItems}" Margin="0,6,0,0">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="10"
+                                        <Border CornerRadius="{DynamicResource Radius.Medium}"
                                                 Background="{DynamicResource ModuleBackgroundBrush}"
-                                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                 Padding="10,8" Margin="0,0,0,7">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -707,7 +711,7 @@
                                                     <ColumnDefinition Width="*"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border Width="32" Height="32" CornerRadius="8"
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}"
                                                         Background="{DynamicResource TintBlueBrush}"
                                                         VerticalAlignment="Center">
                                                     <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}"

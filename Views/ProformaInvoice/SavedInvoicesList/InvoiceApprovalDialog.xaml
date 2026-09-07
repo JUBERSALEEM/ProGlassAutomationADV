@@ -121,8 +121,8 @@
             BorderThickness="{DynamicResource CardBorderThickness}"
             Margin="24,20,24,28">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="28" ShadowDepth="4"
-                              Opacity="0.28" Color="#000000"/>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="4"
+                              Opacity="0.28" Color="{DynamicResource LiquidShadowColor}"/>
         </Border.Effect>
 
         <Grid>
@@ -221,7 +221,7 @@
                     Padding="14,10" CornerRadius="{DynamicResource CardCornerRadius}"
                     Background="{DynamicResource TintRedBrush}"
                     BorderBrush="{DynamicResource DangerBrush}"
-                    BorderThickness="1"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                     VerticalAlignment="Top"
                     Visibility="{Binding ValidationVisibility}">
                 <TextBlock Text="{Binding ValidationMessage}"
@@ -233,9 +233,9 @@
             <!-- Buttons -->
             <Border Grid.Row="4"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="0,1,0,0"
+                    BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                     Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="0,0,16,16"
+                    CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                     Padding="24,16"
                     Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

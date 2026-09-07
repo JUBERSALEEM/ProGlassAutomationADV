@@ -37,13 +37,13 @@
     <Grid Margin="10,8,10,16">
         <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="24" ShadowDepth="3"
-                                  Opacity="0.18" Color="#000000" Direction="270"/>
+                <DropShadowEffect BlurRadius="22" ShadowDepth="3"
+                                  Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
             </Border.Effect>
             <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Background="{DynamicResource ShellLiquidBrush}"
                     BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
-                    BorderThickness="1"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                     ClipToBounds="True">
 
                 <Grid>
@@ -55,7 +55,7 @@
                     <!-- Header -->
                     <Border Grid.Row="0"
                             Background="{DynamicResource AccentBrush}"
-                            CornerRadius="16,16,0,0"
+                            CornerRadius="{DynamicResource Radius.Top.Medium}"
                             Padding="18,12">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -84,7 +84,7 @@
                                     ToolTip="{DynamicResource Storage.Refresh}"
                                     Cursor="Hand"
                                     Background="Transparent"
-                                    BorderThickness="0"
+                                    BorderThickness="{DynamicResource Border.NoneThickness}"
                                     Padding="8,4"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="&#xE72D;"
@@ -150,11 +150,11 @@
                                             </Grid>
                                             <Border Height="5"
                                                     Margin="34,6,0,0"
-                                                    CornerRadius="2.5"
+                                                    CornerRadius="{DynamicResource Radius.XSmall}"
                                                     Background="{DynamicResource BorderBrush}">
                                                 <Border HorizontalAlignment="Left"
                                                         Width="{Binding BarWidth}"
-                                                        CornerRadius="2.5"
+                                                        CornerRadius="{DynamicResource Radius.XSmall}"
                                                         Background="{DynamicResource AccentBrush}"
                                                         Opacity="0.85"/>
                                             </Border>

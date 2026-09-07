@@ -80,7 +80,7 @@
                         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                                 Background="{DynamicResource AccentBrush}"
                                 BorderBrush="{DynamicResource AccentBrush}"
-                                BorderThickness="0,0,0,1"
+                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                 Padding="14,8">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -120,7 +120,7 @@
                                 </Style>
                             </StackPanel.Style>
                             <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="36"
+                                       FontSize="{StaticResource TextDisplayLarge}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        HorizontalAlignment="Center" Opacity="0.6"/>
                             <TextBlock Text="{DynamicResource Diagnostics.NoLogEntriesYet}"
@@ -154,7 +154,7 @@
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,8"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="0,0,0,1"
+                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                 ToolTip="{Binding RowTooltip}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>

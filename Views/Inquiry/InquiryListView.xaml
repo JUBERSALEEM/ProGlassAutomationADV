@@ -43,7 +43,7 @@
     <UserControl.Resources>
         <!-- Status-tinted left bar on each row.
              DataTrigger re-binds Background to a tinted brush per status. -->
-        <Style x:Key="InquiryStatusSpineStyle" TargetType="Border">
+        <Style x:Key="InquiryStatusSpineStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Width" Value="3"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Stretch"/>
@@ -100,7 +100,7 @@
 
         <!-- Compact initials tile for the customer cell.
              Reads CustomerInitials from the row. -->
-        <Style x:Key="InquiryInitialsTileStyle" TargetType="Border">
+        <Style x:Key="InquiryInitialsTileStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Width" Value="28"/>
             <Setter Property="Height" Value="28"/>
             <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
@@ -144,7 +144,7 @@
                                 Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                <Border x:Name="CountPill" Margin="8,0,0,0" Padding="7,1.5" CornerRadius="12"
+                                <Border x:Name="CountPill" Margin="8,0,0,0" Padding="7,1.5" CornerRadius="{DynamicResource Radius.Large}"
                                         Background="{DynamicResource ModuleBackgroundBrush}">
                                     <TextBlock Text="{Binding Count, Mode=OneWay}" FontSize="{StaticResource TextCaption}"
                                                FontWeight="Bold"
@@ -176,7 +176,7 @@
         <!-- One cell in the right-rail PIPELINE list.
              Has a 4px state dot on the left, a stage name, a document
              number, a status text, a relative date and an action button. -->
-        <Style x:Key="PipelineStageRowStyle" TargetType="Border">
+        <Style x:Key="PipelineStageRowStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
             <Setter Property="Padding" Value="10,8"/>
@@ -205,7 +205,7 @@
         </Style>
 
         <!-- 4px state dot for a pipeline row -->
-        <Style x:Key="PipelineStateDotStyle" TargetType="Border">
+        <Style x:Key="PipelineStateDotStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Width" Value="10"/>
             <Setter Property="Height" Value="10"/>
             <Setter Property="CornerRadius" Value="5"/>
@@ -275,7 +275,7 @@
         <Border Grid.Row="1" Margin="24,0,24,0"
                 Background="{DynamicResource TintAmberBrush}"
                 BorderBrush="{DynamicResource WarningBrush}"
-                BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource ControlCornerRadius}"
                 Padding="14,10" SnapsToDevicePixels="True"
                 Visibility="{Binding IsAwaitingNewPiSelection, Converter={StaticResource BoolToVis}}">
             <Grid>
@@ -533,7 +533,7 @@
                         Background="{DynamicResource AccentBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="12,12,0,0" Padding="14,10"
+                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="14,10"
                         SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -574,14 +574,14 @@
                 <Border Grid.Row="1"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1,0,1,1"
-                        CornerRadius="0,0,12,12"
+                        BorderThickness="{DynamicResource Border.BoxNoTopThickness}"
+                        CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                         SnapsToDevicePixels="True">
                     <ListBox x:Name="InquiriesList"
                              ItemsSource="{Binding Inquiries}"
                              ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
                              SelectedItem="{Binding SelectedInquiry, Mode=TwoWay}"
-                             BorderThickness="0"
+                             BorderThickness="{DynamicResource Border.NoneThickness}"
                              Background="Transparent"
                              Padding="8,6,8,8"
                              Focusable="False"
@@ -799,9 +799,9 @@
                         Padding="20"
                         SnapsToDevicePixels="True">
                     <Border.Effect>
-                        <DropShadowEffect BlurRadius="24" ShadowDepth="5"
+                        <DropShadowEffect BlurRadius="22" ShadowDepth="5"
                                           Direction="270" Opacity="0.18"
-                                          Color="#000000"/>
+                                          Color="{DynamicResource LiquidShadowColor}"/>
                     </Border.Effect>
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
@@ -1270,7 +1270,7 @@
                             <Border CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Background="{DynamicResource TintBlueBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}"
-                                    BorderThickness="1" Padding="12,8"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}" Padding="12,8"
                                     Margin="0,0,0,6" SnapsToDevicePixels="True">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -1291,7 +1291,7 @@
                             <Border CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Background="{DynamicResource TintRedBrush}"
                                     BorderBrush="{DynamicResource DangerBrush}"
-                                    BorderThickness="1" Padding="12,8"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}" Padding="12,8"
                                     SnapsToDevicePixels="True">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -1323,7 +1323,7 @@
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
-                                            <Border Width="8" Height="8" CornerRadius="4"
+                                            <Border Width="8" Height="8" CornerRadius="{DynamicResource Radius.XSmall}"
                                                     Background="{DynamicResource AccentBrush}"
                                                     VerticalAlignment="Top" Margin="0,5,8,0"/>
                                             <StackPanel Grid.Column="1">

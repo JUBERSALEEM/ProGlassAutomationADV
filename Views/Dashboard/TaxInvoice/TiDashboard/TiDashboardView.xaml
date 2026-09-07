@@ -208,7 +208,7 @@
                     </Grid>
 
                     <Border Height="8"
-                            CornerRadius="4"
+                            CornerRadius="{DynamicResource Radius.XSmall}"
                             Margin="0,8,0,0"
                             SnapsToDevicePixels="True"
                             Background="{DynamicResource BorderBrush}">
@@ -223,7 +223,7 @@
                                             ConverterParameter=invert}"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0"
-                                    CornerRadius="4"
+                                    CornerRadius="{DynamicResource Radius.XSmall}"
                                     SnapsToDevicePixels="True"
                                     Background="{Binding SeverityColor,
                                                  Converter={StaticResource BrushKeyConverter}}"/>
@@ -238,7 +238,7 @@
              model's medal emoji.
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="TiTopCustomerTemplate">
-            <Border BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1" Margin="0,0,0,10"
+            <Border BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="{DynamicResource Border.HairlineThickness}" Margin="0,0,0,10"
                     Padding="12,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True"
@@ -290,7 +290,7 @@
                     </Grid>
 
                     <Border Height="5"
-                            CornerRadius="3"
+                            CornerRadius="{DynamicResource Radius.XSmall}"
                             Margin="0,8,0,0"
                             SnapsToDevicePixels="True"
                             Background="{DynamicResource BorderBrush}">
@@ -305,7 +305,7 @@
                                             ConverterParameter=invert}"/>
                             </Grid.ColumnDefinitions>
                             <Border Grid.Column="0"
-                                    CornerRadius="3"
+                                    CornerRadius="{DynamicResource Radius.XSmall}"
                                     SnapsToDevicePixels="True"
                                     Background="{Binding BarColor,
                                                  Converter={StaticResource ColorStringConverter}}"/>

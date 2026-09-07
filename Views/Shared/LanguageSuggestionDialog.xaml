@@ -33,14 +33,14 @@
     <Border Padding="28,24"
             Background="{DynamicResource GlassUltraClearBrush}"
             BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
-            BorderThickness="1"
+            BorderThickness="{DynamicResource Border.HairlineThickness}"
             CornerRadius="{DynamicResource CardCornerRadiusLarge}"
             Margin="12">
         <StackPanel>
 
             <TextBlock Text="&#xE774;"
                        FontFamily="Segoe MDL2 Assets"
-                       FontSize="28"
+                       FontSize="{StaticResource TextDisplay}"
                        Foreground="{DynamicResource AccentBrush}"
                        HorizontalAlignment="Center"
                        Margin="0,0,0,12"/>
@@ -96,7 +96,7 @@
                         Background="{DynamicResource GlassSurfaceElevated}"
                         Foreground="{DynamicResource PrimaryForegroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"/>
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
 
                 <Button x:Name="SwitchButton"
                         Grid.Column="2"
@@ -106,7 +106,7 @@
                         Click="Switch_Click"
                         Background="{DynamicResource AccentBrush}"
                         Foreground="{DynamicResource OnAccentForegroundBrush}"
-                        BorderThickness="0"/>
+                        BorderThickness="{DynamicResource Border.NoneThickness}"/>
             </Grid>
         </StackPanel>
     </Border>

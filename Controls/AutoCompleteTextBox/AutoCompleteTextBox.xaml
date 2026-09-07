@@ -55,7 +55,7 @@
         <Border x:Name="MainBorder"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1"
+                BorderThickness="{DynamicResource Border.HairlineThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}"
                 SnapsToDevicePixels="True"
                 Height="38">
@@ -70,7 +70,7 @@
                          Grid.Column="0"
                          Background="Transparent"
                          Foreground="{DynamicResource PrimaryForegroundBrush}"
-                         BorderThickness="0"
+                         BorderThickness="{DynamicResource Border.NoneThickness}"
                          Padding="12,0"
                          VerticalContentAlignment="Center"
                          FontSize="{StaticResource TextBodyLarge}"
@@ -82,7 +82,7 @@
                 <Button x:Name="PART_ToggleButton"
                         Grid.Column="1"
                         Background="Transparent"
-                        BorderThickness="0"
+                        BorderThickness="{DynamicResource Border.NoneThickness}"
                         Cursor="Hand"
                         Focusable="False">
                     <Button.Template>
@@ -117,11 +117,11 @@
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Margin="0,4,0,0">
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.20" Color="Black"/>
+                    <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.20" Color="{DynamicResource LiquidShadowColor}"/>
                 </Border.Effect>
                 <ListBox x:Name="PART_ListBox"
                          Background="Transparent"
-                         BorderThickness="0"
+                         BorderThickness="{DynamicResource Border.NoneThickness}"
                          Padding="4"
                          Focusable="False"
                          ItemContainerStyle="{StaticResource AutoCompleteItemStyle}"

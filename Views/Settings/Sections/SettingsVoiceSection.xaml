@@ -152,7 +152,7 @@
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <Border.Resources>
                             <!-- Local: tinted highlight when the model is ready. -->
-                            <Style x:Key="StatusBadgeStyle" TargetType="Border">
+                            <Style x:Key="StatusBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
                                 <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
                                 <Setter Property="Padding" Value="10,4"/>
                                 <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>

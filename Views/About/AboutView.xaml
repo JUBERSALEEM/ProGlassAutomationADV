@@ -194,7 +194,7 @@
                                         VerticalAlignment="Center"
                                         MaxWidth="560">
                                 <TextBlock Text="{Binding AppName}"
-                                           FontSize="30"
+                                           FontSize="{StaticResource TextDisplay}"
                                            FontWeight="Bold"
                                            Foreground="{DynamicResource LiquidSnow}"
                                            TextWrapping="Wrap"

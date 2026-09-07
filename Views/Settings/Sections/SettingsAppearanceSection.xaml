@@ -80,7 +80,7 @@
                                     <StackPanel Orientation="Horizontal" Margin="18,8">
                                         <TextBlock Text="&#xE777;" 
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="16"
+                                                   FontSize="{StaticResource TextSection}"
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,8,0"/>
                                         <TextBlock Text="{DynamicResource Settings.ResetAppearanceDefaults}"
@@ -115,7 +115,7 @@
                 <Border Margin="0,0,0,10"
                         Padding="16,12"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        BorderThickness="1">
+                        BorderThickness="{DynamicResource Border.HairlineThickness}">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -145,17 +145,17 @@
                                          Height="4"
                                          VerticalAlignment="Center"
                                          Margin="0,0,12,0"
-                                         Foreground="White"/>
+                                         Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             <TextBlock Text="{DynamicResource Settings.ResettingAppearance}"
-                                       Foreground="White"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        FontWeight="Bold"
-                                       FontSize="14"
+                                       FontSize="{StaticResource TextBodyLarge}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="{Binding ResetStatusMessage}"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    FontWeight="SemiBold"
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextCaption}"
                                    Opacity="0.9"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
@@ -178,7 +178,7 @@
                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{DynamicResource ElevatedSurfaceBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="1"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 Margin="0,8,0,0"
                                 SnapsToDevicePixels="True">
                             <Grid>
@@ -203,38 +203,38 @@
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            TextWrapping="Wrap" Margin="0,2,0,8"/>
                                 <UniformGrid Columns="5">
-                                    <Border Padding="9,3" CornerRadius="4" Margin="0,0,6,0"
+                                    <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"
                                             Background="{DynamicResource AccentBrush}">
                                         <TextBlock Text="{DynamicResource Settings.PreviewAction}"
                                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
-                                    <Border Padding="9,3" CornerRadius="4" Margin="0,0,6,0"
+                                    <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"
                                             Background="{DynamicResource TintGreenBrush}">
                                         <TextBlock Text="{DynamicResource Settings.PreviewOk}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
-                                    <Border Padding="9,3" CornerRadius="4" Margin="0,0,6,0"
+                                    <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"
                                             Background="{DynamicResource TintAmberBrush}">
                                         <TextBlock Text="{DynamicResource Settings.PreviewWarn}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
-                                    <Border Padding="9,3" CornerRadius="4" Margin="0,0,6,0"
+                                    <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"
                                             Background="{DynamicResource TintRedBrush}">
                                         <TextBlock Text="{DynamicResource Settings.PreviewErr}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
-                                    <Border Padding="9,3" CornerRadius="4"
+                                    <Border Padding="9,3" CornerRadius="{DynamicResource Radius.XSmall}"
                                             Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
-                                            BorderThickness="1">
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}">
                                         <TextBlock Text="{DynamicResource Settings.PreviewKeyline}"
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -269,11 +269,11 @@
                           MinHeight="330" ClipToBounds="True">
 
                         <!-- environment highlight trio (file-20 §22) -->
-                        <Border Background="{StaticResource CrystalEnvironmentHighlightTopLeftBrush}"
+                        <Border Background="{DynamicResource CrystalEnvironmentHighlightTopLeftBrush}"
                                 IsHitTestVisible="False"/>
-                        <Border Background="{StaticResource CrystalEnvironmentCyanTopRightBrush}"
+                        <Border Background="{DynamicResource CrystalEnvironmentCyanTopRightBrush}"
                                 IsHitTestVisible="False"/>
-                        <Border Background="{StaticResource CrystalEnvironmentCyanBottomRightBrush}"
+                        <Border Background="{DynamicResource CrystalEnvironmentCyanBottomRightBrush}"
                                 IsHitTestVisible="False"/>
                         <crystal:CrystalAmbientBackground/>
 
@@ -286,7 +286,7 @@
                                         WaterLevel="0.42" BubbleCount="3"
                                         Margin="0,0,6,0">
                                     <crystal:CrystalKpiCard.Icon>
-                                        <TextBlock Text="◇" FontSize="14"/>
+                                        <TextBlock Text="◇" FontSize="{StaticResource TextBodyLarge}"/>
                                     </crystal:CrystalKpiCard.Icon>
                                     <crystal:CrystalStatusPill Content="+12.8%"
                                             StatusColor="{StaticResource CrystalPositiveBrush}"/>
@@ -295,7 +295,7 @@
                                         Value="24" WaterLevel="0.58"
                                         Margin="3,0">
                                     <crystal:CrystalKpiCard.Icon>
-                                        <TextBlock Text="□" FontSize="14"/>
+                                        <TextBlock Text="□" FontSize="{StaticResource TextBodyLarge}"/>
                                     </crystal:CrystalKpiCard.Icon>
                                     <crystal:CrystalStatusPill Content="running"
                                             StatusColor="{StaticResource CrystalPositiveBrush}"/>
@@ -305,7 +305,7 @@
                                         BubbleEnabled="False"
                                         Margin="6,0,0,0">
                                     <crystal:CrystalKpiCard.Icon>
-                                        <TextBlock Text="✓" FontSize="14"/>
+                                        <TextBlock Text="✓" FontSize="{StaticResource TextBodyLarge}"/>
                                     </crystal:CrystalKpiCard.Icon>
                                 </crystal:CrystalKpiCard>
                             </UniformGrid>
@@ -411,8 +411,8 @@
                             </ItemsControl>
                             <!-- Free-pick font colour: type any hex, the whole
                                  text hierarchy (primary/secondary/muted) re-derives. -->
-                            <Border Margin="0,10,0,0" Padding="8,6" CornerRadius="8"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                            <Border Margin="0,10,0,0" Padding="8,6" CornerRadius="{DynamicResource Radius.Small}"
+                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse Width="14" Height="14"
@@ -567,6 +567,94 @@
                         </StackPanel>
                     </Border>
 
+
+                    <!-- Semantic ERP surfaces: Primary / Secondary / Detail customization -->
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE771;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="ERP surface levels"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Controls the three central card levels used by modules: Primary page regions, Secondary groups/KPIs, and Detail chips/facts."/>
+
+                            <UniformGrid Columns="4" Margin="0,10,0,8">
+                                <StackPanel Margin="0,0,12,0">
+                                    <TextBlock Style="{StaticResource SettingsTileCaptionStyle}" Text="Material"/>
+                                    <ComboBox ItemsSource="{Binding SurfaceMaterialOptions}"
+                                              SelectedItem="{Binding SurfaceMaterialMode}"
+                                              Padding="10,7" FontSize="{StaticResource TextBodyLarge}"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,0">
+                                    <TextBlock Style="{StaticResource SettingsTileCaptionStyle}" Text="Rounded surfaces"/>
+                                    <ToggleButton HorizontalAlignment="Left"
+                                                  IsChecked="{Binding UseRoundedSurfaces, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"/>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,12,0">
+                                    <TextBlock Style="{StaticResource SettingsTileCaptionStyle}" Text="Primary elevation"/>
+                                    <ToggleButton HorizontalAlignment="Left"
+                                                  IsChecked="{Binding UsePrimarySurfaceElevation, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"/>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource SettingsTileCaptionStyle}" Text="Primary overlay"/>
+                                    <Slider Style="{StaticResource ModernSliderStyle}"
+                                            Minimum="0" Maximum="0.35" TickFrequency="0.05"
+                                            Value="{Binding PrimarySurfaceOverlayOpacity, Mode=TwoWay}"/>
+                                </StackPanel>
+                            </UniformGrid>
+
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}" Margin="0,0,8,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Primary" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="Major page/module card" Style="{StaticResource SettingsTileCaptionStyle}"/>
+                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource SettingsTileCaptionStyle}" Text="Opacity"/>
+                                        <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.3" Maximum="1" Value="{Binding SurfacePrimaryOpacity, Mode=TwoWay}"/>
+                                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}" Text="Radius"/>
+                                        <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfacePrimaryRadius, Mode=TwoWay}"/>
+                                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}" Text="Border"/>
+                                        <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfacePrimaryBorderThickness, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="1" Style="{StaticResource SurfaceSecondaryStyle}" Margin="4,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Secondary" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="Groups, filters, KPI cards" Style="{StaticResource SettingsTileCaptionStyle}"/>
+                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource SettingsTileCaptionStyle}" Text="Opacity"/>
+                                        <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.25" Maximum="1" Value="{Binding SurfaceSecondaryOpacity, Mode=TwoWay}"/>
+                                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}" Text="Radius"/>
+                                        <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceSecondaryRadius, Mode=TwoWay}"/>
+                                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}" Text="Border"/>
+                                        <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceSecondaryBorderThickness, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Grid.Column="2" Style="{StaticResource SurfaceDetailStyle}" Margin="8,0,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="Detail" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="Chips, badges, facts" Style="{StaticResource SettingsTileCaptionStyle}"/>
+                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource SettingsTileCaptionStyle}" Text="Opacity"/>
+                                        <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.15" Maximum="1" Value="{Binding SurfaceDetailOpacity, Mode=TwoWay}"/>
+                                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}" Text="Radius"/>
+                                        <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceDetailRadius, Mode=TwoWay}"/>
+                                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}" Text="Border"/>
+                                        <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceDetailBorderThickness, Mode=TwoWay}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+
                     <!-- UI scale -->
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <StackPanel>
@@ -676,8 +764,8 @@
                             </ItemsControl>
                             <!-- Free-pick colour: type any hex, the whole adaptive palette
                                  (Monet glass, tints, keylines) re-derives from it. -->
-                            <Border Margin="0,12,0,0" Padding="10,8" CornerRadius="8"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                            <Border Margin="0,12,0,0" Padding="10,8" CornerRadius="{DynamicResource Radius.Small}"
+                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     HorizontalAlignment="Left">
                                 <StackPanel Orientation="Horizontal">
                                     <Ellipse Width="14" Height="14"
@@ -847,7 +935,7 @@
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="0,0,1,1"
+                                                BorderThickness="{DynamicResource Border.RightBottomHairlineThickness}"
                                                 Padding="4,7"
                                                 Margin="0,0,8,8">
                                             <Grid>
@@ -1028,7 +1116,7 @@
 
                         <!-- Built-in theme scenes (live swatches) -->
                         <TextBlock Text="{DynamicResource Settings.WallpaperBuiltin}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
+                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Margin="0,6,0,2"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <ItemsControl ItemsSource="{Binding BuiltinSceneRows}">
                             <ItemsControl.ItemsPanel>
@@ -1058,7 +1146,7 @@
 
                         <!-- Download 4K from the internet -->
                         <TextBlock Text="{DynamicResource Settings.WallpaperOnline}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,6,0,2"
+                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Margin="0,6,0,2"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <ComboBox ItemsSource="{Binding OnlineCategoryRows}"
@@ -1101,7 +1189,7 @@
                         <!-- Downloaded library (offline reuse) + management -->
                         <DockPanel Margin="0,4,0,2">
                             <TextBlock Text="{DynamicResource Settings.WallpaperLibrary}"
-                                       FontSize="10" FontWeight="Bold"
+                                       FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"/>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -1154,7 +1242,7 @@
 
                         <!-- OS-level window backdrop (experimental) -->
                         <TextBlock Text="{DynamicResource Settings.WallpaperBackdrop}"
-                                   FontSize="10" FontWeight="Bold" Margin="0,12,0,2"
+                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold" Margin="0,12,0,2"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <StackPanel Orientation="Horizontal">
                             <Button Style="{StaticResource OutlinedPillButton}"

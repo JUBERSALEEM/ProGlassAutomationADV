@@ -65,7 +65,7 @@
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,5,0,2"/>
         </Style>
-        <Style x:Key="CumulativeSeparatorStyle" TargetType="Border">
+        <Style x:Key="CumulativeSeparatorStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Width" Value="1"/>
             <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="Opacity" Value="0.5"/>
@@ -115,7 +115,7 @@
             </Style.Triggers>
         </Style>
         
-        <Style x:Key="DifferentDnWarningStyle" TargetType="Border">
+        <Style x:Key="DifferentDnWarningStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="Padding" Value="12,8"/>
@@ -149,7 +149,7 @@
             <Setter Property="Padding" Value="8,6"/>
             <Setter Property="Cursor" Value="Hand"/>
         </Style>
-        <Style x:Key="HistoryRowContentBorderStyle" TargetType="Border">
+        <Style x:Key="HistoryRowContentBorderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Padding" Value="12,10"/>
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="BorderThickness" Value="1.5"/>
@@ -260,7 +260,7 @@
             <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
-        <Style x:Key="MasterHeroStripStyle" TargetType="Border">
+        <Style x:Key="MasterHeroStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -300,7 +300,7 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-<Style x:Key="SpecGroupHeaderStyle" TargetType="Border">
+<Style x:Key="SpecGroupHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="CornerRadius" Value="12,12,0,0"/>
             <Setter Property="Padding" Value="16,10"/>
         </Style>

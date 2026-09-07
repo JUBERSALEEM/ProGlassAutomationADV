@@ -81,7 +81,7 @@
              FROZEN EFFECTS
         ══════════════════════════════════════════════════════════ -->
         <DropShadowEffect x:Key="MatchCountShadow"
-                          BlurRadius="24" ShadowDepth="4"
+                          BlurRadius="22" ShadowDepth="4"
                           Opacity="0.08" Color="{DynamicResource AccentColor}"/>
 
         <DropShadowEffect x:Key="IndigoIconShadow"
@@ -94,13 +94,13 @@
 
         <DropShadowEffect x:Key="InputShadow"
                           BlurRadius="4" ShadowDepth="1"
-                          Opacity="0.04" Color="Black"
-                          po:Freeze="True"/>
+                          Opacity="0.04" Color="{DynamicResource LiquidShadowColor}"
+                         />
 
         <DropShadowEffect x:Key="PopupShadow"
                           BlurRadius="20" ShadowDepth="4"
-                          Opacity="0.15" Color="Black"
-                          po:Freeze="True"/>
+                          Opacity="0.15" Color="{DynamicResource LiquidShadowColor}"
+                         />
 
         <DropShadowEffect x:Key="OptionCardHoverShadow"
                           BlurRadius="16" ShadowDepth="4"
@@ -111,11 +111,11 @@
         ══════════════════════════════════════════════════════════ -->
         <ControlTemplate x:Key="ModernComboBoxToggleButtonTemplate"
                          TargetType="ToggleButton">
-            <Border Background="Transparent" BorderThickness="0"
+            <Border Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}"
                     SnapsToDevicePixels="True">
                 <Path x:Name="chevron"
                       Data="M7,10L12,15L17,10H7Z"
-                      Fill="{StaticResource ChevronBrush}"
+                      Fill="{DynamicResource ChevronBrush}"
                       Stretch="Uniform"
                       Width="14" Height="14"
                       HorizontalAlignment="Center"
@@ -165,7 +165,7 @@
                                     <TextBox x:Name="PART_EditableTextBox"
                                              Grid.Column="0"
                                              Background="Transparent"
-                                             BorderThickness="0"
+                                             BorderThickness="{DynamicResource Border.NoneThickness}"
                                              Foreground="{TemplateBinding Foreground}"
                                              FontSize="{TemplateBinding FontSize}"
                                              FontWeight="{TemplateBinding FontWeight}"
@@ -291,7 +291,7 @@
                                 <DatePickerTextBox x:Name="PART_TextBox"
                                                    Grid.Column="0"
                                                    Background="Transparent"
-                                                   BorderThickness="0"
+                                                   BorderThickness="{DynamicResource Border.NoneThickness}"
                                                    Foreground="{TemplateBinding Foreground}"
                                                    FontSize="{TemplateBinding FontSize}"
                                                    FontWeight="{TemplateBinding FontWeight}"
@@ -305,7 +305,7 @@
                                         Width="36" Height="36"
                                         Margin="0,0,4,0"
                                         Background="Transparent"
-                                        BorderThickness="0"
+                                        BorderThickness="{DynamicResource Border.NoneThickness}"
                                         Cursor="Hand">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
@@ -314,7 +314,7 @@
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     SnapsToDevicePixels="True">
                                                 <Path Data="M19,3H18V1H16V3H8V1H6V3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3M19,19H5V8H19V19Z"
-                                                      Fill="{StaticResource ChevronBrush}"
+                                                      Fill="{DynamicResource ChevronBrush}"
                                                       Stretch="Uniform"
                                                       Width="16" Height="16"
                                                       HorizontalAlignment="Center"
@@ -364,7 +364,7 @@
         <!-- ══════════════════════════════════════════════════════════
              SHARED PDF OPTION CARD STYLE (was inline × 6)
         ══════════════════════════════════════════════════════════ -->
-        <Style x:Key="PdfOptionCardStyle" TargetType="Border">
+        <Style x:Key="PdfOptionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="Margin" Value="8"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
@@ -396,7 +396,7 @@
                             VerticalAlignment="Center">
                     <Border x:Name="tick"
                             Width="18" Height="18"
-                            CornerRadius="5"
+                            CornerRadius="{DynamicResource Radius.Small}"
                             Background="Transparent"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
@@ -416,11 +416,11 @@
                     <TextBlock Text="{Binding StatusLabel}"
                                FontSize="{StaticResource TextBodyLarge}"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource TextPrimary}"
+                               Foreground="{DynamicResource TextPrimary}"
                                VerticalAlignment="Center"/>
 
                     <Border x:Name="countBadge"
-                            Background="{StaticResource CountBadgeBg}"
+                            Background="{DynamicResource CountBadgeBg}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="8,3"
                             Margin="10,0,0,0"
@@ -433,7 +433,7 @@
                                    Text="{Binding CountDisplay}"
                                    FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource CountBadgeText}"
+                                   Foreground="{DynamicResource CountBadgeText}"
                                    HorizontalAlignment="Center"/>
                     </Border>
                 </StackPanel>
@@ -494,7 +494,7 @@
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <Border Width="6" Height="6"
                                     Background="{DynamicResource IndigoPrimary}"
-                                    CornerRadius="3"
+                                    CornerRadius="{DynamicResource Radius.XSmall}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,10,0"/>
                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.STEP14}"
@@ -504,12 +504,12 @@
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.FilterCriteria}"
-                                   FontSize="30"
+                                   FontSize="{StaticResource TextDisplay}"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimary}"/>
+                                   Foreground="{DynamicResource TextPrimary}"/>
                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.NarrowInvoicesCompanySalesmanCustomerProject}"
                                    FontSize="{StaticResource TextSection}"
-                                   Foreground="{StaticResource TextSecondary}"
+                                   Foreground="{DynamicResource TextSecondary}"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0"/>
                     </StackPanel>
@@ -528,21 +528,21 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="10" Height="10"
-                                        CornerRadius="5"
+                                        CornerRadius="{DynamicResource Radius.Small}"
                                         VerticalAlignment="Center"
                                         Margin="0,0,10,0"
-                                        Background="{StaticResource GreenLed}"
+                                        Background="{DynamicResource GreenLed}"
                                         Effect="{StaticResource GreenLedGlow}"/>
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.LIVEMatchCount}"
                                            FontSize="{StaticResource TextCaption}"
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextMuted}"
+                                           Foreground="{DynamicResource TextMuted}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Text="{Binding MatchCountDisplay}"
                                        FontSize="{StaticResource TextSubhead}"
                                        FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextPrimary}"
+                                       Foreground="{DynamicResource TextPrimary}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"/>
                         </StackPanel>
@@ -579,7 +579,7 @@
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,16,0"
-                                    Background="{StaticResource IndigoIconGradient}"
+                                    Background="{DynamicResource IndigoIconGradient}"
                                     Effect="{StaticResource IndigoIconShadow}"
                                     SnapsToDevicePixels="True">
                                 <Path Data="M15.5,14L20.5,19L19,20.5L14,15.5V14.71L13.73,14.43C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.43,13.73L14.71,14H15.5M9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14Z"
@@ -594,10 +594,10 @@
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.StatementFilters}"
                                            FontSize="{StaticResource TextTitle}"
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimary}"/>
+                                           Foreground="{DynamicResource TextPrimary}"/>
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.ConfigureBusinessDimensionsInvoiceStatus}"
                                            FontSize="{StaticResource TextBodyLarge}"
-                                           Foreground="{StaticResource TextSecondary}"
+                                           Foreground="{DynamicResource TextSecondary}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
 
@@ -606,7 +606,7 @@
                                     Height="40"
                                     Padding="18,0"
                                     Cursor="Hand"
-                                    BorderThickness="0"
+                                    BorderThickness="{DynamicResource Border.NoneThickness}"
                                     Background="Transparent"
                                     VerticalAlignment="Center"
                                     ToolTip="{DynamicResource Reports.StatementGenerator.ResetFilterValues}"
@@ -624,7 +624,7 @@
                                                         VerticalAlignment="Center">
                                                 <Path x:Name="ic"
                                                       Data="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"
-                                                      Fill="{StaticResource TextSecondary}"
+                                                      Fill="{DynamicResource TextSecondary}"
                                                       Stretch="Uniform"
                                                       Width="12" Height="12"
                                                       VerticalAlignment="Center"
@@ -633,7 +633,7 @@
                                                            Text="{DynamicResource Action.ClearFilters}"
                                                            FontSize="{StaticResource TextBodyLarge}"
                                                            FontWeight="SemiBold"
-                                                           Foreground="{StaticResource TextPrimary}"
+                                                           Foreground="{DynamicResource TextPrimary}"
                                                            VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Border>
@@ -679,10 +679,10 @@
                                             Orientation="Horizontal"
                                             Margin="0,0,0,4">
                                     <Border Width="4" Height="18"
-                                            CornerRadius="2"
+                                            CornerRadius="{DynamicResource Radius.XSmall}"
                                             VerticalAlignment="Center"
                                             Margin="0,0,12,0"
-                                            Background="{StaticResource IndigoAccentBar}"/>
+                                            Background="{DynamicResource IndigoAccentBar}"/>
                                     <TextBlock Text="{DynamicResource Reports.StatementGenerator.BusinessDimensions}"
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
@@ -745,20 +745,20 @@
                                 <StackPanel Orientation="Horizontal"
                                             Margin="0,0,0,4">
                                     <Border Width="4" Height="18"
-                                            CornerRadius="2"
+                                            CornerRadius="{DynamicResource Radius.XSmall}"
                                             VerticalAlignment="Center"
                                             Margin="0,0,12,0"
-                                            Background="{StaticResource CyanAccentBar}"/>
+                                            Background="{DynamicResource CyanAccentBar}"/>
                                     <TextBlock Text="{DynamicResource Reports.StatementGenerator.InvoiceStatus}"
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
-                                               Foreground="{StaticResource CyanAccent}"
+                                               Foreground="{DynamicResource CyanAccent}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
 
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.SelectStatusesInclude}"
                                            FontSize="{StaticResource TextBodyLarge}"
-                                           Foreground="{StaticResource TextSecondary}"
+                                           Foreground="{DynamicResource TextSecondary}"
                                            Margin="0,6,0,16"/>
 
                                 <ItemsControl ItemsSource="{Binding StatusItems}">
@@ -780,7 +780,7 @@
                                                             <TextBlock Text="{Binding StatusLabel}"
                                                                        FontWeight="Bold"
                                                                        FontSize="{StaticResource TextBody}"
-                                                                       Foreground="White"
+                                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                        TextWrapping="Wrap"/>
                                                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.ClickToggleNumberShowsCurrentMatchCount}"
                                                                        FontSize="{StaticResource TextBody}"
@@ -822,7 +822,7 @@
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,16,0"
-                                    Background="{StaticResource VioletPinkGradient}"
+                                    Background="{DynamicResource VioletPinkGradient}"
                                     Effect="{StaticResource VioletIconShadow}"
                                     SnapsToDevicePixels="True">
                                 <Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
@@ -837,10 +837,10 @@
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.PDFGenerationOptions}"
                                            FontSize="{StaticResource TextTitle}"
                                            FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimary}"/>
+                                           Foreground="{DynamicResource TextPrimary}"/>
                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.ChooseWhatIncludeFinalMergedReport}"
                                            FontSize="{StaticResource TextBodyLarge}"
-                                           Foreground="{StaticResource TextSecondary}"
+                                           Foreground="{DynamicResource TextSecondary}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
                         </StackPanel>
@@ -856,10 +856,10 @@
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.IncludeAttachments}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                                   Foreground="{StaticResource TextPrimary}"/>
+                                                   Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.MergeTaxInvoicesDeliveryNotes}"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="{StaticResource TextSecondary}"
+                                                   Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>
@@ -874,10 +874,10 @@
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.DNLineItems}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                                   Foreground="{StaticResource TextPrimary}"/>
+                                                   Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.ShowDeliveryNoteDetailsBody}"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="{StaticResource TextSecondary}"
+                                                   Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>
@@ -892,10 +892,10 @@
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.BalanceAnalysis}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                                   Foreground="{StaticResource TextPrimary}"/>
+                                                   Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.OrderedVsDeliveredComparison}"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="{StaticResource TextSecondary}"
+                                                   Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>
@@ -910,10 +910,10 @@
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.AgingChart}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                                   Foreground="{StaticResource TextPrimary}"/>
+                                                   Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.VisualAgingBucketBreakdown}"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="{StaticResource TextSecondary}"
+                                                   Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>
@@ -928,10 +928,10 @@
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.InsertPlaceholders}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                                   Foreground="{StaticResource TextPrimary}"/>
+                                                   Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.PagesFailedInvoiceRegenerations}"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="{StaticResource TextSecondary}"
+                                                   Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>
@@ -946,10 +946,10 @@
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.WarningsSummary}"
                                                    FontSize="{StaticResource TextSection}" FontWeight="Bold"
-                                                   Foreground="{StaticResource TextPrimary}"/>
+                                                   Foreground="{DynamicResource TextPrimary}"/>
                                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.AlertsWarningsReport}"
                                                    FontSize="{StaticResource TextBody}"
-                                                   Foreground="{StaticResource TextSecondary}"
+                                                   Foreground="{DynamicResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
                                 </CheckBox>

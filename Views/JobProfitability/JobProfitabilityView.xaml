@@ -109,7 +109,7 @@
         </Style>
 
         <!-- Small value/count chip in the strip under the KPI cards -->
-        <Style x:Key="JpChipStyle" TargetType="Border">
+        <Style x:Key="JpChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -118,7 +118,7 @@
         </Style>
 
         <!-- Target status pill -->
-        <Style x:Key="JpStatusPill" TargetType="Border">
+        <Style x:Key="JpStatusPill" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="CornerRadius" Value="9"/>
             <Setter Property="Padding" Value="7,1"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -263,7 +263,7 @@
                 <TabItem Style="{StaticResource PillTabItemStyle}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="JOB PROFITABILITY" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -298,7 +298,7 @@
                                         ToolTip="Base-price required target (DGU formula × uplift). A U-insert covered by the given price or billed separately in Step 6 is shown as information and is never added to the target. Click a row to see that PI's own required target.">
                                     <StackPanel>
                                         <TextBlock Text="REQUIRED TARGET VALUE" Style="{StaticResource JpTileCaptionStyle}"/>
-                                        <TextBlock Text="{Binding TopRequiredTargetValueDisplay}" FontSize="24"
+                                        <TextBlock Text="{Binding TopRequiredTargetValueDisplay}" FontSize="{StaticResource TextHeadline}"
                                                    Style="{StaticResource JpTileValueStyle}"/>
                                         <TextBlock Text="{Binding TopRequiredTargetScope}" Style="{StaticResource JpFootnoteStyle}"/>
                                     </StackPanel>
@@ -309,7 +309,7 @@
                                         ToolTip="The company base expected profit margin every PI's achieved margin is judged against (Settings > Features > Proforma Invoice > Step 9).">
                                     <StackPanel>
                                         <TextBlock Text="EXPECTED PROFIT MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
-                                        <TextBlock Text="{Binding BaseExpectedMarginDisplay}" FontSize="24"
+                                        <TextBlock Text="{Binding BaseExpectedMarginDisplay}" FontSize="{StaticResource TextHeadline}"
                                                    Style="{StaticResource JpTileValueStyle}"/>
                                         <TextBlock Style="{StaticResource JpFootnoteStyle}">
                                             <Run Text="Uplift "/><Run Text="{Binding BaseExpectedMarginFactorLabel, Mode=OneWay}"/>
@@ -366,7 +366,7 @@
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                             </Border>
                                         </Grid>
-                                        <TextBlock Text="{Binding TopTargetMarginDisplay}" FontSize="24">
+                                        <TextBlock Text="{Binding TopTargetMarginDisplay}" FontSize="{StaticResource TextHeadline}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
                                                     <Style.Triggers>
@@ -401,7 +401,7 @@
                                     </Border.Style>
                                     <StackPanel>
                                         <TextBlock Text="OVERALL MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
-                                        <TextBlock Text="{Binding TopOverallMarginDisplay}" FontSize="24">
+                                        <TextBlock Text="{Binding TopOverallMarginDisplay}" FontSize="{StaticResource TextHeadline}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
                                                     <Style.Triggers>
@@ -471,28 +471,28 @@
                                 <Border Style="{StaticResource JpChipStyle}" Margin="0,0,4,0">
                                     <StackPanel>
                                         <TextBlock Text="CONFIRMED JOBS" Style="{StaticResource JpLabelStyle}"/>
-                                        <TextBlock Text="{Binding ConfirmedJobCountDisplay}" FontSize="17" FontWeight="Bold"
+                                        <TextBlock Text="{Binding ConfirmedJobCountDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="REQUIRED TARGET" Style="{StaticResource JpLabelStyle}"/>
-                                        <TextBlock Text="{Binding TargetTotalRequiredValueDisplay}" FontSize="17" FontWeight="Bold"
+                                        <TextBlock Text="{Binding TargetTotalRequiredValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="STEP 5 GIVEN VALUE" Style="{StaticResource JpLabelStyle}"/>
-                                        <TextBlock Text="{Binding TargetTotalGivenValueDisplay}" FontSize="17" FontWeight="Bold"
+                                        <TextBlock Text="{Binding TargetTotalGivenValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="TOTAL DIFFERENCE" Style="{StaticResource JpLabelStyle}"/>
-                                        <TextBlock Text="{Binding TargetTotalDifferenceValueDisplay}" FontSize="17" FontWeight="Bold">
+                                        <TextBlock Text="{Binding TargetTotalDifferenceValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -512,7 +512,7 @@
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0,0,0">
                                     <StackPanel>
                                         <TextBlock Text="VALID · INCOMPLETE · STALE" Style="{StaticResource JpLabelStyle}" TextWrapping="Wrap"/>
-                                        <TextBlock FontSize="17" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock FontSize="{StaticResource TextSubhead}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                             <Run Text="{Binding ValidTargetJobCountDisplay, Mode=OneWay}"/><Run Text=" · "/>
                                             <Run Text="{Binding IncompleteTargetJobCountDisplay, Mode=OneWay}"/><Run Text=" · "/>
                                             <Run Text="{Binding StaleTargetJobCountDisplay, Mode=OneWay}"/>
@@ -605,7 +605,7 @@
                                             <!-- header -->
                                             <Border Grid.Row="0" Grid.ColumnSpan="8"
                                                     Background="{DynamicResource AccentBrush}"
-                                                    CornerRadius="12,12,0,0"
+                                                    CornerRadius="{DynamicResource Radius.Top.Medium}"
                                                     Padding="12,7">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
@@ -643,7 +643,7 @@
                                                                               CommandParameter="{Binding}"/>
                                                             </ContentControl.InputBindings>
                                                             <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                                                    BorderThickness="0,0,0,1"
+                                                                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                                                     Padding="12,5">
                                                                 <Border.Style>
                                                                     <Style TargetType="Border">
@@ -781,7 +781,7 @@
                                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
                                             <TextBlock Text="&#xE9D9;"
                                                        FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="30"
+                                                       FontSize="{StaticResource TextDisplay}"
                                                        HorizontalAlignment="Center"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                                        Margin="0,0,0,12"/>
@@ -808,7 +808,7 @@
                          DataContext="{Binding PortfolioServiceProfitability}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                            <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="SERVICE DETAIL" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -821,7 +821,7 @@
                          DataContext="{Binding PortfolioWastageAnalysis}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                            <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="SHEET / WASTAGE DETAIL" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -834,7 +834,7 @@
                          DataContext="{Binding PortfolioGlassTypeComparison}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                            <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="GLASS / SPEC COMPARISON" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -879,7 +879,7 @@
             <Border Grid.Row="0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="0,0,0,1"
+                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                     Padding="20,12">
                 <Grid>
                     <Grid.ColumnDefinitions>

@@ -15,7 +15,7 @@
     ═══════════════════════════════════════════════════════════════ -->
 
     <!-- Base badge — inherit + override Background for color variants -->
-    <Style x:Key="IconBadgeBaseStyle" TargetType="Border">
+    <Style x:Key="IconBadgeBaseStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Width"               Value="44"/>
         <Setter Property="Height"              Value="44"/>
         <Setter Property="CornerRadius"        Value="11"/>

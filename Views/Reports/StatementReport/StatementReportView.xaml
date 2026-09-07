@@ -194,7 +194,7 @@
                     <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="{DynamicResource Reports.StatementReport.NoLedgerEntriesFound}" Message="Generate statements first, then this ledger shows every document with its Debit / Credit / Balance." Icon="&#xE9F7;"/>
 
                     <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
-                            Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+                            Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
@@ -243,7 +243,7 @@
                                                 <TextBlock Text="{DynamicResource Reports.StatementReport.LedgerEntry}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Expander.Header>
-                                        <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
+                                        <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0">
                                             <StackPanel>
                                                 <Button Content="{DynamicResource Inquiry.OpenTaxInvoice}"
                                                         Command="{Binding DataContext.OpenTaxInvoiceCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
@@ -313,7 +313,7 @@
                 <!-- ══════════════════════════════════════════════════════════
                      4. PAGINATION FOOTER
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="3" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="3" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.TopHairlineThickness}" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>

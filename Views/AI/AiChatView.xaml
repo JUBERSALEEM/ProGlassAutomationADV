@@ -35,9 +35,9 @@
         </LinearGradientBrush>
 
         <DropShadowEffect x:Key="PanelShadow"
-                          BlurRadius="24" ShadowDepth="4"
-                          Opacity="0.35" Color="Black"
-                          po:Freeze="True"/>
+                          BlurRadius="22" ShadowDepth="4"
+                          Opacity="0.35" Color="{DynamicResource LiquidShadowColor}"
+                         />
 
         
 
@@ -83,12 +83,12 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
-                                Background="{StaticResource ChatBrand}"
+                                Background="{DynamicResource ChatBrand}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
                             <TextBlock Text="&#xE724;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       Foreground="White"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        FontSize="{StaticResource TextTitle}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -109,7 +109,7 @@
             </Setter>
         </Style>
 
-        <Style x:Key="UserBubble" TargetType="Border">
+        <Style x:Key="UserBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="MaxWidth"            Value="380"/>
             <Setter Property="CornerRadius"        Value="16,16,4,16"/>
@@ -126,7 +126,7 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="AiBubble" TargetType="Border">
+        <Style x:Key="AiBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -146,7 +146,7 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="ErrBubble" TargetType="Border">
+        <Style x:Key="ErrBubble" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="MaxWidth"            Value="380"/>
             <Setter Property="CornerRadius"        Value="16,16,16,4"/>
@@ -163,7 +163,7 @@
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="SuggChip" TargetType="Border">
+        <Style x:Key="SuggChip" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background"
                     Value="{DynamicResource MenuHoverBrush}"/>
             <Setter Property="CornerRadius"        Value="12"/>
@@ -184,7 +184,7 @@
 
     <Grid>
 
-        <Rectangle Fill="Black" Opacity="0.3"
+        <Rectangle Fill="{DynamicResource LiquidOverlayBrush}" Opacity="0.3"
                    behaviors:ClickToCommandBehavior.Command="{Binding CloseChatCommand}">
             <Rectangle.Style>
                 <Style TargetType="Rectangle">
@@ -243,9 +243,9 @@
                 <!-- Header — drag handle for the whole AI window -->
                 <Border x:Name="ChatHeader"
                         Grid.Row="0"
-                        CornerRadius="12,12,0,0"
+                        CornerRadius="{DynamicResource Radius.Top.Medium}"
                         Padding="16,12"
-                        Background="{StaticResource ChatBrand}"
+                        Background="{DynamicResource ChatBrand}"
                         Cursor="SizeAll"
                         SnapsToDevicePixels="True"
                         behaviors:CanvasDragBehavior.Panel="{Binding ElementName=ChatPanelRef}"
@@ -276,7 +276,7 @@
                                     VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource AI.ProglassAI}"
                                        FontSize="{StaticResource TextTitle}" FontWeight="Bold"
-                                       Foreground="White"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        IsHitTestVisible="False"/>
                             <TextBlock Text="{Binding ActiveProviderSubtitle}"
                                        FontSize="{StaticResource TextCaption}"
@@ -322,11 +322,11 @@
                         <Border Width="72" Height="72"
                                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                 HorizontalAlignment="Center"
-                                Background="{StaticResource ChatBrand}"
+                                Background="{DynamicResource ChatBrand}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
-                            <TextBlock Text="&#xE8BD;" FontFamily="Segoe MDL2 Assets" FontSize="36"
-                                       Foreground="White"
+                            <TextBlock Text="&#xE8BD;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
@@ -401,7 +401,7 @@
                                         <Border Style="{StaticResource UserBubble}">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
-                                                           Foreground="White"
+                                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                            FontSize="{StaticResource TextBodyLarge}"
                                                            TextWrapping="Wrap"/>
                                                 <TextBlock Text="{Binding TimeLabel}"
@@ -458,7 +458,7 @@
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource MenuHoverBrush}"
-                            CornerRadius="12,12,12,4"
+                            CornerRadius="{DynamicResource Radius.Asymmetric.Brand}"
                             Padding="14,10"
                             Margin="16,0,0,8"
                             SnapsToDevicePixels="True">
@@ -597,7 +597,7 @@
                                     Margin="10,0,0,0"
                                     Content="&#xE711;" FontSize="{StaticResource TextXSmall}"
                                     Background="Transparent"
-                                    BorderThickness="0" Cursor="Hand"
+                                    BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand"
                                     Foreground="{DynamicResource MutedForegroundBrush}"
                                     ToolTip="{DynamicResource AI.StopGenerating}"
                                     VerticalAlignment="Center"/>
@@ -612,7 +612,7 @@
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource MenuHoverBrush}"
-                            CornerRadius="12,12,12,4"
+                            CornerRadius="{DynamicResource Radius.Asymmetric.Brand}"
                             Padding="14,10"
                             Margin="16,0,0,8"
                             MaxWidth="430"
@@ -685,7 +685,7 @@
                 <!-- Input area -->
                 <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="3"
                         Background="{DynamicResource SideMenuBackgroundBrush}"
-                        CornerRadius="0,0,12,12"
+                        CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                         Padding="12"
                         SnapsToDevicePixels="True">
                     <Grid>
@@ -702,7 +702,7 @@
                                 ToolTip="{DynamicResource AI.ToggleVoiceResponses}"
                                 Width="36" Height="36"
                                 Cursor="Hand"
-                                BorderThickness="0"
+                                BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Margin="0,0,4,0"
                                 SnapsToDevicePixels="True">
                             <Button.Template>
@@ -836,7 +836,7 @@
                                     ToolTip="{DynamicResource AI.VoiceInputClickSpeakClickAgainStop}"
                                     Width="36" Height="36"
                                     Cursor="Hand"
-                                    BorderThickness="0"
+                                    BorderThickness="{DynamicResource Border.NoneThickness}"
                                     SnapsToDevicePixels="True">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
@@ -900,7 +900,7 @@
                         </Grid>
 
                         <!-- Text input -->
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="2"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="2"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="14,0"
@@ -912,7 +912,7 @@
                             <TextBox x:Name="InputBox"
                                      Text="{Binding CurrentInput,
                                          UpdateSourceTrigger=PropertyChanged}"
-                                     BorderThickness="0"
+                                     BorderThickness="{DynamicResource Border.NoneThickness}"
                                      Background="Transparent"
                                      FontSize="{StaticResource TextBodyLarge}"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"

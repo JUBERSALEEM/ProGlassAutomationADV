@@ -122,9 +122,9 @@
                             <ColumnDefinition Width="14"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="48" Height="54" Background="White"
-                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                                CornerRadius="6" VerticalAlignment="Center">
+                        <Border Grid.Column="0" Width="48" Height="54" Background="{DynamicResource Surface.Primary.BackgroundBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                CornerRadius="{DynamicResource Radius.Small}" VerticalAlignment="Center">
                             <Grid>
                                 <TextBlock Text="LOGO" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource MutedForegroundBrush}"

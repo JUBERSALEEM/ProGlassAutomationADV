@@ -154,7 +154,7 @@
                                         <Border Background="{DynamicResource MenuHoverBrush}"
                                                 Padding="12,6"
                                                 BorderBrush="{DynamicResource DividerBrush}"
-                                                BorderThickness="0,0,0,1">
+                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
                                             <StackPanel Orientation="Horizontal">
                                                 <Border Width="22" Height="22"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"

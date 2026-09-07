@@ -67,35 +67,35 @@
                         Background="{DynamicResource GlassSurfaceElevated}"
                         Foreground="{DynamicResource PrimaryForegroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"/>
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
                 <Button Command="{Binding ExportCsvCommand}"
                         Content="{DynamicResource Common.ExportCsv}"
                         Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
                         Background="{DynamicResource GlassSurfaceElevated}"
                         Foreground="{DynamicResource PrimaryForegroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"/>
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
                 <Button Command="{Binding ExportExcelCommand}"
                         Content="{DynamicResource Common.ExportExcel}"
                         Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
                         Background="{DynamicResource GlassSurfaceElevated}"
                         Foreground="{DynamicResource PrimaryForegroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"/>
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
                 <Button Command="{Binding ExportPdfCommand}"
                         Content="{DynamicResource Common.ExportPdf}"
                         Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
                         Background="{DynamicResource GlassSurfaceElevated}"
                         Foreground="{DynamicResource PrimaryForegroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"/>
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
                 <Button Command="{Binding RefreshCommand}"
                         Content="{DynamicResource Common.Refresh}"
                         Height="34" Padding="16,0" Cursor="Hand"
                         Background="{DynamicResource GlassSurfaceElevated}"
                         Foreground="{DynamicResource PrimaryForegroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"/>
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
             </StackPanel>
         </Grid>
 
@@ -178,7 +178,7 @@
                          Background="{DynamicResource GlassSurfaceElevated}"
                          Foreground="{DynamicResource PrimaryForegroundBrush}"
                          BorderBrush="{DynamicResource OutlineBrush}"
-                         BorderThickness="1"
+                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                          ToolTip="{DynamicResource Specifications.SearchHint}"/>
 
                 <ComboBox Grid.Column="1" Width="130" Height="32" Margin="0,0,10,0"
@@ -203,7 +203,7 @@
                         Background="Transparent"
                         Foreground="{DynamicResource MutedForegroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"/>
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
             </Grid>
         </Border>
 
@@ -238,7 +238,7 @@
                     <Border Grid.Row="0"
                             Background="{DynamicResource GlassSurfaceElevated}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="0,0,0,1"
+                            BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                             Padding="24,10">
                         <Grid>
                             <!--
@@ -277,7 +277,7 @@
                     <ListBox Grid.Row="1"
                              ItemsSource="{Binding Specifications}"
                              Background="Transparent"
-                             BorderThickness="0"
+                             BorderThickness="{DynamicResource Border.NoneThickness}"
                              HorizontalContentAlignment="Stretch"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              VirtualizingPanel.IsVirtualizing="True"
@@ -366,7 +366,7 @@
                                                 VerticalAlignment="Center"
                                                 Background="Transparent"
                                                 Foreground="{DynamicResource DangerBrush}"
-                                                BorderThickness="0"
+                                                BorderThickness="{DynamicResource Border.NoneThickness}"
                                                 ToolTip="{DynamicResource Common.Delete}"/>
                                     </Grid>
                                 </Border>
@@ -389,7 +389,7 @@
                         </StackPanel.Style>
                         <TextBlock Text="&#xE8F1;"
                                    FontFamily="Segoe MDL2 Assets"
-                                   FontSize="34"
+                                   FontSize="{StaticResource TextDisplayLarge}"
                                    HorizontalAlignment="Center"
                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
                         <TextBlock Text="{DynamicResource Specifications.EmptyTitle}"
@@ -438,7 +438,7 @@
                                 VerticalAlignment="Top"
                                 Background="Transparent"
                                 Foreground="{DynamicResource MutedForegroundBrush}"
-                                BorderThickness="0"/>
+                                BorderThickness="{DynamicResource Border.NoneThickness}"/>
                     </Grid>
 
                     <!--
@@ -467,7 +467,7 @@
                                 <DataTemplate>
                                     <Border Background="{DynamicResource GlassSurfaceElevated}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
-                                            BorderThickness="1"
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="12,10" Margin="0,0,0,8">
                                         <StackPanel>
@@ -627,7 +627,7 @@
                         <ListBox Grid.Row="1"
                                  ItemsSource="{Binding UsageHistory}"
                                  Background="Transparent"
-                                 BorderThickness="0"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
                                  HorizontalContentAlignment="Stretch"
                                  VirtualizingPanel.IsVirtualizing="True"
                                  VirtualizingPanel.VirtualizationMode="Recycling"
@@ -640,7 +640,7 @@
                                     <Border Padding="10,8" Margin="0,0,0,6"
                                             Background="{DynamicResource GlassUltraClearBrush}"
                                             BorderBrush="{DynamicResource GlassBorderSoft}"
-                                            BorderThickness="1"
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}">
                                         <StackPanel>
                                             <TextBlock Text="{Binding ProformaDisplay}"

@@ -52,13 +52,13 @@
     <!-- ═══════════════════════════════════════════════════════════════
          STAGE (translucent — the splash aurora glows through)
     ═══════════════════════════════════════════════════════════════════ -->
-    <Grid Background="{StaticResource PageBg}">
+    <Grid Background="{DynamicResource PageBg}">
         <Ellipse Width="360" Height="360"
-                 Fill="{StaticResource OrbRight}"
+                 Fill="{DynamicResource OrbRight}"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
                  Margin="0,-80,-80,0" IsHitTestVisible="False"/>
         <Ellipse Width="300" Height="300"
-                 Fill="{StaticResource OrbLeft}"
+                 Fill="{DynamicResource OrbLeft}"
                  HorizontalAlignment="Left" VerticalAlignment="Bottom"
                  Margin="-80,0,0,-80" IsHitTestVisible="False"/>
 
@@ -72,14 +72,14 @@
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 Background="{DynamicResource LiquidCard}"
                 BorderBrush="{DynamicResource GlassBorderSoft}"
-                BorderThickness="1"
+                BorderThickness="{DynamicResource Border.HairlineThickness}"
                 Effect="{StaticResource CardShadow}"
                 SnapsToDevicePixels="True">
 
             <Grid>
                 <!-- Diagonal glass sheen (top-left highlight). -->
                 <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Background="{StaticResource CardSheen}"
+                        Background="{DynamicResource CardSheen}"
                         IsHitTestVisible="False"/>
 
                 <Border Padding="28,24"
@@ -96,7 +96,7 @@
 
                             <!-- ── BRAND ─────────────────────────────── -->
                             <StackPanel HorizontalAlignment="Center">
-                                <Border Width="54" Height="54" CornerRadius="13"
+                                <Border Width="54" Height="54" CornerRadius="{DynamicResource Radius.Large}"
                                         SnapsToDevicePixels="True"
                                         HorizontalAlignment="Center">
                                     <Border.Background>
@@ -104,18 +104,18 @@
                                                     Stretch="UniformToFill"/>
                                     </Border.Background>
                                     <Border.Effect>
-                                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="24"
-                                                          ShadowDepth="0" Opacity="0.55"/>
+                                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="22"
+                                                          ShadowDepth="0" Opacity="0.28"/>
                                     </Border.Effect>
                                 </Border>
                                 <TextBlock Text="ProGlass Automation"
                                            FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
-                                           Foreground="{StaticResource NameGradient}"
+                                           Foreground="{DynamicResource NameGradient}"
                                            HorizontalAlignment="Center"
                                            Margin="0,12,0,0"/>
                                 <TextBlock Text="{DynamicResource Login.MadeIndiaUAEGlassIndustry}"
                                            FontSize="{StaticResource TextBody}"
-                                           Foreground="{StaticResource Cerulean}"
+                                           Foreground="{DynamicResource Cerulean}"
                                            HorizontalAlignment="Center"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
@@ -124,10 +124,10 @@
 
                             <!-- ── DEFAULT-CREDENTIAL WARNING (first run) ── -->
                             <Border Margin="0,14,0,0" Padding="12,9"
-                                    CornerRadius="10"
+                                    CornerRadius="{DynamicResource Radius.Medium}"
                                     Background="{DynamicResource WarningSurfaceBrush}"
-                                    BorderBrush="{StaticResource WarningOnLiquid}"
-                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource WarningOnLiquid}"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     Visibility="{Binding DefaultCredWarningVisibility}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BA;"
@@ -135,9 +135,9 @@
                                                FontSize="{StaticResource TextSection}"
                                                VerticalAlignment="Top"
                                                Margin="0,1,10,0"
-                                               Foreground="{StaticResource WarningOnLiquid}"/>
+                                               Foreground="{DynamicResource WarningOnLiquid}"/>
                                     <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBodyLarge}"
-                                               Foreground="{StaticResource Ice}">
+                                               Foreground="{DynamicResource Ice}">
                                         <Run Text="{DynamicResource Login.FirstRun}" FontWeight="Bold"/>
                                         <Run Text="{DynamicResource Login.Use}"/>
                                         <Run Text="{DynamicResource Login.AdminAdmin}" FontWeight="Bold"/>
@@ -193,10 +193,10 @@
                                  the pill is bound to
                                  App.Config.SkipLoginUntilUpdate. -->
                             <Border Margin="2,14,2,0" Padding="14,10"
-                                    CornerRadius="12"
+                                    CornerRadius="{DynamicResource Radius.Large}"
                                     Background="{DynamicResource GlassSurfaceUltra}"
                                     BorderBrush="{DynamicResource GlassBorderSoft}"
-                                    BorderThickness="1">
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -207,10 +207,10 @@
                                         <TextBlock Text="{DynamicResource Login.SkipLoginUntilUpdate}"
                                                    FontSize="{StaticResource TextBodyLarge}"
                                                    FontWeight="SemiBold"
-                                                   Foreground="{StaticResource Ice}"/>
+                                                   Foreground="{DynamicResource Ice}"/>
                                         <TextBlock Text="{DynamicResource Login.AutoSignDeviceResetsNextAppUpdate}"
                                                    FontSize="{StaticResource TextCaption}"
-                                                   Foreground="{StaticResource Frost}"
+                                                   Foreground="{DynamicResource Frost}"
                                                    Opacity="0.75"
                                                    TextWrapping="Wrap"
                                                    Margin="0,2,0,0"/>
@@ -229,10 +229,10 @@
 
                             <!-- ── ERROR PANEL ───────────────────────── -->
                             <Border Margin="0,14,0,0" Padding="13,10"
-                                    CornerRadius="10"
+                                    CornerRadius="{DynamicResource Radius.Medium}"
                                     Background="{DynamicResource DangerSurfaceBrush}"
-                                    BorderBrush="{StaticResource DangerOnLiquid}"
-                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource DangerOnLiquid}"
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                                     Visibility="{Binding ErrorVisibility}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xEA39;"
@@ -240,12 +240,12 @@
                                                FontSize="{StaticResource TextSection}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"
-                                               Foreground="{StaticResource DangerOnLiquid}"/>
+                                               Foreground="{DynamicResource DangerOnLiquid}"/>
                                     <TextBlock FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                                Text="{Binding ErrorText}"
                                                TextWrapping="Wrap"
                                                VerticalAlignment="Center"
-                                               Foreground="{StaticResource DangerOnLiquid}"/>
+                                               Foreground="{DynamicResource DangerOnLiquid}"/>
                                 </StackPanel>
                             </Border>
 
@@ -276,7 +276,7 @@
                                          Visibility="{Binding BusyDotVisibility}"/>
                                 <TextBlock Text="{Binding StatusText}"
                                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
-                                           Foreground="{StaticResource Ice}"
+                                           Foreground="{DynamicResource Ice}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
@@ -294,7 +294,7 @@
 
                             <TextBlock HorizontalAlignment="Center"
                                        FontSize="{StaticResource TextBody}"
-                                       Foreground="{StaticResource Frost}"
+                                       Foreground="{DynamicResource Frost}"
                                        Opacity="0.75"
                                        Margin="0,8,0,0">
                                 <Run Text="{DynamicResource About.Version}"/>

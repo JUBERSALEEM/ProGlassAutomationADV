@@ -34,7 +34,7 @@
     <UserControl.Resources>
 
         <!-- Card surface used across the full detail. -->
-        <Style x:Key="FullCardStyle" TargetType="Border">
+        <Style x:Key="FullCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -118,7 +118,7 @@
         </Style>
 
         <!-- Divider. -->
-        <Style x:Key="FullDivider" TargetType="Border">
+        <Style x:Key="FullDivider" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Height" Value="1"/>
             <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="Margin" Value="0,10"/>
@@ -134,7 +134,7 @@
 
             <!-- ═══ ACCENT HEADER — PI identity + target status ═══ -->
             <Border Background="{DynamicResource AccentBrush}"
-                    CornerRadius="14,14,0,0" Padding="18,14">
+                    CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="18,14">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -166,7 +166,7 @@
 
                     <!-- Target status pill -->
                     <Border Grid.Column="1" VerticalAlignment="Top"
-                            HorizontalAlignment="Right" CornerRadius="10" Padding="12,5" Margin="12,0,0,0">
+                            HorizontalAlignment="Right" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,5" Margin="12,0,0,0">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -430,7 +430,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="0,0,0,1" Padding="0,8">
+                                                BorderThickness="{DynamicResource Border.BottomHairlineThickness}" Padding="0,8">
                                             <StackPanel>
                                                 <Grid Margin="0,0,0,4">
                                                     <Grid.ColumnDefinitions>
@@ -438,9 +438,9 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="11"
+                                                    <Border Grid.Column="0" Width="22" Height="22" CornerRadius="{DynamicResource Radius.Medium}"
                                                             Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding SpecNumber}" FontSize="10" FontWeight="Bold"
+                                                        <TextBlock Text="{Binding SpecNumber}" FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
@@ -450,7 +450,7 @@
                                                                TextTrimming="CharacterEllipsis" Margin="8,0,8,0"
                                                                VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="2" Text="{Binding StatusLabel}"
-                                                               FontSize="10" FontWeight="Bold">
+                                                               FontSize="{StaticResource TextXSmall}" FontWeight="Bold">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
@@ -680,7 +680,7 @@
 
                     <!-- Header -->
                     <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                            CornerRadius="14,14,0,0" Padding="14,8">
+                            CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="14,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="2.6*"/>
@@ -702,7 +702,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="0,0,0,1" Padding="14,7">
+                                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}" Padding="14,7">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="2.6*"/>
@@ -714,7 +714,7 @@
 
                                         <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
                                             <TextBlock Text="{Binding KindIcon}"
-                                                       FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                                       FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"/>
                                             <StackPanel Margin="6,0,0,0">

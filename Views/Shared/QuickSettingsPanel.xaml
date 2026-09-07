@@ -67,13 +67,13 @@
     <Grid Margin="10,8,10,16">
         <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="24" ShadowDepth="3"
-                                  Opacity="0.18" Color="#000000" Direction="270"/>
+                <DropShadowEffect BlurRadius="22" ShadowDepth="3"
+                                  Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
             </Border.Effect>
             <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Background="{DynamicResource ShellLiquidBrush}"
                     BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
-                    BorderThickness="1"
+                    BorderThickness="{DynamicResource Border.HairlineThickness}"
                     ClipToBounds="True">
 
                 <Grid>
@@ -84,7 +84,7 @@
 
                     <Border Grid.Row="0"
                             Background="{DynamicResource AccentBrush}"
-                            CornerRadius="16,16,0,0"
+                            CornerRadius="{DynamicResource Radius.Top.Medium}"
                             Padding="18,12">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Shell.NavSettings}"

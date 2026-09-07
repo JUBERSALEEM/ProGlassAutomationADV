@@ -148,7 +148,7 @@
                                  VerticalContentAlignment="Center" Height="44"
                                  Background="{DynamicResource MenuHoverBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                 BorderThickness="0" Margin="8,0"/>
+                                 BorderThickness="{DynamicResource Border.NoneThickness}" Margin="8,0"/>
                         <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
                                 Content="+" MinWidth="50"
                                 ToolTip="{DynamicResource SheetStore.IncreaseQuantity}"

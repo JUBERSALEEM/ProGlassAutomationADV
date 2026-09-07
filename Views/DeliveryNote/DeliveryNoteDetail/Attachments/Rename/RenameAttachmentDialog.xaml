@@ -77,7 +77,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="10,0,0,10">
+                                CornerRadius="{DynamicResource Radius.Left.Medium}">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="{TemplateBinding Padding}"
                                           VerticalAlignment="Center"/>
@@ -117,8 +117,8 @@
             BorderThickness="{DynamicResource CardBorderThickness}"
             Margin="24,20,24,28">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="30" ShadowDepth="0"
-                              Opacity="0.25" Color="#000000"/>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="0"
+                              Opacity="0.25" Color="{DynamicResource LiquidShadowColor}"/>
         </Border.Effect>
 
         <Grid>
@@ -205,8 +205,8 @@
                 <Border Grid.Column="1"
                         Background="{DynamicResource TintIndigoBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="0,1.5,1.5,1.5"
-                        CornerRadius="0,10,10,0"
+                        BorderThickness="{DynamicResource Border.BoxNoLeftThickness}"
+                        CornerRadius="{DynamicResource Radius.Right.Medium}"
                         Padding="16,10"
                         VerticalAlignment="Stretch">
                     <TextBlock Text="{Binding Extension}"
@@ -237,7 +237,7 @@
             <!-- ── ACTION BUTTONS ──────────────────────────────────────── -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="4"
                     Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="0,0,16,16"
+                    CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                     Padding="24,16"
                     Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal"

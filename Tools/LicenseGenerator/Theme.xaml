@@ -118,7 +118,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="8"
+                            CornerRadius="{DynamicResource Radius.Small}"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
@@ -193,10 +193,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
                     <Border x:Name="PlanCard"
-                            Background="{StaticResource CardAltBrush}"
-                            BorderBrush="{StaticResource BorderSoftBrush}"
-                            BorderThickness="1.5"
-                            CornerRadius="12"
+                            Background="{DynamicResource CardAltBrush}"
+                            BorderBrush="{DynamicResource BorderSoftBrush}"
+                            BorderThickness="{DynamicResource Border.StrongThickness}"
+                            CornerRadius="{DynamicResource Radius.Large}"
                             Padding="18,14"
                             MinWidth="150"
                             SnapsToDevicePixels="True">

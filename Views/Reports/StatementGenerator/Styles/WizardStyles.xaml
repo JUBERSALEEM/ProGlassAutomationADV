@@ -62,8 +62,8 @@
     <!-- Shared shadow effects (frozen — massive perf win) -->
     <DropShadowEffect x:Key="CardShadow"
                       BlurRadius="14" ShadowDepth="0"
-                      Opacity="0.06" Color="Black"
-                      po:Freeze="True"/>
+                      Opacity="0.06" Color="{DynamicResource LiquidShadowColor}"
+                     />
 
     <DropShadowEffect x:Key="PrimaryButtonShadow"
                       BlurRadius="8" ShadowDepth="2"
@@ -75,14 +75,14 @@
 
     <DropShadowEffect x:Key="ToolTipShadow"
                       BlurRadius="12" ShadowDepth="3"
-                      Opacity="0.35" Color="Black"
-                      po:Freeze="True"/>
+                      Opacity="0.35" Color="{DynamicResource LiquidShadowColor}"
+                     />
 
     <!-- ═════════════════════════════════════════════════════════════════
          STEPPER STYLES
     ═════════════════════════════════════════════════════════════════ -->
 
-    <Style x:Key="StepNumberBadgeStyle" TargetType="Border">
+    <Style x:Key="StepNumberBadgeStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Width"                Value="30"/>
         <Setter Property="Height"               Value="30"/>
         <Setter Property="CornerRadius"         Value="15"/>
@@ -101,11 +101,11 @@
         <Setter Property="Foreground"           Value="{DynamicResource SecondaryForegroundBrush}"/>
     </Style>
 
-    <Style x:Key="StepperConnectorStyle" TargetType="Border">
+    <Style x:Key="StepperConnectorStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="Height"               Value="2"/>
         <Setter Property="VerticalAlignment"    Value="Center"/>
         <Setter Property="Margin"               Value="0,0,0,18"/>
-        <Setter Property="Background"           Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Background"           Value="{DynamicResource Surface.Primary.BorderBrush}"/>
         <Setter Property="SnapsToDevicePixels"  Value="True"/>
     </Style>
 
@@ -126,13 +126,13 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="bd"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Background="{StaticResource PrimaryGradient}"
+                            Background="{DynamicResource PrimaryGradient}"
                             Effect="{StaticResource PrimaryButtonShadow}"
                             Padding="{TemplateBinding Padding}"
                             CacheMode="BitmapCache">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
-                                          TextElement.Foreground="White"
+                                          TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"
                                           TextElement.FontWeight="Bold"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -165,13 +165,13 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="bd"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Background="{StaticResource SuccessGradient}"
+                            Background="{DynamicResource SuccessGradient}"
                             Effect="{StaticResource SuccessButtonShadow}"
                             Padding="{TemplateBinding Padding}"
                             CacheMode="BitmapCache">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
-                                          TextElement.Foreground="White"
+                                          TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"
                                           TextElement.FontWeight="Bold"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -298,7 +298,7 @@
                              The default TextBlock style scoped inside
                              this template ensures wrapping applies. -->
                         <ContentPresenter x:Name="cp"
-                                          TextElement.Foreground="White"
+                                          TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"
                                           TextElement.FontSize="{StaticResource TextBody}"
                                           TextElement.FontFamily="{DynamicResource AppFontFamily}">
                             <ContentPresenter.Resources>
@@ -329,18 +329,18 @@
          WIZARD CARD STYLES
     ═════════════════════════════════════════════════════════════════ -->
 
-    <Style x:Key="WizardCardStyle" TargetType="Border">
-        <Setter Property="Background"           Value="{DynamicResource ModuleBackgroundBrush}"/>
+    <Style x:Key="WizardCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Background"           Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
         <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness"      Value="{DynamicResource CardBorderThickness}"/>
-        <Setter Property="CornerRadius"         Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="BorderThickness"      Value="{DynamicResource Surface.Primary.BorderThickness}"/>
+        <Setter Property="CornerRadius"         Value="{DynamicResource Surface.Primary.CornerRadius}"/>
         <Setter Property="Padding"              Value="20"/>
         <Setter Property="SnapsToDevicePixels"  Value="True"/>
         <Setter Property="UseLayoutRounding"    Value="True"/>
         <Setter Property="Effect"               Value="{StaticResource CardShadow}"/>
     </Style>
 
-    <Style x:Key="WizardCardHeaderStyle" TargetType="Border">
+    <Style x:Key="WizardCardHeaderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
         <Setter Property="Padding"              Value="16,12"/>
         <Setter Property="CornerRadius"         Value="12,12,0,0"/>
         <Setter Property="Background"           Value="{StaticResource CardHeaderGradient}"/>
@@ -416,6 +416,6 @@
 
     <DropShadowEffect x:Key="GreenLedGlow"
                       BlurRadius="8" ShadowDepth="0"
-                      Opacity="0.6" Color="{DynamicResource AccentLightColor}"/>
+                      Opacity="0.28" Color="{DynamicResource AccentLightColor}"/>
 
 </ResourceDictionary>

@@ -104,7 +104,7 @@
                                     </Style>
                                 </Border.Style>
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="32"
+                                    <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
                                                HorizontalAlignment="Center"
                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.NoAttachmentsYet}"

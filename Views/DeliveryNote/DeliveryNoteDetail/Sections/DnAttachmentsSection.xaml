@@ -85,7 +85,7 @@
                                     Visibility="{Binding HasNoAttachments,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="32"
+                                    <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}"
                                                HorizontalAlignment="Center"
                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                     <TextBlock Text="{DynamicResource DeliveryNote.NoAttachmentsYet}"
@@ -115,7 +115,7 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="0"
+                                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Grid.Column="0"
                                                         Width="40" Height="40"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Background="{DynamicResource ModuleBackgroundBrush}"

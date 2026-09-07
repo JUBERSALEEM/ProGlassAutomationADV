@@ -69,9 +69,11 @@ namespace ProGlassAutomation.Services.Theme
             try
             {
                 ThemeManager.ApplyTheme(
-                    isDark ? AppTheme.Dark : AppTheme.Light);
+                    isDark ? AppTheme.Dark : AppTheme.Light,
+                    deferPostProcessing: true);
                 RebuildFamily(
                     $"full-rebuild · {reason} · mode={(isDark ? "Dark" : "Light")}");
+                ThemeManager.NotifyThemeChanged();
             }
             catch (Exception ex)
             {
@@ -122,8 +124,11 @@ namespace ProGlassAutomation.Services.Theme
                     ThemeManager.AccentColor, raiseEvent: false);
 
                 // 4) The user's Defined Card Edges choice reads the
-                //    freshly derived accent keyline — always last.
+                //    freshly derived accent keyline — then the semantic ERP
+                //    surface layer derives Primary/Secondary/Detail resources
+                //    from that final keyline.
                 ThemeManager.ReapplyOutlinePreference();
+                ThemeManager.ReapplySemanticSurfaces();
 
                 AppLogService.Debug(
                     $"[ThemePipeline] Rebuilt: {reason} | family={appearance?.VisualTheme} " +

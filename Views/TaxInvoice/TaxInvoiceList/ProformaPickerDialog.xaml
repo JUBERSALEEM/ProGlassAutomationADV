@@ -21,8 +21,8 @@
             BorderThickness="{DynamicResource CardBorderThickness}"
             Margin="18">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="32" ShadowDepth="0"
-                              Opacity="0.22" Color="#000000"/>
+            <DropShadowEffect BlurRadius="22" ShadowDepth="0"
+                              Opacity="0.22" Color="{DynamicResource LiquidShadowColor}"/>
         </Border.Effect>
 
         <Grid>
@@ -36,7 +36,7 @@
             <!-- ── HEADER ──────────────────────────────────────────────── -->
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="16,16,0,0"
+                    CornerRadius="{DynamicResource Radius.Top.Medium}"
                     Padding="28,18">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -75,10 +75,10 @@
             </ScrollViewer>
 
             <!-- ── FOOTER ──────────────────────────────────────────────── -->
-            <Border CornerRadius="0,0,16,16" Grid.Row="3"
+            <Border CornerRadius="{DynamicResource Radius.Bottom.Medium}" Grid.Row="3"
                     Padding="24,14"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="0,1,0,0">
+                    BorderThickness="{DynamicResource Border.TopHairlineThickness}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

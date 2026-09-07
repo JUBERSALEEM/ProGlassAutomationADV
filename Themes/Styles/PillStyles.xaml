@@ -23,7 +23,7 @@
     </Style>
 
     <!-- Base solid pill -->
-    <Style x:Key="StatusPillBaseStyle" TargetType="Border">
+    <Style x:Key="StatusPillBaseStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="CornerRadius"        Value="10"/>
         <Setter Property="Padding"             Value="10,4"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -80,7 +80,7 @@
     </Style>
 
     <!-- Category tag pill — muted background, dark text -->
-    <Style x:Key="TagPillStyle" TargetType="Border">
+    <Style x:Key="TagPillStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
         <Setter Property="CornerRadius"        Value="12"/>
         <Setter Property="Padding"             Value="10,3"/>
         <Setter Property="Background"          Value="{DynamicResource TintGrayBrush}"/>

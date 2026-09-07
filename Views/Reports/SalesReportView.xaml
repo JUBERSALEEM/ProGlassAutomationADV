@@ -57,10 +57,10 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bd"
-                                CornerRadius="10"
+                                CornerRadius="{DynamicResource Radius.Medium}"
                                 Padding="10,8"
                                 Background="{TemplateBinding Background}"
-                                BorderThickness="1"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 BorderBrush="Transparent"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter VerticalAlignment="Center"/>
@@ -152,7 +152,7 @@
                     Converter={StaticResource BoolToVisibilityConverter}}"
                 Background="{DynamicResource ElevatedSurfaceBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1"
+                BorderThickness="{DynamicResource Border.HairlineThickness}"
                 SnapsToDevicePixels="True">
 
             <Grid Margin="10,12,10,12">
@@ -170,7 +170,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="10" Background="{DynamicResource GlassSurfaceElevated}">
+                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="{DynamicResource Radius.Medium}" Background="{DynamicResource GlassSurfaceElevated}">
                             <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
@@ -183,7 +183,7 @@
                                 Width="30" Height="30"
                                 VerticalAlignment="Top"
                                 Background="Transparent"
-                                BorderThickness="0"
+                                BorderThickness="{DynamicResource Border.NoneThickness}"
                                 Cursor="Hand"
                                 ToolTip="{DynamicResource Reports.CollapseNavigationRail}"
                                 Command="{Binding ToggleRailCommand}">
@@ -254,7 +254,7 @@
                                                     <ColumnDefinition Width="28"/>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7"
+                                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="{DynamicResource Radius.Small}"
                                                         Background="{DynamicResource MenuHoverBrush}">
                                                     <TextBlock Text="{Binding Icon}"
                                                                FontFamily="Segoe MDL2 Assets"
@@ -323,10 +323,10 @@
                 </ScrollViewer>
 
                 <!-- Footer: Centralized Layer Status -->
-                <Border Grid.Row="2" Margin="4,6,4,2" CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10,8">
+                <Border Grid.Row="2" Margin="4,6,4,2" CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Padding="10,8">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
+                            <Border Width="8" Height="8" CornerRadius="{DynamicResource Radius.XSmall}" Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Reports.CentralDataLayer}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="{DynamicResource Reports.LiveTotalsPIJODeliveryTaxInvoiceStatement}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
@@ -348,7 +348,7 @@
             <Border Grid.Row="0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource DividerBrush}"
-                    BorderThickness="0,0,0,1"
+                    BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                     Padding="14,10">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -378,14 +378,14 @@
 
                     <!-- Data-layer live indicator -->
                     <Border Grid.Column="2"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource Radius.Medium}"
                             Padding="10,5"
                             VerticalAlignment="Center"
                             Background="{DynamicResource TintGreenBrush}"
                             BorderBrush="{DynamicResource SuccessBrush}"
-                            BorderThickness="1">
+                            BorderThickness="{DynamicResource Border.HairlineThickness}">
                         <StackPanel Orientation="Horizontal">
-                            <Border Width="7" Height="7" CornerRadius="4"
+                            <Border Width="7" Height="7" CornerRadius="{DynamicResource Radius.XSmall}"
                                     Background="{DynamicResource SuccessBrush}"
                                     VerticalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Reports.LIVEDATA}"
@@ -432,8 +432,8 @@
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>
-                            <Border Grid.Column="1" Width="120" Height="120" CornerRadius="16" Background="{DynamicResource GlassSurfaceUltra}" Opacity="1" VerticalAlignment="Center" Margin="16,0,0,0">
-                                <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="52" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border Grid.Column="1" Width="120" Height="120" CornerRadius="{DynamicResource Radius.Large}" Background="{DynamicResource GlassSurfaceUltra}" Opacity="1" VerticalAlignment="Center" Margin="16,0,0,0">
+                                <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </Grid>
                     </Border>
@@ -457,13 +457,13 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Proforma Invoice -->
-                        <Button Grid.Column="0" Command="{Binding NavigateReportCommand}" CommandParameter="Pi" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenProformaInvoiceReport}">
+                        <Button Grid.Column="0" Command="{Binding NavigateReportCommand}" CommandParameter="Pi" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenProformaInvoiceReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
+                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintBlueBrush}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintBlueBrush}">
                                                     <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource JobProfitability.Proforma}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -485,13 +485,13 @@
                         </Button>
 
                         <!-- Job Order -->
-                        <Button Grid.Column="2" Command="{Binding NavigateReportCommand}" CommandParameter="Jo" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenJobOrderReport}">
+                        <Button Grid.Column="2" Command="{Binding NavigateReportCommand}" CommandParameter="Jo" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenJobOrderReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
+                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintAmberBrush}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintAmberBrush}">
                                                     <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Common.JobOrder}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -513,13 +513,13 @@
                         </Button>
 
                         <!-- Delivery -->
-                        <Button Grid.Column="4" Command="{Binding NavigateReportCommand}" CommandParameter="Delivery" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenDeliveryReport}">
+                        <Button Grid.Column="4" Command="{Binding NavigateReportCommand}" CommandParameter="Delivery" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenDeliveryReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
+                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintGreenBrush}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintGreenBrush}">
                                                     <TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Nav.Delivery}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -541,13 +541,13 @@
                         </Button>
 
                         <!-- Tax Invoice -->
-                        <Button Grid.Column="6" Command="{Binding NavigateReportCommand}" CommandParameter="TaxInvoice" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenTaxInvoiceReport}">
+                        <Button Grid.Column="6" Command="{Binding NavigateReportCommand}" CommandParameter="TaxInvoice" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenTaxInvoiceReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
+                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintIndigoBrush}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintIndigoBrush}">
                                                     <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Module.TaxInvoice}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -569,13 +569,13 @@
                         </Button>
 
                         <!-- Statement -->
-                        <Button Grid.Column="8" Command="{Binding NavigateReportCommand}" CommandParameter="Statement" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenStatementReport}">
+                        <Button Grid.Column="8" Command="{Binding NavigateReportCommand}" CommandParameter="Statement" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenStatementReport}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" SnapsToDevicePixels="True">
+                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintGrayBrush}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintGrayBrush}">
                                                     <TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource NeutralBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Module.Statement}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -597,7 +597,7 @@
                     </Grid>
 
                     <!-- Workflow hint -->
-                    <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14">
+                    <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Reports.TraceGlassRowEndEndPIJobOrderDeliveryTax}"

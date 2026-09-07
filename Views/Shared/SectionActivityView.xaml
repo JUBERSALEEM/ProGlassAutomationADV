@@ -90,7 +90,7 @@
                 <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                         Background="{DynamicResource AccentBrush}"
                         BorderBrush="{DynamicResource AccentBrush}"
-                        BorderThickness="0,0,0,1"
+                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                         Padding="16,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -131,7 +131,7 @@
                         </Style>
                     </StackPanel.Style>
                     <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
-                               FontSize="34"
+                               FontSize="{StaticResource TextDisplayLarge}"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                HorizontalAlignment="Center"/>
                     <TextBlock Text="{DynamicResource Shared.NoActivityRecordedYet}"
@@ -163,7 +163,7 @@
                             <DataTemplate>
                                 <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,10"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="0,0,0,1"
+                                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
                                         ToolTip="{Binding RowTooltip}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -231,7 +231,7 @@
                                                 FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                 Padding="9,3"
                                                 Cursor="Hand"
-                                                BorderThickness="0"
+                                                BorderThickness="{DynamicResource Border.NoneThickness}"
                                                 Background="{DynamicResource TintIndigoBrush}"
                                                 Foreground="{DynamicResource AccentBrush}"
                                                 VerticalAlignment="Center"

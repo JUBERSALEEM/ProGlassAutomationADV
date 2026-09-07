@@ -44,7 +44,7 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
-        <Style x:Key="InvoiceMetaChipStyle" TargetType="Border">
+        <Style x:Key="InvoiceMetaChipStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -53,11 +53,11 @@
             <Setter Property="Margin" Value="0,0,8,8"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
-<Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
+<Style x:Key="CardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+            <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource Surface.Primary.BorderThickness}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource Surface.Primary.CornerRadius}"/>
             <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
@@ -73,7 +73,7 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-<Style x:Key="FamilyRowContentBorderStyle" TargetType="Border">
+<Style x:Key="FamilyRowContentBorderStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
             <Setter Property="Padding" Value="12,10"/>
             <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="BorderThickness" Value="1.5"/>
