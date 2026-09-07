@@ -335,52 +335,59 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 
         private static void LetterheadFormal(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
-            container.Column(col =>
+            container.Border(0.6f).BorderColor(T.Border).Column(col =>
             {
-                col.Item().Background(T.Accent)
-                    .PaddingHorizontal(12).PaddingVertical(10)
-                    .Row(row =>
-                    {
-                        if (!suppressLogo && HasLogo(info))
-                            row.AutoItem().PaddingRight(12)
-                                .AlignMiddle()
-                                .Element(c => LogoBox(c, info));
-
-                        row.RelativeItem().Column(left =>
+                col.Item().Row(row =>
+                {
+                    row.ConstantItem(5).Background(T.Highlight);
+                    row.RelativeItem().Background(T.Accent)
+                        .PaddingHorizontal(12).PaddingVertical(10)
+                        .Row(inner =>
                         {
-                            left.Item().Text(info.CompanyName ?? "")
-                                .FontSize(T.TitleSize).Bold().FontColor(T.AccentOn);
-                            if (!string.IsNullOrWhiteSpace(info.CompanyLocation))
-                                left.Item().PaddingTop(2)
-                                    .Text(info.CompanyLocation)
-                                    .FontSize(8).FontColor(T.AccentSoft);
-                            if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
-                                left.Item().PaddingTop(1)
-                                    .Text($"TRN  {info.CompanyTrn}")
-                                    .FontSize(8).SemiBold().FontColor(T.AccentOn);
-                        });
+                            if (!suppressLogo && HasLogo(info))
+                                inner.AutoItem().PaddingRight(12)
+                                    .AlignMiddle()
+                                    .Element(c => LogoBox(c, info));
 
-                        row.ConstantItem(210).AlignRight().Column(right =>
-                        {
-                            right.Item().AlignRight()
-                                .Background(T.Highlight)
-                                .PaddingHorizontal(8).PaddingVertical(3)
-                                .Text((info.DocumentTitle ?? "").ToUpperInvariant())
-                                .FontSize(8).Bold().FontColor(T.AccentDark);
-                            right.Item().AlignRight().PaddingTop(5)
-                                .Text(info.DocumentId ?? "")
-                                .FontSize(T.IdSize).Bold().FontColor(T.AccentOn);
-                            if (!string.IsNullOrWhiteSpace(info.SubtitleLine))
-                                right.Item().AlignRight().PaddingTop(2)
-                                    .Text(info.SubtitleLine)
-                                    .FontSize(7).FontColor(T.AccentSoft);
+                            inner.RelativeItem().Column(left =>
+                            {
+                                left.Item().Text(info.CompanyName ?? "")
+                                    .FontSize(T.TitleSize).Bold().FontColor(T.AccentOn);
+                                var sub = info.CompanyLocation ?? "";
+                                if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
+                                    sub = string.IsNullOrWhiteSpace(sub)
+                                        ? $"TRN  {info.CompanyTrn}"
+                                        : $"{sub}  ·  TRN  {info.CompanyTrn}";
+                                if (!string.IsNullOrWhiteSpace(sub))
+                                    left.Item().PaddingTop(2).Text(sub)
+                                        .FontSize(8).FontColor(T.AccentSoft);
+                                left.Item().PaddingTop(5).Text("COMMERCIAL / PRODUCTION ERP DOCUMENT")
+                                    .FontSize(6.5f).Bold().FontColor(T.Highlight);
+                            });
+
+                            inner.ConstantItem(210).AlignRight().Column(right =>
+                            {
+                                right.Item().AlignRight()
+                                    .Background(T.Highlight)
+                                    .PaddingHorizontal(8).PaddingVertical(3)
+                                    .Text((info.DocumentTitle ?? "").ToUpperInvariant())
+                                    .FontSize(8).Bold().FontColor(T.AccentDark);
+                                right.Item().AlignRight().PaddingTop(5)
+                                    .Text(info.DocumentId ?? "")
+                                    .FontSize(T.IdSize).Bold().FontColor(T.AccentOn);
+                                if (!string.IsNullOrWhiteSpace(info.SubtitleLine))
+                                    right.Item().AlignRight().PaddingTop(2)
+                                        .Text(info.SubtitleLine)
+                                        .FontSize(7).FontColor(T.AccentSoft);
+                            });
                         });
-                    });
+                });
 
                 if (info.Meta.Count > 0)
                     col.Item().Element(c => MetaStrip(c, info.Meta));
             });
         }
+
 
         private static void LetterheadSplit(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
@@ -388,20 +395,24 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             {
                 col.Item().Row(row =>
                 {
-                    row.RelativeItem(3).Column(left =>
-                    {
-                        left.Item().Text((info.DocumentTitle ?? "").ToUpperInvariant())
-                            .FontSize(T.TitleSize).Bold().FontColor(T.Accent);
-                        left.Item().PaddingTop(4).Text(info.DocumentId ?? "")
-                            .FontSize(T.IdSize).SemiBold().FontColor(T.Text);
-                        if (!string.IsNullOrWhiteSpace(info.SubtitleLine))
-                            left.Item().PaddingTop(2).Text(info.SubtitleLine)
-                                .FontSize(8).FontColor(T.Muted);
-                    });
+                    row.RelativeItem(3).BorderLeft(4).BorderColor(T.Highlight)
+                        .PaddingLeft(10).Column(left =>
+                        {
+                            left.Item().Text("ERP DOCUMENT")
+                                .FontSize(7).Bold().FontColor(T.Highlight);
+                            left.Item().Text((info.DocumentTitle ?? "").ToUpperInvariant())
+                                .FontSize(T.TitleSize).Bold().FontColor(T.Accent);
+                            left.Item().PaddingTop(3).Text(info.DocumentId ?? "")
+                                .FontSize(T.IdSize).SemiBold().FontColor(T.Text);
+                            if (!string.IsNullOrWhiteSpace(info.SubtitleLine))
+                                left.Item().PaddingTop(2).Text(info.SubtitleLine)
+                                    .FontSize(8).FontColor(T.Muted);
+                        });
 
-                    row.ConstantItem(16);
+                    row.ConstantItem(14);
 
                     row.RelativeItem(2)
+                        .Border(0.6f).BorderColor(T.Border)
                         .Background(T.Surface)
                         .Padding(10)
                         .Column(right =>
@@ -424,7 +435,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                                         txt.Item().PaddingTop(4)
                                             .Background(T.Accent)
                                             .PaddingHorizontal(6).PaddingVertical(2)
-                                            .Text($"TRN  {info.CompanyTrn}")
+                                            .Text($"VAT / TRN  {info.CompanyTrn}")
                                             .FontSize(7).Bold().FontColor(T.AccentOn);
                                 });
                             });
@@ -442,9 +453,15 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         });
                 });
 
-                col.Item().PaddingTop(8).Height(1.5f).Background(T.Accent);
+                col.Item().PaddingTop(8).Row(row =>
+                {
+                    row.RelativeItem().Height(1.3f).Background(T.Accent);
+                    row.ConstantItem(8);
+                    row.ConstantItem(44).Height(1.3f).Background(T.Highlight);
+                });
             });
         }
+
 
         private static void LetterheadEditorial(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
@@ -452,14 +469,15 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             {
                 col.Item().Row(row =>
                 {
-                    if (!suppressLogo && HasLogo(info))
-                        row.AutoItem().PaddingRight(12)
-                            .AlignMiddle()
-                            .Element(c => LogoBox(c, info));
+                    row.RelativeItem().Column(left =>
+                    {
+                        left.Item().Text("BOARD / CLIENT PDF PACK")
+                            .FontSize(6.5f).FontColor(T.Highlight);
+                        left.Item().PaddingTop(2).Text(info.DocumentTitle ?? "")
+                            .FontSize(T.TitleSize).FontColor(T.Text);
+                    });
 
-                    row.RelativeItem().Text(info.DocumentTitle ?? "")
-                        .FontSize(T.TitleSize).FontColor(T.Text);
-                    row.ConstantItem(160).AlignRight().Column(right =>
+                    row.ConstantItem(170).AlignRight().Column(right =>
                     {
                         right.Item().AlignRight().Text(info.CompanyName ?? "")
                             .FontSize(8).SemiBold().FontColor(T.Muted);
@@ -470,13 +488,22 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                     });
                 });
 
-                col.Item().PaddingTop(4).Height(2).Background(T.Highlight);
+                col.Item().PaddingTop(5).Row(row =>
+                {
+                    row.ConstantItem(38).Height(2).Background(T.Highlight);
+                    row.RelativeItem().Height(0.6f).AlignMiddle().Background(T.Border);
+                });
 
                 col.Item().PaddingTop(8).Row(row =>
                 {
+                    if (!suppressLogo && HasLogo(info))
+                        row.AutoItem().PaddingRight(12)
+                            .AlignMiddle()
+                            .Element(c => LogoBox(c, info));
+
                     row.RelativeItem().Column(c =>
                     {
-                        c.Item().Text("DOCUMENT")
+                        c.Item().Text("DOCUMENT REFERENCE")
                             .FontSize(7).FontColor(T.Muted);
                         c.Item().Text(info.DocumentId ?? "—")
                             .FontSize(11).SemiBold().FontColor(T.Text);
@@ -502,13 +529,14 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             });
         }
 
+
         private static void LetterheadWorkshop(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
-            container.Column(col =>
+            container.Border(0.8f).BorderColor(T.AccentDark).Column(col =>
             {
                 col.Item().Row(row =>
                 {
-                    row.ConstantItem(6).Background(T.Highlight);
+                    row.ConstantItem(7).Background(T.Highlight);
                     row.RelativeItem().Background(T.AccentDark)
                         .PaddingHorizontal(10).PaddingVertical(10)
                         .Row(inner =>
@@ -530,9 +558,11 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                                 if (!string.IsNullOrWhiteSpace(sub))
                                     left.Item().PaddingTop(2).Text(sub)
                                         .FontSize(8).FontColor(T.AccentSoft);
+                                left.Item().PaddingTop(5).Text("FACTORY RELEASE · QA TRACEABLE · CONTROLLED COPY")
+                                    .FontSize(6.5f).Bold().FontColor(T.Highlight);
                             });
 
-                            inner.ConstantItem(200).AlignRight().Column(right =>
+                            inner.ConstantItem(205).AlignRight().Column(right =>
                             {
                                 right.Item().AlignRight()
                                     .Text((info.DocumentTitle ?? "").ToUpperInvariant())
@@ -554,24 +584,26 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 if (kpi.Count > 0)
                 {
                     col.Item().Background(T.Surface)
-                        .Border(0.6f).BorderColor(T.Border)
+                        .BorderTop(0.6f).BorderColor(T.Border)
                         .PaddingHorizontal(8).PaddingVertical(6)
                         .Row(row =>
                         {
                             foreach (var (label, value) in kpi)
                             {
-                                row.RelativeItem().Column(c =>
-                                {
-                                    c.Item().Text(label)
-                                        .FontSize(7).Bold().FontColor(T.Muted);
-                                    c.Item().Text(value)
-                                        .FontSize(10).Bold().FontColor(T.Text);
-                                });
+                                row.RelativeItem().BorderLeft(1).BorderColor(T.Highlight)
+                                    .PaddingLeft(5).Column(c =>
+                                    {
+                                        c.Item().Text(label)
+                                            .FontSize(6.5f).Bold().FontColor(T.Muted);
+                                        c.Item().Text(value)
+                                            .FontSize(9.5f).Bold().FontColor(T.Text);
+                                    });
                             }
                         });
                 }
             });
         }
+
 
         private static void LetterheadQuiet(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
@@ -600,6 +632,14 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                                 .FontSize(8).FontColor(T.Muted);
                         }
                     });
+
+                    row.AutoItem().AlignRight().Column(right =>
+                    {
+                        right.Item().AlignRight().Text("CONTROLLED PDF")
+                            .FontSize(6.5f).FontColor(T.Muted);
+                        right.Item().AlignRight().Text(DateTime.Now.ToString("dd MMM yyyy"))
+                            .FontSize(7.5f).FontColor(T.Text);
+                    });
                 });
 
                 col.Item().PaddingTop(8).Height(0.4f).Background(T.Text);
@@ -617,13 +657,14 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                     {
                         foreach (var (label, value) in info.Meta.Take(4))
                         {
-                            row.RelativeItem().Column(c =>
-                            {
-                                c.Item().Text(label.ToUpperInvariant())
-                                    .FontSize(7).FontColor(T.Muted);
-                                c.Item().Text(string.IsNullOrWhiteSpace(value) ? "—" : value)
-                                    .FontSize(9).FontColor(T.Text);
-                            });
+                            row.RelativeItem().BorderTop(0.4f).BorderColor(T.Border)
+                                .PaddingTop(3).Column(c =>
+                                {
+                                    c.Item().Text(label.ToUpperInvariant())
+                                        .FontSize(7).FontColor(T.Muted);
+                                    c.Item().Text(string.IsNullOrWhiteSpace(value) ? "—" : value)
+                                        .FontSize(9).FontColor(T.Text);
+                                });
                         }
                     });
                 }
@@ -632,9 +673,6 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             });
         }
 
-        // ═════════════════════════════════════════════════════════════
-        //  FOOTER — five compositions
-        // ═════════════════════════════════════════════════════════════
 
         public static void Footer(IContainer container, string? documentId)
         {
@@ -763,13 +801,14 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             switch (K)
             {
                 case PdfLayoutKind.SplitConsole:
-                    container.Row(row =>
-                    {
-                        row.ConstantItem(8).Height(8).Background(T.Accent);
-                        row.RelativeItem().PaddingLeft(6)
-                            .Text(label)
-                            .FontSize(10).SemiBold().FontColor(T.Accent);
-                    });
+                    container.BorderLeft(3).BorderColor(T.Highlight)
+                        .PaddingLeft(7).Row(row =>
+                        {
+                            row.RelativeItem().Text(label.ToUpperInvariant())
+                                .FontSize(9.5f).SemiBold().FontColor(T.Accent);
+                            row.AutoItem().Text($"SEC {_sectionIndex:00}")
+                                .FontSize(6.5f).Bold().FontColor(T.Muted);
+                        });
                     break;
 
                 case PdfLayoutKind.Editorial:
@@ -778,12 +817,18 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         col.Item().Row(row =>
                         {
                             row.AutoItem().Text($"{_sectionIndex:00}")
-                                .FontSize(9).FontColor(T.Highlight);
+                                .FontSize(11).FontColor(T.Highlight);
                             row.RelativeItem().PaddingLeft(8)
                                 .Text(label.ToUpperInvariant())
-                                .FontSize(8).FontColor(T.Text);
+                                .FontSize(8).SemiBold().FontColor(T.Text);
+                            row.AutoItem().AlignBottom().Text("ERP SECTION")
+                                .FontSize(6).FontColor(T.Muted);
                         });
-                        col.Item().PaddingTop(3).Height(0.5f).Background(T.Highlight);
+                        col.Item().PaddingTop(3).Row(r =>
+                        {
+                            r.ConstantItem(36).Height(0.8f).Background(T.Highlight);
+                            r.RelativeItem().Height(0.4f).AlignMiddle().Background(T.Border);
+                        });
                     });
                     break;
 
@@ -793,28 +838,48 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         row.ConstantItem(4).Background(T.Highlight);
                         row.RelativeItem().Background(T.Accent)
                             .PaddingHorizontal(8).PaddingVertical(4)
-                            .Text(label.ToUpperInvariant())
-                            .FontSize(8).Bold().FontColor(T.AccentOn);
+                            .Row(inner =>
+                            {
+                                inner.RelativeItem().Text(label.ToUpperInvariant())
+                                    .FontSize(8).Bold().FontColor(T.AccentOn);
+                                inner.AutoItem().Text($"QA-{_sectionIndex:00}")
+                                    .FontSize(6.5f).Bold().FontColor(T.Highlight);
+                            });
                     });
                     break;
 
                 case PdfLayoutKind.QuietForm:
                     container.Column(col =>
                     {
-                        col.Item().Text(label.ToUpperInvariant())
-                            .FontSize(8).FontColor(T.Muted);
-                        col.Item().PaddingTop(2).Height(0.4f).Background(T.Text);
+                        col.Item().Row(row =>
+                        {
+                            row.RelativeItem().Text(label.ToUpperInvariant())
+                                .FontSize(8).FontColor(T.Muted);
+                            row.AutoItem().Text($"{_sectionIndex:00}")
+                                .FontSize(7).FontColor(T.Muted);
+                        });
+                        col.Item().PaddingTop(2).Height(0.45f).Background(T.Text);
                     });
                     break;
 
                 default:
-                    container.Background(T.Accent)
-                        .PaddingHorizontal(8).PaddingVertical(4)
-                        .Text(label.ToUpperInvariant())
-                        .FontSize(8).Bold().FontColor(T.AccentOn);
+                    container.Row(row =>
+                    {
+                        row.ConstantItem(4).Background(T.Highlight);
+                        row.RelativeItem().Background(T.Accent)
+                            .PaddingHorizontal(8).PaddingVertical(4)
+                            .Row(inner =>
+                            {
+                                inner.RelativeItem().Text(label.ToUpperInvariant())
+                                    .FontSize(8).Bold().FontColor(T.AccentOn);
+                                inner.AutoItem().Text($"{_sectionIndex:00}")
+                                    .FontSize(7).Bold().FontColor(T.AccentSoft);
+                            });
+                    });
                     break;
             }
         }
+
 
         public static void GroupBanner(IContainer container, string text, string? trailing = null)
         {
@@ -822,18 +887,20 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             {
                 case PdfLayoutKind.Editorial:
                 case PdfLayoutKind.QuietForm:
-                    container.PaddingBottom(3).Row(row =>
-                    {
-                        row.RelativeItem().Text(text ?? "")
-                            .FontSize(9).SemiBold().FontColor(T.Text);
-                        if (!string.IsNullOrWhiteSpace(trailing))
-                            row.AutoItem().Text(trailing)
-                                .FontSize(8).FontColor(T.Muted);
-                    });
+                    container.BorderLeft(1.2f).BorderColor(T.Highlight)
+                        .PaddingLeft(6).PaddingBottom(3).Row(row =>
+                        {
+                            row.RelativeItem().Text(text ?? "")
+                                .FontSize(9).SemiBold().FontColor(T.Text);
+                            if (!string.IsNullOrWhiteSpace(trailing))
+                                row.AutoItem().Text(trailing)
+                                    .FontSize(8).FontColor(T.Muted);
+                        });
                     break;
 
                 case PdfLayoutKind.SplitConsole:
-                    container.Background(T.Surface)
+                    container.BorderLeft(2).BorderColor(T.Accent)
+                        .Background(T.Surface)
                         .PaddingHorizontal(8).PaddingVertical(4)
                         .Row(row =>
                         {
@@ -850,6 +917,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                     {
                         row.ConstantItem(3).Background(T.Highlight);
                         row.RelativeItem().Background(T.AccentLight)
+                            .BorderTop(0.6f).BorderBottom(0.6f).BorderColor(T.Border)
                             .PaddingHorizontal(6).PaddingVertical(3)
                             .Row(inner =>
                             {
@@ -863,19 +931,24 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                     break;
 
                 default:
-                    container.Background(T.Accent)
-                        .PaddingHorizontal(8).PaddingVertical(4)
-                        .Row(row =>
-                        {
-                            row.RelativeItem().Text(text ?? "")
-                                .FontSize(9).Bold().FontColor(T.AccentOn);
-                            if (!string.IsNullOrWhiteSpace(trailing))
-                                row.AutoItem().Text(trailing)
-                                    .FontSize(8).FontColor(T.AccentSoft);
-                        });
+                    container.Row(row =>
+                    {
+                        row.ConstantItem(3).Background(T.Highlight);
+                        row.RelativeItem().Background(T.Accent)
+                            .PaddingHorizontal(8).PaddingVertical(4)
+                            .Row(inner =>
+                            {
+                                inner.RelativeItem().Text(text ?? "")
+                                    .FontSize(9).Bold().FontColor(T.AccentOn);
+                                if (!string.IsNullOrWhiteSpace(trailing))
+                                    inner.AutoItem().Text(trailing)
+                                        .FontSize(8).FontColor(T.AccentSoft);
+                            });
+                    });
                     break;
             }
         }
+
 
         public static void Hairline(IContainer container)
         {
@@ -907,30 +980,43 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             switch (K)
             {
                 case PdfLayoutKind.SplitConsole:
-                    container.Background(T.Surface).Padding(10).Column(col =>
-                    {
-                        col.Item().Text(title)
-                            .FontSize(8).SemiBold().FontColor(T.Accent);
-                        col.Item().PaddingTop(4);
-                        body(col);
-                    });
+                    container.BorderLeft(2).BorderColor(T.Accent)
+                        .Background(T.Surface).Padding(10).Column(col =>
+                        {
+                            col.Item().Text(title.ToUpperInvariant())
+                                .FontSize(7.5f).SemiBold().FontColor(T.Accent);
+                            col.Item().PaddingTop(4);
+                            body(col);
+                        });
                     break;
 
                 case PdfLayoutKind.Editorial:
+                    container.BorderTop(0.5f).BorderColor(T.Border)
+                        .PaddingTop(6).Column(col =>
+                        {
+                            col.Item().Text(title.ToUpperInvariant())
+                                .FontSize(7).FontColor(T.Highlight);
+                            col.Item().PaddingTop(4);
+                            body(col);
+                        });
+                    break;
+
                 case PdfLayoutKind.QuietForm:
-                    container.Column(col =>
-                    {
-                        col.Item().Text(title.ToUpperInvariant())
-                            .FontSize(7).FontColor(T.Muted);
-                        col.Item().PaddingTop(4);
-                        body(col);
-                    });
+                    container.BorderTop(0.4f).BorderBottom(0.4f).BorderColor(T.Border)
+                        .PaddingVertical(6).Column(col =>
+                        {
+                            col.Item().Text(title.ToUpperInvariant())
+                                .FontSize(7).FontColor(T.Muted);
+                            col.Item().PaddingTop(4);
+                            body(col);
+                        });
                     break;
 
                 case PdfLayoutKind.Workshop:
                     container.Border(0.7f).BorderColor(T.Border).Column(col =>
                     {
                         col.Item().Background(T.AccentLight)
+                            .BorderLeft(3).BorderColor(T.Highlight)
                             .PaddingHorizontal(6).PaddingVertical(3)
                             .Text(title.ToUpperInvariant())
                             .FontSize(7).Bold().FontColor(T.AccentDark);
@@ -940,16 +1026,22 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                     break;
 
                 default:
-                    container.Border(0.6f).BorderColor(T.Border).Padding(8).Column(col =>
-                    {
-                        col.Item().Text(title.ToUpperInvariant())
-                            .FontSize(8).Bold().FontColor(T.Accent);
-                        col.Item().PaddingTop(4);
-                        body(col);
-                    });
+                    container.Border(0.6f).BorderColor(T.Border)
+                        .Background(T.White)
+                        .Column(col =>
+                        {
+                            col.Item().Background(T.Surface)
+                                .BorderLeft(3).BorderColor(T.Highlight)
+                                .PaddingHorizontal(8).PaddingVertical(4)
+                                .Text(title.ToUpperInvariant())
+                                .FontSize(7.5f).Bold().FontColor(T.Accent);
+                            col.Item().Padding(8);
+                            body(col);
+                        });
                     break;
             }
         }
+
 
         public static void MetaStrip(
             IContainer container,
