@@ -1,7 +1,8 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Theme/BuiltinWallpaperScenes.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Wallpaper system — three code-drawn 4K+ scenes (2026-09-06)
+// MODULE: Wallpaper system — code-drawn 4K+ scenes (2026-09-06;
+//         2026-09-07: Normal (Industrial) joins the Normal Studio scene)
 //
 // DESIGN TRUTH (senior answer to "bundle 50 wallpapers"):
 //   Shipping 50 binary wallpapers would bloat the installer by hundreds
@@ -23,8 +24,10 @@
 //   Painted behind modules through the engine's existing
 //   "ModuleWallpaperBrush" key — zero XAML changes required.
 //
-// SCENE SIGNATURES (family → mood) — three families shipped (2026-09-06):
+// SCENE SIGNATURES (family → mood) — families shipped (2026-09-06;
+//  2026-09-07 adds Normal (Industrial) to the Studio scene):
 //   Normal           → Studio      — quiet sweep following the base theme
+//   Normal (Industrial) → Studio   — same quiet sweep on the white/blue stage
 //   Monet            → Golden Hour — dusk derived from the accent hue
 //   Crystal Fluid    → Crystal Fluid — pale luminous water atmosphere (§22)
 // ═══════════════════════════════════════════════════════════════════════
@@ -44,6 +47,7 @@ namespace ProGlassAutomation.Services.Theme
         public static readonly (string Key, string Label)[] All =
         {
             (VisualThemeEngine.Normal,           "Studio"),
+            (VisualThemeEngine.NormalIndustrial, "Studio"),
             (VisualThemeEngine.Monet,            "Golden Hour"),
             // Ios-17pm: authored display name for the Crystal Fluid family
             // (identity const unchanged — labels are view-only).

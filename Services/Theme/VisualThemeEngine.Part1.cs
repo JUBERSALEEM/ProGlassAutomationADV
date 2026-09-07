@@ -15,6 +15,14 @@ namespace ProGlassAutomation.Services.Theme
         public static partial class VisualThemeEngine
     {
             public const string Normal = "Normal";
+        /// <summary>NORMAL (INDUSTRIAL) (2026-09-07) — the pre-cream
+        /// "Normal" restored as its own family beside the cream SaaS
+        /// Normal. Full white + blue tone, professional industrial
+        /// layout, and a defined slate card edge/corner border line.
+        /// Spec: design-system/proglass-industrial/MASTER.md (background
+        /// #F8FAFC, white #FFFFFF cards, border #E2E8F0, navy #0F172A
+        /// ink, blue #0369A1 CTA). Solid surfaces — never frosted glass.</summary>
+        public const string NormalIndustrial = "Normal (Industrial)";
         public const string Monet = "Monet";
         /// <summary>CRYSTAL FLUID (2026-09-05) — iOS water-glass design
         /// system; REPLACES "Ultra Transparent" (retired). Surfaces are
@@ -36,7 +44,8 @@ namespace ProGlassAutomation.Services.Theme
         /// true = Dark, false = Light, null = respects the user's own
         /// mode choice. 2026-09-06 theme reduction: Normal and Monet
         /// follow the user's Light/Dark toggle; Crystal Fluid (Ios-17pm)
-        /// is LIGHT-ONLY and snaps to Light.</summary>
+        /// is LIGHT-ONLY and snaps to Light. 2026-09-07: Normal
+        /// (Industrial) follows the user's mode exactly like Normal.</summary>
         public static bool? ModePairFor(string? family) =>
             family == CrystalFluid ? (bool?)false : null;
 
@@ -104,6 +113,11 @@ namespace ProGlassAutomation.Services.Theme
             "GlassSurfaceStandard", "GlassCrystalBrush",
             "GlassWaterBrush", "GlassFrostedBrush",
             "GlassBorderGradientCrystal", "GlassBorderSoft",
+            // Button/input focus edges. PublishSectionGlass writes these
+            // for the glass families, so they must be cleaned up on
+            // switch exactly like GlassBorderSoft — otherwise a slate
+            // (industrial) or crystal edge leaks onto the cream Normal.
+            "GlassBorderPrimary", "GlassBorderBright",
             "ShadowSoft", "ShadowElevated",
             "GlassShadowSoft", "GlassShadowSoftBorder",
             "GlassShadowSoftButton", "GlassShadowSoftCheckBox",
@@ -316,6 +330,10 @@ namespace ProGlassAutomation.Services.Theme
                     case CrystalFluid:
                         ApplyCrystalFluid(resources);
                         break;
+
+                    case NormalIndustrial:
+                        ApplyIndustrial(resources);
+                        break;
                 }
 
                 // System-wide wallpaper chrome: paint the window
@@ -439,6 +457,9 @@ namespace ProGlassAutomation.Services.Theme
                         break;
                     case CrystalFluid:
                         ApplyCrystalFluid(resources);
+                        break;
+                    case NormalIndustrial:
+                        ApplyIndustrial(resources);
                         break;
                 }
 

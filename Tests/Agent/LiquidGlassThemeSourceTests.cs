@@ -94,11 +94,13 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("?? VisualThemeEngine.Normal", appCs, StringComparison.Ordinal);
             Assert.DoesNotContain("?? \"iOS Liquid Glass\"", appCs, StringComparison.Ordinal);
 
-            // The settings options list ships exactly the three retained
-            // families and none of the removed ones.
+            // The settings options list ships the retained families
+            // (plus the 2026-09-07 restoration, Normal Industrial) and
+            // none of the removed ones.
             string vm = Read(
                 "ViewModels/Settings/SettingsViewModel.ThemeWallpaper.cs");
             Assert.Contains("VisualThemeEngine.Normal)", vm, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.NormalIndustrial)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.Monet)", vm, StringComparison.Ordinal);
             Assert.Contains("VisualThemeEngine.CrystalFluid)", vm, StringComparison.Ordinal);
             Assert.DoesNotContain("VisualThemeEngine.LiquidGlass", vm, StringComparison.Ordinal);

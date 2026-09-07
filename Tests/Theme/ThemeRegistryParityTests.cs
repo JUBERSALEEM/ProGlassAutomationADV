@@ -29,12 +29,14 @@ namespace ProGlassAutomation.Tests.Theme
 {
     public class ThemeRegistryParityTests
     {
-        // The complete family catalogue (the three shipped families,
-        // 2026-09-06 theme reduction: Professional, iOS Liquid Glass,
-        // Ocean and the Industrial trio were removed).
+        // The complete family catalogue (2026-09-06 theme reduction:
+        // Professional, iOS Liquid Glass, Ocean and the Industrial trio
+        // were removed; 2026-09-07 restored the industrial look as
+        // Normal Industrial).
         private static readonly string[] AllFamilies =
         {
             VisualThemeEngine.Normal,
+            VisualThemeEngine.NormalIndustrial,
             VisualThemeEngine.Monet,
             VisualThemeEngine.CrystalFluid,
         };
@@ -159,9 +161,11 @@ namespace ProGlassAutomation.Tests.Theme
 
         [Theory]
         [InlineData(VisualThemeEngine.Normal, null)]
+        [InlineData(VisualThemeEngine.NormalIndustrial, null)]
         [InlineData(VisualThemeEngine.Monet, null)]
         // Crystal Fluid (Ios-17pm) is light-only (2026-09-05 product
-        // decision); Normal and Monet respect the user's own mode.
+        // decision); Normal, Normal Industrial and Monet respect the
+        // user's own mode.
         [InlineData(VisualThemeEngine.CrystalFluid, false)]
         public void ModePairFor_OnlyCrystalFluidCouplesTheMode(
             string family, bool? expected)

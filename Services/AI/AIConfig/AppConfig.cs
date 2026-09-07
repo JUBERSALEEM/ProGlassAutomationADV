@@ -27,11 +27,13 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string Theme { get; set; } = "Light";
 
         /// <summary>
-        /// "Normal" | "Monet" | "Crystal Fluid" (displayed "Ios-17pm") —
-        /// see VisualThemeEngine for what each does. 2026-09-06 theme
-        /// reduction: the six removed families (Professional, iOS Liquid
-        /// Glass, Ocean, Industrial White/Grey/Dark) and any unknown
-        /// legacy value are migrated automatically to Normal.
+        /// "Normal" | "Normal (Industrial)" | "Monet" | "Crystal Fluid"
+        /// (displayed "Ios-17pm") — see VisualThemeEngine for what each
+        /// does. 2026-09-06 theme reduction removed the six families
+        /// (Professional, iOS Liquid Glass, Ocean, Industrial
+        /// White/Grey/Dark); 2026-09-07 restores the industrial look as
+        /// "Normal (Industrial)". Legacy industrial values migrate back
+        /// to it; any other unknown legacy value migrates to Normal.
         /// Default: Normal.
         /// </summary>
         public string VisualTheme { get; set; } = "Normal";

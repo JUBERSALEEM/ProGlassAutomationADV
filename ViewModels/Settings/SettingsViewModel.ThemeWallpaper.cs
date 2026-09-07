@@ -44,6 +44,10 @@ namespace ProGlassAutomation.ViewModels.Settings
         //       Ocean and the Industrial trio were removed; saved
         //       configs referencing any removed family resolve to Normal
         //       via the engine's Normalize mapping.
+        //       2026-09-07 restoration: "Normal (Industrial)" — the
+        //       pre-cream August-26 Normal (white + blue, professional
+        //       industrial layout, defined card edges) — is selectable
+        //       again beside the cream Normal.
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>One selectable visual family. Display pairs the family
@@ -73,6 +77,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public List<VisualThemeOptionRow> VisualThemeOptions { get; } = new()
         {
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal),
+            new(ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.CrystalFluid),
         };

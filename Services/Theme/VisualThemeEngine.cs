@@ -3,12 +3,19 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Dynamic Theme Engine — visual theme families (v3)
 //
-// Three visual families layered ON TOP of the Light/Dark base themes —
+// Four visual families layered ON TOP of the Light/Dark base themes —
 // the base brushes are derived, never hard-coded twice (2026-09-06 theme
-// reduction: Professional, iOS Liquid Glass, Ocean and the Industrial
-// trio were removed):
+// reduction removed Professional, iOS Liquid Glass, Ocean and the
+// Industrial trio; 2026-09-07 restores the pre-cream industrial "Normal"
+// as its own family, "Normal (Industrial)"):
 //
-//   Normal         — clean, practical DEFAULT (no surface overrides).
+//   Normal            — clean, practical cream SaaS DEFAULT (no surface
+//                       overrides).
+//   Normal (Industrial) — the PRE-CREAM "Normal" (August-26 look) restored
+//                       as a standalone family: full white + blue tone,
+//                       professional industrial layout, and a defined
+//                       slate card edge/corner border line. See
+//                       design-system/proglass-industrial/MASTER.md.
 //   Monet          — colour-adaptive artistic look (Material-You style):
 //                    the palette is DERIVED from the user's accent colour
 //                    — hue-tinted frosted surfaces, tinted fallback
@@ -22,7 +29,10 @@
 //                    Themes/CrystalFluid/.
 //
 // Saved configs referencing any removed family (or any unknown value)
-// resolve to Normal — the new default — never to a nearest match.
+// resolve to Normal — the new default. Legacy industrial names
+// ("Professional", "Industrial White/Grey/Dark") resolve back to
+// "Normal (Industrial)" so pre-reduction installs keep their blue
+// industrial look.
 //
 // SYSTEM-WIDE WALLPAPER (v3):
 //   A single global wallpaper can be set in Settings and now applies
