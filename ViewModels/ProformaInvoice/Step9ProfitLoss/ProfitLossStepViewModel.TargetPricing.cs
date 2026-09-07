@@ -575,6 +575,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _lastCalculatedAt = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(LastCalculatedAtDisplay));
+                RaiseStep9HealthNotifications();
             }
         }
 
@@ -646,6 +647,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             OnPropertyChanged(nameof(CalculationWarnings));
             OnPropertyChanged(nameof(HasCalculationWarnings));
             OnPropertyChanged(nameof(CalculationWarningSummary));
+            RaiseStep9HealthNotifications();
 
             // Publish rows in spec order.
             TargetSpecsView.Clear();
@@ -723,6 +725,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             OnPropertyChanged(nameof(TotalRequiredTargetValueDisplay));
             OnPropertyChanged(nameof(TotalDifferenceValueDisplay));
             OnPropertyChanged(nameof(CalculationVersionLabel));
+            RaiseStep9HealthNotifications();
         }
 
         public string CalculationVersionLabel => $"Target model v{TargetCalculationVersion}";

@@ -50,7 +50,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             Func<decimal>? grossProvider,
             LamParametersViewModel? lamVm = null,
             DguLamParametersViewModel? dguLamVm = null,
-            OtherChargesViewModel? otherChargesVm = null)
+            OtherChargesViewModel? otherChargesVm = null,
+            Func<decimal>? netRevenueProvider = null,
+            INotifyPropertyChanged? revenueSource = null)
         {
             _dataGrid = dataGrid;
             _dguVm = dguVm;
@@ -59,6 +61,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             _dguLamVm = dguLamVm;
             _otherChargesVm = otherChargesVm;
             _grossProvider = grossProvider;
+            _netRevenueProvider = netRevenueProvider;
+            _revenueSource = revenueSource;
 
             // Full subscribe/unsubscribe cycle: Bind() can be re-invoked for a
             // freshly loaded invoice, and every old handler must be detached

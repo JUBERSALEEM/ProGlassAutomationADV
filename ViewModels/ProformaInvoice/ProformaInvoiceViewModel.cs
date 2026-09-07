@@ -236,7 +236,9 @@ public ProformaInvoiceViewModel() : this(
                 () => Step7VM.InvoiceMainSummary.GrandTotalVatInclusive,
                 Step4VM.LamVM,
                 Step4VM.DguLamVM,
-                Step6VM);
+                Step6VM,
+                () => Step7VM.InvoiceMainSummary.SubtotalBeforeVat,
+                Step7VM.InvoiceMainSummary);
 
             // Step 9's Glass / Spec Comparison report references Step 6
             // U-insert / wastage rows; wire the "Go to Step 6" jump back

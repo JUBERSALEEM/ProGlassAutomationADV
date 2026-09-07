@@ -40,7 +40,7 @@
 //   Step 4 pane rates are the fallback when Sheet Store has no match.
 //
 // TOTALS
-//   NetExVat = round(gross / 1.05, 2)   (5% UAE VAT)
+//   NetExVat = Step 7 subtotal-before-VAT when bound; legacy fallback strips 5% VAT
 //   Profit   = NetExVat − TotalGlassCost − TotalProductionCost
 //   Margin   = round(Profit / NetExVat · 100, 1)
 //
@@ -100,7 +100,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private const int DefaultSheetWidthMm = 3210;
         private const int DefaultSheetHeightMm = 2250;
 
-        /// <summary>UAE standard VAT divisor used to strip VAT off the gross.</summary>
+        /// <summary>
+        /// Legacy fallback only. New bindings pass Step 7 SubtotalBeforeVat directly
+        /// so zero-rated/custom-VAT invoices are not forced through a 5% divisor.
+        /// </summary>
         private const decimal VatDivisor = 1.05m;
 
         // ── Bound dependencies (assigned by the shell via Bind) ──────────
@@ -149,6 +152,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private void OnRowsCollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             OnPropertyChanged(nameof(HasRows));
+            RaiseStep9HealthNotifications();
         }
 
         // ── IDisposable ──────────────────────────────────────────────────

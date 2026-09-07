@@ -55,6 +55,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CalculationStateLabel));
                 OnPropertyChanged(nameof(CalculationStatus));
+                RaiseStep9HealthNotifications();
+                RaiseStep9HealthNotifications();
             }
         }
 
@@ -111,6 +113,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             _subscriptions.OnPropertyChanged(_sguVm, OnPanelPropertyChanged);
             _subscriptions.OnPropertyChanged(_lamVm, OnPanelPropertyChanged);
             _subscriptions.OnPropertyChanged(_dguLamVm, OnPanelPropertyChanged);
+
+            // Step 7 revenue changes (discount, VAT, round-to total, Step 5/6
+            // totals) change every margin. Watch the summary directly so Step 9
+            // stays live even when the user edits the customer total after the
+            // P&L tab was opened.
+            _subscriptions.OnPropertyChanged(_revenueSource, OnPanelPropertyChanged);
 
             // Step 6 — the U-insert row state, automation mode and totals all
             // affect the target treatment / actual costs.
@@ -263,7 +271,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             // measured area.
             if (e.PropertyName is nameof(GlassItemRow.W1) or nameof(GlassItemRow.H1)
                                or nameof(GlassItemRow.W2) or nameof(GlassItemRow.H2)
-                               or nameof(GlassItemRow.Qty))
+                               or nameof(GlassItemRow.Qty) or nameof(GlassItemRow.Rate))
             {
                 QueueRecalculate();
             }

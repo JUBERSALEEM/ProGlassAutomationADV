@@ -147,6 +147,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _grossVatInclusive = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GrossDisplay));
+                RaiseStep9HealthNotifications();
             }
         }
 
@@ -250,6 +251,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _isLoss = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ProfitLabel));
+                RaiseStep9HealthNotifications();
             }
         }
 
@@ -265,6 +267,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CalculationStateLabel));
                 OnPropertyChanged(nameof(CalculationStatus));
+                RaiseStep9HealthNotifications();
             }
         }
 

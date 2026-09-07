@@ -248,6 +248,19 @@
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="8,0,0,0"/>
                         </StackPanel>
+                        <TextBlock Text="{Binding Step9MaintenanceRating}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,2,0,0"
+                                   ToolTip="{Binding Step9ImprovementSummary}"/>
+                        <TextBlock Text="{Binding Step9ImprovementSummary}"
+                                   FontSize="{StaticResource TextCaption}"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   HorizontalAlignment="Right"
+                                   TextWrapping="Wrap"
+                                   Margin="0,2,0,0"/>
                         <TextBlock Text="WASTAGE % also sets the formula yield (15% → ÷0.85) for the target below"
                                    FontSize="{StaticResource TextCaption}"
                                    Foreground="{DynamicResource MutedForegroundBrush}"

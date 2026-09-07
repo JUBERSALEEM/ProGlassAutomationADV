@@ -658,6 +658,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 StatusMessage = BuildStatus(
                     groups.Count, rows.Count, skipped, gross);
+                RaiseStep9HealthNotifications();
 
                 // ══════════════════════════════════════════════════════════
                 //  AUTO-SYNC: Refresh all 3 analysis sub-tabs after recalc
@@ -680,6 +681,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 AppLogService.Debug($"[ProfitLossStepViewModel] Recalculate failed: {ExceptionMessages.Deep(ex)}");
                 StatusMessage =
                     "Could not complete the calculation — check Sheet Store data and try again.";
+                RaiseStep9HealthNotifications();
             }
             finally
             {
