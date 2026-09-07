@@ -492,6 +492,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
 
                     // v3 — company branding so the DN letterhead matches the PI.
                     LogoPath = pi?.Company?.LogoPath ?? "",
+                    LogoBase64 = pi?.Company?.LogoBase64 ?? "",
                     LogoLayout = pi?.Company?.LogoLayout
                         ?? CompanyLogoLayout.None,
                     LogoWidthMm = pi?.Company?.LogoWidthMm ?? 22,

@@ -76,6 +76,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                     DocumentId = DocumentId,
                     SubtitleLine = BuildSubtitle(),
                     LogoPath = _joRef.LogoPath ?? "",
+                    LogoBase64 = _joRef.LogoBase64 ?? "",
                     LogoLayout = _joRef.LogoLayout,
                     LogoWidthMm = _joRef.LogoWidthMm,
                     LogoHeightMm = _joRef.LogoHeightMm

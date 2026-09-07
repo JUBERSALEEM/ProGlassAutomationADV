@@ -92,6 +92,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         ? "INTERNAL — contains cost and margin. Not for customer release."
                         : null,
                     LogoPath = _snap.Company?.LogoPath ?? "",
+                    LogoBase64 = _snap.Company?.LogoBase64 ?? string.Empty,
                     LogoLayout = _snap.Company?.LogoLayout
                         ?? ProGlassAutomation.Models.MasterData.CompanyLogoLayout.None,
                     LogoWidthMm = _snap.Company?.LogoWidthMm ?? 22,

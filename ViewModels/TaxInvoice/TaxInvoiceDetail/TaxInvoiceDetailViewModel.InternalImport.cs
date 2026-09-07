@@ -99,6 +99,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 // v3 — branding: the Tax Invoice letterhead mirrors the PI.
                 LogoPath = piSnapshot.Company.LogoPath ?? "";
+                LogoBase64ForSave = piSnapshot.Company.LogoBase64 ?? "";
                 LogoLayout = piSnapshot.Company.LogoLayout;
                 LogoWidthMm = piSnapshot.Company.LogoWidthMm > 0
                     ? piSnapshot.Company.LogoWidthMm : 22;

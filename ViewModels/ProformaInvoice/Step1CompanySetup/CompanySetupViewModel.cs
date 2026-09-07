@@ -259,8 +259,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
             get => _logoPath;
             set
             {
-                if (_logoPath == value) return;
-                _logoPath = value;
+                var normalized = value ?? string.Empty;
+                if (_logoPath == normalized) return;
+                _logoPath = normalized;
+                if (string.IsNullOrWhiteSpace(_logoPath))
+                    LogoLayout = Models.MasterData.CompanyLogoLayout.None;
+                else if (LogoLayout == Models.MasterData.CompanyLogoLayout.None)
+                    LogoLayout = Models.MasterData.CompanyLogoLayout.LeftPortrait;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasLogo));
             }
@@ -505,7 +510,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                         AccountNumber = c.AccountNumber ?? "",
                         BankName = c.BankName ?? "",
                         IsDefault = c.IsDefault,
-                        LogoLayout = c.LogoLayout,
+                        LogoLayout = !string.IsNullOrWhiteSpace(c.LogoPath) && c.LogoLayout == Models.MasterData.CompanyLogoLayout.None
+                            ? Models.MasterData.CompanyLogoLayout.LeftPortrait
+                            : c.LogoLayout,
                         LogoWidthMm = c.LogoWidthMm > 0 ? c.LogoWidthMm : 22,
                         LogoHeightMm = c.LogoHeightMm > 0 ? c.LogoHeightMm : 26,
                         // 2026-09-04: IsDefault no longer mapped — the
@@ -632,7 +639,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 CompanyEmail = profile.CompanyEmail;
                 AccountNumber = profile.AccountNumber;
                 BankName = profile.BankName;
-                LogoLayout = profile.LogoLayout;
+                LogoLayout = !string.IsNullOrWhiteSpace(profile.LogoPath) && profile.LogoLayout == Models.MasterData.CompanyLogoLayout.None
+                    ? Models.MasterData.CompanyLogoLayout.LeftPortrait
+                    : profile.LogoLayout;
                 LogoWidthMm = profile.LogoWidthMm;
                 LogoHeightMm = profile.LogoHeightMm;
                 CompanyRecordId = profile.Id;

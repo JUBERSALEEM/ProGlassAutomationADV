@@ -72,6 +72,7 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         // v3 — company branding (logo + placement) carried from the source PI
         // so the Delivery Note letterhead matches the invoice letterhead.
         public string LogoPath { get; set; } = "";
+        public string LogoBase64 { get; set; } = "";
         public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;
         public double LogoWidthMm { get; set; } = 22;
         public double LogoHeightMm { get; set; } = 26;

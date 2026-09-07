@@ -122,7 +122,17 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         public string LogoPath
         {
             get => _logoPath;
-            set { _logoPath = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasLogo)); MarkDirtyChanged(); }
+            set
+            {
+                _logoPath = value ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(_logoPath))
+                    LogoLayout = CompanyLogoLayout.None;
+                else if (LogoLayout == CompanyLogoLayout.None)
+                    LogoLayout = CompanyLogoLayout.LeftPortrait;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasLogo));
+                MarkDirtyChanged();
+            }
         }
         public bool HasLogo => !string.IsNullOrEmpty(_logoPath);
 
@@ -492,7 +502,9 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         Representative = c.Representative ?? "",
                         UsageCount = c.UsageCount,
                         IsDefault = c.IsDefault,
-                        LogoLayout = c.LogoLayout,
+                        LogoLayout = !string.IsNullOrWhiteSpace(c.LogoPath) && c.LogoLayout == CompanyLogoLayout.None
+                            ? CompanyLogoLayout.LeftPortrait
+                            : c.LogoLayout,
                         LogoWidthMm = c.LogoWidthMm > 0 ? c.LogoWidthMm : 22,
                         LogoHeightMm = c.LogoHeightMm > 0 ? c.LogoHeightMm : 26
                     });
@@ -528,7 +540,9 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 IsDefaultCompany = card?.IsDefault ?? _companies.Count == 0;
                 // Branding: card carries it; new records start with the
                 // industrial defaults (text-only until the operator adds a logo).
-                LogoLayout = card?.LogoLayout ?? CompanyLogoLayout.None;
+                LogoLayout = !string.IsNullOrWhiteSpace(card?.LogoPath) && (card?.LogoLayout ?? CompanyLogoLayout.None) == CompanyLogoLayout.None
+                    ? CompanyLogoLayout.LeftPortrait
+                    : card?.LogoLayout ?? CompanyLogoLayout.None;
                 LogoWidthMm = card != null && card.LogoWidthMm > 0 ? card.LogoWidthMm : 22;
                 LogoHeightMm = card != null && card.LogoHeightMm > 0 ? card.LogoHeightMm : 26;
                 ReasonNote = "";
@@ -607,7 +621,9 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 BankName = entity.BankName ?? "";
                 // Hydration must not stomp values BeginEdit already took from
                 // the card; it only tops up the fields the card didn't carry.
-                LogoLayout = entity.LogoLayout;
+                LogoLayout = !string.IsNullOrWhiteSpace(entity.LogoPath) && entity.LogoLayout == CompanyLogoLayout.None
+                    ? CompanyLogoLayout.LeftPortrait
+                    : entity.LogoLayout;
                 if (entity.LogoWidthMm > 0) LogoWidthMm = entity.LogoWidthMm;
                 if (entity.LogoHeightMm > 0) LogoHeightMm = entity.LogoHeightMm;
                 IsDefaultCompany = entity.IsDefault;

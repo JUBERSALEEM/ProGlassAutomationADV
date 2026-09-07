@@ -86,6 +86,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                         var info = new LetterheadInfo
                         {
                             CompanyName = _snap.CustomerInfo.CompanyName ?? "",
+                            CompanyTrn = _snap.CustomerInfo.CompanyTrn ?? "",
                             DocumentTitle = "ACCOUNT STATEMENT",
                             DocumentId = _snap.Header.StatementNumber ?? ""
                         };
@@ -155,6 +156,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 DocumentId = _snap.Header.StatementNumber ?? "",
                 SubtitleLine = _snap.Header.Title,
                 LogoPath = _snap.CustomerInfo.LogoPath ?? "",
+                LogoBase64 = _snap.CustomerInfo.LogoBase64 ?? "",
                 LogoLayout = _snap.CustomerInfo.LogoLayout,
                 LogoWidthMm = _snap.CustomerInfo.LogoWidthMm,
                 LogoHeightMm = _snap.CustomerInfo.LogoHeightMm

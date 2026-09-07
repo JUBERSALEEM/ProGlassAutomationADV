@@ -76,6 +76,7 @@ namespace ProGlassAutomation.Models.Statement
         // v3 — issuing company branding (resolved from master data at
         // generation time) so the statement letterhead carries the logo.
         public string LogoPath { get; set; } = "";
+        public string LogoBase64 { get; set; } = "";
         public CompanyLogoLayout LogoLayout { get; set; } = CompanyLogoLayout.None;
         public double LogoWidthMm { get; set; } = 22;
         public double LogoHeightMm { get; set; } = 26;

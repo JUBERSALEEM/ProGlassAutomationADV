@@ -75,6 +75,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
                 snapshot.CustomerInfo.CompanyTrn = match.CompanyTrn ?? "";
                 snapshot.CustomerInfo.LogoPath = match.LogoPath ?? "";
+                snapshot.CustomerInfo.LogoBase64 = TryEmbedLogoBase64(match.LogoPath);
                 snapshot.CustomerInfo.LogoLayout = match.LogoLayout;
                 snapshot.CustomerInfo.LogoWidthMm =
                     match.LogoWidthMm > 0 ? match.LogoWidthMm : 22;
@@ -415,6 +416,22 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     return UserWarningDecision.Abort;
                 }
             });
+        }
+
+        private static string TryEmbedLogoBase64(string? path)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                    return string.Empty;
+
+                var bytes = File.ReadAllBytes(path);
+                return bytes.Length > 0 ? Convert.ToBase64String(bytes) : string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
 
         // ═════════════════════════════════════════════════════════════════

@@ -93,6 +93,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public double LogoHeightMm
         { get => _logoHeightMm; set { _logoHeightMm = value; OnPropertyChanged(); } }
 
+        /// <summary>Embedded company logo copied from the source PI snapshot for PDF resilience.</summary>
+        public string LogoBase64ForSave { get; set; } = "";
+
         private string _customerName = "";
         public string CustomerName
         { get => _customerName; set { _customerName = value; OnPropertyChanged(); } }

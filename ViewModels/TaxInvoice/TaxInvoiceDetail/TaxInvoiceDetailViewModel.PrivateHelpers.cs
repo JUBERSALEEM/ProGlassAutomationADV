@@ -109,7 +109,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             CompanyLocation = CompanyLocation,
             CompanyPhone = CompanyPhone,
             CompanyEmail = CompanyEmail,
-            LogoBase64 = "",
+            LogoBase64 = LogoBase64ForSave,
             LogoPath = LogoPath,
             LogoLayout = LogoLayout,
             LogoWidthMm = LogoWidthMm,
@@ -189,6 +189,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             _companyLocation = snap.Company.CompanyLocation;
             _companyPhone = snap.Company.CompanyPhone;
             _companyEmail = snap.Company.CompanyEmail;
+            _logoPath = snap.Company.LogoPath ?? "";
+            LogoBase64ForSave = snap.Company.LogoBase64 ?? "";
+            _logoLayout = snap.Company.LogoLayout;
+            _logoWidthMm = snap.Company.LogoWidthMm > 0 ? snap.Company.LogoWidthMm : 22;
+            _logoHeightMm = snap.Company.LogoHeightMm > 0 ? snap.Company.LogoHeightMm : 26;
 
             _customerName = snap.Customer.CustomerName;
             _customerTrn = snap.Customer.CustomerTrn;
@@ -304,6 +309,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             DueDate = DateTime.Today.AddDays(30);
             CompanyName = ""; CompanyTrn = ""; CompanyAddress = "";
             CompanyLocation = ""; CompanyPhone = ""; CompanyEmail = "";
+            LogoPath = ""; LogoBase64ForSave = "";
+            LogoLayout = Models.MasterData.CompanyLogoLayout.None;
+            LogoWidthMm = 22; LogoHeightMm = 26;
             CustomerName = ""; CustomerTrn = ""; CustomerAddress = "";
             CustomerPhone = ""; CustomerEmail = ""; ContactPerson = "";
             // CHAT 20: 4-field project reset

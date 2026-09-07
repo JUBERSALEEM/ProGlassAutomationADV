@@ -81,6 +81,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     DocumentId = DocumentId,
                     SubtitleLine = _ctx.ProformaStatus,
                     LogoPath = _snapshot.Company?.LogoPath ?? "",
+                    LogoBase64 = _snapshot.Company?.LogoBase64 ?? string.Empty,
                     LogoLayout = _snapshot.Company?.LogoLayout
                         ?? ProGlassAutomation.Models.MasterData.CompanyLogoLayout.None,
                     LogoWidthMm = _snapshot.Company?.LogoWidthMm ?? 22,

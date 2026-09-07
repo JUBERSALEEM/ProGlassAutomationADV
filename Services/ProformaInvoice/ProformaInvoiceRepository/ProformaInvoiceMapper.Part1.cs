@@ -2,6 +2,7 @@
 // FILE: ProformaInvoiceMapper.Part1.cs (Phase 3.8 split — member census verified)
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
@@ -43,6 +44,38 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     return v.Trim();
             }
             return "";
+        }
+
+        private static string TryEmbedLogoBase64(string? path)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path))
+                    return string.Empty;
+
+                var bytes = System.IO.File.ReadAllBytes(path);
+                return bytes.Length > 0 ? Convert.ToBase64String(bytes) : string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private static CompanyLogoLayout EffectiveLogoLayout(
+            string? logoPath,
+            CompanyLogoLayout layout,
+            double widthMm = 22,
+            double heightMm = 26)
+        {
+            if (string.IsNullOrWhiteSpace(logoPath))
+                return CompanyLogoLayout.None;
+
+            bool looksWide = widthMm >= 70 || (heightMm > 0 && widthMm / heightMm >= 2.4);
+            if (layout == CompanyLogoLayout.TopPanel || looksWide)
+                return CompanyLogoLayout.TopPanel;
+
+            return CompanyLogoLayout.LeftPortrait;
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -131,7 +164,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     companyEmail: company.CompanyEmail ?? "",
                     companyAccountNumber: company.AccountNumber ?? "",
                     companyBankName: company.BankName ?? "",
-                    companyLogoLayout: company.LogoLayout,
+                    companyLogoLayout: EffectiveLogoLayout(company.LogoPath, company.LogoLayout, company.LogoWidthMm, company.LogoHeightMm),
                     companyLogoWidthMm: company.LogoWidthMm,
                     companyLogoHeightMm: company.LogoHeightMm,
 
@@ -186,8 +219,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     AccountNumber = company.AccountNumber ?? "",
                     BankName = company.BankName ?? "",
                     LogoPath = company.LogoPath ?? "",
+                    LogoBase64 = TryEmbedLogoBase64(company.LogoPath),
                     CompanyRecordId = company.CompanyRecordId,
-                    LogoLayout = company.LogoLayout,
+                    LogoLayout = EffectiveLogoLayout(company.LogoPath, company.LogoLayout, company.LogoWidthMm, company.LogoHeightMm),
                     LogoWidthMm = company.LogoWidthMm,
                     LogoHeightMm = company.LogoHeightMm
                 },

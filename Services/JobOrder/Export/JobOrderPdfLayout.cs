@@ -79,6 +79,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                     DocumentId = DocumentId,
                     SubtitleLine = BuildSubtitle(),
                     LogoPath = _invoice.Company?.LogoPath ?? string.Empty,
+                    LogoBase64 = _invoice.Company?.LogoBase64 ?? string.Empty,
                     LogoLayout = _invoice.Company?.LogoLayout
                         ?? ProGlassAutomation.Models.MasterData.CompanyLogoLayout.None,
                     LogoWidthMm = _invoice.Company?.LogoWidthMm ?? 22,

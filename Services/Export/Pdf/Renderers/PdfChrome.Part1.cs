@@ -30,14 +30,21 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
         {
             try
             {
+                if (!string.IsNullOrWhiteSpace(info.LogoPath))
+                {
+                    string? path = ResolveLogoPath(info.LogoPath);
+                    if (!string.IsNullOrWhiteSpace(path))
+                    {
+                        byte[] file = System.IO.File.ReadAllBytes(path);
+                        if (file.Length > 0) return file;
+                    }
+                }
+
                 if (!string.IsNullOrWhiteSpace(info.LogoBase64))
                 {
                     byte[] b64 = Convert.FromBase64String(info.LogoBase64);
                     if (b64.Length > 0) return b64;
                 }
-                if (!string.IsNullOrWhiteSpace(info.LogoPath)
-                    && System.IO.File.Exists(info.LogoPath))
-                    return System.IO.File.ReadAllBytes(info.LogoPath);
             }
             catch
             {
@@ -46,18 +53,79 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             return null;
         }
 
+        private static string? ResolveLogoPath(string? rawPath)
+        {
+            if (string.IsNullOrWhiteSpace(rawPath)) return null;
+            string path = rawPath.Trim().Trim('"');
+            if (System.IO.File.Exists(path)) return path;
+
+            try
+            {
+                if (!System.IO.Path.IsPathRooted(path))
+                {
+                    string baseDir = AppContext.BaseDirectory;
+                    string candidate = System.IO.Path.Combine(baseDir, path);
+                    if (System.IO.File.Exists(candidate)) return candidate;
+
+                    candidate = System.IO.Path.Combine(Environment.CurrentDirectory, path);
+                    if (System.IO.File.Exists(candidate)) return candidate;
+                }
+
+                string fileName = System.IO.Path.GetFileName(path);
+                if (!string.IsNullOrWhiteSpace(fileName))
+                {
+                    foreach (var dir in new[]
+                    {
+                        AppContext.BaseDirectory,
+                        Environment.CurrentDirectory,
+                        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                        Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)
+                    })
+                    {
+                        if (string.IsNullOrWhiteSpace(dir)) continue;
+                        string candidate = System.IO.Path.Combine(dir, fileName);
+                        if (System.IO.File.Exists(candidate)) return candidate;
+                    }
+                }
+            }
+            catch
+            {
+                // path probing is best effort only
+            }
+
+            return null;
+        }
+
+        private static CompanyLogoLayout EffectiveLogoLayout(LetterheadInfo info)
+        {
+            if (LoadLogoBytes(info) == null)
+                return CompanyLogoLayout.None;
+
+            bool looksWide = info.LogoWidthMm >= 70
+                || (info.LogoHeightMm > 0 && info.LogoWidthMm / info.LogoHeightMm >= 2.4);
+
+            if (info.LogoLayout == CompanyLogoLayout.TopPanel || looksWide)
+                return CompanyLogoLayout.TopPanel;
+
+            // Legacy-safe fallback: old records often have a path/base64 but
+            // still have layout None. Treat that as a normal left letterhead.
+            return CompanyLogoLayout.LeftPortrait;
+        }
+
         private static bool HasLogo(LetterheadInfo info) =>
-            info.LogoLayout != CompanyLogoLayout.None
-            && LoadLogoBytes(info) != null;
+            LoadLogoBytes(info) != null;
 
         private static float LogoW(LetterheadInfo info) =>
-            Math.Clamp((float)(info.LogoWidthMm > 0 ? info.LogoWidthMm : 22), 8f, 60f);
+            Math.Clamp((float)(info.LogoWidthMm > 0 ? info.LogoWidthMm : 22), 8f, 80f);
 
-        private static float MastheadLogoW(LetterheadInfo info) =>
-            Math.Clamp(LogoW(info), 8f, 28f);
+        private static float TopPanelLogoW(LetterheadInfo info) =>
+            Math.Clamp((float)(info.LogoWidthMm > 0 ? info.LogoWidthMm : 160), 40f, 180f);
 
         private static float LogoH(LetterheadInfo info) =>
-            Math.Clamp((float)(info.LogoHeightMm > 0 ? info.LogoHeightMm : 26), 8f, 60f);
+            Math.Clamp((float)(info.LogoHeightMm > 0 ? info.LogoHeightMm : 26), 8f, 70f);
+
+        private static float TopPanelLogoH(LetterheadInfo info) =>
+            Math.Clamp((float)(info.LogoHeightMm > 0 ? info.LogoHeightMm : 24), 10f, 32f);
 
         /// <summary>
         /// Renders the sized logo box on a white chip (so a transparent PNG
@@ -73,8 +141,8 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
         {
             byte[]? bytes = LoadLogoBytes(info);
             if (bytes == null) return;
-            float h = info.LogoLayout == CompanyLogoLayout.TopPanel
-                ? Math.Clamp(LogoH(info), 8f, 14f)
+            float h = EffectiveLogoLayout(info) == CompanyLogoLayout.TopPanel
+                ? TopPanelLogoH(info)
                 : LogoH(info);
             container
                 .Background(T.White)
@@ -101,14 +169,9 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             // below with its inline logo suppressed so the logo never
             // renders twice. LeftPortrait / None render exactly as before
             // (logo inline at the left of the company identity).
-            if (info.LogoLayout == CompanyLogoLayout.TopPanel)
+            if (EffectiveLogoLayout(info) == CompanyLogoLayout.TopPanel)
             {
-                container.Column(col =>
-                {
-                    col.Item().Element(c => TopPanelMasthead(c, info));
-                    col.Item().PaddingTop(8)
-                        .Element(c => RenderHeader(c, info, suppressLogo: true));
-                });
+                TopPanelMasthead(container, info);
                 return;
             }
 
@@ -150,46 +213,59 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 
             container.Background(T.Accent)
                 .PaddingHorizontal(12).PaddingVertical(8)
-                .Row(row =>
+                .Column(col =>
                 {
                     if (bytes != null)
                     {
-                        row.AutoItem()
-                            .AlignMiddle()
+                        // Full-width / landscape brand lockup. The operator's
+                        // Company module size is honoured, but capped to page-safe
+                        // dimensions so a long logo can span the masthead without
+                        // crushing document identity or flowing outside the page.
+                        col.Item().AlignCenter()
                             .Background(T.White)
                             .Border(0.5f)
                             .BorderColor(T.Border)
-                            .Padding(2)
-                            .Width(MastheadLogoW(info), Unit.Millimetre)
-                            .Height(Math.Clamp(LogoH(info), 8f, 14f), Unit.Millimetre)
+                            .Padding(3)
+                            .Width(TopPanelLogoW(info), Unit.Millimetre)
+                            .Height(TopPanelLogoH(info), Unit.Millimetre)
                             .Image(bytes)
                             .FitArea();
                     }
 
-                    row.RelativeItem().PaddingLeft(bytes != null ? 10 : 0).Column(left =>
+                    col.Item().PaddingTop(bytes != null ? 7 : 0).Row(row =>
                     {
-                        left.Item().Text(info.CompanyName ?? "")
-                            .FontSize(T.TitleSize).Bold().FontColor(T.AccentOn);
+                        row.RelativeItem().Column(left =>
+                        {
+                            left.Item().Text(info.CompanyName ?? "")
+                                .FontSize(T.TitleSize).Bold().FontColor(T.AccentOn);
 
-                        var sub = info.CompanyLocation ?? "";
-                        if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
-                            sub = string.IsNullOrWhiteSpace(sub)
-                                ? $"TRN {info.CompanyTrn}"
-                                : $"{sub}  ·  TRN {info.CompanyTrn}";
-                        if (!string.IsNullOrWhiteSpace(sub))
-                            left.Item().PaddingTop(2).Text(sub)
-                                .FontSize(8).FontColor(T.AccentSoft);
+                            var sub = info.CompanyLocation ?? "";
+                            if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
+                                sub = string.IsNullOrWhiteSpace(sub)
+                                    ? $"TRN {info.CompanyTrn}"
+                                    : $"{sub}  ·  TRN {info.CompanyTrn}";
+                            if (!string.IsNullOrWhiteSpace(sub))
+                                left.Item().PaddingTop(2).Text(sub)
+                                    .FontSize(8).FontColor(T.AccentSoft);
+                        });
+
+                        row.ConstantItem(200).AlignRight().Column(right =>
+                        {
+                            right.Item().AlignRight()
+                                .Text((info.DocumentTitle ?? "").ToUpperInvariant())
+                                .FontSize(8).Bold().FontColor(T.AccentOn);
+                            right.Item().AlignRight().PaddingTop(2)
+                                .Text(info.DocumentId ?? "")
+                                .FontSize(T.IdSize).Bold().FontColor(T.Highlight);
+                            if (!string.IsNullOrWhiteSpace(info.SubtitleLine))
+                                right.Item().AlignRight().PaddingTop(2)
+                                    .Text(info.SubtitleLine)
+                                    .FontSize(7).FontColor(T.AccentSoft);
+                        });
                     });
 
-                    row.ConstantItem(200).AlignRight().Column(right =>
-                    {
-                        right.Item().AlignRight()
-                            .Text((info.DocumentTitle ?? "").ToUpperInvariant())
-                            .FontSize(8).Bold().FontColor(T.AccentOn);
-                        right.Item().AlignRight().PaddingTop(2)
-                            .Text(info.DocumentId ?? "")
-                            .FontSize(T.IdSize).Bold().FontColor(T.Highlight);
-                    });
+                    if (info.Meta.Count > 0)
+                        col.Item().PaddingTop(7).Element(c => MetaStrip(c, info.Meta));
                 });
         }
 

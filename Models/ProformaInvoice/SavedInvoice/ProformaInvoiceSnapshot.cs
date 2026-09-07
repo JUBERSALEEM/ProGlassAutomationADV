@@ -116,6 +116,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string AccountNumber { get; set; } = "";
         public string BankName { get; set; } = "";
         public string LogoPath { get; set; } = "";
+        /// <summary>Embedded logo copy so saved/exported documents survive if the original file moves.</summary>
+        public string LogoBase64 { get; set; } = "";
         /// <summary>Id of the Company Center record this invoice uses.</summary>
         public int CompanyRecordId { get; set; }
 
