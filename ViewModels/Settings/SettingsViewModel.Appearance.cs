@@ -55,6 +55,18 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (_config.Appearance.UseDefinedOutline == value) return;
 
                 _config.Appearance.UseDefinedOutline = value;
+                if (!value)
+                {
+                    // OFF means reset the defined-edge styling, not merely stop
+                    // repainting the colour. Keep the card system on defaults.
+                    _config.Appearance.CardEdgeColor = string.Empty;
+                    _config.Appearance.CardEdgeThickness = 2.0;
+                    ThemeManager.ApplyCardEdgeColor(string.Empty);
+                    ThemeManager.ApplyCardEdgeThickness(2.0);
+                    OnPropertyChanged(nameof(CardEdgeColor));
+                    OnPropertyChanged(nameof(CardEdgeThickness));
+                    OnPropertyChanged(nameof(CardEdgeSwatch));
+                }
                 ThemeManager.ApplyOutline(value);
                 Services.AI.AIConfig.ConfigService.SaveDebounced(_config);
 

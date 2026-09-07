@@ -959,6 +959,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     // lam inner values independently from this same snapshot.
                     OuterGlassColor = dguLam.LamOuterColor ?? "";
                     InnerGlassColor = dguLam.LamInnerColor ?? "";
+                    OuterSheetPricePerSqm = dguLam.OuterBasePrice;
+                    InnerSheetPricePerSqm = dguLam.LamInnerBasePrice > 0m
+                        ? dguLam.LamInnerBasePrice
+                        : dguLam.LamOuterBasePrice;
                     // Interlayer is costed at the laminator BUY price — the
                     // sell spread belongs to the quoted rate, not to cost.
                     Step4SpacerPricePerSqm = dguLam.SpacerPrice;

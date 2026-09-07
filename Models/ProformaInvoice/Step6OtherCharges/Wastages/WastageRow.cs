@@ -764,7 +764,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
                 return;
             }
 
-            var uniqueSizes = checkedSources
+            // Senior ERP hardening: Step 6 must display the exact Step 4 pane
+            // box price for the selected wastage source. Never weighted-average
+            // different panes (52 Low-E + 25 Clear became 50.4486), and never
+            // let a name containing "Clear" borrow the generic Clear rate.
+            // If a row has a colour identity, use only checked sources with an
+            // exact colour match for the price/sheet default display.
+            var priceSources = PricingSourcesForRow(checkedSources);
+
+            var uniqueSizes = priceSources
                 .Where(s => s.SheetWidthMm > 0 && s.SheetHeightMm > 0)
                 .Select(s => (s.SheetWidthMm, s.SheetHeightMm))
                 .Distinct()
@@ -782,21 +790,34 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
                 SelectedSheetHeightMm = 0;
             }
 
-            decimal totalPricedSqm = checkedSources
-                .Where(s => s.PricePerSqm > 0m && s.SqmValue > 0m)
-                .Sum(s => s.SqmValue);
+            var uniquePrices = priceSources
+                .Where(s => s.PricePerSqm > 0m)
+                .Select(s => s.PricePerSqm)
+                .Distinct()
+                .ToList();
 
-            decimal autoPrice = 0m;
-            if (totalPricedSqm > 0m)
-            {
-                autoPrice = checkedSources
-                    .Where(s => s.PricePerSqm > 0m && s.SqmValue > 0m)
-                    .Sum(s => s.PricePerSqm * s.SqmValue) / totalPricedSqm;
-            }
+            decimal autoPrice = uniquePrices.Count == 1
+                ? uniquePrices[0]
+                : 0m;
 
-            autoPrice = Math.Round(autoPrice, 6);
             SelectedSourcePricePerSqm = autoPrice;
             SetAutoFormulaPrice(autoPrice);
+        }
+
+        private List<SpecGroupColorSide> PricingSourcesForRow(List<SpecGroupColorSide> checkedSources)
+        {
+            string rowColour = (ColorName ?? string.Empty).Trim();
+            if (rowColour.Length == 0)
+                return checkedSources;
+
+            var exactColourSources = checkedSources
+                .Where(s => string.Equals(
+                    (s.ColorName ?? string.Empty).Trim(),
+                    rowColour,
+                    StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            return exactColourSources.Count > 0 ? exactColourSources : checkedSources;
         }
 
         private void RecalculateOptimizationResults()

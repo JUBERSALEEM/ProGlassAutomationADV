@@ -461,40 +461,57 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                         var unitRate = glassRow.PricePerSqm;
 
-                        // Used side of the ledger: what the job needs.
-                        var requiredSqm = PnLMeasurement.AreaWithWastage(cutSqm, wastagePercent);
-                        var usedSheets = PnLMeasurement.WholeSheetsRequired(requiredSqm, sheetSqm);
-
                         string paneSide = PaneSideFrom(glassRow.Description);
 
-                        // Buy side of the ledger: SGU is priced by required
-                        // area (the buy equals the need); DGU/LAM buy whole
-                        // sheets — or the Step 6 SHEET QTY when the operator
-                        // set one. The row description says which basis was
-                        // used, so it is read, never guessed.
-                        bool pricedByArea = (glassRow.Description ?? "")
-                            .IndexOf("priced by required area", StringComparison.OrdinalIgnoreCase) >= 0;
-
-                        decimal buySheets = pricedByArea ? usedSheets : glassRow.Quantity;
-                        if (buySheets <= 0) continue;
-
-                        decimal buySheetArea = pricedByArea
-                            ? requiredSqm
-                            : Math.Round(buySheets * sheetSqm, 4);
-
-                        // Leftover = buy − used. Negative means a shortfall
-                        // (Step 6 SHEET QTY below the required sheets).
-                        decimal wastageSheets = buySheets - usedSheets;
-                        decimal wastageArea = buySheetArea - requiredSqm;
-
-                        decimal buySheetPrice = glassRow.Amount;
-                        decimal usedSheetPrice = Math.Round(requiredSqm * unitRate, 2);
-                        decimal wastageValue = Math.Max(0m, buySheetPrice - usedSheetPrice);
-
-                        // ── Step 6 cross-check ──────────────────────────
+                        // ── Step 6 linkage ────────────────────────────────
                         int step6SheetQuantity = ResolveStep6SheetQuantity(
                             specGroup.SpecNumber, paneSide);
                         var step6 = ResolveStep6Charge(specGroup.SpecNumber, paneSide);
+
+                        // Used side of the ledger. When Step 6 sheet setup is
+                        // present, the bought sheet count is the used sheet
+                        // count (e.g. 17 bought = 17 used). The Step 6 OPT %
+                        // then splits that bought area into utilized vs wastage
+                        // area/value. Without Step 6 setup, preserve the legacy
+                        // cut SQM + Step 9 wastage-percent fallback.
+                        var requiredSqm = PnLMeasurement.AreaWithWastage(cutSqm, wastagePercent);
+                        var roundedRequiredSheets = PnLMeasurement.WholeSheetsRequired(requiredSqm, sheetSqm);
+
+                        bool pricedByArea = (glassRow.Description ?? "")
+                            .IndexOf("priced by required area", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                        decimal buySheets = step6SheetQuantity > 0
+                            ? step6SheetQuantity
+                            : pricedByArea ? roundedRequiredSheets : glassRow.Quantity;
+                        if (buySheets <= 0) continue;
+
+                        decimal buySheetArea = pricedByArea && step6SheetQuantity <= 0
+                            ? requiredSqm
+                            : Math.Round(buySheets * sheetSqm, 4);
+
+                        decimal utilizationPercent = step6.OptimizationPercent > 0m
+                            ? step6.OptimizationPercent
+                            : buySheetArea > 0m
+                                ? Math.Min(100m, Math.Round(requiredSqm / buySheetArea * 100m, 2))
+                                : 0m;
+
+                        decimal usedSheets = step6SheetQuantity > 0
+                            ? buySheets
+                            : roundedRequiredSheets;
+                        decimal usedArea = step6SheetQuantity > 0 && utilizationPercent > 0m
+                            ? Math.Round(buySheetArea * utilizationPercent / 100m, 4)
+                            : requiredSqm;
+
+                        decimal wastageSheets = step6SheetQuantity > 0
+                            ? 0m
+                            : buySheets - usedSheets;
+                        decimal wastageArea = buySheetArea - usedArea;
+
+                        decimal buySheetPrice = step6SheetQuantity > 0 && unitRate > 0m
+                            ? Math.Round(buySheetArea * unitRate, 2)
+                            : glassRow.Amount;
+                        decimal usedSheetPrice = Math.Round(usedArea * unitRate, 2);
+                        decimal wastageValue = Math.Max(0m, buySheetPrice - usedSheetPrice);
 
                         string diagnostic;
                         if (wastageSheets < 0m)
@@ -506,16 +523,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                          $"are required. {qtyNote} Bought sheets are less than the " +
                                          $"sheets needed — review the Step 6 wastage setup.";
                         }
-                        else if (step6.Charge > 0m && wastageSheets <= 0m)
+                        else if (step6.Charge > 0m && wastageArea <= 0m)
                         {
                             diagnostic = $"Step 6 charges {step6.Charge:N2} AED for this pane " +
                                          $"(source {step6.SourceLabel}), but there is no leftover " +
-                                         $"wastage. Review the Step 6 wastage setup.";
+                                         $"wastage area. Review the Step 6 wastage setup.";
                         }
-                        else if (wastageSheets > 0m && step6.Charge <= 0m)
+                        else if (wastageArea > 0m && step6.Charge <= 0m)
                         {
                             diagnostic = $"No Step 6 wastage charge is set for this pane, though " +
-                                         $"{wastageSheets:0} sheet(s) are leftover.";
+                                         $"{wastageArea:0.##} SQM is leftover.";
                         }
                         else
                         {
@@ -534,7 +551,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             UsedSheets = usedSheets,
                             WastageSheets = wastageSheets,
                             BuySheetArea = buySheetArea,
-                            UsedArea = requiredSqm,
+                            UsedArea = usedArea,
                             WastageArea = wastageArea,
                             PricePerSqm = unitRate,
                             BuySheetPrice = buySheetPrice,
@@ -545,9 +562,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             Step6SourceSqm = step6.SourceSqm,
                             Step6SheetQuantity = step6SheetQuantity,
                             Step6Rate = step6.Rate,
-                            UsageEfficiencyPercent = buySheetArea > 0m
-                                ? Math.Round(requiredSqm / buySheetArea * 100m, 1)
-                                : 0m,
+                            UsageEfficiencyPercent = utilizationPercent,
                             DiagnosticMessage = diagnostic
                         };
 
@@ -562,7 +577,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         usedSheetsSum += usedSheets;
                         wastageSheetsSum += Math.Max(0m, wastageSheets);
                         buyAreaSum += buySheetArea;
-                        usedAreaSum += requiredSqm;
+                        usedAreaSum += usedArea;
                         buyPriceSum += buySheetPrice;
                         usedPriceSum += usedSheetPrice;
                         wastageValueSum += wastageValue;
@@ -724,8 +739,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             foreach (var row in rows)
             {
-                if (row == null || !row.IsActive) continue;
-                if (row.ResultAmount <= 0m) continue;
+                if (row == null) continue;
 
                 var sources = row.AvailableSources
                     .Where(s => s != null && s.IsChecked && s.SqmValue > 0m)
@@ -741,10 +755,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     if (!string.Equals(src.SideLabel, sideLabel, StringComparison.OrdinalIgnoreCase))
                         continue;
 
-                    decimal charge = Math.Round(
-                        row.ResultAmount * (src.SqmValue / totalSqm), 2);
+                    decimal charge = row.IsActive && row.ResultAmount > 0m
+                        ? Math.Round(row.ResultAmount * (src.SqmValue / totalSqm), 2)
+                        : 0m;
                     return new Step6ChargeInfo(
-                        src.DisplayLabel, src.SqmValue, row.SheetQuantity, row.Rate, charge);
+                        src.DisplayLabel, src.SqmValue, row.SheetQuantity,
+                        row.Rate, charge, row.OptimizationPercent);
                 }
             }
 
@@ -774,23 +790,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private sealed class Step6ChargeInfo
         {
             public static readonly Step6ChargeInfo None =
-                new Step6ChargeInfo("", 0m, 0, 0m, 0m);
+                new Step6ChargeInfo("", 0m, 0, 0m, 0m, 0m);
 
             public string SourceLabel { get; }
             public decimal SourceSqm { get; }
             public int SheetQuantity { get; }
             public decimal Rate { get; }
             public decimal Charge { get; }
+            public decimal OptimizationPercent { get; }
 
             public Step6ChargeInfo(
                 string sourceLabel, decimal sourceSqm, int sheetQuantity,
-                decimal rate, decimal charge)
+                decimal rate, decimal charge, decimal optimizationPercent)
             {
                 SourceLabel = sourceLabel ?? "";
                 SourceSqm = sourceSqm;
                 SheetQuantity = sheetQuantity;
                 Rate = rate;
                 Charge = charge;
+                OptimizationPercent = optimizationPercent;
             }
         }
     }
@@ -1051,10 +1069,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public bool HasShortfall => WastageSheets < 0m;
 
         /// <summary>Step 6 charges wastage but this pane has no leftover.</summary>
-        public bool HasChargeWithoutWastage => Step6Charge > 0m && WastageSheets <= 0m && !HasShortfall;
+        public bool HasChargeWithoutWastage => Step6Charge > 0m && WastageArea <= 0m && !HasShortfall;
 
         /// <summary>This pane has leftover but Step 6 charges nothing.</summary>
-        public bool HasWastageWithoutCharge => WastageSheets > 0m && Step6Charge <= 0m;
+        public bool HasWastageWithoutCharge => WastageArea > 0m && Step6Charge <= 0m;
 
         /// <summary>No cross-check issue for this pane.</summary>
         public bool IsHealthy => !HasShortfall && !HasChargeWithoutWastage && !HasWastageWithoutCharge;

@@ -267,33 +267,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// sandwich collapses to "air spacer" on screen.
         /// </summary>
         private decimal FallbackPaneRate(
-            string side, bool isDgu, bool isLam, bool isDguLam)
+            SpecGroup group, string side, bool isDgu, bool isLam, bool isDguLam)
         {
+            // Step 4 → Step 5 stores the authoritative pane box prices per
+            // specification. Prefer those stored prices over the live Step 4
+            // tab, because a PI can contain multiple specs and the visible tab
+            // may belong to a different section.
+            bool inner = side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0
+                      || side.IndexOf("Middle", StringComparison.OrdinalIgnoreCase) >= 0
+                      || side.IndexOf("Lam", StringComparison.OrdinalIgnoreCase) >= 0;
+
             if (isDguLam)
             {
                 if (side.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0)
-                    return _dguLamVm?.LamInnerBasePrice ?? 0m;
+                    return group.InnerSheetPricePerSqm > 0m
+                        ? group.InnerSheetPricePerSqm
+                        : (_dguLamVm?.LamInnerBasePrice ?? 0m);
                 if (side.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0)
                     return _dguLamVm?.LamOuterBasePrice ?? 0m;
-                return _dguLamVm?.OuterBasePrice ?? 0m;
+                return group.OuterSheetPricePerSqm > 0m
+                    ? group.OuterSheetPricePerSqm
+                    : (_dguLamVm?.OuterBasePrice ?? 0m);
             }
 
-            // FIX-2026-09-05 (3+ pane builds): a middle pane used to fall
-            // through to the OUTER base rate because only "Inner" was
-            // tested. A middle sheet shares the inner pane's build-side
-            // geometry, so it carries the inner rate as its fallback —
-            // the same pairing the wastage rows use.
-            bool inner = side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0
-                      || side.IndexOf("Middle", StringComparison.OrdinalIgnoreCase) >= 0;
+            decimal grouped = inner
+                ? group.InnerSheetPricePerSqm
+                : group.OuterSheetPricePerSqm;
+            if (grouped > 0m)
+                return grouped;
+
             if (isDgu)
                 return inner ? (_dguVm?.InnerBasePrice ?? 0m) : (_dguVm?.OuterBasePrice ?? 0m);
             if (isLam)
                 return inner ? (_lamVm?.InnerBasePrice ?? 0m) : (_lamVm?.OuterBasePrice ?? 0m);
-            return _sguVm?.BasePricePerSqm ?? 0m;
+            return grouped > 0m ? grouped : (_sguVm?.BasePricePerSqm ?? 0m);
         }
 
         /// <summary>
-        /// Prices one pane. Sheet Store wins; Step 4 pane rate is the
+        /// Prices one pane. Step 4 pane rate wins; Sheet Store is only the
         /// fallback; if both are empty the row is STILL emitted (amount 0)
         /// so the physical build stays visible. Returns null only when the
         /// pane itself cannot be identified.
@@ -364,14 +375,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             decimal purchaseRate = price?.PurchasePerSqm ?? 0m;
             decimal sellRate = price?.SellPerSqm ?? 0m;
 
-            decimal unitRate = CostAtSellingPrice
-                ? (sellRate > 0m ? sellRate : purchaseRate)
-                : (purchaseRate > 0m ? purchaseRate : sellRate);
-
-            if (unitRate <= 0m && fallbackRate > 0m)
+            // Industrial rule: when Step 4 supplied an outer/inner pane price,
+            // that box is authoritative. Sheet Store is only a fallback for
+            // legacy/manual rows with no Step 4 handoff; fuzzy catalogue matches
+            // must never turn "Obscure Clear Ramly" into generic Clear.
+            decimal unitRate = 0m;
+            if (fallbackRate > 0m)
             {
                 unitRate = fallbackRate;
-                source = $"Step 4 {CostBasisLabel} (not in Sheet Store)";
+                source = $"Step 4 {CostBasisLabel}";
+            }
+            else
+            {
+                unitRate = CostAtSellingPrice
+                    ? (sellRate > 0m ? sellRate : purchaseRate)
+                    : (purchaseRate > 0m ? purchaseRate : sellRate);
             }
 
             decimal needed = PnLMeasurement.AreaWithWastage(cutSqm, WastagePercent);

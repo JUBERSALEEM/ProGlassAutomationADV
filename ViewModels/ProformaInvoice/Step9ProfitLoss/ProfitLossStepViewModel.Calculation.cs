@@ -154,7 +154,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     {
                         var pane = panesToCost[paneIndex];
                         decimal fallback = FallbackPaneRate(
-                            pane.Side, isDgu, isLam, isDguLam);
+                            group, pane.Side, isDgu, isLam, isDguLam);
 
                         var paneRow = await BuildGlassRowAsync(
                             group, pane.Side, pane.ThicknessMm, pane.Color,

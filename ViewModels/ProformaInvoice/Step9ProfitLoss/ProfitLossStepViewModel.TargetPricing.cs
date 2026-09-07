@@ -722,12 +722,75 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             return yield <= 0m ? 0.05m : yield;
         }
 
+
+        private bool HasStep6SheetSetup(SpecGroup group)
+        {
+            if (group == null || _otherChargesVm?.Wastages?.Rows == null) return false;
+            return _otherChargesVm.Wastages.Rows.Any(row =>
+                row != null
+                && row.SheetQuantity > 0
+                && row.AvailableSources.Any(src =>
+                    src.IsChecked && src.GroupNumber == group.SpecNumber));
+        }
+
+        private decimal Step6ActualRatePerFinishedSqm(
+            SpecGroup group, string paneSide, decimal paneBoxRate)
+        {
+            if (group == null || paneBoxRate <= 0m) return paneBoxRate;
+
+            decimal finishedArea = group.FooterTotalSqm > 0m
+                ? group.FooterTotalSqm
+                : group.Rows.Sum(r => r.TotalSqm);
+            if (finishedArea <= 0m || _otherChargesVm?.Wastages?.Rows == null)
+                return paneBoxRate;
+
+            foreach (var row in _otherChargesVm.Wastages.Rows)
+            {
+                if (row == null || row.SheetQuantity <= 0) continue;
+
+                var src = row.AvailableSources.FirstOrDefault(s =>
+                    s.IsChecked
+                    && s.GroupNumber == group.SpecNumber
+                    && Step6SourceMatchesSide(s.PaneSide, paneSide));
+
+                if (src == null || src.SheetWidthMm <= 0 || src.SheetHeightMm <= 0)
+                    continue;
+
+                decimal sheetSqm = Math.Round(src.SheetWidthMm * src.SheetHeightMm / 1_000_000m, 4);
+                if (sheetSqm <= 0m) continue;
+
+                decimal sheetCost = sheetSqm * row.SheetQuantity * paneBoxRate;
+                return Math.Round(sheetCost / finishedArea, 2);
+            }
+
+            return paneBoxRate;
+        }
+
+        private static bool Step6SourceMatchesSide(string sourceSide, string paneSide)
+        {
+            string src = sourceSide ?? string.Empty;
+            string pane = paneSide ?? string.Empty;
+
+            if (pane.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                return src.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (pane.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0)
+                return src.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (pane.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                return src.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0
+                    || src.IndexOf("Middle", StringComparison.OrdinalIgnoreCase) >= 0;
+            return src.IndexOf("Outer", StringComparison.OrdinalIgnoreCase) >= 0
+                && src.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) < 0;
+        }
+
         /// <summary>
-        /// Builds the rate card from the bound Step 4 panel of the spec's own
-        /// build type (each group is scored against its own glass type, the
-        /// same discipline QuoteBasisFor uses for the actual-cost model).
-        /// Yield comes from the Step 9 WASTAGE % box (see
-        /// <see cref="EffectiveYieldFactor"/>); the uplift comes from the
+        /// Builds the rate card from the spec group's Step 4 handoff metadata
+        /// first, then falls back to the bound Step 4 panel of the same build
+        /// type only for legacy/incomplete rows. When Step 6 sheet setup is
+        /// present, pane sheet cost is converted to actual AED/m² over the
+        /// finished Step 5 area and the yield factor stays 1.00, so target
+        /// profitability does not blindly apply another wastage layer.
+        /// Without Step 6 setup, yield falls back to the Step 9 WASTAGE % box.
+        /// The uplift comes from the
         /// expected profit margin (Settings default, live for unpinned
         /// invoices — see <see cref="ExpectedProfitMarginPercent"/>).
         /// </summary>
@@ -735,7 +798,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         {
             if (group == null) return null;
 
-            decimal yield = EffectiveYieldFactor();
+            bool hasStep6SheetSetup = HasStep6SheetSetup(group);
+            decimal yield = hasStep6SheetSetup ? 1m : EffectiveYieldFactor();
             decimal upliftPercent = ExpectedProfitMarginPercent;
 
             switch (buildType)
@@ -745,9 +809,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     return new SpecificationRateCard
                     {
                         BuildType = GlassBuildType.Dgu,
-                        OuterGlassRatePerSqm = _dguVm.OuterBasePrice,
-                        InnerGlassRatePerSqm = _dguVm.InnerBasePrice,
-                        AspRatePerSqm = _dguVm.SpacerPrice,
+                        OuterGlassRatePerSqm = Step6ActualRatePerFinishedSqm(group, "Outer", group.OuterSheetPricePerSqm > 0m ? group.OuterSheetPricePerSqm : _dguVm.OuterBasePrice),
+                        InnerGlassRatePerSqm = Step6ActualRatePerFinishedSqm(group, "Inner", group.InnerSheetPricePerSqm > 0m ? group.InnerSheetPricePerSqm : _dguVm.InnerBasePrice),
+                        AspRatePerSqm = group.Step4SpacerPricePerSqm ?? _dguVm.SpacerPrice,
                         ProcessingRatePerSqm = 0m,
                         YieldFactor = yield,
                         TargetUpliftPercent = upliftPercent
@@ -758,10 +822,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     return new SpecificationRateCard
                     {
                         BuildType = GlassBuildType.Sgu,
-                        OuterGlassRatePerSqm = _sguVm.BasePricePerSqm,
+                        OuterGlassRatePerSqm = Step6ActualRatePerFinishedSqm(group, "Outer", group.OuterSheetPricePerSqm > 0m ? group.OuterSheetPricePerSqm : _sguVm.BasePricePerSqm),
                         InnerGlassRatePerSqm = 0m,
                         AspRatePerSqm = 0m,
-                        ProcessingRatePerSqm = _sguVm.CuttingCostPerSqm + _sguVm.TemperingCostPerSqm,
+                        ProcessingRatePerSqm = group.Step4CuttingCostPerSqm ?? (_sguVm.CuttingCostPerSqm + _sguVm.TemperingCostPerSqm),
                         YieldFactor = yield,
                         TargetUpliftPercent = upliftPercent
                     };
@@ -771,12 +835,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     return new SpecificationRateCard
                     {
                         BuildType = GlassBuildType.Lam,
-                        OuterGlassRatePerSqm = _lamVm.OuterBasePrice,
-                        InnerGlassRatePerSqm = _lamVm.InnerBasePrice,
+                        OuterGlassRatePerSqm = Step6ActualRatePerFinishedSqm(group, "Outer", group.OuterSheetPricePerSqm > 0m ? group.OuterSheetPricePerSqm : _lamVm.OuterBasePrice),
+                        InnerGlassRatePerSqm = Step6ActualRatePerFinishedSqm(group, "Inner", group.InnerSheetPricePerSqm > 0m ? group.InnerSheetPricePerSqm : _lamVm.InnerBasePrice),
                         AspRatePerSqm = 0m,
-                        ProcessingRatePerSqm = _lamVm.PvbMaterialRate
-                                               + _lamVm.OuterCuttingCost + _lamVm.InnerCuttingCost
-                                               + _lamVm.OuterTemperingCost + _lamVm.InnerTemperingCost,
+                        ProcessingRatePerSqm = (group.Step4InterlayerCostPerSqm ?? _lamVm.PvbMaterialRate)
+                                               + (group.Step4CuttingCostPerSqm ?? (_lamVm.OuterCuttingCost + _lamVm.InnerCuttingCost
+                                                   + _lamVm.OuterTemperingCost + _lamVm.InnerTemperingCost)),
                         YieldFactor = yield,
                         TargetUpliftPercent = upliftPercent
                     };
@@ -786,13 +850,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     return new SpecificationRateCard
                     {
                         BuildType = GlassBuildType.DguLam,
-                        OuterGlassRatePerSqm = _dguLamVm.OuterBasePrice,
-                        InnerGlassRatePerSqm = _dguLamVm.LamInnerBasePrice,
+                        OuterGlassRatePerSqm = Step6ActualRatePerFinishedSqm(group, "Outer", group.OuterSheetPricePerSqm > 0m ? group.OuterSheetPricePerSqm : _dguLamVm.OuterBasePrice),
+                        InnerGlassRatePerSqm = Step6ActualRatePerFinishedSqm(group, "Lam Inner", group.InnerSheetPricePerSqm > 0m ? group.InnerSheetPricePerSqm : _dguLamVm.LamInnerBasePrice),
                         ThirdGlassRatePerSqm = _dguLamVm.LamOuterBasePrice,
-                        AspRatePerSqm = _dguLamVm.SpacerPrice,
-                        ProcessingRatePerSqm = _dguLamVm.TotalCuttingCost
-                                               + _dguLamVm.TotalTemperingCost
-                                               + _dguLamVm.InterlayerSellPrice,
+                        AspRatePerSqm = group.Step4SpacerPricePerSqm ?? _dguLamVm.SpacerPrice,
+                        ProcessingRatePerSqm = (group.Step4CuttingCostPerSqm ?? _dguLamVm.TotalCuttingCost)
+                                               + (group.Step4TemperingCostPerSqm ?? _dguLamVm.TotalTemperingCost)
+                                               + (group.Step4InterlayerCostPerSqm ?? _dguLamVm.InterlayerSellPrice),
                         YieldFactor = yield,
                         TargetUpliftPercent = upliftPercent
                     };
