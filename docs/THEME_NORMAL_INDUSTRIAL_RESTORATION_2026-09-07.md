@@ -131,3 +131,54 @@ Settings `SelectedVisualTheme` fallback and the appearance-reset path all
 resolve to `Normal (Industrial)`. The cream Normal remains selectable.
 Source tests re-pinned (`= "Normal (Industrial)";`,
 `?? VisualThemeEngine.NormalIndustrial`).
+
+---
+
+## 8. Follow-up (2026-09-07, round 3) — card edges everywhere, water gate, crash exit, ERR-21172E
+
+**"Define Card Edges" now reaches every card.**
+`ThemeManager.ApplyOutline(bool)` previously only switched `OutlineBrush`
+(pill buttons). It now also writes `GlassBorderSoft` and
+`GlassBorderGradientCrystal` — the two border tokens every card style in the
+app binds (Base / Task / Stat / Section / Tile / Soft / Dash / ListRow /
+ModuleSection) — so the single existing toggle outlines the whole app. When
+the toggle is OFF the `Glass*` tokens are left untouched, so the active
+visual family keeps its own authored edge (industrial slate, crystal white,
+cream soft).
+
+**Edge colour + thickness are now user-controllable.**
+- `AppearanceSettings.CardEdgeColor` (hex, empty = theme's strong outline)
+  + a live swatch/hex field in Settings → Appearance → Defined Card Edges.
+  `ThemeManager.ApplyCardEdgeColor` parses it once (AccentPresets.TryParseHex)
+  and `ApplyOutline` repaints `OutlineBrush` + the two `Glass*` card tokens.
+- The hardcoded card `BorderThickness` in the shared card styles
+  (CardStyles / SharedSectionStyles / SettingsSectionStyles / DesignTokens /
+  DashboardStyles) is now `{DynamicResource CardBorderThickness}`, so the
+  existing Border Thickness slider (0–4 DIP) restyles every card, not just
+  Base/Task cards.
+
+**Crystal water is scoped to Ios-17pm only.**
+`VisualThemeEngine` used to `Remove("CrystalWaterDefaultEnabled")` on every
+non-crystal family switch; `Remove()` does not reliably notify the
+`SetResourceReference`-bound `WaterEnabled` of every wrapped card, so the
+animated fill stayed on its `true` DP default under Normal/Monet/Industrial.
+The gate is now published as an explicit `false` (the indexer raises
+`ResourcesChanged`), and `CrystalWaterControl.WaterEnabled` now defaults to
+`false` (opt-in via the family gate only).
+
+**Crash = process exit.**
+The crash dialog's `[Close]`/`[Restart]` buttons were never wired
+(`RequestClose`/`RequestShutdown` were null), so `[Close]` did nothing and
+`[Restart]` spawned a second instance while the crashed one lingered in Task
+Manager. Both are wired now, and after `ShowDialog()` returns the dispatcher
+handler calls `ForceExitAfterCrash`: a clean `Shutdown()` plus a 3-second
+background watchdog that `Environment.Exit(1)`-s if anything keeps the
+process alive.
+
+**ERR-21172E (read-only `EditorTitle`).**
+`Run.Text` is TwoWay-by-default in WPF, so `<Run Text="{Binding EditorTitle}"/>`
+inside the Company Center card threw when the crystal water wrapper
+re-parented the card. The two bindings are now `Mode=OneWay`, and
+`CrystalWaterAttach.EnsureWrapped` is wrapped in a rollback try/catch so any
+future binding re-activation fault leaves the card untouched instead of
+crashing the app.

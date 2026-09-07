@@ -110,6 +110,7 @@ namespace ProGlassAutomation.Tests.Settings
         [Theory]
         [InlineData("SettingsAppearanceSection.xaml", "SelectedVisualTheme")]
         [InlineData("SettingsAppearanceSection.xaml", "UseDefinedOutline")]
+        [InlineData("SettingsAppearanceSection.xaml", "CardEdgeColor")]
         [InlineData("SettingsAppearanceSection.xaml", "CardBorderThickness")]
         [InlineData("SettingsAppearanceSection.xaml", "CardCornerRadius")]
         [InlineData("SettingsAppearanceSection.xaml", "DisplayDensity")]

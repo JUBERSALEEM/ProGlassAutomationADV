@@ -97,7 +97,7 @@
                 Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"
                 Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="{StaticResource DashCardPadding}"/>
         <Setter Property="Margin" Value="{StaticResource DashCardMargin}"/>
@@ -114,7 +114,7 @@
         <Setter Property="Background"
                 Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="Padding" Value="12,10"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -591,7 +591,7 @@
     <Style x:Key="SoftCardStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
@@ -641,7 +641,7 @@
     <Style x:Key="SoftTileStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="16,14"/>
@@ -651,7 +651,7 @@
     <!-- Hero band — radius 22, no border, per the reference. -->
     <Style x:Key="SoftHeroStyle" TargetType="Border">
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="Background"   Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"      Value="24"/>
@@ -663,7 +663,7 @@
     <!-- Recessed chart well — the reference's #F8FAFC radius-12 inset. -->
     <Style x:Key="SoftChartWellStyle" TargetType="Border">
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="Background"   Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
@@ -675,7 +675,7 @@
     <Style x:Key="SoftInsetStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="12"/>

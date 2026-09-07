@@ -68,6 +68,53 @@ namespace ProGlassAutomation.ViewModels.Settings
         }
 
         /// <summary>
+        /// Custom card-edge colour (hex) for the "Define Card Edges" picker.
+        /// Empty = follow the theme's strong outline. Applied live through
+        /// ThemeManager.ApplyCardEdgeColor + ApplyOutline, so the change
+        /// reaches every card border app-wide immediately.
+        /// </summary>
+        public string CardEdgeColor
+        {
+            get => _config?.Appearance?.CardEdgeColor ?? "";
+            set
+            {
+                if (_config?.Appearance == null) return;
+                if (_config.Appearance.CardEdgeColor == value) return;
+
+                _config.Appearance.CardEdgeColor = value;
+                ThemeManager.ApplyCardEdgeColor(value);
+                ThemeManager.ApplyOutline(UseDefinedOutline);
+                ScheduleDebouncedSave();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CardEdgeSwatch));
+            }
+        }
+
+        /// <summary>
+        /// Live swatch for the card-edge colour picker. Shows the parsed
+        /// hex (or the theme's strong outline when the field is empty) so
+        /// the chip always renders a real preview.
+        /// </summary>
+        public System.Windows.Media.Brush CardEdgeSwatch
+        {
+            get
+            {
+                var parsed = ProGlassAutomation.Services.Theme.AccentPresets
+                    .TryParseHex(_config?.Appearance?.CardEdgeColor);
+                if (parsed is System.Windows.Media.Color c)
+                {
+                    var brush = new SolidColorBrush(c);
+                    brush.Freeze();
+                    return brush;
+                }
+
+                return Application.Current?.TryFindResource("OutlineStrongBrush")
+                        as System.Windows.Media.Brush
+                    ?? System.Windows.Media.Brushes.SlateGray;
+            }
+        }
+
+        /// <summary>
         /// Global card border thickness (DIPs). One setting restyles every
         /// card / panel in the app through the CardBorderThickness theme
         /// resource. Persisted so the choice survives a restart.

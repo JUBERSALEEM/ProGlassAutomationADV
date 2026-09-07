@@ -71,5 +71,63 @@ namespace ProGlassAutomation
                 return "";
             }
         }
+
+        /// <summary>
+        /// Deterministic process exit after an unhandled UI-thread crash.
+        /// The dispatcher is in an undefined state once a crash has been
+        /// swallowed, so continuing leaves the process lingering in Task
+        /// Manager after the window closes. Request a clean shutdown first
+        /// (OnExit still flushes config / audit / backup), then arm a
+        /// background watchdog that force-exits if anything keeps the
+        /// process alive past the grace period.
+        /// </summary>
+        private static void ForceExitAfterCrash(string errorId)
+        {
+            try
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Info(
+                    "Forcing exit after unhandled UI crash (error " + errorId + ")",
+                    new ProGlassAutomation.Services.Logging.LogContext
+                    {
+                        Operation = "UnhandledException"
+                    });
+
+                Application.Current?.Shutdown();
+            }
+            catch
+            {
+                // Shutdown may itself fail on a wedged dispatcher — the
+                // watchdog below is the hard guarantee.
+            }
+
+            try
+            {
+                var watchdog = new Thread(() =>
+                {
+                    Thread.Sleep(3000);
+                    try
+                    {
+                        // Non-zero exit code: an abnormal termination, so
+                        // Task Scheduler / startup policies treat it as a
+                        // crash rather than a clean close.
+                        Environment.Exit(1);
+                    }
+                    catch
+                    {
+                        // Last-resort path — nothing further we can do.
+                    }
+                })
+                {
+                    IsBackground = true,
+                    Name = "CrashForceExit"
+                };
+                watchdog.Start();
+            }
+            catch
+            {
+                // Watchdog spawn failure — Shutdown above is the only
+                // remaining exit path.
+            }
+        }
     }
 }

@@ -297,10 +297,15 @@ namespace ProGlassAutomation.Services.Theme
 
                 ClearOverrides(resources);
                 // Crystal Fluid gate (non-managed key by design —
-                // NOT in ManagedKeys; see tokens file). Removed at
-                // every family switch so the static tokens-file
-                // default (False) reigns for non-crystal families.
-                resources.Remove("CrystalWaterDefaultEnabled");
+                // NOT in ManagedKeys; see tokens file). Published as an
+                // explicit FALSE at every non-crystal family switch: the
+                // indexer raises ResourcesChanged, so every
+                // CrystalWaterControl's DynamicResource reference
+                // re-evaluates immediately. Remove() did not reliably
+                // notify, which left water stuck at its TRUE DP default
+                // under Normal / Monet / Industrial (water rendering
+                // outside Ios-17pm).
+                resources["CrystalWaterDefaultEnabled"] = false;
                 // Ios-17pm P4a: family-gated shell ambient host
                 // (MainWindow wallpaper layer) — removed with the
                 // same contract as the water gate.
@@ -431,10 +436,15 @@ namespace ProGlassAutomation.Services.Theme
                 // module's wallpaper layer).
                 ClearOverrides(resources);
                 // Crystal Fluid gate (non-managed key by design —
-                // NOT in ManagedKeys; see tokens file). Removed at
-                // every family switch so the static tokens-file
-                // default (False) reigns for non-crystal families.
-                resources.Remove("CrystalWaterDefaultEnabled");
+                // NOT in ManagedKeys; see tokens file). Published as an
+                // explicit FALSE at every non-crystal family switch: the
+                // indexer raises ResourcesChanged, so every
+                // CrystalWaterControl's DynamicResource reference
+                // re-evaluates immediately. Remove() did not reliably
+                // notify, which left water stuck at its TRUE DP default
+                // under Normal / Monet / Industrial (water rendering
+                // outside Ios-17pm).
+                resources["CrystalWaterDefaultEnabled"] = false;
                 // Ios-17pm P4a: family-gated shell ambient host
                 // (MainWindow wallpaper layer) — removed with the
                 // same contract as the water gate.

@@ -40,6 +40,14 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string VisualTheme { get; set; } = "Normal (Industrial)";
 
         /// <summary>
+        /// One-time migration marker (2026-09-07): set the first time a
+        /// saved <see cref="VisualTheme"/> of "Normal" is upgraded to
+        /// "Normal (Industrial)". Keeps the migration from re-firing if
+        /// the user later deliberately re-picks the cream Normal.
+        /// </summary>
+        public bool VisualThemeMigrated { get; set; }
+
+        /// <summary>
         /// Global font colour override (Settings → Appearance → Font
         /// Color). "" = Auto (the active theme/visual family owns the
         /// text palette); otherwise #RRGGBB — the VisualThemeEngine
@@ -54,6 +62,15 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// (Monet) surfaces instead of blending into them.
         /// </summary>
         public bool UseDefinedOutline { get; set; }
+
+        /// <summary>
+        /// Custom card-edge colour (Settings → Appearance → Define Card
+        /// Edges). Empty = follow the theme's strong outline colour
+        /// (OutlineStrongBrush); otherwise a #RGB/#RRGGBB or named colour
+        /// applied to every card border app-wide through the GlassBorder
+        /// surface tokens. Parsed by AccentPresets.TryParseHex.
+        /// </summary>
+        public string CardEdgeColor { get; set; } = "";
 
         /// <summary>
         /// Uniform border thickness (in DIPs) for every card / panel in the

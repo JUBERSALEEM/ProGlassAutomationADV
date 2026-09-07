@@ -49,7 +49,7 @@
     <Style x:Key="SectionCardStyle" TargetType="Border">
         <Setter Property="Background"          Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness"     Value="1.5"/>
+        <Setter Property="BorderThickness"     Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius"        Value="14"/>
         <Setter Property="Padding"             Value="24,20"/>
         <Setter Property="Margin"              Value="0,0,0,20"/>
@@ -65,7 +65,7 @@
         <Setter Property="CornerRadius"        Value="14"/>
         <Setter Property="Padding"             Value="16,14"/>
         <Setter Property="Margin"              Value="0,0,0,12"/>
-        <Setter Property="BorderThickness"     Value="1.5"/>
+        <Setter Property="BorderThickness"     Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
         <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
@@ -337,7 +337,7 @@
         <Setter Property="CornerRadius"        Value="10"/>
         <Setter Property="Padding"             Value="12,10"/>
         <Setter Property="Margin"              Value="0,0,0,8"/>
-        <Setter Property="BorderThickness"     Value="1.5"/>
+        <Setter Property="BorderThickness"     Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="Cursor"              Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
@@ -569,7 +569,7 @@
         <Setter Property="Margin"              Value="0,0,14,14"/>
         <Setter Property="Padding"             Value="18,16"/>
         <Setter Property="CornerRadius"        Value="14"/>
-        <Setter Property="BorderThickness"     Value="1"/>
+        <Setter Property="BorderThickness"     Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="Background"          Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>

@@ -43,8 +43,24 @@ namespace ProGlassAutomation.Views.CrashReports
             string exceptionMessage)
         {
             InitializeComponent();
-            DataContext = new CrashReportViewModel(
+
+            var vm = new CrashReportViewModel(
                 errorId, reportPath, exceptionType, exceptionMessage);
+
+            // Wire the two window-side callbacks the VM's commands invoke.
+            // [Close] dismisses this dialog; the dispatcher's exception
+            // handler force-exits the app afterwards (a UI-thread crash
+            // must not be resumed). [Restart] closes this dialog and shuts
+            // the app down — the replacement instance was already launched
+            // by the VM before RequestShutdown fires.
+            vm.RequestClose = () => Close();
+            vm.RequestShutdown = () =>
+            {
+                Close();
+                Application.Current?.Shutdown();
+            };
+
+            DataContext = vm;
         }
     }
 }

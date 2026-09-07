@@ -228,7 +228,11 @@
                                                FontWeight="SemiBold"
                                                Foreground="{DynamicResource AccentBrush}">
                                         <Run Text="LETTERHEAD  "/>
-                                        <Run Text="{Binding EditorTitle}"/>
+                                        <!-- ERR-21172E: Run.Text is TwoWay-by-default in WPF;
+                                             EditorTitle is get-only, so an implicit TwoWay binding
+                                             throws when the card is re-parented by the crystal
+                                             water wrapper. Pin it OneWay. -->
+                                        <Run Text="{Binding EditorTitle, Mode=OneWay}"/>
                                     </TextBlock>
                                 </StackPanel>
 
@@ -241,7 +245,7 @@
                             </Grid>
                         </Border>
 
-                        <TextBlock Text="{Binding EditorTitle}"
+                        <TextBlock Text="{Binding EditorTitle, Mode=OneWay}"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,14"/>

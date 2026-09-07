@@ -764,6 +764,11 @@ namespace ProGlassAutomation.Services
 
         private static bool _definedOutline;
 
+        /// <summary>User's custom card-edge colour (null = follow the
+        /// theme's strong outline brush). Parsed once from the saved hex
+        /// so ApplyOutline can repaint without re-parsing per switch.</summary>
+        private static Color? _cardEdgeColor;
+
         // 2026-08-25: gradient surface support. VisualThemeEngine reads
         // this when it builds Monet glass / window surfaces: true =
         // accent-derived gradients (richer depth), false = flat colour.
@@ -791,7 +796,10 @@ namespace ProGlassAutomation.Services
 
         /// <summary>
         /// Switches OutlineBrush between the subtle default and the strong
-        /// "defined" edge.
+        /// "defined" edge. When <paramref name="defined"/> is true it ALSO
+        /// repaints GlassBorderSoft + GlassBorderGradientCrystal, so the one
+        /// toggle (and the custom <see cref="ApplyCardEdgeColor"/> colour)
+        /// outlines EVERY card surface app-wide.
         ///
         /// WHY A SEPARATE KEY FROM BorderBrush: BorderBrush is also used by
         /// text inputs, dividers and table gridlines. Darkening that globally
@@ -811,15 +819,49 @@ namespace ProGlassAutomation.Services
             var resources = Application.Current?.Resources;
             if (resources == null) return;
 
-            // Read the theme-provided value rather than hardcoding a colour
-            // here, so each theme keeps control of what "strong" and "subtle"
-            // mean for its own surfaces.
-            string sourceKey = defined ? "OutlineStrongBrush" : "OutlineDefaultBrush";
-
-            if (resources[sourceKey] is SolidColorBrush src)
+            // The user's custom card-edge colour wins; otherwise read the
+            // theme-provided value rather than hardcoding a colour here, so
+            // each theme keeps control of what "strong" and "subtle" mean
+            // for its own surfaces.
+            Color edge;
+            if (defined && _cardEdgeColor is Color custom)
             {
-                FreezeAndSet(resources, "OutlineBrush", src.Color);
+                edge = custom;
             }
+            else
+            {
+                string sourceKey = defined ? "OutlineStrongBrush" : "OutlineDefaultBrush";
+                if (resources[sourceKey] is not SolidColorBrush src)
+                    return;   // theme dictionary not loaded yet — nothing safe to paint
+                edge = src.Color;
+            }
+
+            FreezeAndSet(resources, "OutlineBrush", edge);
+
+            // 2026-09-07 — "Define Card Edges" now reaches EVERY card.
+            // Base/Task/Stat/Section/Tile/Soft/Dash cards all bind
+            // GlassBorderSoft or GlassBorderGradientCrystal, so writing
+            // those two tokens outlines the whole app from one switch (and
+            // one colour). When the toggle is OFF the Glass* tokens are
+            // deliberately left alone so the active visual family keeps its
+            // own authored edge (industrial slate, crystal white, cream soft).
+            if (defined)
+            {
+                FreezeAndSet(resources, "GlassBorderSoft", edge);
+                FreezeAndSet(resources, "GlassBorderGradientCrystal", edge);
+            }
+        }
+
+        /// <summary>
+        /// Stores the user's custom card-edge colour (the "Define Card
+        /// Edges" hex picker). Empty/invalid text stores null so
+        /// <see cref="ApplyOutline"/> falls back to the theme's strong
+        /// outline. Callers re-apply <see cref="ApplyOutline"/> afterwards
+        /// to repaint live.
+        /// </summary>
+        public static void ApplyCardEdgeColor(string? hex)
+        {
+            _cardEdgeColor = Theme.AccentPresets.TryParseHex(hex);
         }
 
         /// <summary>

@@ -23,7 +23,7 @@
     <Style x:Key="SpecGroupCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Margin" Value="0,0,0,14"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -69,7 +69,7 @@
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 

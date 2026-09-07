@@ -44,8 +44,20 @@
 // exact inset as the content's Margin (a Grid honours margins), so content
 // stays pixel-identical while the water spans the full card. Corner radius
 // follows the card's own CornerRadius so the water's rounded clip matches.
+//
+// Crash safety (2026-09-07, ERR-21172E)
+// -------------------------------------
+// Reparenting the card's child (Border.Child = wrapper) re-activates every
+// binding in the card's subtree. Run.Text is TwoWay-by-default in WPF, so a
+// <Run Text="{Binding SomeReadOnlyProperty}"/> inside a card throws
+// "A TwoWay or OneWayToSource binding cannot work on the read-only
+// property ..." mid-wrap and crashes the app. EnsureWrapped is therefore
+// wrapped in a try/catch that rolls the card back to its untouched state
+// on ANY failure — the card simply keeps its normal (unwatered) look, and
+// the family gate keeps the water control invisible anyway.
 // ═══════════════════════════════════════════════════════════════════════
 
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -222,62 +234,96 @@ namespace ProGlassAutomation.Controls.CrystalFluid
             if (child is Grid { Tag: WrapState })
                 return;
 
-            // Loaded has fired → the style (incl. BasedOn / inline
-            // Border.Style) is applied, so these are the effective values.
+            // Loaded has fired, so the style (incl. BasedOn / inline
+            // Border.Style) is applied and these are the effective values.
             // Margin / alignment are FrameworkElement properties, so the
             // child is re-typed from UIElement (Border.Child's static type).
             if (child is not FrameworkElement original)
                 return;   // non-Framework content carries no margin/alignment
+
+            // Capture the untouched state up front so ANY failure below can
+            // restore the card pixel-identically.
             var padding = border.Padding;
-            var state = new WrapState(
-                original,
-                padding,
-                original.Margin,
-                original.HorizontalAlignment,
-                original.VerticalAlignment);
+            var margin = original.Margin;
+            var hAlign = original.HorizontalAlignment;
+            var vAlign = original.VerticalAlignment;
 
-            var water = new CrystalWaterControl
+            try
             {
-                IsHitTestVisible = false,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                VerticalAlignment = VerticalAlignment.Stretch,
-            };
+                var state = new WrapState(
+                    original, padding, margin, hAlign, vAlign);
 
-            // Live family gate + ambient level + studio axes (DynamicResource
-            // semantics → live theme switches, no reload). Radius follows the
-            // card so the rounded self-clip matches the glass.
-            water.SetResourceReference(
-                CrystalWaterControl.WaterEnabledProperty,
-                "CrystalWaterDefaultEnabled");
-            water.SetResourceReference(
-                CrystalWaterControl.WaterLevelProperty,
-                "CrystalDefaultWaterLevel");
-            water.SetBinding(
-                CrystalWaterControl.CornerRadiusProperty,
-                new Binding(nameof(Border.CornerRadius)) { Source = border });
+                var water = new CrystalWaterControl
+                {
+                    IsHitTestVisible = false,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Stretch,
+                };
 
-            var wrapper = new Grid { Tag = state };
-            water.SetValue(Panel.ZIndexProperty, 1);
-            original.SetValue(Panel.ZIndexProperty, 5);
+                // Live family gate + ambient level + studio axes (DynamicResource
+                // semantics, live theme switches, no reload). Radius follows the
+                // card so the rounded self-clip matches the glass.
+                water.SetResourceReference(
+                    CrystalWaterControl.WaterEnabledProperty,
+                    "CrystalWaterDefaultEnabled");
+                water.SetResourceReference(
+                    CrystalWaterControl.WaterLevelProperty,
+                    "CrystalDefaultWaterLevel");
+                water.SetBinding(
+                    CrystalWaterControl.CornerRadiusProperty,
+                    new Binding(nameof(Border.CornerRadius)) { Source = border });
 
-            // Border insets its child by Padding and ignores child Margin;
-            // transfer the inset to the content's margin (honoured by the
-            // Grid) so the content is pixel-identical and the water spans
-            // the full card. Alignment is left untouched: the Grid honours
-            // it exactly as the Border did, so non-stretch content (centred
-            // badges, right-aligned chips) keeps its layout.
-            border.Padding = new Thickness(0);
-            original.Margin = padding;
+                var wrapper = new Grid { Tag = state };
+                water.SetValue(Panel.ZIndexProperty, 1);
+                original.SetValue(Panel.ZIndexProperty, 5);
 
-            // Detach the original child BEFORE reparenting it into the
-            // wrapper. WPF throws "Specified element is already the
-            // logical child of another element" when an element is added
-            // while still connected to its old parent — and `original`
-            // is still Border.Child at this point.
-            border.Child = null;
-            wrapper.Children.Add(water);
-            wrapper.Children.Add(original);
-            border.Child = wrapper;
+                // Border insets its child by Padding and ignores child Margin;
+                // transfer the inset to the content's margin (honoured by the
+                // Grid) so the content is pixel-identical and the water spans
+                // the full card. Alignment is left untouched: the Grid honours
+                // it exactly as the Border did.
+                border.Padding = new Thickness(0);
+                original.Margin = padding;
+
+                // Detach the original child BEFORE reparenting it into the
+                // wrapper. WPF throws "Specified element is already the
+                // logical child of another element" when an element is added
+                // while still connected to its old parent.
+                border.Child = null;
+                wrapper.Children.Add(water);
+                wrapper.Children.Add(original);
+
+                // ERR-21172E: this is the re-parenting step that re-activates
+                // every binding in the card's subtree. If one of them throws
+                // (e.g. a TwoWay-by-default Run.Text binding on a read-only
+                // property), the catch below rolls the card back untouched.
+                border.Child = wrapper;
+            }
+            catch (Exception ex)
+            {
+                // Roll the card back to its exact pre-wrap state. The
+                // failure is a UI-binding activation fault, not a broken
+                // card — leaving it unwrapped (and unwatered) is the safe
+                // outcome, and the app must keep running.
+                try
+                {
+                    if (border.Child is Grid grid && grid.Tag is WrapState)
+                        grid.Children.Clear();
+                    original.Margin = margin;
+                    original.HorizontalAlignment = hAlign;
+                    original.VerticalAlignment = vAlign;
+                    border.Padding = padding;
+                    border.Child = original;
+                }
+                catch
+                {
+                    // Best-effort only — never throw from the rescue path.
+                }
+
+                ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                    "[CrystalWater] skipped wrapping a card (binding "
+                    + "re-activation failed): " + ex.Message);
+            }
         }
 
         private static void Unwrap(Border border)

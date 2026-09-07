@@ -127,6 +127,15 @@ namespace ProGlassAutomation
                     // Dialog itself must never crash.
                 }
                 args.Handled = true;
+
+                // A UI-thread crash leaves the dispatcher in an undefined
+                // state. Continuing from here is exactly why the process
+                // lingered in Task Manager after the user closed the window.
+                // Terminate deterministically: request a clean shutdown (so
+                // OnExit still flushes config/audit/backup), then arm a
+                // watchdog that force-exits if anything keeps the process
+                // alive past the grace period.
+                ForceExitAfterCrash(errorId);
             };
 
             // ── Non-UI-thread crashes (audit finding X-3) ───────────────
@@ -439,6 +448,10 @@ namespace ProGlassAutomation
             // 9f) Restore the persisted card/pill outline choice. Must run
             //     AFTER ApplyAccent, because both write into the same live
             //     resource dictionary and this one must win for OutlineBrush.
+            //     The custom card-edge colour is restored FIRST so the
+            //     ApplyOutline below paints with it.
+            ProGlassAutomation.Services.ThemeManager.ApplyCardEdgeColor(
+                Config.Appearance?.CardEdgeColor);
             ProGlassAutomation.Services.ThemeManager.ApplyOutline(
                 Config.Appearance?.UseDefinedOutline ?? false);
 

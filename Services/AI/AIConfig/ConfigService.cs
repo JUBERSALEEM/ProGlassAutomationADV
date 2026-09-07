@@ -20,6 +20,7 @@
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Theme;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -127,6 +128,28 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 // dereferences these on every render so a null here
                 // is a crash surface.
                 config.Appearance ??= new AppearanceSettings();
+
+                // ── One-time theme migration (2026-09-07) ────────────────
+                // Saved configs created before the industrial restoration
+                // pinned "Normal" (the cream SaaS canvas). Those installs
+                // now open on the restored "Normal (Industrial)" family so
+                // they get the defined card edges the owner asked for —
+                // without any manual re-pick. The VisualThemeMigrated flag
+                // makes this run EXACTLY ONCE per install: a user who later
+                // deliberately re-selects cream Normal keeps it, because
+                // the flag is already set and the condition never matches
+                // again.
+                if (!config.Appearance.VisualThemeMigrated)
+                {
+                    config.Appearance.VisualThemeMigrated = true;
+                    if (string.Equals(config.Appearance.VisualTheme, "Normal",
+                            StringComparison.Ordinal))
+                    {
+                        config.Appearance.VisualTheme =
+                            VisualThemeEngine.NormalIndustrial;
+                    }
+                }
+
                 config.Ai ??= new AiSettings();
                 config.ProformaInvoiceFields ??= new ProformaInvoiceFeatureFlags();
                 config.InquiryFields ??= new InquiryFeatureFlags();

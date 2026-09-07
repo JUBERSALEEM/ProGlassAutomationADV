@@ -112,6 +112,28 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Industrial_round_fixes_are_pinned()
+        {
+            // 2026-09-07 round: (1) saved "Normal" configs migrate once to
+            // "Normal (Industrial)"; (2) the crystal water gate publishes an
+            // explicit FALSE outside Ios-17pm instead of removing the key;
+            // (3) the read-only EditorTitle bindings are pinned OneWay so the
+            // water wrapper's re-parenting can never re-activate them as
+            // TwoWay (ERR-21172E).
+            string configService = Read("Services/AI/AIConfig/ConfigService.cs");
+            Assert.Contains("VisualThemeMigrated", configService, StringComparison.Ordinal);
+            Assert.Contains("VisualThemeEngine.NormalIndustrial", configService, StringComparison.Ordinal);
+
+            string engine = Engine;
+            Assert.Contains(
+                "resources[\"CrystalWaterDefaultEnabled\"] = false;",
+                engine, StringComparison.Ordinal);
+
+            string company = Read("Views/CompanyCenter/CompanyCenterView.xaml");
+            Assert.Contains("EditorTitle, Mode=OneWay", company, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void Engine_publishes_the_crystal_fluid_tokens()
         {
             // The Liquid* token surface is now authored by the Crystal

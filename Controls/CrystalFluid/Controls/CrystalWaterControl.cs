@@ -73,7 +73,12 @@ namespace ProGlassAutomation.Controls.CrystalFluid
                 nameof(WaterEnabled),
                 typeof(bool),
                 typeof(CrystalWaterControl),
-                new PropertyMetadata(true, OnWaterEnabledChanged));
+                // 2026-09-07: default FALSE — water is opt-IN via the
+                // family gate (CrystalWaterDefaultEnabled), never on by
+                // accident. The old TRUE default let the animated fill
+                // render outside Ios-17pm whenever the gate resource was
+                // missing (e.g. after a family switch removed it).
+                new PropertyMetadata(false, OnWaterEnabledChanged));
 
         public static readonly DependencyProperty WaterOpacityProperty =
             DependencyProperty.Register(

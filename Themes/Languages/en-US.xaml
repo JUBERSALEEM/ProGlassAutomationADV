@@ -1748,6 +1748,7 @@
     <sys:String x:Key="Settings.CapturesRunningAppWindowDesktopOtherPrograms">Captures only this running app window — not the desktop, not other programs.</sys:String>
     <sys:String x:Key="Settings.CardBorderThickness">Card Border Thickness</sys:String>
     <sys:String x:Key="Settings.CardCornerRadius">Card Corner Radius</sys:String>
+    <sys:String x:Key="Settings.CardEdgeColorHint">Edge colour (hex). Empty uses the theme's strong edge.</sys:String>
     <sys:String x:Key="Settings.CheckDownloadFailureRecordedMachine">Every check, download and failure recorded on this machine.</sys:String>
     <sys:String x:Key="Settings.ChooseModel">Choose a Model</sys:String>
     <sys:String x:Key="Settings.ChoosePlanRequestKeyPasteVendorSignedKey">Choose a plan and request a key, or paste your vendor-signed key to activate. The 30-day trial starts automatically.</sys:String>
