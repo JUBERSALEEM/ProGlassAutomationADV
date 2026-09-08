@@ -410,6 +410,22 @@ public GlobalSearchViewModel() : this(
             try
             {
                 var repo = new Services.SheetStore.SheetStoreRepository();
+
+                // Deliberately NOT pushed into SQL, unlike the proforma, job
+                // order, delivery note and tax invoice modules.
+                //
+                // GlassSheet is master data — one row per
+                // Category+Thickness+Colour+Size+Supplier combination — so the
+                // table is bounded by the variety stocked, not by transaction
+                // volume. It holds tens to low hundreds of rows, not tens of
+                // thousands.
+                //
+                // It also matches on ThicknessDisplay ("6mm") and SizeDisplay
+                // ("1000 × 2000"), both computed from integer columns. Making
+                // those searchable in SQL means reproducing that string
+                // formatting in the query, and doing it wrong here fails
+                // silently — a sheet stops appearing in search with no error.
+                // Not worth that risk for a table this size.
                 var sheets = await repo.GetAllAsync().ConfigureAwait(true);
 
                 foreach (var s in sheets.Where(s =>
@@ -493,14 +509,15 @@ public GlobalSearchViewModel() : this(
             try
             {
                 if (_deliveryNotes == null) return;
-                var list = await _deliveryNotes.GetAllAsync().ConfigureAwait(true);
 
-                foreach (var dn in list.Where(d =>
-                             Hit(d.DeliveryNoteId, term) ||
-                             Hit(d.CustomerName, term) ||
-                             Hit(d.ProjectName, term) ||
-                             Hit(d.JobOrderId, term))
-                         .Take(MaxResults))
+                // PERF: bounded, DB-side search — mirrors what the proforma and
+                // job-order modules already did. This used to call GetAllAsync
+                // and filter in memory, so every keystroke materialised the
+                // whole delivery-note table to return at most 25 rows.
+                var rows = await _deliveryNotes
+                    .SearchAsync(term, MaxResults).ConfigureAwait(true);
+
+                foreach (var dn in rows)
                 {
                     hits.Add(new GlobalSearchResult
                     {
@@ -521,14 +538,12 @@ public GlobalSearchViewModel() : this(
             try
             {
                 if (_taxInvoices == null) return;
-                var list = await _taxInvoices.GetAllAsync().ConfigureAwait(true);
 
-                foreach (var ti in list.Where(t =>
-                             Hit(t.InvoiceNumber, term) ||
-                             Hit(t.CustomerName, term) ||
-                             Hit(t.ProjectName, term) ||
-                             Hit(t.ProformaId, term))
-                         .Take(MaxResults))
+                // PERF: bounded, DB-side search — see AddDeliveriesAsync.
+                var rows = await _taxInvoices
+                    .SearchAsync(term, MaxResults).ConfigureAwait(true);
+
+                foreach (var ti in rows)
                 {
                     hits.Add(new GlobalSearchResult
                     {

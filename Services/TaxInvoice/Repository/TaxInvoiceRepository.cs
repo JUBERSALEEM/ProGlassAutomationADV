@@ -62,6 +62,36 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         // ── List retrieval ────────────────────────────────────────────
 
+        public async Task<List<TaxInvoiceSearchRow>> SearchAsync(
+            string term, int take)
+        {
+            if (!SearchPattern.IsUsable(term) || take <= 0)
+                return new List<TaxInvoiceSearchRow>();
+
+            string pattern = SearchPattern.Contains(term);
+
+            using var ctx = new TaxInvoiceDbContext();
+
+            return await ctx.TaxInvoices
+                .AsNoTracking()
+                .Where(x =>
+                    EF.Functions.Like(x.InvoiceNumber ?? "", pattern, SearchPattern.EscapeChar) ||
+                    EF.Functions.Like(x.CustomerName ?? "", pattern, SearchPattern.EscapeChar) ||
+                    EF.Functions.Like(x.ProjectName ?? "", pattern, SearchPattern.EscapeChar) ||
+                    EF.Functions.Like(x.ProformaId ?? "", pattern, SearchPattern.EscapeChar))
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(take)
+                .Select(x => new TaxInvoiceSearchRow
+                {
+                    InvoiceNumber = x.InvoiceNumber,
+                    CustomerName  = x.CustomerName,
+                    ProjectName   = x.ProjectName,
+                    ProformaId    = x.ProformaId,
+                    Status        = x.Status
+                })
+                .ToListAsync().ConfigureAwait(false);
+        }
+
         public async Task<List<TaxInvoiceListItem>> GetAllAsync()
         {
             using var ctx = new TaxInvoiceDbContext();

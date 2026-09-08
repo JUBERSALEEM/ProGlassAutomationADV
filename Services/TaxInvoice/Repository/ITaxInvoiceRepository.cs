@@ -33,6 +33,15 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         // ── List retrieval ────────────────────────────────────────────────
 
         Task<List<TaxInvoiceListItem>> GetAllAsync();
+
+        /// <summary>
+        /// Bounded, DB-side search for the global-search box.
+        ///
+        /// Added 2026-09-08 (Phase 2, category D) for the same reason as
+        /// <see cref="Services.DeliveryNote.Repository.IDeliveryNoteRepository.SearchAsync"/>:
+        /// the search used to load every invoice to return at most 25 rows.
+        /// </summary>
+        Task<List<TaxInvoiceSearchRow>> SearchAsync(string term, int take);
         Task<List<TaxInvoiceListItem>> GetByProformaIdAsync(string proformaId);
         Task<List<TaxInvoiceListItem>> GetByStatusAsync(string status);
         Task<List<TaxInvoiceListItem>> GetDraftAsync();
@@ -148,6 +157,19 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
     /// Computed from indexed columns — no JSON parsing.
     /// Used by TaxInvoiceListViewModel for hero card stats.
     /// </summary>
+    /// <summary>
+    /// What the global-search box needs from a tax invoice. See
+    /// <see cref="Services.DeliveryNote.Repository.DeliveryNoteSearchRow"/>.
+    /// </summary>
+    public class TaxInvoiceSearchRow
+    {
+        public string InvoiceNumber { get; set; } = "";
+        public string CustomerName { get; set; } = "";
+        public string ProjectName { get; set; } = "";
+        public string ProformaId { get; set; } = "";
+        public string Status { get; set; } = "";
+    }
+
     public class InvoiceFamilySummary
     {
         public string ProformaId { get; set; } = "";

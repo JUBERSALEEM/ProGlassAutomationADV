@@ -381,6 +381,39 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         // ── List retrieval ───────────────────────────────────────────────
 
+        public async Task<List<DeliveryNoteSearchRow>> SearchAsync(
+            string term, int take)
+        {
+            if (!SearchPattern.IsUsable(term) || take <= 0)
+                return new List<DeliveryNoteSearchRow>();
+
+            string pattern = SearchPattern.Contains(term);
+
+            using var ctx = new DeliveryNotesDbContext();
+
+            return await ctx.DeliveryNotes
+                .AsNoTracking()
+                // Same row set as GetAllAsync: master notes are excluded, so a
+                // search can never surface a note no list screen shows.
+                .Where(x => !x.IsMasterDn)
+                .Where(x =>
+                    EF.Functions.Like(x.DeliveryNoteId ?? "", pattern, SearchPattern.EscapeChar) ||
+                    EF.Functions.Like(x.CustomerName ?? "", pattern, SearchPattern.EscapeChar) ||
+                    EF.Functions.Like(x.ProjectName ?? "", pattern, SearchPattern.EscapeChar) ||
+                    EF.Functions.Like(x.JobOrderId ?? "", pattern, SearchPattern.EscapeChar))
+                .OrderByDescending(x => x.CreatedAt)
+                .Take(take)
+                .Select(x => new DeliveryNoteSearchRow
+                {
+                    DeliveryNoteId = x.DeliveryNoteId,
+                    CustomerName   = x.CustomerName,
+                    ProjectName    = x.ProjectName,
+                    JobOrderId     = x.JobOrderId,
+                    Status         = x.Status
+                })
+                .ToListAsync().ConfigureAwait(false);
+        }
+
         public async Task<List<DeliveryNoteListItem>> GetAllAsync()
         {
             using var ctx = new DeliveryNotesDbContext();

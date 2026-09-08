@@ -124,6 +124,25 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         Task<List<DeliveryNoteListItem>> GetAllAsync();
 
         /// <summary>
+        /// Bounded, DB-side search for the global-search box.
+        ///
+        /// <para>
+        /// Added 2026-09-08 (Phase 2, category D). The search previously
+        /// called <see cref="GetAllAsync"/> and filtered in memory, so every
+        /// keystroke materialised the entire delivery-note table to return at
+        /// most 25 rows. This pushes the filter into SQL and applies the
+        /// limit there, so a 50,000-note table costs the same as a 50-note one.
+        /// </para>
+        ///
+        /// <para>
+        /// Excludes Master DNs, matching <see cref="GetAllAsync"/> — a search
+        /// that returned notes no list screen shows would be worse than the
+        /// full-table load it replaces.
+        /// </para>
+        /// </summary>
+        Task<List<DeliveryNoteSearchRow>> SearchAsync(string term, int take);
+
+        /// <summary>
         /// Paged query for the God View. Returns a bounded page of results
         /// plus the total count, so the UI can show "showing X of Y".
         /// Avoids loading 10K+ records into memory at once.
@@ -294,6 +313,20 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         // CHAT 19 INVOICED
         public bool HasTaxInvoice { get; set; }
         public string TaxInvoiceId { get; set; } = "";
+    }
+
+    /// <summary>
+    /// What the global-search box needs from a delivery note: the four
+    /// columns it matches on and the one status pill it renders. Nothing
+    /// else — in particular no snapshot blob.
+    /// </summary>
+    public class DeliveryNoteSearchRow
+    {
+        public string DeliveryNoteId { get; set; } = "";
+        public string CustomerName { get; set; } = "";
+        public string ProjectName { get; set; } = "";
+        public string JobOrderId { get; set; } = "";
+        public string Status { get; set; } = "";
     }
 
     // ── Ship 8c-2 ────────────────────────────────────────────────────────
