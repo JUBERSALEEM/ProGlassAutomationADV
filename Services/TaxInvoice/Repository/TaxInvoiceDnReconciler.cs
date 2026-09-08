@@ -126,9 +126,16 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                     var verified = await VerifyMarkedAsync(invNum, missing);
                     repaired += verified;
 
-                    AppLogService.Info(
+                    // Warning, not Info (Phase 14). Reaching this line means the
+                    // tax-invoice and delivery-note records had already diverged
+                    // and something had to heal them — normally a crash or a
+                    // failed write. Info reads as routine housekeeping and gets
+                    // filtered out of every report; an operator triaging "why are
+                    // my invoiced quantities wrong" needs this to survive a log
+                    // level filter.
+                    AppLogService.Warning(
                         $"Reconciled {verified}/{missing.Count} DN link(s) for " +
-                        $"TI '{invNum}'.",
+                        $"TI '{invNum}' — these links had diverged.",
                         new LogContext
                         {
                             Module = "TaxInvoice",

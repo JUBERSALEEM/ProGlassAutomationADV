@@ -352,11 +352,20 @@ namespace ProGlassAutomation.Services.Database
                     // from being used. Read-only media (network share,
                     // CD-ROM) can reject journal_mode=WAL; the connection
                     // still works with the previous journal mode.
-                    // Log loudly so ops know the file is not fully
-                    // hardened.
-                    AppLogService.Warning(
-                        $"[SqliteResilience] Could not apply hardening pragmas to '{sqlite.DataSource}': {ex.Message}. " +
+                    //
+                    // Error, not Warning (Phase 14). This is the one silent
+                    // degradation that quietly changes data integrity rather
+                    // than performance: if foreign_keys did not take,
+                    // referential integrity is unenforced for every write on
+                    // this connection and nothing else in the application will
+                    // ever say so. Warning is what this codebase reserves for
+                    // things that recovered; this one did not — it continued
+                    // unhardened. The exception object is passed too, so the
+                    // ErrorId carries a stack rather than only ex.Message.
+                    AppLogService.Error(
+                        $"[SqliteResilience] Could not apply hardening pragmas to '{sqlite.DataSource}'. " +
                         "The connection will still be used, but WAL / foreign_keys may not be active.",
+                        ex,
                         new LogContext
                         {
                             Module = "Database",

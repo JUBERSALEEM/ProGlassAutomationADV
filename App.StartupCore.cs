@@ -322,9 +322,20 @@ namespace ProGlassAutomation
                 // whereas the type names the missing registration. ex.ToString()
                 // keeps the inner exception, which is where DI failures usually
                 // actually live.
-                AppLogService.Warning(
+                // Error, not Warning. A container that will not build means the
+                // application is running in a degraded mode it was never tested
+                // in; Warning is what this codebase reserves for things that
+                // recovered. Error also records the exception object and returns
+                // an ErrorId, so a support request can quote one number instead
+                // of pasting a stack.
+                //
+                // (This line said Warning when it was first written, and an
+                // analysis note briefly claimed there was no Error level to use.
+                // There always was — AppLogService.Error, line 75.)
+                AppLogService.Error(
                     $"DI container build failed ({ex.GetType().Name}); falling back to " +
-                    $"manual construction. Some services may behave differently: {ex}");
+                    $"manual construction. Some services may behave differently.",
+                    ex);
 
                 // Fallback to manual construction (never break startup)
                 Specs = new SpecificationsRepository();

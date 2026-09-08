@@ -2,6 +2,70 @@
 
 **Severity: Moderate · Estimate: 3 days · Prerequisite: green build**
 
+## Status — 14.1 APPLIED 2026-09-09, 14.2-14.4 open
+
+| | |
+|---|---|
+| 14.1 DI container failure logged at Warning | **fixed** → `Error`, with the exception and an ErrorId |
+| 14.1 pragma failure logged at Warning | **fixed** → `Error`, with the exception |
+| 14.1 reconciler repair logged at Info | **fixed** → `Warning` |
+| 14.1 surfaced in the About / health page | **not started** |
+| 14.2 health summary panel | **not started** |
+| 14.3 audit completeness | **not started** |
+| 14.4 log volume and retention | **not started** |
+
+### A correction this phase had to make first
+
+Phase 7 recorded a claim that `AppLogService` has no Error level — only `Debug`,
+`Info` and `Warning`. **That was false.** `Error` is at line 75 and `Critical` at
+line 84. Both return a `string` ErrorId rather than `void`, and the grep that
+produced the claim matched only `public static void`, so it missed them and
+reported an absence that did not exist.
+
+Usage across the codebase, counted properly:
+
+| | call sites |
+|---|---|
+| `Debug` | 573 |
+| `Warning` | 363 |
+| `Error` | 103 |
+| `Info` | 64 |
+| `Critical` | 5 |
+
+The lesson is the same one this repository keeps teaching: a grep pattern that
+encodes an assumption (`void`) silently filters out the answer. The Phase 7 note
+has been corrected in place.
+
+### What changed, and why these three levels
+
+**Pragma failure → `Error`.** This is the one silent degradation in 14.1 that
+changes *data integrity* rather than performance. If `foreign_keys` did not take,
+referential integrity is unenforced for every write on that connection, and
+nothing else in the application will ever say so. `Warning` is what this codebase
+reserves for things that recovered; this one continued unhardened. The exception
+object is now passed as well, so the ErrorId carries a stack rather than only
+`ex.Message`.
+
+**DI container failure → `Error`.** A container that will not build means the
+application is running in a composition it was never tested in. The message also
+stops interpolating the whole exception into the text now that the exception
+object is attached properly.
+
+**Reconciler repair → `Warning`.** Reaching that line means tax-invoice and
+delivery-note records had already diverged and something healed them — normally a
+crash or a failed write. `Info` reads as routine housekeeping and gets filtered
+out of every report. The sweep *summary* line stays at `Info`, which is right: it
+fires on a clean startup too, when nothing was repaired.
+
+### What remains
+
+The log-level changes make these events findable. They do not make them
+*visible*. 14.1's actual ask — surface the degraded state in the About / health
+page — and 14.2's health panel are both UI work. A desktop ERP has no monitoring
+stack; the UI is the monitoring stack, and that is not something to build blind.
+`SchemaHealthService` already exists and is the right thing to wire it to.
+
+
 ## What already exists, and is good
 
 Four exception sinks, each with a documented reason for existing:

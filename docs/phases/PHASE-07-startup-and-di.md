@@ -71,9 +71,14 @@ The correct replacement is to wait on an actual readiness signal rather than on
 a wall clock, and to fix the two races so nothing depends on the wait. That is
 UI work needing a running app. Recorded here rather than guessed at.
 
-Also worth noting for Phase 14: `AppLogService` has **no Error level** — only
-`Debug`, `Info` and `Warning`. A container build failure is logged as a warning
-because there is nothing louder to log it as.
+**Correction (2026-09-09, Phase 14).** An earlier note here claimed
+`AppLogService` has no Error level. That was wrong. It has `Error` (line 75) and
+`Critical` (line 84); both return a `string` ErrorId rather than `void`, and the
+grep that produced the claim matched only `public static void`, so it silently
+missed them. The DI container failure was logged at `Warning` because the
+author's code did, not because there was nothing louder. It now uses
+`AppLogService.Error`, which also records the exception and returns an ErrorId
+that can be shown to the operator.
 
 
 ## Findings
