@@ -83,7 +83,9 @@ namespace ProGlassAutomation.Tests.Architecture
             "Specifications/SpecificationsCenterViewModel.cs",
             "TaxInvoice/GodView/TaxInvoiceGodViewViewModel.cs",
             "TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailViewModel.InitNew.cs",
-            "TaxInvoice/TaxInvoiceViewModel.cs",
+            // TaxInvoiceViewModel.cs removed 2026-09-08 — both of its
+            // whole-table loads were ProformaId lookups and now call
+            // DeliveryNoteRepository.GetByProformaIdAsync.
         };
 
         [Fact]

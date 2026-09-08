@@ -133,6 +133,22 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         Task<List<DeliveryNoteListItem>> GetByJobOrderIdAsync(string jobOrderId);
 
+        /// <summary>
+        /// Delivery notes belonging to one proforma invoice, excluding Master
+        /// DNs. Same row set as <see cref="GetAllAsync"/> narrowed to one
+        /// proforma — it exists to replace a <c>GetAllAsync()</c> followed by
+        /// an in-memory <c>ProformaId</c> filter, which loaded every note in
+        /// the database to answer a question about one invoice.
+        ///
+        /// <para>
+        /// The match is case-insensitive, matching the
+        /// <c>StringComparison.OrdinalIgnoreCase</c> the call sites used.
+        /// Plain SQL <c>=</c> on SQLite is case-sensitive, so the comparison
+        /// is lower-cased on both sides.
+        /// </para>
+        /// </summary>
+        Task<List<DeliveryNoteListItem>> GetByProformaIdAsync(string proformaId);
+
         /// <summary>CHAT 19: excludes Master DNs from Draft tab.</summary>
         Task<List<DeliveryNoteListItem>> GetPreparedAsync();
 

@@ -31,7 +31,7 @@ Phase 5  Test depth — pricing engine        ← needs Phase 4
 |---|---|---|---|
 | 0 | No CI | 🔴 **Blocked — needs your action** | GitHub App `workflows` scope |
 | 1 | Build/test unverified | 🟠 Waiting | Phase 0 |
-| 2 | Whole-table loads | 🟡 Ratchet landed; **9 of 25 sites are real lists**, 0 paginated | Phase 0 (to enforce) |
+| 2 | Whole-table loads | 🟡 23 sites / 17 files left (was 25 / 18); 2 lookups fixed | Phase 0 (to enforce) |
 | 3 | Dashboards load whole tables | 🟡 1 of 4 migrated (Statement); splits fixed | Phase 0 |
 | 4 | `MetricQty` hardcodes delivery qty | 🟡 Step 1 done — characterisation net landed | Phase 1, for steps 2–5 |
 | 5 | Test ratio 1 : 7.4 | 🟡 Target-tolerance split **fixed** | Phase 0 |
@@ -246,6 +246,18 @@ should be done one screen at a time with a build between each.
   wrongly on the list. Baseline is now **25 sites across 18 files**.
 - **1 of the 4 dashboards migrated** (Statement) — see Phase 3.
 - **0 of the 9 list screens paginated.**
+- **2 of the 7 category-B lookups fixed** (2026-09-08). Both
+  `TaxInvoiceViewModel` sites loaded every delivery note in the database to
+  answer a question about one proforma. They now call
+  `DeliveryNoteRepository.GetByProformaIdAsync`, added for the purpose.
+
+  Two details had to be preserved or the behaviour would have changed:
+  `GetAllAsync` excludes Master DNs, and the call sites compared ProformaId
+  with `OrdinalIgnoreCase` while SQLite `=` is case-sensitive — so the new
+  query keeps the `!IsMasterDn` filter and lower-cases both sides. The
+  Draft/Dispatching pair at one site also became
+  `DeliveryNoteStatusValues.IsPreparing`, which is what those two comparisons
+  meant.
 
 ## Phase 3 — Dashboard aggregates
 

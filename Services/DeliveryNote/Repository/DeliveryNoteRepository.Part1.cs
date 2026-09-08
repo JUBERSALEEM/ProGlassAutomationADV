@@ -442,6 +442,31 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .ToListAsync().ConfigureAwait(false);
         }
 
+        public async Task<List<DeliveryNoteListItem>> GetByProformaIdAsync(
+            string proformaId)
+        {
+            using var ctx = new DeliveryNotesDbContext();
+
+            // PERF: SQL-level projection so no snapshot blob is read.
+            //
+            // Two things must match GetAllAsync exactly, because this replaces
+            // a GetAllAsync() + in-memory filter and the callers must see the
+            // same rows:
+            //   1. the !IsMasterDn exclusion
+            //   2. case-insensitive ProformaId matching — the call sites used
+            //      StringComparison.OrdinalIgnoreCase, and SQLite `=` is
+            //      case-sensitive, so both sides are lower-cased here.
+            var key = (proformaId ?? string.Empty).ToLowerInvariant();
+
+            return await ctx.DeliveryNotes
+                .Where(x => !x.IsMasterDn &&
+                            x.ProformaId.ToLower() == key)
+                .AsNoTracking()
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(ToListItemProjection)
+                .ToListAsync().ConfigureAwait(false);
+        }
+
         public async Task<List<DeliveryNoteListItem>> GetPreparedAsync()
         {
             using var ctx = new DeliveryNotesDbContext();

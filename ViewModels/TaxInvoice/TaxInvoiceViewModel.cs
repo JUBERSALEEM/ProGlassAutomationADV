@@ -306,15 +306,21 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
 
                 if (_deliveryNotes != null)
                 {
-                    var siblings = await _deliveryNotes.GetAllAsync();
+                    // Phase 2: scoped query, not a whole-table load. This
+                    // loaded every delivery note in the database to answer a
+                    // question about one proforma. GetByProformaIdAsync
+                    // returns the same rows (same !IsMasterDn exclusion, same
+                    // case-insensitive match) narrowed in SQL.
+                    //
+                    // The Draft/Dispatching pair is now IsPreparing, which is
+                    // what those two comparisons meant and is the canonical
+                    // home for it.
+                    var siblings = await _deliveryNotes.GetByProformaIdAsync(proformaId);
                     bool hasDelivered = siblings.Any(d =>
-                        string.Equals(d.ProformaId, proformaId,
-                            StringComparison.OrdinalIgnoreCase)
-                        && d.TotalDeliveredQty > 0
-                        && !string.Equals(d.Status, "Dispatching",
-                            StringComparison.OrdinalIgnoreCase)
-                        && !string.Equals(d.Status, "Draft",
-                            StringComparison.OrdinalIgnoreCase));
+                        d.TotalDeliveredQty > 0
+                        && !ProGlassAutomation.Models.DeliveryNote.Common
+                            .DeliveryNoteStatus.DeliveryNoteStatusValues
+                            .IsPreparing(d.Status));
                     if (!hasDelivered)
                     {
                         _dialogs.Show(
@@ -471,11 +477,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                 bool hasDeliveries = false;
                 if (_deliveryNotes != null)
                 {
-                    var allDns = await _deliveryNotes.GetAllAsync();
-                    hasDeliveries = allDns.Any(d =>
-                        string.Equals(d.ProformaId, proformaId,
-                            StringComparison.OrdinalIgnoreCase)
-                        && d.TotalDeliveredQty > 0);
+                    // Phase 2: scoped query, not a whole-table load.
+                    var dnsForProforma = await _deliveryNotes.GetByProformaIdAsync(proformaId);
+                    hasDeliveries = dnsForProforma.Any(d => d.TotalDeliveredQty > 0);
                 }
 
                 if (hasDeliveries)
