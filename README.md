@@ -276,6 +276,13 @@ one canonical home — `JobOrderStatusValues`, `DeliveryNoteStatusValues`,
 `TargetMarginTolerance` — and a source-scan ratchet test that fails the build
 if a second declaration appears.
 
+`StatusLiteralRatchetTests` generalises the lesson. It does not know about
+`"In Production"` or `"Dispatching"`; it flags the *shape* — a persisted status
+compared against an inline literal — which is the shape all three bugs had. The
+baseline is 60 such comparisons across 12 files, capped per file, so the number
+can only fall. The largest offender
+(`DeliveryNoteRepository.Part1.cs`, 17) is the natural first migration.
+
 Two things worth saying plainly:
 
 - **The tolerance value is a business decision, not a technical one.** It was

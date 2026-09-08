@@ -65,6 +65,24 @@ The structural fix is the same in each case — one canonical home
 plus a source-scan ratchet that fails the build if a second declaration
 appears.
 
+### Two ratchets now hold the line
+
+| Test | Counts | Baseline | Fails when |
+|---|---|---|---|
+| `PaginationRatchetTests` | `GetAllAsync()` call sites | 20 files / 28 sites | an unlisted file calls it, or a listed one stops offending |
+| `StatusLiteralRatchetTests` | `.Status` compared to a bare literal | 12 files / 60 comparisons | a new file offends, a listed file grows, a ceiling goes stale, or a module has no canonical home |
+| `TargetMarginToleranceTests` | target-status band literals | 0 outside the canonical file | any file classifies a target margin with its own number |
+
+The status ratchet is the one that generalises: it does not know about
+"In Production" or "Dispatching" specifically. It flags the *shape* — a
+persisted status compared against an inline literal — which is the shape all
+three bugs had. Grandfathered files are capped per file, so cleaning one up
+and then adding a new comparison back to it still fails.
+
+The largest remaining offender is
+`Services/DeliveryNote/Repository/DeliveryNoteRepository.Part1.cs` at 17; it is
+the natural first migration.
+
 ---
 
 ## Phase 0 — Activate CI
