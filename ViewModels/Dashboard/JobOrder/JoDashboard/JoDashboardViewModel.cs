@@ -36,6 +36,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Dashboard;
+using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.ViewModels.Dashboard;
 using System;
@@ -165,12 +166,23 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
         // format, and a DashboardPageBase reference can finally read the
         // stamp the view is showing.
 
-        // ── Status string constants (matches SavedJobOrder.Status storage) ─
-        private const string StatusDraft = "Draft";
-        private const string StatusReleased = "Released";
-        private const string StatusInProduction = "InProduction";
-        private const string StatusCompleted = "Completed";
-        private const string StatusDelivered = "Delivered";
+        // ── Status strings ────────────────────────────────────────────
+        // Aliased to JobOrderStatusValues, which is the canonical home.
+        // These used to be private literals here, which is how this page came
+        // to compare j.Status == "InProduction" and silently drop every
+        // legacy "In Production" row — the mirror image of the bug that made
+        // the Overview dashboard drop every enum-written one.
+        private const string StatusDraft = JobOrderStatusValues.Draft;
+        private const string StatusReleased = JobOrderStatusValues.Released;
+        private const string StatusCompleted = JobOrderStatusValues.Completed;
+        private const string StatusDelivered = JobOrderStatusValues.Delivered;
+
+        /// <summary>
+        /// What Canonical() renders the in-production state as, and therefore
+        /// what the status bars and feed labels key on. Both stored spellings
+        /// collapse to this.
+        /// </summary>
+        private const string StatusInProduction = JobOrderStatusValues.InProductionDisplay;
 
         // ── Priority string constants (matches SavedJobOrder.Priority storage) ─
         private const string PriorityHigh = "High";
@@ -185,13 +197,11 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
 
             // ── Counts ───────────────────────────────────────────────
             int total = all.Count;
-            int inProd = all.Count(j => j.Status == StatusInProduction);
-            int completed = all.Count(j => j.Status == StatusCompleted
-                                        || j.Status == StatusDelivered);
+            int inProd = all.Count(j => JobOrderStatusValues.IsInProduction(j.Status));
+            int completed = all.Count(j => JobOrderStatusValues.IsFinished(j.Status));
             int overdue = all.Count(j => j.DeliveryDate.HasValue
                                         && j.DeliveryDate.Value.Date < today
-                                        && j.Status != StatusCompleted
-                                        && j.Status != StatusDelivered);
+                                        && !JobOrderStatusValues.IsFinished(j.Status));
 
             // ── KPI cards ────────────────────────────────────────────
             //   v2.5 BUG FIX: theme-correct brush keys
@@ -238,18 +248,25 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
             // semantics for job status. Not brush keys, not theme-swappable.
             var statusDefs = new[]
             {
-                (Label: "Draft",         Key: StatusDraft,        BarColor: "#6B7280"),
-                (Label: "Released",      Key: StatusReleased,     BarColor: "#3B82F6"),
-                (Label: "In Production", Key: StatusInProduction, BarColor: "#F59E0B"),
-                (Label: "Completed",     Key: StatusCompleted,    BarColor: "#3B82F6"),
-                (Label: "Delivered",     Key: StatusDelivered,    BarColor: "#8B5CF6"),
+                // Label IS the canonical status — bars are counted by
+                // matching JobOrderStatusValues.Canonical(job.Status) against
+                // it. If you change a Label, change Canonical to match.
+                (Label: "Draft",         BarColor: "#6B7280"),
+                (Label: "Released",      BarColor: "#3B82F6"),
+                (Label: "In Production", BarColor: "#F59E0B"),
+                (Label: "Completed",     BarColor: "#3B82F6"),
+                (Label: "Delivered",     BarColor: "#8B5CF6"),
             };
 
             double statusMax = total == 0 ? 1d : (double)total;
 
             _statusBars = statusDefs.Select(sd =>
             {
-                int count = all.Count(j => j.Status == sd.Key);
+                // Keyed on the canonical label, not the raw stored string,
+                // so "InProduction" and "In Production" land in the same bar
+                // instead of the legacy rows vanishing from the chart.
+                int count = all.Count(j =>
+                    JobOrderStatusValues.Canonical(j.Status) == sd.Label);
                 return new ChartBarModel
                 {
                     Label = sd.Label,
@@ -324,19 +341,23 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
         {
             bool isOverdue = job.DeliveryDate.HasValue
                           && job.DeliveryDate.Value.Date < today
-                          && job.Status != StatusCompleted
-                          && job.Status != StatusDelivered;
+                          && !JobOrderStatusValues.IsFinished(job.Status);
+
+            // Switch on the canonical form, not the raw stored string. Both
+            // "InProduction" and "In Production" arrive here; upper-casing the
+            // raw value would render the enum spelling as "INPRODUCTION".
+            var canonicalStatus = JobOrderStatusValues.Canonical(job.Status);
 
             string statusLabel = isOverdue
                 ? "OVERDUE"
-                : job.Status switch
+                : canonicalStatus switch
                 {
                     StatusDraft => "DRAFT",
                     StatusReleased => "RELEASED",
                     StatusInProduction => "IN PRODUCTION",
                     StatusCompleted => "COMPLETED",
                     StatusDelivered => "DELIVERED",
-                    _ => job.Status.ToUpperInvariant()
+                    _ => canonicalStatus.ToUpperInvariant()
                 };
 
             // v2.5: theme brush keys corrected
@@ -345,7 +366,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
             //   (InfoBrush blue = "shipped/delivered" semantic — no PurpleBrush in theme)
             string statusColor = isOverdue
                 ? "DangerBrush"
-                : job.Status switch
+                : canonicalStatus switch
                 {
                     StatusDraft => "MutedForegroundBrush",
                     StatusReleased => "AccentBrush",

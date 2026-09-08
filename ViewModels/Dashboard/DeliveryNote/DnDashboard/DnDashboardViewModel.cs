@@ -24,6 +24,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Dashboard;
+using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.ViewModels.Dashboard;
 using System;
@@ -172,11 +173,17 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
         // smuggled into a timestamp. Both reasons for the shadow are gone.
 
         // ── Status string constants (matches SavedDeliveryNote.Status) ─
-        private const string StatusDraft = "Draft";
-        private const string StatusDispatched = "Dispatched";
-        private const string StatusDelivered = "Delivered";
-        private const string StatusSigned = "Signed";
-        private const string StatusReceived = "Received";
+        // Aliased to DeliveryNoteStatusValues, the canonical home.
+        //
+        // StatusDraft used to be a private "Draft" literal here. But
+        // DeliveryNoteMapper writes "Dispatching", and Canonical() collapses
+        // both to the label DeliveryNoteStatusMeta already displays, so this
+        // page had no bar that counted mapper-written notes at all.
+        private const string StatusDispatching = DeliveryNoteStatusValues.Dispatching;
+        private const string StatusDispatched = DeliveryNoteStatusValues.Dispatched;
+        private const string StatusDelivered = DeliveryNoteStatusValues.Delivered;
+        private const string StatusSigned = DeliveryNoteStatusValues.Signed;
+        private const string StatusReceived = DeliveryNoteStatusValues.Received;
 
         // ── Type string constants (matches SavedDeliveryNote.DeliveryType) ─
         private const string TypeOriginal = "Original";
@@ -225,9 +232,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
 
             int deliveredToday = all.Count(d =>
                 d.DeliveryDate.Date == today &&
-                (d.Status == StatusDelivered ||
-                 d.Status == StatusSigned ||
-                 d.Status == StatusReceived));
+                DeliveryNoteStatusValues.HasLeftTheBuilding(d.Status));
 
             // GOTCHA #40 FIX: Sum per-JO balances (already de-duplicated by repo),
             // NOT per-DN snapshots. GetPendingQtyJobsAsync returns:
@@ -281,18 +286,25 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
             // SEMANTIC bar chart hex colors — universal DN status.
             var statusDefs = new[]
             {
-                (Label: "Draft",      Key: StatusDraft,      BarColor: "#6B7280"),
-                (Label: "Dispatched", Key: StatusDispatched, BarColor: "#F59E0B"),
-                (Label: "Delivered",  Key: StatusDelivered,  BarColor: "#3B82F6"),
-                (Label: "Signed",     Key: StatusSigned,     BarColor: "#3B82F6"),
-                (Label: "Received",   Key: StatusReceived,   BarColor: "#8B5CF6"),
+                // Label IS the canonical status — bars are counted by
+                // matching DeliveryNoteStatusValues.Canonical(d.Status)
+                // against it. "Draft" and "Dispatching" both collapse to
+                // "Dispatching", which is what DeliveryNoteStatusMeta shows.
+                // The first bar used to say "Draft" and therefore counted
+                // none of the mapper-written notes.
+                (Label: "Dispatching", BarColor: "#6B7280"),
+                (Label: "Dispatched",  BarColor: "#F59E0B"),
+                (Label: "Delivered",   BarColor: "#3B82F6"),
+                (Label: "Signed",      BarColor: "#3B82F6"),
+                (Label: "Received",    BarColor: "#8B5CF6"),
             };
 
             double statusMax = total == 0 ? 1d : (double)total;
 
             _statusBars = statusDefs.Select(sd =>
             {
-                int count = all.Count(d => d.Status == sd.Key);
+                int count = all.Count(d =>
+                    DeliveryNoteStatusValues.Canonical(d.Status) == sd.Label);
                 return new ChartBarModel
                 {
                     Label = sd.Label,
@@ -363,22 +375,27 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
         //   v2.5 BUG FIX: theme-correct brush keys for status pills.
         private static ActivityFeedItem BuildFeedItem(DeliveryNoteListItem dn)
         {
-            string statusLabel = dn.Status switch
+            // Switch on the canonical form so "Draft" and "Dispatching" get
+            // the same pill instead of the legacy one falling through to the
+            // default label and the wrong colour.
+            var canonicalStatus = DeliveryNoteStatusValues.Canonical(dn.Status);
+
+            string statusLabel = canonicalStatus switch
             {
-                StatusDraft => "DRAFT",
+                StatusDispatching => "DISPATCHING",
                 StatusDispatched => "DISPATCHED",
                 StatusDelivered => "DELIVERED",
                 StatusSigned => "SIGNED",
                 StatusReceived => "RECEIVED",
-                _ => dn.Status.ToUpperInvariant()
+                _ => canonicalStatus.ToUpperInvariant()
             };
 
             // v2.5: theme brush keys corrected
             //   was "AmberBrush" / "GreenBrush" / "PurpleBrush" — all MISSING
             //   now "WarningBrush" / "SuccessBrush" / "InfoBrush"
-            string statusColor = dn.Status switch
+            string statusColor = canonicalStatus switch
             {
-                StatusDraft => "MutedForegroundBrush",
+                StatusDispatching => "MutedForegroundBrush",
                 StatusDispatched => "WarningBrush",
                 StatusDelivered => "SuccessBrush",
                 StatusSigned => "AccentBrush",

@@ -84,15 +84,16 @@ Full detail, with the code path for each handoff: **[`docs/WORKFLOW.md`](docs/WO
 
 ## At a glance
 
-Numbers below were measured against this tree, not copied from an earlier
-release note.
+Numbers below were measured against this tree on 2026-09-08, not copied from
+an earlier release note. The measurement is stated so you can reproduce it and
+disagree with it.
 
 | | |
 |---|---|
-| **Production code** | 1,273 C# files · 223,866 lines |
-| **UI** | 229 XAML files · 114,628 lines |
-| **Tests** | 167 files · 152 classes · **1,148 `[Fact]`/`[Theory]`** · 29,578 lines |
-| **Test-to-production ratio** | 1 : 7.6 |
+| **Production code** | 1,109 C# files · 224,583 lines |
+| **UI** | 229 XAML files · 114,658 lines |
+| **Tests** | 171 files · **1,306 `[Fact]`/`[Theory]`** · 30,272 lines |
+| **Test-to-production ratio** | 1 : 7.4 |
 | **Modules** | 24 view areas · 38 service domains |
 | **Data** | 12 SQLite databases, one `DbContext` each, additive-only migrations |
 | **Authorisation** | 8 roles (`AppRoles.All`) + 1 legacy · 29 granular `Module.Capability` permissions |
@@ -102,6 +103,20 @@ release note.
 That last row is the one to look at. It is policed by a test
 (`Tests/Security/SilentCatchAuditTests.cs`), not by discipline — which is
 the only way it stays true.
+
+**How to reproduce these.** Production C# is every `.cs` outside `Tests/`,
+`obj/` and `bin/`; tests are everything under `Tests/`; the
+`[Fact]`/`[Theory]` figure counts live attributes (zero are commented out).
+
+> **Correction, 2026-09-08.** An earlier revision of this table reported
+> *1,273 production C# files*. That number counted **every** `.cs` in the
+> tree, tests included. At the time that was 1,106 production plus 167 test
+> files. The ratio was therefore computed against an inflated production
+> figure. Both numbers above are production-only, and the honest ratio is
+> 1 : 7.4, not 1 : 7.6.
+> The class count was dropped rather than restated: "test classes" has no
+> stable definition here (nested helper classes and shared fixtures make any
+> count arbitrary), and a number that cannot be defined cannot be measured.
 
 ---
 
@@ -165,7 +180,7 @@ ProGlassAutomationADV/
 │   └── Database/              12 DbContexts, additive-only migrations
 ├── Controls/ Themes/ Styles/  design system, chart controls, themes
 ├── Models/                    domain models, one folder per module
-├── Tests/                     xUnit — 1,148 tests
+├── Tests/                     xUnit — 1,306 tests
 ├── docs/                      140 documents, indexed at docs/README.md
 └── scripts/                   verification and generation tooling
 ```
@@ -220,7 +235,7 @@ rules, not aspirations.
 | **Error discipline** | Zero empty catches and zero raw `ex.Message` to users in shipped code; `ExceptionMessages.Deep()` everywhere; correlation IDs end-to-end. |
 | **Data safety** | Migrations run backup → transaction → rollback and are additive-only. Delete guards check downstream documents first. |
 | **Security** | RSA-2048-PSS with no v1.5 fallback, DPAPI for secrets, PBKDF2 for passwords, machine fingerprinting, rate-limited key generation. |
-| **Test intent** | 1,148 tests targeting the *workflow invariants* rather than getters — company semantics, conversion, price-basis determinism. |
+| **Test intent** | 1,306 tests targeting the *workflow invariants* rather than getters — company semantics, conversion, price-basis determinism. |
 | **Hygiene** | Zero TODO/FIXME/`NotImplementedException` in 223k lines of production code. Rare at this size. |
 
 ### What is open
@@ -231,14 +246,46 @@ Every item below has a phase, a concrete action and an acceptance test in
 | Priority | Issue | Evidence |
 |---|---|---|
 | **P0** | **No CI.** `.github/workflows/` does not exist. Four complete workflow files sit in `docs/ci/` and `docs/CI/`, unused. Nothing proves this tree builds. | `ls .github/` → `CODEOWNERS`, `dependabot.yml`, `pull_request_template.md` |
-| **P1** | **No pagination.** 28 real `GetAllAsync()` call sites across 20 ViewModels. Correct at 500 records, painful at 50,000. A working pattern already exists — `GlobalQueryEngine` + `InquiryList` (`PageSize=50`) — it is simply not used everywhere. | `grep -rn GetAllAsync ViewModels/ \| grep -v ///` |
-| **P1** | **The dashboard change of 2026-09-08 is unverified.** No SDK and no reachable NuGet feed in the environment it was written in; only static checks ran. Build on Windows before shipping. | commit `041a231` |
-| **P2** | **Test ratio 1 : 7.6.** Improved from 1 : 8.2, still thin for software that computes money. The pricing engine in particular deserves property-based coverage. | 29,578 test lines vs 223,866 |
+| **P1** | **No pagination.** 28 real `GetAllAsync()` call sites across 20 ViewModels, now locked by a ratchet test so the number cannot grow while the migration happens. Correct at 500 records, painful at 50,000. A working pattern already exists — `GlobalQueryEngine` + `InquiryList` (`PageSize=50`) — it is simply not used everywhere. | `grep -rn GetAllAsync ViewModels/ \| grep -v ///` |
+| **P0** | **Nothing since `b86a3bc` has been compiled.** No SDK and no reachable NuGet feed in the environment the 2026-09-08 work was written in. Logic was simulated in Python and every assertion re-run, but that is *reviewed*, not *proven*. Build on Windows before shipping. | commits `041a231`…`HEAD` |
+| **P2** | **Test ratio 1 : 7.4.** Still thin for software that computes money. The pricing engine in particular deserves property-based coverage. The earlier *1 : 7.6* figure was computed with test files counted as production — see the correction in [At a glance](#at-a-glance). | 30,272 test lines vs 224,583 |
 | **P2** | **Large classes.** 13 files exceed 990 lines; `JobProfitabilityViewModel.cs` is 1,930. Partial-class splitting contains the file size but not the responsibility count. | `find . -name '*.cs' \| xargs wc -l` |
 | **P2** | **No obfuscation.** Release binaries are readable in dnSpy. Acceptable for desktop, a raised bar for a commercial product. | `docs/CODE_RATING_REPORT.md` |
 | **P3** | **One acknowledged hack, still open.** `OtherChargeRow.MetricQty` hardcodes delivery quantity to `1m` per invoice. Documented, deliberate, and marked *"proper fix planned for Chat 8"* — it never happened. | `Models/ProformaInvoice/Step6OtherCharges/OtherChargeRow.cs:308` |
 | ~~P3~~ | ~~**25 `.md` files in the repository root.**~~ **Resolved 2026-09-08** — 24 audit/analysis documents moved to `docs/` with `git mv`, all inbound references rewritten, links re-verified. `README.md` is now the only root document. | `ls *.md` |
 | **P3** | **No anti-debug checks.** A debugger can patch memory to bypass licensing. Acceptable for desktop ERP; not zero-risk. | `docs/CODE_RATING_REPORT.md` |
+| ~~P1~~ | ~~**Status vocabularies disagreed between screens.**~~ **Resolved 2026-09-08** — see the section below. | commits `122a32b`, `fdfea80`, `5c10f90` |
+
+### One defect class, three screens, one afternoon
+
+The single most useful thing found in the 2026-09-08 work was not a feature
+gap. It was that three modules each declared a status or a threshold more than
+once, in two spellings or two values, with no canonical home — and each
+disagreement was silently wrong rather than loudly broken.
+
+| | The split | What the user saw |
+|---|---|---|
+| Job Order | `"In Production"` vs `"InProduction"` | Overview under-counted jobs in production; the Job Order screen disagreed with it |
+| Delivery Note | `"Draft"` vs `"Dispatching"` | `Preparing + Dispatched` did not equal `TotalNotes` |
+| Target pricing | `0.005m` vs `0.05m` | One invoice read **ABOVE TARGET** on the quotation and **AT TARGET** in Job Profitability |
+
+The root cause was structural: `SavedJobOrder.Status` and
+`SavedDeliveryNote.Status` are `string`, not the enums sitting next to them, so
+nothing stopped a call site from inventing its own literal. Each module now has
+one canonical home — `JobOrderStatusValues`, `DeliveryNoteStatusValues`,
+`TargetMarginTolerance` — and a source-scan ratchet test that fails the build
+if a second declaration appears.
+
+Two things worth saying plainly:
+
+- **The tolerance value is a business decision, not a technical one.** It was
+  unified on `0.005m` because the Proforma side classifies first and persists
+  the result. Margins between 0.005 and 0.05 now read ABOVE or BELOW where they
+  previously read AT. If the rule should be ±0.05, change one constant.
+- **Tax Invoice was checked and is *not* affected.** Nothing in the repository
+  stores `"Partially Paid"`; only the PascalCase form is written. It gained a
+  canonical home anyway, because the absence of one is what let the other three
+  drift.
 
 ### The rating, stated plainly
 

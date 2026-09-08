@@ -34,7 +34,7 @@ Phase 5  Test depth — pricing engine        ← needs Phase 4
 | 2 | No pagination | 🟡 Ratchet landed; migration pending | Phase 0 (to enforce) |
 | 3 | Dashboards load whole tables | 🟡 Aggregate split **fixed**; migration pending | Phase 0 |
 | 4 | `MetricQty` hardcodes delivery qty | 🟠 Planned | Phase 1 |
-| 5 | Test ratio 1 : 7.6 | 🟡 Target-tolerance split **fixed** | Phase 0 |
+| 5 | Test ratio 1 : 7.4 | 🟡 Target-tolerance split **fixed** | Phase 0 |
 | 6 | 13 files > 990 lines | ⚪ Deferred | Phase 1 |
 | 7 | No obfuscation / anti-debug | ⚪ Deferred | Phase 0 |
 | — | Root `.md` clutter | ✅ **Done 2026-09-08** | — |
@@ -70,7 +70,7 @@ appears.
 ## Phase 0 — Activate CI
 
 **Why it is P0.** Nothing else on this list can be *proven* fixed until a
-machine builds the project and runs 1,148 tests. Every other phase below ends
+machine builds the project and runs 1,306 tests. Every other phase below ends
 with "CI is green" as its acceptance criterion, so Phase 0 is not one item
 among eight — it is the instrument the other seven are measured with.
 
@@ -116,7 +116,7 @@ same folder name. Keep one, delete the rest, and update `docs/CI.md`.
 **Steps**
 1. Run the full suite locally: `dotnet test Tests -c Release`.
 2. Record the real pass/fail count in `RELEASE_GATE.md`. Nobody currently
-   knows it — the 1,148 figure is a count of `[Fact]`/`[Theory]` attributes,
+   knows it — the 1,306 figure is a count of `[Fact]`/`[Theory]` attributes,
    not of passing tests.
 3. Build with `TreatWarningsAsErrors=true` (already set in the csproj) and
    clear whatever surfaces.
@@ -220,7 +220,7 @@ The comment is honest about it: *"DELIVERY is per-invoice, not per-piece —
 always = 1 trip… Proper fix (PER_ROUND source + editable qty) planned for
 Chat 8."* Chat 8 happened. The fix did not.
 
-This is the only acknowledged `HACK` marker in 223,866 lines, and it sits on
+This is the only acknowledged `HACK` marker in 224,583 lines, and it sits on
 a money path — which is precisely why it has survived: everyone is
 (reasonably) afraid to touch it.
 
@@ -248,7 +248,9 @@ is load-bearing for existing documents. Do not start this without Phase 1.
 
 ## Phase 5 — Test depth on the pricing engine
 
-**The problem.** 29,578 test lines against 223,866 production lines — 1 : 7.6.
+**The problem.** 30,272 test lines against 224,583 production lines — 1 : 7.4.
+(An earlier revision said 1 : 7.6; that divided by a production figure which
+had counted the test files too.)
 The suite is well *aimed* (workflow invariants, not getters) but thin where it
 matters most: the Step 9 pricing engine.
 
@@ -339,6 +341,21 @@ mapper-written note landed in *neither* bucket — `Preparing + Dispatched` did
 not equal `TotalNotes`. `DeliveryNoteStatusValues` gained `Is`, `IsPreparing`,
 `HasLeftTheBuilding` and `Canonical`; the metrics service delegates all five
 status checks to it.
+
+**Dashboard status splits — 2026-09-08.** Having fixed `DashboardMetricsService`
+to match both job-status spellings, the two module dashboards were checked and
+were wrong in the *opposite* direction. `JoDashboardViewModel` compared
+`j.Status == "InProduction"`, silently dropping every legacy `"In Production"`
+row from the KPI count, the status chart and the feed. `DnDashboardViewModel`
+had no `"Dispatching"` constant at all, so mapper-written notes fell out of
+every bar and their feed pills took the default colour.
+
+Both now key on `Canonical()` rather than the raw stored string. A consequence
+worth recording: the first DN bar changed label from **"Draft" to
+"Dispatching"**, because that is what `DeliveryNoteStatusMeta` already displays
+for both spellings and what `Canonical()` returns. The bars now sum to the
+total; previously they did not. Each page also gained an invariant that the bar
+label set equals the `Canonical()` output set, verified for both.
 
 **Target-margin tolerance split — 2026-09-08.** The ABOVE / AT / BELOW TARGET
 band was declared eight times with two values: `0.005m` in
