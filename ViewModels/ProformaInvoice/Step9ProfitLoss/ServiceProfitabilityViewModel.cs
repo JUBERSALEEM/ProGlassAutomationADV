@@ -194,11 +194,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 rows.Add(BuildTotalRow());
 
                 var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Service Profitability",
+                    format, rows, "Production Services and Add-On Report",
                     Step9ReportExport.ServiceHeaders,
                     Step9ReportExport.ServiceMap,
                     Step9ReportExport.ServiceMapExcel,
-                    $"Service_Profitability_{DateTime.Now:yyyyMMdd}");
+                    $"Step9_Production_Services_AddOns_{DateTime.Now:yyyyMMdd}");
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";
@@ -320,6 +320,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         totalProfit += uInsertRow.Profit;
                     }
                 }
+
+                AddStep6SupplementalAddOnRows(ref totalCharge, ref totalProfit);
 
                 TotalServiceCharge = totalCharge;
                 TotalServiceProfit = totalProfit;
@@ -578,6 +580,46 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 ServiceBreakdown.Add(row);
                 totalCharge += charge;
                 totalProfit += profit;
+            }
+        }
+
+
+        /// <summary>
+        /// Step 6 add-ons such as Argon Gas are quotation/production add-ons.
+        /// Some are deliberately excluded from the core P&L cost rows to avoid
+        /// pretending we know their detailed internal cost, but the export must
+        /// still show them clearly for ERP review.
+        /// </summary>
+        private void AddStep6SupplementalAddOnRows(ref decimal totalCharge, ref decimal totalProfit)
+        {
+            var charges = _parentViewModel._otherChargesVm?.ChargeRows;
+            if (charges == null) return;
+
+            foreach (var charge in charges.Where(c => c.IsActive && c.ResultAmount > 0m))
+            {
+                string key = (charge.TemplateKey ?? string.Empty).Trim().ToUpperInvariant();
+                bool mustSurface = key is "ARGON_GAS" or "FAN_HOLES" or "CUTOUT" or "HOLES" or "COUNTERSUNK_HOLES";
+                if (!mustSurface) continue;
+
+                string specSummary = charge.TargetSelection?.SummaryText ?? "Step 6 selected specs";
+                ServiceBreakdown.Add(new ServiceProfitRow
+                {
+                    SpecName = specSummary,
+                    ServiceName = charge.ChargeName,
+                    Description = key == "ARGON_GAS"
+                        ? $"Argon gas DGU cavity add-on · {charge.FormulaDisplay}"
+                        : $"Step 6 production add-on · {charge.FormulaDisplay}",
+                    Area = charge.MetricQty,
+                    Charge = charge.ResultAmount,
+                    Cost = 0m,
+                    Profit = 0m,
+                    MarginPercent = 0m,
+                    IsProfitable = true
+                });
+
+                // Treat as visible quoted service revenue, but do not invent an
+                // internal cost/profit where no production-cost model exists.
+                totalCharge += charge.ResultAmount;
             }
         }
 

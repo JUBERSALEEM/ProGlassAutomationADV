@@ -217,7 +217,7 @@ namespace ProGlassAutomation.Services.Reporting
 
             public void RenderContent(ColumnDescriptor column)
             {
-                column.Item().Text(_title).FontSize(16).Bold().FontColor("#1D4ED8");
+                column.Item().Text(_title).FontSize(18).Bold().FontColor("#1D4ED8");
                 column.Item().Text($"Generated {DateTime.Now:dd MMM yyyy HH:mm}  •  {_rows.Count} row(s)").FontSize(8).FontColor("#6B7280");
                 column.Item().PaddingTop(8).LineHorizontal(1).LineColor("#E5E7EB");
 
@@ -231,11 +231,11 @@ namespace ProGlassAutomation.Services.Reporting
                     table.Header(h =>
                     {
                         foreach (var hd in _headers)
-                            h.Cell().Background("#1D4ED8").Padding(4).Text(hd).FontSize(7).Bold().FontColor(Colors.White).AlignCenter();
+                            h.Cell().Background("#1D4ED8").Padding(4).Text(hd).FontSize(8).Bold().FontColor(Colors.White).AlignCenter();
                     });
 
                     bool alt = false;
-                    int maxCellChars = _headers.Length <= 4 ? 140 : _headers.Length <= 10 ? 70 : 42;
+                    int maxCellChars = _headers.Length <= 4 ? 170 : _headers.Length <= 8 ? 105 : _headers.Length <= 10 ? 80 : 52;
                     // Detail reports must export every row. CSV/Excel remain best
                     // for very large datasets, but PDF should still carry the full
                     // audit trail instead of silently truncating business evidence.
@@ -247,7 +247,7 @@ namespace ProGlassAutomation.Services.Reporting
                         {
                             var txt = f ?? "";
                             if (txt.Length > maxCellChars) txt = txt.Substring(0, Math.Max(1, maxCellChars - 1)) + "…";
-                            table.Cell().Background(alt ? "#F8FAFC" : Colors.White).BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(3).Text(txt).FontSize(6).FontColor("#1F2937");
+                            table.Cell().Background(alt ? "#F8FAFC" : Colors.White).BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(4).Text(txt).FontSize(_headers.Length <= 8 ? 7.5f : 7f).FontColor("#1F2937");
                         }
                         alt = !alt;
                     }

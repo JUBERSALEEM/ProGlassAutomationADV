@@ -322,11 +322,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 rows.Add(BuildTotalRow());
 
                 var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Sheet Profitability",
+                    format, rows, "Sheet Price and Wastage Report",
                     Step9ReportExport.SheetHeaders,
                     Step9ReportExport.SheetMap,
                     Step9ReportExport.SheetMapExcel,
-                    $"Sheet_Profitability_{DateTime.Now:yyyyMMdd}");
+                    $"Step9_Sheet_Price_Wastage_Report_{DateTime.Now:yyyyMMdd}");
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";

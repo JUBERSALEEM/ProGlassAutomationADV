@@ -80,12 +80,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             string.Equals(kind, "Spacer", StringComparison.OrdinalIgnoreCase);
 
         private static bool IsProductionKind(string? kind) =>
-            string.Equals(kind, "Production", StringComparison.OrdinalIgnoreCase);
+            string.Equals(kind, "Production", StringComparison.OrdinalIgnoreCase)
+            || (kind ?? "").IndexOf("Production", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        private static bool Mentions(string? value, string token) =>
+            (value ?? "").IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0;
 
         private static string CostClass(ProfitLossRow r)
         {
             if (IsSummaryKind(r.Kind)) return "SUMMARY";
             if (IsSpacerKind(r.Kind)) return "PRODUCTION SERVICE · SPACER / ASP";
+            if (Mentions(r.Kind, "Argon") || Mentions(r.Description, "Argon")) return "PRODUCTION ADD-ON · ARGON GAS";
             if (IsProductionKind(r.Kind)) return "PRODUCTION SERVICE · CUTTING / TEMPERING / LAMINATION";
             if (string.Equals(r.Kind, "Glass", StringComparison.OrdinalIgnoreCase)) return "MATERIAL · GLASS SHEET";
             return "COST LINE";
@@ -95,6 +100,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         {
             var name = r.ServiceName ?? "";
             if (string.Equals(r.SpecName, "TOTAL", StringComparison.OrdinalIgnoreCase)) return "SUMMARY";
+            if (name.IndexOf("Argon", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "ARGON GAS DGU CAVITY ADD-ON";
             if (name.IndexOf("Spacer", StringComparison.OrdinalIgnoreCase) >= 0
                 || name.IndexOf("ASP", StringComparison.OrdinalIgnoreCase) >= 0)
                 return "SPACER / ASP PRODUCTION SERVICE";
@@ -128,6 +135,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             if (IsSummaryKind(r.Kind)) return "Subtotal / control total";
             if (IsSpacerKind(r.Kind))
                 return $"Spacer service quantity {r.Quantity:0.##} SQM × AED {r.PricePerSqm:N2}/SQM";
+            if (Mentions(r.Kind, "Argon") || Mentions(r.Description, "Argon"))
+                return $"Argon gas quantity {r.Quantity:0.##} {r.UnitLabel} × AED {r.PricePerSqm:N2}/{r.UnitLabel}";
             if (IsProductionKind(r.Kind))
                 return $"Production service quantity {r.Quantity:0.##} {r.UnitLabel} × AED {r.PricePerSqm:N2}/{r.UnitLabel}";
             if (string.Equals(r.Kind, "Glass", StringComparison.OrdinalIgnoreCase) && r.SheetSqm > 0m)
@@ -156,6 +165,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         {
             if (IsSpacerKind(r.Kind))
                 return "SPACER / ASP production cost — includes DGU spacer work and related cutting/tempering/assembly where configured in Step 4.";
+            if (Mentions(r.Kind, "Argon") || Mentions(r.Description, "Argon"))
+                return "ARGON GAS add-on — DGU cavity gas filling. Shown separately from glass sheet price and spacer/ASP service cost.";
             if (IsProductionKind(r.Kind))
                 return "Production/service charge — cutting, tempering, lamination/interlayer, U-insert or Step 6 production charge.";
             if (string.Equals(r.Kind, "Glass", StringComparison.OrdinalIgnoreCase))
@@ -166,89 +177,75 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         // ── SERVICE PROFITABILITY ───────────────────────────────────────
         public static readonly string[] ServiceHeaders =
         {
-            "SECTION", "SPEC", "SERVICE CLASS", "SERVICE", "DESCRIPTION", "SERVICE QTY (SQM)",
-            "RATE / SQM", "CHARGE", "COST", "PROFIT", "MARGIN %", "STATUS", "CALCULATION BASIS"
+            "CATEGORY", "SPEC", "SERVICE / ADD-ON", "QTY BASIS", "RATE", "CHARGE",
+            "COST / PROFIT", "STATUS / NOTE"
         };
 
         public static string[] ServiceMap(ServiceProfitRow r) => new[]
         {
-            r.SpecName == "TOTAL" ? "TOTAL" : "SERVICE DETAIL",
-            r.SpecName,
             ServiceClass(r),
-            r.ServiceName,
-            r.Description,
-            r.Area.ToString("0.##", CultureInfo.InvariantCulture),
-            r.Area > 0m ? N(r.Charge / r.Area) : "—",
-            N(r.Charge),
-            N(r.Cost),
-            N(r.Profit),
-            N1(r.MarginPercent),
-            r.SpecName == "TOTAL" ? "—" : r.IsProfitable ? "PROFIT" : "LOSS",
-            r.Area > 0m ? $"{r.Area:0.##} SQM × AED {(r.Charge / r.Area):N2}/SQM = AED {r.Charge:N2}" : "—"
+            r.SpecName,
+            $"{r.ServiceName} — {r.Description}",
+            r.Area > 0m ? $"{r.Area:0.##} SQM" : "—",
+            r.Area > 0m ? $"AED {(r.Charge / r.Area):N2}/SQM" : "—",
+            $"AED {r.Charge:N2}",
+            $"Cost AED {r.Cost:N2} · Profit AED {r.Profit:N2} · Margin {r.MarginPercent:0.#}%",
+            r.SpecName == "TOTAL" ? "Control total"
+                : r.Cost <= 0m && r.Charge > 0m ? "Charge visible; detailed cost model not allocated"
+                : r.IsProfitable ? "Profit" : "Loss"
         };
 
         public static object[] ServiceMapExcel(ServiceProfitRow r) => new object[]
         {
-            r.SpecName == "TOTAL" ? "TOTAL" : "SERVICE DETAIL",
-            r.SpecName, ServiceClass(r), r.ServiceName, r.Description, r.Area,
+            ServiceClass(r),
+            r.SpecName,
+            $"{r.ServiceName} — {r.Description}",
+            r.Area > 0m ? $"{r.Area:0.##} SQM" : "—",
             r.Area > 0m ? Math.Round(r.Charge / r.Area, 2) : 0m,
-            r.Charge, r.Cost, r.Profit, r.MarginPercent,
-            r.SpecName == "TOTAL" ? "—" : r.IsProfitable ? "PROFIT" : "LOSS",
-            r.Area > 0m ? $"{r.Area:0.##} SQM × AED {(r.Charge / r.Area):N2}/SQM = AED {r.Charge:N2}" : "—"
+            r.Charge,
+            $"Cost {r.Cost:N2} / Profit {r.Profit:N2} / Margin {r.MarginPercent:0.#}%",
+            r.SpecName == "TOTAL" ? "Control total"
+                : r.Cost <= 0m && r.Charge > 0m ? "Charge visible; detailed cost model not allocated"
+                : r.IsProfitable ? "Profit" : "Loss"
         };
 
         // ── SHEET PROFITABILITY ─────────────────────────────────────────
         public static readonly string[] SheetHeaders =
         {
-            "SECTION", "SPEC", "GLASS TYPE", "PANE / GLASS", "SHEET SIZE", "SHEET SQM",
-            "BUY SHEETS", "USED SHEETS", "WASTE SHEETS",
-            "BUY AREA (SQM)", "USED AREA (SQM)", "WASTE AREA (SQM)",
-            "RATE /SQM", "BUY PRICE", "USED PRICE", "WASTE VALUE", "STEP 6 CHARGE",
-            "STEP 6 SOURCE", "STEP 6 SOURCE SQM", "STEP 6 SHEET QTY", "STEP 6 RATE", "EFFICIENCY %",
-            "USED SHARE %", "WASTAGE SHARE %", "STEP 6 SHARE %", "STATUS", "DIAGNOSTIC"
+            "CATEGORY", "SPEC", "PANE / GLASS", "SHEET SIZE", "SHEET QTY / AREA",
+            "RATE / SQM", "SHEET PRICE CALC", "STEP 6 / WASTAGE", "EFFICIENCY", "STATUS / NOTE"
         };
 
         public static string[] SheetMap(SheetProfitRow r) => new[]
         {
-            r.GlassTypeLabel == "TOTAL" ? "TOTAL" : "SHEET DETAIL",
+            r.GlassTypeLabel == "TOTAL" ? "TOTAL" : "MATERIAL SHEET PRICE",
             r.SpecName,
-            r.GlassTypeLabel,
-            r.PaneGlassDisplay,
+            $"{r.GlassTypeLabel} · {r.PaneGlassDisplay}",
             r.SheetSize,
-            r.SheetSqm.ToString("0.####", CultureInfo.InvariantCulture),
-            r.BuySheets.ToString("0.##", CultureInfo.InvariantCulture),
-            r.UsedSheets.ToString("0.##", CultureInfo.InvariantCulture),
-            r.WastageSheets.ToString("0.##", CultureInfo.InvariantCulture),
-            r.BuySheetArea.ToString("0.##", CultureInfo.InvariantCulture),
-            r.UsedArea.ToString("0.##", CultureInfo.InvariantCulture),
-            r.WastageArea.ToString("0.##", CultureInfo.InvariantCulture),
-            N(r.PricePerSqm),
-            N(r.BuySheetPrice),
-            N(r.UsedSheetPrice),
-            N(r.WastageValue),
-            N(r.Step6Charge),
-            r.Step6SourceLabel,
-            r.Step6SourceSqm.ToString("0.###", CultureInfo.InvariantCulture),
-            r.Step6SheetQuantity > 0 ? r.Step6SheetQuantity.ToString(CultureInfo.InvariantCulture) : "—",
-            r.Step6Rate > 0m ? N(r.Step6Rate) : "—",
-            N(r.UsageEfficiencyPercent),
-            N1(r.UsedPriceSharePercent),
-            N1(r.WastageValueSharePercent),
-            N1(r.Step6ChargeSharePercent),
-            SheetStatus(r),
-            r.DiagnosticMessage
+            $"Sheet {r.SheetSqm:0.####} SQM · buy {r.BuySheets:0.##} · used {r.UsedSheets:0.##} · waste {r.WastageSheets:0.##}",
+            $"AED {r.PricePerSqm:N2}/SQM",
+            $"Buy AED {r.BuySheetPrice:N2} · Used AED {r.UsedSheetPrice:N2} · Waste AED {r.WastageValue:N2}",
+            r.Step6Charge > 0m
+                ? $"Step 6 AED {r.Step6Charge:N2} · {r.Step6SourceLabel} · {r.Step6SourceSqm:0.###} SQM · sheets {r.Step6SheetQuantityDisplay} · rate {r.Step6RateDisplay}"
+                : "No active Step 6 charge on this sheet line",
+            $"{r.UsageEfficiencyPercent:N2}% used · {r.UsedPriceSharePercent:0.#}% used value · {r.WastageValueSharePercent:0.#}% waste value",
+            $"{SheetStatus(r)} · {r.DiagnosticMessage}"
         };
 
         public static object[] SheetMapExcel(SheetProfitRow r) => new object[]
         {
-            r.GlassTypeLabel == "TOTAL" ? "TOTAL" : "SHEET DETAIL",
-            r.SpecName, r.GlassTypeLabel, r.PaneGlassDisplay, r.SheetSize, r.SheetSqm,
-            r.BuySheets, r.UsedSheets, r.WastageSheets,
-            r.BuySheetArea, r.UsedArea, r.WastageArea,
-            r.PricePerSqm, r.BuySheetPrice, r.UsedSheetPrice, r.WastageValue, r.Step6Charge,
-            r.Step6SourceLabel, r.Step6SourceSqm, r.Step6SheetQuantity, r.Step6Rate, r.UsageEfficiencyPercent,
-            r.UsedPriceSharePercent, r.WastageValueSharePercent, r.Step6ChargeSharePercent,
-            SheetStatus(r), r.DiagnosticMessage
+            r.GlassTypeLabel == "TOTAL" ? "TOTAL" : "MATERIAL SHEET PRICE",
+            r.SpecName,
+            $"{r.GlassTypeLabel} · {r.PaneGlassDisplay}",
+            r.SheetSize,
+            $"Sheet {r.SheetSqm:0.####} SQM / buy {r.BuySheets:0.##} / used {r.UsedSheets:0.##} / waste {r.WastageSheets:0.##}",
+            r.PricePerSqm,
+            $"Buy {r.BuySheetPrice:N2} / Used {r.UsedSheetPrice:N2} / Waste {r.WastageValue:N2}",
+            r.Step6Charge > 0m
+                ? $"Step 6 {r.Step6Charge:N2} / {r.Step6SourceLabel} / {r.Step6SourceSqm:0.###} SQM / sheets {r.Step6SheetQuantityDisplay} / rate {r.Step6RateDisplay}"
+                : "No active Step 6 charge",
+            $"{r.UsageEfficiencyPercent:N2}% used / {r.UsedPriceSharePercent:0.#}% used value / {r.WastageValueSharePercent:0.#}% waste value",
+            $"{SheetStatus(r)} · {r.DiagnosticMessage}"
         };
 
         // The total row is marked by GlassTypeLabel == "TOTAL"; its computed
@@ -290,136 +287,61 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         // ── MAIN P&L COST BREAKDOWN ────────────────────────────────────
         public static readonly string[] PnlHeaders =
         {
-            "SECTION", "SPEC", "COST CLASS", "KIND", "DESCRIPTION", "SHEET SIZE", "SHEET SOURCE",
-            "SHEET SQM", "QTY", "UNIT", "RATE", "EXTENDED RATE", "CALCULATION BASIS",
-            "EXTENDED CALCULATION", "PRODUCTION / SERVICE NOTE", "AMOUNT"
+            "CATEGORY", "SPEC", "ITEM", "QTY × RATE BASIS", "SHEET / SOURCE",
+            "AMOUNT", "READING NOTE"
         };
 
         public static string[] PnlMap(ProfitLossRow r) => new[]
         {
-            IsSummaryKind(r.Kind) ? "TOTAL / SUBTOTAL" : "ACTUAL COST LINE",
-            r.SpecDisplay,
             CostClass(r),
-            r.Kind,
-            r.Description,
-            IsSummaryKind(r.Kind)
-                ? "—"
-                : r.SheetWidthMm > 0
-                    ? $"{r.SheetWidthMm} × {r.SheetHeightMm}"
-                    : "—",
-            IsSummaryKind(r.Kind) ? "—" : r.SheetSource,
-            IsSummaryKind(r.Kind) ? "—" : r.SheetSqm.ToString("0.####", CultureInfo.InvariantCulture),
-            IsSummaryKind(r.Kind) ? "—" : r.Quantity.ToString("0.##", CultureInfo.InvariantCulture),
-            IsSummaryKind(r.Kind) ? "—" : r.UnitLabel,
-            IsSummaryKind(r.Kind) ? "—" : r.PricePerSqm.ToString("N2", CultureInfo.InvariantCulture),
-            IsSummaryKind(r.Kind) ? "—" : ExtendedRate(r).ToString("N2", CultureInfo.InvariantCulture),
+            r.SpecDisplay,
+            $"{r.Kind}: {r.Description}",
             CostBasis(r),
-            ExtendedCalculation(r),
-            ServiceNote(r),
-            N(r.Amount)
+            IsSummaryKind(r.Kind) ? "—" : $"{r.SizeDisplay} · {r.SheetSource}",
+            $"AED {r.Amount:N2}",
+            $"{ExtendedCalculation(r)}. {ServiceNote(r)}"
         };
 
         public static object[] PnlMapExcel(ProfitLossRow r) => new object[]
         {
-            IsSummaryKind(r.Kind) ? "TOTAL / SUBTOTAL" : "ACTUAL COST LINE",
-            r.SpecDisplay,
             CostClass(r),
-            r.Kind,
-            r.Description,
-            IsSummaryKind(r.Kind) ? "—" : r.SizeDisplay,
-            IsSummaryKind(r.Kind) ? "—" : r.SheetSource,
-            IsSummaryKind(r.Kind) ? 0m : r.SheetSqm,
-            IsSummaryKind(r.Kind) ? 0m : r.Quantity,
-            IsSummaryKind(r.Kind) ? "—" : r.UnitLabel,
-            IsSummaryKind(r.Kind) ? 0m : r.PricePerSqm,
-            IsSummaryKind(r.Kind) ? 0m : ExtendedRate(r),
+            r.SpecDisplay,
+            $"{r.Kind}: {r.Description}",
             CostBasis(r),
-            ExtendedCalculation(r),
-            ServiceNote(r),
-            r.Amount
+            IsSummaryKind(r.Kind) ? "—" : $"{r.SizeDisplay} · {r.SheetSource}",
+            r.Amount,
+            $"{ExtendedCalculation(r)}. {ServiceNote(r)}"
         };
 
         // ── TARGET COMPARISON / SPEC DETAIL ───────────────────────────
         public static readonly string[] TargetHeaders =
         {
-            "SECTION", "SPEC", "GLASS / SPECIFICATION", "BUILD", "DIMENSIONS", "AREA (SQM)",
-            "GIVEN /SQM", "GIVEN VALUE", "OUTER RATE", "INNER RATE", "THIRD RATE", "ASP RATE",
-            "PROCESSING RATE", "YIELD", "UPLIFT %", "FORMULA", "SPEC TGT /SQM",
-            "U-INSERT TREATMENT", "U-INSERT DETAIL", "U-INSERT SOURCE", "U-INSERT RATE", "APPLIED U-INSERT",
-            "BASE PRICE", "BASE DIFF /SQM", "BASE DIFF VALUE", "BASE MARGIN %",
-            "FINAL TGT /SQM", "DIFF /SQM", "REQUIRED TARGET VALUE", "DIFF VALUE",
-            "MARGIN AGAINST TARGET %", "STATUS", "WARNING"
+            "CATEGORY", "SPEC", "SPECIFICATION", "BUILD / AREA", "NORMAL SPEC PRICE",
+            "RATE COMPONENTS", "TARGET RESULT", "STATUS / FORMULA"
         };
 
         public static string[] TargetMap(SpecTargetRowViewModel r) => new[]
         {
-            r.SpecNumber > 0 ? "SPEC DETAIL" : "INVOICE-WIDE",
+            r.SpecNumber > 0 ? "SPEC PRICE TARGET" : "INVOICE-WIDE TARGET",
             r.SpecNumberDisplay,
             r.SpecDisplayName,
-            r.BuildTypeLabel,
-            OneLine(r.DimensionsSummary),
-            r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? "",
-            Rate(r.Result?.GivenPricePerSqm),
-            N(r.Result?.GivenValue ?? 0m),
-            Rate(r.Result?.OuterGlassRatePerSqm),
-            Rate(r.Result?.InnerGlassRatePerSqm),
-            Rate(r.Result?.ThirdGlassRatePerSqm),
-            Rate(r.Result?.AspRatePerSqm),
-            Rate(r.Result?.ProcessingRatePerSqm),
-            r.Result?.YieldFactor.ToString("0.###", CultureInfo.InvariantCulture) ?? "",
-            r.Result?.TargetUpliftPercent.ToString("0.##", CultureInfo.InvariantCulture) ?? "",
-            r.FormulaText,
-            Rate(r.Result?.SpecificationTargetPerSqm),
-            r.UInsertTreatmentLabel,
-            r.UInsertTreatmentDetail,
-            r.UInsertSourceDisplay,
-            Rate(r.Result?.UInsertRatePerSqm),
-            r.AppliedUInsertDisplay,
-            Rate(r.Result?.BasePricePerSqm),
-            Diff(r.Result?.ExtraProfitPerSqm),
-            r.BaseDifferenceValueDisplay,
-            r.Result?.ExtraProfitMarginPercent?.ToString("0.##", CultureInfo.InvariantCulture) ?? "",
-            Rate(r.Result?.FinalRequiredTargetPerSqm),
-            Diff(r.Result?.DifferencePerSqm),
-            N(r.Result?.RequiredTargetValue ?? 0m),
-            r.DifferenceValueDisplay,
-            r.Result?.MarginAgainstTargetPercent?.ToString("0.##", CultureInfo.InvariantCulture) ?? "",
-            r.StatusLabel,
-            r.WarningSummary
+            $"{r.BuildTypeLabel} · {OneLine(r.DimensionsSummary)} · Area {r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? ""} SQM",
+            $"Given {Rate(r.Result?.GivenPricePerSqm)}/SQM · value AED {N(r.Result?.GivenValue ?? 0m)} · base {Rate(r.Result?.BasePricePerSqm)}/SQM",
+            $"Outer {Rate(r.Result?.OuterGlassRatePerSqm)} · Inner {Rate(r.Result?.InnerGlassRatePerSqm)} · Third {Rate(r.Result?.ThirdGlassRatePerSqm)} · ASP {Rate(r.Result?.AspRatePerSqm)} · Processing {Rate(r.Result?.ProcessingRatePerSqm)} · Yield {r.Result?.YieldFactor.ToString("0.###", CultureInfo.InvariantCulture) ?? ""}",
+            $"Target {Rate(r.Result?.FinalRequiredTargetPerSqm)}/SQM · required AED {N(r.Result?.RequiredTargetValue ?? 0m)} · diff/SQM {Diff(r.Result?.DifferencePerSqm)} · diff value {r.DifferenceValueDisplay} · margin {r.Result?.MarginAgainstTargetPercent?.ToString("0.##", CultureInfo.InvariantCulture) ?? ""}%",
+            $"{r.StatusLabel}. {r.FormulaText}. U-insert: {r.UInsertTreatmentLabel} / {r.AppliedUInsertDisplay}. {r.WarningSummary}"
         };
 
         public static object[] TargetMapExcel(SpecTargetRowViewModel r) => new object[]
         {
-            r.SpecNumber > 0 ? "SPEC DETAIL" : "INVOICE-WIDE",
-            r.SpecNumberDisplay, r.SpecDisplayName, r.BuildTypeLabel, OneLine(r.DimensionsSummary),
-            r.Result?.AreaSqm ?? 0m,
-            r.Result?.GivenPricePerSqm ?? 0m,
-            r.Result?.GivenValue ?? 0m,
-            r.Result?.OuterGlassRatePerSqm ?? 0m,
-            r.Result?.InnerGlassRatePerSqm ?? 0m,
-            r.Result?.ThirdGlassRatePerSqm ?? 0m,
-            r.Result?.AspRatePerSqm ?? 0m,
-            r.Result?.ProcessingRatePerSqm ?? 0m,
-            r.Result?.YieldFactor ?? 0m,
-            r.Result?.TargetUpliftPercent ?? 0m,
-            r.FormulaText,
-            r.Result?.SpecificationTargetPerSqm ?? 0m,
-            r.UInsertTreatmentLabel,
-            r.UInsertTreatmentDetail,
-            r.UInsertSourceDisplay,
-            r.Result?.UInsertRatePerSqm ?? 0m,
-            r.AppliedUInsertDisplay,
-            r.Result?.BasePricePerSqm ?? 0m,
-            r.Result?.ExtraProfitPerSqm ?? 0m,
-            r.BaseDifferenceValueDisplay,
-            r.Result?.ExtraProfitMarginPercent ?? 0m,
-            r.Result?.FinalRequiredTargetPerSqm ?? 0m,
-            r.Result?.DifferencePerSqm ?? 0m,
-            r.Result?.RequiredTargetValue ?? 0m,
-            r.DifferenceValueDisplay,
-            r.Result?.MarginAgainstTargetPercent ?? 0m,
-            r.StatusLabel,
-            r.WarningSummary
+            r.SpecNumber > 0 ? "SPEC PRICE TARGET" : "INVOICE-WIDE TARGET",
+            r.SpecNumberDisplay,
+            r.SpecDisplayName,
+            $"{r.BuildTypeLabel} / {OneLine(r.DimensionsSummary)} / Area {r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? ""} SQM",
+            $"Given {Rate(r.Result?.GivenPricePerSqm)}/SQM / value {N(r.Result?.GivenValue ?? 0m)} / base {Rate(r.Result?.BasePricePerSqm)}/SQM",
+            $"Outer {Rate(r.Result?.OuterGlassRatePerSqm)} / Inner {Rate(r.Result?.InnerGlassRatePerSqm)} / Third {Rate(r.Result?.ThirdGlassRatePerSqm)} / ASP {Rate(r.Result?.AspRatePerSqm)} / Processing {Rate(r.Result?.ProcessingRatePerSqm)} / Yield {r.Result?.YieldFactor.ToString("0.###", CultureInfo.InvariantCulture) ?? ""}",
+            $"Target {Rate(r.Result?.FinalRequiredTargetPerSqm)}/SQM / required {N(r.Result?.RequiredTargetValue ?? 0m)} / diff/SQM {Diff(r.Result?.DifferencePerSqm)} / diff value {r.DifferenceValueDisplay} / margin {r.Result?.MarginAgainstTargetPercent?.ToString("0.##", CultureInfo.InvariantCulture) ?? ""}%",
+            $"{r.StatusLabel}. {r.FormulaText}. U-insert: {r.UInsertTreatmentLabel} / {r.AppliedUInsertDisplay}. {r.WarningSummary}"
         };
 
         // ── OVERVIEW DETAILED EXPORT ───────────────────────────────────
@@ -446,6 +368,46 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             r.Section, r.Item, r.Value, r.Detail
         };
 
+
+        private sealed class Step6ExportCharge
+        {
+            public string Key { get; init; } = "";
+            public string Name { get; init; } = "";
+            public string Category { get; init; } = "";
+            public decimal Qty { get; init; }
+            public string Unit { get; init; } = "";
+            public decimal Rate { get; init; }
+            public decimal Amount { get; init; }
+            public string Formula { get; init; } = "";
+            public string TargetSummary { get; init; } = "";
+        }
+
+        private static IReadOnlyList<Step6ExportCharge> ActiveStep6Charges(ProfitLossStepViewModel vm)
+        {
+            var result = new List<Step6ExportCharge>();
+            var charges = vm?._otherChargesVm?.ChargeRows;
+            if (charges == null) return result;
+
+            foreach (var c in charges.Where(x => x.IsActive && x.ResultAmount > 0m))
+            {
+                var key = (c.TemplateKey ?? "").Trim().ToUpperInvariant();
+                result.Add(new Step6ExportCharge
+                {
+                    Key = key,
+                    Name = c.ChargeName ?? key,
+                    Category = key == "ARGON_GAS" ? "ARGON GAS DGU CAVITY ADD-ON" : "STEP 6 PRODUCTION / ADD-ON",
+                    Qty = c.MetricQty,
+                    Unit = c.Unit.ToString().ToUpperInvariant(),
+                    Rate = c.Rate,
+                    Amount = c.ResultAmount,
+                    Formula = c.FormulaDisplay,
+                    TargetSummary = c.TargetSelection?.SummaryText ?? ""
+                });
+            }
+
+            return result;
+        }
+
         public static IReadOnlyList<OverviewReportRow> BuildOverviewRows(ProfitLossStepViewModel vm)
         {
             var rows = new List<OverviewReportRow>();
@@ -454,23 +416,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             void Add(string section, string item, string value, string detail = "") =>
                 rows.Add(new OverviewReportRow { Section = section, Item = item, Value = value, Detail = detail });
 
-            Add("01 DECISION", "Step 9 rating", vm.Step9MaintenanceRating, vm.Step9ImprovementSummary);
-            Add("01 DECISION", "Target status", vm.TargetJobStatusLabel, vm.MarginAgainstTargetDisplay);
-            Add("01 DECISION", "Required target price", vm.RequiredTargetPriceDisplay, vm.TargetFormulaPreview);
-            Add("01 DECISION", "Expected profit margin", vm.ExpectedProfitMarginDisplay, vm.ExpectedProfitMarginSourceLabel);
-            Add("01 DECISION", "Calculation status", vm.CalculationStateLabel, vm.LastCalculatedAtDisplay);
+            Add("01 EXECUTIVE SUMMARY", "Step 9 rating", vm.Step9MaintenanceRating, vm.Step9ImprovementSummary);
+            Add("01 EXECUTIVE SUMMARY", "Target status", vm.TargetJobStatusLabel, vm.MarginAgainstTargetDisplay);
+            Add("01 EXECUTIVE SUMMARY", "Required target price", vm.RequiredTargetPriceDisplay, vm.TargetFormulaPreview);
+            Add("01 EXECUTIVE SUMMARY", "Expected profit margin", vm.ExpectedProfitMarginDisplay, vm.ExpectedProfitMarginSourceLabel);
+            Add("01 EXECUTIVE SUMMARY", "Calculation status", vm.CalculationStateLabel, vm.LastCalculatedAtDisplay);
 
-            Add("02 MONEY", "Gross total including VAT", vm.GrossDisplay, "From Step 7 grand total.");
-            Add("02 MONEY", "Net revenue excluding VAT", vm.NetDisplay, "Uses Step 7 subtotal-before-VAT when available.");
-            Add("02 MONEY", "Glass cost", vm.GlassCostDisplay, vm.CostBasisLabel);
-            Add("02 MONEY", "Production / service cost", vm.ProductionCostDisplay, "Spacer, processing and active Step 6 production rows.");
+            Add("02 SHEET PRICE / MATERIAL", "Gross total including VAT", vm.GrossDisplay, "From Step 7 grand total.");
+            Add("02 SHEET PRICE / MATERIAL", "Net revenue excluding VAT", vm.NetDisplay, "Uses Step 7 subtotal-before-VAT when available.");
+            Add("02 SHEET PRICE / MATERIAL", "Glass sheet cost", vm.GlassCostDisplay, vm.CostBasisLabel);
+            Add("03 PRODUCTION SERVICES", "Production / service cost", vm.ProductionCostDisplay, "Spacer/ASP, cutting, tempering, doubling/lamination and active Step 6 production rows.");
 
             var spacerRows = (vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
                 .Where(r => IsSpacerKind(r.Kind))
                 .ToList();
             if (spacerRows.Count > 0)
             {
-                Add("02 MONEY", "Spacer / ASP production total",
+                Add("03 PRODUCTION SERVICES", "Spacer / ASP production total",
                     $"AED {spacerRows.Sum(r => r.Amount):N2}",
                     $"{spacerRows.Sum(r => r.Quantity):0.##} SQM service quantity across {spacerRows.Count} spacer line(s). Formula: service SQM × Step 4 ASP rate.");
 
@@ -479,34 +441,42 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     decimal amount = specSpacer.Sum(r => r.Amount);
                     decimal qty = specSpacer.Sum(r => r.Quantity);
                     decimal weightedRate = qty > 0m ? amount / qty : 0m;
-                    Add("02 MONEY · SPACER BY SPEC", specSpacer.Key,
+                    Add("04 SPACER / ASP BY SPEC", specSpacer.Key,
                         $"AED {amount:N2}",
                         $"Spacer/ASP service: {qty:0.##} SQM × AED {weightedRate:N2}/SQM. This is production/service cost, not a normal glass sheet line.");
                 }
             }
 
-            Add("02 MONEY", "Total cost", vm.TotalCostDisplay, "Glass + production cost.");
-            Add("02 MONEY", vm.ProfitLabel, vm.ProfitDisplay, vm.MarginDisplay);
-            Add("02 MONEY", "Overall actual margin", vm.OverallMarginDisplay, vm.PriceBasedMarginDisplay);
+            foreach (var charge in ActiveStep6Charges(vm))
+            {
+                Add(charge.Key == "ARGON_GAS" ? "05 ARGON GAS / STEP 6 ADD-ONS" : "05 STEP 6 ADD-ONS",
+                    charge.Name,
+                    $"AED {charge.Amount:N2}",
+                    $"{charge.Category}: {charge.Qty:0.##} {charge.Unit} × AED {charge.Rate:N2} = AED {charge.Amount:N2}. {charge.TargetSummary}. {charge.Formula}");
+            }
 
-            Add("03 TARGET AGGREGATE", "Given price source", vm.GivenPriceSourceLabel, vm.TargetScopeNote);
-            Add("03 TARGET AGGREGATE", "Total given value", vm.TotalGivenValueDisplay, "Area-weighted Step 5 given/base price.");
-            Add("03 TARGET AGGREGATE", "Total required target value", vm.TotalRequiredTargetValueDisplay, "Target formula result.");
-            Add("03 TARGET AGGREGATE", "Total difference", vm.TotalDifferenceValueDisplay, "Positive means above target.");
-            Add("03 TARGET AGGREGATE", "Base margin", vm.BaseMarginPercentDisplay, vm.BaseBalanceValueDisplay);
-            Add("03 TARGET AGGREGATE", "Target margin", vm.TargetMarginPercentDisplay, vm.TargetBalanceValueDisplay);
-            Add("03 TARGET AGGREGATE", "U-insert treatment", vm.UInsertSummaryDisplay, vm.UInsertSummaryDetail);
+            Add("06 PROFIT RESULT", "Total cost", vm.TotalCostDisplay, "Glass + production cost.");
+            Add("06 PROFIT RESULT", vm.ProfitLabel, vm.ProfitDisplay, vm.MarginDisplay);
+            Add("06 PROFIT RESULT", "Overall actual margin", vm.OverallMarginDisplay, vm.PriceBasedMarginDisplay);
 
-            Add("04 FORMULA AUDIT", "All spec formulas", vm.TargetFormulaAllSpecsText, vm.CalculationVersionLabel);
+            Add("07 SPEC PRICE TARGET", "Given price source", vm.GivenPriceSourceLabel, vm.TargetScopeNote);
+            Add("07 SPEC PRICE TARGET", "Total given value", vm.TotalGivenValueDisplay, "Area-weighted Step 5 given/base price.");
+            Add("07 SPEC PRICE TARGET", "Total required target value", vm.TotalRequiredTargetValueDisplay, "Target formula result.");
+            Add("07 SPEC PRICE TARGET", "Total difference", vm.TotalDifferenceValueDisplay, "Positive means above target.");
+            Add("07 SPEC PRICE TARGET", "Base margin", vm.BaseMarginPercentDisplay, vm.BaseBalanceValueDisplay);
+            Add("07 SPEC PRICE TARGET", "Target margin", vm.TargetMarginPercentDisplay, vm.TargetBalanceValueDisplay);
+            Add("07 SPEC PRICE TARGET", "U-insert treatment", vm.UInsertSummaryDisplay, vm.UInsertSummaryDetail);
+
+            Add("08 FORMULA AUDIT", "All spec formulas", vm.TargetFormulaAllSpecsText, vm.CalculationVersionLabel);
             foreach (var warning in vm.CalculationWarnings ?? Array.Empty<string>())
-                Add("04 FORMULA AUDIT", "Warning", warning, "Resolve before approval/output if blocking.");
+                Add("08 FORMULA AUDIT", "Warning", warning, "Resolve before approval/output if blocking.");
 
             foreach (var spec in vm.TargetSpecsView ?? Enumerable.Empty<SpecTargetRowViewModel>())
-                Add("05 SPEC SUMMARY", spec.SpecNumberDisplay, spec.FinalRequiredTargetDisplay,
+                Add("09 SPEC SUMMARY", spec.SpecNumberDisplay, spec.FinalRequiredTargetDisplay,
                     $"Given {spec.GivenPricePerSqmDisplay}; diff {spec.DifferencePerSqmDisplay}; margin {spec.MarginAgainstTargetDisplay}; status {spec.StatusLabel}; {spec.FormulaSummaryLine}");
 
             foreach (var line in vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
-                Add("06 ACTUAL COST ROWS", line.SpecDisplay, line.AmountDisplay,
+                Add("10 ACTUAL COST LEDGER", line.SpecDisplay, line.AmountDisplay,
                     $"{CostClass(line)}; {line.Description}; basis {CostBasis(line)}; calc {ExtendedCalculation(line)}; sheet {line.SizeDisplay}; source {line.SheetSource}; {ServiceNote(line)}");
 
             return rows;

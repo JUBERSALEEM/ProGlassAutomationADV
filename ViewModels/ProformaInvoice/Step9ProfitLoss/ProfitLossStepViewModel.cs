@@ -268,11 +268,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (rows.Count == 0) return;
 
                 var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Step 9 Overview Detailed Report",
+                    format, rows, "Step 9 Executive Cost Summary",
                     Step9ReportExport.OverviewHeaders,
                     Step9ReportExport.OverviewMap,
                     Step9ReportExport.OverviewMapExcel,
-                    $"Step9_Overview_Detailed_{DateTime.Now:yyyyMMdd}");
+                    $"Step9_Executive_Cost_Summary_{DateTime.Now:yyyyMMdd}");
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";
@@ -335,11 +335,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 });
 
                 var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Profit & Loss Cost Breakdown",
+                    format, rows, "Material and Production Cost Ledger",
                     Step9ReportExport.PnlHeaders,
                     Step9ReportExport.PnlMap,
                     Step9ReportExport.PnlMapExcel,
-                    $"ProfitLoss_CostBreakdown_{DateTime.Now:yyyyMMdd}");
+                    $"Step9_Material_Production_Ledger_{DateTime.Now:yyyyMMdd}");
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";
@@ -364,11 +364,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 var rows = TargetSpecsView.ToList();
                 var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Specification Target Comparison",
+                    format, rows, "Specification Price Target Report",
                     Step9ReportExport.TargetHeaders,
                     Step9ReportExport.TargetMap,
                     Step9ReportExport.TargetMapExcel,
-                    $"Target_Comparison_{DateTime.Now:yyyyMMdd}");
+                    $"Step9_Specification_Target_Report_{DateTime.Now:yyyyMMdd}");
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";
