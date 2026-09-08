@@ -225,18 +225,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         section.SelectedGlassTypeCode,
                         StringComparison.OrdinalIgnoreCase);
 
+                bool selectedSpecMatchesStep4 =
+                    string.Equals(group.SelectedSpecName,
+                        section.GeneratedSpecName,
+                        StringComparison.OrdinalIgnoreCase);
+
                 bool specIsStep4Owned = isFreshBootstrap
+                    || selectedSpecMatchesStep4
                     || (!group.HasManualStep5SpecOverride
                         && !string.IsNullOrWhiteSpace(group.LastSyncedStep4SpecName)
                         && string.Equals(group.SelectedSpecName,
                             group.LastSyncedStep4SpecName,
-                            StringComparison.OrdinalIgnoreCase))
-                    || (!group.HasManualStep5SpecOverride
-                        && string.Equals(group.SelectedSpecName,
-                            section.GeneratedSpecName,
                             StringComparison.OrdinalIgnoreCase));
 
+                bool selectedGlassTypeMatchesStep4 =
+                    string.Equals(group.SelectedGlassType,
+                        section.SelectedGlassTypeCode,
+                        StringComparison.OrdinalIgnoreCase);
+
                 bool glassTypeIsStep4Owned = isFreshBootstrap
+                    || selectedGlassTypeMatchesStep4
                     || (!group.HasManualStep5GlassTypeOverride
                         && string.IsNullOrWhiteSpace(group.SelectedGlassType))
                     || (!group.HasManualStep5GlassTypeOverride
@@ -245,10 +253,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         && !string.IsNullOrWhiteSpace(group.LastSyncedStep4GlassType)
                         && string.Equals(group.SelectedGlassType,
                             group.LastSyncedStep4GlassType,
-                            StringComparison.OrdinalIgnoreCase))
-                    || (!group.HasManualStep5GlassTypeOverride
-                        && string.Equals(group.SelectedGlassType,
-                            section.SelectedGlassTypeCode,
                             StringComparison.OrdinalIgnoreCase));
 
                 if (specIsStep4Owned && glassTypeIsStep4Owned)

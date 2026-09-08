@@ -424,18 +424,22 @@ public ProformaInvoiceViewModel() : this(
                     && !group.HasManualStep5GlassTypeOverride;
 
                 // A spec can be owned independently only until a user picks a
-                // different name. Markers are deliberately checked only when
-                // non-empty: String.Equals("", "") must not accidentally grant
-                // ownership to unrelated restored/manual state.
+                // different name. Important: choosing the SAME generated spec
+                // from the dropdown must not block metadata refresh. Step 5 can
+                // set the manual flag while the selected name still equals the
+                // Step 4 section; in that case pane/sheet/rate metadata remains
+                // Step-4-owned and must be refreshed.
+                bool selectedSpecMatchesStep4 =
+                    string.Equals(group.SelectedSpecName,
+                        section.GeneratedSpecName,
+                        StringComparison.OrdinalIgnoreCase);
+
                 bool specIsStep4Owned = isFreshBootstrap
+                    || selectedSpecMatchesStep4
                     || (!group.HasManualStep5SpecOverride
                         && !string.IsNullOrWhiteSpace(group.LastSyncedStep4SpecName)
                         && string.Equals(group.SelectedSpecName,
                             group.LastSyncedStep4SpecName,
-                            StringComparison.OrdinalIgnoreCase))
-                    || (!group.HasManualStep5SpecOverride
-                        && string.Equals(group.SelectedSpecName,
-                            section.GeneratedSpecName,
                             StringComparison.OrdinalIgnoreCase));
 
                 // A matching marker pair also identifies a failed legacy
@@ -458,7 +462,13 @@ public ProformaInvoiceViewModel() : this(
                 // is consulted. With no selected spec that is a framework
                 // default, not a user-owned glass type, so it must accept an
                 // incoming DGU/LAM/DGU+LAM type.
+                bool selectedGlassTypeMatchesStep4 =
+                    string.Equals(group.SelectedGlassType,
+                        section.SelectedGlassTypeCode,
+                        StringComparison.OrdinalIgnoreCase);
+
                 bool glassTypeIsStep4Owned = isFreshBootstrap
+                    || selectedGlassTypeMatchesStep4
                     || (!group.HasManualStep5GlassTypeOverride
                         && string.IsNullOrWhiteSpace(group.SelectedGlassType))
                     || (!group.HasManualStep5GlassTypeOverride
@@ -467,10 +477,6 @@ public ProformaInvoiceViewModel() : this(
                         && !string.IsNullOrWhiteSpace(group.LastSyncedStep4GlassType)
                         && string.Equals(group.SelectedGlassType,
                             group.LastSyncedStep4GlassType,
-                            StringComparison.OrdinalIgnoreCase))
-                    || (!group.HasManualStep5GlassTypeOverride
-                        && string.Equals(group.SelectedGlassType,
-                            section.SelectedGlassTypeCode,
                             StringComparison.OrdinalIgnoreCase));
 
                 // Type, spec, colours, sheets and rate are one coherent Step 4

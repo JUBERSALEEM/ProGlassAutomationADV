@@ -372,7 +372,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                     ? price.Value.SellPerSqm
                     : price.Value.PurchasePerSqm;
 
-                if (sell > 0m) OuterBasePrice = sell;
+                OuterBasePrice = sell > 0m ? sell : 0m;
+            }
+            else
+            {
+                // Exact selected sheet not found: never keep a stale previous
+                // pane price such as Clear 25 on a Low-E/Ramly pane.
+                OuterBasePrice = 0m;
             }
 
             UpdateHint();
@@ -402,7 +408,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                     ? price.Value.SellPerSqm
                     : price.Value.PurchasePerSqm;
 
-                if (sell > 0m) InnerBasePrice = sell;
+                InnerBasePrice = sell > 0m ? sell : 0m;
+            }
+            else
+            {
+                // Exact selected sheet not found: never keep a stale previous
+                // pane price such as Clear 25 on a Low-E/Ramly pane.
+                InnerBasePrice = 0m;
             }
 
             UpdateHint();
