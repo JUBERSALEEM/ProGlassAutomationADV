@@ -120,53 +120,101 @@ namespace ProGlassAutomation.Services.Reporting
         }
 
         /// <summary>
-        /// Validates invoice data for VAT submission
+        /// Validates invoice data for VAT submission.
+        ///
+        /// <para>
+        /// PHASE 3 (2026-09-09) — this method could not fail. <c>IsValid</c> was
+        /// initialised to <c>true</c> and nothing ever set it to <c>false</c>, and
+        /// <c>Errors</c> was never populated, so every problem below was recorded
+        /// as a warning and the caller's <c>if (!validation.IsValid)</c> gate was
+        /// unreachable. <c>ReportingDataService.Vat</c> consequently printed
+        /// "(filtered from N, 0 invalid)" on every filing.
+        /// </para>
+        ///
+        /// <para>
+        /// Three outcomes, deliberately separated:
+        /// </para>
+        /// <list type="bullet">
+        ///   <item><description>
+        ///     <b>Reject</b> — the arithmetic does not reconcile, or the figures
+        ///     are mutually impossible. Excluded from the filing and named to the
+        ///     operator. A tax return that silently omits rows is worse than one
+        ///     that refuses to generate, so the caller must report which rows and
+        ///     why.
+        ///   </description></item>
+        ///   <item><description>
+        ///     <b>Warn</b> — legitimate but worth a human eye: negative amounts
+        ///     (credit notes and corrections), a zero-VAT invoice, a future date.
+        ///     Included in the filing.
+        ///   </description></item>
+        ///   <item><description><b>Pass</b> — everything else.</description></item>
+        /// </list>
+        ///
+        /// <para>
+        /// A positive total with zero VAT is a WARNING, not a rejection. Zero-rated
+        /// and exempt supplies legitimately carry no VAT, and this calculator has
+        /// no notion of tax treatment yet — rejecting here would silently drop
+        /// valid zero-rated invoices from the filing. Revisit when tax treatments
+        /// land (Phase 5).
+        /// </para>
         /// </summary>
         /// <param name="grandTotalVatInclusive">Grand total including VAT</param>
         /// <param name="vatAmount">VAT amount</param>
         /// <param name="issueDate">Invoice issue date</param>
-        /// <returns>Validation result with warnings</returns>
+        /// <returns>Validation result; <see cref="VatValidationResult.IsValid"/>
+        /// is false when <see cref="VatValidationResult.Errors"/> is non-empty.</returns>
         public static VatValidationResult ValidateInvoice(decimal grandTotalVatInclusive, decimal vatAmount, DateTime issueDate)
         {
-            var result = new VatValidationResult { IsValid = true };
+            var result = new VatValidationResult();
 
-            // Only reject truly invalid data (negative amounts)
-            // Zero amounts are valid (test data, credit notes, etc.)
+            // ── Negative amounts: legitimate for credit notes ──────────
+            // Warn, do not reject. A corrections workflow depends on these
+            // reaching the filing.
             if (vatAmount < 0)
-            {
                 result.Warnings.Add($"Negative VAT amount: {vatAmount:N2}");
-                // Don't reject — just warn, let the report show it
-            }
 
             if (grandTotalVatInclusive < 0)
-            {
                 result.Warnings.Add($"Negative grand total: {grandTotalVatInclusive:N2}");
-                // Don't reject — just warn
-            }
 
-            // Skip validation for zero-amount invoices (test data)
+            // ── Both zero: valid but empty, nothing to report ──────────
             if (vatAmount == 0 && grandTotalVatInclusive == 0)
-            {
-                return result; // Valid but empty — no VAT to report
-            }
+                return result;
 
-            // Check for future dates (allow 1 day tolerance)
+            // ── Future dates: warn, allow a day of clock skew ──────────
             if (issueDate > DateTime.Now.AddDays(1))
-            {
                 result.Warnings.Add($"Invoice date is in the future: {issueDate:yyyy-MM-dd}");
+
+            // ── Mutually impossible figures: REJECT ────────────────────
+            if (vatAmount > 0 && grandTotalVatInclusive == 0)
+            {
+                result.Errors.Add(
+                    $"VAT of {vatAmount:N2} is charged on a zero grand total.");
+                return result;
             }
 
-            // Validate VAT calculation if both values are present
-            if (vatAmount > 0 && grandTotalVatInclusive > 0)
+            if (grandTotalVatInclusive > 0 && vatAmount == 0)
             {
-                var calculatedSubtotal = CalculateSubtotal(grandTotalVatInclusive, vatAmount);
-                if (!ValidateVat(calculatedSubtotal, vatAmount))
-                {
-                    var expectedVat = CalculateVatFromGross(grandTotalVatInclusive);
-                    result.Warnings.Add(
-                        $"VAT mismatch: Stored={vatAmount:N2}, Calculated={expectedVat:N2}, " +
-                        $"Difference={Math.Abs(expectedVat - vatAmount):N2}");
-                }
+                // Zero-rated / exempt supplies look identical to this check,
+                // so this is a warning until tax treatments exist.
+                result.Warnings.Add(
+                    $"Grand total {grandTotalVatInclusive:N2} carries no VAT " +
+                    "(zero-rated or exempt supply, or a missing VAT amount).");
+                return result;
+            }
+
+            // ── Reconciliation: REJECT on failure ──────────────────────
+            // This is the check that matters. Stored VAT that does not
+            // reconcile with the stored gross means one of the two figures on
+            // a tax filing is wrong.
+            var calculatedSubtotal = CalculateSubtotal(grandTotalVatInclusive, vatAmount);
+            if (!ValidateVat(calculatedSubtotal, vatAmount))
+            {
+                var expectedVat = CalculateVatFromGross(grandTotalVatInclusive);
+                result.Errors.Add(
+                    $"VAT does not reconcile: stored={vatAmount:N2}, " +
+                    $"expected={expectedVat:N2} for gross {grandTotalVatInclusive:N2} " +
+                    $"(difference {Math.Abs(expectedVat - vatAmount):N2}, " +
+                    $"tolerance {DEFAULT_TOLERANCE:N2}).");
             }
 
             return result;
@@ -179,9 +227,15 @@ namespace ProGlassAutomation.Services.Reporting
     public class VatValidationResult
     {
         /// <summary>
-        /// Whether the invoice is valid (no errors)
+        /// Whether the invoice may be included in the filing.
+        ///
+        /// Derived, not stored. It was previously a settable bool initialised to
+        /// <c>true</c> and never assigned anywhere, which is exactly how the
+        /// validation gate became unreachable — a stored flag can drift out of
+        /// sync with the list it is supposed to summarise, and this one did.
+        /// Deriving it makes the two impossible to disagree.
         /// </summary>
-        public bool IsValid { get; set; }
+        public bool IsValid => Errors.Count == 0;
 
         /// <summary>
         /// Critical errors that prevent processing

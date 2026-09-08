@@ -234,6 +234,10 @@ namespace ProGlassAutomation.Services.Reporting
                 var result = new List<VatSubmissionRow>();
                 var validationWarnings = new List<string>();
                 var invalidCount = 0;
+                // Phase 3: which invoices were excluded, and why. A tax filing
+                // that silently omits rows is worse than one that names them,
+                // and the counter alone told the operator nothing actionable.
+                var rejected = new List<string>();
                 
                 // SEQUENTIAL PROCESSING: Avoids thread pool starvation and UI freezing
                 foreach (var invoice in invoiceList)
@@ -249,6 +253,10 @@ namespace ProGlassAutomation.Services.Reporting
                     if (!validation.IsValid)
                     {
                         invalidCount++;
+                        // Name the invoice and the first reason, so the figure
+                        // in the summary line can be traced back to a record.
+                        rejected.Add(
+                            $"PI {invoice.ProformaId}: {validation.Errors.FirstOrDefault() ?? "validation failed"}");
                         continue; // Skip invalid data
                     }
                     
@@ -290,8 +298,11 @@ namespace ProGlassAutomation.Services.Reporting
                 // Log validation summary
                 if (invalidCount > 0)
                 {
+                    // Every rejection, not a count. These rows are absent from a
+                    // tax filing; the operator has to be able to find them.
                     Services.Logging.AppLogService.Warning(
-                        $"VAT Submission: {invalidCount} invoices skipped due to validation errors");
+                        $"VAT Submission: {invalidCount} invoice(s) EXCLUDED for failing validation:\n" +
+                        string.Join("\n", rejected));
                 }
                 
                 if (validationWarnings.Any())
