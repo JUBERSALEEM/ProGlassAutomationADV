@@ -164,6 +164,7 @@
                              stale value survives behind an empty control. -->
                         <TextBox Grid.Column="1"
                                  Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                                 behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                  behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                  FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" TextAlignment="Center"
                                  VerticalContentAlignment="Center" Height="44"

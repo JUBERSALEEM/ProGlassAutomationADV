@@ -58,7 +58,15 @@
 
         <Style x:Key="SectionCard" TargetType="Border" BasedOn="{StaticResource StatCard}">
             <Setter Property="Padding" Value="24,20"/>
-            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+        </Style>
+
+        <!-- KPI cells: PiKpiCellStyle is 12,4 and collapses captions on this page. -->
+        <Style x:Key="InventoryKpiCell" TargetType="Border"
+               BasedOn="{StaticResource PiKpiCellStyle}">
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="MinHeight" Value="72"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
         </Style>
 
         <!-- Movement row — Step 5 GridRowStyle treatment: no chrome of its
@@ -67,7 +75,7 @@
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0"/>
-            <Setter Property="MinHeight" Value="42"/>
+            <Setter Property="MinHeight" Value="48"/>
             <Setter Property="Focusable" Value="False"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -109,7 +117,8 @@
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
             <Setter Property="Padding" Value="18,14"/>
-            <Setter Property="Margin" Value="0,0,12,12"/>
+            <Setter Property="Margin" Value="0,0,16,16"/>
+            <Setter Property="MinHeight" Value="84"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
@@ -138,6 +147,7 @@
              Height 40 + horizontal-only padding: 38/10,6 clipped glyphs. -->
         <Style x:Key="DetailEntry" TargetType="TextBox"
                BasedOn="{StaticResource ModernTextBoxStyle}">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="MinHeight" Value="40"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -147,7 +157,8 @@
              A keyed style without BasedOn drops the implicit industrial
              template (PART_EditableTextBox + themed popup) and WPF's
              default chrome renders white-on-white, which is the
-             "dropdown collapsed / nothing visible" report. -->
+             "dropdown collapsed / nothing visible" report.
+             TypingBehavior selects all on first focus so overwrite works. -->
         <Style x:Key="DetailCombo" TargetType="ComboBox"
                BasedOn="{StaticResource ModernEditableComboBoxStyle}">
             <Setter Property="IsEditable" Value="True"/>
@@ -156,6 +167,7 @@
             <Setter Property="Padding" Value="12,0"/>
             <Setter Property="MaxDropDownHeight" Value="320"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="behaviors:EditableComboBoxTypingBehavior.IsEnabled" Value="True"/>
         </Style>
 
         <Style x:Key="FieldError" TargetType="TextBlock">
@@ -184,7 +196,8 @@
              left the workspace looking like a dialog dropped on a
              maximized window, not a plant-floor station.
         ═════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0" Style="{StaticResource PiStationHeaderBarStyle}">
+        <Border Grid.Row="0" Style="{StaticResource PiStationHeaderBarStyle}"
+                Padding="20,14" MinHeight="64">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -212,7 +225,14 @@
              padded pill made six tabs look like a toy switcher on a
              maximized screen.
         ═════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="1" Style="{StaticResource PiRailBarStyle}">
+        <!-- PiRailBarStyle is Height=40 and clips TabPillButton labels. -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="20,12"
+                MinHeight="56"
+                SnapsToDevicePixels="True">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Style="{StaticResource TabPillButton}" Content="OVERVIEW"
                         Command="{Binding SelectTabCommand}" CommandParameter="Overview"
@@ -241,7 +261,10 @@
         </Border>
 
         <!-- ═══ BODY ═════════════════════════════════════════════════ -->
-        <Border Grid.Row="2" Style="{StaticResource PiWorkDeckStyle}">
+        <!-- PiWorkDeckStyle is Padding 8,4 — too tight for field cards. -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource WindowBackgroundBrush}"
+                Padding="24,20">
         <Grid>
 
             <!-- ─── OVERVIEW ─── -->
@@ -265,27 +288,27 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="STOCK" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Sheet.Stock}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="USED" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Sheet.Used}" Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource DangerBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="BALANCE" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Sheet.Balance}" Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}" Margin="0">
+                        <Border Grid.Column="3" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="SQM AVAILABLE" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}"
@@ -301,46 +324,58 @@
                          three columns of bare label/value pairs: the fields
                          are unrelated readings, and a shared surface implied
                          a grouping that does not exist. -->
-                    <UniformGrid Columns="3">
-                        <Border Style="{StaticResource SpecCard}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="16"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource SpecCard}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="CATEGORY" Style="{StaticResource SpecLabel}"/>
                                 <TextBlock Text="{Binding Sheet.Category}" Style="{StaticResource SpecValue}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SpecCard}">
+                        <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource SpecCard}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="THICKNESS" Style="{StaticResource SpecLabel}"/>
                                 <TextBlock Text="{Binding Sheet.ThicknessDisplay}" Style="{StaticResource SpecValue}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SpecCard}">
+                        <Border Grid.Row="0" Grid.Column="4" Style="{StaticResource SpecCard}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="COLOUR" Style="{StaticResource SpecLabel}"/>
                                 <TextBlock Text="{Binding Sheet.Color}" Style="{StaticResource SpecValue}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SpecCard}">
+                        <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource SpecCard}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="SIZE (mm)" Style="{StaticResource SpecLabel}"/>
                                 <TextBlock Text="{Binding Sheet.SizeDisplay}" Style="{StaticResource SpecValue}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SpecCard}">
+                        <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource SpecCard}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="SQM PER SHEET" Style="{StaticResource SpecLabel}"/>
                                 <TextBlock Text="{Binding Sheet.SqmPerSheet, StringFormat={}{0:N4}}"
                                            Style="{StaticResource SpecValue}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SpecCard}">
+                        <Border Grid.Row="2" Grid.Column="4" Style="{StaticResource SpecCard}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="SUPPLIER" Style="{StaticResource SpecLabel}"/>
                                 <TextBlock Text="{Binding Sheet.Supplier}" Style="{StaticResource SpecValue}"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Border>
-                    </UniformGrid>
+                    </Grid>
                 </StackPanel>
             </ScrollViewer>
 
@@ -382,20 +417,20 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="QUANTITY" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Quantity}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL SQM" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
                                            Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL COST" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}"
@@ -403,7 +438,7 @@
                                            Foreground="{DynamicResource AccentBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}" Margin="0">
+                        <Border Grid.Column="3" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AFTER" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding NewBalanceAfterBuy}"
@@ -429,6 +464,7 @@
                                         Command="{Binding DecreaseCommand}"/>
                                 <TextBox Grid.Column="1" Margin="12,0"
                                          Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                          FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                                          TextAlignment="Center" Height="54"
@@ -509,20 +545,20 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="QUANTITY" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Quantity}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL SQM" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
+                                <TextBlock Text="{Binding TotalSqm, StringFom, StringFormat={}{0:N2}}"
                                            Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL VALUE" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalValue, StringFormat={}{0:N2} AED}"
@@ -530,7 +566,7 @@
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}" Margin="0">
+                        <Border Grid.Column="3" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AFTER" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding RemainingBalance}"
@@ -570,6 +606,7 @@
                                         Command="{Binding DecreaseCommand}"/>
                                 <TextBox Grid.Column="1" Margin="12,0"
                                          Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
                                          FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                                          TextAlignment="Center" Height="54"
@@ -607,28 +644,40 @@
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
                             <TextBlock Text="TRACEABILITY" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
-                            <UniformGrid Columns="3">
-                                <StackPanel Margin="0,0,16,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="16"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Grid.Column="0" MinHeight="72">
                                     <TextBlock Text="JOB / INVOICE REF" Style="{StaticResource FieldLabel}"/>
                                     <TextBox Text="{Binding JobOrderReference, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource DetailEntry}"/>
                                 </StackPanel>
-                                <StackPanel Margin="0,0,16,16">
+                                <StackPanel Grid.Row="0" Grid.Column="2" MinHeight="72">
                                     <TextBlock Text="CUSTOMER" Style="{StaticResource FieldLabel}"/>
                                     <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource DetailEntry}"/>
                                 </StackPanel>
-                                <StackPanel Margin="0,0,16,16">
+                                <StackPanel Grid.Row="0" Grid.Column="4" MinHeight="72">
                                     <TextBlock Text="PROJECT" Style="{StaticResource FieldLabel}"/>
                                     <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource DetailEntry}"/>
                                 </StackPanel>
-                                <StackPanel Margin="0,0,16,0">
+                                <StackPanel Grid.Row="2" Grid.Column="0" MinHeight="72">
                                     <TextBlock Text="SALESMAN" Style="{StaticResource FieldLabel}"/>
                                     <TextBox Text="{Binding Salesman, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource DetailEntry}"/>
                                 </StackPanel>
-                                <StackPanel Margin="0,0,16,0">
+                                <StackPanel Grid.Row="2" Grid.Column="2" MinHeight="72">
                                     <TextBlock Text="PANE POSITION" Style="{StaticResource FieldLabel}"/>
                                     <ComboBox Text="{Binding PanePosition, UpdateSourceTrigger=PropertyChanged}"
                                               Style="{StaticResource DetailCombo}">
@@ -636,8 +685,7 @@
                                         <ComboBoxItem Content="Inner"/>
                                     </ComboBox>
                                 </StackPanel>
-                                <StackPanel/>
-                            </UniformGrid>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
@@ -682,8 +730,15 @@
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
                             <TextBlock Text="IDENTITY" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
-                            <UniformGrid Columns="3">
-                            <StackPanel Margin="0,0,16,16">
+                            <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" MinHeight="92">
                                 <TextBlock Text="CATEGORY" Style="{StaticResource FieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding CategoryOptions}"
                                           Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
@@ -692,7 +747,7 @@
                                            Visibility="{Binding HasCategoryError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                            <StackPanel Margin="0,0,16,16">
+                            <StackPanel Grid.Column="2" MinHeight="92">
                                 <TextBlock Text="THICKNESS (mm)" Style="{StaticResource FieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding ThicknessOptions}"
                                           Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
@@ -701,7 +756,7 @@
                                            Visibility="{Binding HasThicknessError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                            <StackPanel Margin="0,0,16,16">
+                            <StackPanel Grid.Column="4" MinHeight="92">
                                 <TextBlock Text="COLOUR" Style="{StaticResource FieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding ColorOptions}"
                                           Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
@@ -710,15 +765,22 @@
                                            Visibility="{Binding HasColorError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                            </UniformGrid>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
                             <TextBlock Text="DIMENSIONS &amp; SOURCE" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
-                            <UniformGrid Columns="3">
-                            <StackPanel Margin="0,0,16,16">
+                            <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" MinHeight="92">
                                 <TextBlock Text="WIDTH (mm)" Style="{StaticResource FieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding WidthOptions}"
                                           Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"
@@ -727,7 +789,7 @@
                                            Visibility="{Binding HasWidthError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                            <StackPanel Margin="0,0,16,16">
+                            <StackPanel Grid.Column="2" MinHeight="92">
                                 <TextBlock Text="HEIGHT (mm)" Style="{StaticResource FieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding HeightOptions}"
                                           Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"
@@ -736,7 +798,7 @@
                                            Visibility="{Binding HasHeightError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                            <StackPanel Margin="0,0,16,16">
+                            <StackPanel Grid.Column="4" MinHeight="92">
                                 <TextBlock Text="SUPPLIER" Style="{StaticResource FieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding SupplierOptions}"
                                           Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
@@ -745,15 +807,22 @@
                                            Visibility="{Binding HasSupplierError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                            </UniformGrid>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
                             <TextBlock Text="PRICING &amp; STOCK" Style="{StaticResource StatLabel}" Margin="0,0,0,14"/>
-                            <UniformGrid Columns="3">
-                            <StackPanel Margin="0,0,16,16">
+                            <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" MinHeight="92">
                                 <TextBlock Text="PURCHASE / SQM" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
@@ -762,7 +831,7 @@
                                            Visibility="{Binding HasPurchasePriceError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                            <StackPanel Margin="0,0,16,16">
+                            <StackPanel Grid.Column="2" MinHeight="92">
                                 <TextBlock Text="SELL / SQM" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
@@ -771,7 +840,7 @@
                                            Visibility="{Binding HasSellPriceError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                            <StackPanel Margin="0,0,16,16">
+                            <StackPanel Grid.Column="4" MinHeight="92">
                                 <TextBlock Text="STOCK (SHEETS)" Style="{StaticResource FieldLabel}"/>
                                 <TextBox Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
@@ -780,7 +849,7 @@
                                            Visibility="{Binding HasStockError,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                            </UniformGrid>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
@@ -1020,21 +1089,21 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AT COST" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding BalanceValueAtCost, StringFormat={}{0:N2} AED}"
                                            Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AT SELL" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding BalanceValueAtSell, StringFormat={}{0:N2} AED}"
                                            Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}" Margin="0">
+                        <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="POTENTIAL PROFIT" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding PotentialProfit, StringFormat={}{0:N2} AED}"

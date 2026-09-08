@@ -36,6 +36,7 @@
         <!-- Shared entry chrome: red outline while the field is rejected.
              The inline message alone is easy to miss on a dense form. -->
         <Style x:Key="ErrorAwareEntry" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Height" Value="44"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -134,6 +135,7 @@
                              fails, the setter never runs, and the stale
                              value survives behind an empty control. -->
                         <TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                                 behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                  behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                  FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                                  TextAlignment="Center">
@@ -191,6 +193,7 @@
                         <TextBlock Text="UNIT PRICE (AED)" Style="{StaticResource FieldLabelStyle}"
                                    Margin="0,0,0,8"/>
                         <TextBox Text="{Binding UnitPriceText, UpdateSourceTrigger=PropertyChanged}"
+                                 behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                  behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                  FontSize="{StaticResource TextTitle}" FontWeight="Bold">
                             <TextBox.Style>

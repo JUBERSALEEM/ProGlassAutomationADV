@@ -125,13 +125,13 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="180"/>
-                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
@@ -144,7 +144,7 @@
                         <ComboBox SelectedValue="{Binding FilterAction, UpdateSourceTrigger=PropertyChanged}"
                                   SelectedValuePath="Tag"
                                   Style="{StaticResource ModernComboBoxStyle}"
-                                  Height="36" MinHeight="36" MinWidth="160">
+                                  Height="40" MinHeight="40" MinWidth="160">
                             <ComboBoxItem Content="{DynamicResource Common.All}" Tag="All"/>
                             <ComboBoxItem Content="{DynamicResource ProformaInvoice.Added}" Tag="Added"/>
                             <ComboBoxItem Content="{DynamicResource SheetStore.Edited}" Tag="Edited"/>
@@ -159,14 +159,14 @@
                         <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource FieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding FromDate, Mode=TwoWay}"
                                     Style="{StaticResource PiDatePickerStyle}"
-                                    Height="36"/>
+                                    Height="40"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="4">
                         <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource FieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding ToDate, Mode=TwoWay}"
                                     Style="{StaticResource PiDatePickerStyle}"
-                                    Height="36"/>
+                                    Height="40"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="6" VerticalAlignment="Bottom">
@@ -193,7 +193,8 @@
                         SnapsToDevicePixels="True">
                     <DockPanel>
                         <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                        <TextBox behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                                  BorderThickness="0" Background="Transparent"
                                  VerticalAlignment="Center" FontSize="{StaticResource TextBodyLarge}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"/>

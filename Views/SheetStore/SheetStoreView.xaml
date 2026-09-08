@@ -32,15 +32,13 @@
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin" Value="0,0,0,5"/>
         </Style>
-        <Style x:Key="ItemEntry" TargetType="TextBox">
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="Padding" Value="9,0"/>
+        <Style x:Key="ItemEntry" TargetType="TextBox"
+               BasedOn="{StaticResource ModernTextBoxStyle}">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="MinHeight" Value="40"/>
             <Setter Property="Margin" Value="0,0,0,12"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
         </Style>
         <Style x:Key="ItemFieldError" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
@@ -91,6 +89,13 @@
         </Style>
 
         
+        <Style x:Key="InventoryKpiCell" TargetType="Border"
+               BasedOn="{StaticResource PiKpiCellStyle}">
+            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="MinHeight" Value="72"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+        </Style>
+
         <Style x:Key="StatLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -111,7 +116,8 @@
             <Setter Property="CornerRadius"
                     Value="{DynamicResource ControlCornerRadius}"/>
             <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="Margin" Value="0,3"/>
+            <Setter Property="MinHeight" Value="44"/>
+            <Setter Property="Margin" Value="0,4"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Style.Triggers>
@@ -154,10 +160,10 @@
         <!-- ═══════════════════════════════════════════════════════════
              STICKY HEADER (compact)
         ═══════════════════════════════════════════════════════════ -->
-        <StackPanel Grid.Row="0" Margin="24,16,24,0">
+        <StackPanel Grid.Row="0" Margin="24,20,24,0">
 
-            <!-- HEADER + ACTION MENU -->
-            <DockPanel Margin="8,0,8,12">
+            <!-- HEADER + ACTION MENU — 16px below, 12px between ACTIONS and ADD -->
+            <DockPanel Margin="0,0,0,16">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{DynamicResource Module.SheetStore}"
@@ -177,7 +183,7 @@
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="5" Margin="0,12,0,0"
+                            Padding="8,6" Margin="0,16,0,0"
                             HorizontalAlignment="Left">
                         <StackPanel Orientation="Horizontal">
                             <Button Style="{StaticResource TabPillButton}"
@@ -209,6 +215,7 @@
                             Style="{StaticResource OutlinedPillButton}"
                             Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
                             ToolTip="{DynamicResource SheetStore.MoreActions}"
+                            Margin="0,0,12,0"
                             behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
                     <Button Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE710;" Content="{DynamicResource SheetStore.ADDNEW}"
@@ -278,21 +285,21 @@
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,12" Margin="8,0,8,12"
+                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16"
                     SnapsToDevicePixels="True">
                 <StackPanel>
                     <Grid Visibility="{Binding IsGlassView, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="1.4*"/>
-                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
@@ -302,7 +309,7 @@
                             <ComboBox ItemsSource="{Binding CategoryOptions}"
                                       SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Height="36" MinHeight="36" MinWidth="100"/>
+                                      Height="40" MinHeight="40" MinWidth="110"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="{DynamicResource ProformaInvoice.Thickness}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
@@ -310,7 +317,7 @@
                             <ComboBox ItemsSource="{Binding ThicknessOptions}"
                                       SelectedItem="{Binding SelectedThickness, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Height="36" MinHeight="36" MinWidth="100"/>
+                                      Height="40" MinHeight="40" MinWidth="110"/>
                         </StackPanel>
                         <StackPanel Grid.Column="4">
                             <TextBlock Text="{DynamicResource ProformaInvoice.Color}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
@@ -318,7 +325,7 @@
                             <ComboBox ItemsSource="{Binding ColorOptions}"
                                       SelectedItem="{Binding SelectedColor, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Height="36" MinHeight="36" MinWidth="100"/>
+                                      Height="40" MinHeight="40" MinWidth="110"/>
                         </StackPanel>
                         <StackPanel Grid.Column="6">
                             <TextBlock Text="{DynamicResource SheetStore.Supplier}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
@@ -326,7 +333,7 @@
                             <ComboBox ItemsSource="{Binding SupplierOptions}"
                                       SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Height="36" MinHeight="36" MinWidth="100"/>
+                                      Height="40" MinHeight="40" MinWidth="110"/>
                         </StackPanel>
                         <StackPanel Grid.Column="8">
                             <TextBlock Text="{DynamicResource SheetStore.SORT}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
@@ -334,7 +341,7 @@
                             <ComboBox ItemsSource="{Binding SortOptions}"
                                       SelectedItem="{Binding SelectedSort, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Height="36" MinHeight="36" MinWidth="100"/>
+                                      Height="40" MinHeight="40" MinWidth="110"/>
                         </StackPanel>
                         <StackPanel Grid.Column="10" VerticalAlignment="Bottom">
                             <TextBlock Text=" " FontSize="{StaticResource TextBody}" Margin="0,0,0,4"/>
@@ -355,19 +362,24 @@
                             <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}"
                                        Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                                     behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                      BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                      FontSize="{StaticResource TextBodyLarge}" Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                     VerticalAlignment="Center"/>
+                                     MinHeight="40" VerticalAlignment="Center"/>
                         </DockPanel>
                     </Border>
                 </StackPanel>
             </Border>
 
-            <!-- TOTAL INVENTORY — one industrial KPI strip, not seven
-                 wrapping cards. The card UniformGrid ate ~110px of
-                 list height and collapsed the grid on laptop screens. -->
-            <Border Style="{StaticResource PiMetricStripStyle}"
-                    Margin="8,0,8,12">
+            <!-- TOTAL INVENTORY — one row of KPI cards with 12px gutters.
+                 UniformGrid wrapping collapsed height; the 4px Pi strip
+                 hid the figures. MinHeight keeps the values readable. -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Padding="16,14" Margin="0,0,0,16"
+                    SnapsToDevicePixels="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -383,7 +395,7 @@
                                Text="{DynamicResource SheetStore.TotalInventory}"
                                Style="{StaticResource PiKpiCaptionStyle}"
                                VerticalAlignment="Center" Margin="0,0,14,0"/>
-                    <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
+                    <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource DeliveryNote.Items}"
                                        Style="{StaticResource PiKpiCaptionStyle}"/>
@@ -391,7 +403,7 @@
                                        Style="{StaticResource PiKpiValueStyle}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
+                    <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.Stock}"
                                        Style="{StaticResource PiKpiCaptionStyle}"/>
@@ -400,7 +412,7 @@
                                        Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}">
+                    <Border Grid.Column="3" Style="{StaticResource InventoryKpiCell}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.BuyingValue}"
                                        Style="{StaticResource PiKpiCaptionStyle}"/>
@@ -409,7 +421,7 @@
                                        Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}">
+                    <Border Grid.Column="4" Style="{StaticResource InventoryKpiCell}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.SellingValue}"
                                        Style="{StaticResource PiKpiCaptionStyle}"/>
@@ -418,7 +430,7 @@
                                        Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="5" Style="{StaticResource PiKpiCellStyle}"
+                    <Border Grid.Column="5" Style="{StaticResource InventoryKpiCell}"
                             ToolTip="{DynamicResource SheetStore.UsedValueTip}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.UsedValue}"
@@ -428,7 +440,7 @@
                                        Foreground="{DynamicResource WarningBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="6" Style="{StaticResource PiKpiCellStyle}"
+                    <Border Grid.Column="6" Style="{StaticResource InventoryKpiCell}"
                             ToolTip="{DynamicResource SheetStore.BalanceValueTip}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.BalanceValue}"
@@ -438,7 +450,7 @@
                                        Foreground="{DynamicResource InfoBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="7" Style="{StaticResource PiKpiCellStyle}" Margin="0"
+                    <Border Grid.Column="7" Style="{StaticResource InventoryKpiCell}" Margin="0"
                             ToolTip="{DynamicResource SheetStore.ExpectedProfitTip}">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}"
@@ -455,7 +467,7 @@
         <!-- ═══════════════════════════════════════════════════════════
              MAIN CONTENT — DataGrid list (priority) + right slide panel
         ═══════════════════════════════════════════════════════════ -->
-        <Grid Grid.Row="1" Margin="24,0,24,16">
+        <Grid Grid.Row="1" Margin="24,0,24,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <!-- Animated panel column: width 0 when closed, expands to
@@ -1052,12 +1064,12 @@
                             <ComboBox ItemsSource="{Binding Categories}"
                                       SelectedItem="{Binding Category}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Margin="0,0,0,12" Height="36" MinHeight="36"/>
+                                      Margin="0,0,0,12" Height="40" MinHeight="40"/>
                             <TextBlock Text="UNIT OF MEASURE" Style="{StaticResource ItemFieldLabel}"/>
                             <ComboBox ItemsSource="{Binding Uoms}"
                                       SelectedItem="{Binding Uom}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Margin="0,0,0,12" Height="36" MinHeight="36"/>
+                                      Margin="0,0,0,12" Height="40" MinHeight="40"/>
                             <TextBlock Text="SPECIFICATION" Style="{StaticResource ItemFieldLabel}"/>
                             <TextBox Text="{Binding Specification, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource ItemEntry}"/>
