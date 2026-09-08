@@ -137,38 +137,36 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource Shared.Action}" Style="{StaticResource FieldLabelStyle}"/>
+                        <!-- Tag is the persisted Action ("Used", "Added"), not
+                             the localized Content. SelectedValuePath=Content
+                             compared "USED"/"ADDED" against "Used"/"Added"
+                             and the filter silently matched nothing. -->
                         <ComboBox SelectedValue="{Binding FilterAction, UpdateSourceTrigger=PropertyChanged}"
-                                  SelectedValuePath="Content"
-                                  Height="38" Padding="10,6" FontSize="{StaticResource TextBody}"
-                                  Background="{DynamicResource MenuHoverBrush}"
-                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                  VerticalContentAlignment="Center">
-                            <ComboBoxItem Content="{DynamicResource Common.All}" IsSelected="True"/>
-                            <ComboBoxItem Content="{DynamicResource ProformaInvoice.Added}"/>
-                            <ComboBoxItem Content="{DynamicResource SheetStore.Edited}"/>
-                            <ComboBoxItem Content="{DynamicResource SheetStore.Deleted}"/>
-                            <ComboBoxItem Content="{DynamicResource SheetStore.Bought}"/>
-                            <ComboBoxItem Content="{DynamicResource SheetStore.USED}"/>
-                            <ComboBoxItem Content="Reversed"/>
+                                  SelectedValuePath="Tag"
+                                  Style="{StaticResource ModernComboBoxStyle}"
+                                  Height="36" MinHeight="36" MinWidth="160">
+                            <ComboBoxItem Content="{DynamicResource Common.All}" Tag="All"/>
+                            <ComboBoxItem Content="{DynamicResource ProformaInvoice.Added}" Tag="Added"/>
+                            <ComboBoxItem Content="{DynamicResource SheetStore.Edited}" Tag="Edited"/>
+                            <ComboBoxItem Content="{DynamicResource SheetStore.Deleted}" Tag="Deleted"/>
+                            <ComboBoxItem Content="{DynamicResource SheetStore.Bought}" Tag="Bought"/>
+                            <ComboBoxItem Content="{DynamicResource SheetStore.USED}" Tag="Used"/>
+                            <ComboBoxItem Content="Reversed" Tag="Reversed"/>
                         </ComboBox>
                     </StackPanel>
 
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource FieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding FromDate, Mode=TwoWay}"
-                                    Height="38" FontSize="{StaticResource TextBody}"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                    VerticalContentAlignment="Center"/>
+                                    Style="{StaticResource PiDatePickerStyle}"
+                                    Height="36"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="4">
                         <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource FieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding ToDate, Mode=TwoWay}"
-                                    Height="38" FontSize="{StaticResource TextBody}"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                    VerticalContentAlignment="Center"/>
+                                    Style="{StaticResource PiDatePickerStyle}"
+                                    Height="36"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="6" VerticalAlignment="Bottom">

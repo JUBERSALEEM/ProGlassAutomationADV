@@ -25,27 +25,6 @@
     <UserControl.Resources>
 
 
-        <Style x:Key="InventoryStatCard" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
-            <Setter Property="Padding" Value="14,12"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-        <Style x:Key="InventoryStatCardLast" TargetType="Border"
-               BasedOn="{StaticResource InventoryStatCard}">
-            <Setter Property="Margin" Value="0"/>
-        </Style>
-        <Style x:Key="InventoryStatValue" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,6,0,0"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-        </Style>
-
         <!-- Consumable editor panel field chrome -->
         <Style x:Key="ItemFieldLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
@@ -322,45 +301,40 @@
                                        Foreground="{DynamicResource MutedForegroundBrush}" Margin="4,0,0,4"/>
                             <ComboBox ItemsSource="{Binding CategoryOptions}"
                                       SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
-                                      Height="32" Padding="10,6" FontSize="{StaticResource TextBody}"
-                                      Background="{DynamicResource MenuHoverBrush}"
-                                      Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Height="36" MinHeight="36" MinWidth="100"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="{DynamicResource ProformaInvoice.Thickness}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MutedForegroundBrush}" Margin="4,0,0,4"/>
                             <ComboBox ItemsSource="{Binding ThicknessOptions}"
                                       SelectedItem="{Binding SelectedThickness, Mode=TwoWay}"
-                                      Height="32" Padding="10,6" FontSize="{StaticResource TextBody}"
-                                      Background="{DynamicResource MenuHoverBrush}"
-                                      Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Height="36" MinHeight="36" MinWidth="100"/>
                         </StackPanel>
                         <StackPanel Grid.Column="4">
                             <TextBlock Text="{DynamicResource ProformaInvoice.Color}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MutedForegroundBrush}" Margin="4,0,0,4"/>
                             <ComboBox ItemsSource="{Binding ColorOptions}"
                                       SelectedItem="{Binding SelectedColor, Mode=TwoWay}"
-                                      Height="32" Padding="10,6" FontSize="{StaticResource TextBody}"
-                                      Background="{DynamicResource MenuHoverBrush}"
-                                      Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Height="36" MinHeight="36" MinWidth="100"/>
                         </StackPanel>
                         <StackPanel Grid.Column="6">
                             <TextBlock Text="{DynamicResource SheetStore.Supplier}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource MutedForegroundBrush}" Margin="4,0,0,4"/>
                             <ComboBox ItemsSource="{Binding SupplierOptions}"
                                       SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
-                                      Height="32" Padding="10,6" FontSize="{StaticResource TextBody}"
-                                      Background="{DynamicResource MenuHoverBrush}"
-                                      Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Height="36" MinHeight="36" MinWidth="100"/>
                         </StackPanel>
                         <StackPanel Grid.Column="8">
                             <TextBlock Text="{DynamicResource SheetStore.SORT}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource AccentBrush}" Margin="4,0,0,4"/>
                             <ComboBox ItemsSource="{Binding SortOptions}"
                                       SelectedItem="{Binding SelectedSort, Mode=TwoWay}"
-                                      Height="32" Padding="10,6" FontSize="{StaticResource TextBody}"
-                                      Background="{DynamicResource MenuHoverBrush}"
-                                      Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Height="36" MinHeight="36" MinWidth="100"/>
                         </StackPanel>
                         <StackPanel Grid.Column="10" VerticalAlignment="Bottom">
                             <TextBlock Text=" " FontSize="{StaticResource TextBody}" Margin="0,0,0,4"/>
@@ -389,98 +363,92 @@
                 </StackPanel>
             </Border>
 
-            <!-- TOTAL INVENTORY STATS — UniformGrid of real cards so
-                 figures have containment, reflow on a narrow window,
-                 and a new metric is just another child. -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="16,14" Margin="8,0,8,12"
-                    SnapsToDevicePixels="True">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="2,0,0,12">
-                        <Border Width="28" Height="28" Margin="0,0,10,0"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Background="{DynamicResource AccentBrush}">
-                            <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="{DynamicResource SheetStore.TotalInventory}"
-                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <UniformGrid Columns="7">
-                        <Border Style="{StaticResource InventoryStatCard}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource DeliveryNote.Items}"
-                                           Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding TotalItems}"
-                                           Style="{StaticResource InventoryStatValue}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Style="{StaticResource InventoryStatCard}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource SheetStore.Stock}"
-                                           Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding TotalStock}"
-                                           Style="{StaticResource InventoryStatValue}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Style="{StaticResource InventoryStatCard}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource SheetStore.BuyingValue}"
-                                           Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}"
-                                           Style="{StaticResource InventoryStatValue}"
-                                           Foreground="{DynamicResource DangerBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Style="{StaticResource InventoryStatCard}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource SheetStore.SellingValue}"
-                                           Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}"
-                                           Style="{StaticResource InventoryStatValue}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Style="{StaticResource InventoryStatCard}"
-                                ToolTip="{DynamicResource SheetStore.UsedValueTip}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource SheetStore.UsedValue}"
-                                           Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding TotalUsedValue, StringFormat={}{0:N0} AED}"
-                                           Style="{StaticResource InventoryStatValue}"
-                                           Foreground="{DynamicResource WarningBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Style="{StaticResource InventoryStatCard}"
-                                ToolTip="{DynamicResource SheetStore.BalanceValueTip}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource SheetStore.BalanceValue}"
-                                           Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding TotalBalanceValue, StringFormat={}{0:N0} AED}"
-                                           Style="{StaticResource InventoryStatValue}"
-                                           Foreground="{DynamicResource InfoBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Style="{StaticResource InventoryStatCardLast}"
-                                ToolTip="{DynamicResource SheetStore.ExpectedProfitTip}">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}"
-                                           Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding ExpectedProfit, StringFormat={}{0:N0} AED}"
-                                           Style="{StaticResource InventoryStatValue}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
-                            </StackPanel>
-                        </Border>
-                    </UniformGrid>
-                </StackPanel>
+            <!-- TOTAL INVENTORY — one industrial KPI strip, not seven
+                 wrapping cards. The card UniformGrid ate ~110px of
+                 list height and collapsed the grid on laptop screens. -->
+            <Border Style="{StaticResource PiMetricStripStyle}"
+                    Margin="8,0,8,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="{DynamicResource SheetStore.TotalInventory}"
+                               Style="{StaticResource PiKpiCaptionStyle}"
+                               VerticalAlignment="Center" Margin="0,0,14,0"/>
+                    <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource DeliveryNote.Items}"
+                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding TotalItems}"
+                                       Style="{StaticResource PiKpiValueStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.Stock}"
+                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding TotalStock}"
+                                       Style="{StaticResource PiKpiValueStyle}"
+                                       Foreground="{DynamicResource SuccessBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.BuyingValue}"
+                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}"
+                                       Style="{StaticResource PiKpiValueStyle}"
+                                       Foreground="{DynamicResource DangerBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.SellingValue}"
+                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}"
+                                       Style="{StaticResource PiKpiValueStyle}"
+                                       Foreground="{DynamicResource SuccessBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="5" Style="{StaticResource PiKpiCellStyle}"
+                            ToolTip="{DynamicResource SheetStore.UsedValueTip}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.UsedValue}"
+                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding TotalUsedValue, StringFormat={}{0:N0} AED}"
+                                       Style="{StaticResource PiKpiValueStyle}"
+                                       Foreground="{DynamicResource WarningBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="6" Style="{StaticResource PiKpiCellStyle}"
+                            ToolTip="{DynamicResource SheetStore.BalanceValueTip}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.BalanceValue}"
+                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding TotalBalanceValue, StringFormat={}{0:N0} AED}"
+                                       Style="{StaticResource PiKpiValueStyle}"
+                                       Foreground="{DynamicResource InfoBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="7" Style="{StaticResource PiKpiCellStyle}" Margin="0"
+                            ToolTip="{DynamicResource SheetStore.ExpectedProfitTip}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}"
+                                       Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding ExpectedProfit, StringFormat={}{0:N0} AED}"
+                                       Style="{StaticResource PiKpiValueStyle}"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
             </Border>
         </StackPanel>
 
@@ -1083,11 +1051,13 @@
                             <TextBlock Text="CATEGORY" Style="{StaticResource ItemFieldLabel}"/>
                             <ComboBox ItemsSource="{Binding Categories}"
                                       SelectedItem="{Binding Category}"
-                                      Margin="0,0,0,12" Height="34"/>
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Margin="0,0,0,12" Height="36" MinHeight="36"/>
                             <TextBlock Text="UNIT OF MEASURE" Style="{StaticResource ItemFieldLabel}"/>
                             <ComboBox ItemsSource="{Binding Uoms}"
                                       SelectedItem="{Binding Uom}"
-                                      Margin="0,0,0,12" Height="34"/>
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      Margin="0,0,0,12" Height="36" MinHeight="36"/>
                             <TextBlock Text="SPECIFICATION" Style="{StaticResource ItemFieldLabel}"/>
                             <TextBox Text="{Binding Specification, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource ItemEntry}"/>

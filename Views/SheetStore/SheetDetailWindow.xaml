@@ -133,33 +133,29 @@
             <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
 
-        <!-- Editable entry. Red outline while the field is rejected: the
-             inline message alone is easy to miss on a 3-column form. -->
-        <Style x:Key="DetailEntry" TargetType="TextBox">
-            <Setter Property="Height" Value="38"/>
+        <!-- Industrial entry. BasedOn the shared template so dark-theme
+             contrast and focus chrome match the rest of the plant floor.
+             Height 40 + horizontal-only padding: 38/10,6 clipped glyphs. -->
+        <Style x:Key="DetailEntry" TargetType="TextBox"
+               BasedOn="{StaticResource ModernTextBoxStyle}">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="MinHeight" Value="40"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
-        <!-- Editable combo. IsEditable=True is the whole point: the
-             dropdown is a shortcut for the standard sizes and thicknesses,
-             NOT a closed list. A bespoke cut or a new mill size must still
-             be typeable, or a legitimate sheet becomes unenterable. -->
-        <Style x:Key="DetailCombo" TargetType="ComboBox">
+        <!-- Editable combo MUST BasedOn ModernEditableComboBoxStyle.
+             A keyed style without BasedOn drops the implicit industrial
+             template (PART_EditableTextBox + themed popup) and WPF's
+             default chrome renders white-on-white, which is the
+             "dropdown collapsed / nothing visible" report. -->
+        <Style x:Key="DetailCombo" TargetType="ComboBox"
+               BasedOn="{StaticResource ModernEditableComboBoxStyle}">
             <Setter Property="IsEditable" Value="True"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="MaxDropDownHeight" Value="320"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource DialogInsetBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
         <Style x:Key="FieldError" TargetType="TextBlock">
@@ -176,54 +172,48 @@
         </Style>
     </Window.Resources>
 
-    <Grid Margin="28,22,28,22">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>   <!-- header -->
-            <RowDefinition Height="Auto"/>   <!-- tab strip -->
-            <RowDefinition Height="*"/>      <!-- body -->
+            <RowDefinition Height="Auto"/>   <!-- station header -->
+            <RowDefinition Height="Auto"/>   <!-- tab rail -->
+            <RowDefinition Height="*"/>      <!-- work deck -->
         </Grid.RowDefinitions>
 
-        <!-- ═══ HEADER ═══════════════════════════════════════════════ -->
-        <Grid Grid.Row="0" Margin="0,0,0,20">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="{Binding HeaderTitle}"
-                           FontSize="{StaticResource TextDisplayLarge}"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock Text="{Binding HeaderSubtitle}"
-                           FontSize="{StaticResource TextBody}"
-                           Margin="0,6,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </StackPanel>
-
-            <!-- Row actions travel with the row, as asked. BUY/USE are
-                 here AND in the list: considered work happens here,
-                 fast repetitive receiving happens in the list. -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                <Button Style="{StaticResource OutlinedPillButton}"
-                        Content="CLOSE" MinWidth="110"
-                        Command="{Binding CloseCommand}"/>
-            </StackPanel>
-        </Grid>
-
-        <!-- ═══ TAB STRIP ════════════════════════════════════════════
-             A single click switches tab — that is all it does. There is
-             no edit mode to enter, so the tabs never gate the fields.
+        <!-- ═══ STATION HEADER ═══════════════════════════════════════
+             Edge-to-edge Pi chrome. The old 28px padded title block
+             left the workspace looking like a dialog dropped on a
+             maximized window, not a plant-floor station.
         ═════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="1"
-                Background="{DynamicResource DialogInsetBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="{DynamicResource CardCornerRadius}"
-                Padding="6" Margin="0,0,0,18"
-                HorizontalAlignment="Left"
-                SnapsToDevicePixels="True">
-            <StackPanel Orientation="Horizontal">
+        <Border Grid.Row="0" Style="{StaticResource PiStationHeaderBarStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding HeaderTitle}"
+                               Style="{StaticResource PiStationTitleStyle}"/>
+                    <TextBlock Text="{Binding HeaderSubtitle}"
+                               Style="{StaticResource PiStationHintStyle}"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Content="{DynamicResource Action.Close}" MinWidth="110"
+                        VerticalAlignment="Center"
+                        Command="{Binding CloseCommand}"/>
+            </Grid>
+        </Border>
+
+        <!-- ═══ TAB RAIL ═════════════════════════════════════════════
+             Full-width industrial rail. HorizontalAlignment=Left on a
+             padded pill made six tabs look like a toy switcher on a
+             maximized screen.
+        ═════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="1" Style="{StaticResource PiRailBarStyle}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Style="{StaticResource TabPillButton}" Content="OVERVIEW"
                         Command="{Binding SelectTabCommand}" CommandParameter="Overview"
                         behaviors:TabState.IsActive="{Binding IsOverview, Mode=OneWay}"
@@ -251,7 +241,8 @@
         </Border>
 
         <!-- ═══ BODY ═════════════════════════════════════════════════ -->
-        <Grid Grid.Row="2">
+        <Border Grid.Row="2" Style="{StaticResource PiWorkDeckStyle}">
+        <Grid>
 
             <!-- ─── OVERVIEW ─── -->
             <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -267,35 +258,41 @@
                     </Style>
                 </ScrollViewer.Style>
                 <StackPanel>
-                    <UniformGrid Columns="4" Margin="0,0,0,18">
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="STOCK" Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding Sheet.Stock}" Style="{StaticResource StatValue}"/>
+                                <TextBlock Text="STOCK" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding Sheet.Stock}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="USED" Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding Sheet.Used}" Style="{StaticResource StatValue}"
+                                <TextBlock Text="USED" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding Sheet.Used}" Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource DangerBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="BALANCE" Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding Sheet.Balance}" Style="{StaticResource StatValue}"
+                                <TextBlock Text="BALANCE" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding Sheet.Balance}" Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}">
+                        <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}" Margin="0">
                             <StackPanel>
-                                <TextBlock Text="SQM AVAILABLE" Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="SQM AVAILABLE" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}"
-                                           Style="{StaticResource StatValue}"/>
+                                           Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                    </UniformGrid>
+                    </Grid>
 
                     <TextBlock Text="SPECIFICATION" Style="{StaticResource StatLabel}"
                                Margin="2,4,0,10"/>
@@ -376,39 +373,45 @@
                     <!-- Live result, mirroring Overview's stat strip. Hidden
                          until the entry parses so it never shows a figure
                          derived from junk. -->
-                    <UniformGrid Columns="4" Margin="0,0,0,18"
-                                 Visibility="{Binding ShowPreview,
-                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                    <Grid Margin="0,0,0,16"
+                          Visibility="{Binding ShowPreview,
+                                      Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="QUANTITY" Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding Quantity}" Style="{StaticResource StatValue}"/>
+                                <TextBlock Text="QUANTITY" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding Quantity}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="TOTAL SQM" Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="TOTAL SQM" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
-                                           Style="{StaticResource StatValue}"/>
+                                           Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="TOTAL COST" Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="TOTAL COST" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}"
-                                           Style="{StaticResource StatValue}"
+                                           Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource AccentBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}">
+                        <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}" Margin="0">
                             <StackPanel>
-                                <TextBlock Text="BALANCE AFTER" Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="BALANCE AFTER" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding NewBalanceAfterBuy}"
-                                           Style="{StaticResource StatValue}"
+                                           Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
-                    </UniformGrid>
+                    </Grid>
 
                     <!-- Quantity -->
                     <Border Style="{StaticResource SectionCard}">
@@ -497,39 +500,45 @@
                     <!-- Live result, mirroring Overview's stat strip. Hidden
                          until the entry parses so it never shows a figure
                          derived from junk. -->
-                    <UniformGrid Columns="4" Margin="0,0,0,18"
-                                 Visibility="{Binding ShowPreview,
-                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                    <Grid Margin="0,0,0,16"
+                          Visibility="{Binding ShowPreview,
+                                      Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="QUANTITY" Style="{StaticResource StatLabel}"/>
-                                <TextBlock Text="{Binding Quantity}" Style="{StaticResource StatValue}"/>
+                                <TextBlock Text="QUANTITY" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding Quantity}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="TOTAL SQM" Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="TOTAL SQM" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
-                                           Style="{StaticResource StatValue}"/>
+                                           Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="TOTAL VALUE" Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="TOTAL VALUE" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding TotalValue, StringFormat={}{0:N2} AED}"
-                                           Style="{StaticResource StatValue}"
+                                           Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}">
+                        <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}" Margin="0">
                             <StackPanel>
-                                <TextBlock Text="BALANCE AFTER" Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="BALANCE AFTER" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding RemainingBalance}"
-                                           Style="{StaticResource StatValue}"
+                                           Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
-                    </UniformGrid>
+                    </Grid>
 
                     <!-- Whole-tab blocker: with nothing on the rack no
                          quantity could ever be valid, so this is not a
@@ -621,8 +630,11 @@
                                 </StackPanel>
                                 <StackPanel Margin="0,0,16,0">
                                     <TextBlock Text="PANE POSITION" Style="{StaticResource FieldLabel}"/>
-                                    <TextBox Text="{Binding PanePosition, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource DetailEntry}"/>
+                                    <ComboBox Text="{Binding PanePosition, UpdateSourceTrigger=PropertyChanged}"
+                                              Style="{StaticResource DetailCombo}">
+                                        <ComboBoxItem Content="Outer"/>
+                                        <ComboBoxItem Content="Inner"/>
+                                    </ComboBox>
                                 </StackPanel>
                                 <StackPanel/>
                             </UniformGrid>
@@ -844,9 +856,16 @@
                      grid brings its own chrome — gridlines, header sort
                      glyphs, focus rectangles — that ignores the theme and
                      reads as unfinished next to the rest of the app. -->
-                <StackPanel>
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
+                <!-- ListView in a StackPanel measures infinite height and
+                     either balloons or collapses. Star row is the only
+                     layout that gives the virtualized list a real viewport. -->
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.Style>
+                        <Style TargetType="Grid">
                             <Setter Property="Visibility" Value="Visible"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding HasNoMovements}" Value="True">
@@ -857,10 +876,11 @@
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </StackPanel.Style>
+                    </Grid.Style>
 
-                    <Border Style="{StaticResource PiTableHeaderStyle}" Padding="10,7"
-                            CornerRadius="10,10,0,0">
+                    <Border Grid.Row="0"
+                            Style="{StaticResource PiTableHeaderStyle}" Padding="10,7"
+                            CornerRadius="{DynamicResource Radius.Top.Medium}">
                         <Grid>
                             <!-- Fixed widths for the numeric columns so the
                                  right-aligned VALUE cannot collide with the
@@ -891,10 +911,11 @@
                         </Grid>
                     </Border>
 
-                    <Border Background="{DynamicResource DialogInsetBrush}"
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource DialogInsetBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1,0,1,1"
-                            CornerRadius="0,0,10,10">
+                            CornerRadius="{DynamicResource Radius.Bottom.Medium}">
                         <ListView ItemsSource="{Binding Movements}"
                                   ItemContainerStyle="{StaticResource MovementRowStyle}"
                                   Background="Transparent"
@@ -976,7 +997,7 @@
                             </ListView.ItemTemplate>
                         </ListView>
                     </Border>
-                </StackPanel>
+                </Grid>
             </Grid>
 
             <!-- ─── ANALYSIS ─── -->
@@ -993,30 +1014,35 @@
                     </Style>
                 </ScrollViewer.Style>
                 <StackPanel>
-                    <UniformGrid Columns="3" Margin="0,0,0,18">
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="BALANCE AT COST" Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="BALANCE AT COST" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding BalanceValueAtCost, StringFormat={}{0:N2} AED}"
-                                           Style="{StaticResource StatValue}"/>
+                                           Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}" Margin="0,0,12,0">
+                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="BALANCE AT SELL" Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="BALANCE AT SELL" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding BalanceValueAtSell, StringFormat={}{0:N2} AED}"
-                                           Style="{StaticResource StatValue}"/>
+                                           Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource StatCard}">
+                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}" Margin="0">
                             <StackPanel>
-                                <TextBlock Text="POTENTIAL PROFIT" Style="{StaticResource StatLabel}"/>
+                                <TextBlock Text="POTENTIAL PROFIT" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding PotentialProfit, StringFormat={}{0:N2} AED}"
-                                           Style="{StaticResource StatValue}"
+                                           Style="{StaticResource PiKpiValueStyle}"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
-                    </UniformGrid>
+                    </Grid>
 
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
@@ -1059,5 +1085,6 @@
                 </StackPanel>
             </ScrollViewer>
         </Grid>
+        </Border>
     </Grid>
 </Window>
