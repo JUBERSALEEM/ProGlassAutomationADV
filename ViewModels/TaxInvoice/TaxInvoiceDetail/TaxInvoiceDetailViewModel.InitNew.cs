@@ -129,10 +129,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 IsLoading = true;
                 StatusMessage = $"Loading all deliveries for '{proformaId}'…";
 
-                var allDns = await _deliveryNotes.GetAllAsync();
-                var siblingDnIds = allDns
-                    .Where(d => string.Equals(d.ProformaId, proformaId,
-                        StringComparison.OrdinalIgnoreCase))
+                // Phase 2: scoped query, not a whole-table load. This loaded
+                // every delivery note in the database to collect the sibling
+                // IDs for one proforma. GetByProformaIdAsync applies the same
+                // !IsMasterDn exclusion and the same case-insensitive
+                // ProformaId match, in SQL.
+                var siblingDns = await _deliveryNotes.GetByProformaIdAsync(proformaId);
+                var siblingDnIds = siblingDns
                     .Select(d => d.DeliveryNoteId)
                     .ToList();
 
