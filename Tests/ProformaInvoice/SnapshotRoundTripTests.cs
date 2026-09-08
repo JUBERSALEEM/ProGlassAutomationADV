@@ -138,7 +138,49 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
             Assert.Equal(snap.Project.LpoNumber, back.Project.LpoNumber);
         }
 
+        [Fact]
+        public void Wastage_live_quantity_and_amount_roundtrip()
+        {
+            var snap = new ProformaInvoiceSnapshot
+            {
+                OtherCharges = new OtherChargesSnapshot
+                {
+                    Wastages = new()
+                    {
+                        new WastageRowSnapshot
+                        {
+                            IsActive = true,
+                            ColorName = "HD Grey",
+                            Rate = 10.084033m,
+                            TotalSqm = 10m,
+                            ResultAmount = 100.84m
+                        }
+                    }
+                }
+            };
+
+            var back = RoundTrip(snap);
+            var wastage = Assert.Single(back.OtherCharges.Wastages);
+
+            Assert.Equal<decimal?>(10m, wastage.TotalSqm);
+            Assert.Equal<decimal?>(100.84m, wastage.ResultAmount);
+        }
+
         // ── Legacy JSON compatibility (P&L integrity anti-regression) ──
+
+        [Fact]
+        public void Legacy_wastage_without_live_calculation_values_deserialises_to_null()
+        {
+            const string legacyJson =
+                "{\"OtherCharges\":{\"Wastages\":[{\"IsActive\":true,\"Rate\":10}]}}";
+
+            var back = ProformaInvoiceMapper.DeserializeSnapshot(
+                new SavedProformaInvoice { FullSnapshotJson = legacyJson });
+            var wastage = Assert.Single(back.OtherCharges.Wastages);
+
+            Assert.Null(wastage.TotalSqm);
+            Assert.Null(wastage.ResultAmount);
+        }
 
         [Fact]
         public void Legacy_json_without_ProjectReference_deserialises_to_empty_string()

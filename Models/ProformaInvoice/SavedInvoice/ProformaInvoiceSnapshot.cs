@@ -467,6 +467,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public decimal Rate { get; set; }
 
         /// <summary>
+        /// Live Step 6 quantity at save/export time. Null on legacy snapshots
+        /// so PDF/Excel exports can fall back to recomputing from sources.
+        /// </summary>
+        public decimal? TotalSqm { get; set; }
+
+        /// <summary>
+        /// Live Step 6 result at save/export time. Null on legacy snapshots.
+        /// When present, exports must retain the amount calculated by the
+        /// wastage row, including optimization-formula results.
+        /// </summary>
+        public decimal? ResultAmount { get; set; }
+
+        /// <summary>
         /// True when the operator attached this row by hand instead of the
         /// advanced engine generating it. Manual rows survive advanced
         /// refreshes (which rebuild generated rows on every Step 5 edit).
