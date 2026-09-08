@@ -554,7 +554,7 @@
                         <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL SQM" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding TotalSqm, StringFom, StringFormat={}{0:N2}}"
+                                <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
                                            Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
