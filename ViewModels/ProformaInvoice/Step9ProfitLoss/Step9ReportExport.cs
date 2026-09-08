@@ -327,9 +327,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             r.SpecNumber > 0 ? $"{r.SpecNumberDisplay} · SPEC TARGET PRICE" : "INVOICE-WIDE TARGET",
             r.SpecNumberDisplay,
             r.SpecDisplayName,
-            $"{r.BuildTypeLabel} · {OneLine(r.DimensionsSummary)} · Area {r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? ""} SQM",
+            $"{r.BuildTypeLabel} · {OneLine(r.DimensionsSummary)} · {OneLine(r.Step4PaneSheetSummary)} · Area {r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? ""} SQM",
             $"Given {Rate(r.Result?.GivenPricePerSqm)}/SQM · value AED {N(r.Result?.GivenValue ?? 0m)} · base {Rate(r.Result?.BasePricePerSqm)}/SQM",
-            $"Outer {Rate(r.Result?.OuterGlassRatePerSqm)} · Inner {Rate(r.Result?.InnerGlassRatePerSqm)} · Third {Rate(r.Result?.ThirdGlassRatePerSqm)} · ASP {Rate(r.Result?.AspRatePerSqm)} · Processing {Rate(r.Result?.ProcessingRatePerSqm)} · Yield {r.Result?.YieldFactor.ToString("0.###", CultureInfo.InvariantCulture) ?? ""}",
+            $"{r.OuterPaneSheetDisplay} · {r.InnerPaneSheetDisplay} · Outer {Rate(r.Result?.OuterGlassRatePerSqm)} · Inner {Rate(r.Result?.InnerGlassRatePerSqm)} · Third {Rate(r.Result?.ThirdGlassRatePerSqm)} · ASP {Rate(r.Result?.AspRatePerSqm)} · Processing {Rate(r.Result?.ProcessingRatePerSqm)} · Yield {r.Result?.YieldFactor.ToString("0.###", CultureInfo.InvariantCulture) ?? ""}",
             $"Target {Rate(r.Result?.FinalRequiredTargetPerSqm)}/SQM · required AED {N(r.Result?.RequiredTargetValue ?? 0m)} · diff/SQM {Diff(r.Result?.DifferencePerSqm)} · diff value {r.DifferenceValueDisplay} · margin {r.Result?.MarginAgainstTargetPercent?.ToString("0.##", CultureInfo.InvariantCulture) ?? ""}%",
             $"{r.StatusLabel}. {r.FormulaText}. U-insert: {r.UInsertTreatmentLabel} / {r.AppliedUInsertDisplay}. {r.WarningSummary}"
         };
@@ -339,9 +339,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             r.SpecNumber > 0 ? $"{r.SpecNumberDisplay} · SPEC TARGET PRICE" : "INVOICE-WIDE TARGET",
             r.SpecNumberDisplay,
             r.SpecDisplayName,
-            $"{r.BuildTypeLabel} / {OneLine(r.DimensionsSummary)} / Area {r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? ""} SQM",
+            $"{r.BuildTypeLabel} / {OneLine(r.DimensionsSummary)} / {OneLine(r.Step4PaneSheetSummary)} / Area {r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? ""} SQM",
             $"Given {Rate(r.Result?.GivenPricePerSqm)}/SQM / value {N(r.Result?.GivenValue ?? 0m)} / base {Rate(r.Result?.BasePricePerSqm)}/SQM",
-            $"Outer {Rate(r.Result?.OuterGlassRatePerSqm)} / Inner {Rate(r.Result?.InnerGlassRatePerSqm)} / Third {Rate(r.Result?.ThirdGlassRatePerSqm)} / ASP {Rate(r.Result?.AspRatePerSqm)} / Processing {Rate(r.Result?.ProcessingRatePerSqm)} / Yield {r.Result?.YieldFactor.ToString("0.###", CultureInfo.InvariantCulture) ?? ""}",
+            $"{r.OuterPaneSheetDisplay} / {r.InnerPaneSheetDisplay} / Outer {Rate(r.Result?.OuterGlassRatePerSqm)} / Inner {Rate(r.Result?.InnerGlassRatePerSqm)} / Third {Rate(r.Result?.ThirdGlassRatePerSqm)} / ASP {Rate(r.Result?.AspRatePerSqm)} / Processing {Rate(r.Result?.ProcessingRatePerSqm)} / Yield {r.Result?.YieldFactor.ToString("0.###", CultureInfo.InvariantCulture) ?? ""}",
             $"Target {Rate(r.Result?.FinalRequiredTargetPerSqm)}/SQM / required {N(r.Result?.RequiredTargetValue ?? 0m)} / diff/SQM {Diff(r.Result?.DifferencePerSqm)} / diff value {r.DifferenceValueDisplay} / margin {r.Result?.MarginAgainstTargetPercent?.ToString("0.##", CultureInfo.InvariantCulture) ?? ""}%",
             $"{r.StatusLabel}. {r.FormulaText}. U-insert: {r.UInsertTreatmentLabel} / {r.AppliedUInsertDisplay}. {r.WarningSummary}"
         };
@@ -475,7 +475,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             foreach (var spec in vm.TargetSpecsView ?? Enumerable.Empty<SpecTargetRowViewModel>())
                 Add("SPECIFICATION SUMMARY", spec.SpecNumberDisplay, spec.FinalRequiredTargetDisplay,
-                    $"Given {spec.GivenPricePerSqmDisplay}; diff {spec.DifferencePerSqmDisplay}; margin {spec.MarginAgainstTargetDisplay}; status {spec.StatusLabel}; {spec.FormulaSummaryLine}");
+                    $"Given {spec.GivenPricePerSqmDisplay}; diff {spec.DifferencePerSqmDisplay}; margin {spec.MarginAgainstTargetDisplay}; status {spec.StatusLabel}; {spec.Step4PaneSheetSummary}; {spec.FormulaSummaryLine}");
 
             foreach (var line in vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
                 Add("ACTUAL COST LEDGER", line.SpecDisplay, line.AmountDisplay,

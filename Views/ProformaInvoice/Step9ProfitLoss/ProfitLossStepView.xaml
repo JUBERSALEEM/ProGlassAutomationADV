@@ -1101,6 +1101,11 @@
                                                                    TextTrimming="CharacterEllipsis">
                                                             <Run Text="{Binding BuildTypeLabel, Mode=OneWay}"/>
                                                         </TextBlock>
+                                                        <TextBlock Text="{Binding Step4PaneSheetSummary}"
+                                                                   FontSize="{StaticResource TextXSmall}"
+                                                                   Foreground="{DynamicResource AccentBrush}"
+                                                                   TextWrapping="Wrap"
+                                                                   Margin="0,2,0,0"/>
                                                         <TextBlock Text="{Binding FormulaSummaryLine}"
                                                                    FontFamily="Consolas"
                                                                    FontSize="{StaticResource TextXSmall}"
@@ -1270,6 +1275,27 @@
                                                    FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                                BorderBrush="{DynamicResource OutlineBrush}"
+                                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                                CornerRadius="{DynamicResource Radius.Small}"
+                                                Padding="10,8" Margin="0,8,0,0">
+                                            <StackPanel>
+                                                <TextBlock Text="STEP 4 PANE / SHEET SOURCE"
+                                                           FontSize="{StaticResource TextXSmall}"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                <TextBlock Text="{Binding OuterPaneSheetDisplay}"
+                                                           FontSize="{StaticResource TextCaption}"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           TextWrapping="Wrap" Margin="0,3,0,0"/>
+                                                <TextBlock Text="{Binding InnerPaneSheetDisplay}"
+                                                           FontSize="{StaticResource TextCaption}"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           TextWrapping="Wrap" Margin="0,2,0,0"
+                                                           Visibility="{Binding HasSecondGlass, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                            </StackPanel>
+                                        </Border>
 
                                         <!-- 2 · STEP 5 INPUT -->
                                         <TextBlock Text="2 · STEP 5 INPUT" Style="{StaticResource TgtSideHeadingStyle}"/>

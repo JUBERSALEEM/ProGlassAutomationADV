@@ -32,6 +32,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>Readable preview of the Step 5 dimension rows.</summary>
         public string DimensionsSummary { get; private set; } = "";
 
+        /// <summary>
+        /// Authoritative Step 4 pane/sheet handoff for this Step 5 spec.
+        /// Shown on the comparison row and inspector so target analysis does
+        /// not hide the actual selected stock sheet behind formula figures.
+        /// </summary>
+        public string Step4PaneSheetSummary { get; private set; } = "";
+
+        public bool HasStep4PaneSheetSummary =>
+            !string.IsNullOrWhiteSpace(Step4PaneSheetSummary);
+
+        public string OuterPaneGlassName { get; private set; } = "";
+        public string InnerPaneGlassName { get; private set; } = "";
+        public string OuterSheetDisplay { get; private set; } = "—";
+        public string InnerSheetDisplay { get; private set; } = "—";
+        public string OuterPaneSheetDisplay => BuildPaneSheetDisplay("Outer", OuterPaneGlassName, OuterSheetDisplay);
+        public string InnerPaneSheetDisplay => BuildPaneSheetDisplay("Inner", InnerPaneGlassName, InnerSheetDisplay);
+
         /// <summary>True when this row is selected in the comparison list (drives the sidebar).</summary>
         private bool _isSelected;
         public bool IsSelected
@@ -59,11 +76,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public static SpecTargetRowViewModel FromResult(
             SpecTargetPriceResult result, SpecGroup? group = null)
         {
-            return new SpecTargetRowViewModel
+            var vm = new SpecTargetRowViewModel
             {
                 Result = result,
                 DimensionsSummary = BuildDimensionsSummary(group)
             };
+
+            vm.ApplyStep4PaneSheetMetadata(group);
+            return vm;
         }
 
         public bool HasResult => Result != null;
@@ -137,8 +157,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (Result == null) return "—";
 
                 var panes = PnLSpecParser.ResolveAllPanes(Result.SpecName);
-                string outerName = panes.Count > 0 ? panes[0].Color : "outer";
-                string innerName = panes.Count > 1 ? panes[^1].Color : "inner";
+                string outerName = !string.IsNullOrWhiteSpace(OuterPaneGlassName)
+                    ? OuterPaneGlassName
+                    : panes.Count > 0 ? panes[0].Color : "outer";
+                string innerName = !string.IsNullOrWhiteSpace(InnerPaneGlassName)
+                    ? InnerPaneGlassName
+                    : panes.Count > 1 ? panes[^1].Color : "inner";
                 string thirdName = panes.Count > 2 ? panes[1].Color : "lam outer";
 
                 string glass = Result.BuildType switch
@@ -304,6 +328,45 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 or TargetStatus.MissingUInsertTreatment
                 or TargetStatus.CalculationIncomplete
                 or TargetStatus.SnapshotStale;
+
+
+        private void ApplyStep4PaneSheetMetadata(SpecGroup? group)
+        {
+            if (group == null) return;
+
+            OuterPaneGlassName = (group.OuterGlassColor ?? string.Empty).Trim();
+            InnerPaneGlassName = (group.InnerGlassColor ?? string.Empty).Trim();
+            OuterSheetDisplay = FormatSheet(group.OuterSheetWidthMm, group.OuterSheetHeightMm, group.OuterSheetPricePerSqm);
+            InnerSheetDisplay = FormatSheet(group.InnerSheetWidthMm, group.InnerSheetHeightMm, group.InnerSheetPricePerSqm);
+
+            var parts = new[]
+            {
+                BuildPaneSheetDisplay("Outer", OuterPaneGlassName, OuterSheetDisplay),
+                BuildPaneSheetDisplay("Inner", InnerPaneGlassName, InnerSheetDisplay)
+            }
+            .Where(x => !string.IsNullOrWhiteSpace(x) && !x.EndsWith("—", StringComparison.Ordinal))
+            .ToList();
+
+            Step4PaneSheetSummary = parts.Count > 0
+                ? "Step 4 sheet source · " + string.Join("  ·  ", parts)
+                : "Step 4 sheet source missing — recalculate/apply Step 4 for this spec; Step 9 must not guess silently.";
+        }
+
+        private static string FormatSheet(int widthMm, int heightMm, decimal ratePerSqm)
+        {
+            if (widthMm <= 0 || heightMm <= 0) return "—";
+            decimal sqm = (widthMm * (decimal)heightMm) / 1_000_000m;
+            string text = $"{widthMm} × {heightMm} · {sqm:0.####} SQM";
+            return ratePerSqm > 0m ? $"{text} @ AED {ratePerSqm:N2}/m²" : text;
+        }
+
+        private static string BuildPaneSheetDisplay(string side, string glassName, string sheetDisplay)
+        {
+            bool hasGlass = !string.IsNullOrWhiteSpace(glassName);
+            bool hasSheet = !string.IsNullOrWhiteSpace(sheetDisplay) && sheetDisplay != "—";
+            if (!hasGlass && !hasSheet) return string.Empty;
+            return $"{side}: {(hasGlass ? glassName.Trim() : "glass")} · {(hasSheet ? sheetDisplay : "sheet missing")}";
+        }
 
         private static string BuildDimensionsSummary(SpecGroup? group)
         {
