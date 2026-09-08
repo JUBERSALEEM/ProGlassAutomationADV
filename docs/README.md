@@ -230,6 +230,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`BUILD_VERIFICATION_GUIDE.md`](BUILD_VERIFICATION_GUIDE.md) | Build Verification Guide |
 | [`CODE_RATING_REPORT.md`](CODE_RATING_REPORT.md) | ProGlass Automation — Senior Engineering Rating |
 | [`CORRECTED_MARGIN_CALCULATION.md`](CORRECTED_MARGIN_CALCULATION.md) | ✅ Corrected Margin Calculation - Example |
+| [`DEEP_ANALYSIS_2026-09-09.md`](DEEP_ANALYSIS_2026-09-09.md) | ProGlass Automation — Deep Code Analysis, 2026-09-09 |
 | [`DELIVERY-REPORT.md`](DELIVERY-REPORT.md) | ProGlass Automation — Localization & Globalization Delivery Report |
 | [`FULL_WORKFLOW_AUDIT.md`](FULL_WORKFLOW_AUDIT.md) | PROGLASS AUTOMATION — DEEP WORKFLOW AUDIT & UPGRADE |
 | [`IMPLEMENTATION_COMPLETE.md`](IMPLEMENTATION_COMPLETE.md) | ✅ Implementation Complete: Three Analysis Views with Tab Control |
@@ -252,6 +253,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | `Chat5/` | Working notes and data from an earlier session. (6 files) |
 | `Chat5-9/` | Working notes, prompts and data from an earlier session. (7 files) |
 | `ci/` | Pipeline definitions — duplicate casing of `CI/`; see `CI.md`. (2 files) |
+| `phases/` | Supporting artefacts. (16 files) |
 | `ui-redesign/` | UI redesign working artefacts. (1 files) |
 
 
