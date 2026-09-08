@@ -214,49 +214,213 @@
 
                 <Button Grid.Column="1"
                         Style="{StaticResource OutlinedPillButton}"
-                        Content="{DynamicResource Action.Close}" MinWidth="110"
+                        Tag="&#xE711;" Content="{DynamicResource Action.Close}" MinWidth="110"
                         VerticalAlignment="Center"
                         Command="{Binding CloseCommand}"/>
             </Grid>
         </Border>
 
         <!-- ═══ TAB RAIL ═════════════════════════════════════════════
-             Full-width industrial rail. HorizontalAlignment=Left on a
-             padded pill made six tabs look like a toy switcher on a
-             maximized screen.
+             Same STEP D pair as Job Order / Delivery Note:
+             OutlinedPillButton when idle, PrimaryPillButton when
+             active. TabPillButton cannot be used here — it inherits
+             DensityButtonHeight=32 AND Padding 18,9, so the glass
+             template clips the label and the active fill never shows.
         ═════════════════════════════════════════════════════════════ -->
-        <!-- PiRailBarStyle is Height=40 and clips TabPillButton labels. -->
         <Border Grid.Row="1"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="0,0,0,1"
-                Padding="20,12"
-                MinHeight="56"
+                Padding="20,10"
+                MinHeight="64"
                 SnapsToDevicePixels="True">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Style="{StaticResource TabPillButton}" Content="OVERVIEW"
-                        Command="{Binding SelectTabCommand}" CommandParameter="Overview"
-                        behaviors:TabState.IsActive="{Binding IsOverview, Mode=OneWay}"
-                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                <Button Style="{StaticResource TabPillButton}" Content="BUY"
-                        Command="{Binding SelectTabCommand}" CommandParameter="Buy"
-                        behaviors:TabState.IsActive="{Binding IsBuy, Mode=OneWay}"
-                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                <Button Style="{StaticResource TabPillButton}" Content="USE"
-                        Command="{Binding SelectTabCommand}" CommandParameter="Use"
-                        behaviors:TabState.IsActive="{Binding IsUse, Mode=OneWay}"
-                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                <Button Style="{StaticResource TabPillButton}" Content="EDIT"
-                        Command="{Binding SelectTabCommand}" CommandParameter="Edit"
-                        behaviors:TabState.IsActive="{Binding IsEdit, Mode=OneWay}"/>
-                <Button Style="{StaticResource TabPillButton}" Content="MOVEMENTS"
-                        Command="{Binding SelectTabCommand}" CommandParameter="Movements"
-                        behaviors:TabState.IsActive="{Binding IsMovements, Mode=OneWay}"
-                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                <Button Style="{StaticResource TabPillButton}" Content="ANALYSIS"
-                        Command="{Binding SelectTabCommand}" CommandParameter="Analysis"
-                        behaviors:TabState.IsActive="{Binding IsAnalysis, Mode=OneWay}"
-                        Visibility="{Binding IsExisting, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                <!-- OVERVIEW — hidden on a brand-new sheet -->
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Overview"
+                        Tag="&#xE8A5;" Content="OVERVIEW" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsOverview}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Overview"
+                        Tag="&#xE8A5;" Content="OVERVIEW" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsOverview}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <!-- BUY -->
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Buy"
+                        Tag="&#xE7B8;" Content="BUY" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsBuy}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Buy"
+                        Tag="&#xE7B8;" Content="BUY" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsBuy}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <!-- USE -->
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Use"
+                        Tag="&#xE896;" Content="USE" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsUse}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Use"
+                        Tag="&#xE896;" Content="USE" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsUse}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <!-- EDIT — always present (new sheets land here) -->
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Edit"
+                        Tag="&#xE70F;" Content="EDIT" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEdit}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Edit"
+                        Tag="&#xE70F;" Content="EDIT" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEdit}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <!-- MOVEMENTS -->
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Movements"
+                        Tag="&#xE81C;" Content="MOVEMENTS" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMovements}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Movements"
+                        Tag="&#xE81C;" Content="MOVEMENTS" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMovements}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <!-- ANALYSIS -->
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Analysis"
+                        Tag="&#xE9F9;" Content="ANALYSIS" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsAnalysis}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding SelectTabCommand}" CommandParameter="Analysis"
+                        Tag="&#xE9F9;" Content="ANALYSIS" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsAnalysis}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsExisting}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
             </StackPanel>
         </Border>
 
@@ -500,7 +664,7 @@
                          that closed and silently recorded nothing. -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,4,0,0">
                         <Button Style="{StaticResource PrimaryPillButton}"
-                                Content="RECORD PURCHASE" MinWidth="240"
+                                Tag="&#xE74E;" Content="RECORD PURCHASE" MinWidth="240"
                                 Command="{Binding DataContext.ConfirmBuyCommand,
                                           RelativeSource={RelativeSource AncestorType=Window}}"/>
                     </StackPanel>
@@ -866,7 +1030,7 @@
                                    Visibility="{Binding HasValidationSummary,
                                                Converter={StaticResource BoolToVisibilityConverter}}"/>
                         <Button Style="{StaticResource PrimaryPillButton}"
-                                MinWidth="190"
+                                Tag="&#xE74E;" MinWidth="190"
                                 Command="{Binding DataContext.SaveCommand,
                                           RelativeSource={RelativeSource AncestorType=Window}}"
                                 Content="{Binding DataContext.SaveButtonText,

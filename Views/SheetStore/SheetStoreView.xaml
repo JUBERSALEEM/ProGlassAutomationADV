@@ -179,31 +179,66 @@
                                Style="{StaticResource ModulePageSubtitleStyle}"
                                Margin="0,4,0,0"/>
 
-                    <Border Background="{DynamicResource MenuHoverBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="8,6" Margin="0,16,0,0"
-                            HorizontalAlignment="Left">
-                        <StackPanel Orientation="Horizontal">
-                            <Button Style="{StaticResource TabPillButton}"
-                                    Content="GLASS SHEETS"
-                                    behaviors:TabState.IsActive="{Binding IsGlassView}"
-                                    Command="{Binding ShowGlassCommand}"/>
-                            <Button Style="{StaticResource TabPillButton}"
-                                    Content="CONSUMABLES"
-                                    behaviors:TabState.IsActive="{Binding IsConsumablesView}"
-                                    Command="{Binding ShowConsumablesCommand}"/>
-                            <Border Background="{DynamicResource DangerBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="9,3" VerticalAlignment="Center" Margin="8,0,4,0"
-                                    Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="{Binding LowStockCount, StringFormat={}{0} LOW}"
-                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+                    <!-- STEP D tab pair — same Outlined/Primary pills as
+                         Job Order and Delivery Note. TabPillButton clips. -->
+                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                        <Button Command="{Binding ShowGlassCommand}"
+                                Tag="&#xE7B8;" Content="GLASS SHEETS" Margin="0,0,10,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsGlassView}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Command="{Binding ShowGlassCommand}"
+                                Tag="&#xE7B8;" Content="GLASS SHEETS" Margin="0,0,10,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsGlassView}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Command="{Binding ShowConsumablesCommand}"
+                                Tag="&#xE71D;" Content="CONSUMABLES" Margin="0,0,10,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsConsumablesView}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Command="{Binding ShowConsumablesCommand}"
+                                Tag="&#xE71D;" Content="CONSUMABLES" Margin="0,0,10,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsConsumablesView}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Border Background="{DynamicResource DangerBrush}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="9,3" VerticalAlignment="Center" Margin="0,0,4,0"
+                                Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="{Binding LowStockCount, StringFormat={}{0} LOW}"
+                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
 
@@ -1009,12 +1044,13 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Style="{StaticResource RowSuccessButton}"
+                                <Button Style="{StaticResource SuccessPillButton}"
                                         Tag="&#xE7B8;" Content="{DynamicResource SheetStore.BUY}"
                                         Command="{Binding BuyCommand}"
-                                        CommandParameter="{Binding SelectedSheet}"/>
+                                        CommandParameter="{Binding SelectedSheet}"
+                                        Margin="0,0,8,0"/>
                                 <Button Grid.Column="1"
-                                        Style="{StaticResource RowPrimaryButton}"
+                                        Style="{StaticResource PrimaryPillButton}"
                                         Tag="&#xE896;" Content="{DynamicResource Login.Use}"
                                         Command="{Binding UseCommand}"
                                         CommandParameter="{Binding SelectedSheet}"/>
@@ -1024,12 +1060,13 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Style="{StaticResource RowOutlinedButton}"
-                                        Tag="&#xE8E5;" Content="{DynamicResource Action.Edit}"
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Tag="&#xE70F;" Content="{DynamicResource Action.Edit}"
                                         Command="{Binding OpenEditPanelCommand}"
-                                        CommandParameter="{Binding SelectedSheet}"/>
+                                        CommandParameter="{Binding SelectedSheet}"
+                                        Margin="0,0,8,0"/>
                                 <Button Grid.Column="1"
-                                        Style="{StaticResource RowDangerButton}"
+                                        Style="{StaticResource DangerButton}"
                                         Tag="&#xE74D;" Content="{DynamicResource Action.Delete}"
                                         Command="{Binding DeleteCommand}"
                                         CommandParameter="{Binding SelectedSheet}"/>
