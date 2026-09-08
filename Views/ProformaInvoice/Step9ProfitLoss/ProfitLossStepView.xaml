@@ -237,7 +237,10 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{DynamicResource ProformaInvoice.Wastage2}" Style="{StaticResource PiFieldLabelStyle}"/>
                         <StackPanel Orientation="Horizontal">
-                            <TextBox Text="{Binding WastagePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding WastagePercent,
+                                                    Converter={StaticResource DecimalTypingConverter},
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                      Style="{StaticResource PlInputStyle}"
                                      Width="84"
                                      ToolTip="{DynamicResource ProformaInvoice.CuttingAllowanceAddedRequiredAreaBefore}"/>
@@ -862,9 +865,15 @@
                                                Margin="0,0,10,0"/>
                                     <TextBox Grid.Column="1"
                                              Text="{Binding QuotedRatePerSqm,
+                                                    Mode=TwoWay,
                                                     Converter={StaticResource DecimalTypingConverter},
                                                     UpdateSourceTrigger=PropertyChanged}"
                                              behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                             IsReadOnly="False"
+                                             IsEnabled="True"
+                                             Focusable="True"
+                                             IsTabStop="True"
+                                             MinWidth="88"
                                              Style="{StaticResource PlInputStyle}"
                                              ToolTip="{DynamicResource ProformaInvoice.TypeRateIntendQuoteMarkShownBeside}"/>
                                     <TextBlock Grid.Column="2"

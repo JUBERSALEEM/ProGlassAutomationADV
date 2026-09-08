@@ -37,8 +37,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>Sequence number from the Step 5 DataGrid.</summary>
         public int SpecNumber { get; set; }
 
+        private string _specName = "";
         /// <summary>Full specification text, e.g. "6mm HD Grey FT Glass + 12mm ASP + …".</summary>
-        public string SpecName { get; set; } = "";
+        public string SpecName
+        {
+            get => _specName;
+            set
+            {
+                var next = value ?? "";
+                if (string.Equals(_specName, next, StringComparison.Ordinal)) return;
+                _specName = next;
+                OnPropertyChanged();
+            }
+        }
 
         /// <summary>Cost lines for this specification, in physical build order.</summary>
         public ObservableCollection<ProfitLossRow> Rows { get; } = new();
@@ -188,6 +199,34 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string TotalCostDisplay => $"AED {TotalCost:N2}";
 
         public bool CanRateCheck => SpecNumber > 0;
+
+        /// <summary>
+        /// Update cost rows and totals without replacing this object.
+        /// The Check Rate / SQM TextBox is bound to this instance; rebuilding
+        /// SpecGroupsView would destroy that box and swallow whatever the
+        /// operator is typing.
+        /// </summary>
+        public void ApplyCalculatedState(
+            string specName,
+            decimal totalCost,
+            decimal cutSqm,
+            decimal quoteBasisPerSqm,
+            IEnumerable<ProfitLossRow> rows)
+        {
+            SpecName = specName ?? "";
+            TotalCost = totalCost;
+            CutSqm = cutSqm;
+            QuoteBasisPerSqm = quoteBasisPerSqm;
+
+            Rows.Clear();
+            if (rows != null)
+            {
+                foreach (var row in rows)
+                    Rows.Add(row);
+            }
+
+            NotifyTotalsChanged();
+        }
 
         /// <summary>Raised after the rows are filled so computed values refresh.</summary>
         public void NotifyTotalsChanged()

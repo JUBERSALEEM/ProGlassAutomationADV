@@ -409,5 +409,39 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.Equal(0m, spec.QuotedRatePerSqm);
         }
+
+        [Fact]
+        public void Applying_new_cost_rows_does_not_wipe_the_typed_rate()
+        {
+            // Live recalc used to Clear()+new SpecCostGroup, which destroyed
+            // the Check Rate / SQM box. In-place ApplyCalculatedState must
+            // keep the operator's typed rate.
+            var spec = Spec();
+            spec.QuotedRatePerSqm = 150.51m;
+
+            spec.ApplyCalculatedState(
+                "6mm Low E + 12mm ASP + 6mm Obscure Clear Ramly",
+                4200m,
+                32m,
+                103.82m,
+                new[]
+                {
+                    new ProGlassAutomation.ViewModels.ProformaInvoice
+                        .Step9ProfitLoss.ProfitLossRow
+                    {
+                        Kind = "Glass",
+                        SpecNumber = 1,
+                        Description = "Outer pane",
+                        Amount = 2100m
+                    }
+                });
+
+            Assert.Equal(150.51m, spec.QuotedRatePerSqm);
+            Assert.Equal("6mm Low E + 12mm ASP + 6mm Obscure Clear Ramly", spec.SpecName);
+            Assert.Equal(32m, spec.CutSqm);
+            Assert.Equal(103.82m, spec.QuoteBasisPerSqm);
+            Assert.Equal(1, spec.Rows.Count);
+            Assert.Equal(15.00m, spec.QuotedMarkupPercent);
+        }
     }
 }

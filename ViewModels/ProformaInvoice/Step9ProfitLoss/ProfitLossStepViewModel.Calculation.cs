@@ -43,7 +43,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             try
             {
-                RefreshOwnedStep5GroupsFromStep4Snapshots();
+                // Applying Step 4 snapshots writes SpecGroup properties that
+                // the live-recalc watcher would otherwise treat as a new
+                // operator edit and queue another run — that loop rebuilt
+                // the overview and killed the Check Rate / SQM box.
+                _suppressLiveRecalc = true;
+                try { RefreshOwnedStep5GroupsFromStep4Snapshots(); }
+                finally { _suppressLiveRecalc = false; }
 
                 var rows = new List<ProfitLossRow>();
                 var specAreas = new Dictionary<int, decimal>();
@@ -508,54 +514,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 // would be two places to keep in step. Grouping afterwards
                 // inherits the order for free.
                 //
-                // Rate checks the user has typed are carried across a rebuild
-                // by specification name. A recalculation fires on every edit
-                // now, so discarding them would make the field unusable —
-                // the value would vanish while being typed next to it.
-                var previousQuotesByNumber = SpecGroupsView
-                    .Where(g => g.SpecNumber > 0 && g.QuotedRatePerSqm > 0m)
-                    .GroupBy(g => g.SpecNumber)
-                    .ToDictionary(g => g.Key, g => g.Last().QuotedRatePerSqm);
-                var previousQuotesByName = SpecGroupsView
-                    .Where(g => g.QuotedRatePerSqm > 0m && !string.IsNullOrWhiteSpace(g.SpecName))
-                    .GroupBy(g => g.SpecName, StringComparer.OrdinalIgnoreCase)
-                    .ToDictionary(g => g.Key, g => g.Last().QuotedRatePerSqm,
-                                  StringComparer.OrdinalIgnoreCase);
-
-                SpecGroupsView.Clear();
-
-                foreach (var bySpec in rows
-                             .GroupBy(r => r.SpecNumber)
-                             .OrderBy(g => g.Key <= 0 ? int.MaxValue : g.Key))
-                {
-                    var first = bySpec.First();
-
-                    var specGroup = new SpecCostGroup
-                    {
-                        SpecNumber = bySpec.Key,
-                        SpecName = first.SpecName ?? "",
-                        TotalCost = Math.Round(bySpec.Sum(r => r.Amount), 2),
-                        CutSqm = specAreas.TryGetValue(bySpec.Key, out decimal a)
-                            ? Math.Round(a, 2)
-                            : 0m,
-                        QuoteBasisPerSqm = specBases.TryGetValue(bySpec.Key, out decimal b)
-                            ? b
-                            : 0m
-                    };
-
-                    foreach (var r in bySpec) specGroup.Rows.Add(r);
-
-                    if (previousQuotesByNumber.TryGetValue(specGroup.SpecNumber, out decimal q)
-                        || previousQuotesByName.TryGetValue(specGroup.SpecName, out q))
-                    {
-                        specGroup.QuotedRatePerSqm = q;
-                    }
-
-                    specGroup.NotifyTotalsChanged();
-                    SpecGroupsView.Add(specGroup);
-                }
-
-                OnPropertyChanged(nameof(HasSpecGroups));
+                // SpecCostGroup instances are reused in place. The Check
+                // Rate / SQM box is bound to QuotedRatePerSqm on that
+                // object; Clear()+new would destroy the TextBox on every
+                // live recalc and make the field unusable.
+                PublishSpecGroups(rows, specAreas, specBases);
 
                 // ── Target profitability (approved KPI model) ─────────────
                 // Runs AFTER the actual-cost rows publish: the two models are
@@ -696,6 +659,79 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             finally
             {
                 IsBusy = false;
+            }
+        }
+
+        /// <summary>
+        /// Keep existing SpecCostGroup objects so the Check Rate / SQM
+        /// TextBox stays focused and keeps whatever the operator typed.
+        /// Only add/remove/reorder when the spec set itself changed.
+        /// </summary>
+        private void PublishSpecGroups(
+            List<ProfitLossRow> rows,
+            Dictionary<int, decimal> specAreas,
+            Dictionary<int, decimal> specBases)
+        {
+            var existingByNumber = SpecGroupsView
+                .Where(g => g.SpecNumber > 0)
+                .GroupBy(g => g.SpecNumber)
+                .ToDictionary(g => g.Key, g => g.Last());
+            var existingInvoiceWide = SpecGroupsView
+                .FirstOrDefault(g => g.SpecNumber <= 0);
+
+            var desired = new List<SpecCostGroup>();
+            foreach (var bySpec in rows
+                         .GroupBy(r => r.SpecNumber)
+                         .OrderBy(g => g.Key <= 0 ? int.MaxValue : g.Key))
+            {
+                var first = bySpec.First();
+                int specNumber = bySpec.Key;
+                string specName = first.SpecName ?? "";
+                decimal totalCost = Math.Round(bySpec.Sum(r => r.Amount), 2);
+                decimal cutSqm = specAreas.TryGetValue(specNumber, out decimal area)
+                    ? Math.Round(area, 2)
+                    : 0m;
+                decimal quoteBasis = specBases.TryGetValue(specNumber, out decimal basis)
+                    ? basis
+                    : 0m;
+
+                SpecCostGroup group;
+                if (specNumber > 0 && existingByNumber.TryGetValue(specNumber, out var keep))
+                    group = keep;
+                else if (specNumber <= 0 && existingInvoiceWide != null)
+                    group = existingInvoiceWide;
+                else
+                    group = new SpecCostGroup { SpecNumber = specNumber };
+
+                group.SpecNumber = specNumber;
+                group.ApplyCalculatedState(specName, totalCost, cutSqm, quoteBasis, bySpec);
+                desired.Add(group);
+            }
+
+            SyncSpecGroupsView(desired);
+            OnPropertyChanged(nameof(HasSpecGroups));
+        }
+
+        private void SyncSpecGroupsView(List<SpecCostGroup> desired)
+        {
+            for (int i = SpecGroupsView.Count - 1; i >= 0; i--)
+            {
+                if (!desired.Contains(SpecGroupsView[i]))
+                    SpecGroupsView.RemoveAt(i);
+            }
+
+            for (int i = 0; i < desired.Count; i++)
+            {
+                var item = desired[i];
+                int current = SpecGroupsView.IndexOf(item);
+                if (current == i) continue;
+
+                if (current >= 0)
+                    SpecGroupsView.Move(current, i);
+                else if (i < SpecGroupsView.Count)
+                    SpecGroupsView.Insert(i, item);
+                else
+                    SpecGroupsView.Add(item);
             }
         }
 

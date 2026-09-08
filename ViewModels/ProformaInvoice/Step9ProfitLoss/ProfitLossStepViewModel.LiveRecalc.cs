@@ -42,6 +42,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private readonly SubscriptionManager _subscriptions = new();
         private readonly Dictionary<SpecGroup, List<IDisposable>> _groupSubscriptions = new();
         private bool _recalcQueued;
+        /// <summary>
+        /// True while RecalculateAsync is applying Step 4 snapshots so those
+        /// writes are not treated as a new operator edit.
+        /// </summary>
+        private bool _suppressLiveRecalc;
 
         private bool _isRecalculationPending;
         /// <summary>True between the moment an edit arrives and the recalc runs.</summary>
@@ -341,6 +346,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// </summary>
         private void QueueRecalculate()
         {
+            if (_suppressLiveRecalc) return;
+
             IsRecalculationPending = true;
 
             if (_recalcQueued) return;
