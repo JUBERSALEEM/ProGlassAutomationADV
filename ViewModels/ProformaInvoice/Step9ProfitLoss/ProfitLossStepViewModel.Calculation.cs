@@ -132,7 +132,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // SGU and a DGU, and using the live selection would score
                     // both against the same panel.
                     specBases[group.GroupNumber] =
-                        QuoteBasisFor(group.SelectedGlassType, isDgu, isLam,
+                        QuoteBasisFor(group, isDgu, isLam,
                             isDguLam, spacerCavities);
 
                     // Either construction has a second pane to cost.

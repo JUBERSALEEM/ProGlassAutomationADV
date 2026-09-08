@@ -59,90 +59,121 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         // ══════════════════════════════════════════════════════════════════
 
         private decimal QuoteBasisFor(
-            string? glassType, bool isDgu, bool isLam, bool isDguLam,
+            SpecGroup group, bool isDgu, bool isLam, bool isDguLam,
             int spacerCavities = 1)
         {
-            // Mirror-of-cost invariant: the basis is measured against the
-            // SAME money model the cost rows use. BUSINESS DECISION
-            // 2026-09-05 (owner-confirmed): each ASP cavity pays the
-            // spacer field, so a triple build's basis carries the spacer
-            // price twice, not once — otherwise the sanity percentage
-            // would praise a rate against an understated basis.
+            // Authoritative model for Step 9 rate checking:
+            //   Step 5 group metadata copied from Step 4 wins per spec.
+            //   Live Step 4 VM fields are only legacy fallback when the group
+            //   has no pane identity/rate at all. A multi-spec PI must never
+            //   score SPEC 2 with the currently visible Step 4 tab.
             spacerCavities = Math.Max(1, spacerCavities);
-            string type = (glassType ?? "").Trim().ToUpperInvariant();
+            if (group == null) return 0m;
 
-            // Spec-name evidence wins: it describes the product actually
-            // costed, whereas the type text can be blank or stale.
+            string type = (group.SelectedGlassType ?? "").Trim().ToUpperInvariant();
+            bool hasOuterHandoff = HasOuterPaneHandoff(group);
+            bool hasInnerHandoff = HasInnerPaneHandoff(group);
+            decimal yield = EffectiveYieldFactor();
+
             if (isDguLam || type == "DGU+LAM")
             {
+                // DGU+LAM still lacks full physical sheet fields on SpecGroup
+                // for all three panes. Use stored laminate pair rates where
+                // present, otherwise fall back only for legacy groups without
+                // handoff. This branch is intentionally conservative.
                 var vm = _dguLamVm;
-                if (vm == null) return 0m;
+                decimal outer = RateFromGroupOrLegacy(
+                    group.OuterSheetPricePerSqm, hasOuterHandoff,
+                    vm?.OuterBasePrice ?? 0m);
+                decimal lamInner = RateFromGroupOrLegacy(
+                    group.InnerSheetPricePerSqm, hasInnerHandoff,
+                    vm?.LamInnerBasePrice ?? 0m);
+                decimal lamOuter = vm?.LamOuterBasePrice ?? 0m;
+                decimal spacer = group.Step4SpacerPricePerSqm
+                    ?? (hasOuterHandoff || hasInnerHandoff ? 0m : (vm?.SpacerPrice ?? 0m));
+                decimal processing = (group.Step4CuttingCostPerSqm ?? (hasOuterHandoff || hasInnerHandoff ? 0m : (vm?.TotalCuttingCost ?? 0m)))
+                    + (group.Step4TemperingCostPerSqm ?? (hasOuterHandoff || hasInnerHandoff ? 0m : (vm?.TotalTemperingCost ?? 0m)))
+                    + (group.Step4InterlayerCostPerSqm ?? (hasOuterHandoff || hasInnerHandoff ? 0m : (vm?.InterlayerSellPrice ?? 0m)));
 
-                decimal basis =
-                    (vm.OuterBasePrice + vm.LamOuterBasePrice + vm.LamInnerBasePrice)
-                        / PnLMeasurement.SafeYield(vm.YieldFactor)
-                    + vm.TotalCuttingCost
-                    + vm.TotalTemperingCost
-                    + vm.InterlayerSellPrice
-                    + vm.SpacerPrice * spacerCavities;
+                if (outer <= 0m || lamOuter <= 0m || lamInner <= 0m || spacer <= 0m || yield <= 0m)
+                    return 0m;
 
-                return Math.Round(basis, 2);
+                return Math.Round((outer + lamOuter + lamInner) / yield
+                    + processing
+                    + spacer * spacerCavities, 2);
             }
 
             if (isLam || type == "LAM")
             {
                 var vm = _lamVm;
-                if (vm == null) return 0m;
+                decimal outer = RateFromGroupOrLegacy(
+                    group.OuterSheetPricePerSqm, hasOuterHandoff,
+                    vm?.OuterBasePrice ?? 0m);
+                decimal inner = RateFromGroupOrLegacy(
+                    group.InnerSheetPricePerSqm, hasInnerHandoff,
+                    vm?.InnerBasePrice ?? 0m);
+                decimal processing = (group.Step4InterlayerCostPerSqm ?? (hasOuterHandoff || hasInnerHandoff ? 0m : (vm?.PvbMaterialRate ?? 0m)))
+                    + (group.Step4CuttingCostPerSqm ?? (hasOuterHandoff || hasInnerHandoff ? 0m : ((vm?.OuterCuttingCost ?? 0m) + (vm?.InnerCuttingCost ?? 0m))))
+                    + (group.Step4TemperingCostPerSqm ?? (hasOuterHandoff || hasInnerHandoff ? 0m : ((vm?.OuterTemperingCost ?? 0m) + (vm?.InnerTemperingCost ?? 0m))));
 
-                decimal basis =
-                    (vm.OuterBasePrice + vm.InnerBasePrice) / PnLMeasurement.SafeYield(vm.YieldFactor)
-                    + vm.PvbMaterialRate
-                    + vm.OuterCuttingCost + vm.InnerCuttingCost
-                    + vm.OuterTemperingCost + vm.InnerTemperingCost;
+                if (outer <= 0m || inner <= 0m || yield <= 0m)
+                    return 0m;
 
-                return Math.Round(basis, 2);
+                return Math.Round((outer + inner) / yield + processing, 2);
             }
 
             if (isDgu || type == "DGU")
             {
                 var vm = _dguVm;
-                if (vm == null) return 0m;
+                decimal outer = RateFromGroupOrLegacy(
+                    group.OuterSheetPricePerSqm, hasOuterHandoff,
+                    vm?.OuterBasePrice ?? 0m);
+                decimal inner = RateFromGroupOrLegacy(
+                    group.InnerSheetPricePerSqm, hasInnerHandoff,
+                    vm?.InnerBasePrice ?? 0m);
+                decimal spacer = group.Step4SpacerPricePerSqm
+                    ?? (hasOuterHandoff || hasInnerHandoff ? 0m : (vm?.SpacerPrice ?? 0m));
 
-                decimal basis =
-                    (vm.OuterBasePrice + vm.InnerBasePrice) / PnLMeasurement.SafeYield(vm.YieldFactor)
-                    + vm.SpacerPrice * spacerCavities;
+                if (outer <= 0m || inner <= 0m || spacer <= 0m || yield <= 0m)
+                    return 0m;
 
-                return Math.Round(basis, 2);
+                return Math.Round((outer + inner) / yield
+                    + spacer * spacerCavities, 2);
             }
 
-            // SINGLE GLAZED — the default, and the only build with no marker
-            // of its own in the spec name.
-            //
-            // The other three are recognised from the specification text: a
-            // spacer means DGU, an interlayer means LAM, both mean the
-            // hybrid. Single glazing has neither, so it can only be reached
-            // by elimination. Requiring the glass-type text to read exactly
-            // "SGU" meant a specification with that field blank, or worded
-            // "Single Glazed", got no basis at all — the rate box then fell
-            // back to materials cost and reported a margin against the wrong
-            // number, silently.
-            //
-            // Reaching here means the spec carries no spacer and no
-            // interlayer, so a single pane is the correct reading.
             if (type == "SGU" || type.Length == 0 || type.Contains("SINGLE"))
             {
                 var vm = _sguVm;
-                if (vm == null) return 0m;
+                decimal outer = RateFromGroupOrLegacy(
+                    group.OuterSheetPricePerSqm, hasOuterHandoff,
+                    vm?.BasePricePerSqm ?? 0m);
+                decimal processing = (group.Step4CuttingCostPerSqm ?? (hasOuterHandoff ? 0m : (vm?.CuttingCostPerSqm ?? 0m)))
+                    + (group.Step4TemperingCostPerSqm ?? (hasOuterHandoff ? 0m : (vm?.TemperingCostPerSqm ?? 0m)));
 
-                decimal basis =
-                    vm.BasePricePerSqm / PnLMeasurement.SafeYield(vm.YieldFactor)
-                    + vm.CuttingCostPerSqm
-                    + vm.TemperingCostPerSqm;
+                if (outer <= 0m || yield <= 0m)
+                    return 0m;
 
-                return Math.Round(basis, 2);
+                return Math.Round(outer / yield + processing, 2);
             }
 
             return 0m;
+        }
+
+        private static bool HasOuterPaneHandoff(SpecGroup group) =>
+            !string.IsNullOrWhiteSpace(group?.OuterGlassColor)
+            || (group?.OuterSheetPricePerSqm ?? 0m) > 0m
+            || (group?.HasOuterSheet ?? false);
+
+        private static bool HasInnerPaneHandoff(SpecGroup group) =>
+            !string.IsNullOrWhiteSpace(group?.InnerGlassColor)
+            || (group?.InnerSheetPricePerSqm ?? 0m) > 0m
+            || (group?.HasInnerSheet ?? false);
+
+        private static decimal RateFromGroupOrLegacy(
+            decimal groupRate, bool hasAuthoritativeHandoff, decimal liveFallback)
+        {
+            if (groupRate > 0m) return groupRate;
+            return hasAuthoritativeHandoff ? 0m : liveFallback;
         }
 
         /// <summary>
