@@ -98,7 +98,26 @@ namespace ProGlassAutomation.Services.Security
         /// hashes are unaffected, so this only raises the bar for passwords
         /// set from this version onward (Phase 13 — security hardening).
         /// </summary>
-        public const int MinLength = 8;
+        /// <summary>
+        /// Minimum length for a NEW or CHANGED password.
+        /// </summary>
+        /// <remarks>
+        /// Raised from 8 to 12 (Phase 9, 2026-09-09). This governs only the
+        /// password someone is choosing right now — <see cref="Verify"/> never
+        /// checks length, so no existing user is locked out of signing in and no
+        /// stored hash becomes invalid. An 8-character password keeps working
+        /// until that user next changes it, at which point the stronger floor
+        /// applies.
+        ///
+        /// Single-sourced deliberately: every call site
+        /// (<c>AuditService.Part1.cs</c>, <c>UserCenterViewModel.cs</c>) reads
+        /// this constant and interpolates it into its own error message, so the
+        /// rule and the text shown to the user cannot drift apart.
+        ///
+        /// Length only. There is still no complexity rule and no breached-
+        /// password check — see docs/phases/PHASE-09-security-hardening.md.
+        /// </remarks>
+        public const int MinLength = 12;
 
         /// <summary>Marker for the current scheme.</summary>
         private const string Pbkdf2Prefix = "PBKDF2";
@@ -220,7 +239,6 @@ namespace ProGlassAutomation.Services.Security
         {
             var input = Encoding.UTF8.GetBytes((saltHex ?? "") + password);
             var hash = SHA256.HashData(input);
-            var hex = Convert.ToHexString(hash);
 
             // The legacy code compared with OrdinalIgnoreCase, so hex
             // casing differences must still verify. Comparing the decoded
@@ -236,9 +254,28 @@ namespace ProGlassAutomation.Services.Security
                 return false;
             }
 
-            return CryptographicOperations.FixedTimeEquals(hash, storedBytes)
-                || string.Equals(hex, storedHashHex,
-                       StringComparison.OrdinalIgnoreCase);
+            // Fixed-time comparison of the DECODED BYTES.
+            //
+            // This used to be followed by
+            //   || string.Equals(hex, storedHashHex, OrdinalIgnoreCase)
+            // under a comment claiming the byte comparison avoided "the timing
+            // leak of a string compare". The || reintroduced exactly that leak:
+            // string.Equals short-circuits on the first differing character, so
+            // a wrong password leaked how many leading hex digits matched.
+            //
+            // The second arm was also provably dead, which is what makes
+            // removing it safe rather than merely tidy. If the two hex strings
+            // are equal ignoring case, they differ only in case; hex decoding is
+            // case-insensitive, so Convert.FromHexString(storedHashHex) yields
+            // exactly `hash`, so FixedTimeEquals has already returned true. The
+            // second arm can therefore never be the deciding factor — it only
+            // ever ran when the answer was already no.
+            //
+            // Casing is handled here, not by the removed arm: the legacy scheme
+            // compared with OrdinalIgnoreCase, and comparing decoded bytes
+            // accepts upper, lower and mixed-case stored digests alike. Covered
+            // by PasswordHasherLegacyTests.
+            return CryptographicOperations.FixedTimeEquals(hash, storedBytes);
         }
 
         /// <summary>
