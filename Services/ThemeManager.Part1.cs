@@ -28,6 +28,37 @@ namespace ProGlassAutomation.Services
 
         public static event EventHandler ThemeChanged;
 
+        /// <summary>
+        /// Raises the public ThemeChanged event after an external orchestrator
+        /// (ThemePipeline) has completed the full theme/family/accent pass.
+        /// Keeping this helper inside ThemeManager preserves event ownership
+        /// while avoiding duplicate repaint work.
+        /// </summary>
+        public static void NotifyThemeChanged()
+            => ThemeChanged?.Invoke(null, EventArgs.Empty);
+
+        private static void InvalidateVisualThemeSceneCache()
+        {
+            try { Theme.VisualThemeEngine.InvalidateSceneCache(); }
+            catch (Exception ex)
+            {
+                Logging.AppLogService.Debug(
+                    "[ThemeManager] scene-cache invalidation failed: " + ex.Message);
+            }
+        }
+
+        private static void ApplyThemePostProcessing(AppTheme theme)
+        {
+            PublishLiquidReference(theme == AppTheme.Dark);
+            InvalidateVisualThemeSceneCache();
+            Theme.VisualThemeEngine.ApplyModule(
+                Theme.VisualThemeEngine.LastRequestedModule,
+                App.Config?.Appearance);
+            ApplyAccent(_customAccent, raiseEvent: false);
+            ReapplyOutlinePreference();
+            ReapplySemanticSurfaces();
+        }
+
         /// <summary>Raised after the accent family is (re)derived.</summary>
         public static event EventHandler AccentChanged;
 

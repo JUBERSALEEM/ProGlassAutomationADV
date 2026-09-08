@@ -51,7 +51,7 @@ namespace ProGlassAutomation.Services.Inquiry
             if (record.InquiryValue > MaxInquiryValue)
                 errors.Add($"Inquiry value exceeds AED {MaxInquiryValue:N0}; verify the amount.");
 
-            var rows = lineItems ?? record.LineItems ?? Array.Empty<InquiryLineItem>();
+            IReadOnlyList<InquiryLineItem> rows = lineItems ?? (IReadOnlyList<InquiryLineItem>?)record.LineItems ?? Array.Empty<InquiryLineItem>();
             errors.AddRange(ValidateLineItems(rows));
             return errors;
         }

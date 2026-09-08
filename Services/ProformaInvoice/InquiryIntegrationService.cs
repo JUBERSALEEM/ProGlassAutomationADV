@@ -108,7 +108,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             // and negative/implausible dimensions or rates must be corrected
             // before the PI wizard can inherit them.
             var boqErrors = InquiryValidationRules.ValidateLineItems(
-                inquiry.LineItems ?? Array.Empty<InquiryLineItem>());
+                (IReadOnlyList<InquiryLineItem>?)inquiry.LineItems ?? Array.Empty<InquiryLineItem>());
             if (boqErrors.Count > 0)
             {
                 throw new InvalidOperationException(

@@ -140,7 +140,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
 
         private void RenderIndustrialControlPanel(IContainer container)
         {
-            var rows = (_invoice.SpecGroups ?? Enumerable.Empty<GlassSpecGroupSnapshot>())
+            var rows = (_invoice.SpecGroups ?? Enumerable.Empty<SpecGroupSnapshot>())
                 .SelectMany(g => g.ItemRows ?? Enumerable.Empty<GlassItemRowSnapshot>())
                 .ToList();
             PdfChrome.IndustrialDocumentPanel(container,
@@ -148,8 +148,8 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                 "Workshop-ready ERP document for cutting, fabrication, QA and delivery planning. Commercial prices stay out; production quantities and risks stay visible.",
                 ("Status", FormatStatus(_snapshot.Production?.Status), DocumentStyle.ColorAccent),
                 ("Priority", _snapshot.Production?.Priority ?? "Medium", ResolvePriorityColor(_snapshot.Production?.Priority)),
-                ("Spec Groups", (_invoice.SpecGroups?.Count ?? 0).ToString(CultureInfo.InvariantCulture), null),
-                ("Pieces", rows.Sum(r => r.Qty).ToString(CultureInfo.InvariantCulture), null),
+                ("Spec Groups", (_invoice.SpecGroups?.Count ?? 0).ToString(CultureInfo.InvariantCulture), (string?)null),
+                ("Pieces", rows.Sum(r => r.Qty).ToString(CultureInfo.InvariantCulture), (string?)null),
                 ("Total SQM", rows.Sum(r => r.TotalSqm).ToString("0.000", CultureInfo.InvariantCulture), DocumentStyle.ColorAccent));
         }
 
