@@ -377,6 +377,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             int sheetW = 0;
             int sheetH = 0;
             string source;
+            bool missingAuthoritativeStep4Sheet = false;
+
+            bool hasAuthoritativePaneHandoff = isInner
+                ? !string.IsNullOrWhiteSpace(group?.InnerGlassColor) || group?.InnerSheetPricePerSqm > 0m
+                : !string.IsNullOrWhiteSpace(group?.OuterGlassColor) || group?.OuterSheetPricePerSqm > 0m;
 
             if (isInner && group.HasInnerSheet)
             {
@@ -389,6 +394,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 sheetW = group.OuterSheetWidthMm;
                 sheetH = group.OuterSheetHeightMm;
                 source = "chosen in Step 4";
+            }
+            else if (hasAuthoritativePaneHandoff)
+            {
+                // Industrial safety: once Step 4/Step 5 identifies this pane,
+                // a missing sheet handoff is a data gap, not permission to
+                // invent the biggest/first Sheet Store size. Showing a zero
+                // row is safer than costing Obscure Clear Ramly on Clear's
+                // 3210 × 2250 catalogue default.
+                missingAuthoritativeStep4Sheet = true;
+                source = "MISSING Step 4 selected sheet — re-apply Step 4 for this spec";
             }
             else
             {
@@ -410,11 +425,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
 
             decimal sheetSqm = Math.Round((sheetW * (decimal)sheetH) / 1_000_000m, 4);
-            if (sheetSqm <= 0m) return null;
+            if (sheetSqm <= 0m && !missingAuthoritativeStep4Sheet) return null;
 
-            var price = await SheetStorePricingService
-                .TryGetPriceForSizeAsync(color, thicknessMm, sheetW, sheetH)
-                .ConfigureAwait(true);
+            var price = missingAuthoritativeStep4Sheet
+                ? null
+                : await SheetStorePricingService
+                    .TryGetPriceForSizeAsync(color, thicknessMm, sheetW, sheetH)
+                    .ConfigureAwait(true);
 
             decimal purchaseRate = price?.PurchasePerSqm ?? 0m;
             decimal sellRate = price?.SellPerSqm ?? 0m;
@@ -427,7 +444,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             if (fallbackRate > 0m)
             {
                 unitRate = fallbackRate;
-                source = $"Step 4 {CostBasisLabel}";
+                if (!missingAuthoritativeStep4Sheet)
+                    source = $"Step 4 {CostBasisLabel}";
             }
             else
             {
@@ -437,7 +455,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
 
             decimal needed = PnLMeasurement.AreaWithWastage(cutSqm, WastagePercent);
-            int sheets = PnLMeasurement.WholeSheetsRequired(needed, sheetSqm);
+            int sheets = missingAuthoritativeStep4Sheet
+                ? 0
+                : PnLMeasurement.WholeSheetsRequired(needed, sheetSqm);
             bool fromStep6Setup = false;
 
             // ══════════════════════════════════════════════════════════════
@@ -477,13 +497,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         : Math.Round(sheetSqm * sheets * unitRate, 2);
             }
 
-            string detail = unitRate > 0m
-                ? fromStep6Setup
-                    ? $"{cutSqm:0.##} sqm → {sheets} sheet(s) · SHEET QTY from Step 6 wastage setup · {source}"
-                    : priceByRequiredArea
-                        ? $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm · priced by required area · {source}"
-                        : $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm → {sheets} sheet(s) · {source}"
-                : "UNPRICED — not in Sheet Store and no Step 4 rate · not included in profit";
+            string detail = missingAuthoritativeStep4Sheet
+                ? $"{cutSqm:0.##} sqm · MISSING AUTHORITATIVE STEP 4 SHEET SIZE for {side} pane · not costed from Sheet Store"
+                : unitRate > 0m
+                    ? fromStep6Setup
+                        ? $"{cutSqm:0.##} sqm → {sheets} sheet(s) · SHEET QTY from Step 6 wastage setup · {source}"
+                        : priceByRequiredArea
+                            ? $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm · priced by required area · {source}"
+                            : $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm → {sheets} sheet(s) · {source}"
+                    : "UNPRICED — not in Sheet Store and no Step 4 rate · not included in profit";
 
             return new ProfitLossRow
             {
