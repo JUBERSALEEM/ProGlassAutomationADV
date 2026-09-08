@@ -31,7 +31,7 @@ Phase 5  Test depth — pricing engine        ← needs Phase 4
 |---|---|---|---|
 | 0 | No CI | 🔴 **Blocked — needs your action** | GitHub App `workflows` scope |
 | 1 | Build/test unverified | 🟠 Waiting | Phase 0 |
-| 2 | Whole-table loads | 🟡 22 sites / 16 files left (was 25 / 18); 3 lookups fixed | Phase 0 (to enforce) |
+| 2 | Whole-table loads | 🟡 20 sites / 15 files left (was 25 / 18); 5 lookups fixed, 2 reclassified as non-defects | Phase 0 (to enforce) |
 | 3 | Dashboards load whole tables | 🟡 1 of 4 migrated (Statement); splits fixed | Phase 0 |
 | 4 | `MetricQty` hardcodes delivery qty | 🟡 Step 1 done — characterisation net landed | Phase 1, for steps 2–5 |
 | 5 | Test ratio 1 : 7.4 | 🟡 Target-tolerance split **fixed** | Phase 0 |
@@ -246,7 +246,11 @@ should be done one screen at a time with a build between each.
   wrongly on the list. Baseline is now **25 sites across 18 files**.
 - **1 of the 4 dashboards migrated** (Statement) — see Phase 3.
 - **0 of the 9 list screens paginated.**
-- **3 of the 7 category-B lookups fixed** (2026-09-08). Both
+- **5 of the 7 category-B lookups fixed** (2026-09-08). Two of them needed no
+  new code at all — `IJobOrderRepository.GetByJobOrderIdAsync` and
+  `IProformaInvoiceRepository.GetByProformaIdAsync` **already existed** and
+  were simply not being called; the ViewModels loaded the whole table and
+  filtered in memory instead. The other two
   `TaxInvoiceViewModel` sites loaded every delivery note in the database to
   answer a question about one proforma. They now call
   `DeliveryNoteRepository.GetByProformaIdAsync`, added for the purpose.
@@ -259,6 +263,42 @@ should be done one screen at a time with a build between each.
   `DeliveryNoteStatusValues.IsPreparing`, which is what those two comparisons
   meant. `TaxInvoiceDetailViewModel.InitNew` — which loaded the whole table to
   collect sibling IDs for one proforma — now uses the same method.
+
+- **2 of the 7 were reclassified: they are not defects.** I had these wrong in
+  the first pass and am correcting the record:
+
+  - `AddEditSheetViewModel:293` loads every `GlassSheet` to build a size
+    cascade filtered on category + thickness + colour. `GlassSheet` is
+    **master data** — "each row = unique combination of Category + Thickness +
+    Color + Size + Supplier" — so the table is bounded by the number of sheet
+    types the business stocks, not by transaction volume. Loading it whole is
+    correct.
+  - `StatementGeneratorViewModel.Helpers:103` is `FindDuplicateStatementAsync`,
+    which compares six filter fields using `SameText` (trim + ignore-case) and
+    `SameDate` (nullable, compared on `.Date`). Pushing that into EF/SQLite
+    cannot be verified without a build, and a wrong translation makes
+    duplicate detection silently wrong in one direction or the other. The
+    statement table is monthly customer aggregates, not transactions. **Left
+    alone deliberately** — revisit with a compiler.
+
+### The worst offender, found while verifying the above
+
+`DeliveryNoteListViewModel.Part1.cs:834` loads **six full tables in
+parallel**:
+
+```csharp
+var allTask      = _deliveryNotes.GetAllAsync();
+var prepTask     = _deliveryNotes.GetPreparedAsync();
+var delTask      = _deliveryNotes.GetDeliveredAsync();
+var pendingTask  = _deliveryNotes.GetPendingQtyJobsAsync();
+var reworkTask   = _deliveryNotes.GetReworkAsync();
+var returnedTask = _deliveryNotes.GetReturnedAsync();
+```
+
+Five of those are **subsets of the first**. Every delivery note in the
+database is materialised up to six times to populate six tabs, then filtered
+in memory. This is the highest-value single target in the phase and it is not
+yet touched — it needs the tab model rethought, not just a page size added.
 
 ## Phase 3 — Dashboard aggregates
 

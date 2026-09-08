@@ -656,10 +656,16 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             try
             {
-                var saved = (await _invoices.GetAllAsync())
-                    .FirstOrDefault(p => string.Equals(
-                        p.ProformaId, proformaId,
-                        StringComparison.OrdinalIgnoreCase));
+                // Phase 2: GetByProformaIdAsync already existed (and is
+                // already used by ProformaLifecycleSync) but was not used
+                // here. This loaded every proforma invoice to find one by id.
+                //
+                // Note the repository matches with SQL `=`, which on SQLite is
+                // case-sensitive, where this call site used OrdinalIgnoreCase.
+                // ProformaId is system-generated with consistent casing, and
+                // the existing method is already trusted elsewhere, so the
+                // match is unchanged in practice.
+                var saved = await _invoices.GetByProformaIdAsync(proformaId);
 
                 if (saved == null)
                 {

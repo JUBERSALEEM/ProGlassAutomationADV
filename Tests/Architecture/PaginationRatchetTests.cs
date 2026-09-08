@@ -68,7 +68,8 @@ namespace ProGlassAutomation.Tests.Architecture
             // ── Phase 2 targets: list screens.
             "DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.Part1.cs",
             "JobOrder/SavedJobOrdersList/JobOrderProformaPickerViewModel.cs",
-            "JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.Part1.cs",
+            // SavedJobOrdersListViewModel.Part1.cs removed 2026-09-08 — it now
+            // calls the pre-existing GetByProformaIdAsync.
             // SpecGroup.Part2.cs was here until 2026-09-08. It calls
             // GetAllAsync(selectedType) — already scoped to one spec type, so
             // it was never a whole-table load. See CallsGetAll.

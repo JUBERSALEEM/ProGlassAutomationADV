@@ -587,8 +587,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
                     try
                     {
-                        var allJobs = await _jobs.GetAllAsync();
-                        var job = allJobs.FirstOrDefault(j => j.JobOrderId == jobOrderId);
+                        // Phase 2: GetByJobOrderIdAsync already existed and was
+                        // not being used. This loaded every job order in the
+                        // database to find one by its id.
+                        var job = await _jobs.GetByJobOrderIdAsync(jobOrderId);
                         if (job != null)
                             OnCreateDnFromJobOrder?.Invoke(job);
                     }
