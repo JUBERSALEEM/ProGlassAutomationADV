@@ -121,7 +121,12 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     return;
                 }
 
-                var proformas = await App.Invoices.GetAllAsync();
+                // GetListRowsAsync, not GetAllAsync: the picker binds six
+                // scalar columns, while GetAllAsync materialises every column
+                // of every row including FullSnapshotJson — a complete invoice
+                // snapshot blob per quote. Same rows, same ordering applied
+                // below, a fraction of the bytes.
+                var proformas = await App.Invoices.GetListRowsAsync();
 
                 if (proformas == null || proformas.Count == 0)
                 {
