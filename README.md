@@ -351,6 +351,14 @@ git diff --name-only BASE..HEAD | grep '\.cs$' \
 These are static. They catch broken references, malformed markup and truncated
 blocks; they do **not** prove the application compiles or behaves.
 
+> **Nothing since `b86a3bc` has been compiled.** There was no .NET SDK in the
+> environment it was written in. **[`docs/BUILD_VERIFICATION_GUIDE.md`](docs/BUILD_VERIFICATION_GUIDE.md)**
+> is the checklist for the first real build — the exact commands, where errors
+> are most likely, and the on-screen numbers to sanity-check afterwards. Read
+> its §1 before typing anything: the repo has only `ProGlassAutomation.slnx`
+> and no `.sln`, so a bare `dotnet build` fails for a reason unrelated to the
+> code.
+
 `check-csharp-balance.py` is worth a word, because the obvious version of it is
 wrong. Counting `{` and `}` characters also counts the ones inside string
 literals, character literals, verbatim strings, interpolated strings and

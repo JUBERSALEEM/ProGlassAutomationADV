@@ -227,6 +227,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 
 | Document | What it covers |
 |---|---|
+| [`BUILD_VERIFICATION_GUIDE.md`](BUILD_VERIFICATION_GUIDE.md) | Build Verification Guide |
 | [`CODE_RATING_REPORT.md`](CODE_RATING_REPORT.md) | ProGlass Automation — Senior Engineering Rating |
 | [`CORRECTED_MARGIN_CALCULATION.md`](CORRECTED_MARGIN_CALCULATION.md) | ✅ Corrected Margin Calculation - Example |
 | [`DELIVERY-REPORT.md`](DELIVERY-REPORT.md) | ProGlass Automation — Localization & Globalization Delivery Report |
