@@ -102,6 +102,11 @@
          full alpha so it can stand alone.
     ═══════════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FFF8FAFC" po:Freeze="True"/>
+    <!-- Opaque dialog card. A Window with AllowsTransparency has no app
+         stage behind it, so ModuleBackgroundBrush (often alpha 00) shows
+         the desktop through every modal. Always fully opaque. -->
+    <SolidColorBrush x:Key="DialogSurfaceBrush" Color="#FFFBF9F3" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DialogInsetBrush" Color="#FFF1EDE3" po:Freeze="True"/>
     <!-- 2026-09-05 dropdown contrast tokens: see DarkTheme note. 12% black
          tint over #F7F4EC is the light-theme hover lift; selected row uses
          AccentBrush + OnAccentForegroundBrush in BOTH themes. -->

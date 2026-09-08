@@ -788,7 +788,7 @@
     <sys:String x:Key="Module.Production">Production</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">Proforma Invoice</sys:String>
     <sys:String x:Key="Module.Reports">Reports</sys:String>
-    <sys:String x:Key="Module.SheetStore">Sheet Store</sys:String>
+    <sys:String x:Key="Module.SheetStore">Inventory</sys:String>
     <sys:String x:Key="Module.Statement">Statement</sys:String>
     <sys:String x:Key="Module.SystemCenter">System Center</sys:String>
     <sys:String x:Key="Module.TaxInvoice">Tax Invoice</sys:String>
@@ -1044,7 +1044,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">Proforma Invoice</sys:String>
     <sys:String x:Key="Nav.Reports">Reports</sys:String>
     <sys:String x:Key="Nav.SalesOrders">Sales &amp; Orders</sys:String>
-    <sys:String x:Key="Nav.SheetStore">Sheet Store</sys:String>
+    <sys:String x:Key="Nav.SheetStore">Inventory</sys:String>
     <sys:String x:Key="Nav.Statement">Statement</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">Statement Generator</sys:String>
     <sys:String x:Key="Nav.System">System</sys:String>
@@ -1296,7 +1296,7 @@
     <sys:String x:Key="ProformaInvoice.SheetQTY">SHEET QTY</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSIZE">SHEET SIZE</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetSQMPrice">SHEET / SQM PRICE</sys:String>
-    <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">Off = Sheet Store purchase price. On = selling price matching Step 4 base rates.</sys:String>
+    <sys:String x:Key="ProformaInvoice.SheetStorePurchasePriceSellingPriceMatching">Off = Inventory purchase price. On = selling price matching Step 4 base rates.</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetW">SHEET W</sys:String>
     <sys:String x:Key="ProformaInvoice.SheetWidth">SHEET WIDTH</sys:String>
     <sys:String x:Key="ProformaInvoice.Showing">Showing</sys:String>
@@ -1726,7 +1726,7 @@
     <sys:String x:Key="Settings.AppdataNeverLeavesPCExceptDirectHttps">in AppData. It never leaves your PC except for direct HTTPS requests to the AI provider.</sys:String>
     <sys:String x:Key="Settings.Application">APPLICATION</sys:String>
     <sys:String x:Key="Settings.AppliedSystemWideBehindModuleModuleOverrides">Applied system-wide behind every module. Per-module overrides win where set.</sys:String>
-    <sys:String x:Key="Settings.AppliesPIJODNTaxInvoiceStatementSheetStore">Applies to PI, JO, DN, Tax Invoice, Statement and Sheet Store on the next export.</sys:String>
+    <sys:String x:Key="Settings.AppliesPIJODNTaxInvoiceStatementSheetStore">Applies to PI, JO, DN, Tax Invoice, Statement and Inventory on the next export.</sys:String>
     <sys:String x:Key="Settings.ApplyCustomColour">APPLY CUSTOM COLOUR</sys:String>
     <sys:String x:Key="Settings.Approve">APPROVE</sys:String>
     <sys:String x:Key="Settings.Assistant">ASSISTANT</sys:String>
@@ -2131,7 +2131,7 @@
     <sys:String x:Key="SheetStore.ADDNEW">ADD NEW</sys:String>
     <sys:String x:Key="SheetStore.ADDStock">ADD TO STOCK</sys:String>
     <sys:String x:Key="SheetStore.AEDSQMSQMSheet">AED/SQM  •  SQM/sheet:</sys:String>
-    <sys:String x:Key="SheetStore.ActionsSheetStoreAppearHere">Actions on Sheet Store will appear here</sys:String>
+    <sys:String x:Key="SheetStore.ActionsSheetStoreAppearHere">Actions on Inventory will appear here</sys:String>
     <sys:String x:Key="SheetStore.AddIncomingStockExistingKeepsPrices">Add incoming stock to existing (keeps prices)</sys:String>
     <sys:String x:Key="SheetStore.AddMoreSheetsInventory">Add more sheets to inventory</sys:String>
     <sys:String x:Key="SheetStore.AddNewGlassSheet">Add a new glass sheet</sys:String>
@@ -2147,7 +2147,7 @@
     <sys:String x:Key="SheetStore.BuyingValue">BUYING VALUE</sys:String>
     <sys:String x:Key="SheetStore.CancelImport">CANCEL IMPORT</sys:String>
     <sys:String x:Key="SheetStore.Category">CATEGORY</sys:String>
-    <sys:String x:Key="SheetStore.ChangeSheetStoreRecordedHere">Every change to Sheet Store is recorded here.</sys:String>
+    <sys:String x:Key="SheetStore.ChangeSheetStoreRecordedHere">Every change to Inventory is recorded here.</sys:String>
     <sys:String x:Key="SheetStore.ClearDateFilter">Clear the date filter</sys:String>
     <sys:String x:Key="SheetStore.ClearDates">CLEAR DATES</sys:String>
     <sys:String x:Key="SheetStore.ClearFilters">Clear all filters</sys:String>
@@ -2206,7 +2206,7 @@
     <sys:String x:Key="SheetStore.SellingValue">SELLING VALUE</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">This sheet already exists. Choose how to handle it:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">SHEET DETAILS</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">Sheet Store — History</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">Inventory — History</sys:String>
     <sys:String x:Key="SheetStore.Sheets">sheets  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">Show History</sys:String>
     <sys:String x:Key="SheetStore.Silver">Silver</sys:String>
@@ -2495,7 +2495,7 @@
     <sys:String x:Key="Specifications.ColUsed">USED</sys:String>
     <sys:String x:Key="Specifications.Height">HEIGHT</sys:String>
     <sys:String x:Key="Specifications.NoPanes">Could not read glass panes from this specification name.</sys:String>
-    <sys:String x:Key="Specifications.NoSheetMatch">No Sheet Store match for this colour and thickness.</sys:String>
+    <sys:String x:Key="Specifications.NoSheetMatch">No Inventory match for this colour and thickness.</sys:String>
     <sys:String x:Key="Specifications.Width">WIDTH</sys:String>
     <sys:String x:Key="Common.ExportExcel">Export Excel</sys:String>
     <sys:String x:Key="Common.ExportPdf">Export PDF</sys:String>

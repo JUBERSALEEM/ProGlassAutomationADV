@@ -72,6 +72,10 @@
          is a floating window, so an alpha-00 glass brush shows the
          desktop through it. -->
     <SolidColorBrush x:Key="PopupSurfaceBrush" Color="#FF111827" po:Freeze="True"/>
+    <!-- Opaque dialog card. See LightTheme note: a transparent modal
+         falls through to the desktop. -->
+    <SolidColorBrush x:Key="DialogSurfaceBrush" Color="#FF161A22" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DialogInsetBrush" Color="#FF1C222C" po:Freeze="True"/>
     <!-- 2026-09-05 dropdown contrast tokens (ERR white-on-white rows):
          ComboBoxItem hover/highlight must NEVER use the glass wash —
          ~40% white glass + white text is invisible on the dark popup.

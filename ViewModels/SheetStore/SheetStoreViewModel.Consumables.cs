@@ -143,7 +143,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             _addNewStockCommand ??= new RelayCommand(_ =>
             {
                 if (IsConsumablesView) AddItemCommand.Execute(null);
-                else AddCommand.Execute(null);
+                else OpenSheetWorkspace(null);
             });
 
         /// <summary>

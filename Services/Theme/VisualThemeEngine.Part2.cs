@@ -179,6 +179,38 @@ namespace ProGlassAutomation.Services.Theme
                 ColorMath.WithAlpha(edge, primaryA));
             resources["GlassBorderBright"] = FrozenSolid(
                 ColorMath.WithAlpha(edge, brightA));
+
+            PublishDialogSurface(resources, borderTint, dark);
+        }
+
+        /// <summary>
+        /// Opaque dialog card material. A dialog is a floating Window
+        /// with no app stage behind it, so ModuleBackgroundBrush
+        /// (often translucent) shows the desktop through the card.
+        /// </summary>
+        private static void PublishDialogSurface(
+            ResourceDictionary resources, Color familyTint, bool dark)
+        {
+            Color baseColor = ThemeManager.GetThemeColor(
+                "WindowBackgroundBrush",
+                dark ? Color.FromRgb(0x16, 0x1A, 0x22)
+                     : Color.FromRgb(0xFB, 0xF9, 0xF3));
+
+            Color card = dark
+                ? ColorMath.Mix(baseColor, Color.FromRgb(0xFF, 0xFF, 0xFF), 0.06)
+                : ColorMath.Mix(baseColor, Color.FromRgb(0xFF, 0xFF, 0xFF), 0.55);
+
+            card = ColorMath.Mix(card, familyTint, dark ? 0.10 : 0.05);
+
+            resources["DialogSurfaceBrush"] =
+                FrozenSolid(ColorMath.WithAlpha(card, 0xFF));
+
+            Color inset = dark
+                ? ColorMath.Mix(card, Color.FromRgb(0xFF, 0xFF, 0xFF), 0.07)
+                : ColorMath.Mix(card, Color.FromRgb(0x00, 0x00, 0x00), 0.05);
+
+            resources["DialogInsetBrush"] =
+                FrozenSolid(ColorMath.WithAlpha(inset, 0xFF));
         }
 
         /// <summary>

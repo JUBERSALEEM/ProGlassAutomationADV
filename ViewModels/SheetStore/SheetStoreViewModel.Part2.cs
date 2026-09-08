@@ -98,6 +98,20 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             var vm = new BuyDialogViewModel(sheet);
             _dialogs.ShowDialog<BuyDialogView>(vm);
+            await CommitBuyAsync(sheet, vm);
+        }
+
+        /// <summary>
+        /// Records a purchase from an ALREADY-COMPLETED Buy form.
+        /// Shared by the modal dialog and the workspace Buy tab.
+        /// </summary>
+        internal async Task CommitBuyAsync(GlassSheet sheet, BuyDialogViewModel vm)
+        {
+            if (vm.DialogResult == true && !vm.IsValid)
+            {
+                ShowError("Purchase not recorded — the quantity was not valid.");
+                return;
+            }
 
             if (vm.DialogResult == true && vm.Quantity > 0)
             {
@@ -147,6 +161,20 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             var vm = new UseDialogViewModel(sheet);
             _dialogs.ShowDialog<UseDialogView>(vm);
+            await CommitUseAsync(sheet, vm);
+        }
+
+        /// <summary>
+        /// Records consumption from an ALREADY-COMPLETED Use form.
+        /// Shared by the modal dialog and the workspace Use tab.
+        /// </summary>
+        internal async Task CommitUseAsync(GlassSheet sheet, UseDialogViewModel vm)
+        {
+            if (vm.DialogResult == true && !vm.IsValid)
+            {
+                ShowError("Consumption not recorded — the quantity was not valid.");
+                return;
+            }
 
             if (vm.DialogResult == true && vm.Quantity > 0)
             {

@@ -34,9 +34,18 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreBuy
         public int NewBalanceAfterBuy => Sheet.Balance + Quantity;
 
         public bool CanConfirm => Quantity > 0;
+        public bool IsValid => CanConfirm;
 
         // Result
         public bool? DialogResult { get; private set; }
+
+        public void Accept() => DialogResult = true;
+
+        public void ResetAfterCommit()
+        {
+            DialogResult = null;
+            Quantity = 1;
+        }
         public Action? CloseAction { get; set; }
 
         // Commands

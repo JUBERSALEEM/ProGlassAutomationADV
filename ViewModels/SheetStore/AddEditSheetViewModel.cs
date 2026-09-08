@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
 using System;
 using System.Windows.Input;
@@ -22,63 +22,63 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public string Category
         {
             get => _category;
-            set { _category = value; OnPropertyChanged(); }
+            set { _category = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsValid)); }
         }
 
         private int _thicknessMm = 6;
         public int ThicknessMm
         {
             get => _thicknessMm;
-            set { _thicknessMm = value; OnPropertyChanged(); }
+            set { _thicknessMm = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsValid)); }
         }
 
         private string _color = "Clear";
         public string Color
         {
             get => _color;
-            set { _color = value; OnPropertyChanged(); }
+            set { _color = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsValid)); }
         }
 
         private int _widthMm = 3210;
         public int WidthMm
         {
             get => _widthMm;
-            set { _widthMm = value; OnPropertyChanged(); }
+            set { _widthMm = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsValid)); }
         }
 
         private int _heightMm = 2250;
         public int HeightMm
         {
             get => _heightMm;
-            set { _heightMm = value; OnPropertyChanged(); }
+            set { _heightMm = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsValid)); }
         }
 
         private string _supplier = string.Empty;
         public string Supplier
         {
             get => _supplier;
-            set { _supplier = value; OnPropertyChanged(); }
+            set { _supplier = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsValid)); }
         }
 
         private decimal _purchasePrice;
         public decimal PurchasePricePerSqm
         {
             get => _purchasePrice;
-            set { _purchasePrice = value; OnPropertyChanged(); }
+            set { _purchasePrice = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsValid)); }
         }
 
         private decimal _sellPrice;
         public decimal SellPricePerSqm
         {
             get => _sellPrice;
-            set { _sellPrice = value; OnPropertyChanged(); }
+            set { _sellPrice = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsValid)); }
         }
 
         private int _stock;
         public int Stock
         {
             get => _stock;
-            set { _stock = value; OnPropertyChanged(); }
+            set { _stock = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsValid)); }
         }
 
         // ============ VALIDATION ============
@@ -90,6 +90,15 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         }
 
         public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
+        public bool IsValid =>
+            !string.IsNullOrWhiteSpace(Category) &&
+            ThicknessMm > 0 &&
+            !string.IsNullOrWhiteSpace(Color) &&
+            WidthMm > 0 && HeightMm > 0 &&
+            !string.IsNullOrWhiteSpace(Supplier) &&
+            PurchasePricePerSqm >= 0 && SellPricePerSqm >= 0 &&
+            Stock >= 0;
 
         // ============ RESULT ============
         public GlassSheet? Result { get; private set; }

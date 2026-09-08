@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">生产</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">形式发票</sys:String>
     <sys:String x:Key="Module.Reports">报表</sys:String>
-    <sys:String x:Key="Module.SheetStore">板材库存</sys:String>
+    <sys:String x:Key="Module.SheetStore">库存</sys:String>
     <sys:String x:Key="Module.Statement">对账单</sys:String>
     <sys:String x:Key="Module.SystemCenter">系统中心</sys:String>
     <sys:String x:Key="Module.TaxInvoice">税务发票</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">形式发票</sys:String>
     <sys:String x:Key="Nav.Reports">报表</sys:String>
     <sys:String x:Key="Nav.SalesOrders">销售与订单</sys:String>
-    <sys:String x:Key="Nav.SheetStore">板材库存</sys:String>
+    <sys:String x:Key="Nav.SheetStore">库存</sys:String>
     <sys:String x:Key="Nav.Statement">对账单</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">对账单生成器</sys:String>
     <sys:String x:Key="Nav.System">系统</sys:String>
@@ -2230,7 +2230,7 @@
     <sys:String x:Key="SheetStore.SellingValue">销售金额</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">此板已存在。选择处理方式：</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">板材详细信息</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">板材库 — 历史记录</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">库存 — 历史</sys:String>
     <sys:String x:Key="SheetStore.Sheets">板  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">显示历史记录</sys:String>
     <sys:String x:Key="SheetStore.Silver">银色</sys:String>
@@ -2503,7 +2503,7 @@
     <sys:String x:Key="Specifications.ColUsed">USED</sys:String>
     <sys:String x:Key="Specifications.Height">HEIGHT</sys:String>
     <sys:String x:Key="Specifications.NoPanes">Could not read glass panes from this specification name.</sys:String>
-    <sys:String x:Key="Specifications.NoSheetMatch">No Sheet Store match for this colour and thickness.</sys:String>
+    <sys:String x:Key="Specifications.NoSheetMatch">No Inventory match for this colour and thickness.</sys:String>
     <sys:String x:Key="Specifications.Width">WIDTH</sys:String>
     <sys:String x:Key="Common.ExportExcel">Export Excel</sys:String>
     <sys:String x:Key="Common.ExportPdf">Export PDF</sys:String>

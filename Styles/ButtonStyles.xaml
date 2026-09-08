@@ -22,7 +22,8 @@
 ═══════════════════════════════════════════════════════════════════ -->
 
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
 
     <!-- Shared base -->
     <Style x:Key="PillButtonBase" TargetType="Button">
@@ -209,9 +210,29 @@
         <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
     </Style>
 
-    <!-- VARIANT 5 — TabPillButton (alias of OutlinedPillButton for semantics) -->
+    <!-- VARIANT 5 — TabPillButton (real tab, not an outlined alias) -->
     <Style x:Key="TabPillButton" TargetType="Button"
-           BasedOn="{StaticResource OutlinedPillButton}"/>
+           BasedOn="{StaticResource OutlinedPillButton}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="18,9"/>
+        <Setter Property="Margin" Value="0,0,4,0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            </Trigger>
+            <DataTrigger Binding="{Binding Path=(behaviors:TabState.IsActive),
+                                           RelativeSource={RelativeSource Self}}"
+                         Value="True">
+                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
 
 
     <!-- ═════════════════════════════════════════════════════════════

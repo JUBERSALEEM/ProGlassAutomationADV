@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.ViewModels;
 using System;
@@ -78,6 +78,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse
         public int RemainingBalance => Sheet.Balance - Quantity;
 
         public bool CanConfirm => Quantity > 0 && Quantity <= Sheet.Balance;
+        public bool IsValid => CanConfirm;
 
         public string ErrorMessage => Sheet.Balance == 0
             ? "No stock available to use."
@@ -88,6 +89,14 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse
         // Result
         public bool? DialogResult { get; private set; }
         public Action? CloseAction { get; set; }
+
+        public void Accept() => DialogResult = true;
+
+        public void ResetAfterCommit()
+        {
+            DialogResult = null;
+            Quantity = 1;
+        }
 
         // Commands
         public ICommand IncreaseCommand { get; }

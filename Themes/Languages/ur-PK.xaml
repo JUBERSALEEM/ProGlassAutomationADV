@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">پروڈکشن</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">پروفارما انوائس</sys:String>
     <sys:String x:Key="Module.Reports">رپورٹس</sys:String>
-    <sys:String x:Key="Module.SheetStore">شیٹ اسٹور</sys:String>
+    <sys:String x:Key="Module.SheetStore">انوینٹری</sys:String>
     <sys:String x:Key="Module.Statement">اسٹیٹمنٹ</sys:String>
     <sys:String x:Key="Module.SystemCenter">سسٹم سینٹر</sys:String>
     <sys:String x:Key="Module.TaxInvoice">ٹیکس انوائس</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">پروفارما انوائس</sys:String>
     <sys:String x:Key="Nav.Reports">رپورٹس</sys:String>
     <sys:String x:Key="Nav.SalesOrders">سیلز اور آرڈرز</sys:String>
-    <sys:String x:Key="Nav.SheetStore">شیٹ اسٹور</sys:String>
+    <sys:String x:Key="Nav.SheetStore">انوینٹری</sys:String>
     <sys:String x:Key="Nav.Statement">اسٹیٹمنٹ</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">اسٹیٹمنٹ جنریٹر</sys:String>
     <sys:String x:Key="Nav.System">سسٹم</sys:String>
@@ -2230,7 +2230,7 @@
     <sys:String x:Key="SheetStore.SellingValue">فروخت کی قیمت</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">یہ شیٹ پہلے سے موجود ہے۔ منتخب کریں کہ اسے کیسے سنبھالنا ہے:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">شیٹ تفصیلات</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">شیٹ سٹور — ہسٹری</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">انوینٹری — تاریخ</sys:String>
     <sys:String x:Key="SheetStore.Sheets">شیٹس •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">ہسٹری دکھائیں</sys:String>
     <sys:String x:Key="SheetStore.Silver">چاندی</sys:String>
@@ -2503,7 +2503,7 @@
     <sys:String x:Key="Specifications.ColUsed">USED</sys:String>
     <sys:String x:Key="Specifications.Height">HEIGHT</sys:String>
     <sys:String x:Key="Specifications.NoPanes">Could not read glass panes from this specification name.</sys:String>
-    <sys:String x:Key="Specifications.NoSheetMatch">No Sheet Store match for this colour and thickness.</sys:String>
+    <sys:String x:Key="Specifications.NoSheetMatch">No Inventory match for this colour and thickness.</sys:String>
     <sys:String x:Key="Specifications.Width">WIDTH</sys:String>
     <sys:String x:Key="Common.ExportExcel">Export Excel</sys:String>
     <sys:String x:Key="Common.ExportPdf">Export PDF</sys:String>

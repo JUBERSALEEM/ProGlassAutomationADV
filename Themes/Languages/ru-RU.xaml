@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">Производство</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">Счёт-проформа</sys:String>
     <sys:String x:Key="Module.Reports">Отчёты</sys:String>
-    <sys:String x:Key="Module.SheetStore">Склад листов</sys:String>
+    <sys:String x:Key="Module.SheetStore">Запасы</sys:String>
     <sys:String x:Key="Module.Statement">Выписка</sys:String>
     <sys:String x:Key="Module.SystemCenter">Системный центр</sys:String>
     <sys:String x:Key="Module.TaxInvoice">Налоговый счёт</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">Счёт-проформа</sys:String>
     <sys:String x:Key="Nav.Reports">Отчёты</sys:String>
     <sys:String x:Key="Nav.SalesOrders">Продажи и заказы</sys:String>
-    <sys:String x:Key="Nav.SheetStore">Склад листов</sys:String>
+    <sys:String x:Key="Nav.SheetStore">Запасы</sys:String>
     <sys:String x:Key="Nav.Statement">Выписка</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">Генератор выписок</sys:String>
     <sys:String x:Key="Nav.System">Система</sys:String>
@@ -2230,7 +2230,7 @@
     <sys:String x:Key="SheetStore.SellingValue">СТОИМОСТЬ ПРОДАЖИ</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">Этот лист уже существует. Выберите, как с ним поступить:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">ДАННЫЕ ЛИСТА</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">Склад листов — История</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">Запасы — История</sys:String>
     <sys:String x:Key="SheetStore.Sheets">листов  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">Показать историю</sys:String>
     <sys:String x:Key="SheetStore.Silver">Серебро</sys:String>
@@ -2503,7 +2503,7 @@
     <sys:String x:Key="Specifications.ColUsed">USED</sys:String>
     <sys:String x:Key="Specifications.Height">HEIGHT</sys:String>
     <sys:String x:Key="Specifications.NoPanes">Could not read glass panes from this specification name.</sys:String>
-    <sys:String x:Key="Specifications.NoSheetMatch">No Sheet Store match for this colour and thickness.</sys:String>
+    <sys:String x:Key="Specifications.NoSheetMatch">No Inventory match for this colour and thickness.</sys:String>
     <sys:String x:Key="Specifications.Width">WIDTH</sys:String>
     <sys:String x:Key="Common.ExportExcel">Export Excel</sys:String>
     <sys:String x:Key="Common.ExportPdf">Export PDF</sys:String>

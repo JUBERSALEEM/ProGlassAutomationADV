@@ -787,7 +787,7 @@
     <sys:String x:Key="Module.Production">生産</sys:String>
     <sys:String x:Key="Module.ProformaInvoice">プロフォーマ請求書</sys:String>
     <sys:String x:Key="Module.Reports">レポート</sys:String>
-    <sys:String x:Key="Module.SheetStore">ガラス在庫</sys:String>
+    <sys:String x:Key="Module.SheetStore">在庫</sys:String>
     <sys:String x:Key="Module.Statement">明細書</sys:String>
     <sys:String x:Key="Module.SystemCenter">システムセンター</sys:String>
     <sys:String x:Key="Module.TaxInvoice">税務請求書</sys:String>
@@ -1043,7 +1043,7 @@
     <sys:String x:Key="Nav.ProformaInvoice">プロフォーマ請求書</sys:String>
     <sys:String x:Key="Nav.Reports">レポート</sys:String>
     <sys:String x:Key="Nav.SalesOrders">営業と注文</sys:String>
-    <sys:String x:Key="Nav.SheetStore">ガラス在庫</sys:String>
+    <sys:String x:Key="Nav.SheetStore">在庫</sys:String>
     <sys:String x:Key="Nav.Statement">明細書</sys:String>
     <sys:String x:Key="Nav.StatementGenerator">明細書生成</sys:String>
     <sys:String x:Key="Nav.System">システム</sys:String>
@@ -2230,7 +2230,7 @@
     <sys:String x:Key="SheetStore.SellingValue">販売金額</sys:String>
     <sys:String x:Key="SheetStore.SheetAlreadyExistsChooseHowHandle">このシートは既に存在します。処理方法を選択してください:</sys:String>
     <sys:String x:Key="SheetStore.SheetDetails">シート詳細</sys:String>
-    <sys:String x:Key="SheetStore.SheetStoreHistory">シートストア — 履歴</sys:String>
+    <sys:String x:Key="SheetStore.SheetStoreHistory">在庫 — 履歴</sys:String>
     <sys:String x:Key="SheetStore.Sheets">シート  •</sys:String>
     <sys:String x:Key="SheetStore.ShowHistory">履歴を表示</sys:String>
     <sys:String x:Key="SheetStore.Silver">シルバー</sys:String>
@@ -2503,7 +2503,7 @@
     <sys:String x:Key="Specifications.ColUsed">USED</sys:String>
     <sys:String x:Key="Specifications.Height">HEIGHT</sys:String>
     <sys:String x:Key="Specifications.NoPanes">Could not read glass panes from this specification name.</sys:String>
-    <sys:String x:Key="Specifications.NoSheetMatch">No Sheet Store match for this colour and thickness.</sys:String>
+    <sys:String x:Key="Specifications.NoSheetMatch">No Inventory match for this colour and thickness.</sys:String>
     <sys:String x:Key="Specifications.Width">WIDTH</sys:String>
     <sys:String x:Key="Common.ExportExcel">Export Excel</sys:String>
     <sys:String x:Key="Common.ExportPdf">Export PDF</sys:String>
