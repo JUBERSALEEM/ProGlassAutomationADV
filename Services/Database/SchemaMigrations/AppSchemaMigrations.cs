@@ -54,6 +54,48 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                         "CREATE INDEX IF NOT EXISTS IX_SheetHistories_CustomerName ON SheetHistories(CustomerName);");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_SheetHistories_DocumentReference ON SheetHistories(DocumentReference);");
+                }),
+
+                // Non-glass consumables: spacer bar, desiccant, sealants,
+                // cavity gas, hardware. See Models/SheetStore/InventoryItem
+                // for why these are a separate table rather than a widened
+                // GlassSheet (Stock must be DECIMAL — 45.55 LM of spacer —
+                // and glass feeds live proforma-invoice pricing that must
+                // not be disturbed).
+                //
+                // EnsureCreated() only ever creates a MISSING database, so
+                // every install already in the field needs this table added
+                // explicitly or EF would query a table that does not exist.
+                //
+                // Quantities and money are TEXT affinity, matching the D-6
+                // convention used for GlassSheet prices: NUMERIC affinity
+                // on SQLite yields REAL (binary float) storage, which drifts
+                // under repeated add/subtract and SQL-side SUM.
+                new(1003, "Inventory: non-glass consumables table", connection =>
+                {
+                    SchemaMigrationSql.CreateTableIfNotExists(connection, @"
+                        CREATE TABLE IF NOT EXISTS InventoryItems (
+                            Id                   INTEGER NOT NULL CONSTRAINT PK_InventoryItems PRIMARY KEY AUTOINCREMENT,
+                            Name                 TEXT    NOT NULL,
+                            Category             INTEGER NOT NULL DEFAULT 0,
+                            PartNumber           TEXT    NOT NULL DEFAULT '',
+                            Supplier             TEXT    NOT NULL DEFAULT '',
+                            Specification        TEXT    NOT NULL DEFAULT '',
+                            Uom                  INTEGER NOT NULL DEFAULT 0,
+                            Stock                TEXT    NOT NULL DEFAULT '0',
+                            Used                 TEXT    NOT NULL DEFAULT '0',
+                            ReorderLevel         TEXT    NOT NULL DEFAULT '0',
+                            PurchasePricePerUnit TEXT    NOT NULL DEFAULT '0',
+                            SellPricePerUnit     TEXT    NOT NULL DEFAULT '0',
+                            CreatedAt            TEXT    NOT NULL,
+                            LastUpdated          TEXT    NOT NULL,
+                            LastPurchaseDate     TEXT    NULL
+                        );");
+
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_InventoryItem_Category ON InventoryItems(Category);");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_InventoryItem_Supplier ON InventoryItems(Supplier);");
                 })
             };
 

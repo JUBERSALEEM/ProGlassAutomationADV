@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.ViewModels;
 using System;
@@ -51,7 +51,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreBuy
 
             IncreaseCommand = new RelayCommand(_ => Quantity++);
             DecreaseCommand = new RelayCommand(_ => { if (Quantity > 1) Quantity--; });
-            ConfirmCommand = new RelayCommand(_ => { DialogResult = true; CloseAction?.Invoke(); });
+            ConfirmCommand = new RelayCommand(_ => { DialogResult = true; CloseAction?.Invoke(); }, _ => CanConfirm);
             CancelCommand = new RelayCommand(_ => { DialogResult = false; CloseAction?.Invoke(); });
         }
     }

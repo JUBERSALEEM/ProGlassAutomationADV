@@ -19,6 +19,32 @@
 
     <UserControl.Resources>
 
+
+        <!-- Consumable editor panel field chrome -->
+        <Style x:Key="ItemFieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+        <Style x:Key="ItemEntry" TargetType="TextBox">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="9,0"/>
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="ItemFieldError" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="0,-8,0,10"/>
+            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        </Style>
+
         <!-- Reusable modern menu item (left-click runs its command). -->
         <Style x:Key="SheetMenuActionItem" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
@@ -141,6 +167,30 @@
                     <TextBlock Text="{DynamicResource SheetStore.StockManagementPricingSystem}"
                                Style="{StaticResource ModulePageSubtitleStyle}"
                                Margin="0,4,0,0"/>
+
+                    <Border Background="{DynamicResource MenuHoverBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="{DynamicResource CardBorderThickness}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            Padding="5" Margin="0,12,0,0"
+                            HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource TabPillButton}"
+                                    Content="GLASS SHEETS"
+                                    Command="{Binding ShowGlassCommand}"/>
+                            <Button Style="{StaticResource TabPillButton}"
+                                    Content="CONSUMABLES"
+                                    Command="{Binding ShowConsumablesCommand}"/>
+                            <Border Background="{DynamicResource DangerBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="9,3" VerticalAlignment="Center" Margin="8,0,4,0"
+                                    Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding LowStockCount, StringFormat={}{0} LOW}"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
 
@@ -156,7 +206,7 @@
                     <Button Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE710;" Content="{DynamicResource SheetStore.ADDNEW}"
                             ToolTip="{DynamicResource SheetStore.AddNewGlassSheet}"
-                            Command="{Binding AddCommand}"/>
+                            Command="{Binding AddNewStockCommand}"/>
 
                     <!-- Dropdown popup anchored to the ACTIONS button. A Popup
                          (not a ContextMenu) so the button's own Click handler
@@ -224,7 +274,7 @@
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,12" Margin="8,0,8,12"
                     SnapsToDevicePixels="True">
                 <StackPanel>
-                    <Grid>
+                    <Grid Visibility="{Binding IsGlassView, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="8"/>
@@ -405,7 +455,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- ══ MAIN LIST (DataGrid) ══ -->
-            <Grid Grid.Column="0">
+            <Grid Grid.Column="0" Visibility="{Binding IsGlassView, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
@@ -568,6 +618,151 @@
                                 Icon="&#xE7B8;"
                                 Title="{DynamicResource SheetStore.NoGlassSheetsYet}"
                                 Message="The Sheet Store is your raw-glass inventory — sizes, thicknesses, colours, stock and value. Click '+ Add New' to add your first glass sheet."/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+
+
+            <!-- ══ CONSUMABLES LIST ══ -->
+            <Grid Grid.Column="0" Visibility="{Binding IsConsumablesView, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0"
+                        Background="{DynamicResource AccentBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="24,10"
+                        SnapsToDevicePixels="True">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="ITEM" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <TextBlock Grid.Column="1" Text="BALANCE" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <TextBlock Grid.Column="2" Text="USED" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <TextBlock Grid.Column="3" Text="VALUE" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <TextBlock Grid.Column="4" Text="ACTIONS" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="1"
+                        Background="{DynamicResource ModuleBackgroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource Border.BoxNoTopThickness}"
+                        CornerRadius="{DynamicResource Radius.Bottom.Medium}"
+                        SnapsToDevicePixels="True">
+                    <Grid>
+                        <ListBox ItemsSource="{Binding Items}"
+                                 ItemContainerStyle="{StaticResource SheetListBoxItemStyle}"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
+                                 Background="Transparent"
+                                 Padding="10,6,10,10"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True"
+                                 Visibility="{Binding HasItems, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border behaviors:ClickToCommandBehavior.Command="{Binding DataContext.SelectItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                            behaviors:ClickToCommandBehavior.CommandParameter="{Binding}"
+                                            Padding="14,11" Margin="0,0,0,6"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
+                                            BorderThickness="1"
+                                            SnapsToDevicePixels="True">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsLowStock}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding FullDescription}"
+                                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                    <TextBlock Text="{Binding CategoryDisplay}"
+                                                               FontSize="{StaticResource TextCaption}"
+                                                               Foreground="{DynamicResource AccentBrush}"/>
+                                                    <TextBlock Text="{Binding Supplier, StringFormat={}  ·  {0}}"
+                                                               FontSize="{StaticResource TextCaption}"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding BalanceDisplay}"
+                                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                                <TextBlock Text="{Binding UomDisplay}"
+                                                           FontSize="{StaticResource TextCaption}"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding Used, StringFormat={}{0:N2}}"
+                                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                       Foreground="{DynamicResource DangerBrush}"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding BalanceCostValue, StringFormat={}{0:N0} AED}"
+                                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                                       Foreground="{DynamicResource AccentBrush}"
+                                                       VerticalAlignment="Center"/>
+                                            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button Style="{StaticResource RowSuccessButton}"
+                                                        Tag="&#xE7B8;" Content="BUY" MinWidth="92"
+                                                        Command="{Binding DataContext.ReceiveItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Style="{StaticResource RowPrimaryButton}"
+                                                        Tag="&#xE896;" Content="USE" MinWidth="92" Margin="6,0,0,0"
+                                                        Command="{Binding DataContext.ConsumeItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Style="{StaticResource RowOutlinedButton}"
+                                                        Tag="&#xE8E5;" Content="EDIT" MinWidth="86" Margin="6,0,0,0"
+                                                        Command="{Binding DataContext.EditItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Style="{StaticResource RowDangerButton}"
+                                                        Tag="&#xE74D;" Content="DELETE" MinWidth="96" Margin="6,0,0,0"
+                                                        Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False"
+                                    Visibility="{Binding HasNoItems, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE7B8;"
+                                Title="No consumables yet"
+                                Message="Spacer bar, desiccant, primary and secondary sealant, cavity gas and hardware are stocked here in their own units. Click ADD NEW to add the first one."/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -812,6 +1007,98 @@
                                         Tag="&#xE74D;" Content="{DynamicResource Action.Delete}"
                                         Command="{Binding DeleteCommand}"
                                         CommandParameter="{Binding SelectedSheet}"/>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+
+            <Grid x:Name="ItemEditorPanel" Grid.Column="1" Margin="14,0,0,0"
+                  Visibility="Collapsed">
+                <Border Width="360" VerticalAlignment="Stretch"
+                        Background="{DynamicResource PopupSurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="20"
+                        DataContext="{Binding ItemEditor}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Title}"
+                                       FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       Margin="0,0,0,16"/>
+                            <TextBlock Text="NAME" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="{Binding NameError}" Style="{StaticResource ItemFieldError}"
+                                       Visibility="{Binding HasNameError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <TextBlock Text="CATEGORY" Style="{StaticResource ItemFieldLabel}"/>
+                            <ComboBox ItemsSource="{Binding Categories}"
+                                      SelectedItem="{Binding Category}"
+                                      Margin="0,0,0,12" Height="34"/>
+                            <TextBlock Text="UNIT OF MEASURE" Style="{StaticResource ItemFieldLabel}"/>
+                            <ComboBox ItemsSource="{Binding Uoms}"
+                                      SelectedItem="{Binding Uom}"
+                                      Margin="0,0,0,12" Height="34"/>
+                            <TextBlock Text="SPECIFICATION" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding Specification, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="PART NUMBER" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding PartNumber, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="SUPPLIER" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="OPENING STOCK" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"
+                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                     IsEnabled="{Binding CanEditStock}"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="{Binding StockError}" Style="{StaticResource ItemFieldError}"
+                                       Visibility="{Binding HasStockError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <TextBlock Text="REORDER LEVEL" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding ReorderText, UpdateSourceTrigger=PropertyChanged}"
+                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="{Binding ReorderError}" Style="{StaticResource ItemFieldError}"
+                                       Visibility="{Binding HasReorderError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <TextBlock Text="PURCHASE PRICE / UNIT" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding PurchaseText, UpdateSourceTrigger=PropertyChanged}"
+                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="{Binding PurchaseError}" Style="{StaticResource ItemFieldError}"
+                                       Visibility="{Binding HasPurchaseError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <TextBlock Text="SELL PRICE / UNIT" Style="{StaticResource ItemFieldLabel}"/>
+                            <TextBox Text="{Binding SellText, UpdateSourceTrigger=PropertyChanged}"
+                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                     Style="{StaticResource ItemEntry}"/>
+                            <TextBlock Text="{Binding SellError}" Style="{StaticResource ItemFieldError}"
+                                       Visibility="{Binding HasSellError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <Border Background="{DynamicResource MenuHoverBrush}"
+                                    BorderBrush="{DynamicResource WarningBrush}"
+                                    BorderThickness="1" Padding="10,8" Margin="0,4,0,0"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    Visibility="{Binding HasMarginWarning, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding MarginWarning}" TextWrapping="Wrap"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource WarningBrush}"/>
+                            </Border>
+                            <Grid Margin="0,18,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                                        Content="CANCEL"
+                                        Command="{Binding DataContext.CloseItemEditorCommand,
+                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                <Button Grid.Column="2" Style="{StaticResource PrimaryPillButton}"
+                                        Content="{Binding SaveButtonText}"
+                                        Command="{Binding DataContext.SaveItemEditorCommand,
+                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                             </Grid>
                         </StackPanel>
                     </ScrollViewer>

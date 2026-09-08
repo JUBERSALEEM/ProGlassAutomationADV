@@ -174,14 +174,22 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             !string.IsNullOrWhiteSpace(SearchText);
 
         // ============ AGGREGATE STATS ============
-        public int TotalItems => Sheets.Count;
-        public int TotalStock => Sheets.Sum(s => s.Stock);
+        // Summary strip follows the VISIBLE list so switching to
+        // CONSUMABLES does not keep showing glass figures.
+        public int TotalItems => IsConsumablesView ? Items.Count : Sheets.Count;
+        public int TotalStock => IsConsumablesView
+            ? (int)System.Math.Round(Items.Sum(i => i.Stock))
+            : Sheets.Sum(s => s.Stock);
         public int TotalUsed => Sheets.Sum(s => s.Used);
         public int TotalBalance => Sheets.Sum(s => s.Balance);
         public decimal TotalSqmInStock => Sheets.Sum(s => s.TotalSqmInStock);
         public decimal TotalSqmBalance => Sheets.Sum(s => s.TotalSqmBalance);
-        public decimal TotalBuyingValue => Sheets.Sum(s => s.TotalPurchaseValue);
-        public decimal TotalSellingValue => Sheets.Sum(s => s.TotalSellValue);
+        public decimal TotalBuyingValue => IsConsumablesView
+            ? Items.Sum(i => i.TotalPurchaseValue)
+            : Sheets.Sum(s => s.TotalPurchaseValue);
+        public decimal TotalSellingValue => IsConsumablesView
+            ? Items.Sum(i => i.Stock * i.SellPricePerUnit)
+            : Sheets.Sum(s => s.TotalSellValue);
         public decimal TotalProfit => TotalSellingValue - TotalBuyingValue;
 
         // ── CONSUMPTION + BALANCE VALUE ──────────────────────────────
@@ -194,13 +202,17 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public decimal TotalUsedCostValue => Sheets.Sum(s => s.UsedCostValue);
 
         /// <summary>Sell value of everything consumed so far.</summary>
-        public decimal TotalUsedValue => Sheets.Sum(s => s.UsedSellValue);
+        public decimal TotalUsedValue => IsConsumablesView
+            ? Items.Sum(i => i.UsedCostValue)
+            : Sheets.Sum(s => s.UsedSellValue);
 
         /// <summary>Realised margin on consumed stock.</summary>
         public decimal TotalUsedProfit => Sheets.Sum(s => s.UsedProfitValue);
 
         /// <summary>Sell value of stock still on the rack.</summary>
-        public decimal TotalBalanceValue => Sheets.Sum(s => s.BalanceValue);
+        public decimal TotalBalanceValue => IsConsumablesView
+            ? Items.Sum(i => i.BalanceCostValue)
+            : Sheets.Sum(s => s.BalanceValue);
 
         /// <summary>Purchase cost still tied up in unused stock.</summary>
         public decimal TotalBalanceCostValue => Sheets.Sum(s => s.BalanceCostValue);
@@ -265,14 +277,14 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public GlassSheet? SelectedSheet
         {
             get => _selectedSheet;
-            set { _selectedSheet = value; OnPropertyChanged(); RaiseDisplayStatsChanged(); }
+            set { _selectedSheet = value; OnPropertyChanged(); RaiseDisplayStatsChanged(); OnPropertyChanged(nameof(IsDetailPanelVisible)); }
         }
 
         private string _searchText = string.Empty;
         public string SearchText
         {
             get => _searchText;
-            set { if (_searchText == value) return; _searchText = value; OnPropertyChanged(); _ = ApplyFiltersAsync(); }
+            set { if (_searchText == value) return; _searchText = value; OnPropertyChanged(); _ = ApplyFiltersAsync(); ApplyItemFilters(); }
         }
 
         private bool _isBusy;
@@ -347,6 +359,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 _allSheets = await _repo.GetAllAsync();
                 RebuildFilterOptions();
                 await ApplyFiltersAsync();
+                await LoadItemsAsync();
                 SelectedSheet = null;
                 try
                 {
@@ -515,6 +528,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(SearchText));
 
             _ = ApplyFiltersAsync();
+            ApplyItemFilters();
         }
 
         // ============ STATS ============

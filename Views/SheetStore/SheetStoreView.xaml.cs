@@ -1,12 +1,9 @@
 using ProGlassAutomation.Animations;
-using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.ViewModels.SheetStore;
 using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 
 namespace ProGlassAutomation.Views.SheetStore
@@ -36,14 +33,30 @@ namespace ProGlassAutomation.Views.SheetStore
 
         private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName != nameof(SheetStoreViewModel.IsRowSelected)) return;
-            if (DetailPanel == null) return;
+            if (e.PropertyName != nameof(SheetStoreViewModel.IsRowSelected) &&
+                e.PropertyName != nameof(SheetStoreViewModel.IsItemEditorOpen))
+                return;
 
-            if (_vm?.IsRowSelected == true)
+            SyncRightColumn();
+        }
+
+        /// <summary>
+        /// Drives the shared right-hand column. The consumable editor wins
+        /// over the glass stats rail when both would want the space.
+        /// </summary>
+        private void SyncRightColumn()
+        {
+            if (DetailPanel == null || ItemEditorPanel == null) return;
+
+            bool itemEditorOpen = _vm?.IsItemEditorOpen == true;
+            bool statsOpen = _vm?.IsRowSelected == true && !itemEditorOpen;
+            bool anyOpen = statsOpen || itemEditorOpen;
+
+            ItemEditorPanel.Visibility = itemEditorOpen ? Visibility.Visible : Visibility.Collapsed;
+            DetailPanel.Visibility = statsOpen ? Visibility.Visible : Visibility.Collapsed;
+
+            if (anyOpen)
             {
-                DetailPanel.Visibility = Visibility.Visible;
-                // Smoothly grow the panel column so the list reflows live —
-                // no translate/timer jump, and the close is not laggy.
                 DetailColumn.BeginAnimation(
                     ColumnDefinition.WidthProperty,
                     new GridLengthAnimation
@@ -65,8 +78,11 @@ namespace ProGlassAutomation.Views.SheetStore
                 };
                 close.Completed += (_, _) =>
                 {
-                    if (_vm?.IsRowSelected != true)
+                    if (_vm?.IsRowSelected != true && _vm?.IsItemEditorOpen != true)
+                    {
                         DetailPanel.Visibility = Visibility.Collapsed;
+                        ItemEditorPanel.Visibility = Visibility.Collapsed;
+                    }
                 };
                 DetailColumn.BeginAnimation(ColumnDefinition.WidthProperty, close);
             }

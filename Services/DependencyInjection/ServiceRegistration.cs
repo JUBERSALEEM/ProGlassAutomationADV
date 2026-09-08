@@ -107,6 +107,8 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<IOrderReportRepository, OrderReportRepository>();
             services.AddSingleton<IMasterDataRepository, MasterDataRepository>();
             services.AddSingleton<ISpecificationsRepository, SpecificationsRepository>();
+            services.AddSingleton<Services.SheetStore.IInventoryItemRepository,
+                                  Services.SheetStore.InventoryItemRepository>();
             services.AddSingleton<Services.AI.IAiProviderEvents, Services.AI.AiProviderEvents>();
 
             // ── Reporting / Dashboard (stateless, singleton-safe) ─────
