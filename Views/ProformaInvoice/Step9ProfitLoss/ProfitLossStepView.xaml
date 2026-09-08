@@ -614,8 +614,8 @@
                     </Border>
                 </Grid>
 
-                <!-- Extra audit trail: collapsed by default so the main result stays readable. -->
-                <Expander Header="EXTRA DETAIL · calculation summary and formula audit" Margin="0,14,0,0" IsExpanded="False">
+                <!-- Extra audit trail: expanded by default per production review; spacing is improved so formulas remain readable. -->
+                <Expander Header="EXTRA DETAIL · calculation summary and formula audit" Margin="0,14,0,0" IsExpanded="True">
                 <Border Style="{StaticResource TgtCardStyle}" Margin="0,8,0,0">
                     <StackPanel>
                         <TextBlock Text="CALCULATION SUMMARY" Style="{StaticResource TgtCaptionStyle}"/>
@@ -657,11 +657,15 @@
                             </StackPanel>
                         </Grid>
                         <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,12,0,10"/>
-                        <TextBlock Text="SPECIFICATION FORMULAS — STEP 5 SPECS" Style="{StaticResource TgtMicroLabelStyle}"/>
-                        <TextBlock Text="{Binding TargetFormulaAllSpecsText}"
-                                   FontFamily="Consolas" FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="SPECIFICATION FORMULAS — STEP 5 SPECS" Style="{StaticResource TgtMicroLabelStyle}" Margin="0,2,0,8"/>
+                        <Border Style="{StaticResource TgtInsetStyle}" Padding="14,12" Margin="0,0,0,8">
+                            <TextBlock Text="{Binding TargetFormulaAllSpecsText}"
+                                       FontFamily="Consolas" FontSize="{StaticResource TextBody}"
+                                       FontWeight="SemiBold"
+                                       LineHeight="22"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       TextWrapping="Wrap"/>
+                        </Border>
                         <TextBlock Text="{Binding CalculationWarningSummary}"
                                    FontSize="{StaticResource TextCaption}"
                                    TextWrapping="Wrap"
@@ -681,7 +685,7 @@
                            Foreground="{DynamicResource MutedForegroundBrush}"
                            TextWrapping="Wrap" Margin="0,12,0,0"/>
 
-                <Expander Header="EXTRA DETAIL · actual glass cost rows and rate check" Margin="0,10,0,0" IsExpanded="False">
+                <Expander Header="EXTRA DETAIL · actual glass cost rows and rate check" Margin="0,10,0,0" IsExpanded="True">
                 <StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -1156,7 +1160,7 @@
                                    Visibility="{Binding HasTargetSpecs, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
                         <!-- Extra strategy analysis after the per-spec decision table. -->
-                        <Expander Header="EXTRA DETAIL · glass type strategy analysis" Margin="0,14,0,0" IsExpanded="False">
+                        <Expander Header="EXTRA DETAIL · glass type strategy analysis" Margin="0,14,0,0" IsExpanded="True">
                         <ContentControl Content="{Binding GlassTypeComparison}">
                             <ContentControl.ContentTemplate>
                                 <DataTemplate>

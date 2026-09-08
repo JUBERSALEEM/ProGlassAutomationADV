@@ -416,23 +416,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             void Add(string section, string item, string value, string detail = "") =>
                 rows.Add(new OverviewReportRow { Section = section, Item = item, Value = value, Detail = detail });
 
-            Add("01 EXECUTIVE SUMMARY", "Step 9 rating", vm.Step9MaintenanceRating, vm.Step9ImprovementSummary);
-            Add("01 EXECUTIVE SUMMARY", "Target status", vm.TargetJobStatusLabel, vm.MarginAgainstTargetDisplay);
-            Add("01 EXECUTIVE SUMMARY", "Required target price", vm.RequiredTargetPriceDisplay, vm.TargetFormulaPreview);
-            Add("01 EXECUTIVE SUMMARY", "Expected profit margin", vm.ExpectedProfitMarginDisplay, vm.ExpectedProfitMarginSourceLabel);
-            Add("01 EXECUTIVE SUMMARY", "Calculation status", vm.CalculationStateLabel, vm.LastCalculatedAtDisplay);
+            Add("OVERVIEW", "Step 9 rating", vm.Step9MaintenanceRating, vm.Step9ImprovementSummary);
+            Add("OVERVIEW", "Target status", vm.TargetJobStatusLabel, vm.MarginAgainstTargetDisplay);
+            Add("OVERVIEW", "Required target price", vm.RequiredTargetPriceDisplay, vm.TargetFormulaPreview);
+            Add("OVERVIEW", "Expected profit margin", vm.ExpectedProfitMarginDisplay, vm.ExpectedProfitMarginSourceLabel);
+            Add("OVERVIEW", "Calculation status", vm.CalculationStateLabel, vm.LastCalculatedAtDisplay);
 
-            Add("02 SHEET PRICE / MATERIAL", "Gross total including VAT", vm.GrossDisplay, "From Step 7 grand total.");
-            Add("02 SHEET PRICE / MATERIAL", "Net revenue excluding VAT", vm.NetDisplay, "Uses Step 7 subtotal-before-VAT when available.");
-            Add("02 SHEET PRICE / MATERIAL", "Glass sheet cost", vm.GlassCostDisplay, vm.CostBasisLabel);
-            Add("03 PRODUCTION SERVICES", "Production / service cost", vm.ProductionCostDisplay, "Spacer/ASP, cutting, tempering, doubling/lamination and active Step 6 production rows.");
+            Add("SHEET PRICE / MATERIAL", "Gross total including VAT", vm.GrossDisplay, "From Step 7 grand total.");
+            Add("SHEET PRICE / MATERIAL", "Net revenue excluding VAT", vm.NetDisplay, "Uses Step 7 subtotal-before-VAT when available.");
+            Add("SHEET PRICE / MATERIAL", "Glass sheet cost", vm.GlassCostDisplay, vm.CostBasisLabel);
+            Add("PRODUCTION SERVICES", "Production / service cost", vm.ProductionCostDisplay, "Spacer/ASP, cutting, tempering, doubling/lamination and active Step 6 production rows.");
 
             var spacerRows = (vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
                 .Where(r => IsSpacerKind(r.Kind))
                 .ToList();
             if (spacerRows.Count > 0)
             {
-                Add("03 PRODUCTION SERVICES", "Spacer / ASP production total",
+                Add("PRODUCTION SERVICES", "Spacer / ASP production total",
                     $"AED {spacerRows.Sum(r => r.Amount):N2}",
                     $"{spacerRows.Sum(r => r.Quantity):0.##} SQM service quantity across {spacerRows.Count} spacer line(s). Formula: service SQM × Step 4 ASP rate.");
 
@@ -441,7 +441,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     decimal amount = specSpacer.Sum(r => r.Amount);
                     decimal qty = specSpacer.Sum(r => r.Quantity);
                     decimal weightedRate = qty > 0m ? amount / qty : 0m;
-                    Add("04 SPACER / ASP BY SPEC", specSpacer.Key,
+                    Add("SPACER / ASP BY SPECIFICATION", specSpacer.Key,
                         $"AED {amount:N2}",
                         $"Spacer/ASP service: {qty:0.##} SQM × AED {weightedRate:N2}/SQM. This is production/service cost, not a normal glass sheet line.");
                 }
@@ -449,34 +449,34 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             foreach (var charge in ActiveStep6Charges(vm))
             {
-                Add(charge.Key == "ARGON_GAS" ? "05 ARGON GAS / STEP 6 ADD-ONS" : "05 STEP 6 ADD-ONS",
+                Add(charge.Key == "ARGON_GAS" ? "ARGON GAS / STEP 6 ADD-ONS" : "STEP 6 ADD-ONS",
                     charge.Name,
                     $"AED {charge.Amount:N2}",
                     $"{charge.Category}: {charge.Qty:0.##} {charge.Unit} × AED {charge.Rate:N2} = AED {charge.Amount:N2}. {charge.TargetSummary}. {charge.Formula}");
             }
 
-            Add("06 PROFIT RESULT", "Total cost", vm.TotalCostDisplay, "Glass + production cost.");
-            Add("06 PROFIT RESULT", vm.ProfitLabel, vm.ProfitDisplay, vm.MarginDisplay);
-            Add("06 PROFIT RESULT", "Overall actual margin", vm.OverallMarginDisplay, vm.PriceBasedMarginDisplay);
+            Add("PROFIT RESULT", "Total cost", vm.TotalCostDisplay, "Glass + production cost.");
+            Add("PROFIT RESULT", vm.ProfitLabel, vm.ProfitDisplay, vm.MarginDisplay);
+            Add("PROFIT RESULT", "Overall actual margin", vm.OverallMarginDisplay, vm.PriceBasedMarginDisplay);
 
-            Add("07 SPEC PRICE TARGET", "Given price source", vm.GivenPriceSourceLabel, vm.TargetScopeNote);
-            Add("07 SPEC PRICE TARGET", "Total given value", vm.TotalGivenValueDisplay, "Area-weighted Step 5 given/base price.");
-            Add("07 SPEC PRICE TARGET", "Total required target value", vm.TotalRequiredTargetValueDisplay, "Target formula result.");
-            Add("07 SPEC PRICE TARGET", "Total difference", vm.TotalDifferenceValueDisplay, "Positive means above target.");
-            Add("07 SPEC PRICE TARGET", "Base margin", vm.BaseMarginPercentDisplay, vm.BaseBalanceValueDisplay);
-            Add("07 SPEC PRICE TARGET", "Target margin", vm.TargetMarginPercentDisplay, vm.TargetBalanceValueDisplay);
-            Add("07 SPEC PRICE TARGET", "U-insert treatment", vm.UInsertSummaryDisplay, vm.UInsertSummaryDetail);
+            Add("SPEC TARGET PRICE", "Given price source", vm.GivenPriceSourceLabel, vm.TargetScopeNote);
+            Add("SPEC TARGET PRICE", "Total given value", vm.TotalGivenValueDisplay, "Area-weighted Step 5 given/base price.");
+            Add("SPEC TARGET PRICE", "Total required target value", vm.TotalRequiredTargetValueDisplay, "Target formula result.");
+            Add("SPEC TARGET PRICE", "Total difference", vm.TotalDifferenceValueDisplay, "Positive means above target.");
+            Add("SPEC TARGET PRICE", "Base margin", vm.BaseMarginPercentDisplay, vm.BaseBalanceValueDisplay);
+            Add("SPEC TARGET PRICE", "Target margin", vm.TargetMarginPercentDisplay, vm.TargetBalanceValueDisplay);
+            Add("SPEC TARGET PRICE", "U-insert treatment", vm.UInsertSummaryDisplay, vm.UInsertSummaryDetail);
 
-            Add("08 FORMULA AUDIT", "All spec formulas", vm.TargetFormulaAllSpecsText, vm.CalculationVersionLabel);
+            Add("CALCULATION FORMULA AUDIT", "All spec formulas", vm.TargetFormulaAllSpecsText, vm.CalculationVersionLabel);
             foreach (var warning in vm.CalculationWarnings ?? Array.Empty<string>())
-                Add("08 FORMULA AUDIT", "Warning", warning, "Resolve before approval/output if blocking.");
+                Add("CALCULATION FORMULA AUDIT", "Warning", warning, "Resolve before approval/output if blocking.");
 
             foreach (var spec in vm.TargetSpecsView ?? Enumerable.Empty<SpecTargetRowViewModel>())
-                Add("09 SPEC SUMMARY", spec.SpecNumberDisplay, spec.FinalRequiredTargetDisplay,
+                Add("SPECIFICATION SUMMARY", spec.SpecNumberDisplay, spec.FinalRequiredTargetDisplay,
                     $"Given {spec.GivenPricePerSqmDisplay}; diff {spec.DifferencePerSqmDisplay}; margin {spec.MarginAgainstTargetDisplay}; status {spec.StatusLabel}; {spec.FormulaSummaryLine}");
 
             foreach (var line in vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
-                Add("10 ACTUAL COST LEDGER", line.SpecDisplay, line.AmountDisplay,
+                Add("ACTUAL COST LEDGER", line.SpecDisplay, line.AmountDisplay,
                     $"{CostClass(line)}; {line.Description}; basis {CostBasis(line)}; calc {ExtendedCalculation(line)}; sheet {line.SizeDisplay}; source {line.SheetSource}; {ServiceNote(line)}");
 
             return rows;

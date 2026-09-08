@@ -97,8 +97,36 @@ namespace ProGlassAutomation.Services.Reporting
             public string Reference => DateTime.Now.ToString("yyyy-MM-dd");
             public DateTime DocumentDate => DateTime.Now;
 
+            private bool IsSectionedReport => _headers.Length > 0 &&
+                (_headers[0].Equals("SECTION", StringComparison.OrdinalIgnoreCase) ||
+                 _headers[0].Equals("CATEGORY", StringComparison.OrdinalIgnoreCase));
+
             public void WriteRows(CsvWriter csv)
             {
+                if (IsSectionedReport)
+                {
+                    csv.WriteField(_title.ToUpperInvariant());
+                    csv.NextRecord();
+                    csv.NextRecord();
+
+                    foreach (var group in _rows
+                        .Select(r => _mapper(r))
+                        .GroupBy(f => f.Length > 0 ? f[0] ?? "DETAILS" : "DETAILS"))
+                    {
+                        csv.WriteField(group.Key);
+                        csv.NextRecord();
+                        foreach (var h in _headers.Skip(1)) csv.WriteField(h);
+                        csv.NextRecord();
+                        foreach (var fields in group)
+                        {
+                            foreach (var f in fields.Skip(1)) csv.WriteField(f ?? "");
+                            csv.NextRecord();
+                        }
+                        csv.NextRecord();
+                    }
+                    return;
+                }
+
                 foreach (var h in _headers) csv.WriteField(h);
                 csv.NextRecord();
                 foreach (var r in _rows)
@@ -129,6 +157,10 @@ namespace ProGlassAutomation.Services.Reporting
             public string Reference => DateTime.Now.ToString("yyyy-MM-dd");
             public DateTime DocumentDate => DateTime.Now;
 
+            private bool IsSectionedReport => _headers.Length > 0 &&
+                (_headers[0].Equals("SECTION", StringComparison.OrdinalIgnoreCase) ||
+                 _headers[0].Equals("CATEGORY", StringComparison.OrdinalIgnoreCase));
+
             public void RenderWorkbook(IXLWorkbook wb)
             {
                 var ws = wb.Worksheets.Add("Report");
@@ -138,6 +170,66 @@ namespace ProGlassAutomation.Services.Reporting
                 ws.Cell(2, 1).Style.Font.SetFontSize(9).Font.SetFontColor(XLColor.FromHtml("#6B7280"));
 
                 int headerRow = 4;
+                if (IsSectionedReport)
+                {
+                    int dataCols = Math.Max(1, _headers.Length - 1);
+                    int row = headerRow;
+                    bool firstGroup = true;
+                    foreach (var group in _rows.Select(r => _mapper(r))
+                        .GroupBy(f => f.Length > 0 ? f[0]?.ToString() ?? "DETAILS" : "DETAILS"))
+                    {
+                        if (!firstGroup) row += 2;
+                        firstGroup = false;
+
+                        ws.Range(row, 1, row, dataCols).Merge();
+                        ws.Cell(row, 1).Value = group.Key.ToUpperInvariant();
+                        ws.Cell(row, 1).Style.Font.SetBold().Font.SetFontSize(13).Font.SetFontColor(XLColor.White);
+                        ws.Cell(row, 1).Style.Fill.SetBackgroundColor(XLColor.FromHtml("#1D4ED8"));
+                        ws.Cell(row, 1).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+                        row++;
+
+                        for (int c = 1; c < _headers.Length; c++)
+                        {
+                            var cell = ws.Cell(row, c);
+                            cell.Value = _headers[c];
+                            cell.Style.Font.SetBold().Font.SetFontSize(10).Fill.SetBackgroundColor(XLColor.FromHtml("#DBEAFE")).Font.SetFontColor(XLColor.FromHtml("#1E3A8A"));
+                            cell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+                            cell.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
+                        }
+                        row++;
+
+                        bool alt = false;
+                        foreach (var vals in group)
+                        {
+                            for (int c = 1; c < vals.Length && c < _headers.Length; c++)
+                            {
+                                var v = vals[c];
+                                var cell = ws.Cell(row, c);
+                                if (v is decimal d) { cell.Value = d; cell.Style.NumberFormat.SetFormat("#,##0.00"); }
+                                else if (v is int i) { cell.Value = i; }
+                                else if (v is double db) { cell.Value = db; }
+                                else cell.Value = v?.ToString() ?? "";
+                                cell.Style.Font.SetFontSize(10);
+                                cell.Style.Alignment.SetVertical(XLAlignmentVerticalValues.Top);
+                                cell.Style.Alignment.SetWrapText(true);
+                                cell.Style.Border.SetBottomBorder(XLBorderStyleValues.Hair);
+                                if (alt) cell.Style.Fill.SetBackgroundColor(XLColor.FromHtml("#F8FAFC"));
+                            }
+                            alt = !alt;
+                            row++;
+                        }
+                    }
+
+                    for (int c = 1; c <= dataCols; c++)
+                    {
+                        ws.Column(c).AdjustToContents();
+                        if (ws.Column(c).Width > 58) ws.Column(c).Width = 58;
+                        if (ws.Column(c).Width < 14) ws.Column(c).Width = 14;
+                    }
+                    ws.SheetView.FreezeRows(3);
+                    return;
+                }
+
                 for (int c = 0; c < _headers.Length; c++)
                 {
                     var cell = ws.Cell(headerRow, c + 1);
@@ -215,11 +307,55 @@ namespace ProGlassAutomation.Services.Reporting
             public LetterheadInfo? Letterhead => null;
             public PageLayout PageLayout => new PageLayout { Orientation = _headers.Length > 7 ? PageOrientation.Landscape : PageOrientation.Portrait };
 
+            private bool IsSectionedReport => _headers.Length > 0 &&
+                (_headers[0].Equals("SECTION", StringComparison.OrdinalIgnoreCase) ||
+                 _headers[0].Equals("CATEGORY", StringComparison.OrdinalIgnoreCase));
+
             public void RenderContent(ColumnDescriptor column)
             {
                 column.Item().Text(_title).FontSize(18).Bold().FontColor("#1D4ED8");
                 column.Item().Text($"Generated {DateTime.Now:dd MMM yyyy HH:mm}  •  {_rows.Count} row(s)").FontSize(8).FontColor("#6B7280");
                 column.Item().PaddingTop(8).LineHorizontal(1).LineColor("#E5E7EB");
+
+                if (IsSectionedReport)
+                {
+                    int maxCellChars = _headers.Length <= 4 ? 260 : _headers.Length <= 8 ? 170 : 110;
+                    foreach (var group in _rows.Select(r => _mapper(r))
+                        .GroupBy(f => f.Length > 0 ? f[0] ?? "DETAILS" : "DETAILS"))
+                    {
+                        column.Item().PaddingTop(12).Border(1).BorderColor("#BFDBFE").Background("#F8FAFC").Padding(8).Column(block =>
+                        {
+                            block.Item().Text(group.Key.ToUpperInvariant()).FontSize(12).Bold().FontColor("#1D4ED8");
+                            block.Item().PaddingTop(5).LineHorizontal(0.5f).LineColor("#DBEAFE");
+                            block.Item().PaddingTop(6).Table(table =>
+                            {
+                                table.ColumnsDefinition(c =>
+                                {
+                                    for (int i = 1; i < _headers.Length; i++) c.RelativeColumn();
+                                });
+
+                                table.Header(h =>
+                                {
+                                    for (int i = 1; i < _headers.Length; i++)
+                                        h.Cell().Background("#DBEAFE").Padding(4).Text(_headers[i]).FontSize(8).Bold().FontColor("#1E3A8A").AlignCenter();
+                                });
+
+                                bool alt = false;
+                                foreach (var fields in group)
+                                {
+                                    for (int i = 1; i < fields.Length && i < _headers.Length; i++)
+                                    {
+                                        var txt = fields[i] ?? "";
+                                        if (txt.Length > maxCellChars) txt = txt.Substring(0, Math.Max(1, maxCellChars - 1)) + "…";
+                                        table.Cell().Background(alt ? "#FFFFFF" : "#F8FAFC").BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(5).Text(txt).FontSize(_headers.Length <= 5 ? 8.5f : 8f).FontColor("#1F2937");
+                                    }
+                                    alt = !alt;
+                                }
+                            });
+                        });
+                    }
+                    return;
+                }
 
                 column.Item().PaddingTop(10).Table(table =>
                 {
@@ -236,9 +372,6 @@ namespace ProGlassAutomation.Services.Reporting
 
                     bool alt = false;
                     int maxCellChars = _headers.Length <= 4 ? 170 : _headers.Length <= 8 ? 105 : _headers.Length <= 10 ? 80 : 52;
-                    // Detail reports must export every row. CSV/Excel remain best
-                    // for very large datasets, but PDF should still carry the full
-                    // audit trail instead of silently truncating business evidence.
                     int take = _rows.Count;
                     for (int i = 0; i < take; i++)
                     {
