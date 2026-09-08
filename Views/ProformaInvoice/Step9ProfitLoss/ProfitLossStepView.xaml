@@ -48,6 +48,18 @@
             <Setter Property="Padding" Value="18,14"/>
         </Style>
 
+        <!-- Inset formula/detail surface used inside Step 9 cards. Added as
+             a local resource because the formula audit block references it
+             with StaticResource during template inflation. -->
+        <Style x:Key="TgtInsetStyle" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}">
+            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Surface.Secondary.BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
+            <Setter Property="Background" Value="{DynamicResource Surface.Detail.BackgroundBrush}"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
         <Style x:Key="TgtCaptionStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
