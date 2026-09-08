@@ -341,10 +341,23 @@ python3 scripts/verify-readmes.py       # every doc link resolves, index fresh
 python3 scripts/verify-dashboard.py     # XAML well-formedness, resource and
                                         # binding resolution, style discipline
 python3 scripts/gen-docs-index.py --check
+
+# balance-check the C# touched since a known-good commit
+git diff --name-only BASE..HEAD | grep '\.cs$' \
+  | xargs python3 scripts/check-csharp-balance.py
 ```
 
-These are static. They catch broken references and malformed markup; they do
-**not** prove the application compiles or behaves.
+These are static. They catch broken references, malformed markup and truncated
+blocks; they do **not** prove the application compiles or behaves.
+
+`check-csharp-balance.py` is worth a word, because the obvious version of it is
+wrong. Counting `{` and `}` characters also counts the ones inside string
+literals, character literals, verbatim strings, interpolated strings and
+comments — and this codebase has regex literals containing an escaped `\(`,
+which makes the naive count disagree with itself. The script tracks whether it
+is inside a string or a comment and reports the line where depth first goes
+negative. It catches one class of mistake — a block truncated or duplicated by
+scripted find-and-replace — and nothing else.
 
 ---
 
