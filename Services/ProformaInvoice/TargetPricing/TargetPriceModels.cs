@@ -600,8 +600,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                     return TargetStatus.CalculationIncomplete;
 
                 decimal m = aggregate.MarginAgainstTargetPercent.Value;
-                if (m <= -0.005m) return TargetStatus.BelowTarget;
-                if (m >= 0.005m) return TargetStatus.AboveTarget;
+
+                // Was hardcoded 0.005m here while TargetSnapshotRecompute and
+                // JobProfitabilityRow used 0.05m — a 10x split on the same
+                // judgement. Now one declaration, in TargetMarginTolerance.
+                if (TargetMarginTolerance.IsBelow(m)) return TargetStatus.BelowTarget;
+                if (TargetMarginTolerance.IsAbove(m)) return TargetStatus.AboveTarget;
                 return TargetStatus.AtTarget;
             }
 

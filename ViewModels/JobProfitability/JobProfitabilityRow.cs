@@ -252,8 +252,12 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 if (TargetMarginAgainstTargetPercent.HasValue)
                 {
                     var m = TargetMarginAgainstTargetPercent.Value;
-                    if (m > 0.05m) return "ABOVE TARGET";
-                    if (m < -0.05m) return "BELOW TARGET";
+
+                    // Was a hardcoded 0.05m band while the proforma calculator
+                    // uses 0.005m, so this row could read AT TARGET for a
+                    // margin the quotation showed as ABOVE TARGET.
+                    if (TargetMarginTolerance.IsAbove(m)) return "ABOVE TARGET";
+                    if (TargetMarginTolerance.IsBelow(m)) return "BELOW TARGET";
                     return "AT TARGET";
                 }
 

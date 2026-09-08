@@ -31,13 +31,39 @@ Phase 5  Test depth — pricing engine        ← needs Phase 4
 |---|---|---|---|
 | 0 | No CI | 🔴 **Blocked — needs your action** | GitHub App `workflows` scope |
 | 1 | Build/test unverified | 🟠 Waiting | Phase 0 |
-| 2 | No pagination | 🟠 Planned | Phase 1 |
-| 3 | Dashboards load whole tables | 🟠 Planned | Phase 1 |
+| 2 | No pagination | 🟡 Ratchet landed; migration pending | Phase 0 (to enforce) |
+| 3 | Dashboards load whole tables | 🟡 Aggregate split **fixed**; migration pending | Phase 0 |
 | 4 | `MetricQty` hardcodes delivery qty | 🟠 Planned | Phase 1 |
-| 5 | Test ratio 1 : 7.6 | 🟠 Planned | Phase 4 |
+| 5 | Test ratio 1 : 7.6 | 🟡 Target-tolerance split **fixed** | Phase 0 |
 | 6 | 13 files > 990 lines | ⚪ Deferred | Phase 1 |
 | 7 | No obfuscation / anti-debug | ⚪ Deferred | Phase 0 |
 | — | Root `.md` clutter | ✅ **Done 2026-09-08** | — |
+
+> **What "fixed" means here.** Three correctness defects were found and
+> repaired while working Phases 2, 3 and 5. None of them was on the original
+> issue list — all three surfaced by asking whether a symptom was isolated
+> when it was not. See [Done](#done) for the detail.
+>
+> **Every one is verified by simulation only.** There is still no .NET SDK in
+> this environment, so no commit since `b86a3bc` has been compiled. The logic
+> was re-implemented faithfully in Python and every assertion re-run against
+> it, but that is not a green build. Treat these as *reviewed*, not *proven*.
+
+### The one defect class behind all three
+
+Each bug is the same mistake: a status or a threshold declared more than
+once, in two spellings or two values, with no single home.
+
+| | Where it split | Effect |
+|---|---|---|
+| Job Order | `"In Production"` vs `"InProduction"` | Overview under-counted In Production; disagreed with the Job Order dashboard |
+| Delivery Note | `"Draft"` vs `"Dispatching"` | `Preparing + Dispatched ≠ TotalNotes` |
+| Target pricing | `0.005m` vs `0.05m` | Same invoice read ABOVE TARGET on the quotation, AT TARGET in Job Profitability |
+
+The structural fix is the same in each case — one canonical home
+(`JobOrderStatusValues`, `DeliveryNoteStatusValues`, `TargetMarginTolerance`)
+plus a source-scan ratchet that fails the build if a second declaration
+appears.
 
 ---
 
@@ -281,6 +307,62 @@ shipping it.
 ---
 
 ## Done
+
+**Pagination ratchet — 2026-09-08 (`ebe9dfd`).** `Tests/Architecture/
+PaginationRatchetTests.cs` scans every non-test `.cs` file for `GetAllAsync()`
+call sites and fails if one appears in a file that is not on the allow-list —
+and fails again if an allow-listed file stops offending, so the list can only
+shrink. Baseline locked at 20 files / 28 call sites. This does not paginate
+anything; it stops the number growing while the migration in Phase 2 happens.
+
+**Job Order status split — 2026-09-08 (`122a32b`).** `SavedJobOrder.Status` is
+a `string`, but `JobOrderStatus` is an enum whose member is `InProduction`, so
+rows written through the enum store `"InProduction"` while older rows store
+`"In Production"`. `DashboardMetricsService` matched only the spaced form, so
+every enum-written job — i.e. every recent one — was excluded from
+`InProduction`. The Overview dashboard reported fewer jobs in production than
+the Job Order dashboard, which matched `"InProduction"`. Fixed by adding
+`Models/JobOrder/Common/JobOrderStatus/JobOrderStatusValues.cs` (Delivery Note
+already had the equivalent; Job Order did not, which is how three consumers
+each grew their own literals) and routing the metrics service through it.
+`StatusBreakdown` now groups on `Canonical()`, so one state can no longer
+render as two bars. `ReportingDataService` keeps its own both-spelling checks
+— correct today, worth migrating so the rule has one home.
+
+**Delivery Note status split — 2026-09-08 (`fdfea80`).** Same shape, found by
+asking whether the Job Order bug was isolated. `DeliveryNoteStatus` has no
+`Dispatching` member, yet `DeliveryNoteMapper.cs` writes
+`Status = "Dispatching"` at lines 65, 189 and 272, and `DeliveryNoteStatusMeta`
+already renders both `"Draft"` and `"Dispatching"` as "Dispatching".
+`DashboardMetricsService` counted `Preparing` as `"Draft"` only, so every
+mapper-written note landed in *neither* bucket — `Preparing + Dispatched` did
+not equal `TotalNotes`. `DeliveryNoteStatusValues` gained `Is`, `IsPreparing`,
+`HasLeftTheBuilding` and `Canonical`; the metrics service delegates all five
+status checks to it.
+
+**Target-margin tolerance split — 2026-09-08.** The ABOVE / AT / BELOW TARGET
+band was declared eight times with two values: `0.005m` in
+`SpecificationTargetCalculator` and `TargetPriceModels`, `0.05m` in
+`TargetSnapshotRecompute`, `JobProfitabilityRow`, `JobDetailViewModel` and
+twice in `JobProfitabilityViewModel`. An invoice whose margin against target
+fell between the two read **ABOVE TARGET on the quotation and AT TARGET in Job
+Profitability** — the same symptom as the dashboard splits, in a different
+module. All eight sites now call `TargetMarginTolerance`, and
+`TargetMarginToleranceTests.No_Other_File_Declares_Its_Own_Target_Tolerance`
+is a source-scan ratchet that fails if a ninth appears.
+
+> **Decision needing your sign-off.** The unified value is **0.005m**, taken
+> from the two Proforma sites because they classify first and persist the
+> result, and `TargetSnapshotRecompute` exists specifically to *reproduce* a
+> stored snapshot. The consequence is visible: margins between 0.005 and 0.05
+> that previously read AT TARGET now read ABOVE or BELOW. If the business rule
+> is really ±0.05, change `TargetMarginTolerance.AtTargetPercent` — one line,
+> one place — and update its golden test. Do not reintroduce a local band.
+>
+> `JobMarginBands.TolerancePercent = 0.05m` was deliberately **left alone**:
+> it measures achieved margin against the *base* margin, not the target, and
+> `ProfitMarginKpiTests` pins its literal. A guard test asserts the two bands
+> stay separate.
 
 **Root document clutter — 2026-09-08.** 24 audit/analysis documents moved from
 the repository root into `docs/` with `git mv` (history preserved). All 30

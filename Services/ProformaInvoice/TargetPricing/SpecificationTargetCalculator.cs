@@ -47,8 +47,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
         /// </summary>
         public const decimal DefaultTargetUpliftPercent = 15m;
 
-        /// <summary>Tolerance used to decide AT TARGET vs ABOVE/BELOW TARGET.</summary>
-        private const decimal AtTargetTolerancePercent = 0.005m;
+        /// <summary>
+        /// Tolerance used to decide AT TARGET vs ABOVE/BELOW TARGET. Alias for
+        /// <see cref="TargetMarginTolerance.AtTargetPercent"/> — kept as a
+        /// local name so the classification code below reads the same, but the
+        /// VALUE now has exactly one declaration.
+        /// </summary>
+        private const decimal AtTargetTolerancePercent = TargetMarginTolerance.AtTargetPercent;
 
         public static SpecTargetPriceResult Calculate(
             int specNumber,
@@ -347,9 +352,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                     if (r.Status == TargetStatus.UpToDate)
                     {
                         decimal m = r.MarginAgainstTargetPercent.Value;
-                        r.Status = m <= -AtTargetTolerancePercent
+                        r.Status = TargetMarginTolerance.IsBelow(m)
                             ? TargetStatus.BelowTarget
-                            : m >= AtTargetTolerancePercent
+                            : TargetMarginTolerance.IsAbove(m)
                                 ? TargetStatus.AboveTarget
                                 : TargetStatus.AtTarget;
                     }

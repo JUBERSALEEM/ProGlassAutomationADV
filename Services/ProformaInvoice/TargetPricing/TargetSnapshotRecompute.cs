@@ -78,7 +78,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
 
     public static class TargetSnapshotRecompute
     {
-        private const decimal AtTargetTolerancePercent = 0.05m;
+        /// <summary>
+        /// Was 0.05m here while the Proforma calculator used 0.005m, so a
+        /// rebuild could re-classify a snapshot it was supposed to reproduce.
+        /// Now aliased to the single declaration.
+        /// </summary>
+        private const decimal AtTargetTolerancePercent = TargetMarginTolerance.AtTargetPercent;
 
         /// <summary>TargetStatus names that mean "fully calculable".</summary>
         private static readonly HashSet<string> CompleteStatusNames =
@@ -201,8 +206,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 result.MarginAgainstTargetPercent = Math.Round(margin, 2);
 
                 decimal m = result.MarginAgainstTargetPercent.Value;
-                result.Status = m > AtTargetTolerancePercent ? "AboveTarget"
-                    : m < -AtTargetTolerancePercent ? "BelowTarget"
+                // Boundary is now inclusive (>= / <=), matching the
+                // calculator that first persisted this status. Previously this
+                // used > / <, so a margin exactly on the band edge classified
+                // differently here than it did at write time.
+                result.Status = TargetMarginTolerance.IsAbove(m) ? "AboveTarget"
+                    : TargetMarginTolerance.IsBelow(m) ? "BelowTarget"
                     : "AtTarget";
             }
             else if (allComplete)

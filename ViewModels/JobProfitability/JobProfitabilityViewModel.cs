@@ -686,8 +686,8 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             {
                 var m = PortfolioTargetMarginPercent;
                 if (!m.HasValue) return "—";
-                if (m.Value < -0.05m) return "BELOW TARGET";
-                if (m.Value > 0.05m) return "ABOVE TARGET";
+                if (TargetMarginTolerance.IsBelow(m.Value)) return "BELOW TARGET";
+                if (TargetMarginTolerance.IsAbove(m.Value)) return "ABOVE TARGET";
                 return "AT TARGET";
             }
         }
@@ -1406,8 +1406,11 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                             {
                                 targetMargin = Math.Round(
                                     ((targetGiven - targetRequired) * 100m) / targetRequired, 2);
-                                targetStatus = targetMargin.Value > 0.05m ? "AboveTarget"
-                                    : targetMargin.Value < -0.05m ? "BelowTarget"
+                                // This one PERSISTS the status name, so it
+                                // must classify with the same band the
+                                // proforma calculator used at write time.
+                                targetStatus = TargetMarginTolerance.IsAbove(targetMargin.Value) ? "AboveTarget"
+                                    : TargetMarginTolerance.IsBelow(targetMargin.Value) ? "BelowTarget"
                                     : "AtTarget";
                             }
 

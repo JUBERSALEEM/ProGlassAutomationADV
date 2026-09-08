@@ -412,9 +412,13 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                                     : $"AED {specJudged - specTarget:N2}/m²"
                                 : "—",
                             MarginDisplay = specBaseMargin is decimal sm ? $"{sm:0.##}%" : "—",
+                            // TargetMarginTolerance, not a local 0.05m: the
+                            // proforma side classifies at 0.005m, so a local
+                            // band made this row read AT TARGET for a
+                            // specification the quotation showed as ABOVE.
                             StatusLabel = specStatusMargin is decimal sv
-                                ? sv > 0.05m ? "ABOVE TARGET"
-                                    : sv < -0.05m ? "BELOW TARGET"
+                                ? TargetMarginTolerance.IsAbove(sv) ? "ABOVE TARGET"
+                                    : TargetMarginTolerance.IsBelow(sv) ? "BELOW TARGET"
                                     : "AT TARGET"
                                 : "INCOMPLETE",
                             UInsertNote = BuildUInsertNote(t)
