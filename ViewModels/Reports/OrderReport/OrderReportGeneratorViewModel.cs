@@ -993,21 +993,106 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                         });
                     }
 
-                    foreach (var r in step9.TargetRows)
-                    {
-                        rows.Add(new OrderReportStep9ExportRow
-                        {
-                            Section = "STEP 9 SPEC TARGET / QUOTE BASIS",
-                            ProformaId = section.Header.ProformaId,
-                            Spec = r.SpecNumber > 0 ? $"SPEC {r.SpecNumber}" : "ALL",
-                            Item = r.SpecName,
-                            Basis = $"Base {r.BasePricePerSqm:N2}/m²; outer {r.OuterGlassRatePerSqm:N2}; inner {r.InnerGlassRatePerSqm:N2}; ASP {r.AspRatePerSqm:N2}",
-                            SheetOrTarget = $"Given {r.GivenPricePerSqm:N2}/m²; target {r.FinalRequiredTargetPerSqm:N2}/m²; diff {r.DifferencePerSqm:N2}/m²",
-                            Amount = r.FinalRequiredTargetPerSqm * r.AreaSqm,
-                            Detail = $"{r.Status}; {r.FormulaText}; {string.Join(" | ", r.Warnings)}"
-                        });
-                    }
+                    // A target result is a commercial decision, not a single
+                    // compressed line. The shared builder preserves a full,
+                    // independently labelled section for every Step 5 spec.
+                    rows.AddRange(BuildTargetDecisionExportRows(
+                        section.Header.ProformaId,
+                        step9.TargetRows));
                 }
+            }
+
+            return rows;
+        }
+
+        /// <summary>
+        /// Builds the eight explicit Step 9 price-decision lines for every
+        /// saved specification target. Kept independent of the wizard state
+        /// so CSV and Excel share one testable, per-spec projection.
+        /// </summary>
+        internal static IReadOnlyList<OrderReportStep9ExportRow> BuildTargetDecisionExportRows(
+            string? proformaId,
+            IEnumerable<OrderReportStep9TargetRow>? targetRows)
+        {
+            var rows = new List<OrderReportStep9ExportRow>();
+            string pi = proformaId ?? "";
+
+            foreach (var r in (targetRows ?? Enumerable.Empty<OrderReportStep9TargetRow>())
+                .OrderBy(r => r.SpecNumber))
+            {
+                string specLabel = r.SpecNumber > 0 ? $"SPEC {r.SpecNumber}" : "ALL";
+                string targetSection = $"STEP 9 · {pi} · {specLabel} PRICE DECISION";
+
+                void AddDecisionLine(
+                    string item,
+                    string basis,
+                    string sheetOrTarget,
+                    decimal? amount = null,
+                    string detail = "")
+                {
+                    rows.Add(new OrderReportStep9ExportRow
+                    {
+                        Section = targetSection,
+                        ProformaId = pi,
+                        Spec = specLabel,
+                        Item = item,
+                        Basis = basis,
+                        SheetOrTarget = sheetOrTarget,
+                        Amount = amount,
+                        Detail = detail
+                    });
+                }
+
+                AddDecisionLine(
+                    "Specification",
+                    $"Build {r.BuildType}; area {r.AreaSqm:0.###} SQM",
+                    string.IsNullOrWhiteSpace(r.SpecName) ? "Specification" : r.SpecName,
+                    detail: "One independently calculated Step 9 pricing decision for this Step 5 specification group.");
+
+                AddDecisionLine(
+                    "Formula inputs",
+                    r.FormulaInputsSummary,
+                    $"Normal formula: {r.NormalFormulaBaseExpression}",
+                    detail: "Inputs and formula are copied from the saved Step 9 result; no report-side target calculation is performed.");
+
+                AddDecisionLine(
+                    "Normal formula base price — no profit",
+                    r.NormalFormulaBaseSummary,
+                    "Pre-uplift formula result",
+                    detail: "This normal formula base is not the Step 5 given / quoted price.");
+
+                AddDecisionLine(
+                    "Step 5 given / quoted price",
+                    r.Step5GivenSummary,
+                    "Customer quote from Step 5",
+                    r.GivenValueForExport,
+                    $"U-insert: {r.UInsertSummary}. Given judged is the rate used by the BASE and TARGET margins.");
+
+                AddDecisionLine(
+                    "BASE result — against normal formula base",
+                    r.BaseResultSummary,
+                    "Given judged − normal formula base",
+                    r.BaseDifferenceValue,
+                    "BASE margin = (given judged − normal formula base) ÷ normal formula base × 100.");
+
+                AddDecisionLine(
+                    "Required target price — formula base + profit",
+                    r.RequiredTargetSummary,
+                    "Target derives from the rounded normal formula base",
+                    r.RequiredTargetValueForExport,
+                    "Required target is not derived from the Step 5 quote and the U-insert is not added to it.");
+
+                AddDecisionLine(
+                    "TARGET result — against required target",
+                    r.TargetResultSummary,
+                    "Margin/status use the given judged for margin",
+                    r.DifferenceValueForExport,
+                    "Quoted balance fields preserve the raw Step 5 quote; TARGET margin/status use the given judged price.");
+
+                AddDecisionLine(
+                    "Decision / validation",
+                    string.IsNullOrWhiteSpace(r.Status) ? "CALCULATION INCOMPLETE" : r.Status,
+                    r.AuditSummary);
             }
 
             return rows;

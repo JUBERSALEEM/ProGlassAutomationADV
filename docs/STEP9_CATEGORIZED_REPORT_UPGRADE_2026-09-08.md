@@ -58,3 +58,9 @@ A user can now clearly distinguish:
 - **Spacer/ASP production service** — spacer SQM × ASP rate, e.g. 12mm ASP at AED 45/SQM.
 - **Argon Gas add-on** — active Step 6 DGU cavity gas filling charge.
 - **Other production services** — cutting, tempering, doubling/lamination, U-insert and Step 6 add-ons.
+
+## 2026-09-08 price-decision supplement
+
+The follow-up price-decision completeness pass supersedes the short **Spec Price Target** / **Spec Summary** presentation described above. The Overview is now titled **Step 9 Executive Cost & Price Decision Summary** and contains a complete `SPEC n · PRICE DECISION` block for every specification. The direct target report is titled **Step 9 Specification Price Decision Report** and has discrete columns for the normal formula base, Step 5 quote, BASE result, required target and TARGET result.
+
+The detailed data contract, saved Order Report Generator coverage and compatibility rules are recorded in [`STEP9_PRICE_DECISION_REPORT_COMPLETENESS_2026-09-08.md`](STEP9_PRICE_DECISION_REPORT_COMPLETENESS_2026-09-08.md).

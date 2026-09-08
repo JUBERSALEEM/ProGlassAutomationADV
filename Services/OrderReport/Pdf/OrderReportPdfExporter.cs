@@ -215,7 +215,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                 // ── 3. Step 9 P&L / production cost ─────────────────────
                 if (s.HasStep9)
                 {
-                    col.Item().PaddingTop(10).Text("Step 9 — Material, Spacer Production and Target Analysis")
+                    col.Item().PaddingTop(10).Text("Step 9 — Material, Spacer Production and Price Decision Analysis")
                         .FontSize(10).SemiBold();
                     col.Item().Element(c => RenderStep9(c, s.Step9));
                 }
@@ -253,7 +253,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                 {
                     card.Item().Text($"Overview: revenue AED {step9.NetExVat:N2} · glass AED {step9.TotalGlassCost:N2} · production AED {step9.TotalProductionCost:N2} · profit AED {step9.Profit:N2} · margin {step9.MarginPercent:0.#}%")
                         .FontSize(8).SemiBold();
-                    card.Item().Text($"Target: given AED {step9.TargetTotalGivenValue:N2} · required AED {step9.TargetTotalRequiredValue:N2} · difference AED {step9.TargetTotalDifferenceValue:N2} · status {step9.TargetStatus} · U-insert {step9.TargetUInsertTreatmentSummary}")
+                    card.Item().Text($"Price decision: raw Step 5 quote AED {step9.TargetTotalGivenValue:N2} · required target AED {step9.TargetTotalRequiredValue:N2} · raw quoted balance AED {step9.TargetTotalDifferenceValue:N2} · status {step9.TargetStatus} · U-insert {step9.TargetUInsertTreatmentSummary}")
                         .FontSize(8).FontColor(MUTED);
                 });
 
@@ -272,12 +272,40 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
 
                 if (step9.TargetRows.Count > 0)
                 {
-                    col.Item().PaddingTop(6).Text("STEP 9 · SPEC TARGET / QUOTE BASIS").FontSize(8).SemiBold().FontColor(ACCENT);
-                    foreach (var row in step9.TargetRows.OrderBy(r => r.SpecNumber).Take(12))
+                    // One complete commercial decision card per Step 5 spec.
+                    // Do not cap this list: every saved specification must be
+                    // auditable in the generated PDF, even on a large order.
+                    col.Item().PaddingTop(6).Text("STEP 9 · SPECIFICATION PRICE DECISIONS")
+                        .FontSize(8).SemiBold().FontColor(ACCENT);
+                    foreach (var row in step9.TargetRows.OrderBy(r => r.SpecNumber))
                     {
-                        col.Item().BorderBottom(0.5f).BorderColor(LINE).PaddingVertical(2).Text(
-                            $"Spec {row.SpecNumber} · {row.BuildType} · {row.SpecName} · area {row.AreaSqm:0.###} SQM · basis {row.BasePricePerSqm:N2}/m² · outer {row.OuterGlassRatePerSqm:N2} · inner {row.InnerGlassRatePerSqm:N2} · ASP {row.AspRatePerSqm:N2} · final target {row.FinalRequiredTargetPerSqm:N2}/m² · {row.Status}")
-                            .FontSize(7).FontColor(DARK);
+                        string specLabel = row.SpecNumber > 0 ? $"SPEC {row.SpecNumber}" : "ALL SPECIFICATIONS";
+                        col.Item().PaddingTop(4).Border(1).BorderColor(LINE).Background(SURFACE).Padding(7)
+                            .Column(card =>
+                            {
+                                card.Item().Text($"{specLabel} · PRICE DECISION")
+                                    .FontSize(8).SemiBold().FontColor(ACCENT);
+                                card.Item().Text(
+                                    $"{row.SpecName} · {row.BuildType} · area {row.AreaSqm:0.###} SQM")
+                                    .FontSize(7).FontColor(DARK);
+                                card.Item().PaddingTop(2).Text($"Formula inputs: {row.FormulaInputsSummary}")
+                                    .FontSize(7).FontColor(DARK);
+                                card.Item().Text(
+                                    $"Normal formula base — no profit: {row.NormalFormulaBaseSummary}")
+                                    .FontSize(7).FontColor(DARK);
+                                card.Item().Text($"Step 5 given / quoted price: {row.Step5GivenSummary}")
+                                    .FontSize(7).FontColor(DARK);
+                                card.Item().Text(
+                                    $"BASE result — against normal formula base: {row.BaseResultSummary}")
+                                    .FontSize(7).FontColor(DARK);
+                                card.Item().Text(
+                                    $"Required target price — formula base + profit: {row.RequiredTargetSummary}")
+                                    .FontSize(7).FontColor(DARK);
+                                card.Item().Text(
+                                    $"TARGET result — against required target: {row.TargetResultSummary}")
+                                    .FontSize(7).FontColor(DARK);
+                                card.Item().Text(row.AuditSummary).FontSize(6.5f).FontColor(MUTED);
+                            });
                     }
                 }
 

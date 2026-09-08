@@ -158,23 +158,30 @@ namespace ProGlassAutomation.Models.OrderReport
         public string Item { get; set; } = "";
         public string Basis { get; set; } = "";
         public string SheetOrTarget { get; set; } = "";
-        public decimal Amount { get; set; }
+        /// <summary>
+        /// Optional monetary value for this export line. Detail/audit rows
+        /// intentionally remain blank instead of printing a misleading AED 0.
+        /// </summary>
+        public decimal? Amount { get; set; }
         public string Detail { get; set; } = "";
 
         public static string[] Headers => new[]
         {
-            "SECTION", "PI #", "SPEC", "ITEM", "BASIS", "SHEET / TARGET", "AMOUNT", "DETAIL"
+            "SECTION", "PI #", "SPEC", "ITEM", "BASIS", "SHEET / TARGET", "AMOUNT / VALUE", "DETAIL"
         };
 
         public string[] ToCsvRow() => new[]
         {
             Section, ProformaId, Spec, Item, Basis, SheetOrTarget,
-            Amount.ToString("N2", System.Globalization.CultureInfo.InvariantCulture), Detail
+            Amount.HasValue
+                ? Amount.Value.ToString("N2", System.Globalization.CultureInfo.InvariantCulture)
+                : "—", Detail
         };
 
         public object[] ToExcelRow() => new object[]
         {
-            Section, ProformaId, Spec, Item, Basis, SheetOrTarget, Amount, Detail
+            Section, ProformaId, Spec, Item, Basis, SheetOrTarget,
+            Amount.HasValue ? (object)Amount.Value : "", Detail
         };
     }
 

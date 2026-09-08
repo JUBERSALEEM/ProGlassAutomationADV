@@ -269,7 +269,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (rows.Count == 0) return;
 
                 var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Step 9 Executive Cost Summary",
+                    format, rows, "Step 9 Executive Cost & Price Decision Summary",
                     Step9ReportExport.OverviewHeaders,
                     Step9ReportExport.OverviewMap,
                     Step9ReportExport.OverviewMapExcel,
@@ -364,12 +364,29 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             try
             {
                 var rows = TargetSpecsView.ToList();
-                var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Specification Price Target Report",
-                    Step9ReportExport.TargetHeaders,
-                    Step9ReportExport.TargetMap,
-                    Step9ReportExport.TargetMapExcel,
-                    $"Step9_Specification_Target_Report_{DateTime.Now:yyyyMMdd}");
+                const string reportTitle = "Step 9 Specification Price Decision Report";
+                string suggestedFileName = $"Step9_Specification_Target_Report_{DateTime.Now:yyyyMMdd}";
+
+                // Nine audit columns are practical in CSV/Excel, but make a
+                // dense PDF table that truncates exactly the explanation an
+                // approver needs. PDF therefore uses the same eight discrete
+                // price-decision lines as the Overview: one complete card per
+                // specification, with the same canonical values and formula.
+                var result = format == ExportFormat.Pdf
+                    ? await Step9ReportExport.RunAsync(
+                        format,
+                        rows.SelectMany(Step9ReportExport.BuildPriceDecisionRows).ToList(),
+                        reportTitle,
+                        Step9ReportExport.OverviewHeaders,
+                        Step9ReportExport.OverviewMap,
+                        Step9ReportExport.OverviewMapExcel,
+                        suggestedFileName)
+                    : await Step9ReportExport.RunAsync(
+                        format, rows, reportTitle,
+                        Step9ReportExport.TargetHeaders,
+                        Step9ReportExport.TargetMap,
+                        Step9ReportExport.TargetMapExcel,
+                        suggestedFileName);
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";

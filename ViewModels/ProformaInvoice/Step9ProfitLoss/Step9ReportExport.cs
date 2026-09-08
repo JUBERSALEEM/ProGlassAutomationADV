@@ -20,6 +20,7 @@
 
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
+using ProGlassAutomation.Services.ProformaInvoice.TargetPricing;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -67,10 +68,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         // ── Formatting helpers ──────────────────────────────────────────
         private static string N(decimal v) => v.ToString("N2", CultureInfo.InvariantCulture);
-        private static string N1(decimal v) => v.ToString("N1", CultureInfo.InvariantCulture);
-        private static string Rate(decimal? v) => (v ?? 0m) > 0m ? N(v!.Value) : "—";
-        private static string Diff(decimal? v) =>
-            v is null ? "—" : v.Value < 0m ? "-" + N(Math.Abs(v.Value)) : N(v.Value);
 
         private static bool IsSummaryKind(string? kind) =>
             string.Equals(kind, "TOTAL", StringComparison.OrdinalIgnoreCase)
@@ -316,35 +313,353 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         };
 
         // ── TARGET COMPARISON / SPEC DETAIL ───────────────────────────
+        //
+        // IMPORTANT TERMINOLOGY
+        //   • "Step 5 given / quoted price" is the customer's rate held in
+        //     Step 5 (the source control calls it Base Price).
+        //   • "Normal formula base" is the pre-profit, pre-uplift DGU/SGU/
+        //     LAM formula result. It is never the Step 5 given price.
+        //
+        // Keeping these in separately named columns/rows is intentional:
+        // estimators must be able to audit both price bases without treating
+        // the Step 5 label as the DGU normal-price formula.
         public static readonly string[] TargetHeaders =
         {
-            "CATEGORY", "SPEC", "SPECIFICATION", "BUILD / AREA", "NORMAL SPEC PRICE",
-            "RATE COMPONENTS", "TARGET RESULT", "STATUS / FORMULA"
+            "SECTION", "SPECIFICATION", "FORMULA INPUTS",
+            "NORMAL FORMULA BASE (NO PROFIT)", "STEP 5 GIVEN / QUOTED PRICE",
+            "BASE RESULT", "REQUIRED TARGET (+ PROFIT)",
+            "TARGET RESULT / STATUS", "AUDIT / WARNINGS"
         };
 
+        /// <summary>
+        /// Maps one specification to a self-contained price-decision record.
+        /// The first field is deliberately a unique SECTION value, so the
+        /// shared CSV, Excel and PDF exporter creates one visible block per
+        /// specification instead of compressing all specifications together.
+        /// All values are projected from the canonical calculator result;
+        /// this exporter never recalculates a target or a margin.
+        /// </summary>
         public static string[] TargetMap(SpecTargetRowViewModel r) => new[]
         {
-            r.SpecNumber > 0 ? $"{r.SpecNumberDisplay} · SPEC TARGET PRICE" : "INVOICE-WIDE TARGET",
-            r.SpecNumberDisplay,
-            r.SpecDisplayName,
-            $"{r.BuildTypeLabel} · {OneLine(r.DimensionsSummary)} · {OneLine(r.Step4PaneSheetSummary)} · Area {r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? ""} SQM",
-            $"Given {Rate(r.Result?.GivenPricePerSqm)}/SQM · value AED {N(r.Result?.GivenValue ?? 0m)} · base {Rate(r.Result?.BasePricePerSqm)}/SQM",
-            $"{r.OuterPaneSheetDisplay} · {r.InnerPaneSheetDisplay} · Outer {Rate(r.Result?.OuterGlassRatePerSqm)} · Inner {Rate(r.Result?.InnerGlassRatePerSqm)} · Third {Rate(r.Result?.ThirdGlassRatePerSqm)} · ASP {Rate(r.Result?.AspRatePerSqm)} · Processing {Rate(r.Result?.ProcessingRatePerSqm)} · Yield {r.Result?.YieldFactor.ToString("0.###", CultureInfo.InvariantCulture) ?? ""}",
-            $"Target {Rate(r.Result?.FinalRequiredTargetPerSqm)}/SQM · required AED {N(r.Result?.RequiredTargetValue ?? 0m)} · diff/SQM {Diff(r.Result?.DifferencePerSqm)} · diff value {r.DifferenceValueDisplay} · margin {r.Result?.MarginAgainstTargetPercent?.ToString("0.##", CultureInfo.InvariantCulture) ?? ""}%",
-            $"{r.StatusLabel}. {r.FormulaText}. U-insert: {r.UInsertTreatmentLabel} / {r.AppliedUInsertDisplay}. {r.WarningSummary}"
+            PriceDecisionSection(r),
+            SpecificationIdentity(r),
+            FormulaInputSummary(r),
+            FormulaBaseSummary(r),
+            Step5GivenSummary(r),
+            BaseResultSummary(r),
+            RequiredTargetSummary(r),
+            TargetResultSummary(r),
+            AuditSummary(r)
         };
 
-        public static object[] TargetMapExcel(SpecTargetRowViewModel r) => new object[]
+        /// <summary>
+        /// Uses exactly the same textual cells as CSV/PDF. This prevents an
+        /// Excel-specific projection from quietly losing a BASE or TARGET
+        /// field when this report evolves.
+        /// </summary>
+        public static object[] TargetMapExcel(SpecTargetRowViewModel r) =>
+            TargetMap(r).Cast<object>().ToArray();
+
+        // ── PER-SPECIFICATION PRICE DECISION PROJECTION ────────────────
+
+        /// <summary>
+        /// Builds the discrete rows that mirror Overview card 3's BASE and
+        /// TARGET decision trail for one specification. The section name is
+        /// spec-scoped so every export format yields a separate block for
+        /// every specification group.
+        /// </summary>
+        internal static IReadOnlyList<OverviewReportRow> BuildPriceDecisionRows(
+            SpecTargetRowViewModel? spec)
         {
-            r.SpecNumber > 0 ? $"{r.SpecNumberDisplay} · SPEC TARGET PRICE" : "INVOICE-WIDE TARGET",
-            r.SpecNumberDisplay,
-            r.SpecDisplayName,
-            $"{r.BuildTypeLabel} / {OneLine(r.DimensionsSummary)} / {OneLine(r.Step4PaneSheetSummary)} / Area {r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? ""} SQM",
-            $"Given {Rate(r.Result?.GivenPricePerSqm)}/SQM / value {N(r.Result?.GivenValue ?? 0m)} / base {Rate(r.Result?.BasePricePerSqm)}/SQM",
-            $"{r.OuterPaneSheetDisplay} / {r.InnerPaneSheetDisplay} / Outer {Rate(r.Result?.OuterGlassRatePerSqm)} / Inner {Rate(r.Result?.InnerGlassRatePerSqm)} / Third {Rate(r.Result?.ThirdGlassRatePerSqm)} / ASP {Rate(r.Result?.AspRatePerSqm)} / Processing {Rate(r.Result?.ProcessingRatePerSqm)} / Yield {r.Result?.YieldFactor.ToString("0.###", CultureInfo.InvariantCulture) ?? ""}",
-            $"Target {Rate(r.Result?.FinalRequiredTargetPerSqm)}/SQM / required {N(r.Result?.RequiredTargetValue ?? 0m)} / diff/SQM {Diff(r.Result?.DifferencePerSqm)} / diff value {r.DifferenceValueDisplay} / margin {r.Result?.MarginAgainstTargetPercent?.ToString("0.##", CultureInfo.InvariantCulture) ?? ""}%",
-            $"{r.StatusLabel}. {r.FormulaText}. U-insert: {r.UInsertTreatmentLabel} / {r.AppliedUInsertDisplay}. {r.WarningSummary}"
-        };
+            if (spec == null) return Array.Empty<OverviewReportRow>();
+
+            string section = PriceDecisionSection(spec);
+            var rows = new List<OverviewReportRow>();
+
+            void Add(string item, string value, string detail = "") =>
+                rows.Add(new OverviewReportRow
+                {
+                    Section = section,
+                    Item = item,
+                    Value = value,
+                    Detail = detail
+                });
+
+            Add("Specification", SpecificationIdentity(spec),
+                $"Step 5 dimensions: {OneLine(spec.DimensionsSummary)}");
+
+            Add("Formula inputs", FormulaInputSummary(spec),
+                $"Step 4 pane/sheet handoff: {OneLine(spec.Step4PaneSheetSummary)}");
+
+            Add("Normal formula base price — no profit", FormulaBaseRate(spec),
+                FormulaBaseDetail(spec));
+
+            Add("Step 5 given / quoted price", GivenRate(spec),
+                Step5GivenDetail(spec));
+
+            Add("BASE result — against normal formula base", BaseResultSummary(spec),
+                BaseResultDetail(spec));
+
+            Add("Required target price — formula base + profit", RequiredTargetRate(spec),
+                RequiredTargetDetail(spec));
+
+            Add("TARGET result — against required target", TargetResultSummary(spec),
+                TargetResultDetail(spec));
+
+            Add("Decision / validation", spec.StatusLabel, AuditSummary(spec));
+
+            return rows;
+        }
+
+        private static string PriceDecisionSection(SpecTargetRowViewModel? r)
+        {
+            if (r == null) return "PRICE DECISION";
+            return r.SpecNumber > 0
+                ? $"{r.SpecNumberDisplay} · PRICE DECISION"
+                : "INVOICE-WIDE · PRICE DECISION";
+        }
+
+        private static string SpecificationIdentity(SpecTargetRowViewModel? r)
+        {
+            if (r == null) return "—";
+            return $"{r.SpecDisplayName} · {r.BuildTypeLabel} · Area {r.AreaSqmDisplay}";
+        }
+
+        private static string FormulaInputSummary(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            if (result == null) return "Formula inputs unavailable";
+
+            var parts = new List<string>();
+            switch (result.BuildType)
+            {
+                case GlassBuildType.Sgu:
+                    parts.Add($"Glass {FormulaRate(result.OuterGlassRatePerSqm)}");
+                    break;
+
+                case GlassBuildType.Dgu:
+                case GlassBuildType.Lam:
+                    parts.Add($"Outer {FormulaRate(result.OuterGlassRatePerSqm)}");
+                    parts.Add($"Inner {FormulaRate(result.InnerGlassRatePerSqm)}");
+                    break;
+
+                case GlassBuildType.DguLam:
+                    parts.Add($"Outer {FormulaRate(result.OuterGlassRatePerSqm)}");
+                    parts.Add($"Inner {FormulaRate(result.InnerGlassRatePerSqm)}");
+                    parts.Add($"Third {FormulaRate(result.ThirdGlassRatePerSqm)}");
+                    break;
+
+                default:
+                    parts.Add($"Outer {FormulaRate(result.OuterGlassRatePerSqm)}");
+                    if (result.InnerGlassRatePerSqm != 0m)
+                        parts.Add($"Inner {FormulaRate(result.InnerGlassRatePerSqm)}");
+                    if (result.ThirdGlassRatePerSqm != 0m)
+                        parts.Add($"Third {FormulaRate(result.ThirdGlassRatePerSqm)}");
+                    break;
+            }
+
+            if (result.BuildType is GlassBuildType.Dgu or GlassBuildType.DguLam
+                || result.AspRatePerSqm != 0m)
+            {
+                parts.Add($"ASP {FormulaRate(result.AspRatePerSqm)}");
+            }
+
+            if (result.ProcessingRatePerSqm != 0m)
+                parts.Add($"Processing {FormulaRate(result.ProcessingRatePerSqm)}");
+
+            parts.Add(result.YieldFactor > 0m
+                ? $"Yield {Compact(result.YieldFactor)}"
+                : "Yield missing");
+            parts.Add($"Profit uplift {Compact(result.TargetUpliftPercent)}%");
+
+            return string.Join(" · ", parts);
+        }
+
+        private static string FormulaBaseRate(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            return result != null && result.BasePricePerSqm > 0m
+                ? MoneyRate(result.BasePricePerSqm)
+                : "—";
+        }
+
+        private static string GivenRate(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            return result != null && result.GivenPricePerSqm > 0m
+                ? MoneyRate(result.GivenPricePerSqm)
+                : "—";
+        }
+
+        private static string RequiredTargetRate(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            return result != null && result.FinalRequiredTargetPerSqm > 0m
+                ? MoneyRate(result.FinalRequiredTargetPerSqm)
+                : "—";
+        }
+
+        private static string FormulaBaseSummary(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            return result != null && result.BasePricePerSqm > 0m
+                ? $"{BaseFormulaExpression(r)} = {MoneyRate(result.BasePricePerSqm)} (normal formula base; no profit)"
+                : $"Normal formula base unavailable · {BaseFormulaExpression(r)}";
+        }
+
+        private static string Step5GivenSummary(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            if (result == null) return "—";
+
+            string value = result.GivenPricePerSqm > 0m
+                ? $"{MoneyRate(result.GivenPricePerSqm)} · Step 5 value {Money(result.GivenValue)}"
+                : "— (Step 5 quote missing)";
+
+            return result.ExtraProfitPerSqm.HasValue
+                ? $"{value} · judged {MoneyRate(result.GivenPriceJudgedPerSqm)}"
+                : value;
+        }
+
+        private static string BaseResultSummary(SpecTargetRowViewModel? r)
+        {
+            if (r == null || r.Result?.ExtraProfitPerSqm == null)
+                return "— (normal formula base or given price incomplete)";
+
+            return $"Balance {r.BaseDifferencePerSqmDisplay} · value {r.BaseDifferenceValueDisplay} · margin {r.BaseMarginDisplay}";
+        }
+
+        private static string RequiredTargetSummary(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            if (result == null || result.FinalRequiredTargetPerSqm <= 0m)
+                return "— (target formula incomplete)";
+
+            decimal upliftFactor = 1m + result.TargetUpliftPercent / 100m;
+            string calculation = result.BasePricePerSqm > 0m
+                ? $"Normal formula base {MoneyRate(result.BasePricePerSqm)} × {Compact(upliftFactor)} = required target {MoneyRate(result.FinalRequiredTargetPerSqm)}"
+                : $"Required target {MoneyRate(result.FinalRequiredTargetPerSqm)}";
+            return $"{calculation} · uplift {Compact(result.TargetUpliftPercent)}% · value {Money(result.RequiredTargetValue)}";
+        }
+
+        private static string TargetResultSummary(SpecTargetRowViewModel? r)
+        {
+            if (r == null || r.Result == null || !r.Result.MarginAgainstTargetPercent.HasValue)
+                return $"— · {r?.StatusLabel ?? "CALCULATION INCOMPLETE"}";
+
+            return $"Quoted balance {r.DifferencePerSqmDisplay} · value {r.DifferenceValueDisplay} · margin {r.MarginAgainstTargetDisplay} · {r.StatusLabel}";
+        }
+
+        private static string FormulaBaseDetail(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            if (result == null) return "No canonical Step 9 formula result is available.";
+            if (result.BasePricePerSqm <= 0m)
+                return $"Normal formula base is unavailable. Formula basis: {BaseFormulaExpression(r)}.";
+
+            return "Normal formula base before profit: " +
+                   $"{BaseFormulaExpression(r)} = {MoneyRate(result.BasePricePerSqm)}. " +
+                   "The pre-uplift formula is rounded to 2 decimals before the required target is calculated. " +
+                   "This is not the Step 5 given / quoted price.";
+        }
+
+        private static string Step5GivenDetail(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            if (result == null) return "No Step 5 price is available.";
+            if (result.GivenPricePerSqm <= 0m)
+                return "The Step 5 given / quoted price is missing; no margin is invented.";
+
+            string detail = "This is the customer quoted rate from Step 5 (the source control calls it Base Price), " +
+                            "not the normal formula base price.";
+
+            if (result.ExtraProfitPerSqm.HasValue)
+                detail += $" Given judged for the BASE and TARGET margin results: {MoneyRate(result.GivenPriceJudgedPerSqm)}.";
+
+            return detail + " " + (r?.UInsertTreatmentDetail ?? "");
+        }
+
+        private static string BaseResultDetail(SpecTargetRowViewModel? r)
+        {
+            if (r == null || r.Result?.ExtraProfitPerSqm == null)
+                return "BASE result is unavailable because a required formula input or the Step 5 quote is missing.";
+
+            var result = r.Result!;
+            return $"Given judged {MoneyRate(result.GivenPriceJudgedPerSqm)} − normal formula base {MoneyRate(result.BasePricePerSqm)} = {r.BaseDifferencePerSqmDisplay}. " +
+                   "BASE margin = (given judged − normal formula base) ÷ normal formula base × 100.";
+        }
+
+        private static string RequiredTargetDetail(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            if (result == null || result.BasePricePerSqm <= 0m || result.FinalRequiredTargetPerSqm <= 0m)
+                return "Required target is unavailable because the normal formula base is incomplete.";
+
+            decimal upliftFactor = 1m + result.TargetUpliftPercent / 100m;
+            return $"{MoneyRate(result.BasePricePerSqm)} × {Compact(upliftFactor)} " +
+                   $"({Compact(result.TargetUpliftPercent)}% profit) = {MoneyRate(result.FinalRequiredTargetPerSqm)}. " +
+                   "The target is based on the rounded normal formula base; it is not derived from the Step 5 quote.";
+        }
+
+        private static string TargetResultDetail(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            if (result == null || !result.MarginAgainstTargetPercent.HasValue)
+                return "TARGET result is unavailable because a required formula input or the Step 5 quote is missing.";
+
+            return $"TARGET margin/status use given judged {MoneyRate(result.GivenPriceJudgedPerSqm)} against required target {MoneyRate(result.FinalRequiredTargetPerSqm)}. " +
+                   "Quoted balance and quoted balance value preserve the raw Step 5 given / quoted price.";
+        }
+
+        private static string AuditSummary(SpecTargetRowViewModel? r)
+        {
+            if (r == null || r.Result == null) return "No canonical Step 9 result is available.";
+
+            string warning = string.IsNullOrWhiteSpace(r.WarningSummary)
+                ? string.Empty
+                : " Warning: " + r.WarningSummary;
+            return $"{r.StatusLabel}. Formula: {r.FormulaText}. U-insert: {r.UInsertTreatmentLabel}; " +
+                   $"rate {r.UInsertRateDisplay}; target treatment {r.UInsertAppliedValueDisplay}.{warning}";
+        }
+
+        private static string BaseFormulaExpression(SpecTargetRowViewModel? r)
+        {
+            var result = r?.Result;
+            if (result == null) return "Formula unavailable";
+
+            string panes = result.BuildType switch
+            {
+                GlassBuildType.Sgu => N(result.OuterGlassRatePerSqm),
+                GlassBuildType.Dgu or GlassBuildType.Lam =>
+                    $"({N(result.OuterGlassRatePerSqm)} + {N(result.InnerGlassRatePerSqm)})",
+                GlassBuildType.DguLam =>
+                    $"({N(result.OuterGlassRatePerSqm)} + {N(result.InnerGlassRatePerSqm)} + {N(result.ThirdGlassRatePerSqm)})",
+                _ => $"({N(result.OuterGlassRatePerSqm)} + {N(result.InnerGlassRatePerSqm)} + {N(result.ThirdGlassRatePerSqm)})"
+            };
+
+            var terms = new List<string>
+            {
+                result.YieldFactor > 0m
+                    ? $"{panes} ÷ {Compact(result.YieldFactor)}"
+                    : $"{panes} ÷ missing yield"
+            };
+
+            if (result.BuildType is GlassBuildType.Dgu or GlassBuildType.DguLam
+                || result.AspRatePerSqm != 0m)
+            {
+                terms.Add(N(result.AspRatePerSqm));
+            }
+
+            if (result.ProcessingRatePerSqm != 0m)
+                terms.Add(N(result.ProcessingRatePerSqm));
+
+            return string.Join(" + ", terms);
+        }
+
+        private static string MoneyRate(decimal value) => $"AED {N(value)}/SQM";
+        private static string FormulaRate(decimal value) => $"AED {N(value)}/SQM";
+        private static string Money(decimal value) => $"AED {N(value)}";
+        private static string Compact(decimal value) => value.ToString("0.##", CultureInfo.InvariantCulture);
 
         // ── OVERVIEW DETAILED EXPORT ───────────────────────────────────
         public sealed class OverviewReportRow
@@ -461,21 +776,51 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             Add("PROFIT RESULT", vm.ProfitLabel, vm.ProfitDisplay, vm.MarginDisplay);
             Add("PROFIT RESULT", "Overall actual margin", vm.OverallMarginDisplay, vm.PriceBasedMarginDisplay);
 
-            Add("SPEC TARGET PRICE", "Given price source", vm.GivenPriceSourceLabel, vm.TargetScopeNote);
-            Add("SPEC TARGET PRICE", "Total given value", vm.TotalGivenValueDisplay, "Area-weighted Step 5 given/base price.");
-            Add("SPEC TARGET PRICE", "Total required target value", vm.TotalRequiredTargetValueDisplay, "Target formula result.");
-            Add("SPEC TARGET PRICE", "Total difference", vm.TotalDifferenceValueDisplay, "Positive means above target.");
-            Add("SPEC TARGET PRICE", "Base margin", vm.BaseMarginPercentDisplay, vm.BaseBalanceValueDisplay);
-            Add("SPEC TARGET PRICE", "Target margin", vm.TargetMarginPercentDisplay, vm.TargetBalanceValueDisplay);
-            Add("SPEC TARGET PRICE", "U-insert treatment", vm.UInsertSummaryDisplay, vm.UInsertSummaryDetail);
+            // Job-level card-3 mirror. The wording deliberately separates
+            // the Step 5 quote from the normal, pre-profit formula base.
+            Add("JOB PRICE DECISION SUMMARY", "Step 5 quoted-price source", vm.GivenPriceSourceLabel, vm.TargetScopeNote);
+            Add("JOB PRICE DECISION SUMMARY", "Normal formula base — no profit (area-weighted)",
+                vm.BasePriceAverageDisplay,
+                "Pre-uplift formula result. This is not the Step 5 given / quoted price.");
+            Add("JOB PRICE DECISION SUMMARY", "Step 5 given / quoted price (area-weighted)",
+                vm.GivenPricePerSqmDisplay,
+                "Customer quoted rate from Step 5; source control label is Base Price.");
+            Add("JOB PRICE DECISION SUMMARY", "Given judged for BASE and TARGET margins (area-weighted)",
+                vm.GivenJudgedAverageDisplay,
+                "Nets a U-insert only when it is included inside the Step 5 quote.");
+            Add("JOB PRICE DECISION SUMMARY", "Total Step 5 quoted value", vm.TotalGivenValueDisplay,
+                "Area-weighted Step 5 given / quoted price; not the normal formula base price.");
+            Add("JOB PRICE DECISION SUMMARY", "Required target price (area-weighted)",
+                vm.RequiredTargetPriceDisplay,
+                "Rounded normal formula base plus the configured profit uplift.");
+            Add("JOB PRICE DECISION SUMMARY", "Total required target value", vm.TotalRequiredTargetValueDisplay,
+                "Formula-base target after the configured profit uplift.");
+            Add("JOB PRICE DECISION SUMMARY", "Total quoted difference", vm.TotalDifferenceValueDisplay,
+                "Positive means the raw Step 5 quote is above the required target.");
+            Add("JOB PRICE DECISION SUMMARY", "BASE result — margin against normal formula base",
+                vm.BaseMarginPercentDisplay,
+                "BASE margin uses given judged for the margin, not the raw Step 5 quote where a U-insert is included.");
+            Add("JOB PRICE DECISION SUMMARY", "BASE balance (area-weighted)",
+                vm.BaseBalancePerSqmDisplay,
+                $"BASE balance value {vm.BaseBalanceValueDisplay}.");
+            Add("JOB PRICE DECISION SUMMARY", "TARGET result — margin against required target",
+                vm.TargetMarginPercentDisplay,
+                "TARGET margin/status use given judged for the margin.");
+            Add("JOB PRICE DECISION SUMMARY", "TARGET balance (margin-rate basis, area-weighted)",
+                vm.TargetBalancePerSqmDisplay,
+                $"Uses given judged when margin is calculable (otherwise the raw quote fallback) − required target. Raw Step 5 quoted-balance value is {vm.TargetBalanceValueDisplay}; it is distinct when a U-insert is included in the quote.");
+            Add("JOB PRICE DECISION SUMMARY", "U-insert treatment", vm.UInsertSummaryDisplay, vm.UInsertSummaryDetail);
 
             Add("CALCULATION FORMULA AUDIT", "All spec formulas", vm.TargetFormulaAllSpecsText, vm.CalculationVersionLabel);
             foreach (var warning in vm.CalculationWarnings ?? Array.Empty<string>())
                 Add("CALCULATION FORMULA AUDIT", "Warning", warning, "Resolve before approval/output if blocking.");
 
+            // One complete BASE/TARGET decision section for every Step 5
+            // specification group. Do not collapse this to a summary line:
+            // the shared exporter treats each unique SECTION as its own
+            // CSV/Excel/PDF block, so two specs yield two decision sections.
             foreach (var spec in vm.TargetSpecsView ?? Enumerable.Empty<SpecTargetRowViewModel>())
-                Add("SPECIFICATION SUMMARY", spec.SpecNumberDisplay, spec.FinalRequiredTargetDisplay,
-                    $"Given {spec.GivenPricePerSqmDisplay}; diff {spec.DifferencePerSqmDisplay}; margin {spec.MarginAgainstTargetDisplay}; status {spec.StatusLabel}; {spec.Step4PaneSheetSummary}; {spec.FormulaSummaryLine}");
+                rows.AddRange(BuildPriceDecisionRows(spec));
 
             foreach (var line in vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
                 Add("ACTUAL COST LEDGER", line.SpecDisplay, line.AmountDisplay,

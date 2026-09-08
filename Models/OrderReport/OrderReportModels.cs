@@ -18,7 +18,9 @@
 using ProGlassAutomation.Models.Statement.Reconciliation;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace ProGlassAutomation.Models.OrderReport
 {
@@ -247,6 +249,13 @@ namespace ProGlassAutomation.Models.OrderReport
             : "—";
     }
 
+    /// <summary>
+    /// Persisted, report-generator projection of one canonical Step 9 target
+        /// result. Canonical rates, targets, margins and status are copied from
+        /// <c>SpecTargetSnapshot</c>; only the display-only BASE balance value
+        /// is derived from its saved per-SQM balance and saved area. This class
+        /// must not become a second target-price calculator.
+    /// </summary>
     public class OrderReportStep9TargetRow
     {
         public int SpecNumber { get; set; }
@@ -254,20 +263,242 @@ namespace ProGlassAutomation.Models.OrderReport
         public string GlassTypeCode { get; set; } = "";
         public string BuildType { get; set; } = "";
         public decimal AreaSqm { get; set; }
+
+        // ── Step 5 quote (not the normal formula base) ───────────────────
         public decimal GivenPricePerSqm { get; set; }
+        public decimal GivenValue { get; set; }
+
+        // ── Formula inputs / normal pre-profit base ──────────────────────
         public decimal BasePricePerSqm { get; set; }
         public decimal OuterGlassRatePerSqm { get; set; }
         public decimal InnerGlassRatePerSqm { get; set; }
         public decimal ThirdGlassRatePerSqm { get; set; }
         public decimal AspRatePerSqm { get; set; }
         public decimal ProcessingRatePerSqm { get; set; }
+        public decimal YieldFactor { get; set; }
+        public decimal TargetUpliftPercent { get; set; }
+        public decimal SpecificationTargetPerSqm { get; set; }
+
+        // ── U-insert / given judged for the two margins ──────────────────
+        public string UInsertTreatment { get; set; } = "";
+        public decimal UInsertRatePerSqm { get; set; }
+        public string UInsertSourceLabel { get; set; } = "";
+        public decimal AppliedUInsertPerSqm { get; set; }
+        public decimal GivenPriceJudgedPerSqm { get; set; }
+
+        // ── BASE and TARGET result values ────────────────────────────────
+        public decimal? ExtraProfitPerSqm { get; set; }
+        public decimal? BaseDifferenceValue { get; set; }
+        public decimal? ExtraProfitMarginPercent { get; set; }
         public decimal FinalRequiredTargetPerSqm { get; set; }
         public decimal DifferencePerSqm { get; set; }
-        public decimal? ExtraProfitMarginPercent { get; set; }
+        public decimal RequiredTargetValue { get; set; }
+        public decimal DifferenceValue { get; set; }
         public decimal? MarginAgainstTargetPercent { get; set; }
         public string Status { get; set; } = "";
         public string FormulaText { get; set; } = "";
         public List<string> Warnings { get; set; } = new();
+
+        [JsonIgnore]
+        public bool HasBaseResult => ExtraProfitPerSqm.HasValue
+                                      && ExtraProfitMarginPercent.HasValue;
+        [JsonIgnore]
+        public bool HasTargetResult => MarginAgainstTargetPercent.HasValue;
+
+        /// <summary>Input audit text; values are from the saved Step 9 result.</summary>
+        [JsonIgnore]
+        public string FormulaInputsSummary
+        {
+            get
+            {
+                var parts = new List<string>();
+                if (IsBuild("Sgu"))
+                {
+                    parts.Add($"Glass {FormulaRate(OuterGlassRatePerSqm)}");
+                }
+                else
+                {
+                    parts.Add($"Outer {FormulaRate(OuterGlassRatePerSqm)}");
+                    if (IsBuild("Dgu", "Lam", "DguLam") || InnerGlassRatePerSqm != 0m)
+                        parts.Add($"Inner {FormulaRate(InnerGlassRatePerSqm)}");
+                    if (IsBuild("DguLam") || ThirdGlassRatePerSqm != 0m)
+                        parts.Add($"Third {FormulaRate(ThirdGlassRatePerSqm)}");
+                }
+
+                if (IsBuild("Dgu", "DguLam") || AspRatePerSqm != 0m)
+                    parts.Add($"ASP {FormulaRate(AspRatePerSqm)}");
+                if (ProcessingRatePerSqm != 0m)
+                    parts.Add($"Processing {FormulaRate(ProcessingRatePerSqm)}");
+
+                parts.Add(YieldFactor > 0m
+                    ? $"Yield {Compact(YieldFactor)}"
+                    : "Yield missing");
+                parts.Add(HasSavedTargetDecision
+                    ? $"Profit uplift {Compact(TargetUpliftPercent)}%"
+                    : "Profit uplift unavailable in saved report");
+                return string.Join(" · ", parts);
+            }
+        }
+
+        /// <summary>
+        /// Formula text for the normal pre-profit base. It does not use the
+        /// Step 5 quote and does not calculate a replacement price.
+        /// </summary>
+        [JsonIgnore]
+        public string NormalFormulaBaseExpression
+        {
+            get
+            {
+                string panes = IsBuild("Sgu")
+                    ? Number(OuterGlassRatePerSqm)
+                    : IsBuild("Dgu", "Lam")
+                        ? $"({Number(OuterGlassRatePerSqm)} + {Number(InnerGlassRatePerSqm)})"
+                        : $"({Number(OuterGlassRatePerSqm)} + {Number(InnerGlassRatePerSqm)} + {Number(ThirdGlassRatePerSqm)})";
+
+                var terms = new List<string>
+                {
+                    YieldFactor > 0m
+                        ? $"{panes} ÷ {Compact(YieldFactor)}"
+                        : $"{panes} ÷ missing yield"
+                };
+                if (IsBuild("Dgu", "DguLam") || AspRatePerSqm != 0m)
+                    terms.Add(Number(AspRatePerSqm));
+                if (ProcessingRatePerSqm != 0m)
+                    terms.Add(Number(ProcessingRatePerSqm));
+                return string.Join(" + ", terms);
+            }
+        }
+
+        [JsonIgnore]
+        public string NormalFormulaBaseSummary => BasePricePerSqm > 0m
+            ? $"{NormalFormulaBaseExpression} = {Rate(BasePricePerSqm)} (normal formula base; no profit)"
+            : $"Normal formula base unavailable · {NormalFormulaBaseExpression}";
+
+        [JsonIgnore]
+        public string Step5GivenSummary
+        {
+            get
+            {
+                if (GivenPricePerSqm <= 0m) return "— (Step 5 quote missing)";
+                string value = $"{Rate(GivenPricePerSqm)} · Step 5 value {GivenValueText}";
+                return HasBaseResult
+                    ? $"{value} · judged {Rate(GivenPriceJudgedPerSqm)}"
+                    : value;
+            }
+        }
+
+        [JsonIgnore]
+        public string BaseResultSummary => !HasBaseResult
+            ? "— (normal formula base or Step 5 quote incomplete)"
+            : $"Balance {SignedRate(ExtraProfitPerSqm)} · value {SignedMoney(BaseDifferenceValue)} · margin {SignedPercent(ExtraProfitMarginPercent)}";
+
+        [JsonIgnore]
+        public string RequiredTargetSummary
+        {
+            get
+            {
+                if (FinalRequiredTargetPerSqm <= 0m) return "— (target formula incomplete)";
+                decimal upliftFactor = 1m + TargetUpliftPercent / 100m;
+                string calculation = BasePricePerSqm > 0m && HasSavedTargetDecision
+                    ? $"Normal formula base {Rate(BasePricePerSqm)} × {Compact(upliftFactor)} = required target {Rate(FinalRequiredTargetPerSqm)}"
+                    : $"Required target {Rate(FinalRequiredTargetPerSqm)}";
+                return $"{calculation} · uplift {TargetUpliftText} · value {RequiredTargetValueText}";
+            }
+        }
+
+        [JsonIgnore]
+        public string TargetResultSummary => !HasTargetResult
+            ? $"— · {SafeStatus}"
+            : $"Quoted balance {SignedRate(DifferencePerSqm)} · value {DifferenceValueText} · margin {SignedPercent(MarginAgainstTargetPercent)} · {SafeStatus}";
+
+        [JsonIgnore]
+        public string UInsertSummary
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(UInsertTreatment)) return "Not applicable";
+                string rate = UInsertRatePerSqm > 0m ? $"; rate {Rate(UInsertRatePerSqm)}" : string.Empty;
+                string source = string.IsNullOrWhiteSpace(UInsertSourceLabel)
+                    ? string.Empty
+                    : "; source " + UInsertSourceLabel;
+                return UInsertTreatment + rate + source;
+            }
+        }
+
+        [JsonIgnore]
+        public string AuditSummary
+        {
+            get
+            {
+                string warning = Warnings == null || Warnings.Count == 0
+                    ? string.Empty
+                    : " Warning: " + string.Join(" | ", Warnings.Where(w => !string.IsNullOrWhiteSpace(w)));
+                string formula = string.IsNullOrWhiteSpace(FormulaText) ? "Formula unavailable" : FormulaText;
+                return $"{SafeStatus}. Formula: {formula}. U-insert: {UInsertSummary}; " +
+                       "required target treatment: U-insert is not added to the normal specification target." + warning;
+            }
+        }
+
+        private string SafeStatus => string.IsNullOrWhiteSpace(Status)
+            ? "CALCULATION INCOMPLETE"
+            : Status;
+
+        // These fields were added after some Order Report snapshots had
+        // already been saved. A zero uplift is valid (it means no requested
+        // profit), so detect the presence of the additive decision payload
+        // rather than treating every zero as an old-snapshot omission.
+        private bool HasSavedTargetDecision => YieldFactor > 0m
+            || SpecificationTargetPerSqm > 0m
+            || GivenValue != 0m
+            || RequiredTargetValue != 0m
+            || !string.IsNullOrWhiteSpace(UInsertTreatment)
+            || !string.IsNullOrWhiteSpace(UInsertSourceLabel)
+            || UInsertRatePerSqm != 0m
+            || AppliedUInsertPerSqm != 0m
+            || GivenPriceJudgedPerSqm != 0m;
+
+        // Older saved report-generator snapshots predate these additive
+        // value fields. Do not turn their default zero into a fake money
+        // result; show that a fresh Step 9/report generation is required.
+        private bool HasSavedGivenValue => HasSavedTargetDecision
+            || !(AreaSqm > 0m && GivenPricePerSqm > 0m && GivenValue == 0m);
+        private bool HasSavedRequiredTargetValue => HasSavedTargetDecision
+            || !(AreaSqm > 0m && FinalRequiredTargetPerSqm > 0m && RequiredTargetValue == 0m);
+        [JsonIgnore]
+        public decimal? GivenValueForExport => HasSavedGivenValue ? GivenValue : null;
+        [JsonIgnore]
+        public decimal? RequiredTargetValueForExport => HasSavedRequiredTargetValue ? RequiredTargetValue : null;
+        [JsonIgnore]
+        public decimal? DifferenceValueForExport => HasSavedRequiredTargetValue ? DifferenceValue : null;
+
+        private string GivenValueText => HasSavedGivenValue ? Money(GivenValue) : "— (not saved)";
+        private string RequiredTargetValueText => HasSavedRequiredTargetValue ? Money(RequiredTargetValue) : "— (not saved)";
+        private string DifferenceValueText => HasSavedRequiredTargetValue ? SignedMoney(DifferenceValue) : "— (not saved)";
+        private string TargetUpliftText => HasSavedTargetDecision
+            ? Compact(TargetUpliftPercent) + "%"
+            : "— (not saved)";
+
+        private bool IsBuild(params string[] expected) =>
+            expected.Any(value => string.Equals(BuildType, value, StringComparison.OrdinalIgnoreCase));
+
+        private static string Rate(decimal value) => $"AED {Number(value)}/SQM";
+        private static string FormulaRate(decimal value) => $"AED {Number(value)}/SQM";
+        private static string Money(decimal value) => $"AED {Number(value)}";
+        private static string SignedRate(decimal? value) => !value.HasValue
+            ? "—"
+            : value.Value < 0m
+                ? $"-AED {Number(Math.Abs(value.Value))}/SQM"
+                : $"AED {Number(value.Value)}/SQM";
+        private static string SignedMoney(decimal? value) => !value.HasValue
+            ? "—"
+            : value.Value < 0m
+                ? $"-AED {Number(Math.Abs(value.Value))}"
+                : $"AED {Number(value.Value)}";
+        private static string SignedPercent(decimal? value) => !value.HasValue
+            ? "—"
+            : value.Value.ToString("+0.##;-0.##;0.##", CultureInfo.InvariantCulture) + "%";
+        private static string Number(decimal value) => value.ToString("N2", CultureInfo.InvariantCulture);
+        private static string Compact(decimal value) => value.ToString("0.##", CultureInfo.InvariantCulture);
     }
 
     // ═════════════════════════════════════════════════════════════════════
