@@ -242,7 +242,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             int mm = SheetStorePricingService.ParseMm(SelectedThickness);
 
             var price = await SheetStorePricingService
-                .TryGetPriceForSizeAsync(GlassColor, mm, SheetWidthMm, SheetHeightMm)
+                .TryGetExactPriceForSizeAsync(GlassColor, mm, SheetWidthMm, SheetHeightMm)
                 .ConfigureAwait(true);
 
             if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;

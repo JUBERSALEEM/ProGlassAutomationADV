@@ -225,6 +225,39 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         }
 
         /// <summary>
+        /// Strict price for one selected stock sheet: exact colour + exact
+        /// thickness + exact width/height (orientation-insensitive). Returns
+        /// null when that physical sheet row is not present. This is the
+        /// safe lookup for Step 4/Step 9 costing because a selected
+        /// 2500 × 1875 pane must never be priced from a 3210 × 2250 row.
+        /// </summary>
+        public static async Task<(decimal PurchasePerSqm, decimal SellPerSqm, string Supplier)?>
+            TryGetExactPriceForSizeAsync(string? color, int thicknessMm, int widthMm, int heightMm)
+        {
+            var key = Norm(color);
+            if (key.Length == 0 || thicknessMm <= 0 || widthMm <= 0 || heightMm <= 0)
+                return null;
+
+            var sheets = await LoadAllAsync().ConfigureAwait(false);
+
+            var exact = sheets
+                .Where(s => s != null
+                            && Norm(s.Color) == key
+                            && s.ThicknessMm == thicknessMm
+                            && ((s.WidthMm == widthMm && s.HeightMm == heightMm)
+                             || (s.WidthMm == heightMm && s.HeightMm == widthMm)))
+                .OrderBy(s => s.PurchasePricePerSqm > 0m ? 0 : 1)
+                .ThenBy(s => s.PurchasePricePerSqm)
+                .FirstOrDefault();
+
+            return exact == null
+                ? null
+                : (exact.PurchasePricePerSqm,
+                   exact.SellPricePerSqm,
+                   exact.Supplier ?? string.Empty);
+        }
+
+        /// <summary>
         /// Price for an EXACT stock sheet: colour + thickness + width +
         /// height.
         ///

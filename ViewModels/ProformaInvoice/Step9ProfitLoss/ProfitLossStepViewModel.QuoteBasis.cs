@@ -581,7 +581,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             var price = missingAuthoritativeStep4Sheet
                 ? null
                 : await SheetStorePricingService
-                    .TryGetPriceForSizeAsync(color, thicknessMm, sheetW, sheetH)
+                    .TryGetExactPriceForSizeAsync(color, thicknessMm, sheetW, sheetH)
                     .ConfigureAwait(true);
 
             decimal purchaseRate = price?.PurchasePerSqm ?? 0m;
