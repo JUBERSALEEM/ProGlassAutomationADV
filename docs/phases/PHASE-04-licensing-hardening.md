@@ -9,6 +9,73 @@ detected and explained rather than silently rejecting everything.
 
 The gaps are all in the **enforcement layer above** the crypto.
 
+## Status — 4.1 APPLIED 2026-09-09, 4.2-4.5 open
+
+| | |
+|---|---|
+| 4.1 unknown module key fails open | **fixed** — the map now covers every navigation target |
+| Tests | **added** — `Tests/Licensing/LicenseGateNavigationCoverageTests.cs` (4 tests) |
+| 4.2 gating is advisory, not a boundary | **not started** |
+| 4.3 `LicenseVerifier` header contradicts itself | **not started** |
+| 4.4 unbound license valid on any machine | **not started** |
+| 4.5 trial grants every feature | **won't fix — see below** |
+
+### 4.1 — the finding was right, but the framing was wrong
+
+The original finding said "unknown key ⇒ `Allow()` is a fail-open default."
+Reading the code closely, that framing is half wrong and it matters, because the
+obvious fix would have broken the product.
+
+Two things return `Allow()` early, and only one of them is a defect:
+
+- **A trial returns `Allow()` for everything.** Deliberate, dated 2026-08-25 in
+  the source. The trial payload carries no feature list, so `FeatureAllowed`
+  would deny the whole application during the free trial. When the trial ends
+  the status becomes `TrialExpired`/`ReadOnly` and normal restrictions apply.
+  Gating this would break the trial. **Left alone.**
+- **A module key missing from the map returns `Allow()`.** This is the real
+  defect, and it is not that free modules are allowed — it is that "available in
+  every edition" and "somebody forgot the entry" were *indistinguishable*. The
+  map held 10 keys while the navigation switch dispatches 33. The 23 that were
+  absent were free by silent default.
+
+The failure mode is one-directional: forget a **premium** module and it ships
+ungated to every licence, with no exception and no log line, because the code
+path that allows it is the same one that has always allowed About and Settings.
+
+The fix is not to change the default to `Deny` — that would lock out all 23
+legitimately free modules. It is to make the free ones *declared*. All 23 now
+appear in the map with `Array.Empty<string>()`, which hits the existing
+`required.Length == 0` early return and allows exactly as the miss did. Measured
+before and after: 33 navigation keys, 33 map keys, 0 undeclared, 0 dead, 10
+gated. Runtime behaviour is unchanged.
+
+### The test is proven to fail
+
+`LicenseGateNavigationCoverageTests` scans both sources — the map is private and
+the navigation keys are string literals in a switch, so nothing the compiler can
+tie together; the relationship exists only as a convention. Four assertions:
+no undeclared target, no unreachable map entry, the gated set pinned by name, and
+the two counts equal. Both extraction routines also assert they found more than
+20 items, so a restructured switch cannot make the test pass vacuously.
+
+Verified by deleting one gated key and one free key: assertions 1, 3 and 4 all
+fail. A checker that has only ever been seen to pass is not evidence.
+
+### What remains
+
+4.2 is the significant one and it is untouched: `CanNavigate` gates the
+navigation rail only, so any code path that reaches a premium feature without
+going through `Navigate` is ungated. Making licensing a boundary rather than a
+menu filter means gating at the service layer, which needs a build and a careful
+pass over every premium entry point.
+
+4.4 (machine binding is optional — `if (!string.IsNullOrEmpty(payload.MachineFingerprint))`)
+and 4.3 (the header comment contradicts the implementation) are both still open.
+Neither is safe to change blind: tightening 4.4 invalidates licences already
+issued to customers without a fingerprint.
+
+
 ## Findings
 
 ### 4.1 — Gating fails open on an unknown module key

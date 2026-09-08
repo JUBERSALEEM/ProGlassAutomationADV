@@ -95,11 +95,45 @@ namespace ProGlassAutomation.Services.Licensing
             ["Optimization"] = new[] { "Cutting.*" },
             ["JobProfitability"] = new[] { "Reports.*" },
 
-            // The remaining modules (Dashboard, Inquiry,
-            // SheetStore, ProformaInvoice, JobOrder,
-            // DeliveryNote, TaxInvoice, StatementGenerator,
-            // SalesReport, About, Settings, ...) are
-            // available in every edition. No gate.
+            // ── Available in every edition ─────────────────────────────
+            //
+            // These were previously ABSENT from the map, which is not the same
+            // thing as being declared free. CanNavigate returns Allow() when a
+            // key is missing, so "available in every edition" and "somebody
+            // forgot to add the entry" were indistinguishable — and the failure
+            // mode is one-directional. Forget a premium module and it ships
+            // ungated to every edition, silently, with nothing in the log.
+            //
+            // Listing them explicitly costs nothing: an empty array hits the
+            // `required.Length == 0` early return and allows, exactly as the
+            // miss did. What it buys is that the map now accounts for every key
+            // the navigation switch can produce, so
+            // LicenseGateCoversEveryNavigationTargetTests fails the build when a
+            // new module ships without somebody deciding, out loud, whether it
+            // is gated.
+            ["About"] = Array.Empty<string>(),
+            ["CompanyCenter"] = Array.Empty<string>(),
+            ["Dashboard"] = Array.Empty<string>(),
+            ["DeliveryNote"] = Array.Empty<string>(),
+            ["DeliveryReport"] = Array.Empty<string>(),
+            ["Diagnostics"] = Array.Empty<string>(),
+            ["Inquiry"] = Array.Empty<string>(),
+            ["JoReport"] = Array.Empty<string>(),
+            ["JobOrder"] = Array.Empty<string>(),
+            ["OrderReport"] = Array.Empty<string>(),
+            ["PiReport"] = Array.Empty<string>(),
+            ["ProformaInvoice"] = Array.Empty<string>(),
+            ["SalesReport"] = Array.Empty<string>(),
+            ["Settings"] = Array.Empty<string>(),
+            ["SheetStore"] = Array.Empty<string>(),
+            ["Specifications"] = Array.Empty<string>(),
+            ["StatementGenerator"] = Array.Empty<string>(),
+            ["StatementReport"] = Array.Empty<string>(),
+            ["SystemCenter"] = Array.Empty<string>(),
+            ["TaxInvoice"] = Array.Empty<string>(),
+            ["TaxInvoiceReport"] = Array.Empty<string>(),
+            ["UserCenter"] = Array.Empty<string>(),
+            ["VatSubmission"] = Array.Empty<string>()
         };
 
         /// <summary>
