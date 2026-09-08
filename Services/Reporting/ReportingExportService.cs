@@ -173,30 +173,30 @@ namespace ProGlassAutomation.Services.Reporting
                 if (IsSectionedReport)
                 {
                     int dataCols = Math.Max(1, _headers.Length - 1);
-                    int row = headerRow;
+                    int sectionRow = headerRow;
                     bool firstGroup = true;
                     foreach (var group in _rows.Select(r => _mapper(r))
                         .GroupBy(f => f.Length > 0 ? f[0]?.ToString() ?? "DETAILS" : "DETAILS"))
                     {
-                        if (!firstGroup) row += 2;
+                        if (!firstGroup) sectionRow += 2;
                         firstGroup = false;
 
-                        ws.Range(row, 1, row, dataCols).Merge();
-                        ws.Cell(row, 1).Value = group.Key.ToUpperInvariant();
-                        ws.Cell(row, 1).Style.Font.SetBold().Font.SetFontSize(13).Font.SetFontColor(XLColor.White);
-                        ws.Cell(row, 1).Style.Fill.SetBackgroundColor(XLColor.FromHtml("#1D4ED8"));
-                        ws.Cell(row, 1).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
-                        row++;
+                        ws.Range(sectionRow, 1, sectionRow, dataCols).Merge();
+                        ws.Cell(sectionRow, 1).Value = group.Key.ToUpperInvariant();
+                        ws.Cell(sectionRow, 1).Style.Font.SetBold().Font.SetFontSize(13).Font.SetFontColor(XLColor.White);
+                        ws.Cell(sectionRow, 1).Style.Fill.SetBackgroundColor(XLColor.FromHtml("#1D4ED8"));
+                        ws.Cell(sectionRow, 1).Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
+                        sectionRow++;
 
                         for (int c = 1; c < _headers.Length; c++)
                         {
-                            var cell = ws.Cell(row, c);
+                            var cell = ws.Cell(sectionRow, c);
                             cell.Value = _headers[c];
                             cell.Style.Font.SetBold().Font.SetFontSize(10).Fill.SetBackgroundColor(XLColor.FromHtml("#DBEAFE")).Font.SetFontColor(XLColor.FromHtml("#1E3A8A"));
                             cell.Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
                             cell.Style.Border.SetBottomBorder(XLBorderStyleValues.Thin);
                         }
-                        row++;
+                        sectionRow++;
 
                         bool alt = false;
                         foreach (var vals in group)
@@ -204,7 +204,7 @@ namespace ProGlassAutomation.Services.Reporting
                             for (int c = 1; c < vals.Length && c < _headers.Length; c++)
                             {
                                 var v = vals[c];
-                                var cell = ws.Cell(row, c);
+                                var cell = ws.Cell(sectionRow, c);
                                 if (v is decimal d) { cell.Value = d; cell.Style.NumberFormat.SetFormat("#,##0.00"); }
                                 else if (v is int i) { cell.Value = i; }
                                 else if (v is double db) { cell.Value = db; }
@@ -216,7 +216,7 @@ namespace ProGlassAutomation.Services.Reporting
                                 if (alt) cell.Style.Fill.SetBackgroundColor(XLColor.FromHtml("#F8FAFC"));
                             }
                             alt = !alt;
-                            row++;
+                            sectionRow++;
                         }
                     }
 
