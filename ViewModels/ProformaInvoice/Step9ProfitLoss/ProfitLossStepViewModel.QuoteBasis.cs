@@ -178,6 +178,85 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
 
         /// <summary>
+        /// Before Step 9 generates quote basis/target rows, re-apply the
+        /// latest Step 4 section snapshot to every Step 5 group that is still
+        /// Step-4-owned. This closes the real stale-data gap: changing a pane
+        /// from Clear to Obscure Clear Ramly can leave the Step 4 estimated
+        /// price numerically unchanged, so the old Step 5 sync was not always
+        /// triggered even though the pane/sheet identity changed.
+        /// </summary>
+        private void RefreshOwnedStep5GroupsFromStep4Snapshots()
+        {
+            if (_step4SnapshotProvider == null || _dataGrid?.SpecGroups == null)
+                return;
+
+            IReadOnlyList<Step4PricingSnapshot> sections;
+            try
+            {
+                sections = _step4SnapshotProvider.Invoke()
+                    ?? Array.Empty<Step4PricingSnapshot>();
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[Step9] Step4 snapshot refresh failed: {ExceptionMessages.Deep(ex)}");
+                return;
+            }
+
+            int count = Math.Min(sections.Count, _dataGrid.SpecGroups.Count);
+            for (int i = 0; i < count; i++)
+            {
+                var section = sections[i];
+                var group = _dataGrid.SpecGroups[i];
+                if (section == null || group == null) continue;
+                if (string.IsNullOrWhiteSpace(section.GeneratedSpecName)) continue;
+
+                bool hasNoStep5Spec = string.IsNullOrWhiteSpace(group.SelectedSpecName);
+                bool isFreshBootstrap = hasNoStep5Spec
+                    && !group.HasManualStep5SpecOverride
+                    && !group.HasManualStep5GlassTypeOverride;
+
+                bool markersConfirmCurrentStep4Selection =
+                    !string.IsNullOrWhiteSpace(group.LastSyncedStep4SpecName)
+                    && !string.IsNullOrWhiteSpace(group.LastSyncedStep4GlassType)
+                    && string.Equals(group.LastSyncedStep4SpecName,
+                        section.GeneratedSpecName,
+                        StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(group.LastSyncedStep4GlassType,
+                        section.SelectedGlassTypeCode,
+                        StringComparison.OrdinalIgnoreCase);
+
+                bool specIsStep4Owned = isFreshBootstrap
+                    || (!group.HasManualStep5SpecOverride
+                        && !string.IsNullOrWhiteSpace(group.LastSyncedStep4SpecName)
+                        && string.Equals(group.SelectedSpecName,
+                            group.LastSyncedStep4SpecName,
+                            StringComparison.OrdinalIgnoreCase))
+                    || (!group.HasManualStep5SpecOverride
+                        && string.Equals(group.SelectedSpecName,
+                            section.GeneratedSpecName,
+                            StringComparison.OrdinalIgnoreCase));
+
+                bool glassTypeIsStep4Owned = isFreshBootstrap
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && string.IsNullOrWhiteSpace(group.SelectedGlassType))
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && markersConfirmCurrentStep4Selection)
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && !string.IsNullOrWhiteSpace(group.LastSyncedStep4GlassType)
+                        && string.Equals(group.SelectedGlassType,
+                            group.LastSyncedStep4GlassType,
+                            StringComparison.OrdinalIgnoreCase))
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && string.Equals(group.SelectedGlassType,
+                            section.SelectedGlassTypeCode,
+                            StringComparison.OrdinalIgnoreCase));
+
+                if (specIsStep4Owned && glassTypeIsStep4Owned)
+                    group.ApplyStep4PricingSnapshot(section);
+            }
+        }
+
+        /// <summary>
         /// Display/carry the Step 9 specification using Step 4/Step 5 pane
         /// identity, not blindly the generated text. If Step 4 says SPEC 2
         /// inner is Obscure Clear Ramly, every Step 9 overview/inspector row

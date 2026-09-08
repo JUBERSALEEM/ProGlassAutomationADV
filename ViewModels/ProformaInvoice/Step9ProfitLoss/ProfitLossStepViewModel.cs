@@ -116,6 +116,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private Func<decimal>? _grossProvider;
         private Func<decimal>? _netRevenueProvider;
         private INotifyPropertyChanged? _revenueSource;
+        private Func<IReadOnlyList<Step4PricingSnapshot>>? _step4SnapshotProvider;
 
         // Spec-name grammar lives in PnLSpecParser — one definition for
         // the view-model and the tests. Do not re-declare those regexes.

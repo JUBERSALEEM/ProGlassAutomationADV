@@ -43,6 +43,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             try
             {
+                RefreshOwnedStep5GroupsFromStep4Snapshots();
+
                 var rows = new List<ProfitLossRow>();
                 var specAreas = new Dictionary<int, decimal>();
                 var specBases = new Dictionary<int, decimal>();
@@ -71,7 +73,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // rounded up, so summing rows would overstate the area).
                     specAreas[group.GroupNumber] = cutSqm;
 
-                    string specName = group.SelectedSpecName ?? "";
+                    string specName = BuildStep9SpecDisplay(group);
 
                     // ── Parse the build out of the spec name ──────────────
                     var spacerMatch = PnLSpecParser.Spacer(specName);
@@ -255,7 +257,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Spacer",
                                 SpecNumber = group.GroupNumber,
-                                SpecName = group.SelectedSpecName ?? "",
+                                SpecName = BuildStep9SpecDisplay(group),
                                 Description = PnLMeasurement.BuildRowDescription(
                                     group,
                                     spacerCavities > 1
@@ -310,7 +312,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
-                                SpecName = group.SelectedSpecName ?? "",
+                                SpecName = BuildStep9SpecDisplay(group),
                                 Description = PnLMeasurement.BuildRowDescription(
                                     group, lamLabel, $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
@@ -370,7 +372,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Spacer",
                                 SpecNumber = group.GroupNumber,
-                                SpecName = group.SelectedSpecName ?? "",
+                                SpecName = BuildStep9SpecDisplay(group),
                                 Description = PnLMeasurement.BuildRowDescription(
                                     group,
                                     spacerCavities > 1
@@ -430,7 +432,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
-                                SpecName = group.SelectedSpecName ?? "",
+                                SpecName = BuildStep9SpecDisplay(group),
                                 Description = PnLMeasurement.BuildRowDescription(
                                     group, label, $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
@@ -462,7 +464,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
-                                SpecName = group.SelectedSpecName ?? "",
+                                SpecName = BuildStep9SpecDisplay(group),
                                 Description = PnLMeasurement.BuildRowDescription(
                                     group, "Cutting", $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
@@ -479,7 +481,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
-                                SpecName = group.SelectedSpecName ?? "",
+                                SpecName = BuildStep9SpecDisplay(group),
                                 Description = PnLMeasurement.BuildRowDescription(
                                     group, "Tempering", $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
