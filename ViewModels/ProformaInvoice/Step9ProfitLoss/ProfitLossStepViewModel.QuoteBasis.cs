@@ -176,6 +176,47 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             return hasAuthoritativeHandoff ? 0m : liveFallback;
         }
 
+
+        /// <summary>
+        /// Display/carry the Step 9 specification using Step 4/Step 5 pane
+        /// identity, not blindly the generated text. If Step 4 says SPEC 2
+        /// inner is Obscure Clear Ramly, every Step 9 overview/inspector row
+        /// must show that even when the saved human spec string still says
+        /// Clear from an older/fallback generation.
+        /// </summary>
+        private static string BuildStep9SpecDisplay(SpecGroup group)
+        {
+            string specName = group?.SelectedSpecName ?? string.Empty;
+            if (group == null || string.IsNullOrWhiteSpace(specName))
+                return specName;
+
+            var matches = PnLSpecParser.GlassMatches(specName).ToList();
+            if (matches.Count == 0)
+                return specName;
+
+            var replacements = new List<(int Index, int Length, string Value)>();
+            void AddColourReplacement(Match match, string colour)
+            {
+                if (string.IsNullOrWhiteSpace(colour)) return;
+                var g = match.Groups["color"];
+                if (!g.Success || g.Index < 0 || g.Length <= 0) return;
+                replacements.Add((g.Index, g.Length, colour.Trim()));
+            }
+
+            AddColourReplacement(matches[0], group.OuterGlassColor ?? string.Empty);
+            if (matches.Count > 1)
+                AddColourReplacement(matches[^1], group.InnerGlassColor ?? string.Empty);
+
+            if (replacements.Count == 0)
+                return specName;
+
+            var sb = new System.Text.StringBuilder(specName);
+            foreach (var r in replacements.OrderByDescending(r => r.Index))
+                sb.Remove(r.Index, r.Length).Insert(r.Index, r.Value);
+
+            return sb.ToString();
+        }
+
         /// <summary>
         /// Physical panes this specification must show. Parsed from the
         /// spec name first; missing DGU/LAM panes are synthesised from the
@@ -542,7 +583,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 Kind = "Glass",
                 SpecNumber = specNumber,
-                SpecName = group?.SelectedSpecName ?? "",
+                SpecName = BuildStep9SpecDisplay(group),
                 Description = PnLMeasurement.BuildRowDescription(
                     group,
                     $"{side} pane · {thicknessMm}mm {color}",

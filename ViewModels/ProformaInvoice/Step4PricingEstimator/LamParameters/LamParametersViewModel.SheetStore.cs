@@ -173,6 +173,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
 
         private void ApplySizeText(string display, bool isInner)
         {
+            // Manual sheet choice wins over any in-flight colour/thickness
+            // refresh. Without this, a delayed store refresh can reset the
+            // user's 2500 × 1875 pick back to the largest/default size.
+            _sheetStoreEpoch++;
             var (w, h) = SpecSheetRegistry.ParseSize(display);
             if (w <= 0 || h <= 0) return;
 

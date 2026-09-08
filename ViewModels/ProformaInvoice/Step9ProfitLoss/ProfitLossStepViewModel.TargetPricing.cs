@@ -610,7 +610,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 var (cutSqm, _) = PnLMeasurement.MeasureGroup(group);
                 if (cutSqm <= 0m) continue;
 
-                string specName = group.SelectedSpecName ?? "";
+                string specName = BuildStep9SpecDisplay(group);
                 var (buildType, glassTypeCode) = DetectBuild(group);
 
                 var card = BuildRateCard(group, buildType);
