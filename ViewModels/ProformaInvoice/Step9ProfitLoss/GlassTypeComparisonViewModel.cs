@@ -244,11 +244,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 rows.Add(BuildTotalRow());
 
                 var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Glass Type Comparison",
+                    format, rows, "Spec Build Strategy Report",
                     Step9ReportExport.GlassTypeHeaders,
                     Step9ReportExport.GlassTypeMap,
                     Step9ReportExport.GlassTypeMapExcel,
-                    $"GlassType_Comparison_{DateTime.Now:yyyyMMdd}");
+                    $"Step9_Spec_Build_Strategy_Report_{DateTime.Now:yyyyMMdd}");
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";

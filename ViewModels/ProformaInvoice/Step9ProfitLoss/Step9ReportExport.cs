@@ -256,25 +256,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         // ── GLASS TYPE COMPARISON ───────────────────────────────────────
         public static readonly string[] GlassTypeHeaders =
         {
-            "GLASS TYPE", "JOBS", "AREA (SQM)", "REVENUE", "COST", "PROFIT", "MARGIN %", "STATUS"
+            "CATEGORY", "BUILD / SPEC TYPE", "VOLUME", "VALUE SUMMARY", "MARGIN RESULT", "STATUS / NOTE"
         };
 
         public static string[] GlassTypeMap(GlassTypeComparisonRow r) => new[]
         {
+            r.GlassType == "TOTAL" ? "OVERALL SPEC STRATEGY TOTAL" : $"{r.GlassType} SPEC STRATEGY",
             r.GlassType,
-            r.JobCount.ToString(),
-            r.TotalArea.ToString("0.##", CultureInfo.InvariantCulture),
-            N(r.TotalRevenue),
-            N(r.TotalCost),
-            N(r.TotalProfit),
-            N1(r.MarginPercent),
+            $"{r.JobCount:N0} job(s) · {r.TotalArea:0.##} SQM",
+            $"Revenue AED {r.TotalRevenue:N2} · Cost AED {r.TotalCost:N2}",
+            $"Profit AED {r.TotalProfit:N2} · Margin {r.MarginPercent:0.#}%",
             GlassStatus(r)
         };
 
         public static object[] GlassTypeMapExcel(GlassTypeComparisonRow r) => new object[]
         {
-            r.GlassType, r.JobCount, r.TotalArea, r.TotalRevenue, r.TotalCost,
-            r.TotalProfit, r.MarginPercent, GlassStatus(r)
+            r.GlassType == "TOTAL" ? "OVERALL SPEC STRATEGY TOTAL" : $"{r.GlassType} SPEC STRATEGY",
+            r.GlassType,
+            $"{r.JobCount:N0} job(s) / {r.TotalArea:0.##} SQM",
+            $"Revenue {r.TotalRevenue:N2} / Cost {r.TotalCost:N2}",
+            $"Profit {r.TotalProfit:N2} / Margin {r.MarginPercent:0.#}%",
+            GlassStatus(r)
         };
 
         private static string GlassStatus(GlassTypeComparisonRow r) =>
@@ -322,7 +324,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public static string[] TargetMap(SpecTargetRowViewModel r) => new[]
         {
-            r.SpecNumber > 0 ? "SPEC PRICE TARGET" : "INVOICE-WIDE TARGET",
+            r.SpecNumber > 0 ? $"{r.SpecNumberDisplay} · SPEC TARGET PRICE" : "INVOICE-WIDE TARGET",
             r.SpecNumberDisplay,
             r.SpecDisplayName,
             $"{r.BuildTypeLabel} · {OneLine(r.DimensionsSummary)} · Area {r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? ""} SQM",
@@ -334,7 +336,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public static object[] TargetMapExcel(SpecTargetRowViewModel r) => new object[]
         {
-            r.SpecNumber > 0 ? "SPEC PRICE TARGET" : "INVOICE-WIDE TARGET",
+            r.SpecNumber > 0 ? $"{r.SpecNumberDisplay} · SPEC TARGET PRICE" : "INVOICE-WIDE TARGET",
             r.SpecNumberDisplay,
             r.SpecDisplayName,
             $"{r.BuildTypeLabel} / {OneLine(r.DimensionsSummary)} / Area {r.Result?.AreaSqm.ToString("0.###", CultureInfo.InvariantCulture) ?? ""} SQM",
