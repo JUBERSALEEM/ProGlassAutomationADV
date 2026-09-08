@@ -72,7 +72,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     specAreas[group.GroupNumber] = cutSqm;
 
                     string specName = group.SelectedSpecName ?? "";
-                    string step9SpecDisplay = BuildStep9SpecDisplay(group);
 
                     // ── Parse the build out of the spec name ──────────────
                     var spacerMatch = PnLSpecParser.Spacer(specName);

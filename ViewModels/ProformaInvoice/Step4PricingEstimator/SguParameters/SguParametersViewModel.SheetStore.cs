@@ -105,6 +105,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
                 _selectedSheetSize = value ?? "";
                 OnPropertyChanged();
 
+                // Manual sheet choice wins over any in-flight colour/thickness
+                // refresh. Without this, a delayed store refresh can reset the
+                // user's chosen sheet back to the largest/default size.
+                _sheetStoreEpoch++;
                 var (w, h) = SpecSheetRegistry.ParseSize(_selectedSheetSize);
                 if (w <= 0 || h <= 0) return;
 
