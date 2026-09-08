@@ -33,7 +33,7 @@ Phase 5  Test depth — pricing engine        ← needs Phase 4
 | 1 | Build/test unverified | 🟠 Waiting | Phase 0 |
 | 2 | No pagination | 🟡 Ratchet landed; migration pending | Phase 0 (to enforce) |
 | 3 | Dashboards load whole tables | 🟡 Aggregate split **fixed**; migration pending | Phase 0 |
-| 4 | `MetricQty` hardcodes delivery qty | 🟠 Planned | Phase 1 |
+| 4 | `MetricQty` hardcodes delivery qty | 🟡 Step 1 done — characterisation net landed | Phase 1, for steps 2–5 |
 | 5 | Test ratio 1 : 7.4 | 🟡 Target-tolerance split **fixed** | Phase 0 |
 | 6 | 13 files > 990 lines | ⚪ Deferred | Phase 1 |
 | 7 | No obfuscation / anti-debug | ⚪ Deferred | Phase 0 |
@@ -224,10 +224,20 @@ This is the only acknowledged `HACK` marker in 224,583 lines, and it sits on
 a money path — which is precisely why it has survived: everyone is
 (reasonably) afraid to touch it.
 
+**Progress, 2026-09-08.** Step 1 is done.
+`Tests/ProformaInvoice/OtherChargeRowMetricQtyCharacterisationTests.cs` pins
+current `MetricQty` behaviour for every branch — delivery, both polish keys,
+custom polish, selection-driven rows, nothing-checked, no-selection, blank
+key — plus branch precedence and the fact that the delivery predicate is an
+exact case-sensitive match. Two tests are marked **WILL CHANGE**: they assert
+the hack itself, and they are the ones Phase 4 is expected to break. A third
+group asserts that non-delivery rows must *not* move, which is step 5's
+acceptance criterion written as a test.
+
 **Steps**
-1. Write the characterisation tests **first**: capture current
+1. ~~Write the characterisation tests **first**: capture current
    `MetricQty` output for every row type across a set of real invoices.
-   These must pass before any change.
+   These must pass before any change.~~ **Done 2026-09-08** — see above.
 2. Add a `PER_ROUND` charge source with an editable quantity, defaulting to
    `1` so existing documents do not change value.
 3. Replace the hardcoded `1m` with the resolved quantity.
