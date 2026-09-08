@@ -17,6 +17,13 @@ namespace ProGlassAutomation.Services.Database
         public DbSet<GlassSheet> GlassSheets { get; set; }
         public DbSet<SheetHistory> SheetHistories { get; set; }
 
+        /// <summary>
+        /// Non-glass inventory (spacer, sealant, desiccant, cavity gas,
+        /// hardware) — see InventoryItem for why these live in their own
+        /// table rather than on GlassSheets.
+        /// </summary>
+        public DbSet<InventoryItem> InventoryItems { get; set; }
+
         // Future modules add DbSets here:
         // public DbSet<ProformaInvoice> ProformaInvoices { get; set; }
 
