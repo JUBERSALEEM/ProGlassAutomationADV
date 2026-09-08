@@ -72,32 +72,129 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private static string Diff(decimal? v) =>
             v is null ? "—" : v.Value < 0m ? "-" + N(Math.Abs(v.Value)) : N(v.Value);
 
+        private static bool IsSummaryKind(string? kind) =>
+            string.Equals(kind, "TOTAL", StringComparison.OrdinalIgnoreCase)
+            || (kind ?? "").IndexOf("TOTAL", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        private static bool IsSpacerKind(string? kind) =>
+            string.Equals(kind, "Spacer", StringComparison.OrdinalIgnoreCase);
+
+        private static bool IsProductionKind(string? kind) =>
+            string.Equals(kind, "Production", StringComparison.OrdinalIgnoreCase);
+
+        private static string CostClass(ProfitLossRow r)
+        {
+            if (IsSummaryKind(r.Kind)) return "SUMMARY";
+            if (IsSpacerKind(r.Kind)) return "PRODUCTION SERVICE · SPACER / ASP";
+            if (IsProductionKind(r.Kind)) return "PRODUCTION SERVICE · CUTTING / TEMPERING / LAMINATION";
+            if (string.Equals(r.Kind, "Glass", StringComparison.OrdinalIgnoreCase)) return "MATERIAL · GLASS SHEET";
+            return "COST LINE";
+        }
+
+        private static string ServiceClass(ServiceProfitRow r)
+        {
+            var name = r.ServiceName ?? "";
+            if (string.Equals(r.SpecName, "TOTAL", StringComparison.OrdinalIgnoreCase)) return "SUMMARY";
+            if (name.IndexOf("Spacer", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("ASP", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "SPACER / ASP PRODUCTION SERVICE";
+            if (name.IndexOf("Cutting", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "CUTTING SERVICE";
+            if (name.IndexOf("Tempering", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "TEMPERING SERVICE";
+            if (name.IndexOf("PVB", StringComparison.OrdinalIgnoreCase) >= 0
+                || name.IndexOf("Interlayer", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "LAMINATION / INTERLAYER SERVICE";
+            if (name.IndexOf("U-Insert", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "U-INSERT SERVICE";
+            if (name.IndexOf("Glass", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "GLASS MARGIN";
+            return "SERVICE";
+        }
+
+        private static decimal ExtendedRate(ProfitLossRow r)
+        {
+            if (r.PricePerSqm <= 0m) return 0m;
+            if (string.Equals(r.Kind, "Glass", StringComparison.OrdinalIgnoreCase)
+                && r.SheetSqm > 0m
+                && r.Quantity == Math.Round(r.Quantity, 0)
+                && Math.Abs(r.Amount - Math.Round(r.SheetSqm * r.Quantity * r.PricePerSqm, 2)) <= 0.02m)
+                return Math.Round(r.SheetSqm * r.PricePerSqm, 2);
+            return r.PricePerSqm;
+        }
+
+        private static string CostBasis(ProfitLossRow r)
+        {
+            if (IsSummaryKind(r.Kind)) return "Subtotal / control total";
+            if (IsSpacerKind(r.Kind))
+                return $"Spacer service quantity {r.Quantity:0.##} SQM × AED {r.PricePerSqm:N2}/SQM";
+            if (IsProductionKind(r.Kind))
+                return $"Production service quantity {r.Quantity:0.##} {r.UnitLabel} × AED {r.PricePerSqm:N2}/{r.UnitLabel}";
+            if (string.Equals(r.Kind, "Glass", StringComparison.OrdinalIgnoreCase) && r.SheetSqm > 0m)
+            {
+                bool sheetBased = r.Quantity == Math.Round(r.Quantity, 0)
+                    && Math.Abs(r.Amount - Math.Round(r.SheetSqm * r.Quantity * r.PricePerSqm, 2)) <= 0.02m;
+                return sheetBased
+                    ? $"{r.SheetSqm:0.####} sheet SQM × {r.Quantity:0.##} sheet(s) × AED {r.PricePerSqm:N2}/SQM"
+                    : $"{r.Quantity:0.##} required SQM × AED {r.PricePerSqm:N2}/SQM";
+            }
+            return $"{r.Quantity:0.##} {r.UnitLabel} × AED {r.PricePerSqm:N2}/{r.UnitLabel}";
+        }
+
+        private static string ExtendedCalculation(ProfitLossRow r)
+        {
+            if (IsSummaryKind(r.Kind)) return N(r.Amount);
+            if (string.Equals(r.Kind, "Glass", StringComparison.OrdinalIgnoreCase)
+                && r.SheetSqm > 0m
+                && r.Quantity == Math.Round(r.Quantity, 0)
+                && Math.Abs(r.Amount - Math.Round(r.SheetSqm * r.Quantity * r.PricePerSqm, 2)) <= 0.02m)
+                return $"{r.SheetSqm:0.####} × {r.Quantity:0.##} × {r.PricePerSqm:N2} = {N(r.Amount)}";
+            return $"{r.Quantity:0.##} × {r.PricePerSqm:N2} = {N(r.Amount)}";
+        }
+
+        private static string ServiceNote(ProfitLossRow r)
+        {
+            if (IsSpacerKind(r.Kind))
+                return "SPACER / ASP production cost — includes DGU spacer work and related cutting/tempering/assembly where configured in Step 4.";
+            if (IsProductionKind(r.Kind))
+                return "Production/service charge — cutting, tempering, lamination/interlayer, U-insert or Step 6 production charge.";
+            if (string.Equals(r.Kind, "Glass", StringComparison.OrdinalIgnoreCase))
+                return "Glass material line — sheet/area basis shown separately from production service charges.";
+            return "";
+        }
+
         // ── SERVICE PROFITABILITY ───────────────────────────────────────
         public static readonly string[] ServiceHeaders =
         {
-            "SECTION", "SPEC", "SERVICE", "DESCRIPTION", "AREA (SQM)",
-            "CHARGE", "COST", "PROFIT", "MARGIN %", "STATUS"
+            "SECTION", "SPEC", "SERVICE CLASS", "SERVICE", "DESCRIPTION", "SERVICE QTY (SQM)",
+            "RATE / SQM", "CHARGE", "COST", "PROFIT", "MARGIN %", "STATUS", "CALCULATION BASIS"
         };
 
         public static string[] ServiceMap(ServiceProfitRow r) => new[]
         {
             r.SpecName == "TOTAL" ? "TOTAL" : "SERVICE DETAIL",
             r.SpecName,
+            ServiceClass(r),
             r.ServiceName,
             r.Description,
             r.Area.ToString("0.##", CultureInfo.InvariantCulture),
+            r.Area > 0m ? N(r.Charge / r.Area) : "—",
             N(r.Charge),
             N(r.Cost),
             N(r.Profit),
             N1(r.MarginPercent),
-            r.SpecName == "TOTAL" ? "—" : r.IsProfitable ? "PROFIT" : "LOSS"
+            r.SpecName == "TOTAL" ? "—" : r.IsProfitable ? "PROFIT" : "LOSS",
+            r.Area > 0m ? $"{r.Area:0.##} SQM × AED {(r.Charge / r.Area):N2}/SQM = AED {r.Charge:N2}" : "—"
         };
 
         public static object[] ServiceMapExcel(ServiceProfitRow r) => new object[]
         {
             r.SpecName == "TOTAL" ? "TOTAL" : "SERVICE DETAIL",
-            r.SpecName, r.ServiceName, r.Description, r.Area, r.Charge, r.Cost, r.Profit, r.MarginPercent,
-            r.SpecName == "TOTAL" ? "—" : r.IsProfitable ? "PROFIT" : "LOSS"
+            r.SpecName, ServiceClass(r), r.ServiceName, r.Description, r.Area,
+            r.Area > 0m ? Math.Round(r.Charge / r.Area, 2) : 0m,
+            r.Charge, r.Cost, r.Profit, r.MarginPercent,
+            r.SpecName == "TOTAL" ? "—" : r.IsProfitable ? "PROFIT" : "LOSS",
+            r.Area > 0m ? $"{r.Area:0.##} SQM × AED {(r.Charge / r.Area):N2}/SQM = AED {r.Charge:N2}" : "—"
         };
 
         // ── SHEET PROFITABILITY ─────────────────────────────────────────
@@ -193,41 +290,52 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         // ── MAIN P&L COST BREAKDOWN ────────────────────────────────────
         public static readonly string[] PnlHeaders =
         {
-            "SECTION", "SPEC", "KIND", "DESCRIPTION", "SHEET SIZE", "SHEET SOURCE",
-            "SHEET SQM", "QTY", "UNIT", "PRICE", "AMOUNT"
+            "SECTION", "SPEC", "COST CLASS", "KIND", "DESCRIPTION", "SHEET SIZE", "SHEET SOURCE",
+            "SHEET SQM", "QTY", "UNIT", "RATE", "EXTENDED RATE", "CALCULATION BASIS",
+            "EXTENDED CALCULATION", "PRODUCTION / SERVICE NOTE", "AMOUNT"
         };
 
         public static string[] PnlMap(ProfitLossRow r) => new[]
         {
-            r.Kind == "TOTAL" ? "TOTAL" : "ACTUAL COST LINE",
+            IsSummaryKind(r.Kind) ? "TOTAL / SUBTOTAL" : "ACTUAL COST LINE",
             r.SpecDisplay,
+            CostClass(r),
             r.Kind,
             r.Description,
-            r.Kind == "TOTAL"
+            IsSummaryKind(r.Kind)
                 ? "—"
                 : r.SheetWidthMm > 0
                     ? $"{r.SheetWidthMm} × {r.SheetHeightMm}"
                     : "—",
-            r.Kind == "TOTAL" ? "—" : r.SheetSource,
-            r.Kind == "TOTAL" ? "—" : r.SheetSqm.ToString("0.####", CultureInfo.InvariantCulture),
-            r.Kind == "TOTAL" ? "—" : r.Quantity.ToString("0.##", CultureInfo.InvariantCulture),
-            r.Kind == "TOTAL" ? "—" : r.UnitLabel,
-            r.Kind == "TOTAL" ? "—" : r.PricePerSqm.ToString("N2", CultureInfo.InvariantCulture),
+            IsSummaryKind(r.Kind) ? "—" : r.SheetSource,
+            IsSummaryKind(r.Kind) ? "—" : r.SheetSqm.ToString("0.####", CultureInfo.InvariantCulture),
+            IsSummaryKind(r.Kind) ? "—" : r.Quantity.ToString("0.##", CultureInfo.InvariantCulture),
+            IsSummaryKind(r.Kind) ? "—" : r.UnitLabel,
+            IsSummaryKind(r.Kind) ? "—" : r.PricePerSqm.ToString("N2", CultureInfo.InvariantCulture),
+            IsSummaryKind(r.Kind) ? "—" : ExtendedRate(r).ToString("N2", CultureInfo.InvariantCulture),
+            CostBasis(r),
+            ExtendedCalculation(r),
+            ServiceNote(r),
             N(r.Amount)
         };
 
         public static object[] PnlMapExcel(ProfitLossRow r) => new object[]
         {
-            r.Kind == "TOTAL" ? "TOTAL" : "ACTUAL COST LINE",
+            IsSummaryKind(r.Kind) ? "TOTAL / SUBTOTAL" : "ACTUAL COST LINE",
             r.SpecDisplay,
+            CostClass(r),
             r.Kind,
             r.Description,
-            r.Kind == "TOTAL" ? "—" : r.SizeDisplay,
-            r.Kind == "TOTAL" ? "—" : r.SheetSource,
-            r.Kind == "TOTAL" ? 0m : r.SheetSqm,
-            r.Kind == "TOTAL" ? 0m : r.Quantity,
-            r.Kind == "TOTAL" ? "—" : r.UnitLabel,
-            r.Kind == "TOTAL" ? 0m : r.PricePerSqm,
+            IsSummaryKind(r.Kind) ? "—" : r.SizeDisplay,
+            IsSummaryKind(r.Kind) ? "—" : r.SheetSource,
+            IsSummaryKind(r.Kind) ? 0m : r.SheetSqm,
+            IsSummaryKind(r.Kind) ? 0m : r.Quantity,
+            IsSummaryKind(r.Kind) ? "—" : r.UnitLabel,
+            IsSummaryKind(r.Kind) ? 0m : r.PricePerSqm,
+            IsSummaryKind(r.Kind) ? 0m : ExtendedRate(r),
+            CostBasis(r),
+            ExtendedCalculation(r),
+            ServiceNote(r),
             r.Amount
         };
 
@@ -356,6 +464,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             Add("02 MONEY", "Net revenue excluding VAT", vm.NetDisplay, "Uses Step 7 subtotal-before-VAT when available.");
             Add("02 MONEY", "Glass cost", vm.GlassCostDisplay, vm.CostBasisLabel);
             Add("02 MONEY", "Production / service cost", vm.ProductionCostDisplay, "Spacer, processing and active Step 6 production rows.");
+
+            var spacerRows = (vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
+                .Where(r => IsSpacerKind(r.Kind))
+                .ToList();
+            if (spacerRows.Count > 0)
+            {
+                Add("02 MONEY", "Spacer / ASP production total",
+                    $"AED {spacerRows.Sum(r => r.Amount):N2}",
+                    $"{spacerRows.Sum(r => r.Quantity):0.##} SQM service quantity across {spacerRows.Count} spacer line(s). Formula: service SQM × Step 4 ASP rate.");
+
+                foreach (var specSpacer in spacerRows.GroupBy(r => r.SpecDisplay))
+                {
+                    decimal amount = specSpacer.Sum(r => r.Amount);
+                    decimal qty = specSpacer.Sum(r => r.Quantity);
+                    decimal weightedRate = qty > 0m ? amount / qty : 0m;
+                    Add("02 MONEY · SPACER BY SPEC", specSpacer.Key,
+                        $"AED {amount:N2}",
+                        $"Spacer/ASP service: {qty:0.##} SQM × AED {weightedRate:N2}/SQM. This is production/service cost, not a normal glass sheet line.");
+                }
+            }
+
             Add("02 MONEY", "Total cost", vm.TotalCostDisplay, "Glass + production cost.");
             Add("02 MONEY", vm.ProfitLabel, vm.ProfitDisplay, vm.MarginDisplay);
             Add("02 MONEY", "Overall actual margin", vm.OverallMarginDisplay, vm.PriceBasedMarginDisplay);
@@ -378,7 +507,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             foreach (var line in vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
                 Add("06 ACTUAL COST ROWS", line.SpecDisplay, line.AmountDisplay,
-                    $"{line.Kind}; {line.Description}; qty {line.Quantity:0.##} {line.UnitLabel}; rate {line.PricePerSqm:N2}; sheet {line.SizeDisplay}; source {line.SheetSource}");
+                    $"{CostClass(line)}; {line.Description}; basis {CostBasis(line)}; calc {ExtendedCalculation(line)}; sheet {line.SizeDisplay}; source {line.SheetSource}; {ServiceNote(line)}");
 
             return rows;
         }

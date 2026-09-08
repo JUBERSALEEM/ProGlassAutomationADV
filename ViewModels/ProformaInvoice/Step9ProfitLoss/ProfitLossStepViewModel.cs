@@ -296,6 +296,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             try
             {
                 var rows = Rows.ToList();
+                var spacerRows = Rows
+                    .Where(r => string.Equals(r.Kind, "Spacer", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (spacerRows.Count > 0)
+                {
+                    var spacerQty = spacerRows.Sum(r => r.Quantity);
+                    var spacerAmount = spacerRows.Sum(r => r.Amount);
+                    rows.Add(new ProfitLossRow
+                    {
+                        Kind = "SPACER TOTAL",
+                        Description = $"Spacer / ASP production service total ({spacerRows.Count} line(s))",
+                        Quantity = spacerQty,
+                        UnitLabel = "SQM",
+                        PricePerSqm = spacerQty > 0m ? Math.Round(spacerAmount / spacerQty, 2) : 0m,
+                        Amount = spacerAmount
+                    });
+                }
+
+                var productionRows = Rows
+                    .Where(r => string.Equals(r.Kind, "Production", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (productionRows.Count > 0)
+                {
+                    rows.Add(new ProfitLossRow
+                    {
+                        Kind = "PRODUCTION TOTAL",
+                        Description = $"Other production service total ({productionRows.Count} line(s))",
+                        Amount = productionRows.Sum(r => r.Amount)
+                    });
+                }
+
                 rows.Add(new ProfitLossRow
                 {
                     Kind = "TOTAL",
