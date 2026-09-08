@@ -147,6 +147,39 @@ namespace ProGlassAutomation.Services.SheetStore
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
         }
 
+        /// <remarks>
+        /// <para>
+        /// KNOWN RACE, DELIBERATELY NOT FIXED THE OBVIOUS WAY.
+        /// </para>
+        /// <para>
+        /// This is a read-modify-write, so two operators receiving into the same
+        /// item at the same instant can lose one of the receipts.
+        /// <c>SheetStoreRepository.BuyStockAsync</c> had the identical shape and
+        /// was fixed by moving the increment into SQL
+        /// (<c>SET Stock = Stock + @q</c>). Doing that here would be a mistake,
+        /// and the reason is worth writing down so the next reader does not
+        /// "obviously" apply the same fix.
+        /// </para>
+        /// <para>
+        /// <c>InventoryItem.Stock</c> and <c>Used</c> are declared with TEXT
+        /// affinity (see <c>AppDbContext.OnModelCreating</c>, the D-6 block) so
+        /// that quantities like 45.55 linear metres are stored and read as exact
+        /// .NET decimals. Arithmetic in C# never touches a binary float. Moving
+        /// the addition into SQL moves it into SQLite's REAL type, and the result
+        /// is converted back to TEXT with 15 significant digits. Measured on
+        /// SQLite 3.40.1: exact for every realistic stock figure, but
+        /// <c>12345678901234.56</c> comes back as <c>12345678901234.6</c> and
+        /// <c>9999999999999999.99</c> comes back as <c>1.0e+16</c>. The schema
+        /// allows 18,2 — sixteen significant digits — so the column can legally
+        /// hold a value this path would silently corrupt.
+        /// </para>
+        /// <para>
+        /// The right fix here is a transaction around the read-modify-write with
+        /// a retry on conflict, which keeps the arithmetic in decimal. That needs
+        /// a build and a real database to validate, not a blind edit. Tracked in
+        /// docs/phases/PHASE-01-transactions-and-concurrency.md.
+        /// </para>
+        /// </remarks>
         public async Task ReceiveAsync(int itemId, decimal quantity, decimal? newUnitPrice = null)
         {
             ReadOnlyGate.Demand("receive inventory stock");
@@ -173,6 +206,12 @@ namespace ProGlassAutomation.Services.SheetStore
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
         }
 
+        /// <remarks>
+        /// Same known race and same reason it is not fixed with a SQL-side
+        /// increment as <see cref="ReceiveAsync"/> — the quantity columns are
+        /// TEXT affinity by design and SQL arithmetic would route them through a
+        /// binary float. See that method for the measured evidence.
+        /// </remarks>
         public async Task ConsumeAsync(int itemId, decimal quantity)
         {
             ReadOnlyGate.Demand("consume inventory stock");

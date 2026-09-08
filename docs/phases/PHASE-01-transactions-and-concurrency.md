@@ -2,6 +2,83 @@
 
 **Severity: Critical · Estimate: 4-6 days · Prerequisite: green build**
 
+## Status — the glass-sheet race APPLIED 2026-09-09
+
+| | |
+|---|---|
+| `SheetStoreRepository.UseStockAsync` | **fixed** — guarded atomic UPDATE |
+| `SheetStoreRepository.BuyStockAsync` | **fixed** — atomic UPDATE |
+| `SqliteResilience.ExecuteWithRetryAsync` | **added** — same retry policy for bulk writes |
+| Regression tests | **added** — `Tests/Database/StockConcurrencyTests.cs` (6 tests, real SQLite) |
+| `InventoryItemRepository` (consumables) | **NOT fixed — see below** |
+| Concurrency tokens / `RowVersion` | **not started** |
+| Transactions across multi-entity writes | **not started** |
+
+### What the fix is
+
+The balance check used to run in C# between the read and the write. It now runs
+inside the UPDATE's WHERE clause, so SQLite evaluates the guard and applies the
+increment under one write lock:
+
+```sql
+UPDATE GlassSheets SET Used = Used + @q, LastUpdated = @now
+WHERE Id = @id AND Stock - Used >= @q
+```
+
+Zero rows affected means the guard refused. The method then re-reads *only* to
+choose between the two outcomes the old code produced — a missing sheet returns
+silently, a short sheet throws — because callers depend on the throw
+(`UpdateSheetStockTool`, `SheetStoreDashboardViewModel`). The decision about
+whether to write was already made atomically, so that read cannot corrupt
+anything.
+
+`Balance` is a computed property (`Stock - Used`), not a column, so the guard is
+written as the arithmetic EF translates it to.
+
+`GlassSheet.Stock` and `Used` are `int` on INTEGER-affinity columns. SQL-side
+integer arithmetic is exact; there is no float anywhere in this path.
+
+### Why the consumables were deliberately left alone
+
+`InventoryItemRepository.ReceiveAsync` and `ConsumeAsync` have the identical
+race, and the same fix looks obvious. It is wrong there.
+
+`InventoryItem.Stock` and `Used` are declared **TEXT affinity** (the D-6 block in
+`AppDbContext.OnModelCreating`) so quantities like 45.55 linear metres are
+stored and read as exact .NET decimals and never touch a binary float. Moving
+the addition into SQL moves it into SQLite's REAL type, and the result is
+converted back to TEXT with **15 significant digits**. Measured on SQLite
+3.40.1:
+
+| value in | value out | |
+|---|---|---|
+| `45.55` | `45.55` | exact |
+| `1234567.89` | `1234567.89` | exact |
+| `12345678901234.56` | `12345678901234.6` | **lost** |
+| `9999999999999999.99` | `1.0e+16` | **lost** |
+
+Accumulation is fine for realistic stock — a million additions of `0.07` came
+back exactly `69998.81` — but the schema declares `18,2`, which is sixteen
+significant digits, so the column can legally hold a value this path would
+silently corrupt. That is a worse failure than the race it fixes.
+
+The correct fix for consumables is a transaction around the read-modify-write
+with a retry on conflict, which keeps the arithmetic in `decimal`. That needs a
+build and a real database. Both methods now carry this reasoning inline so the
+next reader does not apply the SQL fix by analogy.
+
+### What is still open
+
+Concurrency tokens (`RowVersion`) and transactions across multi-entity writes
+are untouched. Both need a schema migration and a green build, and doing either
+blind is how a working application stops starting.
+
+Note one nuance the original finding overstated: EF Core already wraps a
+multi-statement `SaveChangesAsync` in a transaction automatically, so a single
+`SaveChanges` touching several entities *is* atomic. `SheetHistoryRepository.ReverseAsync`
+relies on that and is correct. The genuine gap is read-modify-write across
+separate contexts — the lost update — which is what this phase actually fixes.
+
 ## Why this is first
 
 Two operators using this app at the same time can silently corrupt stock

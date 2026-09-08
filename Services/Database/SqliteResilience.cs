@@ -266,6 +266,51 @@ namespace ProGlassAutomation.Services.Database
             }
         }
 
+        /// <summary>
+        /// Runs a bulk write (<c>ExecuteUpdateAsync</c> /
+        /// <c>ExecuteDeleteAsync</c>) under the same transient-error retry as
+        /// <see cref="SaveWithRetryAsync"/>.
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Bulk writes are what make a counter increment safe on SQLite. A
+        /// read-modify-write in C# — load the row, check the balance, add to it,
+        /// save — loses an update whenever two operators touch the same row,
+        /// because both read the same starting value and the second write
+        /// silently overwrites the first. Expressing the increment and its guard
+        /// as a single conditional UPDATE lets SQLite evaluate and apply them
+        /// under one write lock, which removes the race entirely.
+        /// </para>
+        /// <para>
+        /// The retry policy is shared rather than duplicated: a bulk write hits
+        /// the same SQLITE_BUSY and WAL checkpoint stalls as a SaveChanges, and
+        /// needs the same back-off. This is a thin alias so the loop lives in one
+        /// place and both kinds of write age together.
+        /// </para>
+        /// <para>
+        /// Note what a bulk write does NOT do: it bypasses change tracking and
+        /// any SaveChanges interceptor, so computed properties, audit stamps and
+        /// domain validation attached to those paths do not run. Every column
+        /// the operation should touch must be named in the setter list. Verified
+        /// when this was introduced — this codebase has no
+        /// <c>SaveChanges</c> override and no SaveChanges interceptor, only the
+        /// PRAGMA connection interceptor in <see cref="ConfigureFor"/>, so
+        /// nothing was being skipped. Re-check that if either is ever added.
+        /// </para>
+        /// </remarks>
+        /// <param name="execute">Delegate performing the bulk write. Typically
+        ///   <c>ct =&gt; db.Entity.Where(...).ExecuteUpdateAsync(..., ct)</c>.</param>
+        /// <param name="ct">Cancellation token.</param>
+        /// <param name="maxAttempts">Maximum total attempts (default 5).</param>
+        /// <returns>The number of rows affected on the successful attempt. Zero
+        ///   means the WHERE clause matched nothing — which for a guarded
+        ///   increment is the guard refusing, not an error.</returns>
+        public static Task<int> ExecuteWithRetryAsync(
+            Func<CancellationToken, Task<int>> execute,
+            CancellationToken ct = default,
+            int maxAttempts = 5)
+            => SaveWithRetryAsync(execute, ct, maxAttempts);
+
         // ── Interceptor implementation ──────────────────────────────────
 
         private sealed class SqlitePragmaInterceptor : DbConnectionInterceptor

@@ -139,41 +139,117 @@ namespace ProGlassAutomation.Services.SheetStore
             }
         }
 
+        /// <summary>
+        /// Records a stock purchase as a single atomic increment.
+        /// </summary>
+        /// <remarks>
+        /// Was a read-modify-write: load the sheet, add to <c>Stock</c>, save.
+        /// Two operators booking stock into the same sheet at once both read the
+        /// same starting value, and whichever saved second overwrote the first —
+        /// a lost update, silent, with no exception and no way to notice except
+        /// that the count was wrong later.
+        ///
+        /// The increment now happens in SQL (<c>SET Stock = Stock + @q</c>), so
+        /// SQLite applies it under one write lock and both purchases land.
+        /// Every column the old code touched is named in the setter list, because
+        /// a bulk write bypasses change tracking and will not set anything that
+        /// is not listed.
+        ///
+        /// A missing sheet still returns without error, exactly as before.
+        /// </remarks>
         public async Task BuyStockAsync(int sheetId, int quantity, decimal? newPurchasePrice = null)
         {
             ReadOnlyGate.Demand("record a stock purchase");
             if (quantity <= 0) return;
 
             using var db = new AppDbContext();
-            var sheet = await db.GlassSheets.FindAsync(sheetId).ConfigureAwait(false);
-            if (sheet == null) return;
+            var now = DateTime.Now;
+            var applyPrice = newPurchasePrice.HasValue && newPurchasePrice.Value > 0;
 
-            sheet.Stock += quantity;
-            sheet.LastPurchaseDate = DateTime.Now;
-            sheet.LastUpdated = DateTime.Now;
-
-            if (newPurchasePrice.HasValue && newPurchasePrice.Value > 0)
-                sheet.PurchasePricePerSqm = newPurchasePrice.Value;
-
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            // Two explicit branches rather than one setter list with a
+            // conditional inside it: keeping the purchase price untouched and
+            // overwriting it are different statements, and writing them out
+            // separately leaves no doubt about which columns move.
+            await SqliteResilience.ExecuteWithRetryAsync(ct => applyPrice
+                ? db.GlassSheets
+                    .Where(g => g.Id == sheetId)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(g => g.Stock, g => g.Stock + quantity)
+                        .SetProperty(g => g.PurchasePricePerSqm, _ => newPurchasePrice!.Value)
+                        .SetProperty(g => g.LastPurchaseDate, _ => now)
+                        .SetProperty(g => g.LastUpdated, _ => now), ct)
+                : db.GlassSheets
+                    .Where(g => g.Id == sheetId)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(g => g.Stock, g => g.Stock + quantity)
+                        .SetProperty(g => g.LastPurchaseDate, _ => now)
+                        .SetProperty(g => g.LastUpdated, _ => now), ct));
         }
 
+        /// <summary>
+        /// Consumes stock as a single guarded atomic increment.
+        /// </summary>
+        /// <remarks>
+        /// The balance check used to run in C# between the read and the write:
+        ///
+        /// <code>
+        /// var sheet = await db.GlassSheets.FindAsync(sheetId);  // read
+        /// if (sheet.Balance &lt; quantity) throw ...;            // check
+        /// sheet.Used += quantity;                               // write
+        /// </code>
+        ///
+        /// Two operators issuing from the same sheet both read the same balance,
+        /// both pass the check, and both write from the same starting value — so
+        /// one issue is lost and the balance ends up higher than the physical
+        /// stock. With enough overlap the balance can even go negative, because
+        /// nothing re-checks at write time.
+        ///
+        /// The guard is now part of the UPDATE's WHERE clause, evaluated and
+        /// applied together under SQLite's write lock. There is no window.
+        ///
+        /// <c>Balance</c> is a computed property (<c>Stock - Used</c>), not a
+        /// column, so the guard is written as the arithmetic EF translates it to.
+        ///
+        /// Both outcomes the old code produced are preserved: a missing sheet
+        /// returns silently, insufficient stock throws — callers depend on the
+        /// throw (<c>UpdateSheetStockTool</c>, <c>SheetStoreDashboardViewModel</c>).
+        /// </remarks>
+        /// <exception cref="InvalidOperationException">
+        /// The sheet exists but does not hold <paramref name="quantity"/> sheets.
+        /// </exception>
         public async Task UseStockAsync(int sheetId, int quantity)
         {
             ReadOnlyGate.Demand("record stock usage");
             if (quantity <= 0) return;
 
             using var db = new AppDbContext();
-            var sheet = await db.GlassSheets.FindAsync(sheetId).ConfigureAwait(false);
-            if (sheet == null) return;
+            var now = DateTime.Now;
 
-            if (sheet.Balance < quantity)
-                throw new InvalidOperationException(
-                    $"Not enough stock. Available: {sheet.Balance}, Requested: {quantity}");
+            int updated = await SqliteResilience.ExecuteWithRetryAsync(ct =>
+                db.GlassSheets
+                    .Where(g => g.Id == sheetId && g.Stock - g.Used >= quantity)
+                    .ExecuteUpdateAsync(setters => setters
+                        .SetProperty(g => g.Used, g => g.Used + quantity)
+                        .SetProperty(g => g.LastUpdated, _ => now), ct));
 
-            sheet.Used += quantity;
-            sheet.LastUpdated = DateTime.Now;
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            if (updated > 0) return;
+
+            // Nothing was written. Two reasons, and they are not the same:
+            // the sheet may not exist (the old code returned silently) or it may
+            // exist and be short (the old code threw). Re-read to tell them
+            // apart. This read is only used to choose the error message — the
+            // decision about whether to write was already made atomically above,
+            // so a concurrent change here cannot corrupt anything.
+            int? balance = await db.GlassSheets
+                .AsNoTracking()
+                .Where(g => g.Id == sheetId)
+                .Select(g => (int?)(g.Stock - g.Used))
+                .FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if (balance == null) return;
+
+            throw new InvalidOperationException(
+                $"Not enough stock. Available: {balance.Value}, Requested: {quantity}");
         }
 
         public async Task<List<string>> GetCategoriesAsync()
