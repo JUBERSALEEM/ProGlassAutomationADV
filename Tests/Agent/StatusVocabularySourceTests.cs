@@ -10,7 +10,7 @@
 //   Proforma PI  → ProformaInvoiceStatus.Normalize (string vocabulary)
 //   Job Order    → JobOrderStatus enum (typed — bypass impossible)
 //   DeliveryNote → DeliveryNoteStatusValues canonical strings
-//   TaxInvoice   → TaxInvoiceStatus… enum/strings (typed boundary)
+//   TaxInvoice   → TaxInvoiceStatus enum + TaxInvoiceStatusValues strings
 // A new raw-literal write — from a converter, an import, a repair script —
 // must fail THIS suite instead of reaching savable data undetected.
 // ═══════════════════════════════════════════════════════════════════════
@@ -51,6 +51,26 @@ namespace ProGlassAutomation.Tests.Agent
             var dn = Read("Models", "DeliveryNote", "Common", "DeliveryNoteStatus", "DeliveryNoteStatus.cs");
             Assert.Contains("public static class DeliveryNoteStatusValues", dn, StringComparison.Ordinal);
             Assert.Contains("public enum DeliveryNoteStatus", dn, StringComparison.Ordinal);
+
+            // The enum alone is not enough: SavedJobOrder.Status is a string,
+            // so the stored vocabulary needs a home too. Its absence is what
+            // let "In Production" and "InProduction" diverge (fixed 2026-09-08).
+            var joValues = Read("Models", "JobOrder", "Common", "JobOrderStatus", "JobOrderStatusValues.cs");
+            Assert.Contains("public static class JobOrderStatusValues", joValues, StringComparison.Ordinal);
+            Assert.Contains("public const string InProductionLegacy", joValues, StringComparison.Ordinal);
+            Assert.Contains("public static bool IsInProduction(string? stored)", joValues, StringComparison.Ordinal);
+
+            // The file header has claimed a typed Tax Invoice boundary since
+            // this test was written, but nothing asserted one and none
+            // existed. It does now (2026-09-08).
+            var ti = Read("Models", "TaxInvoice", "Common", "TaxInvoiceStatus", "TaxInvoiceStatus.cs");
+            Assert.Contains("public enum TaxInvoiceStatus", ti, StringComparison.Ordinal);
+            Assert.Contains("public static class TaxInvoiceStatusValues", ti, StringComparison.Ordinal);
+
+            // The display form must stay display-only. Nothing in the
+            // repository stores it; if that ever changes, this module has the
+            // same split Job Order and Delivery Note had.
+            Assert.Contains("public const string PartiallyPaidDisplay = \"Partially Paid\";", ti, StringComparison.Ordinal);
         }
 
         [Fact]
