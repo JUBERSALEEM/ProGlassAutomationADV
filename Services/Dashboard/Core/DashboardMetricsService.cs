@@ -40,6 +40,7 @@ using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.DeliveryNote.Database;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using System;
@@ -58,6 +59,17 @@ namespace ProGlassAutomation.Services.Dashboard.Core
 
         private static bool Eq(string? a, string b) =>
             string.Equals(a?.Trim(), b, StringComparison.OrdinalIgnoreCase);
+
+        // Job status comparisons live in JobOrderStatusValues (Models/JobOrder/
+        // Common/JobOrderStatus/). They were local helpers here until
+        // 2026-09-08, which is how "In Production" vs "InProduction" came to be
+        // answered differently by this service, by ReportingDataService and by
+        // the Job Order dashboard.
+        //
+        // ReportingDataService still carries its own both-spelling checks; it
+        // is correct today, but it should be migrated to JobOrderStatusValues
+        // so the rule has exactly one home. Tracked in Phase 3 of
+        // docs/REMEDIATION_PLAN.md.
 
         // ═════════════════════════════════════════════════════════════
         //  NARROW PROJECTIONS
@@ -228,7 +240,24 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             var today = DateTime.Today;
 
             m.TotalJobs     = rows.Count;
-            m.InProduction  = rows.Count(r => Eq(r.Status, "In Production"));
+
+            // ── The legacy "InProduction" ↔ "In Production" split ────────
+            //
+            // JobOrderStatus is an enum whose member is `InProduction`, and
+            // SavedJobOrder.Status is a string — so a job written through the
+            // enum stores "InProduction" with no space. Older rows store
+            // "In Production". BOTH forms are live in the database; this is
+            // documented in ReportingDataService.DrillDown.cs ("Normalise the
+            // legacy InProduction ↔ In Production split") and handled there
+            // and in ReportingDataService.Jo.cs by matching both.
+            //
+            // This method previously matched only "In Production", so every
+            // job written through the enum — i.e. every recent one — was
+            // silently excluded. The Overview dashboard therefore
+            // under-reported In Production while the Job Order dashboard,
+            // which matches "InProduction", reported a different number.
+            // Two dashboards, two answers to the same question.
+            m.InProduction  = rows.Count(r => JobOrderStatusValues.IsInProduction(r.Status));
             m.Completed     = rows.Count(r => Eq(r.Status, "Completed") ||
                                               Eq(r.Status, "Delivered"));
 
@@ -254,8 +283,11 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                     rows.Count(r => IsDone(r) && prev.Contains(r.UpdatedAt));
             }
 
+            // Canonical(), not a raw trim: without it a breakdown can
+            // show "InProduction" and "In Production" as two separate states
+            // and the status-mix chart splits one number into two bars.
             m.StatusBreakdown = rows
-                .GroupBy(r => string.IsNullOrWhiteSpace(r.Status) ? "Unknown" : r.Status.Trim(),
+                .GroupBy(r => JobOrderStatusValues.Canonical(r.Status),
                          StringComparer.OrdinalIgnoreCase)
                 .Select(g => new NamedValue { Name = g.Key, Count = g.Count() })
                 .OrderByDescending(x => x.Count)
