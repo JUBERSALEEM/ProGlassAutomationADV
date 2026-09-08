@@ -10,7 +10,7 @@ export surface.
 > Wizard is 9 steps today: Step 7 (this) → **Step 8 Attachments** →
 > **Step 9 Profit & Loss** (the single pricing engine whose snapshot feeds
 > Job Profitability / Reports — see `Services/ProformaInvoice/` and
-> `ERP_UPGRADE_ROADMAP.md`).
+> `../../../docs/ERP_UPGRADE_ROADMAP.md`).
 
 ## Purpose
 

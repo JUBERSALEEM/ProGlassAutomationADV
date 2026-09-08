@@ -1,7 +1,7 @@
 # ProGlass Automation — End-to-End Walk-Through
 
 **Purpose.** The single most important amber item in
-[`RELEASE_GATE.md`](../RELEASE_GATE.md) is *"the runtime end-to-end
+[`RELEASE_GATE.md`](RELEASE_GATE.md) is *"the runtime end-to-end
 click-through of the Inquiry → PI → JO → DN → TI → STMT chain on a
 clean install has not been done."* This document is the script a
 tester (you, a contractor, or a future AI assistant) can follow

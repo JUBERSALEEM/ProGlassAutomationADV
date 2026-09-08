@@ -48,6 +48,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | ProGlass Automation — Architecture (v2.0) |
 | [`DATABASE_MIGRATION_FIX.md`](DATABASE_MIGRATION_FIX.md) | Database Migration Fix: WeightPerPiece Column |
 | [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) | ProGlass Automation — UI Design System (v2) |
+| [`ERP_UPGRADE_ROADMAP.md`](ERP_UPGRADE_ROADMAP.md) | PROGLASS AUTOMATION — ROADMAP TO 10/10 INDUSTRIAL ERP WORKFLOW |
 | [`LAN_SHARED_DATABASE_CONNECTIVITY_UPGRADE_2026-09-07.md`](LAN_SHARED_DATABASE_CONNECTIVITY_UPGRADE_2026-09-07.md) | LAN / Wi-Fi Shared Database Connectivity Upgrade — 2026-09-07 |
 | [`MONEY_PATH_ERROR_POLICY.md`](MONEY_PATH_ERROR_POLICY.md) | MONEY-PATH ERROR & SILENT-CATCH POLICY |
 | [`PRODUCTION_HARDENING_REPORT_2026-08.md`](PRODUCTION_HARDENING_REPORT_2026-08.md) | PROGLASS AUTOMATION — PRODUCTION HARDENING REPORT |
@@ -71,7 +72,9 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`JOB_ORDER_DEEP_AUDIT_2026-08.md`](JOB_ORDER_DEEP_AUDIT_2026-08.md) | Job Order Module — Deep Senior Audit (Aug 2026) |
 | [`JOB_ORDER_TABS_AND_SETTINGS_BUTTONS_2026-08.md`](JOB_ORDER_TABS_AND_SETTINGS_BUTTONS_2026-08.md) | Job Order Tab Switch Restore + Settings Button Full-Width (Aug 2026) |
 | [`JOB_PROFITABILITY_FULL_DETAIL_2026-09-06.md`](JOB_PROFITABILITY_FULL_DETAIL_2026-09-06.md) | Job Profitability — Single-Click Sidebar + Double-Click Full Detail |
+| [`JOB_PROFITABILITY_IMPLEMENTATION.md`](JOB_PROFITABILITY_IMPLEMENTATION.md) | Job Profitability Portfolio Analysis - Implementation Summary |
 | [`PROFORMA_INQUIRY_INTEGRATION_2026-08.md`](PROFORMA_INQUIRY_INTEGRATION_2026-08.md) | Inquiry ↔ Proforma Invoice integration — senior audit (August 2026) |
+| [`PROFORMA_INVOICE_ARCHITECTURE_REVIEW.md`](PROFORMA_INVOICE_ARCHITECTURE_REVIEW.md) | Proforma Invoice System — Senior Architectural Review |
 | [`PROFORMA_INVOICE_AUDIT_2026-08.md`](PROFORMA_INVOICE_AUDIT_2026-08.md) | Proforma Invoice module — senior-dev audit (August 2026) |
 | [`PROFORMA_INVOICE_RATING_2026-08.md`](PROFORMA_INVOICE_RATING_2026-08.md) | Proforma Invoice module — 10 / 10 delivery |
 | [`REPORTS_DATAGRID_MOCKUP.md`](REPORTS_DATAGRID_MOCKUP.md) | Central Reporting Module — DataGrid & UI/UX Industrial Specification & Mockup |
@@ -120,6 +123,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`SENIOR_ANALYSIS_STEP4_STEP5_STEP9_AND_DIALOG_THEME.md`](SENIOR_ANALYSIS_STEP4_STEP5_STEP9_AND_DIALOG_THEME.md) | Senior Analysis — Step 4→5→9 Data Flow and Dialog Theming |
 | [`SETTINGS_FULL_REDESIGN_AND_JOBORDER_2026-08.md`](SETTINGS_FULL_REDESIGN_AND_JOBORDER_2026-08.md) | Settings Full Redesign + Job Order Production Panel — Aug 2026 |
 | [`SETTINGS_FULL_WIDTH_FIX_2026-08.md`](SETTINGS_FULL_WIDTH_FIX_2026-08.md) | Settings Full-Width Fix — Root Cause + Consistent Alignment (Aug 2026) |
+| [`SETTINGS_MODULE_AUDIT.md`](SETTINGS_MODULE_AUDIT.md) | SETTINGS MODULE — DEEP AUDIT & UPGRADE PHASES |
 | [`SETTINGS_NATURAL_HEIGHT_FIX_2026-08.md`](SETTINGS_NATURAL_HEIGHT_FIX_2026-08.md) | Settings Natural-Height Fix — Global Wallpaper empty space (Aug 2026) |
 | [`SETTINGS_REDESIGN.md`](SETTINGS_REDESIGN.md) | Settings Module v2 — Redesign Report |
 | [`SETTINGS_REDESIGN_2026-08.md`](SETTINGS_REDESIGN_2026-08.md) | Settings Redesign · Tile-Grid Design System · August 2026 |
@@ -180,6 +184,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`RATINGS_AND_CLEANUP_2026-08.md`](RATINGS_AND_CLEANUP_2026-08.md) | Ratings snapshot + follow-up cleanup — August 2026 |
 | [`RATING_PROGRESS.md`](RATING_PROGRESS.md) | Rating Progress — Phases to 10/10 |
 | [`RELEASE_AUDIT.md`](RELEASE_AUDIT.md) | ProGlassAutomation — Commercial Release Audit |
+| [`RELEASE_GATE.md`](RELEASE_GATE.md) | ProGlass Automation — Release Gate |
 | [`RELEASE_READINESS_2026-09-01.md`](RELEASE_READINESS_2026-09-01.md) | ProGlass Automation — Production Release Readiness (Deep Audit) |
 | [`RELEASE_READINESS_V2_STATUS.md`](RELEASE_READINESS_V2_STATUS.md) | PROGLASS AUTOMATION — V2.0 RELEASE-READINESS STATUS |
 | [`UPGRADE_NOTES.md`](UPGRADE_NOTES.md) | ProGlass Automation — Upgrade Notes (Audit • God Views • Step 8 Attachments • Dynamic T… |
@@ -195,6 +200,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`EMPTY_CATCH_SWEEP_2026-08-25.md`](EMPTY_CATCH_SWEEP_2026-08-25.md) | Empty-catch sweep — 2026-08-25 |
 | [`FILE_ANALYSIS_2026-08.md`](FILE_ANALYSIS_2026-08.md) | Full-tree analysis — 2026-08-18 |
 | [`INDUSTRIALIZATION_AUDIT_2026-09-06.md`](INDUSTRIALIZATION_AUDIT_2026-09-06.md) | ProGlass Automation — Industrialization Audit & Safe Refactor |
+| [`INDUSTRIAL_CODE_AUDIT.md`](INDUSTRIAL_CODE_AUDIT.md) | Industrial Code & Workflow Senior Audit — ProGlass Automation |
 | [`INDUSTRIAL_ERP_ANALYSIS_2026-09-07.md`](INDUSTRIAL_ERP_ANALYSIS_2026-09-07.md) | Senior Industrial-ERP Analysis — Appearance, Branding & Theme Round |
 | [`PHASE10_COMPLETE.md`](PHASE10_COMPLETE.md) | Phase 10 Complete — Production Hardening |
 | [`PHASE1_COMPLETE.md`](PHASE1_COMPLETE.md) | Phase 1 Complete — CI/CD & Quality Gates |
@@ -207,8 +213,13 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`PHASE7_COMPLETE.md`](PHASE7_COMPLETE.md) | Phase 7 Complete — Test Coverage Expansion |
 | [`PHASE8_COMPLETE.md`](PHASE8_COMPLETE.md) | Phase 8 Complete — Security Hardening v2 |
 | [`PHASE9_COMPLETE.md`](PHASE9_COMPLETE.md) | Phase 9 Complete — Performance & Virtualization |
+| [`SENIOR_ANALYSIS.md`](SENIOR_ANALYSIS.md) | Senior Analysis — ProGlass Automation ADV |
+| [`SENIOR_ANALYSIS_AND_IMPROVEMENTS.md`](SENIOR_ANALYSIS_AND_IMPROVEMENTS.md) | Senior Analysis: P&L and Profitability System |
 | [`SENIOR_ANALYSIS_ERR-633EEB_AND_THEME_BOUNCE.md`](SENIOR_ANALYSIS_ERR-633EEB_AND_THEME_BOUNCE.md) | Senior Analysis — ERR-633EEB startup crash + splash colour bounce |
+| [`SENIOR_ANALYSIS_LOCALIZATION.md`](SENIOR_ANALYSIS_LOCALIZATION.md) | Senior Deep Analysis — Localization & Globalization vs. Master Prompt |
 | [`SENIOR_ANALYSIS_STARTUP_CRASH_SWEEP.md`](SENIOR_ANALYSIS_STARTUP_CRASH_SWEEP.md) | Senior Analysis — Startup Crash Sweep (ERR-918BAB and the whole defect family) |
+| [`SENIOR_DEEP_AUDIT.md`](SENIOR_DEEP_AUDIT.md) | Senior Industrial Developer Deep Code Audit |
+| [`SENIOR_ENGINEERING_AUDIT.md`](SENIOR_ENGINEERING_AUDIT.md) | Senior Engineering Audit Report |
 | [`SENIOR_ERP_RUNTIME_FIX_NOTES_2026-09-07.md`](SENIOR_ERP_RUNTIME_FIX_NOTES_2026-09-07.md) | Senior ERP Runtime Fix Notes — 2026-09-07 |
 | [`SENIOR_GLOBAL_AUDIT_2026-08-21.md`](SENIOR_GLOBAL_AUDIT_2026-08-21.md) | Senior Global Code Audit — ProGlassAutomationADV |
 
@@ -216,6 +227,20 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 
 | Document | What it covers |
 |---|---|
+| [`CODE_RATING_REPORT.md`](CODE_RATING_REPORT.md) | ProGlass Automation — Senior Engineering Rating |
+| [`CORRECTED_MARGIN_CALCULATION.md`](CORRECTED_MARGIN_CALCULATION.md) | ✅ Corrected Margin Calculation - Example |
+| [`DELIVERY-REPORT.md`](DELIVERY-REPORT.md) | ProGlass Automation — Localization & Globalization Delivery Report |
+| [`FULL_WORKFLOW_AUDIT.md`](FULL_WORKFLOW_AUDIT.md) | PROGLASS AUTOMATION — DEEP WORKFLOW AUDIT & UPGRADE |
+| [`IMPLEMENTATION_COMPLETE.md`](IMPLEMENTATION_COMPLETE.md) | ✅ Implementation Complete: Three Analysis Views with Tab Control |
+| [`IMPLEMENTATION_SUMMARY.md`](IMPLEMENTATION_SUMMARY.md) | ProGlassAutomationADV — Implementation Summary |
+| [`PHASE_BALANCE.md`](PHASE_BALANCE.md) | Phase Balance — ProGlass Automation ADV |
+| [`PI_SYSTEM_STATUS_REPORT.md`](PI_SYSTEM_STATUS_REPORT.md) | Proforma Invoice System - Complete Status Report |
+| [`PL_COST_BASED_MARKUP_EXAMPLE.md`](PL_COST_BASED_MARKUP_EXAMPLE.md) | P&L Cost-Based Markup Implementation - Example |
+| [`REMEDIATION_PLAN.md`](REMEDIATION_PLAN.md) | Remediation Plan |
+| [`REPORT_GENERATOR_SENIOR_ANALYSIS.md`](REPORT_GENERATOR_SENIOR_ANALYSIS.md) | Report Generator — Senior Analysis & Implementation Plan |
+| [`SERVICE_CATEGORIZATION_FIX.md`](SERVICE_CATEGORIZATION_FIX.md) | Service Profitability - Business Logic Clarification |
+| [`SPEC_CHARGE_EXAMPLES.md`](SPEC_CHARGE_EXAMPLES.md) | Complete Spec-to-Charge Examples (4 Build Types) |
+| [`WASTAGE_COLOUR_SYNC_FIX.md`](WASTAGE_COLOUR_SYNC_FIX.md) | Step 6 Wastage Charges — Colour Import & Spec-Side Sync Fix |
 | [`WORKFLOW.md`](WORKFLOW.md) | Application Workflow |
 
 ## Sub-folders

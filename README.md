@@ -27,7 +27,7 @@
 
 [🧭 Application Workflow](docs/WORKFLOW.md) ·
 [📚 All Documents](docs/README.md) ·
-[🗺️ Upgrade Roadmap](ERP_UPGRADE_ROADMAP.md) ·
+[🗺️ Upgrade Roadmap](docs/ERP_UPGRADE_ROADMAP.md) ·
 [🎨 Design System](docs/DESIGN_SYSTEM.md) ·
 [⚠️ Money-Path Policy](docs/MONEY_PATH_ERROR_POLICY.md)
 
@@ -206,8 +206,8 @@ rules, not aspirations.
 ## Engineering health — an honest assessment
 
 > **Read this before trusting any number below.** Two self-assessments exist
-> in this repository and they disagree: `ERP_UPGRADE_ROADMAP.md` claims
-> **9.7/10** (after Phase 4) while `CODE_RATING_REPORT.md` (2026-09-02) rates
+> in this repository and they disagree: `docs/ERP_UPGRADE_ROADMAP.md` claims
+> **9.7/10** (after Phase 4) while `docs/CODE_RATING_REPORT.md` (2026-09-02) rates
 > **9.0/10** after an independent deep audit. Neither was produced by a green
 > `dotnet build` + `dotnet test`, because **this repository currently has no
 > CI**. Treat both as engineering judgement, not as measured results.
@@ -225,17 +225,20 @@ rules, not aspirations.
 
 ### What is open
 
+Every item below has a phase, a concrete action and an acceptance test in
+**[`docs/REMEDIATION_PLAN.md`](docs/REMEDIATION_PLAN.md)**.
+
 | Priority | Issue | Evidence |
 |---|---|---|
 | **P0** | **No CI.** `.github/workflows/` does not exist. Four complete workflow files sit in `docs/ci/` and `docs/CI/`, unused. Nothing proves this tree builds. | `ls .github/` → `CODEOWNERS`, `dependabot.yml`, `pull_request_template.md` |
-| **P1** | **No pagination.** 23 ViewModels call `GetAllAsync()`. Correct at 500 records, painful at 50,000. `InquiryList` already shows the right pattern (`PageSize=50`). | `grep -rl GetAllAsync ViewModels/` |
+| **P1** | **No pagination.** 28 real `GetAllAsync()` call sites across 20 ViewModels. Correct at 500 records, painful at 50,000. A working pattern already exists — `GlobalQueryEngine` + `InquiryList` (`PageSize=50`) — it is simply not used everywhere. | `grep -rn GetAllAsync ViewModels/ \| grep -v ///` |
 | **P1** | **The dashboard change of 2026-09-08 is unverified.** No SDK and no reachable NuGet feed in the environment it was written in; only static checks ran. Build on Windows before shipping. | commit `041a231` |
 | **P2** | **Test ratio 1 : 7.6.** Improved from 1 : 8.2, still thin for software that computes money. The pricing engine in particular deserves property-based coverage. | 29,578 test lines vs 223,866 |
 | **P2** | **Large classes.** 13 files exceed 990 lines; `JobProfitabilityViewModel.cs` is 1,930. Partial-class splitting contains the file size but not the responsibility count. | `find . -name '*.cs' \| xargs wc -l` |
-| **P2** | **No obfuscation.** Release binaries are readable in dnSpy. Acceptable for desktop, a raised bar for a commercial product. | `CODE_RATING_REPORT.md` |
+| **P2** | **No obfuscation.** Release binaries are readable in dnSpy. Acceptable for desktop, a raised bar for a commercial product. | `docs/CODE_RATING_REPORT.md` |
 | **P3** | **One acknowledged hack, still open.** `OtherChargeRow.MetricQty` hardcodes delivery quantity to `1m` per invoice. Documented, deliberate, and marked *"proper fix planned for Chat 8"* — it never happened. | `Models/ProformaInvoice/Step6OtherCharges/OtherChargeRow.cs:308` |
-| **P3** | **25 `.md` files in the repository root.** Audits and analyses that belong in `docs/`. They bury `README.md` and `RELEASE_GATE.md`. | `ls *.md` |
-| **P3** | **No anti-debug checks.** A debugger can patch memory to bypass licensing. Acceptable for desktop ERP; not zero-risk. | `CODE_RATING_REPORT.md` |
+| ~~P3~~ | ~~**25 `.md` files in the repository root.**~~ **Resolved 2026-09-08** — 24 audit/analysis documents moved to `docs/` with `git mv`, all inbound references rewritten, links re-verified. `README.md` is now the only root document. | `ls *.md` |
+| **P3** | **No anti-debug checks.** A debugger can patch memory to bypass licensing. Acceptable for desktop ERP; not zero-risk. | `docs/CODE_RATING_REPORT.md` |
 
 ### The rating, stated plainly
 
@@ -300,8 +303,9 @@ These are static. They catch broken references and malformed markup; they do
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Layering, boundaries, the data path |
 | [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) | Design tokens, brushes, motion, wallpapers |
 | [`docs/MONEY_PATH_ERROR_POLICY.md`](docs/MONEY_PATH_ERROR_POLICY.md) | What may and may not happen on a money path — read before touching pricing |
-| [`ERP_UPGRADE_ROADMAP.md`](ERP_UPGRADE_ROADMAP.md) | Phase history and acceptance gates |
-| [`RELEASE_GATE.md`](RELEASE_GATE.md) | Release checklist |
+| [`docs/ERP_UPGRADE_ROADMAP.md`](docs/ERP_UPGRADE_ROADMAP.md) | Phase history and acceptance gates |
+| [`docs/REMEDIATION_PLAN.md`](docs/REMEDIATION_PLAN.md) | Phased plan for every open issue above, with acceptance criteria |
+| [`docs/RELEASE_GATE.md`](docs/RELEASE_GATE.md) | Release checklist |
 | [`Tests/README.md`](Tests/README.md) | Test filters and gate conventions |
 
 Every significant folder carries its own `README.md`; all 30 are linked from

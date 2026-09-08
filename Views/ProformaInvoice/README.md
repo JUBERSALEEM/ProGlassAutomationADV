@@ -8,7 +8,7 @@ Enterprise-grade **9-step wizard** for building professional glass proforma invo
 
 ## Wizard Steps
 
-1. **Company** — Hard-linked to Company Center: loading a card copies all 8 legal-entity fields (name, TRN, location, rep, rep mobile, e-mail, bank account, bank name, logo). Edits enrich the module record at save under a preserve-blank contract. *(The legacy default-mark no longer exists — the selected company is the only authority; see `ERP_UPGRADE_ROADMAP.md` post-P5.)*
+1. **Company** — Hard-linked to Company Center: loading a card copies all 8 legal-entity fields (name, TRN, location, rep, rep mobile, e-mail, bank account, bank name, logo). Edits enrich the module record at save under a preserve-blank contract. *(The legacy default-mark no longer exists — the selected company is the only authority; see `../../docs/ERP_UPGRADE_ROADMAP.md` post-P5.)*
 2. **Client** — Customer/TRN/billing profile, suggestion dedup, auto-registration.
 3. **Project** — Project identifier, contract reference, site mapping.
 4. **Pricing Estimator** — Per build type (SGU / DGU / LAM / DGU+LAM): sheet selection, air spacer, processing rates, per-section panels. **Per-group production-rate provenance (Phase 1, `0f1a67e`)**: each group persists *its own* inputs — a multi-section quote never silently costs every group with section 1's panel.

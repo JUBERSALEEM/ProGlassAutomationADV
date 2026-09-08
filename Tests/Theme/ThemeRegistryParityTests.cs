@@ -2,7 +2,7 @@
 // FILE: Tests/Theme/ThemeRegistryParityTests.cs
 // PROJECT: ProGlassAutomation.Tests
 // ─────────────────────────────────────────────────────────────────────────
-// Phase-1 audit deliverable (2026-09-05 — SETTINGS_MODULE_AUDIT.md):
+// Phase-1 audit deliverable (2026-09-05 — ../../docs/SETTINGS_MODULE_AUDIT.md):
 // the F-01..F-05 bug class was REGISTRY DRIFT — lists that must agree,
 // maintained by hand, silently disagreeing:
 //
