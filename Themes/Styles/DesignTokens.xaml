@@ -51,13 +51,21 @@
          information hierarchy, not invent per-page card species.
     ═══════════════════════════════════════════════════════════════ -->
 
-    <StaticResource x:Key="Surface.Primary.BackgroundBrush" ResourceKey="GlassSurfaceBrush"/>
-    <StaticResource x:Key="Surface.Secondary.BackgroundBrush" ResourceKey="GlassSurfaceUltra"/>
-    <StaticResource x:Key="Surface.Detail.BackgroundBrush" ResourceKey="ModuleBackgroundBrush"/>
-    <StaticResource x:Key="Surface.Primary.BorderBrush" ResourceKey="GlassBorderSoft"/>
-    <StaticResource x:Key="Surface.Secondary.BorderBrush" ResourceKey="OutlineBrush"/>
-    <StaticResource x:Key="Surface.Detail.BorderBrush" ResourceKey="OutlineBrush"/>
-    <StaticResource x:Key="Surface.Primary.OverlayBrush" ResourceKey="ModuleBackgroundBrush"/>
+    <!--
+         Build-safe fallback resources. Do NOT use <StaticResource .../>
+         as a ResourceDictionary item here: the WPF markup compiler can fail
+         with MC1000 "Index was out of range" on that extension-object form
+         before runtime ThemeManager gets a chance to replace these keys.
+         ThemeManager.Part2 overwrites the same Surface.* brush keys at
+         startup/appearance changes, so these are only initial safe defaults.
+    -->
+    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="#F8FFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="#EFFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Detail.BackgroundBrush" Color="#00FFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Primary.BorderBrush" Color="#2EFFFFFF"/>
+    <SolidColorBrush x:Key="Surface.Secondary.BorderBrush" Color="#CBD5E1"/>
+    <SolidColorBrush x:Key="Surface.Detail.BorderBrush" Color="#CBD5E1"/>
+    <SolidColorBrush x:Key="Surface.Primary.OverlayBrush" Color="#00FFFFFF"/>
 
     <Thickness x:Key="Surface.Primary.BorderThickness">1.5</Thickness>
     <Thickness x:Key="Surface.Secondary.BorderThickness">1</Thickness>
