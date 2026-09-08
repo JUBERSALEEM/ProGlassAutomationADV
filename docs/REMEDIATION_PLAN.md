@@ -31,7 +31,7 @@ Phase 5  Test depth — pricing engine        ← needs Phase 4
 |---|---|---|---|
 | 0 | No CI | 🔴 **Blocked — needs your action** | GitHub App `workflows` scope |
 | 1 | Build/test unverified | 🟠 Waiting | Phase 0 |
-| 2 | No pagination | 🟡 Ratchet landed; 27 sites / 19 VMs remain (was 28 / 20) | Phase 0 (to enforce) |
+| 2 | Whole-table loads | 🟡 Ratchet landed; **9 of 25 sites are real lists**, 0 paginated | Phase 0 (to enforce) |
 | 3 | Dashboards load whole tables | 🟡 1 of 4 migrated (Statement); splits fixed | Phase 0 |
 | 4 | `MetricQty` hardcodes delivery qty | 🟡 Step 1 done — characterisation net landed | Phase 1, for steps 2–5 |
 | 5 | Test ratio 1 : 7.4 | 🟡 Target-tolerance split **fixed** | Phase 0 |
@@ -180,43 +180,72 @@ plus a green CI run on `main`.
 
 ## Phase 2 — Pagination
 
-**The problem, precisely.** 28 real `GetAllAsync()` call sites across 20
-ViewModels. Each one materialises every column of a table into memory to
-display or count it. Fine at 500 records; at 50,000 it is a multi-second UI
-freeze on a machine that is also driving a cutting saw.
+**Correction, 2026-09-08 — read this before migrating anything.**
+
+The original framing was "28 `GetAllAsync()` call sites; paginate them." That
+is wrong, and following it literally would break working features. I read every
+one of the 25 remaining call sites. Most are not lists.
+
+| | What it actually is | Sites | Right fix |
+|---|---|---|---|
+| **A** | Dashboard aggregate | 3 | **Phase 3** — metrics service, not pagination |
+| **B** | Single-row lookup / existence check | 7 | A targeted repository method |
+| **C** | Picker or dialog data source | 3 | Searchable and bounded |
+| **D** | Full-text search | 3 | Push the filter into SQL |
+| **E** | **A real list screen** | **9** | **Actual pagination** |
+
+Paginating category B would break it outright. These are not lists:
 
 ```
-SheetStore 5 · TaxInvoice 4 · DeliveryNote 4 · Dashboard 4
-Shared 3 · Reports 3 · ProformaInvoice 2 · JobOrder 2 · Specifications 1
+DeliveryNoteListViewModel:590        allJobs.FirstOrDefault(j => j.JobOrderId == id)
+SavedJobOrdersListViewModel:659      .FirstOrDefault(p => p.ProformaId == id)
+TaxInvoiceViewModel:309, 474         siblings.Any(d => d.ProformaId == id && qty > 0)
+TaxInvoiceDetailViewModel.InitNew:132  allDns.Where(d => d.ProformaId == id).Select(...)
+AddEditSheetViewModel:293            standards fallback list
+StatementGenerator.Helpers:103       dedupe scan by company name
 ```
 
-**The good news.** This is not a design problem, it is an adoption problem.
-A working pattern already exists:
+Each wants a one-line repository query — `GetByIdAsync`, `AnyDeliveredByProformaAsync`,
+`GetDeliveryNoteIdsByProformaAsync` — which is both faster *and* correct,
+whereas a page of 50 would silently miss the row being looked up.
 
-- `Services/Database/GlobalQueryEngine.cs` — shared paging engine
-- `Services/Inquiry/InquiryRepository.cs:62` — `Math.Clamp(query.PageSize, 10, 200)`
-- `ViewModels/Inquiry/InquiryListViewModel.Part1.cs:705` — the UI side, with
-  `TotalPages` and a "Showing 1–50 of 1,204" caption
+Category D does not want pagination either. `GlobalSearchViewModel` loads three
+whole tables and runs an in-memory `.Where(Hit(...))` over them. Paging that
+would search one page at a time. The fix is a SQL `LIKE` per module, returning
+the top N matches.
 
-**Steps**
-1. Add `GetPagedAsync(query, page, pageSize, ct)` to each repository that
-   lacks it, delegating to `GlobalQueryEngine`. Do **not** invent a second
-   paging abstraction.
-2. Migrate one list screen end-to-end as the reference (SheetStore — highest
-   call count). Get it reviewed before touching the rest.
-3. Roll out module by module, one commit per module.
-4. Add a test asserting no ViewModel calls `GetAllAsync()` outside an
-   explicitly allow-listed aggregate path — otherwise this regresses.
+Category A belongs to Phase 3 and is being handled there.
 
-**Acceptance:** zero `GetAllAsync()` in `ViewModels/` except allow-listed
-aggregate reads (which Phase 3 removes); every list screen shows a page
-caption; the guard test from step 4 exists and passes.
+### What real pagination requires, per screen
 
-**Risk: medium.** Touches every list screen. Do not batch it — one module per
-commit, CI green between each.
-**Estimate:** 3–4 days.
+`InquiryList` is the reference implementation, and copying it is not a
+one-line change. There is **no shared pager control** — the pager is
+hand-written XAML at `Views/Inquiry/InquiryListView.xaml:1409-1423`. Each of
+the 9 category-E screens needs all four of:
 
----
+1. A `PagedResult<TProjection>` repository method built on
+   `GlobalQueryEngine.Instance.ExecutePagedQueryAsync(source, selector, page,
+   Math.Clamp(pageSize, 10, 200), ct)`.
+2. ViewModel state and commands — `CurrentPage`, `TotalPages`, `PageStatus`,
+   `NextPageCommand`, `PreviousPageCommand`.
+3. Pager XAML.
+4. **KPI separation.** This is the part that is easy to miss. Several of these
+   screens compute KPI cards from the *full* set —
+   `OrderReportListViewModel.UpdateKpis(rows)` is one. Paginate the list and
+   the KPIs silently start describing one page. Each needs its own aggregate
+   query, which is the Phase 3 pattern again.
+
+That is why this phase is estimated in days rather than hours, and why it
+should be done one screen at a time with a build between each.
+
+### Status
+
+- **Ratchet landed** (`ebe9dfd`), tightened 2026-09-08 to flag only
+  *unfiltered* `GetAllAsync()`. `SpecGroup.Part2.cs` calls
+  `GetAllAsync(selectedType)` — already scoped to one spec type — and was
+  wrongly on the list. Baseline is now **25 sites across 18 files**.
+- **1 of the 4 dashboards migrated** (Statement) — see Phase 3.
+- **0 of the 9 list screens paginated.**
 
 ## Phase 3 — Dashboard aggregates
 

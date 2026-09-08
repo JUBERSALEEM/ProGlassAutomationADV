@@ -6,7 +6,7 @@
 //
 // WHY THIS TEST EXISTS
 // ────────────────────
-// 27 call sites across 19 ViewModels call a repository GetAllAsync() and
+// 25 unfiltered GetAllAsync() call sites across 18 ViewModels load a whole
 // materialise an entire table to display or count part of it. That is
 // invisible at 500 records and a multi-second UI freeze at 50,000 — on a
 // machine that is also driving a cutting saw.
@@ -38,6 +38,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Architecture
@@ -68,7 +69,9 @@ namespace ProGlassAutomation.Tests.Architecture
             "DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.Part1.cs",
             "JobOrder/SavedJobOrdersList/JobOrderProformaPickerViewModel.cs",
             "JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.Part1.cs",
-            "ProformaInvoice/Step5DataGrid/SpecGroup.Part2.cs",
+            // SpecGroup.Part2.cs was here until 2026-09-08. It calls
+            // GetAllAsync(selectedType) — already scoped to one spec type, so
+            // it was never a whole-table load. See CallsGetAll.
             "Reports/OrderReport/OrderReportListViewModel.cs",
             "Reports/StatementGenerator/StatementGeneratorViewModel.Helpers.cs",
             "Reports/StatementList/StatementListViewModel.cs",
@@ -149,6 +152,19 @@ namespace ProGlassAutomation.Tests.Architecture
             return result;
         }
 
+        /// <summary>
+        /// An UNFILTERED whole-table load: <c>GetAllAsync()</c> with no
+        /// arguments.
+        ///
+        /// <para>
+        /// Narrowed from "any line containing GetAllAsync" on 2026-09-08.
+        /// <c>SpecGroup.Part2.cs</c> calls <c>GetAllAsync(selectedType)</c>,
+        /// which is already scoped to one spec type — it is not a whole-table
+        /// scan and should never have been on this list. Matching the bare
+        /// name also produced a false sense of scope: 28 hits looked like 28
+        /// tables to paginate, when two of them were one filtered query.
+        /// </para>
+        /// </summary>
         private static bool CallsGetAll(string file)
         {
             foreach (var raw in File.ReadLines(file))
@@ -161,11 +177,14 @@ namespace ProGlassAutomation.Tests.Architecture
                 if (line.StartsWith("*", StringComparison.Ordinal)) continue;
                 if (line.StartsWith("/*", StringComparison.Ordinal)) continue;
 
-                if (line.Contains("GetAllAsync", StringComparison.Ordinal))
-                    return true;
+                if (UnfilteredGetAll.IsMatch(line)) return true;
             }
             return false;
         }
+
+        /// <summary>GetAllAsync with an empty argument list.</summary>
+        private static readonly Regex UnfilteredGetAll =
+            new(@"GetAllAsync\s*\(\s*\)", RegexOptions.Compiled);
 
         private static string Root()
         {
