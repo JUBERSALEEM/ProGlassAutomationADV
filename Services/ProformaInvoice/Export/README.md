@@ -1,5 +1,8 @@
-﻿# ProformaInvoice Export — Phase 9.5b
+# ProformaInvoice Export — Phase 9.5b
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Shared export engine integration for the Proforma Invoice module.
 Part of the Phase 9.5 export engine migration (strangler pattern).
 
@@ -140,3 +143,9 @@ Page 2+:
         PI_EMAAR-PROPERTIES_TWR-A-L15_22-07-2026.pdf
         PI_EMAAR-PROPERTIES_TWR-A-L15_22-07-2026.xlsx
         PI_EMAAR-PROPERTIES_TWR-A-L15_22-07-2026.csv
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/ProformaInvoice/Export/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

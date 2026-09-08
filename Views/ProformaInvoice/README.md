@@ -1,5 +1,8 @@
 # Proforma Invoice Module
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Enterprise-grade **9-step wizard** for building professional glass proforma invoices — the backbone of the whole business chain
 (Inquiry → **PI** → Job Order → Delivery Note → Tax Invoice → Profitability).
 
@@ -39,3 +42,9 @@ The entire wizard state round-trips through a JSON snapshot (`ProformaInvoiceSna
         SavedInvoicesList/
     ViewModels/ProformaInvoice/    (matching step view models)
 ```
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/ProformaInvoice/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

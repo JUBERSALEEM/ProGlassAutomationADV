@@ -1,5 +1,8 @@
-﻿# Behaviors
+# Behaviors
 
+<!-- pg-nav -->
+> **[Repository root](../README.md)** · [All documents](../docs/README.md) · [Application workflow](../docs/WORKFLOW.md) · [Design system](../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Global reusable **attached behaviors** that enhance WPF controls with polished UX
 enhancements. These are non-visual add-ons you can attach to any matching control
 via XAML without subclassing or code-behind.
@@ -106,3 +109,9 @@ Follow this template pattern (based on `TextBoxBehaviors.SelectAllOnFocus`):
 | Behavior | Status | Since |
 |----------|--------|-------|
 | SelectAllOnFocus | ✅ Complete | Sub-Phase 6.4h |
+
+<!-- pg-nav -->
+---
+
+*This README documents `Behaviors/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../docs/README.md).*
+<!-- pg-nav -->

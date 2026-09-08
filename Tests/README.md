@@ -1,5 +1,8 @@
 # ProGlassAutomation.Tests
 
+<!-- pg-nav -->
+> **[Repository root](../README.md)** · [All documents](../docs/README.md) · [Application workflow](../docs/WORKFLOW.md) · [Design system](../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 xunit suites for the ProGlass platform: agent security **and** the
 workflow regression net (roadmap Phase 4 — company persistence semantics,
 inquiry→PI conversion, price-basis signal, status vocabulary funnels).
@@ -106,3 +109,9 @@ Production seams these rely on (additive only — app behaviour unchanged):
 (`InternalsVisibleTo("ProGlassAutomation.Tests")` exposes it),
 and the documented gate overrides `OperationGuard.Enabled` /
 `ReadOnlyGate.Enabled` (both restored in `Dispose`).
+
+<!-- pg-nav -->
+---
+
+*This README documents `Tests/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../docs/README.md).*
+<!-- pg-nav -->

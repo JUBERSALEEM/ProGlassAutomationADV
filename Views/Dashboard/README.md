@@ -1,5 +1,8 @@
 # Dashboard Module
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Multi-page dashboard shell with a segmented module picker. Seven module
 dashboards, one design grammar.
 
@@ -153,3 +156,9 @@ to the page VM or a known row model; `Style=` is never applied to an
 element of the wrong type; legacy-key / hex / literal-FontSize discipline
 per page; and brace balance on touched C#. Run it before committing and
 build on Windows before shipping.
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/Dashboard/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

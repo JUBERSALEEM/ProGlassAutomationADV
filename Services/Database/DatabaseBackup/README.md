@@ -1,5 +1,8 @@
-﻿# Database Auto-Backup
+# Database Auto-Backup
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Automatic backup of the SQLite database on every app exit.
 Keeps last 7 timestamped copies for data recovery.
 
@@ -98,3 +101,9 @@ Services/Database/DatabaseBackup/
 3. **Safe** — creates safety copy before restore
 4. **Bounded** — max 7 files, auto-cleanup
 5. **Portable** — just .db files, copy anywhere
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/Database/DatabaseBackup/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

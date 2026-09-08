@@ -1,5 +1,8 @@
-﻿# ProGlass Automation — Sales Report & Account Statement Module
+# ProGlass Automation — Sales Report & Account Statement Module
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 **Module:** Sales Report / Account Statement
 **Chat:** 16
 **Developer:** Juber Saleem
@@ -630,3 +633,9 @@ Result: Full year sales report for one salesman.
 
 *Built in Chat 16 — ProGlass Automation*
 *Developer: Juber Saleem | Architecture: Claude Senior WPF Architect*
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/Reports/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

@@ -1,5 +1,8 @@
-﻿# Step 6 - Other Charges
+# Step 6 - Other Charges
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Supplementary charges section of the Proforma Invoice wizard.
 Captures fabrication, processing, and delivery charges that get
 added on top of the DataGrid (Step 5) glass material subtotal.
@@ -241,3 +244,9 @@ thanks to SpecGroup's _isBulkAdding flag from Phase 7.10b/c.
 - Phase 7.12  - Invoice Main Summary (Discount + VAT + Grand Total)
 - Phase 7.13  - Print Preview / PDF layout
 - Phase 7.14  - Save PI to database (Other Charges become part of PI record)
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/ProformaInvoice/Step6OtherCharges/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

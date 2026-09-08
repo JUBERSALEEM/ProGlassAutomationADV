@@ -1,5 +1,8 @@
-﻿# Job Order Export
+# Job Order Export
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Module-specific export layouts for Job Order documents. All three
 layouts are thin adapters over the shared export engine
 (`Services/Export/`).
@@ -155,3 +158,9 @@ from the detail view where they see full context).
   placeholder, PDF skips silently
 - `SpecGroupSnapshot.SelectedGlassType` may be empty string when
   the wizard was left with no glass type selected — display as-is
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/JobOrder/Export/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

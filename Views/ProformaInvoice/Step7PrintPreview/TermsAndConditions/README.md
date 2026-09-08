@@ -1,5 +1,8 @@
-﻿# Terms & Conditions — Phase 7.14
+# Terms & Conditions — Phase 7.14
 
+<!-- pg-nav -->
+> **[Repository root](../../../../README.md)** · [All documents](../../../../docs/README.md) · [Application workflow](../../../../docs/WORKFLOW.md) · [Design system](../../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Editable Terms and Conditions section shown on the proforma invoice.
 Ships with 6 default UAE glass industry clauses that users can edit,
 reorder, disable, or replace.
@@ -122,3 +125,9 @@ bullets are indented 24 DIPs with accent-colored bullet marks.
 - Rich text formatting (bold, italic, underline) via RichTextBox
 - Import/export T&C templates as JSON or XML
 - Multi-language support (English / Arabic side-by-side)
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/ProformaInvoice/Step7PrintPreview/TermsAndConditions/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../../docs/README.md).*
+<!-- pg-nav -->

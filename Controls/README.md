@@ -1,5 +1,8 @@
-﻿# Controls/ — Reusable Custom UserControls
+# Controls/ — Reusable Custom UserControls
 
+<!-- pg-nav -->
+> **[Repository root](../README.md)** · [All documents](../docs/README.md) · [Application workflow](../docs/WORKFLOW.md) · [Design system](../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 ## Purpose
 
 Pure-WPF reusable controls for dashboard cards, charts, and hero
@@ -162,3 +165,9 @@ or "peak" value).
 - **Never crash on null/empty data** — safe defaults + early exits
 - **No `x:Name` on `GradientStop` inside `LinearGradientBrush`** —
   known WPF quirk with Freezable types, use `FindName` at runtime
+
+<!-- pg-nav -->
+---
+
+*This README documents `Controls/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../docs/README.md).*
+<!-- pg-nav -->

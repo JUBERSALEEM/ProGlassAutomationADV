@@ -1,5 +1,8 @@
-﻿# 🤖 AI Domain — ProGlass Automation
+# 🤖 AI Domain — ProGlass Automation
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 This folder contains **all AI-related infrastructure and features**.
 Everything internet-dependent, provider-integrated, or AI-powered lives here.
 
@@ -173,3 +176,9 @@ For small glass businesses (10+ users), this is more than enough for years.
 ---
 
 *Last updated: 2025-01 — Phase 1 complete, ready for Phase 2 when Sheet Store module lands.*
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/AI/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

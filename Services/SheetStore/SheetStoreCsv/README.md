@@ -1,5 +1,8 @@
-﻿# Sheet Store CSV Import / Export
+# Sheet Store CSV Import / Export
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Import glass sheets from CSV files and export current view to CSV.
 Uses [CsvHelper](https://joshclose.github.io/CsvHelper/) for robust parsing.
 
@@ -161,3 +164,9 @@ interactive and each write is history-logged.
 ---
 
 *Last updated: CSV import/export complete with duplicate handling.*
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/SheetStore/SheetStoreCsv/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

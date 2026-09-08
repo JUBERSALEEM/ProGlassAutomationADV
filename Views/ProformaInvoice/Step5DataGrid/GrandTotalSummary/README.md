@@ -1,5 +1,8 @@
-﻿# Grand Total Summary
+# Grand Total Summary
 
+<!-- pg-nav -->
+> **[Repository root](../../../../README.md)** · [All documents](../../../../docs/README.md) · [Application workflow](../../../../docs/WORKFLOW.md) · [Design system](../../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Read-only per-spec rollup section at the bottom of Step 5 (Data Grid)
 of the Proforma Invoice wizard.
 
@@ -249,3 +252,9 @@ Ideas for later phases:
 | Step 6: Other Charges (Phase 7.11) | Consumer — will read Grand Total as starting point |
 | Invoice Main Summary (Phase 7.12)  | Uses this + Other Charges + Discount + VAT         |
 | Specifications Repository          | Source of dropdown values that build labels        |
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/ProformaInvoice/Step5DataGrid/GrandTotalSummary/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../../docs/README.md).*
+<!-- pg-nav -->

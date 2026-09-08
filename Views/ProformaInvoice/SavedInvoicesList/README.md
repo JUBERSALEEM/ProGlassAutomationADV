@@ -1,5 +1,8 @@
 # Saved Invoices List — Phase 7.16
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Full-screen module + toolbar dialog for browsing, loading, duplicating,
 and deleting previously saved proforma invoices from proformainvoices.db.
 
@@ -164,3 +167,9 @@ updates the entity and refreshes the list.
 - Advanced filters (grand-total range, has-argon, etc.)
 - Export the list itself to Excel for reporting
 - Column customization (show/hide/reorder)
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/ProformaInvoice/SavedInvoicesList/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

@@ -1,5 +1,8 @@
-﻿# Shared Export Engine
+# Shared Export Engine
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Single source of truth for all document exports across all ProGlass
 Automation modules. Modules implement thin layout contracts and
 delegate every operational concern (page setup, file dialog, filename,
@@ -240,3 +243,9 @@ no legacy code to migrate.
 - QuestPDF license set inside `PdfExportEngine` constructor — safe to
   set multiple times, but never inside `Document.Create` (that
   crashes)
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/Export/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

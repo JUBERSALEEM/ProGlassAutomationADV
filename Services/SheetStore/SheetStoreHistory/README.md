@@ -1,5 +1,8 @@
-﻿# Sheet Store History
+# Sheet Store History
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Audit trail for Sheet Store — logs every action (Add, Edit, Delete,
 Buy, Use) with timestamp, user, and change details.
 
@@ -186,3 +189,9 @@ None. Reentrancy guard fixes the crash on rapid Refresh clicks.
 - Table auto-created on first launch via `EnsureCreated()`
 - Existing DBs need deletion once (dev mode) after adding this feature
 - Production will use EF migrations
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/SheetStore/SheetStoreHistory/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

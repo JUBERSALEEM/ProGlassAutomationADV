@@ -1,5 +1,8 @@
-﻿# Sheet Store Excel Export
+# Sheet Store Excel Export
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Exports glass sheet inventory as professionally formatted Excel (.xlsx) files.
 Uses ClosedXML (MIT license) for Excel generation without requiring
 Microsoft Office installed.
@@ -78,3 +81,9 @@ await service.ExportAsync(
 2. **What you see is what you get** — exports current filtered view
 3. **Self-contained** — no Microsoft Office required
 4. **Async** — runs on background thread, no UI freeze
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/SheetStore/SheetStoreExcel/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

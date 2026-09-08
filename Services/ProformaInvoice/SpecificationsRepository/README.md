@@ -1,5 +1,8 @@
-﻿# Specifications Repository
+# Specifications Repository
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Persistent library of glass specifications generated from Step 4 (Pricing Estimator)
 and reused in Step 5 (Data Grid) of the Proforma Invoice wizard.
 
@@ -133,3 +136,9 @@ Ideas for later phases:
 - Search by partial spec name
 - Rename spec (update all historical references)
 - Merge duplicate specs (edge cases where names slightly differ)
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/ProformaInvoice/SpecificationsRepository/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

@@ -1,5 +1,8 @@
 # Step 7 - Summary (Print Preview & Review)
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 The financial summary step of the Proforma Invoice wizard. Reviews all
 invoice data, computes the totals waterfall, and provides the print /
 export surface.
@@ -122,3 +125,9 @@ All changes propagate to the "Total Est Value" band in real time.
 - PDF preview iframe (Phase 7.14)
 - Print button (Phase 7.14)
 - Save as PDF (Phase 7.18 via QuestPDF)
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/ProformaInvoice/Step7PrintPreview/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

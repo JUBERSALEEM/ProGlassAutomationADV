@@ -1,5 +1,8 @@
-﻿# ProGlass Automation - Tax Invoice Module
+# ProGlass Automation - Tax Invoice Module
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 ## Version
 Chat 16 - Family-grouped list plus Invoice Family sidebar
 
@@ -342,3 +345,9 @@ From Dashboard KPI cards:
 ---
 
 End of Tax Invoice Module Documentation.
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/TaxInvoice/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

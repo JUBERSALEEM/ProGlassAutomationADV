@@ -1,5 +1,8 @@
 # Layout verification harness
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Static XAML analysers used because this environment has **no dotnet SDK**,
 so nothing can be compiled here. They are a substitute for a build, not a
 replacement — **a real `dotnet build` on Windows remains the authority.**
@@ -41,3 +44,9 @@ python3 tools/layout-verify/brace_scan.py     <file.cs...>
 - `OtherChargesView.xaml` — the flagged `ScrollViewer` is `PART_ContentHost`
   inside a `TextBox` template.
 - `resource_check.py` flags resource-like prose inside XML comments.
+
+<!-- pg-nav -->
+---
+
+*This README documents `scripts/layout-verify/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

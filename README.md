@@ -23,10 +23,12 @@
 `Inquiry ➜ Quote ➜ Confirm ➜ Produce ➜ Deliver ➜ Invoice ➜ Report` — **and every step carries the last forward.**
 
 [📦 Repository](https://github.com/JUBERSALEEM/ProGlassAutomationADV) ·
+[🧭 Application Workflow](docs/WORKFLOW.md) ·
 [🗺️ Upgrade Roadmap](ERP_UPGRADE_ROADMAP.md) ·
-[🎨 Design System](Docs/DESIGN_SYSTEM.md) ·
-[🔬 Audits](Docs/AUDIT_FINDINGS.md) ·
-[⚠️ Money-Path Error Policy](Docs/MONEY_PATH_ERROR_POLICY.md)
+[🎨 Design System](docs/DESIGN_SYSTEM.md) ·
+[🔬 Audits](docs/AUDIT_FINDINGS.md) ·
+[⚠️ Money-Path Error Policy](docs/MONEY_PATH_ERROR_POLICY.md) ·
+[📚 All Documents](docs/README.md)
 
 </div>
 
@@ -96,7 +98,7 @@ Step 8 Attachments (documents, drawings, approvals)
 
 | | Module | Highlights |
 |---|---|---|
-| 🏠 | **Dashboard** | Theme-adaptive operational overview, statistics with honest state rendering |
+| 🏠 | **Dashboard** | Seven module dashboards on **one shared grammar** (`Styles/DashboardKit.xaml`) + an **order-to-cash pipeline rail** on Overview: Quote → Production → Delivery → Invoice → Payment, each stage counting the live work in that handoff. Every page renders all four states — loading, error, empty, data. See [`Views/Dashboard/README.md`](Views/Dashboard/README.md) |
 | 📦 | **Sheet Store** | Stock, buy/sell prices, suppliers, purchase/use history + reports (every write stamps the price-version signal) |
 | 📨 | **Inquiries** | Pre-sales register **with scope-of-supply (BOQ)**, attachments with SHA-256 manifest dedup, lifecycle log, search |
 | 🏢 | **Company Center** | Full legal entity profiles (TRN, banking, logo), field-diff audit on every change set |
@@ -166,7 +168,7 @@ A professional ERP must never silently invent money.
 | Reporting **reads** money from the persisted Step-9 snapshot — it never recomputes it | `JobProfitabilityViewModel`, `ReportingDataService` |
 | Price-basis stale ⇒ flagged `⚠`, never silently rescored | `GlassPriceStamper` (Phase 3) |
 | Statuses enter stores through single normalize homes (PI / Inquiry) — unknowns pass through, *never remapped* to something plausible | `ProformaInvoiceStatus`, `InquiryStatuses` |
-| Every money-path `catch` is classed A–D and documented | [`Docs/MONEY_PATH_ERROR_POLICY.md`](Docs/MONEY_PATH_ERROR_POLICY.md) |
+| Every money-path `catch` is classed A–D and documented | [`docs/MONEY_PATH_ERROR_POLICY.md`](docs/MONEY_PATH_ERROR_POLICY.md) |
 | Company profile: preserve-blank on invoice save, field-diff trail on every change | `MasterDataRepository` |
 | Certification is earned, not claimed — current engineer-rated **9.7/10**; final 0.3 gates on `dotnet build` + `dotnet test` + live smoke on the target machine | `ERP_UPGRADE_ROADMAP.md` |
 
@@ -194,12 +196,14 @@ Data lives at `%AppData%/ProGlassAutomation/` (upgrades never touch it). Publish
 
 | Document | Content |
 |---|---|
+| [`docs/README.md`](docs/README.md) | **The index of all 139 documents** — generated from the `docs/` tree by `scripts/gen-docs-index.py`, so it cannot drift |
+| [`docs/WORKFLOW.md`](docs/WORKFLOW.md) | The end-to-end business chain with the real code path for each handoff — start here |
 | [`ERP_UPGRADE_ROADMAP.md`](ERP_UPGRADE_ROADMAP.md) | P1–P5 phase history, acceptance gates, current rating basis |
-| [`Docs/MONEY_PATH_ERROR_POLICY.md`](Docs/MONEY_PATH_ERROR_POLICY.md) | Error/catch classes on money paths, change policy |
-| [`Docs/DESIGN_SYSTEM.md`](Docs/DESIGN_SYSTEM.md) | Design tokens, brush system, motion, wallpapers |
+| [`docs/MONEY_PATH_ERROR_POLICY.md`](docs/MONEY_PATH_ERROR_POLICY.md) | Error/catch classes on money paths, change policy |
+| [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) | Design tokens, brush system, motion, wallpapers |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Layering, boundaries, the data path |
 | [`Tests/README.md`](Tests/README.md) | Test-filter guide + gate conventions |
-| [`Docs/OVERVIEW_BOTTOM_SECTION_AND_STATEMENT_STYLE_2026-08.md`](Docs/) | Statement/export layout rules |
-| Folder-level `README.md` files | Service- and component-scoped semantics |
+| Folder-level `README.md` files | Service- and component-scoped semantics — 30 of them, all linked from [`docs/README.md`](docs/README.md) |
 
 ---
 

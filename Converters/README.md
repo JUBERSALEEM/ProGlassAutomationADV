@@ -1,5 +1,8 @@
-﻿# Converters
+# Converters
 
+<!-- pg-nav -->
+> **[Repository root](../README.md)** · [All documents](../docs/README.md) · [Application workflow](../docs/WORKFLOW.md) · [Design system](../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Global XAML value converters. Registered once in `App.xaml` and
 available to all views.
 
@@ -141,3 +144,9 @@ Add row to the "Available Converters" table above.
 3. **Safe** — handle null/invalid input with fallback
 4. **One-way default** — implement `ConvertBack` only if two-way binding needed
 5. **Global scope** — register once in `App.xaml`, use everywhere
+
+<!-- pg-nav -->
+---
+
+*This README documents `Converters/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../docs/README.md).*
+<!-- pg-nav -->

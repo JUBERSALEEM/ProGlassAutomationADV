@@ -1,5 +1,8 @@
-﻿# Printable Invoice — Phase 7.13
+# Printable Invoice — Phase 7.13
 
+<!-- pg-nav -->
+> **[Repository root](../../../../README.md)** · [All documents](../../../../docs/README.md) · [Application workflow](../../../../docs/WORKFLOW.md) · [Design system](../../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Full A4 white-paper preview of the proforma invoice, rendering data
 from every previous wizard step in a printable layout.
 
@@ -116,3 +119,9 @@ Everything else is derived from earlier wizard steps.
 - Phase 7.17 — Load saved PI: rehydrate all step VMs from database
 - Phase 7.18 — Excel/CSV Import/Export
 - Phase 7.20 — Send Email: attach PDF and send via SMTP
+
+<!-- pg-nav -->
+---
+
+*This README documents `Views/ProformaInvoice/Step7PrintPreview/PrintableInvoice/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../../docs/README.md).*
+<!-- pg-nav -->

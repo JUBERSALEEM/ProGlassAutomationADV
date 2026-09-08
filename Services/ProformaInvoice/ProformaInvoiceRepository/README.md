@@ -1,5 +1,8 @@
 # Proforma Invoice Repository
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Persistent storage layer for saved proforma invoices.
 Uses a dedicated SQLite database file separate from the master-data and
 specifications databases.
@@ -211,3 +214,9 @@ When user clicks the 💾 SAVE INVOICE button on Step 7:
 - Phase 7.19 — Full relational migration if deep queries needed
 - Phase 7.19 — Version history (each save creates new version)
 - Phase 7.20 — Cloud sync backup
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/ProformaInvoice/ProformaInvoiceRepository/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

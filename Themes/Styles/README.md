@@ -1,5 +1,8 @@
 # Themes/Styles/ — Shared Style Library
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 ## Purpose
 
 Reusable XAML styles that establish a consistent design language
@@ -219,3 +222,9 @@ Usage example — HeroCardInfoStyle:
   via `ColorStringConverter` for consistent visual identity
 - **VM-driven colors** (tint, badge, status) use brush key strings
   via `BrushKeyConverter` for theme adaptation
+
+<!-- pg-nav -->
+---
+
+*This README documents `Themes/Styles/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

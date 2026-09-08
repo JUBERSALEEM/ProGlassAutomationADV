@@ -1,5 +1,8 @@
 # 📦 Sheet Store Module
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Manages raw glass sheet inventory. Foundation of the ProGlass workflow —
 Proforma Invoice, Job Order, and downstream modules pull pricing and
 stock availability from here.
@@ -152,3 +155,9 @@ stamps `GlassSheet.LastUpdated`, and stock deletes change the row count.
 that is what lets Job Profitability flag a quote whose *price basis moved*
 instead of silently recomputing money. Bulk CSV/Excel imports pass through
 the repository, so imports move the stamp just like manual edits.
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/SheetStore/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

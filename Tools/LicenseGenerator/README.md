@@ -1,5 +1,8 @@
 # ProGlassAutomation.LicenseGenerator
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Vendor-side **offline activation** utility for the redesigned ProGlass licensing model.
 
 ## Security posture
@@ -58,3 +61,9 @@ For real production use, the vendor must load the external private key whose **p
 - This is still an **offline desktop licensing** model, not an unbreakable DRM system.
 - The customer controls the machine, so determined binary patching remains theoretically possible.
 - The goal is stronger authenticity, harder forgery, safer local protection and cleaner operational key custody.
+
+<!-- pg-nav -->
+---
+
+*This README documents `Tools/LicenseGenerator/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->

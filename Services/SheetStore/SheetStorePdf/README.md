@@ -1,5 +1,8 @@
-﻿# Sheet Store PDF Report
+# Sheet Store PDF Report
 
+<!-- pg-nav -->
+> **[Repository root](../../../README.md)** · [All documents](../../../docs/README.md) · [Application workflow](../../../docs/WORKFLOW.md) · [Design system](../../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Generates professionally formatted PDF inventory reports.
 Uses QuestPDF (MIT license, community edition).
 
@@ -75,3 +78,9 @@ await service.GenerateReportAsync(
 3. **Branded** — ProGlass header on every page
 4. **Async** — no UI freeze during generation
 5. **Self-contained** — no external PDF viewer needed to generate
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/SheetStore/SheetStorePdf/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../../docs/README.md).*
+<!-- pg-nav -->

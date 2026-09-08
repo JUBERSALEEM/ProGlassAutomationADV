@@ -1,5 +1,8 @@
-﻿# 🗄️ Database Layer — ProGlass Automation
+# 🗄️ Database Layer — ProGlass Automation
 
+<!-- pg-nav -->
+> **[Repository root](../../README.md)** · [All documents](../../docs/README.md) · [Application workflow](../../docs/WORKFLOW.md) · [Design system](../../docs/DESIGN_SYSTEM.md)
+<!-- pg-nav -->
 Single SQLite database used by ALL modules. One file, multiple tables,
 per-module repositories provide clean data access.
 
@@ -88,3 +91,9 @@ For production schema changes to existing tables, use EF migrations.
 ---
 
 *Last updated: Sheet Store foundation complete.*
+
+<!-- pg-nav -->
+---
+
+*This README documents `Services/Database/`. For the end-to-end business chain see [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md); for every other document see [`docs/README.md`](../../docs/README.md).*
+<!-- pg-nav -->
