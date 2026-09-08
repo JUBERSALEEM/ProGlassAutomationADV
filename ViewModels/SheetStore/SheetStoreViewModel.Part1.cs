@@ -757,7 +757,18 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                             $"[CSV Import] Initial stock: {added.Stock} sheets. Value: {added.TotalPurchaseValue:N2} AED.",
                             added.Stock, added.TotalPurchaseValue);
                         addedCount++;
-                        _allSheets = await _repo.GetAllAsync();
+
+                        // Append the row just written instead of reloading the
+                        // whole table. The only reason this line reloaded was
+                        // that FindDuplicate reads _allSheets, so a second CSV
+                        // row matching the first has to see it. Add() preserves
+                        // exactly that invariant in O(1).
+                        //
+                        // It was a full-table read per added row, so importing a
+                        // 500-line CSV issued 500 whole-table queries. LoadAsync
+                        // below still reloads everything once at the end, so the
+                        // final on-screen state is unchanged.
+                        _allSheets.Add(added);
                         continue;
                     }
 
