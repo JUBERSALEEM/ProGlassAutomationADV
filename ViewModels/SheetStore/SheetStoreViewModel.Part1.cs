@@ -831,17 +831,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         // ============ CRUD ============
 
-        private async Task AddAsync()
+        private Task AddAsync()
         {
-            if (!PermissionService.Require(
-                AppPermissions.SheetStoreCreate, "add a glass sheet"))
-                return;
-
-            var vm = new AddEditSheetViewModel();
-            _dialogs.ShowDialog<AddEditSheetView>(vm);
-
-            if (vm.DialogResult == true && vm.Result != null)
-                await PersistNewSheetAsync(vm.Result);
+            OpenSheetWorkspace(null);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -875,25 +868,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             catch (Exception ex) { ShowError("Could not add glass sheet.\n\n" + ExceptionMessages.Deep(ex)); }
         }
 
-        private async Task EditAsync(GlassSheet? sheet)
+        private Task EditAsync(GlassSheet? sheet)
         {
-            if (sheet == null) return;
-
-            if (!PermissionService.Require(
-                AppPermissions.SheetStoreEdit, "edit a glass sheet"))
-                return;
-
-            // Snapshot BEFORE the dialog runs. AddEditSheetViewModel sets
-            // Result = _existing, i.e. it MUTATES the instance it was
-            // handed — so after ShowDialog returns, sheet already holds
-            // the new values and is useless as a "before" reference.
-            var before = SnapshotForDiff(sheet);
-
-            var vm = new AddEditSheetViewModel(sheet);
-            _dialogs.ShowDialog<AddEditSheetView>(vm);
-
-            if (vm.DialogResult == true && vm.Result != null)
-                await PersistEditedSheetAsync(vm.Result, before);
+            if (sheet == null) return Task.CompletedTask;
+            OpenSheetWorkspace(sheet, SheetDetailWindowViewModel.TabEdit);
+            return Task.CompletedTask;
         }
 
         private static GlassSheet SnapshotForDiff(GlassSheet s) => new()

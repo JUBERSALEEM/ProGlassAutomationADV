@@ -3,12 +3,10 @@
 // MODULE: Inventory (Sheet Store) — full-screen Add/Edit workspace host
 // ADDED: 2026-09-06 (ported 2026-09-08)
 //
-// ADD NEW and EDIT open the full-screen detail workspace rather than a
-// 360px slide-out form. Persistence still funnels through
-// PersistNewSheetAsync / PersistEditedSheetAsync in Part1 — the only
-// writers to the ledger. Buy and Use stay modal on the list AND exist
-// as tabs inside the workspace, both writing through CommitBuyAsync /
-// CommitUseAsync in Part2.
+// ADD NEW, EDIT, BUY and USE all open the full-screen detail workspace.
+// Persistence still funnels through PersistNewSheetAsync /
+// PersistEditedSheetAsync in Part1 and CommitBuyAsync / CommitUseAsync
+// in Part2 — the only writers to the ledger.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
@@ -34,7 +32,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         private ICommand? _openEditPanelCommand;
         public ICommand OpenEditPanelCommand =>
             _openEditPanelCommand ??= new RelayCommand(
-                p => OpenSheetWorkspace(p as GlassSheet ?? SelectedSheet),
+                p => OpenSheetWorkspace(p as GlassSheet ?? SelectedSheet, SheetDetailWindowViewModel.TabEdit),
                 p => (p as GlassSheet ?? SelectedSheet) != null);
 
         /// <summary>
@@ -62,10 +60,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         /// <summary>
         /// Opens the full-screen workspace. A null sheet means ADD NEW.
-        /// Permission is checked HERE, before the window is built, so an
-        /// unauthorised operator never sees a form they cannot submit.
+        /// <paramref name="initialTab"/> selects Buy / Use / Edit so the
+        /// list's BUY, USE and EDIT actions land on that tab instead of
+        /// opening a second modal.
         /// </summary>
-        private void OpenSheetWorkspace(GlassSheet? sheet)
+        private void OpenSheetWorkspace(GlassSheet? sheet, string? initialTab = null)
         {
             bool isNew = sheet == null;
 
@@ -79,7 +78,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 var working = isNew ? null : Clone(sheet!);
 
                 var vm = new SheetDetailWindowViewModel(
-                    working, _historyRepo, BuyCommand, UseCommand);
+                    working, _historyRepo, buyCommand: null, useCommand: null);
+
+                if (!isNew && !string.IsNullOrEmpty(initialTab))
+                    vm.ActiveKey = initialTab;
 
                 vm.SaveRequested += async (_, result) =>
                 {

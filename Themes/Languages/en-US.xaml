@@ -2524,6 +2524,9 @@
     <sys:String x:Key="SheetStore.ExpectedProfitTip">Margin still to be earned on unused stock (balance sell value minus its purchase cost).</sys:String>
     <sys:String x:Key="SheetStore.UsedValue">USED VALUE</sys:String>
     <sys:String x:Key="SheetStore.UsedValueTip">Sell value of stock already consumed.</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">REVERSED</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">UNDO</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">Undo this movement and restore the stock</sys:String>
     <!-- Phase 2 (2026-09-05) — ERP-first appearance ergonomics: quick
          looks, live preview, studio slider niceties, wallpaper status. -->
     <sys:String x:Key="Settings.PreviewTitle">Live preview</sys:String>

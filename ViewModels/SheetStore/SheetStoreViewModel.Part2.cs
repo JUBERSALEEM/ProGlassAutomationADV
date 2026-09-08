@@ -88,17 +88,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         // ============ BUY ============
 
-        private async Task BuyAsync(GlassSheet? sheet)
+        private Task BuyAsync(GlassSheet? sheet)
         {
-            if (sheet == null) return;
-
-            if (!PermissionService.Require(
-                AppPermissions.SheetStoreEdit, "buy stock"))
-                return;
-
-            var vm = new BuyDialogViewModel(sheet);
-            _dialogs.ShowDialog<BuyDialogView>(vm);
-            await CommitBuyAsync(sheet, vm);
+            if (sheet == null) return Task.CompletedTask;
+            OpenSheetWorkspace(sheet, SheetDetailWindowViewModel.TabBuy);
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -145,23 +139,18 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         // ============ USE ============
 
-        private async Task UseAsync(GlassSheet? sheet)
+        private Task UseAsync(GlassSheet? sheet)
         {
-            if (sheet == null) return;
-
-            if (!PermissionService.Require(
-                AppPermissions.SheetStoreEdit, "use stock"))
-                return;
+            if (sheet == null) return Task.CompletedTask;
 
             if (sheet.Balance <= 0)
             {
                 ShowError("No stock available to use.");
-                return;
+                return Task.CompletedTask;
             }
 
-            var vm = new UseDialogViewModel(sheet);
-            _dialogs.ShowDialog<UseDialogView>(vm);
-            await CommitUseAsync(sheet, vm);
+            OpenSheetWorkspace(sheet, SheetDetailWindowViewModel.TabUse);
+            return Task.CompletedTask;
         }
 
         /// <summary>

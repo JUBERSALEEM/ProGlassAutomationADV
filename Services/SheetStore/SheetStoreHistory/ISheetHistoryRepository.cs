@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.SheetStore.SheetStoreHistory;
+using ProGlassAutomation.Models.SheetStore.SheetStoreHistory;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -33,5 +33,22 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
 
         /// <summary>Total count of history entries.</summary>
         Task<int> GetTotalCountAsync();
+
+        /// <summary>One history entry by primary key, or null.</summary>
+        Task<SheetHistory?> GetByIdAsync(int id);
+
+        /// <summary>
+        /// Undoes one stock movement (a mistaken Use or Buy) by writing a
+        /// COMPENSATING entry and restoring the sheet counters — the
+        /// original row is flagged, never deleted or rewritten, because a
+        /// history row is an immutable audit record.
+        ///
+        /// Returns the compensating entry, or null when the movement is
+        /// not reversible (already undone, not a movement, or missing).
+        /// Throws InvalidOperationException when the restore would corrupt
+        /// the ledger — e.g. undoing a purchase whose sheets were already
+        /// consumed.
+        /// </summary>
+        Task<SheetHistory?> ReverseMovementAsync(int historyId, string reason);
     }
 }

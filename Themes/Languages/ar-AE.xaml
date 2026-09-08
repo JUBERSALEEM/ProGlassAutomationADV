@@ -2520,6 +2520,9 @@
     <sys:String x:Key="SheetStore.ExpectedProfitTip">Margin still to be earned on unused stock (balance sell value minus its purchase cost).</sys:String>
     <sys:String x:Key="SheetStore.UsedValue">USED VALUE</sys:String>
     <sys:String x:Key="SheetStore.UsedValueTip">Sell value of stock already consumed.</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">تم العكس</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">تراجع</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">تراجع عن هذه الحركة واستعادة المخزون</sys:String>
     <!-- المرحلة الثانية (2026-09-05) — إطلالات جاهزة ومعاينة حية وأدوات استوديو -->
     <sys:String x:Key="Settings.PreviewTitle">معاينة حيّة</sys:String>
     <sys:String x:Key="Settings.PreviewCaption">بطاقة مصغّرة مرسومة برموز النمط الحالي نفسه — السطح والحبر والحافة واللون المميز وشرائح الحالة تتحدّث فورًا مع كل تغيير.</sys:String>

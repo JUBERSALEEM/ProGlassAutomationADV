@@ -136,7 +136,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         /// <summary>
         /// ADD NEW follows the visible list so the operator cannot fill in
         /// a glass form while looking at spacer bar (or the reverse).
-        /// Glass still uses the existing Add/Edit dialogs.
+        /// Glass opens the full-screen workspace.
         /// </summary>
         private ICommand? _addNewStockCommand;
         public ICommand AddNewStockCommand =>

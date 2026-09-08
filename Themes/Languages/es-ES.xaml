@@ -2532,4 +2532,7 @@
     <sys:String x:Key="SheetStore.ExpectedProfitTip">Margin still to be earned on unused stock (balance sell value minus its purchase cost).</sys:String>
     <sys:String x:Key="SheetStore.UsedValue">USED VALUE</sys:String>
     <sys:String x:Key="SheetStore.UsedValueTip">Sell value of stock already consumed.</sys:String>
+    <sys:String x:Key="SheetStore.ReversedBadge">REVERTIDO</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovement">DESHACER</sys:String>
+    <sys:String x:Key="SheetStore.UndoMovementTooltip">Deshacer este movimiento y restaurar el stock</sys:String>
 </ResourceDictionary>

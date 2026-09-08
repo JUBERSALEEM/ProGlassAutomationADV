@@ -96,6 +96,17 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                         "CREATE INDEX IF NOT EXISTS IX_InventoryItem_Category ON InventoryItems(Category);");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_InventoryItem_Supplier ON InventoryItems(Supplier);");
+                }),
+
+                // Movement undo: compensating history rows. Must be 1004
+                // (not 1002) so installs that already applied 1003 still
+                // receive the columns.
+                new(1004, "Sheet history: movement reversal (undo) columns", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "SheetHistories", "ReversesHistoryId", "INTEGER NULL");
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "SheetHistories", "IsReversed",        "INTEGER NOT NULL DEFAULT 0");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_SheetHistories_ReversesHistoryId ON SheetHistories(ReversesHistoryId);");
                 })
             };
 

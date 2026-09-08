@@ -45,11 +45,11 @@
         
 
         <!-- Log entry row style with hover -->
-        <Style x:Key="LogEntryStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Style x:Key="LogEntryStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="Padding" Value="16,12"/>
             <Setter Property="Margin" Value="0,4"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -149,6 +149,7 @@
                             <ComboBoxItem Content="{DynamicResource SheetStore.Deleted}"/>
                             <ComboBoxItem Content="{DynamicResource SheetStore.Bought}"/>
                             <ComboBoxItem Content="{DynamicResource SheetStore.USED}"/>
+                            <ComboBoxItem Content="Reversed"/>
                         </ComboBox>
                     </StackPanel>
 
@@ -195,7 +196,7 @@
                     <DockPanel>
                         <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
-                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
+                                 BorderThickness="0" Background="Transparent"
                                  VerticalAlignment="Center" FontSize="{StaticResource TextBodyLarge}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </DockPanel>
@@ -218,7 +219,7 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False"
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="60" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Text="{DynamicResource SheetStore.NoHistoryYet}" FontSize="{StaticResource TextTitle}" FontWeight="SemiBold"
                                Margin="0,16,0,4" HorizontalAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -230,7 +231,7 @@
                 <!-- Virtualized log list -->
                 <ListBox ItemsSource="{Binding Entries}"
                          ItemContainerStyle="{StaticResource HistoryListBoxItemStyle}"
-                         BorderThickness="{DynamicResource Border.NoneThickness}"
+                         BorderThickness="0"
                          Background="Transparent"
                          Focusable="False"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -270,7 +271,7 @@
                                         </Border.Background>
                                         <TextBlock Text="{Binding Action}"
                                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                                   Foreground="White"/>
                                     </Border>
 
                                     <!-- Content -->
@@ -287,6 +288,22 @@
                                             <TextBlock Text="{Binding UserName}"
                                                        FontSize="{StaticResource TextBody}" Margin="4,0,0,0"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                                            <!-- 2026-09-06 REVERSED badge. The original row is
+                                                 never deleted on undo (immutable audit record),
+                                                 so it must READ as superseded or the operator
+                                                 would think the mistake is still live. -->
+                                            <Border Margin="10,0,0,0" Padding="7,2"
+                                                    VerticalAlignment="Center"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Background="{DynamicResource TintAmberBrush}"
+                                                    Visibility="{Binding IsReversed,
+                                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <TextBlock Text="{DynamicResource SheetStore.ReversedBadge}"
+                                                           FontSize="{StaticResource TextCaption}"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            </Border>
                                         </StackPanel>
                                     </StackPanel>
 
@@ -304,6 +321,34 @@
                                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    HorizontalAlignment="Right" Margin="0,4,0,0"
                                                    Foreground="{DynamicResource AccentBrush}"/>
+
+                                        <!-- UNDO (2026-09-06). Visible only on a reversible
+                                             MOVEMENT: CanReverse is false for Added/Edited/
+                                             Deleted rows, for an already-reversed row, and for
+                                             a compensating row itself. The repository
+                                             re-validates all of that server-side, so a stale
+                                             grid cannot double-undo. -->
+                                        <Button Margin="0,8,0,0"
+                                                HorizontalAlignment="Right"
+                                                Style="{StaticResource OutlinedPillButton}"
+                                                Command="{Binding DataContext.UndoMovementCommand,
+                                                          RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="{DynamicResource SheetStore.UndoMovementTooltip}"
+                                                Visibility="{Binding CanReverse,
+                                                             Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="&#xE7A7;"
+                                                           FontFamily="Segoe MDL2 Assets"
+                                                           FontSize="{StaticResource TextBody}"
+                                                           VerticalAlignment="Center"/>
+                                                <TextBlock Text="{DynamicResource SheetStore.UndoMovement}"
+                                                           Margin="6,0,0,0"
+                                                           FontSize="{StaticResource TextCaption}"
+                                                           FontWeight="SemiBold"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
                                     </StackPanel>
                                 </Grid>
                             </Border>
