@@ -297,8 +297,16 @@ var returnedTask = _deliveryNotes.GetReturnedAsync();
 
 Five of those are **subsets of the first**. Every delivery note in the
 database is materialised up to six times to populate six tabs, then filtered
-in memory. This is the highest-value single target in the phase and it is not
-yet touched — it needs the tab model rethought, not just a page size added.
+in memory. **Partly addressed 2026-09-08.** Prepared and Delivered are now derived from
+the single `GetAllAsync` result instead of being fetched again — same
+`!IsMasterDn` exclusion, same projection, verified to produce identical sets
+and identical ordering (Delivered sorts by `DeliveryDate` DESC, not `CreatedAt`,
+so the sort is reproduced explicitly). Six round trips became four.
+
+Rework and Returned are deliberately still fetched separately: unlike
+`GetAllAsync` they do **not** exclude Master DNs, so deriving them would
+silently change those two tabs. The tab model still needs rethinking for real
+pagination.
 
 ## Phase 3 — Dashboard aggregates
 

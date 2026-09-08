@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.Database;
@@ -831,23 +832,51 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 }
 
                 // 6 tabs only — no Master DN tab
+                // Phase 2: this used to fire SIX parallel full-table loads,
+                // five of which are subsets of the first. Prepared and
+                // Delivered are now derived from the one GetAllAsync result —
+                // same !IsMasterDn exclusion, same projection, so the rows are
+                // identical — which removes two round trips over the whole
+                // table.
+                //
+                // Rework / Returned are deliberately still fetched separately:
+                // unlike GetAllAsync they do NOT exclude Master DNs, so
+                // deriving them here would silently change those two tabs.
                 var allTask = _deliveryNotes.GetAllAsync();
-                var prepTask = _deliveryNotes.GetPreparedAsync();
-                var delTask = _deliveryNotes.GetDeliveredAsync();
                 var pendingTask = _deliveryNotes.GetPendingQtyJobsAsync();
                 var reworkTask = _deliveryNotes.GetReworkAsync();
                 var returnedTask = _deliveryNotes.GetReturnedAsync();
 
                 await Task.WhenAll(
-                    allTask, prepTask, delTask,
-                    pendingTask, reworkTask, returnedTask);
+                    allTask, pendingTask, reworkTask, returnedTask);
 
                 // Phase 3: No .Result — use await (tasks already completed, but await is deadlock-safe)
-                var allItems = (await allTask)
+                var allRaw = await allTask;
+
+                var allItems = allRaw
                     .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
-                var prepItems = (await prepTask)
+
+                // GetPreparedAsync filters Status == "Draft" || "Dispatching",
+                // which is exactly DeliveryNoteStatusValues.IsPreparing.
+                // One nuance: SQL `=` on SQLite is case-sensitive while
+                // IsPreparing is not, so the derived version is marginally
+                // broader. Statuses are written from the canonical vocabulary
+                // in PascalCase, so the sets are identical in practice; being
+                // broader here is the safe direction for a filter tab.
+                // Ordering matches GetAllAsync (CreatedAt DESC), so no re-sort.
+                var prepItems = allRaw
+                    .Where(x => DeliveryNoteStatusValues.IsPreparing(x.Status))
                     .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
-                var delItems = (await delTask)
+
+                // GetDeliveredAsync filters Delivered | Signed | Received and
+                // orders by DeliveryDate DESC — not CreatedAt — so the sort is
+                // reproduced explicitly. Omitting it would have reordered the
+                // Delivered tab.
+                var delItems = allRaw
+                    .Where(x => DeliveryNoteStatusValues.IsDelivered(x.Status)
+                             || DeliveryNoteStatusValues.IsSigned(x.Status)
+                             || DeliveryNoteStatusValues.IsReceived(x.Status))
+                    .OrderByDescending(x => x.DeliveryDate)
                     .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
                 var pendingItems = (await pendingTask)
                     .Select(x => new PendingQtyRowViewModel(x)).ToList();
