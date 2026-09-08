@@ -2,6 +2,67 @@
 
 **Severity: Major · Estimate: 4-6 days · Prerequisite: green build**
 
+## Status — the real gap APPLIED 2026-09-09
+
+Added `Tests/ProformaInvoice/SpecificationTargetBuildTypeTests.cs` (7 tests).
+
+### What was already covered — do not redo it
+
+`TargetPriceModelTests.cs` is already deep, and an earlier note in this phase
+implied the worked example was missing. It is not. That file already asserts:
+
+- the shop's own vector, `103.82 → 119.39` (`User_example_base_trigger_and_target_103_82_and_119_39`)
+- the approved DGU vector at `178.93`
+- every missing-input status — `Missing_base_price`, `Missing_glass_rate`,
+  `Missing_asp_rate`, `Missing_yield`
+- all four U-insert treatments and the margin judgement for each
+- snapshot JSON round-tripping and pre-target deserialisation
+
+Anyone extending this area should read that file first. Writing tests against a
+calculator without checking what already pins it produces duplicates and a false
+sense of added coverage.
+
+### What was genuinely untested
+
+Measured, not assumed — occurrences anywhere under `Tests/`:
+
+| | count |
+|---|---|
+| `GlassBuildType.Sgu` | **0** |
+| `GlassBuildType.Lam` | **0** |
+| `GlassBuildType.DguLam` | **0** |
+| `DefaultTargetUpliftPercent` | **0** |
+| negative-area clamp | **0** |
+
+Every existing case is a **DGU**. Three of the four build types had never been
+exercised, and they are not cosmetic variants: `GlassRateSum`,
+`HasRequiredGlassRates` and `RequiresAsp` all switch on the build type and
+decide how many lites are summed, whether a missing third lite blocks the
+calculation, and whether an ASP rate is demanded at all.
+
+The new file covers the glass sum per build type, the missing-lite guard for
+each, the ASP asymmetry (DGU and DGU+LAM require it, SGU and LAM do not — a LAM
+has no cavity and therefore no spacer bar), the `TargetUpliftPercent <= 0`
+fallback to 15%, and the `Math.Max(0m, areaSqm)` clamp.
+
+One assertion is worth calling out. The LAM vector lands on `77.625`, an exact
+half, so it pins the rounding mode these sites actually use: `Math.Round(v, 2)`
+with no mode argument is `ToEven`, giving `77.62`. Away from zero would give
+`77.63`. When Phase 2's migration eventually reaches this file, that assertion
+is what reports the change — and that it was deliberate.
+
+Every expected value was computed independently in base-10 decimal with
+`ROUND_HALF_EVEN`, matching `Math.Round(value, 2)`. 11 of 11 model checks agree
+with the assertions as written.
+
+### What remains open in this phase
+
+Property-based coverage of the wider pricing pipeline (`InvoiceTotalsCalculator`,
+`SheetStorePricingService`, `ProformaChargeMetricsCalculator`) is untouched, and
+the test ratio is unchanged at roughly 1 : 7.4. Those need a green build to add
+against, because a property test that never ran proves nothing.
+
+
 ## Current state
 
 171 test files, 1,306 `[Fact]`/`[Theory]` methods, 30,272 lines against 224,583
