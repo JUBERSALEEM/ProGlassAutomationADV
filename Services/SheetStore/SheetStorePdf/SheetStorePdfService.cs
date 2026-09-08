@@ -17,6 +17,10 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStorePdf
     /// </summary>
     public class SheetStorePdfService
     {
+
+        /// <summary>Derived rhythm + type scale for the active print layout.</summary>
+        private static ProGlassAutomation.Services.Export.Pdf.PdfMetrics M
+            => ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Metrics;
         static SheetStorePdfService()
         {
             // Required for free/community use
@@ -45,7 +49,7 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStorePdf
                         page.Margin(DocumentStyle.MarginMm, Unit.Millimetre);
                         page.DefaultTextStyle(x => x
                             .FontFamily(DocumentStyle.FontFamily)
-                            .FontSize(9)
+                            .FontSize(M.ValueFont)
                             .FontColor(DocumentStyle.ColorText));
 
                         page.Header().Element(h =>
@@ -159,18 +163,18 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStorePdf
                                 .Border(1).BorderColor(DocumentStyle.ColorBorder)
                                 .Padding(10).Row(row =>
                                 {
-                                    row.RelativeItem().Text("TOTALS").Bold().FontSize(10)
+                                    row.RelativeItem().Text("TOTALS").Bold().FontSize(M.SubtotalValueFont)
                                         .FontColor(DocumentStyle.ColorText);
                                     row.ConstantItem(120).Text($"Buy: {totalBuy:N0} AED")
-                                        .Bold().FontSize(9).FontColor(DocumentStyle.ColorDanger);
+                                        .Bold().FontSize(M.ValueFont).FontColor(DocumentStyle.ColorDanger);
                                     row.ConstantItem(120).Text($"Sell: {totalSell:N0} AED")
-                                        .Bold().FontSize(9).FontColor(DocumentStyle.ColorSuccess);
+                                        .Bold().FontSize(M.ValueFont).FontColor(DocumentStyle.ColorSuccess);
                                     row.ConstantItem(120).Text($"Profit: {totalProfit:N0} AED")
-                                        .Bold().FontSize(9).FontColor(DocumentStyle.ColorAccent);
+                                        .Bold().FontSize(M.ValueFont).FontColor(DocumentStyle.ColorAccent);
                                     row.ConstantItem(80).Text($"Stock: {totalStock}")
-                                        .Bold().FontSize(9).FontColor(DocumentStyle.ColorSuccess);
+                                        .Bold().FontSize(M.ValueFont).FontColor(DocumentStyle.ColorSuccess);
                                     row.ConstantItem(80).Text($"Balance: {totalBalance}")
-                                        .Bold().FontSize(9).FontColor(DocumentStyle.ColorWarning);
+                                        .Bold().FontSize(M.ValueFont).FontColor(DocumentStyle.ColorWarning);
                                 });
                         });
 

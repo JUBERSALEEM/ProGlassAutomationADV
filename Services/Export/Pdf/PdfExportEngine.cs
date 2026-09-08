@@ -263,13 +263,21 @@ namespace ProGlassAutomation.Services.Export.Pdf
         private static IDocument BuildQuestPdfDocument(IPdfLayout layout)
         {
             PdfThemeCatalog.ApplySaved();
-            PdfChrome.Reset();
             var pageLayout = layout.PageLayout ?? PageLayout.A4Portrait;
             string documentId = layout.DocumentId ?? string.Empty;
-            float marginMm = DocumentStyle.MarginMm;
 
             return Document.Create(container =>
             {
+                // Reset runs inside the composition delegate, not before it:
+                // QuestPDF executes this lambda on whichever thread calls
+                // GeneratePdf (ExportAsync/PrintAsync both wrap it in
+                // Task.Run). Resetting out here would clear a counter that
+                // belongs to a different thread.
+                PdfChrome.Reset();
+
+                var metrics = DocumentStyle.Metrics;
+                float marginMm = metrics.Theme.MarginMm;
+
                 container.Page(page =>
                 {
                     page.Size(ResolvePageSize(pageLayout));
@@ -291,9 +299,9 @@ namespace ProGlassAutomation.Services.Export.Pdf
                         });
                     }
 
-                    page.Content().PaddingTop(8).Column(col =>
+                    page.Content().PaddingTop(metrics.BlockGap).Column(col =>
                     {
-                        col.Spacing(DocumentStyle.SpaceSection);
+                        col.Spacing(metrics.SectionGap);
                         layout.RenderContent(col);
                     });
 

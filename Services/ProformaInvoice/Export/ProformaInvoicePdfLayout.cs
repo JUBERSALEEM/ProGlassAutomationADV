@@ -39,6 +39,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         private static string GREEN => DocumentStyle.ColorSuccess;
         private static string RED => DocumentStyle.ColorDanger;
 
+        /// <summary>Derived rhythm + type scale for the active print layout.</summary>
+        private static PdfMetrics M => DocumentStyle.Metrics;
+
         private readonly SavedProformaInvoice _entity;
         private readonly ProformaInvoiceSnapshot _snapshot;
         private readonly PiRenderContext _ctx;
@@ -103,7 +106,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             content.Item().Row(row =>
             {
                 row.RelativeItem().Element(c => RenderClientBlock(c));
-                row.ConstantItem(12);
+                row.ConstantItem(M.GutterGap);
                 row.RelativeItem().Element(c => RenderProjectBlock(c));
             });
 
@@ -130,12 +133,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     if (!string.IsNullOrWhiteSpace(_ctx.FooterDisclaimer))
                         footer.Item()
                             .Text(_ctx.FooterDisclaimer)
-                            .FontSize(8).Italic().FontColor(MUTED);
+                            .FontSize(M.CaptionFont).Italic().FontColor(MUTED);
 
                     if (!string.IsNullOrWhiteSpace(_ctx.TermsText))
                         footer.Item()
                             .Text($"Terms: {_ctx.TermsText}")
-                            .FontSize(8).Italic().FontColor(MUTED);
+                            .FontSize(M.CaptionFont).Italic().FontColor(MUTED);
                 });
             }
 
@@ -176,7 +179,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         private void RenderSpecTable(IContainer container, PiSpecGroup group)
         {
-            container.PaddingBottom(10).Column(col =>
+            container.PaddingBottom(M.SectionGap).Column(col =>
             {
                 string specLabel = !string.IsNullOrWhiteSpace(group.GroupName)
                     ? group.GroupName
@@ -276,7 +279,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         {
             if (!_ctx.OtherCharges.Any()) return;
 
-            container.PaddingTop(4).Column(col =>
+            container.PaddingTop(M.RowGap).Column(col =>
             {
                 col.Item().Element(c =>
                     PdfChrome.Section(c, "Other charges"));
@@ -298,23 +301,23 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
                 col.Item()
                     .Background(LIGHT_BG)
-                    .Border(1).BorderColor(LINE)
-                    .Padding(8)
+                    .Border(M.CardBorderWeight).BorderColor(LINE)
+                    .Padding(M.CardPad)
                     .Column(charges =>
                     {
                         foreach (var charge in _ctx.OtherCharges)
                         {
-                            charges.Item().PaddingVertical(2).Row(r =>
+                            charges.Item().PaddingVertical(M.StackGap).Row(r =>
                             {
                                 r.RelativeItem(2).Text(charge.Name)
-                                    .FontSize(9).SemiBold();
+                                    .FontSize(M.ValueFont).SemiBold();
                                 r.RelativeItem(1.2f).Text(charge.QtyLabel)
-                                    .FontSize(9).FontColor(MUTED);
+                                    .FontSize(M.ValueFont).FontColor(MUTED);
                                 r.RelativeItem(1).Text(charge.RateLabel)
-                                    .FontSize(9).FontColor(MUTED);
+                                    .FontSize(M.ValueFont).FontColor(MUTED);
                                 r.RelativeItem(1).AlignRight()
                                     .Text($"AED {charge.Amount:N2}")
-                                    .FontSize(10).Bold();
+                                    .FontSize(M.SubtotalValueFont).Bold();
                             });
                         }
                     });
@@ -324,7 +327,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         private void RenderFinancialSummary(IContainer container)
         {
             container
-                .PaddingTop(6)
+                .PaddingTop(M.RowGap)
                 .Row(outer =>
                 {
                     outer.RelativeItem(1);
@@ -338,13 +341,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         "Other Processing/Delivery Total:",
                         $"{_ctx.OtherChargesTotal:N2} AED");
 
-                    col.Item().PaddingVertical(3)
-                        .LineHorizontal(1).LineColor(LINE);
+                    col.Item().PaddingVertical(M.RowGap)
+                        .LineHorizontal(M.HairlineWeight).LineColor(LINE);
 
                     AddSummaryRow(col,
                         "Estimated Net Subtotal:",
                         $"{_ctx.NetSubtotal:N2} AED",
-                        bold: true, size: 10);
+                        bold: true, size: M.SubtotalValueFont);
 
                     if (_ctx.DiscountAmount > 0)
                         AddSummaryRow(col,
@@ -357,7 +360,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             $"Standard UAE VAT ({_ctx.VatPercent:0.##}%):",
                             $"{_ctx.VatAmount:N2} AED");
 
-                    col.Item().PaddingTop(6).Element(c =>
+                    col.Item().PaddingTop(M.RowGap).Element(c =>
                         PdfChrome.GrandTotal(c,
                             "Total estimate (VAT inc)",
                             $"{_ctx.GrandTotal:N2} AED"));
@@ -367,7 +370,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         private void RenderTermsAndConditions(IContainer container)
         {
-            container.PaddingTop(8).Column(col =>
+            container.PaddingTop(M.BlockGap).Column(col =>
             {
                 col.Item().Element(c =>
                     PdfChrome.Section(c, "Terms & conditions"));
@@ -375,21 +378,21 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 col.Item()
                     .Background(LIGHT_BG)
                     .Border(1).BorderColor(LINE)
-                    .Padding(10)
+                    .Padding(M.CardPad)
                     .Column(terms =>
                     {
                         foreach (var clause in _ctx.TermClauses)
                         {
-                            terms.Item().PaddingBottom(6).Column(clauseCol =>
+                            terms.Item().PaddingBottom(M.RowGap).Column(clauseCol =>
                             {
                                 clauseCol.Item()
                                     .Text($"{clause.Order}. {clause.Title?.ToUpper()}")
-                                    .FontSize(9).Bold().FontColor(DARK);
+                                    .FontSize(M.ValueFont).Bold().FontColor(DARK);
 
                                 if (!string.IsNullOrWhiteSpace(clause.Body))
-                                    clauseCol.Item().PaddingLeft(12)
+                                    clauseCol.Item().PaddingLeft(M.GutterGap)
                                         .Text(clause.Body)
-                                        .FontSize(9).FontColor(DARK);
+                                        .FontSize(M.ValueFont).FontColor(DARK);
 
                                 if (clause.SubLines != null)
                                 {
@@ -397,15 +400,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                                     {
                                         if (string.IsNullOrWhiteSpace(line)) continue;
 
-                                        clauseCol.Item().PaddingLeft(24).Row(r =>
+                                        clauseCol.Item().PaddingLeft(M.GutterGap * 2).Row(r =>
                                         {
                                             r.AutoItem()
                                                 .Text("• ")
-                                                .FontSize(9).Bold().FontColor(ACCENT);
+                                                .FontSize(M.ValueFont).Bold().FontColor(ACCENT);
 
                                             r.RelativeItem()
                                                 .Text(line)
-                                                .FontSize(9).FontColor(DARK);
+                                                .FontSize(M.ValueFont).FontColor(DARK);
                                         });
                                     }
                                 }
@@ -423,18 +426,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     Title = "Prepared by",
                     Body = col =>
                     {
-                        col.Item().PaddingTop(4)
+                        col.Item().PaddingTop(M.RowGap)
                             .Text(string.IsNullOrWhiteSpace(_ctx.PreparedByName)
                                 ? "—" : _ctx.PreparedByName)
-                            .FontSize(10).SemiBold().FontColor(DARK);
+                            .FontSize(M.SignatureFont).SemiBold().FontColor(DARK);
                         if (!string.IsNullOrWhiteSpace(_ctx.PreparedByDept))
-                            col.Item().PaddingTop(2)
+                            col.Item().PaddingTop(M.StackGap)
                                 .Text(_ctx.PreparedByDept)
-                                .FontSize(8).FontColor(MUTED);
-                        col.Item().PaddingTop(2)
+                                .FontSize(M.SignatureHintFont).FontColor(MUTED);
+                        col.Item().PaddingTop(M.StackGap)
                             .Text(string.IsNullOrWhiteSpace(_ctx.PreparedByStatus)
                                 ? "Draft" : _ctx.PreparedByStatus)
-                            .FontSize(8).FontColor(GREEN);
+                            .FontSize(M.SignatureHintFont).FontColor(GREEN);
                     }
                 },
                 new SignatureSlot { Title = "Client approval" });
@@ -727,15 +730,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         private static void AddLabelValue(
             ColumnDescriptor col, string label, string value)
         {
-            col.Item().PaddingTop(1).Row(r =>
+            col.Item().PaddingTop(M.StackGap).Row(r =>
             {
-                r.AutoItem()
-                    .Text($"{label} ")
-                    .FontSize(9).FontColor(MUTED);
+                // Fixed label column, matching PdfChrome.LabelValue, so the
+                // summary lines align with the cards above them instead of
+                // starting wherever each label happens to end.
+                r.ConstantItem(M.LabelColumn)
+                    .Text(label)
+                    .FontSize(M.LabelFont).FontColor(MUTED);
 
                 r.RelativeItem()
                     .Text(string.IsNullOrWhiteSpace(value) ? "—" : value)
-                    .FontSize(9).SemiBold().FontColor(DARK);
+                    .FontSize(M.ValueFont).SemiBold().FontColor(DARK);
             });
         }
 
@@ -744,10 +750,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             string label,
             string value,
             bool bold = false,
-            int size = 9,
+            float size = 0,
             string? color = null)
         {
-            col.Item().PaddingBottom(3).Row(r =>
+            // size == 0 means "use the active layout's summary scale", so
+            // callers stop pinning an absolute point size that ignores the
+            // chosen print layout.
+            if (size <= 0) size = M.SubtotalLabelFont;
+            col.Item().PaddingBottom(M.RowGap).Row(r =>
             {
                 var labelText = r.RelativeItem().Text(label).FontSize(size);
                 if (bold) labelText.Bold();

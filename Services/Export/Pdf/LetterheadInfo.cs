@@ -18,6 +18,18 @@ namespace ProGlassAutomation.Services.Export.Pdf
         public string DocumentId { get; set; } = string.Empty;
         public string? SubtitleLine { get; set; }
 
+        // ── Company contact line ───────────────────────────────────────
+        // A printed letterhead is the client's route back to the supplier.
+        // Layouts render whichever of these are populated, in the order
+        // below, as a single separated contact strip. All optional —
+        // an empty value is simply omitted.
+
+        /// <summary>Company e-mail shown on the letterhead (empty = omit).</summary>
+        public string CompanyEmail { get; set; } = string.Empty;
+
+        /// <summary>Company phone shown on the letterhead (empty = omit).</summary>
+        public string CompanyPhone { get; set; } = string.Empty;
+
         // ── Company branding (logo + placement) ──────────────────────────
         // Resolved from the saved company record by each module. When both
         // are present LogoPath (a live file) is preferred over LogoBase64.

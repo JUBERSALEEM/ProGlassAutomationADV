@@ -237,11 +237,23 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
         public void Compose(IDocumentContainer container)
         {
+            // This wrapper builds its own page (it does not go through
+            // PdfExportEngine), so it owns the same two invariants the
+            // engine guarantees: apply the saved layout, and reset the
+            // section counter. Relying on Letterhead() to reset is not
+            // enough — a document without a letterhead would inherit the
+            // previous export's SEC numbering.
+            ProGlassAutomation.Services.Export.Pdf.PdfThemeCatalog.ApplySaved();
+
+            var metrics = ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Metrics;
+
             container.Page(page =>
             {
+                ProGlassAutomation.Services.Export.Pdf.Renderers.PdfChrome.Reset();
+
                 page.Size(QuestPDF.Helpers.PageSizes.A4);
                 page.Margin(
-                    ProGlassAutomation.Services.Export.Pdf.DocumentStyle.MarginMm,
+                    metrics.Theme.MarginMm,
                     QuestPDF.Infrastructure.Unit.Millimetre);
                 page.DefaultTextStyle(x => x
                     .FontFamily(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.FontFamily)
@@ -262,9 +274,9 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                     });
                 }
 
-                page.Content().PaddingTop(8).Column(col =>
+                page.Content().PaddingTop(metrics.BlockGap).Column(col =>
                 {
-                    col.Spacing(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.SpaceSection);
+                    col.Spacing(metrics.SectionGap);
                     _layout.RenderContent(col);
                 });
 

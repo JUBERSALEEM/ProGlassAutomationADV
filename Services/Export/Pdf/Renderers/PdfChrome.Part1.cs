@@ -15,7 +15,18 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
     {
             private static PdfTheme T => DocumentStyle.Current;
         private static PdfLayoutKind K => T.Kind;
-        private static int _sectionIndex;
+
+        /// <summary>
+        /// Derived rhythm + type scale. Every pad, gap and font size in this
+        /// file comes from here so the five layouts share one vertical rhythm
+        /// instead of ~240 independently hand-typed numbers.
+        /// </summary>
+        private static PdfMetrics M => DocumentStyle.Metrics;
+
+        // Section numbering is per-generation, not per-process: GeneratePdf
+        // runs on a worker thread, so two concurrent exports must not
+        // interleave their SEC 01 / SEC 02 counters.
+        [ThreadStatic] private static int _sectionIndex;
 
         public static void Reset() => _sectionIndex = 0;
 
@@ -101,8 +112,10 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             if (LoadLogoBytes(info) == null)
                 return CompanyLogoLayout.None;
 
-            bool looksWide = info.LogoWidthMm >= 70
-                || (info.LogoHeightMm > 0 && info.LogoWidthMm / info.LogoHeightMm >= 2.4);
+            // Shared with PrintTokenService so the on-screen preview routes
+            // the logo to the same slot the exporter does.
+            bool looksWide = PrintPreview.PrintTokenService.IsTopPanelLogo(
+                info.LogoWidthMm, info.LogoHeightMm);
 
             if (info.LogoLayout == CompanyLogoLayout.TopPanel || looksWide)
                 return CompanyLogoLayout.TopPanel;
@@ -115,14 +128,37 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
         private static bool HasLogo(LetterheadInfo info) =>
             LoadLogoBytes(info) != null;
 
+        /// <summary>
+        /// One separated contact strip built from whichever company contact
+        /// fields are populated. Returns null when there is nothing to show,
+        /// so callers can skip the row entirely instead of printing an
+        /// empty spacer.
+        /// </summary>
+        private static string? ContactLine(LetterheadInfo info)
+        {
+            var parts = new List<string>(3);
+            if (!string.IsNullOrWhiteSpace(info.CompanyEmail))
+                parts.Add(info.CompanyEmail.Trim());
+            if (!string.IsNullOrWhiteSpace(info.CompanyPhone))
+                parts.Add(info.CompanyPhone.Trim());
+            return parts.Count == 0 ? null : string.Join("   ·   ", parts);
+        }
+
+        // Clamp bounds are shared with PrintTokenService so the on-screen
+        // Step 7 preview and the printed chip are the same physical size for
+        // the same company record.
         private static float LogoW(LetterheadInfo info) =>
-            Math.Clamp((float)(info.LogoWidthMm > 0 ? info.LogoWidthMm : 22), 8f, 80f);
+            Math.Clamp((float)(info.LogoWidthMm > 0 ? info.LogoWidthMm : 22),
+                (float)PrintPreview.PrintTokenService.LogoMinWidthMm,
+                (float)PrintPreview.PrintTokenService.LogoMaxWidthMm);
 
         private static float TopPanelLogoW(LetterheadInfo info) =>
             Math.Clamp((float)(info.LogoWidthMm > 0 ? info.LogoWidthMm : 160), 40f, 180f);
 
         private static float LogoH(LetterheadInfo info) =>
-            Math.Clamp((float)(info.LogoHeightMm > 0 ? info.LogoHeightMm : 26), 8f, 70f);
+            Math.Clamp((float)(info.LogoHeightMm > 0 ? info.LogoHeightMm : 26),
+                (float)PrintPreview.PrintTokenService.LogoMinHeightMm,
+                (float)PrintPreview.PrintTokenService.LogoMaxHeightMm);
 
         private static float TopPanelLogoH(LetterheadInfo info) =>
             Math.Clamp((float)(info.LogoHeightMm > 0 ? info.LogoHeightMm : 24), 10f, 32f);
@@ -146,9 +182,9 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 : LogoH(info);
             container
                 .Background(T.White)
-                .Border(0.5f)
+                .Border(M.CardBorderWeight)
                 .BorderColor(T.Border)
-                .Padding(3)
+                .Padding(M.RowGap)
                 .Width(LogoW(info), Unit.Millimetre)
                 .Height(h, Unit.Millimetre)
                 .Image(bytes)
@@ -212,7 +248,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             byte[]? bytes = LoadLogoBytes(info);
 
             container.Background(T.Accent)
-                .PaddingHorizontal(12).PaddingVertical(8)
+                .PaddingHorizontal(M.MastheadPadH).PaddingVertical(M.MastheadPadV)
                 .Column(col =>
                 {
                     if (bytes != null)
@@ -223,18 +259,22 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         // crushing document identity or flowing outside the page.
                         col.Item().AlignCenter()
                             .Background(T.White)
-                            .Border(0.5f)
+                            .Border(M.CardBorderWeight)
                             .BorderColor(T.Border)
-                            .Padding(3)
+                            .Padding(M.RowGap)
                             .Width(TopPanelLogoW(info), Unit.Millimetre)
                             .Height(TopPanelLogoH(info), Unit.Millimetre)
                             .Image(bytes)
                             .FitArea();
                     }
 
-                    col.Item().PaddingTop(bytes != null ? 7 : 0).Row(row =>
+                    col.Item().PaddingTop(bytes != null ? M.BlockGap : 0).Row(row =>
                     {
-                        row.RelativeItem().Column(left =>
+                        // Proportional split, not a fixed 200 pt right block:
+                        // the masthead has to hold together on A4 portrait
+                        // (507 pt of content) and on landscape catalogues
+                        // without crushing either side.
+                        row.RelativeItem(1.55f).Column(left =>
                         {
                             left.Item().Text(info.CompanyName ?? "")
                                 .FontSize(T.TitleSize).Bold().FontColor(T.AccentOn);
@@ -245,27 +285,29 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                                     ? $"TRN {info.CompanyTrn}"
                                     : $"{sub}  ·  TRN {info.CompanyTrn}";
                             if (!string.IsNullOrWhiteSpace(sub))
-                                left.Item().PaddingTop(2).Text(sub)
-                                    .FontSize(8).FontColor(T.AccentSoft);
+                                left.Item().PaddingTop(M.StackGap).Text(sub)
+                                    .FontSize(M.MetaValueFont).FontColor(T.AccentSoft);
                         });
 
-                        row.ConstantItem(200).AlignRight().Column(right =>
+                        row.ConstantItem(M.GutterGap);
+
+                        row.RelativeItem().AlignRight().Column(right =>
                         {
                             right.Item().AlignRight()
                                 .Text((info.DocumentTitle ?? "").ToUpperInvariant())
-                                .FontSize(8).Bold().FontColor(T.AccentOn);
-                            right.Item().AlignRight().PaddingTop(2)
+                                .FontSize(M.KickerFont).Bold().FontColor(T.AccentOn);
+                            right.Item().AlignRight().PaddingTop(M.StackGap)
                                 .Text(info.DocumentId ?? "")
                                 .FontSize(T.IdSize).Bold().FontColor(T.Highlight);
                             if (!string.IsNullOrWhiteSpace(info.SubtitleLine))
-                                right.Item().AlignRight().PaddingTop(2)
+                                right.Item().AlignRight().PaddingTop(M.StackGap)
                                     .Text(info.SubtitleLine)
-                                    .FontSize(7).FontColor(T.AccentSoft);
+                                    .FontSize(M.CaptionFont).FontColor(T.AccentSoft);
                         });
                     });
 
                     if (info.Meta.Count > 0)
-                        col.Item().PaddingTop(7).Element(c => MetaStrip(c, info.Meta));
+                        col.Item().PaddingTop(M.BlockGap).Element(c => MetaStrip(c, info.Meta));
                 });
         }
 
@@ -275,58 +317,58 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             {
                 case PdfLayoutKind.Workshop:
                     container.Background(T.AccentDark)
-                        .PaddingHorizontal(8).PaddingVertical(4)
+                        .PaddingHorizontal(M.ContinuationPadH).PaddingVertical(M.ContinuationPadV)
                         .Row(row =>
                         {
                             row.RelativeItem().Text(info.CompanyName ?? "")
-                                .FontSize(8).SemiBold().FontColor(T.AccentOn);
+                                .FontSize(M.MetaValueFont).SemiBold().FontColor(T.AccentOn);
                             row.RelativeItem().AlignCenter()
                                 .Text((info.DocumentTitle ?? "").ToUpperInvariant())
-                                .FontSize(8).FontColor(T.AccentSoft);
+                                .FontSize(M.MetaValueFont).FontColor(T.AccentSoft);
                             row.RelativeItem().AlignRight()
                                 .Text(info.DocumentId ?? "")
-                                .FontSize(8).Bold().FontColor(T.Highlight);
+                                .FontSize(M.MetaValueFont).Bold().FontColor(T.Highlight);
                         });
                     break;
 
                 case PdfLayoutKind.QuietForm:
-                    container.BorderBottom(0.4f).BorderColor(T.Border)
-                        .PaddingBottom(4)
+                    container.BorderBottom(M.HairlineWeight).BorderColor(T.Border)
+                        .PaddingBottom(M.ContinuationPadV)
                         .Row(row =>
                         {
                             row.RelativeItem().Text(info.CompanyName ?? "")
-                                .FontSize(8).FontColor(T.Muted);
+                                .FontSize(M.MetaValueFont).FontColor(T.Muted);
                             row.RelativeItem().AlignRight()
                                 .Text($"{info.DocumentTitle}  {info.DocumentId}")
-                                .FontSize(8).FontColor(T.Text);
+                                .FontSize(M.MetaValueFont).FontColor(T.Text);
                         });
                     break;
 
                 case PdfLayoutKind.Editorial:
-                    container.BorderBottom(0.6f).BorderColor(T.Highlight)
-                        .PaddingBottom(4)
+                    container.BorderBottom(M.HairlineWeight).BorderColor(T.Highlight)
+                        .PaddingBottom(M.ContinuationPadV)
                         .Row(row =>
                         {
                             row.RelativeItem()
                                 .Text((info.DocumentTitle ?? "").ToUpperInvariant())
-                                .FontSize(8).FontColor(T.Muted);
+                                .FontSize(M.MetaValueFont).FontColor(T.Muted);
                             row.RelativeItem().AlignRight()
                                 .Text(info.DocumentId ?? "")
-                                .FontSize(9).SemiBold().FontColor(T.Text);
+                                .FontSize(M.SubtotalValueFont).SemiBold().FontColor(T.Text);
                         });
                     break;
 
                 default:
                     container.Column(col =>
                     {
-                        col.Item().Height(2).Background(T.Accent);
-                        col.Item().PaddingTop(4).PaddingBottom(2).Row(row =>
+                        col.Item().Height(M.RailWeight * 0.5f).Background(T.Accent);
+                        col.Item().PaddingTop(M.ContinuationPadV).PaddingBottom(M.StackGap).Row(row =>
                         {
                             row.RelativeItem().Text(info.CompanyName ?? "")
-                                .FontSize(8).SemiBold().FontColor(T.Accent);
+                                .FontSize(M.MetaValueFont).SemiBold().FontColor(T.Accent);
                             row.RelativeItem().AlignRight()
                                 .Text($"{info.DocumentTitle}  ·  {info.DocumentId}")
-                                .FontSize(8).FontColor(T.Muted);
+                                .FontSize(M.MetaValueFont).FontColor(T.Muted);
                         });
                     });
                     break;
@@ -335,17 +377,19 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 
         private static void LetterheadFormal(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
-            container.Border(0.6f).BorderColor(T.Border).Column(col =>
+            string? contact = ContactLine(info);
+
+            container.Border(M.CardBorderWeight).BorderColor(T.Border).Column(col =>
             {
                 col.Item().Row(row =>
                 {
-                    row.ConstantItem(5).Background(T.Highlight);
+                    row.ConstantItem(M.RailWeight).Background(T.Highlight);
                     row.RelativeItem().Background(T.Accent)
-                        .PaddingHorizontal(12).PaddingVertical(10)
+                        .PaddingHorizontal(M.LetterheadPadH).PaddingVertical(M.LetterheadPadV)
                         .Row(inner =>
                         {
                             if (!suppressLogo && HasLogo(info))
-                                inner.AutoItem().PaddingRight(12)
+                                inner.AutoItem().PaddingRight(M.GutterGap)
                                     .AlignMiddle()
                                     .Element(c => LogoBox(c, info));
 
@@ -359,26 +403,35 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                                         ? $"TRN  {info.CompanyTrn}"
                                         : $"{sub}  ·  TRN  {info.CompanyTrn}";
                                 if (!string.IsNullOrWhiteSpace(sub))
-                                    left.Item().PaddingTop(2).Text(sub)
-                                        .FontSize(8).FontColor(T.AccentSoft);
-                                left.Item().PaddingTop(5).Text("COMMERCIAL / PRODUCTION ERP DOCUMENT")
-                                    .FontSize(6.5f).Bold().FontColor(T.Highlight);
+                                    left.Item().PaddingTop(M.StackGap).Text(sub)
+                                        .FontSize(M.MetaValueFont).FontColor(T.AccentSoft);
+
+                                // Real supplier contact, not internal jargon:
+                                // this line is the client's route back to us.
+                                if (contact != null)
+                                    left.Item().PaddingTop(M.StackGap).Text(contact)
+                                        .FontSize(M.CaptionFont).FontColor(T.AccentSoft);
                             });
 
-                            inner.ConstantItem(210).AlignRight().Column(right =>
+                            // Proportional, not a fixed 210 pt block — on A4
+                            // portrait that was 41% of the content width and
+                            // crushed the company identity beside it.
+                            inner.ConstantItem(M.GutterGap);
+
+                            inner.RelativeItem().AlignRight().Column(right =>
                             {
                                 right.Item().AlignRight()
                                     .Background(T.Highlight)
-                                    .PaddingHorizontal(8).PaddingVertical(3)
+                                    .PaddingHorizontal(M.GroupPadH).PaddingVertical(M.GroupPadV)
                                     .Text((info.DocumentTitle ?? "").ToUpperInvariant())
-                                    .FontSize(8).Bold().FontColor(T.AccentDark);
-                                right.Item().AlignRight().PaddingTop(5)
+                                    .FontSize(M.KickerFont).Bold().FontColor(T.AccentDark);
+                                right.Item().AlignRight().PaddingTop(M.RowGap)
                                     .Text(info.DocumentId ?? "")
                                     .FontSize(T.IdSize).Bold().FontColor(T.AccentOn);
                                 if (!string.IsNullOrWhiteSpace(info.SubtitleLine))
-                                    right.Item().AlignRight().PaddingTop(2)
+                                    right.Item().AlignRight().PaddingTop(M.StackGap)
                                         .Text(info.SubtitleLine)
-                                        .FontSize(7).FontColor(T.AccentSoft);
+                                        .FontSize(M.CaptionFont).FontColor(T.AccentSoft);
                             });
                         });
                 });
@@ -391,73 +444,84 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 
         private static void LetterheadSplit(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
+            string? contact = ContactLine(info);
+
             container.Column(col =>
             {
                 col.Item().Row(row =>
                 {
-                    row.RelativeItem(3).BorderLeft(4).BorderColor(T.Highlight)
-                        .PaddingLeft(10).Column(left =>
+                    row.RelativeItem(1.5f).BorderLeft(M.RailWeight).BorderColor(T.Highlight)
+                        .PaddingLeft(M.LetterheadPadH).Column(left =>
                         {
-                            left.Item().Text("ERP DOCUMENT")
-                                .FontSize(7).Bold().FontColor(T.Highlight);
+                            // Eyebrow carries real supplier contact when the
+                            // company record has it, instead of a filler
+                            // "ERP DOCUMENT" label the client cannot act on.
+                            if (contact != null)
+                                left.Item().Text(contact)
+                                    .FontSize(M.CaptionFont).Bold().FontColor(T.Highlight);
                             left.Item().Text((info.DocumentTitle ?? "").ToUpperInvariant())
                                 .FontSize(T.TitleSize).Bold().FontColor(T.Accent);
-                            left.Item().PaddingTop(3).Text(info.DocumentId ?? "")
+                            left.Item().PaddingTop(M.RowGap).Text(info.DocumentId ?? "")
                                 .FontSize(T.IdSize).SemiBold().FontColor(T.Text);
                             if (!string.IsNullOrWhiteSpace(info.SubtitleLine))
-                                left.Item().PaddingTop(2).Text(info.SubtitleLine)
-                                    .FontSize(8).FontColor(T.Muted);
+                                left.Item().PaddingTop(M.StackGap).Text(info.SubtitleLine)
+                                    .FontSize(M.MetaValueFont).FontColor(T.Muted);
                         });
 
-                    row.ConstantItem(14);
+                    row.ConstantItem(M.GutterGap);
 
-                    row.RelativeItem(2)
-                        .Border(0.6f).BorderColor(T.Border)
+                    row.RelativeItem()
+                        .Border(M.CardBorderWeight).BorderColor(T.Border)
                         .Background(T.Surface)
-                        .Padding(10)
+                        .Padding(M.CardPad)
                         .Column(right =>
                         {
                             right.Item().Row(r =>
                             {
                                 if (!suppressLogo && HasLogo(info))
-                                    r.AutoItem().PaddingRight(8)
+                                    r.AutoItem().PaddingRight(M.RowGap)
                                         .AlignMiddle()
                                         .Element(c => LogoBox(c, info));
                                 r.RelativeItem().Column(txt =>
                                 {
                                     txt.Item().Text(info.CompanyName ?? "")
-                                        .FontSize(11).Bold().FontColor(T.Accent);
+                                        .FontSize(M.GrandLabelFont).Bold().FontColor(T.Accent);
                                     if (!string.IsNullOrWhiteSpace(info.CompanyLocation))
-                                        txt.Item().PaddingTop(2)
+                                        txt.Item().PaddingTop(M.StackGap)
                                             .Text(info.CompanyLocation)
-                                            .FontSize(8).FontColor(T.Muted);
+                                            .FontSize(M.MetaValueFont).FontColor(T.Muted);
                                     if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
-                                        txt.Item().PaddingTop(4)
+                                        txt.Item().PaddingTop(M.RowGap)
+                                            // AlignLeft first — without it the
+                                            // background stretched the chip
+                                            // across the whole card behind a
+                                            // handful of characters.
+                                            .AlignLeft()
                                             .Background(T.Accent)
-                                            .PaddingHorizontal(6).PaddingVertical(2)
+                                            .PaddingHorizontal(M.GroupPadH).PaddingVertical(M.GroupPadV)
                                             .Text($"VAT / TRN  {info.CompanyTrn}")
-                                            .FontSize(7).Bold().FontColor(T.AccentOn);
+                                            .FontSize(M.KickerFont).Bold().FontColor(T.AccentOn);
                                 });
                             });
                             foreach (var (label, value) in info.Meta.Take(3))
                             {
                                 if (string.IsNullOrWhiteSpace(value)) continue;
-                                right.Item().PaddingTop(3).Row(r =>
+                                right.Item().PaddingTop(M.RowGap).Row(r =>
                                 {
-                                    r.ConstantItem(70).Text(label.ToUpperInvariant())
-                                        .FontSize(7).FontColor(T.Muted);
+                                    r.ConstantItem(M.LabelColumn * 0.85f).Text(label.ToUpperInvariant())
+                                        .FontSize(M.MetaLabelFont).FontColor(T.Muted);
                                     r.RelativeItem().Text(value)
-                                        .FontSize(8).SemiBold().FontColor(T.Text);
+                                        .FontSize(M.MetaValueFont).SemiBold().FontColor(T.Text);
                                 });
                             }
                         });
                 });
 
-                col.Item().PaddingTop(8).Row(row =>
+                col.Item().PaddingTop(M.BlockGap).Row(row =>
                 {
-                    row.RelativeItem().Height(1.3f).Background(T.Accent);
-                    row.ConstantItem(8);
-                    row.ConstantItem(44).Height(1.3f).Background(T.Highlight);
+                    row.RelativeItem().Height(M.HairlineWeight).Background(T.Accent);
+                    row.ConstantItem(M.RowGap);
+                    row.ConstantItem(M.SectionGap * 4.4f).Height(M.HairlineWeight).Background(T.Highlight);
                 });
             });
         }
@@ -465,48 +529,56 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 
         private static void LetterheadEditorial(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
+            string? contact = ContactLine(info);
+
             container.Column(col =>
             {
                 col.Item().Row(row =>
                 {
                     row.RelativeItem().Column(left =>
                     {
-                        left.Item().Text("BOARD / CLIENT PDF PACK")
-                            .FontSize(6.5f).FontColor(T.Highlight);
-                        left.Item().PaddingTop(2).Text(info.DocumentTitle ?? "")
+                        // Editorial masthead eyebrow: supplier contact when we
+                        // have it, otherwise the masthead simply starts at the
+                        // title — no filler label.
+                        if (contact != null)
+                            left.Item().Text(contact)
+                                .FontSize(M.CaptionFont).FontColor(T.Highlight);
+                        left.Item().PaddingTop(M.StackGap).Text(info.DocumentTitle ?? "")
                             .FontSize(T.TitleSize).FontColor(T.Text);
                     });
 
-                    row.ConstantItem(170).AlignRight().Column(right =>
+                    row.ConstantItem(M.GutterGap);
+
+                    row.RelativeItem().AlignRight().Column(right =>
                     {
                         right.Item().AlignRight().Text(info.CompanyName ?? "")
-                            .FontSize(8).SemiBold().FontColor(T.Muted);
+                            .FontSize(M.MetaValueFont).SemiBold().FontColor(T.Muted);
                         if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
-                            right.Item().AlignRight().PaddingTop(1)
+                            right.Item().AlignRight().PaddingTop(M.StackGap)
                                 .Text($"TRN {info.CompanyTrn}")
-                                .FontSize(7).FontColor(T.Muted);
+                                .FontSize(M.CaptionFont).FontColor(T.Muted);
                     });
                 });
 
-                col.Item().PaddingTop(5).Row(row =>
+                col.Item().PaddingTop(M.RowGap).Row(row =>
                 {
-                    row.ConstantItem(38).Height(2).Background(T.Highlight);
-                    row.RelativeItem().Height(0.6f).AlignMiddle().Background(T.Border);
+                    row.ConstantItem(M.SectionGap * 3.8f).Height(M.RailWeight).Background(T.Highlight);
+                    row.RelativeItem().Height(M.HairlineWeight).AlignMiddle().Background(T.Border);
                 });
 
-                col.Item().PaddingTop(8).Row(row =>
+                col.Item().PaddingTop(M.BlockGap).Row(row =>
                 {
                     if (!suppressLogo && HasLogo(info))
-                        row.AutoItem().PaddingRight(12)
+                        row.AutoItem().PaddingRight(M.GutterGap)
                             .AlignMiddle()
                             .Element(c => LogoBox(c, info));
 
                     row.RelativeItem().Column(c =>
                     {
                         c.Item().Text("DOCUMENT REFERENCE")
-                            .FontSize(7).FontColor(T.Muted);
+                            .FontSize(M.MetaLabelFont).FontColor(T.Muted);
                         c.Item().Text(info.DocumentId ?? "—")
-                            .FontSize(11).SemiBold().FontColor(T.Text);
+                            .FontSize(M.GrandLabelFont).SemiBold().FontColor(T.Text);
                     });
 
                     foreach (var (label, value) in info.Meta.Take(3))
@@ -514,60 +586,66 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         row.RelativeItem().Column(c =>
                         {
                             c.Item().Text(label.ToUpperInvariant())
-                                .FontSize(7).FontColor(T.Muted);
+                                .FontSize(M.MetaLabelFont).FontColor(T.Muted);
                             c.Item().Text(string.IsNullOrWhiteSpace(value) ? "—" : value)
-                                .FontSize(10).SemiBold().FontColor(T.Text);
+                                .FontSize(M.MetaValueFont).SemiBold().FontColor(T.Text);
                         });
                     }
                 });
 
                 if (!string.IsNullOrWhiteSpace(info.CompanyLocation))
-                    col.Item().PaddingTop(6).Text(info.CompanyLocation)
-                        .FontSize(8).FontColor(T.Muted);
+                    col.Item().PaddingTop(M.RowGap).Text(info.CompanyLocation)
+                        .FontSize(M.MetaValueFont).FontColor(T.Muted);
 
-                col.Item().PaddingTop(8).Height(0.4f).Background(T.Border);
+                col.Item().PaddingTop(M.BlockGap).Height(M.HairlineWeight).Background(T.Border);
             });
         }
 
 
         private static void LetterheadWorkshop(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
-            container.Border(0.8f).BorderColor(T.AccentDark).Column(col =>
+            container.Border(M.RailWeight * 0.2f).BorderColor(T.AccentDark).Column(col =>
             {
                 col.Item().Row(row =>
                 {
-                    row.ConstantItem(7).Background(T.Highlight);
+                    row.ConstantItem(M.RailWeightHeavy).Background(T.Highlight);
                     row.RelativeItem().Background(T.AccentDark)
-                        .PaddingHorizontal(10).PaddingVertical(10)
+                        .PaddingHorizontal(M.LetterheadPadH).PaddingVertical(M.LetterheadPadV)
                         .Row(inner =>
                         {
                             if (!suppressLogo && HasLogo(info))
-                                inner.AutoItem().PaddingRight(10)
+                                inner.AutoItem().PaddingRight(M.GutterGap)
                                     .AlignMiddle()
                                     .Element(c => LogoBox(c, info));
 
                             inner.RelativeItem().Column(left =>
                             {
                                 left.Item().Text(info.CompanyName ?? "")
-                                    .FontSize(12).Bold().FontColor(T.AccentOn);
+                                    .FontSize(M.GrandLabelFont).Bold().FontColor(T.AccentOn);
                                 var sub = info.CompanyLocation ?? "";
                                 if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
                                     sub = string.IsNullOrWhiteSpace(sub)
                                         ? $"TRN {info.CompanyTrn}"
                                         : $"{sub}  ·  TRN {info.CompanyTrn}";
                                 if (!string.IsNullOrWhiteSpace(sub))
-                                    left.Item().PaddingTop(2).Text(sub)
-                                        .FontSize(8).FontColor(T.AccentSoft);
-                                left.Item().PaddingTop(5).Text("FACTORY RELEASE · QA TRACEABLE · CONTROLLED COPY")
-                                    .FontSize(6.5f).Bold().FontColor(T.Highlight);
+                                    left.Item().PaddingTop(M.StackGap).Text(sub)
+                                        .FontSize(M.MetaValueFont).FontColor(T.AccentSoft);
+                                // Retained: on a shop-floor docket "CONTROLLED
+                                // COPY" is a real ISO-9001 document-control
+                                // statement, not filler.
+                                left.Item().PaddingTop(M.RowGap)
+                                    .Text("FACTORY RELEASE · QA TRACEABLE · CONTROLLED COPY")
+                                    .FontSize(M.CaptionFont).Bold().FontColor(T.Highlight);
                             });
 
-                            inner.ConstantItem(205).AlignRight().Column(right =>
+                            inner.ConstantItem(M.GutterGap);
+
+                            inner.RelativeItem().AlignRight().Column(right =>
                             {
                                 right.Item().AlignRight()
                                     .Text((info.DocumentTitle ?? "").ToUpperInvariant())
                                     .FontSize(T.TitleSize).Bold().FontColor(T.Highlight);
-                                right.Item().AlignRight().PaddingTop(2)
+                                right.Item().AlignRight().PaddingTop(M.StackGap)
                                     .Text(info.DocumentId ?? "")
                                     .FontSize(T.IdSize).Bold().FontColor(T.AccentOn);
                             });
@@ -584,19 +662,19 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 if (kpi.Count > 0)
                 {
                     col.Item().Background(T.Surface)
-                        .BorderTop(0.6f).BorderColor(T.Border)
-                        .PaddingHorizontal(8).PaddingVertical(6)
+                        .BorderTop(M.CardBorderWeight).BorderColor(T.Border)
+                        .PaddingHorizontal(M.MetaPadH).PaddingVertical(M.MetaPadV)
                         .Row(row =>
                         {
                             foreach (var (label, value) in kpi)
                             {
-                                row.RelativeItem().BorderLeft(1).BorderColor(T.Highlight)
-                                    .PaddingLeft(5).Column(c =>
+                                row.RelativeItem().BorderLeft(M.RailWeight * 0.25f).BorderColor(T.Highlight)
+                                    .PaddingLeft(M.RowGap).Column(c =>
                                     {
                                         c.Item().Text(label)
-                                            .FontSize(6.5f).Bold().FontColor(T.Muted);
+                                            .FontSize(M.MetaLabelFont).Bold().FontColor(T.Muted);
                                         c.Item().Text(value)
-                                            .FontSize(9.5f).Bold().FontColor(T.Text);
+                                            .FontSize(M.MetaValueFont).Bold().FontColor(T.Text);
                                     });
                             }
                         });
@@ -607,19 +685,21 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 
         private static void LetterheadQuiet(IContainer container, LetterheadInfo info, bool suppressLogo)
         {
+            string? contact = ContactLine(info);
+
             container.Column(col =>
             {
                 col.Item().Row(row =>
                 {
                     if (!suppressLogo && HasLogo(info))
-                        row.AutoItem().PaddingRight(8)
+                        row.AutoItem().PaddingRight(M.GutterGap)
                             .AlignMiddle()
                             .Element(c => LogoBox(c, info));
 
                     row.RelativeItem().Column(col2 =>
                     {
                         col2.Item().Text(info.CompanyName ?? "")
-                            .FontSize(11).FontColor(T.Text);
+                            .FontSize(M.GrandLabelFont).FontColor(T.Text);
                         if (!string.IsNullOrWhiteSpace(info.CompanyLocation)
                             || !string.IsNullOrWhiteSpace(info.CompanyTrn))
                         {
@@ -628,48 +708,52 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                                 line = string.IsNullOrWhiteSpace(line)
                                     ? $"TRN {info.CompanyTrn}"
                                     : $"{line}  ·  TRN {info.CompanyTrn}";
-                            col2.Item().PaddingTop(1).Text(line)
-                                .FontSize(8).FontColor(T.Muted);
+                            col2.Item().PaddingTop(M.StackGap).Text(line)
+                                .FontSize(M.MetaValueFont).FontColor(T.Muted);
                         }
                     });
 
                     row.AutoItem().AlignRight().Column(right =>
                     {
-                        right.Item().AlignRight().Text("CONTROLLED PDF")
-                            .FontSize(6.5f).FontColor(T.Muted);
-                        right.Item().AlignRight().Text(DateTime.Now.ToString("dd MMM yyyy"))
-                            .FontSize(7.5f).FontColor(T.Text);
+                        if (contact != null)
+                            right.Item().AlignRight().Text(contact)
+                                .FontSize(M.CaptionFont).FontColor(T.Muted);
+                        // Labelled as a print stamp — an undated date next to
+                        // the document's own issue date reads as a contradiction.
+                        right.Item().AlignRight().PaddingTop(M.StackGap)
+                            .Text($"PRINTED {DateTime.Now:dd MMM yyyy}")
+                            .FontSize(M.CaptionFont).FontColor(T.Text);
                     });
                 });
 
-                col.Item().PaddingTop(8).Height(0.4f).Background(T.Text);
+                col.Item().PaddingTop(M.BlockGap).Height(M.HairlineWeight).Background(T.Text);
 
-                col.Item().PaddingTop(10)
+                col.Item().PaddingTop(M.SectionGap)
                     .Text((info.DocumentTitle ?? "").ToUpperInvariant())
                     .FontSize(T.TitleSize).FontColor(T.Muted);
 
-                col.Item().PaddingTop(2).Text(info.DocumentId ?? "")
+                col.Item().PaddingTop(M.StackGap).Text(info.DocumentId ?? "")
                     .FontSize(T.IdSize).FontColor(T.Text);
 
                 if (info.Meta.Count > 0)
                 {
-                    col.Item().PaddingTop(8).Row(row =>
+                    col.Item().PaddingTop(M.BlockGap).Row(row =>
                     {
                         foreach (var (label, value) in info.Meta.Take(4))
                         {
-                            row.RelativeItem().BorderTop(0.4f).BorderColor(T.Border)
-                                .PaddingTop(3).Column(c =>
+                            row.RelativeItem().BorderTop(M.HairlineWeight).BorderColor(T.Border)
+                                .PaddingTop(M.RowGap).Column(c =>
                                 {
                                     c.Item().Text(label.ToUpperInvariant())
-                                        .FontSize(7).FontColor(T.Muted);
+                                        .FontSize(M.MetaLabelFont).FontColor(T.Muted);
                                     c.Item().Text(string.IsNullOrWhiteSpace(value) ? "—" : value)
-                                        .FontSize(9).FontColor(T.Text);
+                                        .FontSize(M.MetaValueFont).FontColor(T.Text);
                                 });
                         }
                     });
                 }
 
-                col.Item().PaddingTop(10).Height(0.4f).Background(T.Border);
+                col.Item().PaddingTop(M.SectionGap).Height(M.HairlineWeight).Background(T.Border);
             });
         }
 
@@ -680,12 +764,12 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             {
                 case PdfLayoutKind.Workshop:
                     container.Background(T.AccentDark)
-                        .PaddingHorizontal(8).PaddingVertical(5)
+                        .PaddingHorizontal(M.MetaPadH).PaddingVertical(M.MetaPadV)
                         .Row(row =>
                         {
                             row.RelativeItem().Text(text =>
                             {
-                                text.DefaultTextStyle(x => x.FontSize(7).FontColor(T.AccentSoft));
+                                text.DefaultTextStyle(x => x.FontSize(M.FooterFont).FontColor(T.AccentSoft));
                                 if (!string.IsNullOrWhiteSpace(documentId))
                                 {
                                     text.Span(documentId).SemiBold().FontColor(T.AccentOn);
@@ -695,7 +779,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                             });
                             row.RelativeItem().AlignRight().Text(text =>
                             {
-                                text.DefaultTextStyle(x => x.FontSize(7).FontColor(T.AccentSoft));
+                                text.DefaultTextStyle(x => x.FontSize(M.FooterFont).FontColor(T.AccentSoft));
                                 text.Span("PAGE ");
                                 text.CurrentPageNumber().Bold().FontColor(T.AccentOn);
                                 text.Span(" / ");
@@ -707,10 +791,10 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 case PdfLayoutKind.Editorial:
                     container.Column(col =>
                     {
-                        col.Item().Height(0.5f).Background(T.Highlight);
-                        col.Item().PaddingTop(6).AlignCenter().Text(text =>
+                        col.Item().Height(M.HairlineWeight).Background(T.Highlight);
+                        col.Item().PaddingTop(M.RowGap).AlignCenter().Text(text =>
                         {
-                            text.DefaultTextStyle(x => x.FontSize(7).FontColor(T.Muted));
+                            text.DefaultTextStyle(x => x.FontSize(M.FooterFont).FontColor(T.Muted));
                             if (!string.IsNullOrWhiteSpace(documentId))
                             {
                                 text.Span(documentId.ToUpperInvariant());
@@ -727,7 +811,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 case PdfLayoutKind.QuietForm:
                     container.AlignCenter().Text(text =>
                     {
-                        text.DefaultTextStyle(x => x.FontSize(7).FontColor(T.Muted));
+                        text.DefaultTextStyle(x => x.FontSize(M.FooterFont).FontColor(T.Muted));
                         text.CurrentPageNumber();
                         text.Span("  /  ");
                         text.TotalPages();
@@ -737,16 +821,16 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 case PdfLayoutKind.SplitConsole:
                     container.Column(col =>
                     {
-                        col.Item().Height(0.6f).Background(T.Border);
-                        col.Item().PaddingTop(6).Row(row =>
+                        col.Item().Height(M.HairlineWeight).Background(T.Border);
+                        col.Item().PaddingTop(M.RowGap).Row(row =>
                         {
                             row.RelativeItem().Text($"Printed {DateTime.Now:dd MMM yyyy}")
-                                .FontSize(7).FontColor(T.Muted);
+                                .FontSize(M.FooterFont).FontColor(T.Muted);
                             row.RelativeItem().AlignCenter().Text(documentId ?? "")
-                                .FontSize(7).SemiBold().FontColor(T.Text);
+                                .FontSize(M.FooterFont).SemiBold().FontColor(T.Text);
                             row.RelativeItem().AlignRight().Text(text =>
                             {
-                                text.DefaultTextStyle(x => x.FontSize(7).FontColor(T.Muted));
+                                text.DefaultTextStyle(x => x.FontSize(M.FooterFont).FontColor(T.Muted));
                                 text.CurrentPageNumber().SemiBold().FontColor(T.Text);
                                 text.Span(" / ");
                                 text.TotalPages();
@@ -758,13 +842,13 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 default:
                     container.Column(col =>
                     {
-                        col.Item().Height(1.5f).Background(T.Accent);
-                        col.Item().PaddingTop(6).Row(row =>
+                        col.Item().Height(M.RailWeight * 0.4f).Background(T.Accent);
+                        col.Item().PaddingTop(M.RowGap).Row(row =>
                         {
                             row.RelativeItem().Text(text =>
                             {
                                 text.DefaultTextStyle(x => x
-                                    .FontSize(DocumentStyle.FontSizeCaption)
+                                    .FontSize(M.FooterFont)
                                     .FontColor(T.Muted));
                                 if (!string.IsNullOrWhiteSpace(documentId))
                                 {
@@ -776,7 +860,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                             row.RelativeItem().AlignRight().Text(text =>
                             {
                                 text.DefaultTextStyle(x => x
-                                    .FontSize(DocumentStyle.FontSizeCaption)
+                                    .FontSize(M.FooterFont)
                                     .FontColor(T.Muted));
                                 text.Span("Page ");
                                 text.CurrentPageNumber().SemiBold().FontColor(T.Text);
@@ -801,13 +885,13 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             switch (K)
             {
                 case PdfLayoutKind.SplitConsole:
-                    container.BorderLeft(3).BorderColor(T.Highlight)
-                        .PaddingLeft(7).Row(row =>
+                    container.BorderLeft(M.RailWeight).BorderColor(T.Highlight)
+                        .PaddingLeft(M.GroupPadH).Row(row =>
                         {
                             row.RelativeItem().Text(label.ToUpperInvariant())
-                                .FontSize(9.5f).SemiBold().FontColor(T.Accent);
+                                .FontSize(M.SectionFont).SemiBold().FontColor(T.Accent);
                             row.AutoItem().Text($"SEC {_sectionIndex:00}")
-                                .FontSize(6.5f).Bold().FontColor(T.Muted);
+                                .FontSize(M.KickerFont).Bold().FontColor(T.Muted);
                         });
                     break;
 
@@ -817,17 +901,17 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         col.Item().Row(row =>
                         {
                             row.AutoItem().Text($"{_sectionIndex:00}")
-                                .FontSize(11).FontColor(T.Highlight);
-                            row.RelativeItem().PaddingLeft(8)
+                                .FontSize(M.GrandLabelFont).FontColor(T.Highlight);
+                            row.RelativeItem().PaddingLeft(M.RowGap)
                                 .Text(label.ToUpperInvariant())
-                                .FontSize(8).SemiBold().FontColor(T.Text);
-                            row.AutoItem().AlignBottom().Text("ERP SECTION")
-                                .FontSize(6).FontColor(T.Muted);
+                                .FontSize(M.SectionFont).SemiBold().FontColor(T.Text);
+                            row.AutoItem().AlignBottom().Text("SECTION")
+                                .FontSize(M.KickerFont).FontColor(T.Muted);
                         });
-                        col.Item().PaddingTop(3).Row(r =>
+                        col.Item().PaddingTop(M.RowGap).Row(r =>
                         {
-                            r.ConstantItem(36).Height(0.8f).Background(T.Highlight);
-                            r.RelativeItem().Height(0.4f).AlignMiddle().Background(T.Border);
+                            r.ConstantItem(M.SectionGap * 3.8f).Height(M.RailWeight).Background(T.Highlight);
+                            r.RelativeItem().Height(M.HairlineWeight).AlignMiddle().Background(T.Border);
                         });
                     });
                     break;
@@ -835,15 +919,15 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 case PdfLayoutKind.Workshop:
                     container.Row(row =>
                     {
-                        row.ConstantItem(4).Background(T.Highlight);
+                        row.ConstantItem(M.RailWeight).Background(T.Highlight);
                         row.RelativeItem().Background(T.Accent)
-                            .PaddingHorizontal(8).PaddingVertical(4)
+                            .PaddingHorizontal(M.GroupPadH).PaddingVertical(M.GroupPadV)
                             .Row(inner =>
                             {
                                 inner.RelativeItem().Text(label.ToUpperInvariant())
-                                    .FontSize(8).Bold().FontColor(T.AccentOn);
+                                    .FontSize(M.SectionFont).Bold().FontColor(T.AccentOn);
                                 inner.AutoItem().Text($"QA-{_sectionIndex:00}")
-                                    .FontSize(6.5f).Bold().FontColor(T.Highlight);
+                                    .FontSize(M.KickerFont).Bold().FontColor(T.Highlight);
                             });
                     });
                     break;
@@ -854,26 +938,26 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                         col.Item().Row(row =>
                         {
                             row.RelativeItem().Text(label.ToUpperInvariant())
-                                .FontSize(8).FontColor(T.Muted);
+                                .FontSize(M.SectionFont).FontColor(T.Muted);
                             row.AutoItem().Text($"{_sectionIndex:00}")
-                                .FontSize(7).FontColor(T.Muted);
+                                .FontSize(M.KickerFont).FontColor(T.Muted);
                         });
-                        col.Item().PaddingTop(2).Height(0.45f).Background(T.Text);
+                        col.Item().PaddingTop(M.StackGap).Height(M.HairlineWeight).Background(T.Text);
                     });
                     break;
 
                 default:
                     container.Row(row =>
                     {
-                        row.ConstantItem(4).Background(T.Highlight);
+                        row.ConstantItem(M.RailWeight).Background(T.Highlight);
                         row.RelativeItem().Background(T.Accent)
-                            .PaddingHorizontal(8).PaddingVertical(4)
+                            .PaddingHorizontal(M.GroupPadH).PaddingVertical(M.GroupPadV)
                             .Row(inner =>
                             {
                                 inner.RelativeItem().Text(label.ToUpperInvariant())
-                                    .FontSize(8).Bold().FontColor(T.AccentOn);
+                                    .FontSize(M.SectionFont).Bold().FontColor(T.AccentOn);
                                 inner.AutoItem().Text($"{_sectionIndex:00}")
-                                    .FontSize(7).Bold().FontColor(T.AccentSoft);
+                                    .FontSize(M.KickerFont).Bold().FontColor(T.AccentSoft);
                             });
                     });
                     break;
@@ -887,45 +971,45 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             {
                 case PdfLayoutKind.Editorial:
                 case PdfLayoutKind.QuietForm:
-                    container.BorderLeft(1.2f).BorderColor(T.Highlight)
-                        .PaddingLeft(6).PaddingBottom(3).Row(row =>
+                    container.BorderLeft(M.RailWeight).BorderColor(T.Highlight)
+                        .PaddingLeft(M.GroupPadH).PaddingBottom(M.RowGap).Row(row =>
                         {
                             row.RelativeItem().Text(text ?? "")
-                                .FontSize(9).SemiBold().FontColor(T.Text);
+                                .FontSize(M.GroupFont).SemiBold().FontColor(T.Text);
                             if (!string.IsNullOrWhiteSpace(trailing))
                                 row.AutoItem().Text(trailing)
-                                    .FontSize(8).FontColor(T.Muted);
+                                    .FontSize(M.MetaValueFont).FontColor(T.Muted);
                         });
                     break;
 
                 case PdfLayoutKind.SplitConsole:
-                    container.BorderLeft(2).BorderColor(T.Accent)
+                    container.BorderLeft(M.RailWeight * 0.7f).BorderColor(T.Accent)
                         .Background(T.Surface)
-                        .PaddingHorizontal(8).PaddingVertical(4)
+                        .PaddingHorizontal(M.GroupPadH).PaddingVertical(M.GroupPadV)
                         .Row(row =>
                         {
                             row.RelativeItem().Text(text ?? "")
-                                .FontSize(9).SemiBold().FontColor(T.Accent);
+                                .FontSize(M.GroupFont).SemiBold().FontColor(T.Accent);
                             if (!string.IsNullOrWhiteSpace(trailing))
                                 row.AutoItem().Text(trailing)
-                                    .FontSize(8).FontColor(T.Muted);
+                                    .FontSize(M.MetaValueFont).FontColor(T.Muted);
                         });
                     break;
 
                 case PdfLayoutKind.Workshop:
                     container.Row(row =>
                     {
-                        row.ConstantItem(3).Background(T.Highlight);
+                        row.ConstantItem(M.RailWeight * 0.75f).Background(T.Highlight);
                         row.RelativeItem().Background(T.AccentLight)
-                            .BorderTop(0.6f).BorderBottom(0.6f).BorderColor(T.Border)
-                            .PaddingHorizontal(6).PaddingVertical(3)
+                            .BorderTop(M.CardBorderWeight).BorderBottom(M.CardBorderWeight).BorderColor(T.Border)
+                            .PaddingHorizontal(M.GroupPadH).PaddingVertical(M.GroupPadV)
                             .Row(inner =>
                             {
                                 inner.RelativeItem().Text(text ?? "")
-                                    .FontSize(8).Bold().FontColor(T.AccentDark);
+                                    .FontSize(M.GroupFont).Bold().FontColor(T.AccentDark);
                                 if (!string.IsNullOrWhiteSpace(trailing))
                                     inner.AutoItem().Text(trailing)
-                                        .FontSize(7).FontColor(T.Muted);
+                                        .FontSize(M.MetaLabelFont).FontColor(T.Muted);
                             });
                     });
                     break;
@@ -933,16 +1017,16 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 default:
                     container.Row(row =>
                     {
-                        row.ConstantItem(3).Background(T.Highlight);
+                        row.ConstantItem(M.RailWeight * 0.75f).Background(T.Highlight);
                         row.RelativeItem().Background(T.Accent)
-                            .PaddingHorizontal(8).PaddingVertical(4)
+                            .PaddingHorizontal(M.GroupPadH).PaddingVertical(M.GroupPadV)
                             .Row(inner =>
                             {
                                 inner.RelativeItem().Text(text ?? "")
-                                    .FontSize(9).Bold().FontColor(T.AccentOn);
+                                    .FontSize(M.GroupFont).Bold().FontColor(T.AccentOn);
                                 if (!string.IsNullOrWhiteSpace(trailing))
                                     inner.AutoItem().Text(trailing)
-                                        .FontSize(8).FontColor(T.AccentSoft);
+                                        .FontSize(M.MetaValueFont).FontColor(T.AccentSoft);
                             });
                     });
                     break;
@@ -952,20 +1036,13 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 
         public static void Hairline(IContainer container)
         {
-            float h = K switch
-            {
-                PdfLayoutKind.Workshop => 0.8f,
-                PdfLayoutKind.QuietForm => 0.4f,
-                PdfLayoutKind.Editorial => 0.5f,
-                _ => 0.75f
-            };
             string color = K switch
             {
                 PdfLayoutKind.Editorial => T.Highlight,
                 PdfLayoutKind.Workshop => T.Accent,
                 _ => T.Border
             };
-            container.Height(h).Background(color);
+            container.Height(M.HairlineWeight).Background(color);
         }
 
         // ═════════════════════════════════════════════════════════════
@@ -980,62 +1057,62 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             switch (K)
             {
                 case PdfLayoutKind.SplitConsole:
-                    container.BorderLeft(2).BorderColor(T.Accent)
-                        .Background(T.Surface).Padding(10).Column(col =>
+                    container.BorderLeft(M.RailWeight * 0.7f).BorderColor(T.Accent)
+                        .Background(T.Surface).Padding(M.CardPad).Column(col =>
                         {
                             col.Item().Text(title.ToUpperInvariant())
-                                .FontSize(7.5f).SemiBold().FontColor(T.Accent);
-                            col.Item().PaddingTop(4);
+                                .FontSize(M.CardTitleFont).SemiBold().FontColor(T.Accent);
+                            col.Item().PaddingTop(M.CardTitleGap);
                             body(col);
                         });
                     break;
 
                 case PdfLayoutKind.Editorial:
-                    container.BorderTop(0.5f).BorderColor(T.Border)
-                        .PaddingTop(6).Column(col =>
+                    container.BorderTop(M.HairlineWeight).BorderColor(T.Border)
+                        .PaddingTop(M.RowGap).Column(col =>
                         {
                             col.Item().Text(title.ToUpperInvariant())
-                                .FontSize(7).FontColor(T.Highlight);
-                            col.Item().PaddingTop(4);
+                                .FontSize(M.CardTitleFont).FontColor(T.Highlight);
+                            col.Item().PaddingTop(M.CardTitleGap);
                             body(col);
                         });
                     break;
 
                 case PdfLayoutKind.QuietForm:
-                    container.BorderTop(0.4f).BorderBottom(0.4f).BorderColor(T.Border)
-                        .PaddingVertical(6).Column(col =>
+                    container.BorderTop(M.HairlineWeight).BorderBottom(M.HairlineWeight).BorderColor(T.Border)
+                        .PaddingVertical(M.RowGap).Column(col =>
                         {
                             col.Item().Text(title.ToUpperInvariant())
-                                .FontSize(7).FontColor(T.Muted);
-                            col.Item().PaddingTop(4);
+                                .FontSize(M.CardTitleFont).FontColor(T.Muted);
+                            col.Item().PaddingTop(M.CardTitleGap);
                             body(col);
                         });
                     break;
 
                 case PdfLayoutKind.Workshop:
-                    container.Border(0.7f).BorderColor(T.Border).Column(col =>
+                    container.Border(M.CardBorderWeight).BorderColor(T.Border).Column(col =>
                     {
                         col.Item().Background(T.AccentLight)
-                            .BorderLeft(3).BorderColor(T.Highlight)
-                            .PaddingHorizontal(6).PaddingVertical(3)
+                            .BorderLeft(M.RailWeight).BorderColor(T.Highlight)
+                            .PaddingHorizontal(M.CardHeadPadH).PaddingVertical(M.CardHeadPadV)
                             .Text(title.ToUpperInvariant())
-                            .FontSize(7).Bold().FontColor(T.AccentDark);
-                        col.Item().Padding(8);
+                            .FontSize(M.CardTitleFont).Bold().FontColor(T.AccentDark);
+                        col.Item().Padding(M.CardPad);
                         body(col);
                     });
                     break;
 
                 default:
-                    container.Border(0.6f).BorderColor(T.Border)
+                    container.Border(M.CardBorderWeight).BorderColor(T.Border)
                         .Background(T.White)
                         .Column(col =>
                         {
                             col.Item().Background(T.Surface)
-                                .BorderLeft(3).BorderColor(T.Highlight)
-                                .PaddingHorizontal(8).PaddingVertical(4)
+                                .BorderLeft(M.RailWeight).BorderColor(T.Highlight)
+                                .PaddingHorizontal(M.CardHeadPadH).PaddingVertical(M.CardHeadPadV)
                                 .Text(title.ToUpperInvariant())
-                                .FontSize(7.5f).Bold().FontColor(T.Accent);
-                            col.Item().Padding(8);
+                                .FontSize(M.CardTitleFont).Bold().FontColor(T.Accent);
+                            col.Item().Padding(M.CardPad);
                             body(col);
                         });
                     break;
@@ -1060,38 +1137,46 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             IContainer box = K switch
             {
                 PdfLayoutKind.Workshop => container.Background(T.Surface)
-                    .BorderBottom(0.6f).BorderColor(T.Border),
+                    .BorderBottom(M.CardBorderWeight).BorderColor(T.Border),
                 PdfLayoutKind.SplitConsole => container.Background(T.Surface),
                 PdfLayoutKind.FormalBand => container.Background(T.Surface)
-                    .BorderBottom(0.6f).BorderColor(T.Border),
+                    .BorderBottom(M.CardBorderWeight).BorderColor(T.Border),
                 _ => container
             };
 
-            box.PaddingHorizontal(10).PaddingVertical(6).Row(row =>
+            box.PaddingHorizontal(M.MetaPadH).PaddingVertical(M.MetaPadV).Row(row =>
             {
                 foreach (var (label, value) in shown)
                 {
                     row.RelativeItem().Column(c =>
                     {
                         c.Item().Text(label.ToUpperInvariant())
-                            .FontSize(7).FontColor(T.Muted);
-                        c.Item().PaddingTop(1).Text(value)
-                            .FontSize(9).SemiBold().FontColor(T.Text);
+                            .FontSize(M.MetaLabelFont).FontColor(T.Muted);
+                        c.Item().PaddingTop(M.StackGap).Text(value)
+                            .FontSize(M.MetaValueFont).SemiBold().FontColor(T.Text);
                     });
                 }
             });
         }
 
+        /// <summary>
+        /// One label/value pair on a fixed label column.
+        ///
+        /// The label column used to be AutoItem, so every row's value started
+        /// at a different x and the cards read ragged. A shared
+        /// <see cref="PdfMetrics.LabelColumn"/> width aligns the whole card —
+        /// and every card in the document — on one vertical.
+        /// </summary>
         public static void LabelValue(ColumnDescriptor col, string label, string? value)
         {
-            col.Item().PaddingTop(3).Row(r =>
+            col.Item().PaddingTop(M.RowGap).Row(r =>
             {
-                r.AutoItem()
-                    .Text($"{label}")
-                    .FontSize(8).FontColor(T.Muted);
-                r.RelativeItem().PaddingLeft(6)
+                r.ConstantItem(M.LabelColumn)
+                    .Text(label)
+                    .FontSize(M.LabelFont).FontColor(T.Muted);
+                r.RelativeItem()
                     .Text(string.IsNullOrWhiteSpace(value) ? "—" : value)
-                    .FontSize(8).SemiBold().FontColor(T.Text);
+                    .FontSize(M.ValueFont).SemiBold().FontColor(T.Text);
             });
         }
 
@@ -1108,7 +1193,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             if (!string.IsNullOrWhiteSpace(background))
             {
                 painted = cell.Background(background)
-                    .Border(T.TableGrid ? 0.6f : 0)
+                    .Border(T.TableGrid ? M.CardBorderWeight : 0)
                     .BorderColor(T.AccentDark);
             }
             else
@@ -1117,15 +1202,15 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 {
                     PdfLayoutKind.SplitConsole =>
                         cell.Background(T.AccentLight)
-                            .BorderBottom(1).BorderColor(T.Accent),
+                            .BorderBottom(M.RailWeight * 0.33f).BorderColor(T.Accent),
                     PdfLayoutKind.Editorial =>
-                        cell.BorderBottom(1.2f).BorderColor(T.Text)
-                            .BorderTop(0.4f).BorderColor(T.Text),
+                        cell.BorderBottom(M.RailWeight).BorderColor(T.Text)
+                            .BorderTop(M.HairlineWeight).BorderColor(T.Text),
                     PdfLayoutKind.QuietForm =>
-                        cell.BorderBottom(0.6f).BorderColor(T.Text),
+                        cell.BorderBottom(M.CardBorderWeight).BorderColor(T.Text),
                     PdfLayoutKind.Workshop =>
                         cell.Background(T.TableHeader)
-                            .Border(0.6f).BorderColor(T.AccentDark),
+                            .Border(M.CardBorderWeight).BorderColor(T.AccentDark),
                     _ =>
                         cell.Background(T.TableHeader)
                 };
@@ -1147,7 +1232,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                     : T.AccentOn;
 
             painted.Text(text ?? "")
-                .FontSize(Math.Max(7f, T.TableFont - 0.5f))
+                .FontSize(M.HeaderFont)
                 .Bold()
                 .FontColor(color);
         }
@@ -1168,9 +1253,9 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             IContainer painted = cell.Background(bg);
 
             if (T.TableGrid)
-                painted = painted.Border(0.55f).BorderColor(T.Border);
+                painted = painted.Border(M.CardBorderWeight).BorderColor(T.Border);
             else
-                painted = painted.BorderBottom(0.45f).BorderColor(T.Border);
+                painted = painted.BorderBottom(M.HairlineWeight * 0.6f).BorderColor(T.Border);
 
             painted = painted
                 .PaddingHorizontal(T.CellPadH)
@@ -1179,7 +1264,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             if (right) painted = painted.AlignRight();
             else if (center) painted = painted.AlignCenter();
 
-            var txt = painted.Text(text ?? "").FontSize(T.TableFont);
+            var txt = painted.Text(text ?? "").FontSize(M.TableFont);
             if (bold) txt.Bold();
             txt.FontColor(color ?? T.Text);
         }

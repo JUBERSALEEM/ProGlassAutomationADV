@@ -46,6 +46,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview
         public PrintableInvoiceViewModel PrintableInvoice { get; }
 
         /// <summary>
+        /// Live PDF-layout switcher shown above the paper. One instance,
+        /// shared with the printable invoice, so the toolbar and the document
+        /// can never disagree about which layout is active.
+        /// </summary>
+        public ProGlassAutomation.ViewModels.Shared.PrintLayoutViewModel PrintLayout { get; }
+            = new ProGlassAutomation.ViewModels.Shared.PrintLayoutViewModel();
+
+        /// <summary>
         /// CHAT 15: Parameter order corrected.
         /// Was: (company, ProjectSpecsViewModel, ClientProfileViewModel, ...)
         /// Now: (company, ClientProfileViewModel, ProjectSpecsViewModel, ...)
@@ -82,6 +90,9 @@ public PrintPreviewViewModel(
                 otherChargesVM,
                 InvoiceMainSummary,
                 Terms);
+
+            // Same instance on both sides — see PrintLayout doc comment.
+            PrintableInvoice.PrintLayout = PrintLayout;
         }
     }
 }

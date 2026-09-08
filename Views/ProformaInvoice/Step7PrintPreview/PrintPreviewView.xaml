@@ -109,18 +109,91 @@
         </Border>
 
         <Border Grid.Column="2"
-                Background="#FFFFFF"
+                Background="{DynamicResource Print.Paper}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}"
                 Padding="16"
                 SnapsToDevicePixels="True">
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Auto"
-                          Background="Transparent">
-                <printable:PrintableInvoiceView DataContext="{Binding PrintableInvoice}"
-                                                HorizontalAlignment="Center"/>
-            </ScrollViewer>
+            <DockPanel>
+
+                <!--
+                    LIVE PDF LAYOUT SWITCHER
+                    ────────────────────────
+                    The five print layouts used to be reachable only from
+                    Settings → Appearance, so an operator could never see
+                    what a layout did to the document they were about to
+                    send. Selecting one here re-skins the paper in place via
+                    the Print.* DynamicResources, and because the exporter
+                    reads the same DocumentStyle the export cannot drift.
+                -->
+                <Border DockPanel.Dock="Top"
+                        Background="{DynamicResource SurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                        Padding="10,8"
+                        Margin="0,0,0,12">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Text="PDF LAYOUT"
+                                       VerticalAlignment="Center"
+                                       FontSize="{DynamicResource TextXSmall}"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Margin="0,0,10,0"/>
+
+                            <ComboBox Grid.Column="1"
+                                      VerticalAlignment="Center"
+                                      MinWidth="180"
+                                      ItemsSource="{Binding PrintLayout.Layouts}"
+                                      DisplayMemberPath="Name"
+                                      SelectedValuePath="Id"
+                                      SelectedValue="{Binding PrintLayout.SelectedId, Mode=TwoWay}"
+                                      ToolTip="{Binding PrintLayout.SelectedDescription}"/>
+
+                            <Border Grid.Column="2"
+                                    Background="{DynamicResource AccentBrush}"
+                                    CornerRadius="3"
+                                    Padding="7,3"
+                                    Margin="10,0,0,0"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="{Binding PrintLayout.Kind}"
+                                           FontSize="{DynamicResource TextXSmall}"
+                                           FontWeight="Bold"
+                                           Foreground="White"/>
+                            </Border>
+                        </Grid>
+
+                        <TextBlock Text="{Binding PrintLayout.SelectedDescription}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,6,0,0"
+                                   FontSize="{DynamicResource TextXSmall}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                        <TextBlock Text="Preview and exported PDF share one layout engine — what you see here is what prints."
+                                   TextWrapping="Wrap"
+                                   Margin="0,4,0,0"
+                                   FontSize="{DynamicResource TextXSmall}"
+                                   FontStyle="Italic"
+                                   Foreground="{DynamicResource Print.Muted}"/>
+                    </StackPanel>
+                </Border>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Auto"
+                              Background="Transparent">
+                    <printable:PrintableInvoiceView DataContext="{Binding PrintableInvoice}"
+                                                    HorizontalAlignment="Center"/>
+                </ScrollViewer>
+            </DockPanel>
         </Border>
     </Grid>
 </UserControl>

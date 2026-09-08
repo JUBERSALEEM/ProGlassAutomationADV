@@ -268,11 +268,93 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                     LogoLayout = Models.MasterData.CompanyLogoLayout.LeftPortrait;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasLogo));
+                InvalidateLogoImage();
             }
         }
 
         /// <summary>True when a company logo is loaded.</summary>
         public bool HasLogo => !string.IsNullOrEmpty(_logoPath);
+
+        // ── Logo for the on-screen Step 7 preview ──────────────────────
+        // The exported PDF has always rendered the company logo; the preview
+        // never did, so operators approved a document that did not look like
+        // the one they sent. This exposes the same logo to WPF.
+        //
+        // Loading is deliberately defensive for the same reason the PDF
+        // loader is: a moved or corrupt logo file must blank the chip, never
+        // break a money document or the wizard.
+
+        private System.Windows.Media.ImageSource? _logoImage;
+        private bool _logoImageResolved;
+
+        /// <summary>The company logo, or null when there is no usable file.</summary>
+        public System.Windows.Media.ImageSource? LogoImage
+        {
+            get
+            {
+                if (_logoImageResolved) return _logoImage;
+                _logoImageResolved = true;
+                _logoImage = TryLoadLogoImage(_logoPath);
+                return _logoImage;
+            }
+        }
+
+        /// <summary>True only when a logo actually decoded (not just a path).</summary>
+        public bool HasLogoImage => LogoImage != null;
+
+        /// <summary>
+        /// True when the logo renders as a full-width masthead band instead of
+        /// an inline left chip. Mirrors PdfChrome.EffectiveLogoLayout exactly
+        /// (explicit TopPanel choice, OR a mark too wide to sit in a portrait
+        /// chip) so the preview puts the logo where the exporter will.
+        /// </summary>
+        public bool LogoIsTopPanel =>
+            HasLogoImage
+            && (_logoLayout == Models.MasterData.CompanyLogoLayout.TopPanel
+                || Services.Export.PrintPreview.PrintTokenService
+                    .IsTopPanelLogo(_logoWidthMm, _logoHeightMm));
+
+        /// <summary>True when the logo sits inline at the left of the identity.</summary>
+        public bool LogoIsInline => HasLogoImage && !LogoIsTopPanel;
+
+        /// <summary>
+        /// Printed logo width in screen DIPs, clamped to the same bounds the
+        /// PDF uses, so the preview chip and the printed chip match.
+        /// </summary>
+        public double LogoWidthDip => Services.Export.PrintPreview.PrintTokenService.DipFromMm(
+            Math.Clamp(_logoWidthMm > 0 ? _logoWidthMm : 22,
+                Services.Export.PrintPreview.PrintTokenService.LogoMinWidthMm,
+                Services.Export.PrintPreview.PrintTokenService.LogoMaxWidthMm));
+
+        /// <summary>Printed logo height in screen DIPs (same clamps as the PDF).</summary>
+        public double LogoHeightDip => Services.Export.PrintPreview.PrintTokenService.DipFromMm(
+            Math.Clamp(_logoHeightMm > 0 ? _logoHeightMm : 26,
+                Services.Export.PrintPreview.PrintTokenService.LogoMinHeightMm,
+                Services.Export.PrintPreview.PrintTokenService.LogoMaxHeightMm));
+
+        private static System.Windows.Media.ImageSource? TryLoadLogoImage(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return null;
+            try
+            {
+                string p = path.Trim().Trim('"');
+                if (!System.IO.File.Exists(p)) return null;
+
+                var bmp = new System.Windows.Media.Imaging.BitmapImage();
+                bmp.BeginInit();
+                // OnLoad + Freeze: the file is not held open, and the image
+                // is safe to hand to the render thread.
+                bmp.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                bmp.UriSource = new Uri(p, UriKind.Absolute);
+                bmp.EndInit();
+                bmp.Freeze();
+                return bmp;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
         // v3 — logo placement carried from the Company Center record so the
         // printed letterhead matches the branding the operator configured.
@@ -287,6 +369,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 _logoLayout = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(LogoLayoutLabel));
+                RaiseLogoPlacement();
             }
         }
 
@@ -302,14 +385,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         public double LogoWidthMm
         {
             get => _logoWidthMm;
-            set { if (_logoWidthMm == value) return; _logoWidthMm = value; OnPropertyChanged(); }
+            set
+            {
+                if (_logoWidthMm == value) return;
+                _logoWidthMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(LogoWidthDip));
+                RaiseLogoPlacement();
+            }
         }
 
         private double _logoHeightMm = 26;
         public double LogoHeightMm
         {
             get => _logoHeightMm;
-            set { if (_logoHeightMm == value) return; _logoHeightMm = value; OnPropertyChanged(); }
+            set
+            {
+                if (_logoHeightMm == value) return;
+                _logoHeightMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(LogoHeightDip));
+                RaiseLogoPlacement();
+            }
+        }
+
+        /// <summary>Drops the cached decode so the next read reloads the file.</summary>
+        private void InvalidateLogoImage()
+        {
+            _logoImageResolved = false;
+            _logoImage = null;
+            OnPropertyChanged(nameof(LogoImage));
+            OnPropertyChanged(nameof(HasLogoImage));
+            RaiseLogoPlacement();
+        }
+
+        private void RaiseLogoPlacement()
+        {
+            OnPropertyChanged(nameof(LogoIsTopPanel));
+            OnPropertyChanged(nameof(LogoIsInline));
         }
 
         public int CompanyRecordId { get; set; }

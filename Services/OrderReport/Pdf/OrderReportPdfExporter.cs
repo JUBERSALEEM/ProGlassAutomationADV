@@ -173,6 +173,10 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
     /// <summary>QuestPDF document for one generated order report bundle.</summary>
     public class OrderReportPdfDocument : IDocument
     {
+
+        /// <summary>Derived rhythm + type scale for the active print layout.</summary>
+        private static ProGlassAutomation.Services.Export.Pdf.PdfMetrics M
+            => ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Metrics;
         private static string ACCENT => DocumentStyle.ColorAccent;
         private static string DARK => DocumentStyle.ColorText;
         private static string MUTED => DocumentStyle.ColorMuted;
@@ -211,7 +215,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                 page.Size(PageSizes.A4);
                 page.Margin(DocumentStyle.MarginMm, Unit.Millimetre);
                 page.DefaultTextStyle(t =>
-                    t.FontFamily(DocumentStyle.FontFamily).FontSize(9).FontColor(DARK));
+                    t.FontFamily(DocumentStyle.FontFamily).FontSize(M.ValueFont).FontColor(DARK));
 
                 page.Header().Column(h =>
                 {
@@ -235,9 +239,9 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
             container.Column(col =>
             {
                 col.Item().Text(_bundle.Title ?? "Order Report")
-                    .FontSize(15).SemiBold().FontColor(ACCENT);
+                    .FontSize(M.GrandValueFont).SemiBold().FontColor(ACCENT);
                 col.Item().Text($"Report {_bundle.ReportNumber}  ·  Generated {_bundle.GeneratedAt:dd MMM yyyy HH:mm}")
-                    .FontSize(9).FontColor(MUTED);
+                    .FontSize(M.ValueFont).FontColor(MUTED);
                 col.Item().PaddingTop(4).LineHorizontal(1).LineColor(LINE);
             });
         }
@@ -254,7 +258,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                 col.Item().PaddingTop(14).Text(
                     "This report is computer-generated from live ProGlass data. " +
                     "Attachment counts reflect documents currently stored in the system.")
-                    .FontSize(8).Italic().FontColor(MUTED);
+                    .FontSize(M.MetaValueFont).Italic().FontColor(MUTED);
             });
         }
 
@@ -268,27 +272,27 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                     .Column(h =>
                     {
                         h.Item().Text($"Order Report — {s.Header.ProformaId}")
-                            .FontSize(12).SemiBold().FontColor(ACCENT);
+                            .FontSize(M.GrandLabelFont).SemiBold().FontColor(ACCENT);
                         h.Item().Text(
                             $"PI Date {s.Header.IssueDateDisplay}  ·  Company {s.Header.CompanyName}  ·  " +
                             $"Customer {s.Header.CustomerName}  ·  Project {s.Header.ProjectName}")
-                            .FontSize(9);
+                            .FontSize(M.ValueFont);
                         h.Item().Text(
                             $"Job Release: {s.Header.JobOrderIds}  ·  Status {s.Header.JobOrderStatus}  ·  " +
                             $"Priority {s.Header.JobOrderPriority}  ·  Release {s.Header.ReleaseDateDisplay}")
-                            .FontSize(9).FontColor(s.Header.HasJobOrder ? DARK : MUTED);
+                            .FontSize(M.ValueFont).FontColor(s.Header.HasJobOrder ? DARK : MUTED);
                     });
 
                 // ── 2. Spec rows ─────────────────────────────────────────
                 col.Item().PaddingTop(8).Text("Proforma Invoice — Specification Rows")
-                    .FontSize(10).SemiBold();
+                    .FontSize(M.SubtotalValueFont).SemiBold();
                 col.Item().Element(c => RenderSpecTable(c, s));
 
                 // ── 3. Step 9 P&L / production cost ─────────────────────
                 if (s.HasStep9)
                 {
                     col.Item().PaddingTop(10).Text("Step 9 — Material, Spacer Production and Price Decision Analysis")
-                        .FontSize(10).SemiBold();
+                        .FontSize(M.SubtotalValueFont).SemiBold();
                     col.Item().Element(c => RenderStep9(c, s.Step9));
                 }
 
@@ -296,7 +300,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                 if (s.DeliveryNotes.Count > 0)
                 {
                     col.Item().PaddingTop(10).Text("Delivery Notes")
-                        .FontSize(10).SemiBold();
+                        .FontSize(M.SubtotalValueFont).SemiBold();
                     foreach (var dn in s.DeliveryNotes)
                         col.Item().Element(c => RenderDn(c, dn));
                 }
@@ -305,7 +309,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                 if (s.TaxInvoices.Count > 0)
                 {
                     col.Item().PaddingTop(10).Text("Tax Invoices")
-                        .FontSize(10).SemiBold();
+                        .FontSize(M.SubtotalValueFont).SemiBold();
                     foreach (var ti in s.TaxInvoices)
                         col.Item().Element(c => RenderTi(c, ti));
                 }
@@ -324,22 +328,22 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                 col.Item().Background(SURFACE).Padding(8).Column(card =>
                 {
                     card.Item().Text($"Overview: revenue AED {step9.NetExVat:N2} · glass AED {step9.TotalGlassCost:N2} · production AED {step9.TotalProductionCost:N2} · profit AED {step9.Profit:N2} · margin {step9.MarginPercent:0.#}%")
-                        .FontSize(8).SemiBold();
+                        .FontSize(M.MetaValueFont).SemiBold();
                     card.Item().Text($"Price decision: raw Step 5 quote AED {step9.TargetTotalGivenValue:N2} · required target AED {step9.TargetTotalRequiredValue:N2} · raw quoted balance AED {step9.TargetTotalDifferenceValue:N2} · status {step9.TargetStatus} · U-insert {step9.TargetUInsertTreatmentSummary}")
-                        .FontSize(8).FontColor(MUTED);
+                        .FontSize(M.MetaValueFont).FontColor(MUTED);
                 });
 
                 foreach (var group in step9.CostRows.GroupBy(r => r.Section).OrderBy(g => g.Key))
                 {
-                    col.Item().PaddingTop(6).Text(group.Key).FontSize(8).SemiBold().FontColor(ACCENT);
+                    col.Item().PaddingTop(6).Text(group.Key).FontSize(M.MetaValueFont).SemiBold().FontColor(ACCENT);
                     foreach (var row in group.Take(18))
                     {
                         col.Item().BorderBottom(0.5f).BorderColor(LINE).PaddingVertical(2).Text(
                             $"Spec {row.SpecNumber} · {row.Kind} · {row.Description} · sheet {row.SheetDisplay} · qty {row.Quantity:0.##} · rate {row.PricePerSqm:N2}/{row.UnitLabel} · AED {row.Amount:N2} · {row.SheetSource}")
-                            .FontSize(7).FontColor(DARK);
+                            .FontSize(M.CaptionFont).FontColor(DARK);
                     }
                     if (group.Count() > 18)
-                        col.Item().Text($"+{group.Count() - 18} more Step 9 row(s) in saved data/export.").FontSize(7).FontColor(MUTED);
+                        col.Item().Text($"+{group.Count() - 18} more Step 9 row(s) in saved data/export.").FontSize(M.CaptionFont).FontColor(MUTED);
                 }
 
                 if (step9.TargetRows.Count > 0)
@@ -348,7 +352,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                     // Do not cap this list: every saved specification must be
                     // auditable in the generated PDF, even on a large order.
                     col.Item().PaddingTop(6).Text("STEP 9 · SPECIFICATION PRICE DECISIONS")
-                        .FontSize(8).SemiBold().FontColor(ACCENT);
+                        .FontSize(M.MetaValueFont).SemiBold().FontColor(ACCENT);
                     foreach (var row in step9.TargetRows.OrderBy(r => r.SpecNumber))
                     {
                         string specLabel = row.SpecNumber > 0 ? $"SPEC {row.SpecNumber}" : "ALL SPECIFICATIONS";
@@ -356,33 +360,33 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                             .Column(card =>
                             {
                                 card.Item().Text($"{specLabel} · PRICE DECISION")
-                                    .FontSize(8).SemiBold().FontColor(ACCENT);
+                                    .FontSize(M.MetaValueFont).SemiBold().FontColor(ACCENT);
                                 card.Item().Text(
                                     $"{row.SpecName} · {row.BuildType} · area {row.AreaSqm:0.###} SQM")
-                                    .FontSize(7).FontColor(DARK);
+                                    .FontSize(M.CaptionFont).FontColor(DARK);
                                 card.Item().PaddingTop(2).Text($"Formula inputs: {row.FormulaInputsSummary}")
-                                    .FontSize(7).FontColor(DARK);
+                                    .FontSize(M.CaptionFont).FontColor(DARK);
                                 card.Item().Text(
                                     $"Normal formula base — no profit: {row.NormalFormulaBaseSummary}")
-                                    .FontSize(7).FontColor(DARK);
+                                    .FontSize(M.CaptionFont).FontColor(DARK);
                                 card.Item().Text($"Step 5 given / quoted price: {row.Step5GivenSummary}")
-                                    .FontSize(7).FontColor(DARK);
+                                    .FontSize(M.CaptionFont).FontColor(DARK);
                                 card.Item().Text(
                                     $"BASE result — against normal formula base: {row.BaseResultSummary}")
-                                    .FontSize(7).FontColor(DARK);
+                                    .FontSize(M.CaptionFont).FontColor(DARK);
                                 card.Item().Text(
                                     $"Required target price — formula base + profit: {row.RequiredTargetSummary}")
-                                    .FontSize(7).FontColor(DARK);
+                                    .FontSize(M.CaptionFont).FontColor(DARK);
                                 card.Item().Text(
                                     $"TARGET result — against required target: {row.TargetResultSummary}")
-                                    .FontSize(7).FontColor(DARK);
-                                card.Item().Text(row.AuditSummary).FontSize(6.5f).FontColor(MUTED);
+                                    .FontSize(M.CaptionFont).FontColor(DARK);
+                                card.Item().Text(row.AuditSummary).FontSize(M.CaptionFont).FontColor(MUTED);
                             });
                     }
                 }
 
                 foreach (var rec in step9.Recommendations.Concat(step9.Warnings).Where(x => !string.IsNullOrWhiteSpace(x)).Take(6))
-                    col.Item().PaddingTop(3).Text("• " + rec).FontSize(7).FontColor(MUTED);
+                    col.Item().PaddingTop(3).Text("• " + rec).FontSize(M.CaptionFont).FontColor(MUTED);
             });
         }
 
@@ -390,7 +394,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
         {
             if (s.SpecRows.Count == 0)
             {
-                container.Text("No specification rows.").FontSize(8).FontColor(MUTED);
+                container.Text("No specification rows.").FontSize(M.MetaValueFont).FontColor(MUTED);
                 return;
             }
 
@@ -414,7 +418,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                     // ── Group band: "Spec 1 — 6mm Clear Float" ──────────
                     col.Item().PaddingTop(6).Background(SURFACE).PaddingHorizontal(6).PaddingVertical(4)
                         .Text($"Spec {group.Key} — {specName}   ({rows.Count} line(s))")
-                        .FontSize(9).SemiBold().FontColor(ACCENT);
+                        .FontSize(M.ValueFont).SemiBold().FontColor(ACCENT);
 
                     // ── Group table (header / rows / aligned totals) ─────
                     col.Item().Table(table =>
@@ -472,7 +476,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                     {
                         r.RelativeItem(2).Text("PI Total").SemiBold().FontColor(ACCENT);
                         r.RelativeItem(2).Text($"Ordered {s.Totals.OrderedQty} pcs  ·  Delivered {s.Totals.DeliveredQty} pcs  ·  Balance {s.Totals.BalanceQty} pcs")
-                            .FontSize(9).FontColor(MUTED);
+                            .FontSize(M.ValueFont).FontColor(MUTED);
                         r.RelativeItem(2).AlignRight().Text($"AED {s.Totals.OrderedValue:N2}")
                             .SemiBold().FontColor(GREEN);
                     });
@@ -488,7 +492,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                     $"Delivered {dn.TotalDeliveredQty}  ·  Balance {dn.TotalBalanceQty}  ·  " +
                     $"Weight {dn.TotalWeightKg:N1} kg  ·  Attachments {dn.AttachmentCount}  ·  " +
                     $"Driver {dn.DriverName} ({dn.VehicleNumber})")
-                    .FontSize(9).SemiBold();
+                    .FontSize(M.ValueFont).SemiBold();
                 if (dn.Items.Count > 0)
                 {
                     col.Item().Table(table =>
@@ -521,7 +525,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                 }
                 else
                 {
-                    col.Item().Text("No line items.").FontSize(8).FontColor(MUTED);
+                    col.Item().Text("No line items.").FontSize(M.MetaValueFont).FontColor(MUTED);
                 }
             });
         }
@@ -534,10 +538,10 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                     $"{ti.InvoiceNumber} ({ti.InvoiceType})  ·  {ti.IssueDateDisplay}  ·  Status {ti.Status}  ·  " +
                     $"Qty {ti.TotalQty}  ·  Subtotal {ti.Subtotal:N2}  ·  VAT {ti.VatAmount:N2}  ·  " +
                     $"Grand Total {ti.GrandTotal:N2}  ·  Attachments {ti.AttachmentCount}")
-                    .FontSize(9).SemiBold();
+                    .FontSize(M.ValueFont).SemiBold();
                 if (!string.IsNullOrWhiteSpace(ti.DeliveryNoteReference))
                     col.Item().Text($"Covers delivery note: {ti.DeliveryNoteReference}")
-                        .FontSize(8).FontColor(MUTED);
+                        .FontSize(M.MetaValueFont).FontColor(MUTED);
             });
         }
 
@@ -549,25 +553,25 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
             container.Column(col =>
             {
                 col.Item().PaddingTop(6).Text("Attachment Completeness")
-                    .FontSize(10).SemiBold();
+                    .FontSize(M.SubtotalValueFont).SemiBold();
                 col.Item().Text(
                     $"Proforma attachments: {a.ProformaAttachmentCount}  ·  " +
                     $"Delivery notes: {a.DeliveryNotesPrepared} prepared / {a.DeliveryNotesAttached} attached / " +
                     $"{a.DeliveryNotesMissing} missing  ·  Tax invoice attachments: {a.TaxInvoiceAttachmentCount}")
-                    .FontSize(9);
+                    .FontSize(M.ValueFont);
                 if (a.HasMissingDocuments)
                     col.Item().Text(a.MissingDocumentsDisplay)
-                        .FontSize(9).FontColor(RED).SemiBold();
+                        .FontSize(M.ValueFont).FontColor(RED).SemiBold();
 
                 col.Item().PaddingTop(8).Text("Totals")
-                    .FontSize(10).SemiBold();
+                    .FontSize(M.SubtotalValueFont).SemiBold();
                 col.Item().Text(
                     $"Ordered: {t.OrderedQty} pcs / {t.OrderedWeightKg:N1} kg / AED {t.OrderedValue:N2}  ·  " +
                     $"Delivered: {t.DeliveredQty} pcs / {t.DeliveredWeightKg:N1} kg  ·  " +
                     $"Balance: {t.BalanceQty} pcs / {t.BalanceWeightKg:N1} kg  ·  " +
                     $"Invoiced: {t.InvoicedQty} pcs / AED {t.InvoicedValue:N2}  ·  " +
                     $"Invoiced−Delivered: {t.InvoicedMinusDeliveredQty} pcs")
-                    .FontSize(9);
+                    .FontSize(M.ValueFont);
             });
         }
     }

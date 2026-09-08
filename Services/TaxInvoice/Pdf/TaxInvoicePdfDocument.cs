@@ -34,6 +34,10 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
     /// </summary>
     public class TaxInvoicePdfDocument : IPdfLayout
     {
+
+        /// <summary>Derived rhythm + type scale for the active print layout.</summary>
+        private static ProGlassAutomation.Services.Export.Pdf.PdfMetrics M
+            => ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Metrics;
         // ── Brand colors (match app palette) ─────────────────────────────
         private static string ACCENT => DocumentStyle.ColorAccent;
         private static string ACCENT_DARK => DocumentStyle.ColorAccentDark;
@@ -116,7 +120,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                     .Background(AMBER)
                     .PaddingHorizontal(10).PaddingVertical(5)
                     .Text($"Partial invoice — sequence {_ctx.SequenceLetter}. Covers a portion of the order.")
-                    .FontSize(8).Bold().FontColor(WHITE);
+                    .FontSize(M.MetaValueFont).Bold().FontColor(WHITE);
             }
 
             content.Item().Row(row =>
@@ -158,7 +162,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             content.Item()
                 .Text("This is a computer-generated Tax Invoice. " +
                       "No signature is required for electronic copies.")
-                .FontSize(8).Italic().FontColor(MUTED);
+                .FontSize(M.MetaValueFont).Italic().FontColor(MUTED);
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -438,7 +442,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             {
                 col.Item()
                     .Text(TaxInvoiceMapper.AmountToWords(_ctx.GrandTotal))
-                    .FontSize(11).Italic().FontColor(DARK);
+                    .FontSize(M.GrandLabelFont).Italic().FontColor(DARK);
             });
         }
 
@@ -471,7 +475,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 {
                     col.Item().PaddingTop(4)
                         .Text(_ctx.PaymentNotes)
-                        .FontSize(8).Italic().FontColor(MUTED);
+                        .FontSize(M.MetaValueFont).Italic().FontColor(MUTED);
                 }
             });
         }
@@ -495,11 +499,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                         col.Item().PaddingTop(4)
                             .Text(string.IsNullOrWhiteSpace(_ctx.PreparedByName)
                                 ? "—" : _ctx.PreparedByName)
-                            .FontSize(10).SemiBold().FontColor(DARK);
+                            .FontSize(M.SubtotalValueFont).SemiBold().FontColor(DARK);
                         if (!string.IsNullOrWhiteSpace(_ctx.PreparedByTitle))
                             col.Item().PaddingTop(2)
                                 .Text(_ctx.PreparedByTitle)
-                                .FontSize(8).FontColor(MUTED);
+                                .FontSize(M.MetaValueFont).FontColor(MUTED);
                     }
                 },
                 new SignatureSlot
@@ -653,10 +657,10 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             {
                 r.AutoItem()
                     .Text($"{label} ")
-                    .FontSize(9).FontColor(MUTED);
+                    .FontSize(M.ValueFont).FontColor(MUTED);
                 r.RelativeItem()
                     .Text(string.IsNullOrWhiteSpace(value) ? "—" : value)
-                    .FontSize(9).SemiBold().FontColor(DARK);
+                    .FontSize(M.ValueFont).SemiBold().FontColor(DARK);
             });
         }
 
@@ -693,7 +697,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 .BorderBottom(1).BorderColor(LINE)
                 .PaddingHorizontal(4).PaddingVertical(3);
 
-            var txt = (center ? cell.AlignCenter() : cell).Text(text).FontSize(8);
+            var txt = (center ? cell.AlignCenter() : cell).Text(text).FontSize(M.MetaValueFont);
             if (bold) txt.Bold();
             if (color != null) txt.FontColor(color);
         }
@@ -711,7 +715,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 .PaddingHorizontal(4).PaddingVertical(3)
                 .AlignRight();
 
-            var txt = cell.Text(text).FontSize(8);
+            var txt = cell.Text(text).FontSize(M.MetaValueFont);
             if (bold) txt.Bold();
             if (color != null) txt.FontColor(color);
         }

@@ -168,6 +168,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         private ProfitLossStepViewModel? _profitLoss;
 
         /// <summary>
+        /// Live PDF-layout switcher. Assigned by the wizard shell so the
+        /// Step 7 toolbar and the paper share ONE instance — two instances
+        /// would each subscribe to DocumentStyle and could fight over the
+        /// saved setting. The paper binds <c>PrintLayout.Kind</c> to rebuild
+        /// letterhead, section, totals and signature chrome, so what the
+        /// operator sees here is what the exporter renders.
+        /// </summary>
+        public Shared.PrintLayoutViewModel? PrintLayout
+        {
+            get => _printLayout;
+            set
+            {
+                if (ReferenceEquals(_printLayout, value)) return;
+                _printLayout = value;
+                OnPropertyChanged();
+            }
+        }
+        private Shared.PrintLayoutViewModel? _printLayout;
+
+        /// <summary>
         /// Optional link back to Step 4 so save/load can persist the active
         /// pricing-editor state without making the printable VM own Step 4.
         /// </summary>

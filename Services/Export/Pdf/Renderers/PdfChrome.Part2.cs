@@ -31,15 +31,15 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 
             IContainer box = K switch
             {
-                PdfLayoutKind.Workshop => container.BorderLeft(4).BorderColor(T.Highlight)
+                PdfLayoutKind.Workshop => container.BorderLeft(M.RailWeight).BorderColor(T.Highlight)
                     .Background(T.AccentDark),
-                PdfLayoutKind.SplitConsole => container.BorderLeft(3).BorderColor(T.Accent)
+                PdfLayoutKind.SplitConsole => container.BorderLeft(M.RailWeight).BorderColor(T.Accent)
                     .Background(T.Surface),
-                PdfLayoutKind.Editorial => container.BorderTop(1.2f).BorderBottom(0.6f)
+                PdfLayoutKind.Editorial => container.BorderTop(M.RailWeight).BorderBottom(M.HairlineWeight)
                     .BorderColor(T.Highlight),
-                PdfLayoutKind.QuietForm => container.BorderTop(0.8f).BorderBottom(0.4f)
+                PdfLayoutKind.QuietForm => container.BorderTop(M.RailWeight * 0.7f).BorderBottom(M.HairlineWeight)
                     .BorderColor(T.Text),
-                _ => container.Border(0.6f).BorderColor(T.Border)
+                _ => container.Border(M.CardBorderWeight).BorderColor(T.Border)
                     .Background(T.Surface)
             };
 
@@ -48,30 +48,30 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             string subtitleColor = dark ? T.AccentSoft : T.Muted;
             string valueFallback = dark ? T.AccentOn : T.Text;
 
-            box.PaddingHorizontal(10).PaddingVertical(8).Column(col =>
+            box.PaddingHorizontal(M.MetaPadH).PaddingVertical(M.MetaPadV).Column(col =>
             {
                 col.Item().Row(row =>
                 {
                     row.RelativeItem().Column(left =>
                     {
                         left.Item().Text((title ?? "").ToUpperInvariant())
-                            .FontSize(9).Bold().FontColor(titleColor);
+                            .FontSize(M.GroupFont).Bold().FontColor(titleColor);
                         if (!string.IsNullOrWhiteSpace(subtitle))
-                            left.Item().PaddingTop(2).Text(subtitle)
-                                .FontSize(7.5f).FontColor(subtitleColor);
+                            left.Item().PaddingTop(M.StackGap).Text(subtitle)
+                                .FontSize(M.CaptionFont).FontColor(subtitleColor);
                     });
 
                     row.AutoItem().AlignMiddle()
                         .Background(dark ? T.Highlight : T.Accent)
-                        .PaddingHorizontal(7).PaddingVertical(3)
+                        .PaddingHorizontal(M.GroupPadH).PaddingVertical(M.GroupPadV)
                         .Text("ERP CONTROLLED")
-                        .FontSize(7).Bold()
+                        .FontSize(M.KickerFont).Bold()
                         .FontColor(dark ? T.AccentDark : T.AccentOn);
                 });
 
                 if (shown.Count > 0)
                 {
-                    col.Item().PaddingTop(8).Row(row =>
+                    col.Item().PaddingTop(M.BlockGap).Row(row =>
                     {
                         foreach (var metric in shown)
                         {
@@ -91,16 +91,16 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             string valueColor,
             bool dark)
         {
-            container.BorderLeft(1.4f)
+            container.BorderLeft(M.RailWeight * 0.35f)
                 .BorderColor(dark ? T.Highlight : T.Accent)
-                .PaddingLeft(6)
+                .PaddingLeft(M.RowGap)
                 .Column(col =>
                 {
                     col.Item().Text(label.ToUpperInvariant())
-                        .FontSize(6.5f)
+                        .FontSize(M.MetaLabelFont)
                         .FontColor(dark ? T.AccentSoft : T.Muted);
-                    col.Item().PaddingTop(1).Text(value)
-                        .FontSize(10).Bold()
+                    col.Item().PaddingTop(M.StackGap).Text(value)
+                        .FontSize(M.KpiValueFont).Bold()
                         .FontColor(valueColor);
                 });
         }
@@ -111,11 +111,11 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
         {
             if (string.IsNullOrWhiteSpace(text)) return;
 
-            container.BorderLeft(2).BorderColor(T.Accent)
+            container.BorderLeft(M.RailWeight * 0.5f).BorderColor(T.Accent)
                 .Background(T.Surface)
-                .PaddingHorizontal(8).PaddingVertical(5)
+                .PaddingHorizontal(M.GroupPadH).PaddingVertical(M.GroupPadV)
                 .Text(text)
-                .FontSize(7.5f)
+                .FontSize(M.CaptionFont)
                 .Italic()
                 .FontColor(T.Muted);
         }
@@ -130,107 +130,113 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             {
                 case PdfLayoutKind.SplitConsole:
                     container.Background(T.Surface)
-                        .BorderLeft(3).BorderColor(T.Accent)
-                        .PaddingHorizontal(12).PaddingVertical(8)
+                        .BorderLeft(M.RailWeight).BorderColor(T.Accent)
+                        .PaddingHorizontal(M.TotalsPadH).PaddingVertical(M.TotalsPadV)
                         .Row(r =>
                         {
                             r.RelativeItem().Text(label)
-                                .FontSize(10).SemiBold().FontColor(T.Accent);
+                                .FontSize(M.GrandLabelFont).SemiBold().FontColor(T.Accent);
                             r.AutoItem().Text(amount)
-                                .FontSize(13).Bold().FontColor(T.Accent);
+                                .FontSize(M.GrandValueFont).Bold().FontColor(T.Accent);
                         });
                     break;
 
                 case PdfLayoutKind.Editorial:
                     container.Column(col =>
                     {
-                        col.Item().Height(0.6f).Background(T.Text);
-                        col.Item().PaddingTop(6).Row(r =>
+                        col.Item().Height(M.HairlineWeight).Background(T.Text);
+                        col.Item().PaddingTop(M.RowGap).Row(r =>
                         {
                             r.RelativeItem().Text(label.ToUpperInvariant())
-                                .FontSize(8).FontColor(T.Muted);
+                                .FontSize(M.MetaValueFont).FontColor(T.Muted);
                             r.AutoItem().Text(amount)
-                                .FontSize(16).FontColor(T.Text);
+                                .FontSize(M.GrandValueFont).FontColor(T.Text);
                         });
                     });
                     break;
 
                 case PdfLayoutKind.QuietForm:
-                    container.BorderTop(1).BorderColor(T.Text)
-                        .PaddingTop(6)
+                    container.BorderTop(M.RailWeight * 0.8f).BorderColor(T.Text)
+                        .PaddingTop(M.RowGap)
                         .Row(r =>
                         {
                             r.RelativeItem().Text(label)
-                                .FontSize(9).FontColor(T.Text);
+                                .FontSize(M.GrandLabelFont).FontColor(T.Text);
                             r.AutoItem().Text(amount)
-                                .FontSize(12).FontColor(T.Text);
+                                .FontSize(M.GrandValueFont).FontColor(T.Text);
                         });
                     break;
 
                 case PdfLayoutKind.Workshop:
                     container.Background(T.AccentDark)
-                        .PaddingHorizontal(10).PaddingVertical(8)
+                        .PaddingHorizontal(M.TotalsPadH).PaddingVertical(M.TotalsPadV)
                         .Row(r =>
                         {
                             r.RelativeItem().Text(label.ToUpperInvariant())
-                                .FontSize(9).Bold().FontColor(T.Highlight);
+                                .FontSize(M.GrandLabelFont).Bold().FontColor(T.Highlight);
                             r.AutoItem().Text(amount)
-                                .FontSize(13).Bold().FontColor(T.AccentOn);
+                                .FontSize(M.GrandValueFont).Bold().FontColor(T.AccentOn);
                         });
                     break;
 
                 default:
                     container.Background(T.Accent)
-                        .PaddingHorizontal(12).PaddingVertical(8)
+                        .PaddingHorizontal(M.TotalsPadH).PaddingVertical(M.TotalsPadV)
                         .Row(r =>
                         {
                             r.RelativeItem().Text(label)
-                                .FontSize(10).Bold().FontColor(T.AccentOn);
+                                .FontSize(M.GrandLabelFont).Bold().FontColor(T.AccentOn);
                             r.AutoItem().Text(amount)
-                                .FontSize(13).Bold().FontColor(T.AccentOn);
+                                .FontSize(M.GrandValueFont).Bold().FontColor(T.AccentOn);
                         });
                     break;
             }
         }
 
+        /// <summary>
+        /// An intermediate total. Deliberately NOT painted in the success
+        /// colour: green on a money document reads as "profit", and a
+        /// subtotal is neither profit nor loss. Subtotals stay neutral;
+        /// only GrandTotal carries emphasis.
+        /// </summary>
         public static void SubtotalBar(IContainer container, string left, string right)
         {
             switch (K)
             {
                 case PdfLayoutKind.Editorial:
                 case PdfLayoutKind.QuietForm:
-                    container.PaddingTop(3).Row(r =>
+                    container.PaddingTop(M.RowGap).Row(r =>
                     {
                         r.RelativeItem().Text(left)
-                            .FontSize(8).FontColor(T.Muted);
+                            .FontSize(M.SubtotalLabelFont).FontColor(T.Muted);
                         r.AutoItem().Text(right)
-                            .FontSize(9).SemiBold().FontColor(T.Text);
+                            .FontSize(M.SubtotalValueFont).SemiBold().FontColor(T.Text);
                     });
                     break;
 
                 case PdfLayoutKind.SplitConsole:
                     container.Background(T.Surface)
-                        .PaddingHorizontal(8).PaddingVertical(4)
+                        .PaddingHorizontal(M.SubtotalPadH).PaddingVertical(M.SubtotalPadV)
                         .Row(r =>
                         {
                             r.RelativeItem().Text(left)
-                                .FontSize(8).FontColor(T.Accent);
+                                .FontSize(M.SubtotalLabelFont).FontColor(T.Accent);
                             r.AutoItem().Text(right)
-                                .FontSize(9).Bold().FontColor(T.Accent);
+                                .FontSize(M.SubtotalValueFont).Bold().FontColor(T.Accent);
                         });
                     break;
 
                 default:
                     container.Background(T.Surface)
-                        .BorderBottom(K == PdfLayoutKind.Workshop ? 0.6f : 1)
+                        .BorderBottom(M.CardBorderWeight)
                         .BorderColor(T.Border)
-                        .PaddingHorizontal(8).PaddingVertical(5)
+                        .PaddingHorizontal(M.SubtotalPadH).PaddingVertical(M.SubtotalPadV)
                         .Row(r =>
                         {
                             r.RelativeItem().Text(left)
-                                .FontSize(8).Bold().FontColor(T.Accent);
+                                .FontSize(M.SubtotalLabelFont).Bold().FontColor(T.Accent);
                             r.AutoItem().Text(right)
-                                .FontSize(9).Bold().FontColor(T.Success);
+                                .FontSize(M.SubtotalValueFont).Bold().FontColor(T.Text);
                         });
                     break;
             }
@@ -245,7 +251,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 PdfLayoutKind.Workshop => container.Background(T.AccentDark),
                 PdfLayoutKind.FormalBand => container.Background(T.TableHeader),
                 PdfLayoutKind.SplitConsole => container.Background(T.Surface),
-                _ => container.BorderTop(0.6f).BorderColor(T.Border)
+                _ => container.BorderTop(M.CardBorderWeight).BorderColor(T.Border)
             };
 
             var labelColor = K is PdfLayoutKind.Workshop or PdfLayoutKind.FormalBand
@@ -253,16 +259,16 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             var valueFallback = K is PdfLayoutKind.Workshop or PdfLayoutKind.FormalBand
                 ? T.AccentOn : T.Text;
 
-            box.Padding(8).Row(row =>
+            box.Padding(M.MetaPadV).Row(row =>
             {
                 foreach (var (label, value, color) in items)
                 {
                     row.RelativeItem().Column(c =>
                     {
                         c.Item().Text(label.ToUpperInvariant())
-                            .FontSize(7).FontColor(labelColor);
+                            .FontSize(M.KpiLabelFont).FontColor(labelColor);
                         c.Item().Text(value)
-                            .FontSize(12).Bold()
+                            .FontSize(M.KpiValueFont).Bold()
                             .FontColor(color ?? valueFallback);
                     });
                 }
@@ -281,7 +287,7 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
             {
                 for (int i = 0; i < slots.Length; i++)
                 {
-                    if (i > 0) row.ConstantItem(10);
+                    if (i > 0) row.ConstantItem(M.SignatureGap);
                     var slot = slots[i];
                     row.RelativeItem().Element(c => RenderSignatureSlot(c, slot));
                 }
@@ -297,56 +303,58 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
                 case PdfLayoutKind.QuietForm:
                     container.Column(col =>
                     {
-                        col.Item().Height(K == PdfLayoutKind.Editorial ? 36 : 28)
-                            .BorderBottom(0.6f).BorderColor(T.Text);
-                        col.Item().PaddingTop(4).Text(slot.Title)
-                            .FontSize(8).FontColor(T.Muted);
+                        col.Item().Height(M.SignatureHeight)
+                            .BorderBottom(M.SignatureRuleWeight).BorderColor(T.Text);
+                        col.Item().PaddingTop(M.SignatureRuleGap).Text(slot.Title)
+                            .FontSize(M.SignatureFont).FontColor(T.Muted);
                         if (slot.Body != null)
                             slot.Body(col);
                         else
                         {
-                            col.Item().PaddingTop(2).Text("Name  ____________________")
-                                .FontSize(7).FontColor(T.Muted);
+                            col.Item().PaddingTop(M.StackGap).Text("Name  ____________________")
+                                .FontSize(M.SignatureHintFont).FontColor(T.Muted);
                             col.Item().Text("Date  ____________________")
-                                .FontSize(7).FontColor(T.Muted);
+                                .FontSize(M.SignatureHintFont).FontColor(T.Muted);
                         }
                     });
                     break;
 
                 case PdfLayoutKind.Workshop:
-                    container.Border(0.8f).BorderColor(T.Accent).Padding(8).Column(col =>
+                    container.Border(M.CardBorderWeight * 1.3f).BorderColor(T.Accent)
+                        .Padding(M.CardPad).Column(col =>
                     {
                         col.Item().Text(slot.Title.ToUpperInvariant())
-                            .FontSize(7).Bold().FontColor(T.Highlight);
-                        col.Item().PaddingTop(18)
-                            .BorderBottom(0.8f).BorderColor(T.Text)
-                            .Text(" ").FontSize(8);
+                            .FontSize(M.SignatureHintFont).Bold().FontColor(T.Highlight);
+                        col.Item().PaddingTop(M.SignatureHeight * 0.55f)
+                            .BorderBottom(M.SignatureRuleWeight).BorderColor(T.Text)
+                            .Text(" ").FontSize(M.SignatureHintFont);
                         if (slot.Body != null)
                             slot.Body(col);
                         else
                         {
-                            col.Item().PaddingTop(4).Text("NAME / STAMP")
-                                .FontSize(7).FontColor(T.Muted);
+                            col.Item().PaddingTop(M.RowGap).Text("NAME / STAMP")
+                                .FontSize(M.SignatureHintFont).FontColor(T.Muted);
                             col.Item().Text("DATE _______________")
-                                .FontSize(7).FontColor(T.Muted);
+                                .FontSize(M.SignatureHintFont).FontColor(T.Muted);
                         }
                     });
                     break;
 
                 default:
-                    container.Border(0.6f).BorderColor(T.Border).Padding(10).Column(col =>
+                    container.Border(M.CardBorderWeight).BorderColor(T.Border)
+                        .Padding(M.CardPad).Column(col =>
                     {
                         col.Item().Text(slot.Title.ToUpperInvariant())
-                            .FontSize(8).Bold().FontColor(T.Accent);
+                            .FontSize(M.SignatureFont).Bold().FontColor(T.Accent);
                         if (slot.Body != null)
                             slot.Body(col);
                         else
                         {
-                            col.Item().PaddingTop(22)
-                                .BorderBottom(0.6f).BorderColor(T.Border)
-                                .Text(" ").FontSize(8);
-                            col.Item().PaddingTop(3).Text("Name / Date")
-                                .FontSize(7).FontColor(T.Muted);
+                            col.Item().PaddingTop(M.SignatureHeight)
+                                .BorderBottom(M.SignatureRuleWeight).BorderColor(T.Border)
+                                .Text(" ").FontSize(M.SignatureHintFont);
+                            col.Item().PaddingTop(M.SignatureRuleGap).Text("Name / Date")
+                                .FontSize(M.SignatureHintFont).FontColor(T.Muted);
                         }
                     });
                     break;

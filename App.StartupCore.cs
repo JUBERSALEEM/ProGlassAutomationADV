@@ -494,6 +494,12 @@ namespace ProGlassAutomation
             ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Apply(
                 Config.Appearance?.PdfLayoutId);
 
+            // Mirror the active print layout into WPF resources so the Step 7
+            // preview and the exported PDF read the same tokens. Installed
+            // after Apply so the first publish already carries the saved
+            // layout, not the catalog default.
+            ProGlassAutomation.Services.Export.PrintPreview.PrintTokenService.Install();
+
             AuditService.Log(
                 AuditSections.App, "App started",
                 $"Motion tier {PerformanceProfileService.TargetFps} fps");

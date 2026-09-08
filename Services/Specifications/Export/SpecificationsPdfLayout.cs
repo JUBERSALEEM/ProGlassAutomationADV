@@ -13,11 +13,23 @@
 //  A summary band goes at the top because a printed catalogue is usually
 //  read by someone who wants the totals first — how many specs, how many
 //  uses, what the average rate is — before scanning rows.
+//
+//  LAYOUT PARITY (print-layout upgrade)
+//  ────────────────────────────────────
+//  This layout used to be the one module that bypassed the shared print
+//  chrome: it painted its own header fill from DocumentStyle.ColorTableHeader
+//  with a hand-typed FontSize(8) and PaddingVertical(3)/PaddingHorizontal(4).
+//  So switching Settings → PDF Layout recoloured the catalogue but never
+//  re-architected it — no section numbering, no zebra, no density response,
+//  and its type scale was unrelated to every other document in the app.
+//  It now renders through PdfChrome like PI / JO / DN / TI / Statement,
+//  so all five layouts apply to it properly.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.Export.Pdf.Renderers;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using System;
@@ -47,18 +59,22 @@ namespace ProGlassAutomation.Services.Specifications.Export
         /// <summary>
         /// No letterhead: this is an internal reference list, not a
         /// customer-facing document. Returning null keeps the engine from
-        /// rendering a company header block.
+        /// rendering a company header block. Everything below still follows
+        /// the active print layout via PdfChrome.
         /// </summary>
         public LetterheadInfo? Letterhead => null;
 
         public void RenderContent(ColumnDescriptor content)
         {
-            content.Item().Text("SPECIFICATIONS CATALOGUE")
-                   .FontSize(16).Bold();
+            var m = DocumentStyle.Metrics;
 
-            content.Item().PaddingTop(2).Text(
+            content.Item().Text("SPECIFICATIONS CATALOGUE")
+                   .FontSize(m.GrandValueFont).Bold()
+                   .FontColor(DocumentStyle.ColorAccent);
+
+            content.Item().PaddingTop(m.StackGap).Text(
                 $"Generated {DateTime.Now:dd-MMM-yyyy HH:mm}")
-                   .FontSize(8).FontColor(DocumentStyle.ColorMuted);
+                   .FontSize(m.CaptionFont).FontColor(DocumentStyle.ColorMuted);
 
             RenderSummary(content);
             RenderTable(content);
@@ -70,27 +86,23 @@ namespace ProGlassAutomation.Services.Specifications.Export
             int uses = _rows.Sum(s => s.UsageCount);
             decimal avg = total == 0 ? 0m : Math.Round(_rows.Average(s => s.PricePerSqm), 2);
 
-            content.Item().PaddingVertical(8).Row(row =>
-            {
-                void Cell(string label, string value)
-                {
-                    row.RelativeItem().Column(col =>
-                    {
-                        col.Item().Text(label).FontSize(8)
-                           .FontColor(DocumentStyle.ColorMuted);
-                        col.Item().Text(value).FontSize(13).Bold();
-                    });
-                }
-
-                Cell("SPECIFICATIONS", total.ToString("N0"));
-                Cell("TOTAL USES", uses.ToString("N0"));
-                Cell("AVERAGE RATE / SQM", avg.ToString("N2"));
-            });
+            // Shared KPI strip: same component, same density response as the
+            // metrics every other module prints.
+            content.Item().PaddingTop(DocumentStyle.Metrics.BlockGap)
+                   .Element(c => PdfChrome.KpiStrip(c,
+                       ("SPECIFICATIONS", total.ToString("N0"), null),
+                       ("TOTAL USES", uses.ToString("N0"), null),
+                       ("AVERAGE RATE / SQM", avg.ToString("N2"), null)));
         }
 
         private void RenderTable(ColumnDescriptor content)
         {
-            content.Item().PaddingTop(4).Table(table =>
+            var m = DocumentStyle.Metrics;
+
+            content.Item().PaddingTop(m.BlockGap)
+                   .Element(c => PdfChrome.Section(c, "Specification register"));
+
+            content.Item().Table(table =>
             {
                 table.ColumnsDefinition(c =>
                 {
@@ -104,50 +116,38 @@ namespace ProGlassAutomation.Services.Specifications.Export
 
                 table.Header(h =>
                 {
-                    void Head(string text, bool right = false)
-                    {
-                        var cell = h.Cell().Background(DocumentStyle.ColorTableHeader)
-                                    .PaddingVertical(4).PaddingHorizontal(4);
-                        var t = cell.Text(text).FontSize(8).Bold();
-                        if (right) t.AlignRight();
-                    }
-
-                    Head("TYPE");
-                    Head("SPECIFICATION");
-                    Head("COLOUR");
-                    Head("THK");
-                    Head("RATE / SQM", right: true);
-                    Head("USED", right: true);
+                    PdfChrome.HeaderCell(h.Cell(), "TYPE", center: false);
+                    PdfChrome.HeaderCell(h.Cell(), "SPECIFICATION", center: false);
+                    PdfChrome.HeaderCell(h.Cell(), "COLOUR", center: false);
+                    PdfChrome.HeaderCell(h.Cell(), "THK");
+                    PdfChrome.HeaderCell(h.Cell(), "RATE / SQM", right: true, center: false);
+                    PdfChrome.HeaderCell(h.Cell(), "USED", right: true, center: false);
                 });
 
+                // alt drives the theme's zebra striping, exactly as the
+                // invoice spec tables do.
+                int i = 0;
                 foreach (var s in _rows)
                 {
-                    table.Cell().PaddingVertical(3).PaddingHorizontal(4)
-                         .Text(s.GlassType ?? "").FontSize(8);
+                    bool alt = (i++ % 2) == 1;
 
-                    table.Cell().PaddingVertical(3).PaddingHorizontal(4)
-                         .Text(s.SpecName ?? "").FontSize(8);
-
-                    table.Cell().PaddingVertical(3).PaddingHorizontal(4)
-                         .Text(s.Color ?? "").FontSize(8);
-
-                    table.Cell().PaddingVertical(3).PaddingHorizontal(4)
-                         .Text(s.ThicknessMm > 0 ? $"{s.ThicknessMm}mm" : "")
-                         .FontSize(8);
-
-                    table.Cell().PaddingVertical(3).PaddingHorizontal(4)
-                         .Text(s.PricePerSqm.ToString("N2")).FontSize(8).AlignRight();
-
-                    table.Cell().PaddingVertical(3).PaddingHorizontal(4)
-                         .Text(s.UsageCount.ToString("N0")).FontSize(8).AlignRight();
+                    PdfChrome.DataCell(table.Cell(), s.GlassType ?? "", alt);
+                    PdfChrome.DataCell(table.Cell(), s.SpecName ?? "", alt);
+                    PdfChrome.DataCell(table.Cell(), s.Color ?? "", alt);
+                    PdfChrome.DataCell(table.Cell(),
+                        s.ThicknessMm > 0 ? $"{s.ThicknessMm}mm" : "", alt, center: true);
+                    PdfChrome.DataCell(table.Cell(),
+                        s.PricePerSqm.ToString("N2"), alt, right: true);
+                    PdfChrome.DataCell(table.Cell(),
+                        s.UsageCount.ToString("N0"), alt, right: true, bold: true);
                 }
             });
 
             if (_rows.Count == 0)
             {
-                content.Item().PaddingTop(20)
+                content.Item().PaddingTop(DocumentStyle.Metrics.SectionGap)
                        .Text("No specifications match the current filters.")
-                       .FontSize(9).FontColor(DocumentStyle.ColorMuted);
+                       .FontSize(m.MetaValueFont).FontColor(DocumentStyle.ColorMuted);
             }
         }
     }

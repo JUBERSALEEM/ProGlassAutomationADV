@@ -1,3 +1,5 @@
+using System;
+
 namespace ProGlassAutomation.Services.Export.Pdf
 {
     /// <summary>
@@ -7,19 +9,50 @@ namespace ProGlassAutomation.Services.Export.Pdf
     /// </summary>
     public static class DocumentStyle
     {
-        public static PdfTheme Current { get; private set; } =
+        private static PdfTheme _current =
             PdfThemeCatalog.Resolve(PdfThemeCatalog.ClassicNavy);
+        private static PdfMetrics _metrics = PdfMetrics.For(_current);
+
+        public static PdfTheme Current => _current;
+
+        /// <summary>
+        /// The derived rhythm + type scale for <see cref="Current"/>.
+        /// Every gap, pad and font size in the printed documents comes from
+        /// here — chrome and module layouts must not hand-type numbers.
+        /// </summary>
+        public static PdfMetrics Metrics => _metrics;
+
+        /// <summary>
+        /// Raised after <see cref="Apply(PdfTheme)"/> actually swaps the
+        /// active layout. The Step 7 print preview subscribes to this so the
+        /// on-screen document re-skins live — the preview and the exported
+        /// PDF can no longer drift, because they read the same tokens.
+        /// Handlers may be invoked from any thread; UI subscribers are
+        /// responsible for marshalling to the dispatcher.
+        /// </summary>
+        public static event Action<PdfTheme>? Changed;
 
         public static void Apply(PdfTheme theme)
         {
-            if (theme != null)
-                Current = theme;
+            if (theme == null) return;
+            if (ReferenceEquals(_current, theme)) return;
+
+            _current = theme;
+            _metrics = PdfMetrics.For(theme);
+
+            try { Changed?.Invoke(theme); }
+            catch (Exception ex)
+            {
+                // A broken preview subscriber must never break printing.
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "[DocumentStyle] Changed handler failed: " + ex.Message);
+            }
         }
 
         public static void Apply(string? layoutId) =>
             Apply(PdfThemeCatalog.Resolve(layoutId));
 
-        public static PdfLayoutKind Kind => Current.Kind;
+        public static PdfLayoutKind Kind => _current.Kind;
 
         // ── Fonts ─────────────────────────────────────────────────────
         public const string FontFamily = "Segoe UI";

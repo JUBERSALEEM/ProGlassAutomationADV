@@ -31,6 +31,10 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 {
     public class StatementPdfDocument : IDocument
     {
+
+        /// <summary>Derived rhythm + type scale for the active print layout.</summary>
+        private static ProGlassAutomation.Services.Export.Pdf.PdfMetrics M
+            => ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Metrics;
         // ── Brand colors ──────────────────────────────────────────────────
         private static string ACCENT => DocumentStyle.ColorAccent;
         private static string DARK => DocumentStyle.ColorText;
@@ -75,7 +79,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 page.Margin(DocumentStyle.MarginMm, Unit.Millimetre);
                 page.DefaultTextStyle(t =>
                     t.FontFamily(DocumentStyle.FontFamily)
-                     .FontSize(9)
+                     .FontSize(M.ValueFont)
                      .FontColor(DARK));
 
                 page.Header().Column(h =>
@@ -130,7 +134,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                    .BorderTop(1).BorderColor(LINE).PaddingTop(6)
                    .Text("This statement is computer-generated. " +
                          "Please contact us if you find discrepancies.")
-                   .FontSize(8).Italic().FontColor(MUTED);
+                   .FontSize(M.MetaValueFont).Italic().FontColor(MUTED);
             });
         }
 
@@ -194,7 +198,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                     PdfChrome.InfoCard(c, "From / Supplier", col =>
                     {
                         col.Item().Text(_snap.CustomerInfo.CompanyName ?? "")
-                            .FontSize(11).Bold().FontColor(DARK);
+                            .FontSize(M.GrandLabelFont).Bold().FontColor(DARK);
                         if (!string.IsNullOrWhiteSpace(_snap.CustomerInfo.SalesmanName))
                         {
                             col.Item().PaddingTop(4);
@@ -207,7 +211,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                     PdfChrome.InfoCard(c, "Bill To / Customer", col =>
                     {
                         col.Item().Text(_snap.CustomerInfo.CustomerName ?? "")
-                            .FontSize(11).Bold().FontColor(DARK);
+                            .FontSize(M.GrandLabelFont).Bold().FontColor(DARK);
                         if (!string.IsNullOrWhiteSpace(_snap.CustomerInfo.ProjectName))
                         {
                             col.Item().PaddingTop(4);
@@ -243,7 +247,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 .Column(col =>
                 {
                     col.Item().Text("APPLIED FILTERS")
-                        .FontSize(8).Bold().FontColor(ACCENT);
+                        .FontSize(M.MetaValueFont).Bold().FontColor(ACCENT);
                     col.Item().PaddingTop(6);
 
                     foreach (var f in filters)
@@ -257,16 +261,16 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                             {
                                 r.ConstantItem(70)
                                     .Text(label.ToUpperInvariant())
-                                    .FontSize(7.5f).FontColor(MUTED);
+                                    .FontSize(M.MetaLabelFont).FontColor(MUTED);
                                 r.RelativeItem().PaddingLeft(4)
                                     .Text(value)
-                                    .FontSize(8.5f).SemiBold().FontColor(DARK);
+                                    .FontSize(M.MetaValueFont).SemiBold().FontColor(DARK);
                             });
                         }
                         else
                         {
                             col.Item().PaddingTop(2).Text(f)
-                                .FontSize(8.5f).SemiBold().FontColor(DARK);
+                                .FontSize(M.MetaValueFont).SemiBold().FontColor(DARK);
                         }
                     }
                 });
@@ -351,7 +355,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 row.RelativeItem(2).Column(col =>
                 {
                     col.Item().Text("FINANCIAL SUMMARY")
-                       .FontSize(10).Bold().FontColor(DARK);
+                       .FontSize(M.SubtotalValueFont).Bold().FontColor(DARK);
 
                     col.Item().PaddingTop(8).Table(t =>
                     {
@@ -399,10 +403,10 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                            {
                                inner.Item().AlignCenter()
                                     .Text("OVERDUE")
-                                    .FontSize(8).Bold().FontColor(WHITE);
+                                    .FontSize(M.MetaValueFont).Bold().FontColor(WHITE);
                                inner.Item().PaddingTop(4).AlignCenter()
                                     .Text($"AED {fin.OverdueAmount:N2}")
-                                    .FontSize(12).Bold().FontColor(WHITE);
+                                    .FontSize(M.GrandLabelFont).Bold().FontColor(WHITE);
                            });
                     }
                 });
@@ -450,14 +454,14 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
                            foreach (var (label, _, _) in buckets)
                                t.Cell().AlignCenter()
-                                .Text(label).FontSize(8).Bold()
+                                .Text(label).FontSize(M.MetaValueFont).Bold()
                                 .FontColor(MUTED);
 
                            foreach (var (_, amount, color) in buckets)
                                t.Cell().AlignCenter()
                                 .Text(amount > 0
                                     ? $"AED {amount:N0}" : "—")
-                                .FontSize(9).Bold().FontColor(color);
+                                .FontSize(M.ValueFont).Bold().FontColor(color);
 
                            foreach (var (_, amount, _) in buckets)
                            {
@@ -466,7 +470,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                                    : 0m;
                                t.Cell().AlignCenter()
                                 .Text(pct > 0 ? $"{pct}%" : "")
-                                .FontSize(8).FontColor(MUTED);
+                                .FontSize(M.MetaValueFont).FontColor(MUTED);
                            }
                        });
                    });
@@ -538,15 +542,15 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                    .Column(col =>
                    {
                        col.Item().Text("PREPARED BY")
-                          .FontSize(9).Bold().FontColor(ACCENT);
+                          .FontSize(M.ValueFont).Bold().FontColor(ACCENT);
                        col.Item().PaddingTop(4)
                           .Text(!string.IsNullOrWhiteSpace(
                                     _snap.CustomerInfo.SalesmanName)
                                 ? _snap.CustomerInfo.SalesmanName : "—")
-                          .FontSize(10).SemiBold().FontColor(DARK);
+                          .FontSize(M.SubtotalValueFont).SemiBold().FontColor(DARK);
                        col.Item().PaddingTop(16)
                           .BorderBottom(1).BorderColor(LINE)
-                          .Text("Signature").FontSize(8).FontColor(MUTED);
+                          .Text("Signature").FontSize(M.MetaValueFont).FontColor(MUTED);
                    });
 
                 row.ConstantItem(16);
@@ -556,34 +560,34 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                    .Column(col =>
                    {
                        col.Item().Text("CUSTOMER ACKNOWLEDGEMENT")
-                          .FontSize(9).Bold().FontColor(ACCENT);
+                          .FontSize(M.ValueFont).Bold().FontColor(ACCENT);
                        col.Item().PaddingTop(6).Row(r =>
                        {
                            r.AutoItem().Text("Name: ")
-                            .FontSize(9).FontColor(MUTED);
+                            .FontSize(M.ValueFont).FontColor(MUTED);
                            r.RelativeItem().PaddingLeft(4)
                             .BorderBottom(1).BorderColor(LINE)
-                            .Text(" ").FontSize(9);
+                            .Text(" ").FontSize(M.ValueFont);
                        });
                        col.Item().PaddingTop(8).Row(r =>
                        {
                            r.AutoItem().Text("Signature: ")
-                            .FontSize(9).FontColor(MUTED);
+                            .FontSize(M.ValueFont).FontColor(MUTED);
                            r.RelativeItem().PaddingLeft(4)
                             .BorderBottom(1).BorderColor(LINE)
-                            .Text(" ").FontSize(9);
+                            .Text(" ").FontSize(M.ValueFont);
                        });
                        col.Item().PaddingTop(8).Row(r =>
                        {
                            r.AutoItem().Text("Date: ")
-                            .FontSize(9).FontColor(MUTED);
+                            .FontSize(M.ValueFont).FontColor(MUTED);
                            r.RelativeItem().PaddingLeft(4)
                             .BorderBottom(1).BorderColor(LINE)
-                            .Text(" ").FontSize(9);
+                            .Text(" ").FontSize(M.ValueFont);
                        });
                        col.Item().PaddingTop(6)
                           .Text("Company Stamp / Seal")
-                          .FontSize(8).FontColor(MUTED);
+                          .FontSize(M.MetaValueFont).FontColor(MUTED);
                    });
             });
         }
@@ -597,19 +601,19 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 {
                     row.RelativeItem()
                        .Text(_snap.Header.StatementNumber ?? "")
-                       .FontSize(8).FontColor(MUTED);
+                       .FontSize(M.MetaValueFont).FontColor(MUTED);
 
                     row.AutoItem().AlignCenter().Text(t =>
                     {
-                        t.Span("Page ").FontSize(8).FontColor(MUTED);
-                        t.CurrentPageNumber().FontSize(8).FontColor(MUTED);
-                        t.Span(" of ").FontSize(8).FontColor(MUTED);
-                        t.TotalPages().FontSize(8).FontColor(MUTED);
+                        t.Span("Page ").FontSize(M.MetaValueFont).FontColor(MUTED);
+                        t.CurrentPageNumber().FontSize(M.MetaValueFont).FontColor(MUTED);
+                        t.Span(" of ").FontSize(M.MetaValueFont).FontColor(MUTED);
+                        t.TotalPages().FontSize(M.MetaValueFont).FontColor(MUTED);
                     });
 
                     row.RelativeItem().AlignRight()
                        .Text("ProGlass Automation")
-                       .FontSize(8).FontColor(MUTED);
+                       .FontSize(M.MetaValueFont).FontColor(MUTED);
                 });
         }
 
@@ -657,12 +661,12 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             bool bold = false, string? color = null)
         {
             var lbl = table.Cell().PaddingVertical(3)
-                .Text(label).FontSize(9);
+                .Text(label).FontSize(M.ValueFont);
             if (color != null) lbl.FontColor(color);
             if (bold) lbl.Bold();
 
             var val = table.Cell().PaddingVertical(3).AlignRight()
-                .Text(value).FontSize(9);
+                .Text(value).FontSize(M.ValueFont);
             if (color != null) val.FontColor(color);
             if (bold) val.Bold();
         }
