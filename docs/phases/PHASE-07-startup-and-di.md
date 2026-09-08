@@ -2,6 +2,80 @@
 
 **Severity: Major · Estimate: 2 days · Prerequisite: green build**
 
+## Status — APPLIED 2026-09-09
+
+| | |
+|---|---|
+| `App.Status` / `App.Dialogs` null after DI failure | **fixed** |
+| `App.ServiceProvider` unguarded dereference | **fixed** |
+| Silent loss of 10 of 11 DB init failures | **fixed** |
+| `Task.Delay(2800)` splash delay | **NOT changed — see below** |
+
+### The null services
+
+`App.StartupCore.cs` resolved fourteen services from the container inside a
+`try`. The `catch` rebuilt twelve of them by hand and **omitted `Status` and
+`Dialogs`**, leaving both at the `null!` they are initialised to in
+`App.xaml.cs:106-107`.
+
+The consequence is specific and bad: the container fails, startup carries on by
+design, and then the first thing the app tries to do is tell the operator
+something went wrong — through `App.Status` or `App.Dialogs`, which are null.
+`NullReferenceException`, during startup, in the one situation where the user
+most needs a message on screen.
+
+Both are `sealed` with implicit parameterless constructors and are registered as
+singletons, so `new StatusService()` / `new DialogService()` produce what the
+container would have. Verified by a scripted diff of the `try` list against the
+`catch` list: 14 resolved, 14 built, 0 missing.
+
+The log line also now carries the exception **type** and `ex.ToString()`.
+"DI container build failed: Value cannot be null" names nothing; the type names
+the missing registration, and the inner exception is where DI failures actually
+live.
+
+### The unguarded provider
+
+`Views/Inquiry/InquiryListView.xaml.cs:263` called
+`App.ServiceProvider.GetService(...)` with no null check, then a `??` fallback
+that could never run — the dereference throws first. Changed to `?.` so the
+fallback the author clearly intended actually executes. A repo-wide re-scan for
+`App.ServiceProvider.` without `?.` now returns nothing.
+
+### The swallowed DB failures
+
+Eleven `InitializeAsync()` calls ran inside one `Task.WhenAll`. When more than
+one fails — a full data folder, a locked file, a disk fault hits several at once
+— `Task.WhenAll` surfaces only the first. The startup log named one database and
+the operator went and fixed the wrong one.
+
+They are now held in a named array; on failure every faulted task is logged with
+its database name before the original exception is rethrown. Startup still fails
+the same way, and the same exception still propagates. Reading `.Exception` also
+marks each task observed, so none resurfaces as `UnobservedTaskException`.
+
+### What was deliberately left alone
+
+`await Task.Delay(2800)` at `App.StartupCore.cs:655` is 2.8 seconds of
+unconditional startup latency on every launch, fast machine or slow. It is a
+real cost and it is worth removing — but not blind.
+
+The surrounding comments describe two races the delay is currently absorbing:
+the licence-overlay subscription ("a fast machine can race the subscription
+setup and the overlay stays hidden for a frame") and the splash/login z-order
+fight ("splash is Topmost, login is not, Activate() fights z-order and Windows
+flashes the desktop between them"). Shortening the delay without a build and a
+screen to watch is a good way to ship a startup that flashes.
+
+The correct replacement is to wait on an actual readiness signal rather than on
+a wall clock, and to fix the two races so nothing depends on the wait. That is
+UI work needing a running app. Recorded here rather than guessed at.
+
+Also worth noting for Phase 14: `AppLogService` has **no Error level** — only
+`Debug`, `Info` and `Warning`. A container build failure is logged as a warning
+because there is nothing louder to log it as.
+
+
 ## Findings
 
 ### 7.1 — The DI fallback leaves two services null

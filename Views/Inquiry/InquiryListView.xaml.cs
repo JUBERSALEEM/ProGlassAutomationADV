@@ -260,7 +260,12 @@ namespace ProGlassAutomation.Views.Inquiry
                 MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
             vm.PreviewAttachmentRequested = file =>
             {
-                var service = App.ServiceProvider.GetService(typeof(InquiryAttachmentService))
+                // App.ServiceProvider is `null!` when the DI container build
+                // fails and startup falls back to manual construction. The `??`
+                // below already handles a service the container does not know,
+                // but it cannot help with a null provider — the dereference
+                // throws first. `?.` lets the fallback actually run.
+                var service = App.ServiceProvider?.GetService(typeof(InquiryAttachmentService))
                     as InquiryAttachmentService
                     ?? new InquiryAttachmentService(App.Inquiries ?? new InquiryRepository());
                 var preview = new InquiryAttachmentPreviewWindow(file, service);

@@ -317,7 +317,15 @@ namespace ProGlassAutomation
             }
             catch (Exception ex)
             {
-                AppLogService.Warning($"DI container build failed: {ex.Message}");
+                // The exception TYPE is the diagnostic part — "DI container
+                // build failed: Value cannot be null" tells an operator nothing,
+                // whereas the type names the missing registration. ex.ToString()
+                // keeps the inner exception, which is where DI failures usually
+                // actually live.
+                AppLogService.Warning(
+                    $"DI container build failed ({ex.GetType().Name}); falling back to " +
+                    $"manual construction. Some services may behave differently: {ex}");
+
                 // Fallback to manual construction (never break startup)
                 Specs = new SpecificationsRepository();
                 Inquiries = new InquiryRepository();
@@ -331,25 +339,68 @@ namespace ProGlassAutomation
                 Reporting = new ReportingDataService();
                 DashboardMetrics = new DashboardMetricsService();
                 DashboardFilter = new DashboardFilterService();
+
+                // These two were MISSING from the fallback, which left them at
+                // the `null!` they are initialised to in App.xaml.cs. Anything
+                // calling App.Status.Show(...) or App.Dialogs.Show(...) after a
+                // container failure then threw NullReferenceException — during
+                // startup, in the one situation where the operator most needs a
+                // message on screen. Both are sealed with implicit parameterless
+                // constructors and are registered as singletons, so constructing
+                // them here matches what the container would have produced.
+                Status = new Services.Workflow.StatusService();
+                Dialogs = new Services.Dialogs.DialogService();
             }
 
-            await Task.WhenAll(
-                Specs.InitializeAsync(),
-                Inquiries.InitializeAsync(),
-                Invoices.InitializeAsync(),
-                Jobs.InitializeAsync(),
-                DeliveryNotes.InitializeAsync(),
-                MasterData.InitializeAsync(),
-                TaxInvoices.InitializeAsync(),
-                Statements.InitializeAsync(),
-                OrderReports.InitializeAsync(),
+            // Named, and every failure logged rather than only the first.
+            //
+            // Task.WhenAll surfaces a single exception. With eleven EnsureCreated
+            // calls running in parallel against eleven separate SQLite files, the
+            // first to fail is rarely the only one — a full data folder, a locked
+            // file or a disk fault hits several at once. A startup log naming one
+            // database sends the operator to fix the wrong one, and the other ten
+            // fail again on the next launch.
+            //
+            // Behaviour is unchanged: startup still fails, and the same first
+            // exception still propagates to the caller. This only makes the log
+            // complete before it does. Reading .Exception also marks each task
+            // observed, so nothing surfaces later as UnobservedTaskException.
+            var inits = new (string Name, Task Work)[]
+            {
+                ("specifications",  Specs.InitializeAsync()),
+                ("inquiries",       Inquiries.InitializeAsync()),
+                ("invoices",        Invoices.InitializeAsync()),
+                ("jobs",            Jobs.InitializeAsync()),
+                ("deliverynotes",   DeliveryNotes.InitializeAsync()),
+                ("masterdata",      MasterData.InitializeAsync()),
+                ("taxinvoices",     TaxInvoices.InitializeAsync()),
+                ("statements",      Statements.InitializeAsync()),
+                ("orderreports",    OrderReports.InitializeAsync()),
 
                 // 9b) Audit & user system — own DB (audit.db), safe in
                 //     parallel. Never throws internally.
-                AuditService.InitializeAsync(),
+                ("audit",           AuditService.InitializeAsync()),
 
                 // 9c-1) AI learning memory (aimemory.db)
-                AiMemoryService.InitializeAsync());
+                ("aimemory",        AiMemoryService.InitializeAsync())
+            };
+
+            try
+            {
+                await Task.WhenAll(Array.ConvertAll(inits, i => i.Work));
+            }
+            catch
+            {
+                foreach (var init in inits)
+                {
+                    if (init.Work.IsFaulted)
+                        AppLogService.Warning(
+                            $"Database initialisation failed for '{init.Name}': " +
+                            $"{init.Work.Exception?.GetBaseException()}");
+                }
+
+                throw;
+            }
 
             // 9c-2) Cross-database integrity sweep (Phase 2 — Result + Correlation):
             //       reconcile Tax Invoice → Delivery Note invoiced links on
