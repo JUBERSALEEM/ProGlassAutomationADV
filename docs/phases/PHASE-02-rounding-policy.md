@@ -2,15 +2,48 @@
 
 **Severity: Critical · Estimate: 2-3 days · Prerequisite: green build**
 
+## Status — structural part APPLIED 2026-09-09
+
+| | |
+|---|---|
+| Single rounding home | **done** — `Services/Reporting/MoneyRounding.cs` |
+| Policy documented | **done** — [docs/MONEY_ROUNDING_POLICY.md](../MONEY_ROUNDING_POLICY.md) |
+| Misleading comment | **fixed** — `VatCalculator.cs` no longer claims banker's rounding |
+| VAT + invoice layer routed | **done** — behaviour-identical, all 9 sites already used `AwayFromZero` |
+| Invariants pinned | **done** — `Tests/Reporting/MoneyRoundingPolicyTests.cs` (9 tests) |
+| Regression ratchet | **done** — `Tests/Architecture/MoneyRoundingRatchetTests.cs` (4 tests, 62-file baseline) |
+| **334 remaining call sites migrated** | **NOT done — deliberately** |
+
+The migration is not done because it cannot be done safely without a compiler.
+The same `Math.Round(x, 2)` call rounds money in one line and square metres in
+the next, sometimes in the same file — `ProfitLossStepViewModel.Calculation.cs`
+alone has 31 of them mixing money with `Quantity` fields. A global
+find-and-replace would silently corrupt measurements. The ratchet holds the
+count at 334 so the migration can proceed one file at a time with a build
+between each; the ordered queue is at the bottom of the policy document.
+
+Nothing in the applied part changes a single figure. `VatCalculator.Round` and
+`InvoiceRoundTo` produced `AwayFromZero` results before and produce identical
+results now — they simply route through the shared declaration instead of
+naming the mode themselves.
+
 ## The problem
 
 The money pipeline uses two different rounding rules for the same operation.
 
-- **122** call sites use `Math.Round(x, 2)`, whose default is
-  `MidpointRounding.ToEven` — banker's rounding.
-- **8** call sites pass `MidpointRounding.AwayFromZero` explicitly, all in
-  `Services/ProformaInvoice/InvoiceRoundTo.cs` and
-  `Services/Reporting/VatCalculator.cs`.
+- **334** call sites in the money namespaces use `Math.Round(x, 2)`, whose
+  default is `MidpointRounding.ToEven` — banker's rounding. (An earlier draft
+  of this document said 122; that counted only four directories. Re-measured
+  2026-09-09 across `Services/Reporting`, `Services/Statement`,
+  `Services/TaxInvoice`, `Services/ProformaInvoice`,
+  `ViewModels/ProformaInvoice`, `ViewModels/JobProfitability` and
+  `Services/Dashboard`: 334 sites in 62 files. Repo-wide, including quantity
+  and pixel rounding, the figure is 423.)
+- **9** call sites passed `MidpointRounding.AwayFromZero` explicitly — 7 in
+  `Services/ProformaInvoice/InvoiceRoundTo.cs` and 1 in
+  `Services/Reporting/VatCalculator.cs` (now routed through `MoneyRounding`),
+  plus 1 in `CutListImportParser.cs` that rounds a piece **count** to an
+  integer and is correctly left alone.
 
 So the pricing engine rounds a half-fil toward the even digit and the invoice
 layer rounds it away from zero. On any invoice whose unrounded values land

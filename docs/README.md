@@ -235,6 +235,7 @@ python3 scripts/gen-docs-index.py --check  # fail if it is out of date
 | [`FULL_WORKFLOW_AUDIT.md`](FULL_WORKFLOW_AUDIT.md) | PROGLASS AUTOMATION — DEEP WORKFLOW AUDIT & UPGRADE |
 | [`IMPLEMENTATION_COMPLETE.md`](IMPLEMENTATION_COMPLETE.md) | ✅ Implementation Complete: Three Analysis Views with Tab Control |
 | [`IMPLEMENTATION_SUMMARY.md`](IMPLEMENTATION_SUMMARY.md) | ProGlassAutomationADV — Implementation Summary |
+| [`MONEY_ROUNDING_POLICY.md`](MONEY_ROUNDING_POLICY.md) | Money Rounding Policy |
 | [`PHASE_BALANCE.md`](PHASE_BALANCE.md) | Phase Balance — ProGlass Automation ADV |
 | [`PI_SYSTEM_STATUS_REPORT.md`](PI_SYSTEM_STATUS_REPORT.md) | Proforma Invoice System - Complete Status Report |
 | [`PL_COST_BASED_MARKUP_EXAMPLE.md`](PL_COST_BASED_MARKUP_EXAMPLE.md) | P&L Cost-Based Markup Implementation - Example |

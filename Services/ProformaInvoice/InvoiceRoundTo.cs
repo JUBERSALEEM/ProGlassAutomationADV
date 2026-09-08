@@ -1,4 +1,4 @@
-using System;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.ProformaInvoice
 {
@@ -21,8 +21,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             bool vatApplicable,
             decimal targetGrand)
         {
-            netSubtotal = Math.Round(netSubtotal, 2, MidpointRounding.AwayFromZero);
-            targetGrand = Math.Round(targetGrand, 2, MidpointRounding.AwayFromZero);
+            netSubtotal = MoneyRounding.Round(netSubtotal);
+            targetGrand = MoneyRounding.Round(targetGrand);
             if (netSubtotal <= 0m) return 0m;
             if (targetGrand < 0m) targetGrand = 0m;
 
@@ -32,11 +32,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             decimal factor = vatApplicable ? 1m + vatPercent / 100m : 1m;
             decimal beforeVat = factor <= 0m
                 ? 0m
-                : Math.Round(targetGrand / factor, 2, MidpointRounding.AwayFromZero);
+                : MoneyRounding.Round(targetGrand / factor);
             if (beforeVat < 0m) beforeVat = 0m;
             if (beforeVat > netSubtotal) beforeVat = netSubtotal;
 
-            decimal discount = Math.Round(netSubtotal - beforeVat, 2, MidpointRounding.AwayFromZero);
+            decimal discount = MoneyRounding.Round(netSubtotal - beforeVat);
 
             for (int i = 0; i < 40; i++)
             {
@@ -47,7 +47,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 if (discount > netSubtotal) { discount = netSubtotal; break; }
             }
 
-            return Math.Round(discount, 2, MidpointRounding.AwayFromZero);
+            return MoneyRounding.Round(discount);
         }
 
         public static decimal GrandFromDiscount(
@@ -59,9 +59,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             decimal after = netSubtotal - discountAed;
             if (after < 0m) after = 0m;
             decimal vat = vatApplicable
-                ? Math.Round(after * vatPercent / 100m, 2, MidpointRounding.AwayFromZero)
+                ? MoneyRounding.Round(after * vatPercent / 100m)
                 : 0m;
-            return Math.Round(after + vat, 2, MidpointRounding.AwayFromZero);
+            return MoneyRounding.Round(after + vat);
         }
     }
 }

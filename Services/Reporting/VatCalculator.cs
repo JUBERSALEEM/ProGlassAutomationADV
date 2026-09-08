@@ -31,27 +31,22 @@ namespace ProGlassAutomation.Services.Reporting
         public const decimal VAT_MULTIPLIER = 1.05m;
         
         /// <summary>
-        /// Number of decimal places for rounding
-        /// </summary>
-        private const int DECIMAL_PLACES = 2;
-        
-        /// <summary>
-        /// Rounding strategy (banker's rounding for financial accuracy)
-        /// </summary>
-        private const MidpointRounding ROUNDING = MidpointRounding.AwayFromZero;
-        
-        /// <summary>
         /// Default tolerance for validation (1 fils = 0.01 AED)
         /// </summary>
         public const decimal DEFAULT_TOLERANCE = 0.01m;
 
         /// <summary>
-        /// Rounds a decimal value to 2 decimal places using AwayFromZero rounding
+        /// Rounds a monetary value using the product's single rounding rule.
+        ///
+        /// Delegates to <see cref="MoneyRounding"/> rather than rounding inline
+        /// so this class cannot drift from the rest of the money pipeline.
+        /// Kept as <c>VatCalculator.Round</c> — the public name every existing
+        /// call site uses — so routing it here changed no caller.
         /// </summary>
         /// <param name="value">Value to round</param>
         /// <returns>Rounded value</returns>
-        public static decimal Round(decimal value) 
-            => Math.Round(value, DECIMAL_PLACES, ROUNDING);
+        public static decimal Round(decimal value)
+            => MoneyRounding.Round(value);
 
         /// <summary>
         /// Calculates subtotal from grand total and VAT amount
