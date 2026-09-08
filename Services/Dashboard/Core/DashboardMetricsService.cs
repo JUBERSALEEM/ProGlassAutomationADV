@@ -40,6 +40,7 @@ using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.DeliveryNote.Database;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus;
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
@@ -258,8 +259,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             // which matches "InProduction", reported a different number.
             // Two dashboards, two answers to the same question.
             m.InProduction  = rows.Count(r => JobOrderStatusValues.IsInProduction(r.Status));
-            m.Completed     = rows.Count(r => Eq(r.Status, "Completed") ||
-                                              Eq(r.Status, "Delivered"));
+            m.Completed     = rows.Count(r => JobOrderStatusValues.IsFinished(r.Status));
 
             // Overdue = past its delivery date and not finished. A job
             // already completed or delivered is never overdue even if the
@@ -267,11 +267,9 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             m.Overdue = rows.Count(r =>
                 r.DeliveryDate.HasValue &&
                 r.DeliveryDate.Value.Date < today &&
-                !Eq(r.Status, "Completed") &&
-                !Eq(r.Status, "Delivered"));
+                !JobOrderStatusValues.IsFinished(r.Status));
 
-            bool IsDone(JobRow r) =>
-                Eq(r.Status, "Completed") || Eq(r.Status, "Delivered");
+            bool IsDone(JobRow r) => JobOrderStatusValues.IsFinished(r.Status);
 
             m.CompletedThisPeriod.Current =
                 rows.Count(r => IsDone(r) && range.Contains(r.UpdatedAt));
@@ -329,18 +327,27 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                 .ToListAsync(ct).ConfigureAwait(false);
 
             // "Sent out" covers every state after dispatch. Counting only
-            // "Dispatched" under-reports, because a note that has since
-            // been Delivered/Signed/Received also left the building.
+            // "Dispatched" under-reports, because a note that has since been
+            // Delivered/Signed/Received also left the building.
+            //
+            // Delegates to DeliveryNoteStatusValues so the status vocabulary
+            // has one home. This previously spelled the four states out here,
+            // which is how Preparing came to be compared against "Draft"
+            // alone while the mapper writes "Dispatching".
             bool IsSentOut(DnRow r) =>
-                Eq(r.Status, "Dispatched") || Eq(r.Status, "Delivered") ||
-                Eq(r.Status, "Signed")     || Eq(r.Status, "Received");
+                DeliveryNoteStatusValues.HasLeftTheBuilding(r.Status);
 
             if (rows.Count > 0)
             {
                 var today = DateTime.Today;
 
                 m.TotalNotes  = rows.Count;
-                m.Preparing   = rows.Count(r => Eq(r.Status, "Draft"));
+
+                // IsPreparing matches BOTH "Draft" and "Dispatching" — the mapper
+                // writes the latter, so counting only "Draft" left those
+                // notes in neither bucket and Preparing + Dispatched no
+                // longer equalled TotalNotes.
+                m.Preparing   = rows.Count(r => DeliveryNoteStatusValues.IsPreparing(r.Status));
                 m.Dispatched  = rows.Count(IsSentOut);
 
                 m.PiecesDeliveredToday = rows
@@ -350,11 +357,13 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                 // Safe to sum: TotalDeliveredQty is the quantity delivered
                 // BY THIS NOTE, so the sum across notes is the true total.
                 m.PiecesDeliveredTotal = rows
-                    .Where(r => !Eq(r.Status, "Draft"))
+                    .Where(r => !DeliveryNoteStatusValues.IsPreparing(r.Status))
                     .Sum(r => r.TotalDeliveredQty);
 
+                // Canonical() collapses Draft/Dispatching, which
+                // DeliveryNoteStatusMeta already renders as one label.
                 m.StatusBreakdown = rows
-                    .GroupBy(r => string.IsNullOrWhiteSpace(r.Status) ? "Unknown" : r.Status.Trim(),
+                    .GroupBy(r => DeliveryNoteStatusValues.Canonical(r.Status),
                              StringComparer.OrdinalIgnoreCase)
                     .Select(g => new NamedValue { Name = g.Key, Count = g.Count() })
                     .OrderByDescending(x => x.Count)
