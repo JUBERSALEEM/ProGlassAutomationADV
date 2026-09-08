@@ -186,13 +186,66 @@ The original framing was "28 `GetAllAsync()` call sites; paginate them." That
 is wrong, and following it literally would break working features. I read every
 one of the 25 remaining call sites. Most are not lists.
 
-| | What it actually is | Sites | Right fix |
-|---|---|---|---|
-| **A** | Dashboard aggregate | 3 | **Phase 3** — metrics service, not pagination |
-| **B** | Single-row lookup / existence check | 7 | A targeted repository method |
-| **C** | Picker or dialog data source | 3 | Searchable and bounded |
-| **D** | Full-text search | 3 | Push the filter into SQL |
-| **E** | **A real list screen** | **9** | **Actual pagination** |
+| | What it actually is | Sites | Right fix | Status |
+|---|---|---|---|---|
+| **A** | Dashboard aggregate | 3 | **Phase 3** — metrics service, not pagination | **Done** `52f69ee` |
+| **B** | Single-row lookup / existence check | 7 | A targeted repository method | **Done** — 5 fixed, 2 reclassified as non-defects |
+| **C** | Picker or dialog data source | 3 | Searchable and bounded | **1 of 3** `616b23a` |
+| **D** | Full-text search | 3 | Push the filter into SQL | **2 of 3** `5cb0005` — the third is master data |
+| **E** | **A real list screen** | **9** | **Actual pagination** | **0 of 9** — needs a compiler |
+
+### Where Phase 2 stands, 2026-09-08
+
+**13 sites across 11 ViewModels, down from 25 / 18.** The ratchet's allow-list
+matches a fresh measurement exactly.
+
+Everything except category E is finished or has a recorded reason for not being
+a defect. What is left is the one category where the fix is *pagination itself*,
+and each of those six screens needs four coordinated changes: a paged
+repository method, page state and commands in the ViewModel, a pager in XAML,
+and KPI figures moved off the page and onto an aggregate query.
+
+The last of those is the trap. `OrderReportListViewModel.UpdateKpis(rows)`
+computes its cards from the full set, so paginating without a separate
+aggregate makes the KPIs silently describe one page while looking like they
+describe the whole table. That is a wrong number on a screen, not a crash.
+
+The infrastructure is already there — `PagedResult<T>`
+(`Services/Reporting/ReportingFilter.cs:99`),
+`GlobalQueryEngine.ExecutePagedQueryAsync` / `ExecuteCountAsync` /
+`ExecuteSumAsync`, and `InquiryRepository` as the reference including its
+`GetStatisticsAsync` for page-independent KPIs. The pager chrome to copy is
+`Views/Inquiry/InquiryListView.xaml:1403-1430`. There is no shared pager
+control, so it is six XAML edits, each in a different root grid.
+
+**Do these one screen at a time with a build between each.** Six screens × four
+changes, written blind, is how a dashboard ends up quietly showing one page's
+totals.
+
+### Two things fixed on the way that were not pagination at all
+
+**`SheetStoreViewModel.ImportCsvAsync` reloaded the entire sheet table once per
+imported row** (`89f9f4f`). A 500-line CSV issued 500 whole-table queries. The
+reload existed only so `FindDuplicate`, which reads `_allSheets`, could see a
+row added earlier in the same file; appending the returned entity keeps that
+invariant in O(1), and `LoadAsync` still runs once after the loop.
+
+**The proforma picker read the snapshot blob** (`616b23a`). `GetAllAsync`
+materialises `FullSnapshotJson` — a whole invoice snapshot — for every quote,
+to bind six scalar columns. Swapped to the existing slim `GetListRowsAsync`.
+It still issues one manifest read per quote for the approval badge; there is no
+batch API on `ProformaAttachmentService` to replace it with.
+
+### The SQL Server LIKE escape that does not work on SQLite
+
+`ProformaInvoiceRepository.SearchAsync` and `JobOrderRepository.SearchAsync`
+escape wildcards as `[%]` and `[_]`. SQLite has no bracket syntax: `[` is an
+ordinary character and the `%` inside the brackets stays a wildcard, so a term
+containing `_` — common in this app's own `PI_2026_001` identifiers — matches
+any single character. The new searches use `EF.Functions.Like` with an explicit
+escape character, in `Services/Database/SearchPattern`. The two existing ones
+were left alone: changing them alters two working features, and without a
+compiler that is a trade to make on purpose. **Still open.**
 
 Paginating category B would break it outright. These are not lists:
 
@@ -308,39 +361,68 @@ Rework and Returned are deliberately still fetched separately: unlike
 silently change those two tabs. The tab model still needs rethinking for real
 pagination.
 
-## Phase 3 — Dashboard aggregates
+## Phase 3 — Dashboard aggregates ✅ COMPLETE 2026-09-08
 
-**The problem.** Four dashboard ViewModels load entire tables to compute four
-numbers:
+**The problem was.** Four dashboard ViewModels loaded entire tables to compute
+four numbers. All four now read aggregates from `IDashboardMetricsService`, as
+`OverviewDashboardViewModel` already did.
 
-| File | Line | Loads |
+| File | Was loading | Now calls |
 |---|---|---|
-| `DnDashboardViewModel.cs` | 214 | all delivery notes + pending-qty jobs |
-| `JoDashboardViewModel.cs` | 183 | all job orders |
-| `SheetStoreDashboardViewModel.cs` | 103 | all sheet stock |
-| `StDashboardViewModel.cs` | 152 | all statements |
+| `StDashboardViewModel.cs` | all statements | `GetStatementMetricsAsync` (`cc9fcb3`) |
+| `DnDashboardViewModel.cs` | all delivery notes + pending-qty jobs | `GetDeliveryMetricsAsync` (`52f69ee`) |
+| `JoDashboardViewModel.cs` | all job orders | `GetProductionMetricsAsync` (`52f69ee`) |
+| `SheetStoreDashboardViewModel.cs` | all sheet stock | `GetInventoryMetricsAsync` (`52f69ee`) |
 
-**The fix already exists.** `OverviewDashboardViewModel` was migrated to
-`IDashboardMetricsService.GetExecutiveMetricsAsync()` — one service call
-returning aggregate DTOs via `AsNoTracking` projections that read only the
-columns each figure needs. The comment at `OverviewDashboardViewModel.cs:303`
-documents exactly why. The other four simply were not converted.
+**Two corrections to the plan as originally written.**
 
-**Steps**
-1. Extend `IDashboardMetricsService` with the aggregates those four need
-   (delivery status counts, job status counts, stock totals, statement
-   balances) if not already present.
-2. Convert each ViewModel, following the Overview pattern verbatim.
-3. Assert the displayed figures are unchanged — snapshot them before and
-   after. A dashboard that quietly changes its numbers is worse than a slow
-   one.
+*The list of four was wrong.* `TiDashboardViewModel` was named as a target in
+earlier revisions. It was never one — it already delegates to
+`TaxInvoiceMetricsService` (`GetKpiSummaryAsync`, `GetAgingReportAsync`,
+`GetTopCustomersAsync`, `GetMonthlyRevenueTrendAsync`) and holds no table. The
+fourth real target was `StDashboardViewModel`, which was migrated first.
 
-**Acceptance:** no `GetAllAsync()` in `ViewModels/Dashboard/`; figures
-identical to pre-change; four service methods covered by tests.
+*The figures are not all identical, and the differences are listed rather than
+buried.* Simulating old logic against new on 400 jobs, 400 notes and 300 sheets
+made every count, every status bar and both activity feeds identical. Four
+things do differ, each recorded at its call site:
 
-**Risk: low-medium.** Contained to four files, and there is a working
-reference implementation.
-**Estimate:** 1–2 days.
+1. Priority bars (Job Order) and type bars (Delivery Note) now group trimmed and
+   case-insensitively, so a row stored as `"high "` or `"rework "` counts
+   toward its bar instead of no bar at all.
+2. The Sheet Store category count drops for case/whitespace variants that used
+   to render as two bars for one category.
+3. Sheet Store bar colours are assigned after sorting by square metres. The old
+   first-appearance ordering is not recoverable from an aggregate and was never
+   stable — inserting one sheet row could recolour every bar.
+4. Sheet Store "out of stock" moves from `Balance == 0` to `Balance <= 0`. These
+   agree on real data: `UseStockAsync` throws before incrementing `Used` when
+   `Balance < quantity`, and the CSV importer clamps `Used` into `[0, Stock]`,
+   so `Balance` cannot go negative. `<= 0` is also what the rest of the app
+   already treats as out of stock. **This resolved the divergence that had been
+   blocking this migration.**
+
+### The second copy of the Master-DN rule, found by migrating
+
+`DeliveryNoteRepository.GetAllAsync` and every per-status query beside it filter
+`!IsMasterDn`. `DashboardMetricsService` did not — in **either** place it
+touches the table. So the aggregates *and* the Overview activity feed counted
+master notes that no list screen ever shows. Both now filter, and the feed's
+filter sits before `Take(limit)` so master notes cannot consume slots and push
+real ones off the end.
+
+Pinned by `Tests/Architecture/MasterDnFilterParityTests.cs`, which fails in one
+direction only: a new unfiltered delivery-note query. Writing that test is what
+found the second site — the first pass fixed only the aggregates, and the test
+reported the feed.
+
+**Acceptance met:** no unfiltered `GetAllAsync()` anywhere in
+`ViewModels/Dashboard/`; the ratchet's allow-list dropped from 15 files to 11.
+
+**Still open, unchanged by this phase:** `DashboardMetricsService` computes its
+statement sums in memory because `SavedStatement` maps its money columns as
+`TEXT`, so a server-side `SUM` would not be a decimal sum. Centralising the
+aggregate did not eliminate the scan. That needs a column-type migration.
 
 ---
 
