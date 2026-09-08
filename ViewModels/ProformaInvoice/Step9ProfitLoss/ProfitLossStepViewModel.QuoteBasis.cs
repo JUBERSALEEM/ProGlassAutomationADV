@@ -160,6 +160,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// ResolveAllPanes: outer, every middle (in spec order), inner.
         /// </summary>
         private List<PnLPane> CollectPanes(
+            SpecGroup group,
             string specName, bool isDgu, bool isLam, bool isDguLam, bool hasInnerPane)
         {
             var panes = new List<PnLPane>();
@@ -192,7 +193,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         _dguLamVm.LamInnerColor));
                 }
 
-                return panes;
+                return EnforceStep4PaneIdentity(group, panes, isDguLam);
             }
 
             // FIX-2026-09-05: full ordered pane list (Outer/Middle…/Inner).
@@ -257,7 +258,50 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 }
             }
 
-            return panes;
+            return EnforceStep4PaneIdentity(group, panes, isDguLam);
+        }
+
+        /// <summary>
+        /// Step 5/Step 4 pane provenance is the authoritative identity for
+        /// normal two-pane DGU/LAM costing. The human spec string remains a
+        /// useful parser source, but it can be affected by wording extras or
+        /// legacy imported text. Never let a parsed/fallback "Clear" replace
+        /// an explicit Step 4 inner colour such as "Obscure Clear Ramly" —
+        /// that also changes the Sheet Store lookup and can move the row from
+        /// the 2500 × 1875 sheet to the outer 3210 × 2250 sheet.
+        /// </summary>
+        private static List<PnLPane> EnforceStep4PaneIdentity(
+            SpecGroup group,
+            List<PnLPane> panes,
+            bool isDguLam)
+        {
+            if (group == null || panes.Count == 0 || isDguLam)
+                return panes;
+
+            string outerColor = (group.OuterGlassColor ?? string.Empty).Trim();
+            string innerColor = (group.InnerGlassColor ?? string.Empty).Trim();
+            if (outerColor.Length == 0 && innerColor.Length == 0)
+                return panes;
+
+            var fixedPanes = new List<PnLPane>(panes.Count);
+            foreach (var pane in panes)
+            {
+                bool isInner = pane.Side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0;
+                bool isOuter = pane.Side.IndexOf("Outer", StringComparison.OrdinalIgnoreCase) >= 0
+                    && pane.Side.IndexOf("Lam", StringComparison.OrdinalIgnoreCase) < 0;
+
+                string authoritative = isInner
+                    ? innerColor
+                    : isOuter
+                        ? outerColor
+                        : string.Empty;
+
+                fixedPanes.Add(!string.IsNullOrWhiteSpace(authoritative)
+                    ? PnLSpecParser.FromParts(pane.Side, pane.ThicknessMm, authoritative)
+                    : pane);
+            }
+
+            return fixedPanes;
         }
 
         /// <summary>
