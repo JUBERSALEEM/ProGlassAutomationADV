@@ -31,8 +31,8 @@ Phase 5  Test depth — pricing engine        ← needs Phase 4
 |---|---|---|---|
 | 0 | No CI | 🔴 **Blocked — needs your action** | GitHub App `workflows` scope |
 | 1 | Build/test unverified | 🟠 Waiting | Phase 0 |
-| 2 | No pagination | 🟡 Ratchet landed; migration pending | Phase 0 (to enforce) |
-| 3 | Dashboards load whole tables | 🟡 Aggregate split **fixed**; migration pending | Phase 0 |
+| 2 | No pagination | 🟡 Ratchet landed; 27 sites / 19 VMs remain (was 28 / 20) | Phase 0 (to enforce) |
+| 3 | Dashboards load whole tables | 🟡 1 of 4 migrated (Statement); splits fixed | Phase 0 |
 | 4 | `MetricQty` hardcodes delivery qty | 🟡 Step 1 done — characterisation net landed | Phase 1, for steps 2–5 |
 | 5 | Test ratio 1 : 7.4 | 🟡 Target-tolerance split **fixed** | Phase 0 |
 | 6 | 13 files > 990 lines | ⚪ Deferred | Phase 1 |
@@ -366,6 +366,36 @@ shipping it.
 ---
 
 ## Done
+
+**Phase 3, first migration: Statement dashboard — 2026-09-08.** The Statement
+dashboard was the only one of the four with no metrics coverage, so it loaded
+every statement into its ViewModel and summed the table there. It now calls
+`IDashboardMetricsService.GetStatementMetricsAsync(5)`, added for this purpose
+along with a `StatementMetrics` model.
+
+Two findings worth recording, because both changed the design:
+
+- **The money columns are TEXT.** `SavedStatement.TotalInvoiced`,
+  `TotalOutstanding` and `OverdueAmount` are mapped
+  `[Column(TypeName = "TEXT")]`, so a server-side `SUM` would not be a decimal
+  sum. The aggregation therefore stays in memory inside the service. Pushing it
+  into SQL needs a column-type migration first — do not "optimise" this with a
+  `GroupBy`/`Sum` translation, it will silently produce the wrong total.
+- **The constructor could not change.** `DashboardViewModel` calls
+  `new StDashboardViewModel()` and DI is registered transient, selecting the
+  greediest constructor. `IStatementRepository` stays injected and is still
+  read in the startup guard — with `TreatWarningsAsErrors` on, an
+  assigned-but-unread private field is a build error, not a warning.
+
+`StatementMetrics.Recent` carries `StatementListItem` rather than a parallel
+DTO. That type is already a blob-free SQL projection whose display strings are
+computed from its own fields; re-declaring them would recreate the
+duplicated-definition drift this codebase has spent the day removing.
+
+The pagination ratchet's stale-entry test fired on this file, and
+`StDashboardViewModel.cs` was removed from its allow-list — the ratchet working
+as designed rather than being edited to stay green. Baseline is now
+**27 call sites across 19 ViewModels**.
 
 **Pagination ratchet — 2026-09-08 (`ebe9dfd`).** `Tests/Architecture/
 PaginationRatchetTests.cs` scans every non-test `.cs` file for `GetAllAsync()`

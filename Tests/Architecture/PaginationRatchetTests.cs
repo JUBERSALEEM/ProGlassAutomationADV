@@ -6,7 +6,7 @@
 //
 // WHY THIS TEST EXISTS
 // ────────────────────
-// 28 call sites across 20 ViewModels call a repository GetAllAsync() and
+// 27 call sites across 19 ViewModels call a repository GetAllAsync() and
 // materialise an entire table to display or count part of it. That is
 // invisible at 500 records and a multi-second UI freeze at 50,000 — on a
 // machine that is also driving a cutting saw.
@@ -57,7 +57,12 @@ namespace ProGlassAutomation.Tests.Architecture
             "Dashboard/DeliveryNote/DnDashboard/DnDashboardViewModel.cs",
             "Dashboard/JobOrder/JoDashboard/JoDashboardViewModel.cs",
             "Dashboard/SheetStore/SheetStoreDashboardViewModel.cs",
-            "Dashboard/Statement/StDashboardViewModel.cs",
+
+            // StDashboardViewModel.cs was here until 2026-09-08, when Phase 3
+            // moved its aggregates to IDashboardMetricsService
+            // .GetStatementMetricsAsync. Removing it is the ratchet working:
+            // the stale-entries test fails until a cleaned-up file is dropped
+            // from this list.
 
             // ── Phase 2 targets: list screens.
             "DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.Part1.cs",

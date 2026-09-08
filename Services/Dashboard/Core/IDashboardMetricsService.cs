@@ -52,5 +52,26 @@ namespace ProGlassAutomation.Services.Dashboard.Core
         /// </summary>
         Task<RecentActivityRows> GetRecentRowsAsync(
             int limit = 20, CancellationToken ct = default);
+
+        /// <summary>
+        /// Statement dashboard aggregates plus the newest statements.
+        ///
+        /// <para>
+        /// Added 2026-09-08 for Phase 3: the Statement dashboard was the only
+        /// one of the four with no metrics coverage, so it loaded the whole
+        /// table into its ViewModel and summed it there.
+        /// </para>
+        ///
+        /// <para>
+        /// The sums are computed in memory, not in SQL, and that is not an
+        /// oversight — <c>SavedStatement.TotalInvoiced</c>,
+        /// <c>TotalOutstanding</c> and <c>OverdueAmount</c> are mapped
+        /// <c>[Column(TypeName = "TEXT")]</c>, so a server-side SUM would not
+        /// be a decimal sum. Pushing this into SQL needs a migration to a
+        /// numeric column first.
+        /// </para>
+        /// </summary>
+        Task<StatementMetrics> GetStatementMetricsAsync(
+            int recentLimit = 5, CancellationToken ct = default);
     }
 }

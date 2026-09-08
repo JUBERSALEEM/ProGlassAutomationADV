@@ -42,6 +42,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
     {
         private readonly IStatementRepository _statements = null!;
 
+        /// <summary>How many statements the recent panel shows.</summary>
+        private const int RecentStatementCount = 5;
+
         public StDashboardViewModel(IStatementRepository? statements)
         {
             _statements = statements!;
@@ -139,19 +142,26 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
 
         protected override async Task LoadCoreAsync()
         {
-            // Guard: _statements may be null if called before startup
-            if (_statements == null)
+            // Guard: both dependencies may be null if this page is loaded
+            // before App.StartupCore has finished. _statements is still
+            // injected (DI selects the greediest constructor) and is checked
+            // here so a half-initialised app degrades to an empty page rather
+            // than throwing inside the load.
+            if (_statements == null || App.DashboardMetrics == null)
             {
                 AppLogService.Debug(
-                    "[StDashboard] _statements not yet initialized.");
+                    "[StDashboard] dependencies not yet initialized.");
                 return;
             }
 
-            // Load on background thread
-            var items = await Task.Run(
-                () => _statements.GetAllAsync());
+            // Phase 3: aggregates come from IDashboardMetricsService, not from
+            // summing the whole table here. This page was the only one of the
+            // four module dashboards with no metrics coverage, so it loaded
+            // every statement into the ViewModel.
+            var metrics = await App.DashboardMetrics
+                .GetStatementMetricsAsync(RecentStatementCount);
 
-            if (items == null || items.Count == 0)
+            if (metrics.TotalStatements == 0)
             {
                 Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
                 {
@@ -167,19 +177,19 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
                 return;
             }
 
-            // ── Compute KPIs ──────────────────────────────────────────────
-            int totalCount = items.Count;
-            decimal totalInv = items.Sum(i => i.TotalInvoiced);
-            decimal totalOut = items.Sum(i => i.TotalOutstanding);
-            decimal totalOverdue = items.Sum(i => i.OverdueAmount);
+            // ── KPIs, already aggregated by the service ──────────────────
+            int totalCount = metrics.TotalStatements;
+            decimal totalInv = metrics.TotalInvoiced;
+            decimal totalOut = metrics.TotalOutstanding;
+            decimal totalOverdue = metrics.OverdueAmount;
 
             // ── Recent 5 statements ───────────────────────────────────────
             // CHAT 23 v1.1: .Select((item, i) => ...) provides 1-based
             // Index for serial-number badge in the UI. Ordering is
             // OrderByDescending(CreatedAt) so #1 = newest, #2 = next, etc.
-            var recent = items
+            var recent = metrics.Recent
                 .OrderByDescending(i => i.CreatedAt)
-                .Take(5)
+                .Take(RecentStatementCount)
                 .Select((i, idx) => new RecentStatementItem
                 {
                     Index = idx + 1,   // 1-based serial number

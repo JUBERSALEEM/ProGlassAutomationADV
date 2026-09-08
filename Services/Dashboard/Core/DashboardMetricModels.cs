@@ -33,6 +33,7 @@
 //     service layer.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Statement.Repository;
 using System;
 using System.Collections.Generic;
 
@@ -273,5 +274,35 @@ namespace ProGlassAutomation.Services.Dashboard.Core
         public string Label { get; set; } = string.Empty;
         public decimal Value { get; set; }
         public int Count { get; set; }
+    }
+
+    // ═════════════════════════════════════════════════════════════════
+    //  STATEMENT
+    // ═════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Statement dashboard aggregates. Statements are a running balance
+    /// rather than a lifecycle, so there is no status breakdown here — the
+    /// dashboard renders a balance mix from the three money figures.
+    ///
+    /// <para>
+    /// <see cref="Recent"/> carries <c>StatementListItem</c> rather than a
+    /// parallel DTO on purpose. That type is already a lightweight SQL
+    /// projection with no JSON blob columns, and its display strings
+    /// (<c>TotalInvoicedDisplay</c>, <c>SubTitle</c>, …) are computed from
+    /// its own fields. Re-declaring them here would be exactly the
+    /// duplicated-definition drift this codebase has spent 2026-09-08
+    /// removing.
+    /// </para>
+    /// </summary>
+    public sealed class StatementMetrics
+    {
+        public int TotalStatements { get; set; }
+        public decimal TotalInvoiced { get; set; }
+        public decimal TotalOutstanding { get; set; }
+        public decimal OverdueAmount { get; set; }
+
+        /// <summary>Newest first, bounded by the caller's recent limit.</summary>
+        public List<StatementListItem> Recent { get; set; } = new();
     }
 }

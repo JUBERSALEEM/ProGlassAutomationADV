@@ -44,6 +44,7 @@ using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus;
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.Statement.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -583,6 +584,42 @@ namespace ProGlassAutomation.Services.Dashboard.Core
         //  empty ones. Skipping empty months makes a chart silently lie
         //  about the shape of the trend.
         // ═════════════════════════════════════════════════════════════
+
+        // ═════════════════════════════════════════════════════════════
+        //  STATEMENT
+        // ═════════════════════════════════════════════════════════════
+
+        public async Task<StatementMetrics> GetStatementMetricsAsync(
+            int recentLimit = 5, CancellationToken ct = default)
+        {
+            var m = new StatementMetrics();
+
+            // StatementRepository.GetAllAsync is already a SQL-level
+            // projection that skips the FullSnapshotJson / FilterJson blob
+            // columns, so only the columns this dashboard reads are materialised.
+            //
+            // The three sums stay in memory deliberately. SavedStatement maps
+            // TotalInvoiced / TotalOutstanding / OverdueAmount as
+            // [Column(TypeName = "TEXT")], so a server-side SUM would not be a
+            // decimal sum. Moving this into SQL needs a column-type migration
+            // first — recorded in docs/REMEDIATION_PLAN.md rather than guessed
+            // at here.
+            var repo = new StatementRepository();
+            var items = await repo.GetAllAsync(ct).ConfigureAwait(false);
+
+            if (items == null || items.Count == 0) return m;
+
+            m.TotalStatements  = items.Count;
+            m.TotalInvoiced    = items.Sum(i => i.TotalInvoiced);
+            m.TotalOutstanding = items.Sum(i => i.TotalOutstanding);
+            m.OverdueAmount    = items.Sum(i => i.OverdueAmount);
+
+            // GetAllAsync already orders by CreatedAt DESC, so Take(n) is the
+            // newest n without a second sort.
+            m.Recent = items.Take(Math.Max(0, recentLimit)).ToList();
+
+            return m;
+        }
 
         private static List<TimeBucket> BuildMonthlyTrend(
             IEnumerable<(DateTime When, decimal Amount)> source, int months)
