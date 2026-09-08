@@ -408,7 +408,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
                         // If the row is OFF, clear stale auto-targeting so the
                         // Step 6 surface reflects the current detection set.
-                        if (!row.IsActive && row.TargetSelection != null)
+                        // Never fight a restored/manual row — that is how
+                        // Other Charges values were getting reset on Step 5
+                        // snapshot refreshes.
+                        if (!row.HasManualActiveOverride
+                            && !row.IsActive
+                            && row.TargetSelection != null)
                         {
                             foreach (var spec in row.TargetSelection.AvailableSpecs)
                                 spec.IsChecked = false;
@@ -417,7 +422,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                         continue;
                     }
 
-                    if (row.TargetSelection != null)
+                    if (!row.HasManualActiveOverride && row.TargetSelection != null)
                     {
                         var selectedMetric = MetricOption.FindForUnit(row.Unit, desired.MetricKey);
                         if (selectedMetric != null)
@@ -429,7 +434,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                         row.TargetSelection.RaiseComputed();
                     }
 
-                    if (row.IsPolishRow && desired.Polish.HasValue)
+                    if (!row.HasManualActiveOverride
+                        && row.IsPolishRow
+                        && desired.Polish.HasValue)
                     {
                         var subType = row.AvailablePolishSubTypes
                             .FirstOrDefault(x => x.Type == desired.Polish.Value);
@@ -438,7 +445,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     }
 
                     if (TryResolveAutoRate(row.TemplateKey, desired.Specs, out decimal autoRate))
-                        row.Rate = autoRate;
+                        row.ApplySuggestedRate(autoRate);
 
                     row.ApplySuggestedIsActive(desired.Specs.Count > 0);
                 }

@@ -402,6 +402,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     LastSyncedStep4GlassType = group.LastSyncedStep4GlassType ?? "",
                     HasManualStep5SpecOverride = group.HasManualStep5SpecOverride,
                     HasManualStep5GlassTypeOverride = group.HasManualStep5GlassTypeOverride,
+                    HasManualStep5BaseRateOverride = group.HasManualStep5BaseRateOverride,
                     ImportedPrice = group.ImportedPrice,
                     OuterGlassColor = group.OuterGlassColor ?? "",
                     InnerGlassColor = group.InnerGlassColor ?? "",
@@ -461,6 +462,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     IsActive = charge.IsActive,
                     SelectedSourceKey = "",   // legacy field — new saves leave empty
                     Rate = charge.Rate,
+                    MetricQty = charge.MetricQty,
+                    ResultAmount = charge.ResultAmount,
                     PolishSubType = charge.SelectedPolishSubType?.Type.ToString() ?? "",
                     CustomPolishDescription = charge.CustomPolishDescription ?? "",
                     CustomPolishQty = charge.CustomPolishQty
@@ -490,6 +493,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     IsActive = wastage.IsActive,
                     ColorName = wastage.ColorName ?? "",
                     Rate = wastage.Rate,
+                    TotalSqm = wastage.TotalSqm,
+                    ResultAmount = wastage.ResultAmount,
                     IsManuallyAdded = wastage.IsManuallyAdded,
                     UseOptimizationFormula = wastage.UseOptimizationFormula,
                     FormulaPricePerSqm = wastage.FormulaPricePerSqm,
@@ -741,6 +746,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     OuterGlassColor = gSnap.OuterGlassColor ?? "",
                     InnerGlassColor = gSnap.InnerGlassColor ?? "",
                     BaseRate = gSnap.BaseRate,
+                    HasManualStep5BaseRateOverride = gSnap.HasManualStep5BaseRateOverride,
                     SurchargePercent = gSnap.SurchargePercent,
 
                     // PHASE G: restore the quoted sheet. Old invoices have
@@ -808,7 +814,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         if (row == null) continue;
 
                         row.RestoreIsActive(cSnap.IsActive);
-                        row.Rate = cSnap.Rate;
+                        row.RestoreRate(cSnap.Rate);
 
                     // Legacy: SelectedSource restore (pre-Chat 17 invoices)
                     if (!row.IsPolishRow

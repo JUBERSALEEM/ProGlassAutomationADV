@@ -333,16 +333,59 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         // ── Rate ────────────────────────────────────────────────────────────
 
         private decimal _rate;
+        private bool _isApplyingSuggestedRate;
+        private bool _hasManualRateOverride;
+        private bool _hasRateBeenAssigned;
+
+        /// <summary>
+        /// True once the operator (or a restored snapshot) has typed a rate.
+        /// Advanced automation may keep suggesting targets, but must not
+        /// overwrite this number.
+        /// </summary>
+        public bool HasManualRateOverride => _hasManualRateOverride;
+
         public decimal Rate
         {
             get => _rate;
             set
             {
-                if (_rate == value) return;
+                if (_rate == value)
+                {
+                    _hasRateBeenAssigned = true;
+                    return;
+                }
                 _rate = value;
+                if (!_isApplyingSuggestedRate && _hasRateBeenAssigned)
+                    _hasManualRateOverride = true;
+                _hasRateBeenAssigned = true;
                 OnPropertyChanged();
                 Recalculate();
             }
+        }
+
+        /// <summary>
+        /// Applies an automation-suggested rate unless the operator already
+        /// typed one (or a restored invoice brought one back).
+        /// </summary>
+        public void ApplySuggestedRate(decimal rate)
+        {
+            if (_hasManualRateOverride) return;
+
+            _isApplyingSuggestedRate = true;
+            try { Rate = rate; }
+            finally { _isApplyingSuggestedRate = false; }
+        }
+
+        /// <summary>
+        /// Restores a saved rate and treats it as an explicit choice so later
+        /// automation cannot silently overwrite it.
+        /// </summary>
+        public void RestoreRate(decimal rate)
+        {
+            _isApplyingSuggestedRate = true;
+            try { Rate = rate; }
+            finally { _isApplyingSuggestedRate = false; }
+            _hasManualRateOverride = true;
         }
 
         // ── Computed result ─────────────────────────────────────────────────

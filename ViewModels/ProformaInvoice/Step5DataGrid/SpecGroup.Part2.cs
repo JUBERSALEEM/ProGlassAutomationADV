@@ -802,7 +802,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged(nameof(SpecDisplayName));
                 IsSpecDropdownOpen = false;
                 ImportedPrice = 0m;
-                BaseRate = 0m;
+                _isAutoFillingRate = true;
+                try { BaseRate = 0m; }
+                finally { _isAutoFillingRate = false; }
+                HasManualStep5BaseRateOverride = false;
                 RefreshGlassColorsFromSpecName();
 
                 // Re-adopt for the carried name so the sheet chosen in Step 4
@@ -880,7 +883,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     ImportedPrice = match.PricePerSqm;
                 }
 
-                BaseRate = match.PricePerSqm;
+                if (!HasManualStep5BaseRateOverride)
+                {
+                    _isAutoFillingRate = true;
+                    try { BaseRate = match.PricePerSqm; }
+                    finally { _isAutoFillingRate = false; }
+                }
             }
         }
 

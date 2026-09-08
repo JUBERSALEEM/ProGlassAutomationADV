@@ -96,7 +96,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         public void RenderContent(ColumnDescriptor content)
         {
-            content.Item().Element(RenderIndustrialControlPanel);
+            // Match the Step 7 on-screen preview: letterhead then
+            // client/project, specs, charges, totals. The extra industrial
+            // control panel was unique to PDF export.
 
             content.Item().Row(row =>
             {
@@ -140,20 +142,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             content.Item().Element(c => RenderSignatureBlocks(c));
         }
 
-
-        private void RenderIndustrialControlPanel(IContainer container)
-        {
-            int totalQty = _ctx.SpecGroups.Sum(g => g.TotalQty);
-            decimal totalArea = _ctx.SpecGroups.Sum(g => g.TotalArea);
-            PdfChrome.IndustrialDocumentPanel(container,
-                "Commercial estimate control",
-                "Industrial ERP quotation pack: customer, project, glass specifications, charges, VAT and approval sign-off are presented as one controlled commercial record.",
-                ("Status", _ctx.ProformaStatus, DocumentStyle.ColorAccent),
-                ("Specs", _ctx.SpecGroups.Count.ToString(CultureInfo.InvariantCulture), null),
-                ("Pieces", totalQty.ToString(CultureInfo.InvariantCulture), null),
-                ("Total SQM", totalArea.ToString("0.000", CultureInfo.InvariantCulture), DocumentStyle.ColorAccent),
-                ("Grand Total", $"AED {_ctx.GrandTotal:N2}", DocumentStyle.ColorSuccess));
-        }
 
         // ════════════════════════════════════════════════════════════════════
         //  SECTION RENDERERS
@@ -568,7 +556,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 var templatesByKey = PredefinedChargeTemplates.GetAll()
                     .ToDictionary(t => t.Key, t => t);
 
-                // Predefined charges
+                // Predefined charges — prefer the live Step 6 amounts captured
+                // at export time so the PDF matches the on-screen preview.
+                // Legacy snapshots without MetricQty/ResultAmount still
+                // recompute (previous behaviour).
                 foreach (var c in snapshot.OtherCharges.PredefinedCharges
                     .Where(c => c.IsActive))
                 {
@@ -577,13 +568,30 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     string unitLabel = template?.Unit.ToString().ToUpper() ?? "QTY";
 
                     decimal metricQty;
+                    decimal amount;
 
-                    // BUG-23: DELIVERY quick-hack preserved — documented tech debt.
-                    // Proper fix in Chat 8 (PER_ROUND source + editable qty).
-                    if (c.TemplateKey == "DELIVERY")
+                    if (c.MetricQty.HasValue && c.ResultAmount.HasValue)
                     {
+                        metricQty = c.MetricQty.Value;
+                        amount = c.ResultAmount.Value;
+                        if (c.TemplateKey == "DELIVERY")
+                            unitLabel = "TRIP";
+                        else if (c.TemplateKey == "POLISH_MATCHED_LAM")
+                            friendlyName = "Polish — same-glass laminate (2×)";
+                        else if (c.TemplateKey == "POLISH"
+                              && !string.IsNullOrWhiteSpace(c.CustomPolishDescription)
+                              && c.PolishSubType == "Custom")
+                            friendlyName = $"Polish — {c.CustomPolishDescription}";
+                        else if (c.TemplateKey == "POLISH"
+                              && !string.IsNullOrWhiteSpace(c.PolishSubType))
+                            friendlyName = $"Polish — {c.PolishSubType}";
+                    }
+                    else if (c.TemplateKey == "DELIVERY")
+                    {
+                        // BUG-23: DELIVERY quick-hack preserved — documented tech debt.
                         metricQty = 1m;
                         unitLabel = "TRIP";
+                        amount = Math.Round(metricQty * c.Rate, 2);
                     }
                     else if (c.TemplateKey == "POLISH"
                           || c.TemplateKey == "POLISH_MATCHED_LAM")
@@ -608,6 +616,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             else if (!string.IsNullOrWhiteSpace(c.PolishSubType))
                                 friendlyName = $"Polish — {c.PolishSubType}";
                         }
+                        amount = Math.Round(metricQty * c.Rate, 2);
                     }
                     else
                     {
@@ -620,9 +629,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                                 snapshot.SpecGroups,
                                 sourceKey,
                                 c.CheckedSpecGroupNumbers);
+                        amount = Math.Round(metricQty * c.Rate, 2);
                     }
-
-                    decimal amount = Math.Round(metricQty * c.Rate, 2);
 
                     ctx.OtherCharges.Add(new PiChargeLine
                     {
@@ -635,14 +643,25 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     });
                 }
 
-                // Wastages — uses shared calculator
+                // Wastages — prefer the live Step 6 result (covers the
+                // optimization formula). Legacy snapshots recompute.
                 foreach (var w in snapshot.OtherCharges.Wastages
                     .Where(w => w.IsActive))
                 {
-                    // BUG-21: shared calculator
-                    decimal wastageQty = ProformaChargeMetricsCalculator
-                        .ComputeWastageQty(snapshot.SpecGroups, w.CheckedSourceKeys);
-                    decimal wastageAmount = Math.Round(wastageQty * w.Rate, 2);
+                    decimal wastageQty;
+                    decimal wastageAmount;
+
+                    if (w.TotalSqm.HasValue && w.ResultAmount.HasValue)
+                    {
+                        wastageQty = w.TotalSqm.Value;
+                        wastageAmount = w.ResultAmount.Value;
+                    }
+                    else
+                    {
+                        wastageQty = ProformaChargeMetricsCalculator
+                            .ComputeWastageQty(snapshot.SpecGroups, w.CheckedSourceKeys);
+                        wastageAmount = Math.Round(wastageQty * w.Rate, 2);
+                    }
 
                     ctx.OtherCharges.Add(new PiChargeLine
                     {

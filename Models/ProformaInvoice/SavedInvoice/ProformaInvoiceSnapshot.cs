@@ -292,6 +292,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string LastSyncedStep4GlassType { get; set; } = "";
         public bool HasManualStep5SpecOverride { get; set; }
         public bool HasManualStep5GlassTypeOverride { get; set; }
+        public bool HasManualStep5BaseRateOverride { get; set; }
 
         public string OuterGlassColor { get; set; } = "";
         public string InnerGlassColor { get; set; } = "";
@@ -420,6 +421,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string SelectedSourceKey { get; set; } = "";
 
         public decimal Rate { get; set; }
+
+        /// <summary>
+        /// Live Step 6 quantity at save/export time. Null on legacy snapshots
+        /// so PDF/Excel fall back to recomputing from specs.
+        /// </summary>
+        public decimal? MetricQty { get; set; }
+
+        /// <summary>
+        /// Live Step 6 result at save/export time. Null on legacy snapshots.
+        /// When present, Step 7 PDF must print this instead of recomputing
+        /// a different amount from the charge calculator.
+        /// </summary>
+        public decimal? ResultAmount { get; set; }
 
         /// <summary>
         /// BUG-03: Valid values: "AllSidePolish", "AllSidePolishAsPerDwg",

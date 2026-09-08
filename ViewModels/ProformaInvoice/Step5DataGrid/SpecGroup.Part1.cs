@@ -41,6 +41,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         // assignments, otherwise it can clear/carry the incoming spec.
         private bool _isSynchronizingFromStep4;
 
+        // Catalogue auto-fill / type-switch reset writes BaseRate without
+        // that write counting as a typed override.
+        private bool _isAutoFillingRate;
+
         // Async catalogue reads are deliberately fire-and-forget. A monotonic
         // token prevents an older type/repository read from adding stale specs
         // after the user (or the Step 4 coordinator) has selected another type.
@@ -101,6 +105,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 if (_baseRate == value) return;
                 _baseRate = value;
+                // A Step 4 handoff / catalogue auto-fill / restore must be
+                // able to write the quoted rate without that write itself
+                // counting as a typed override. The Step 5 box is the only
+                // path that owns the field from then on.
+                if (!_isSynchronizingFromStep4 && !_isAutoFillingRate)
+                    HasManualStep5BaseRateOverride = true;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SurchargeRate));
                 UpdateAllRowRates();
@@ -145,6 +155,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         /// </summary>
         public bool HasManualStep5SpecOverride { get; set; }
         public bool HasManualStep5GlassTypeOverride { get; set; }
+
+        /// <summary>
+        /// True once the operator has typed a Step 5 base price that differs
+        /// from the last Step 4 handoff. Later Continue / Step 9 snapshot
+        /// refreshes must keep that price instead of silently restoring the
+        /// estimated rate.
+        /// </summary>
+        public bool HasManualStep5BaseRateOverride { get; set; }
 
         private string _outerGlassColor = "";
         /// <summary>Step 4 outer / laminated-outer color for this spec.</summary>
@@ -851,25 +869,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     SelectedSpecName = snapshot.GeneratedSpecName;
 
                 ApplyStep4PaneAndSheetMetadata(snapshot, glassType);
+
+                // Keep provenance inside the atomic handoff. Besides avoiding a
+                // transient type/name mismatch, this makes any future caller of
+                // this public method retain Step 4 ownership on the next refresh.
+                LastSyncedStep4SpecName = string.IsNullOrWhiteSpace(snapshot.GeneratedSpecName)
+                    ? string.Empty
+                    : snapshot.GeneratedSpecName;
+                LastSyncedStep4GlassType = glassType;
+
+                // A typed Step 5 base price is operator-owned even when the
+                // spec/type are still Step-4-owned. Step 9 live recalc used
+                // to re-apply this snapshot and wipe that price.
+                if (snapshot.EstimatedRatePerSqm > 0m
+                    && !HasManualStep5BaseRateOverride)
+                {
+                    BaseRate = snapshot.EstimatedRatePerSqm;
+                }
             }
             finally
             {
                 _isSynchronizingFromStep4 = false;
             }
 
-            // Keep provenance inside the atomic handoff. Besides avoiding a
-            // transient type/name mismatch, this makes any future caller of
-            // this public method retain Step 4 ownership on the next refresh.
-            LastSyncedStep4SpecName = string.IsNullOrWhiteSpace(snapshot.GeneratedSpecName)
-                ? string.Empty
-                : snapshot.GeneratedSpecName;
-            LastSyncedStep4GlassType = glassType;
-
-            if (snapshot.EstimatedRatePerSqm > 0m)
+            if (snapshot.EstimatedRatePerSqm > 0m
+                && (incomingSpecChangesSelection || ImportedPrice <= 0m))
             {
-                BaseRate = snapshot.EstimatedRatePerSqm;
-                if (incomingSpecChangesSelection || ImportedPrice <= 0m)
-                    ImportedPrice = snapshot.EstimatedRatePerSqm;
+                ImportedPrice = snapshot.EstimatedRatePerSqm;
             }
         }
 
@@ -877,22 +903,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             Step4PricingSnapshot snapshot,
             string glassType)
         {
-            // Always clear old provenance first. A group can move from DGU to
-            // SGU/LAM and must never retain a previous inner sheet or U-insert.
-            OuterSheetWidthMm = 0;
-            OuterSheetHeightMm = 0;
-            InnerSheetWidthMm = 0;
-            InnerSheetHeightMm = 0;
-            OuterSheetPricePerSqm = 0m;
-            InnerSheetPricePerSqm = 0m;
-            UInsertPricePerSqm = 0m;
-            // PHASE 1-AUDIT: production-rate provenance resets alongside —
-            // a build switch must never leak section 1's spacer rate into
-            // section 2's SGU group.
-            Step4SpacerPricePerSqm = null;
-            Step4InterlayerCostPerSqm = null;
-            Step4CuttingCostPerSqm = null;
-            Step4TemperingCostPerSqm = null;
+            // Do NOT blank every field to 0 before writing the new values.
+            // Setters fire PropertyChanged on 25 → 0 → 25, and Step 6
+            // advanced automation treats that as a real sheet-price change,
+            // re-running ApplyAdvancedSuggestions and resetting operator
+            // Other Charges rates / targets. Assign the incoming values
+            // directly; unused fields for the new build are cleared once.
 
             switch (glassType)
             {
@@ -904,6 +920,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     OuterSheetWidthMm = sgu.SheetWidthMm;
                     OuterSheetHeightMm = sgu.SheetHeightMm;
                     OuterSheetPricePerSqm = sgu.BasePricePerSqm;
+                    InnerSheetWidthMm = 0;
+                    InnerSheetHeightMm = 0;
+                    InnerSheetPricePerSqm = 0m;
+                    UInsertPricePerSqm = 0m;
+                    Step4SpacerPricePerSqm = null;
+                    Step4InterlayerCostPerSqm = null;
                     Step4CuttingCostPerSqm = sgu.CuttingCostPerSqm;
                     Step4TemperingCostPerSqm = sgu.TemperingCostPerSqm;
                     break;
@@ -924,6 +946,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         ? dgu.UInsertPricePerSqm
                         : 0m;
                     Step4SpacerPricePerSqm = dgu.SpacerPrice;
+                    Step4InterlayerCostPerSqm = null;
+                    Step4CuttingCostPerSqm = null;
+                    Step4TemperingCostPerSqm = null;
                     break;
                 }
 
@@ -938,9 +963,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     InnerSheetHeightMm = lam.InnerSheetHeightMm;
                     OuterSheetPricePerSqm = lam.OuterBasePrice;
                     InnerSheetPricePerSqm = lam.InnerBasePrice;
+                    UInsertPricePerSqm = 0m;
                     // LAM's interlayer is the PVB material rate; cutting and
                     // tempering are stored as the summed pane-pair rates —
                     // exactly the quantities Step 9's LAM branch adds.
+                    Step4SpacerPricePerSqm = null;
                     Step4InterlayerCostPerSqm = lam.PvbMaterialRate;
                     Step4CuttingCostPerSqm =
                         lam.OuterCuttingCost + lam.InnerCuttingCost;
@@ -959,10 +986,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     // lam inner values independently from this same snapshot.
                     OuterGlassColor = dguLam.LamOuterColor ?? "";
                     InnerGlassColor = dguLam.LamInnerColor ?? "";
+                    OuterSheetWidthMm = 0;
+                    OuterSheetHeightMm = 0;
+                    InnerSheetWidthMm = 0;
+                    InnerSheetHeightMm = 0;
                     OuterSheetPricePerSqm = dguLam.OuterBasePrice;
                     InnerSheetPricePerSqm = dguLam.LamInnerBasePrice > 0m
                         ? dguLam.LamInnerBasePrice
                         : dguLam.LamOuterBasePrice;
+                    UInsertPricePerSqm = 0m;
                     // Interlayer is costed at the laminator BUY price — the
                     // sell spread belongs to the quoted rate, not to cost.
                     Step4SpacerPricePerSqm = dguLam.SpacerPrice;
@@ -983,6 +1015,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     // from the previously selected build on screen.
                     OuterGlassColor = "";
                     InnerGlassColor = "";
+                    OuterSheetWidthMm = 0;
+                    OuterSheetHeightMm = 0;
+                    InnerSheetWidthMm = 0;
+                    InnerSheetHeightMm = 0;
+                    OuterSheetPricePerSqm = 0m;
+                    InnerSheetPricePerSqm = 0m;
+                    UInsertPricePerSqm = 0m;
+                    Step4SpacerPricePerSqm = null;
+                    Step4InterlayerCostPerSqm = null;
+                    Step4CuttingCostPerSqm = null;
+                    Step4TemperingCostPerSqm = null;
                     break;
             }
         }
@@ -1053,6 +1096,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         {
             try
             {
+                // Step 4 snapshot apply writes pane/sheet metadata itself.
+                // Adopting from the registry here would zero every sheet
+                // field first and fire the Step 6 reset cascade.
+                if (_isSynchronizingFromStep4) return;
+
                 // A miss is normal (spec from an earlier session). Reset to
                 // zero so Step 9 / Step 6 fall back honestly instead of
                 // inheriting the previous spec's sheet or U-Insert rate.

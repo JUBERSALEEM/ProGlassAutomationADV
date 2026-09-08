@@ -110,14 +110,17 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.Contains("HasManualStep5SpecOverride", specGroup);
             Assert.Contains("HasManualStep5GlassTypeOverride", specGroup);
+            Assert.Contains("HasManualStep5BaseRateOverride", specGroup);
             Assert.Contains("_isSynchronizingFromStep4", specGroup);
             Assert.Contains("ApplyStep4PricingSnapshot", specGroup);
             Assert.Contains("Specifications = _specs", grid);
 
             Assert.Contains("HasManualStep5SpecOverride", snapshot);
             Assert.Contains("HasManualStep5GlassTypeOverride", snapshot);
+            Assert.Contains("HasManualStep5BaseRateOverride", snapshot);
             Assert.Contains("ImportedPrice", snapshot);
             Assert.Contains("HasManualStep5SpecOverride = group.HasManualStep5SpecOverride", mapper);
+            Assert.Contains("HasManualStep5BaseRateOverride = group.HasManualStep5BaseRateOverride", mapper);
             Assert.Contains("Specifications = dataGrid.SpecificationsRepository", mapper);
         }
 
