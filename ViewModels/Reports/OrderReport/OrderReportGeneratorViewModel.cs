@@ -937,19 +937,95 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             return rows;
         }
 
-        /// <summary>Exports the Step 5 specifications table as CSV or Excel.</summary>
+        private List<OrderReportStep9ExportRow> BuildGeneratorExportRows()
+        {
+            var rows = new List<OrderReportStep9ExportRow>();
+            if (_lastBundle == null) return rows;
+
+            foreach (var section in _lastBundle.Sections)
+            {
+                foreach (var group in section.SpecRows.GroupBy(r => r.GroupNumber).OrderBy(g => g.Key))
+                {
+                    var first = group.First();
+                    string spec = !string.IsNullOrWhiteSpace(first.SpecName) ? first.SpecName
+                                : !string.IsNullOrWhiteSpace(first.GroupName) ? first.GroupName
+                                : first.GlassType;
+                    rows.Add(new OrderReportStep9ExportRow
+                    {
+                        Section = "PI SPECIFICATION ROWS",
+                        ProformaId = section.Header.ProformaId,
+                        Spec = $"SPEC {first.GroupNumber}",
+                        Item = spec,
+                        Basis = $"Qty {group.Sum(r => r.Qty):N0} · SQM {group.Sum(r => r.TotalSqm):N3}",
+                        SheetOrTarget = "Step 5 order line",
+                        Amount = group.Sum(r => r.Amount),
+                        Detail = $"Delivered {group.Sum(r => r.DeliveredQty):N0}; balance {group.Sum(r => r.BalanceQty):N0}."
+                    });
+                }
+
+                var step9 = section.Step9;
+                if (step9?.HasData == true)
+                {
+                    rows.Add(new OrderReportStep9ExportRow
+                    {
+                        Section = "STEP 9 OVERVIEW",
+                        ProformaId = section.Header.ProformaId,
+                        Spec = "ALL",
+                        Item = "Material + production profitability",
+                        Basis = $"Revenue AED {step9.NetExVat:N2}; wastage {step9.WastagePercent:0.#}%",
+                        SheetOrTarget = $"Glass AED {step9.TotalGlassCost:N2}; production AED {step9.TotalProductionCost:N2}",
+                        Amount = step9.Profit,
+                        Detail = $"Margin {step9.MarginPercent:0.#}%; target status {step9.TargetStatus}; {string.Join(" | ", step9.Recommendations)}"
+                    });
+
+                    foreach (var r in step9.CostRows)
+                    {
+                        rows.Add(new OrderReportStep9ExportRow
+                        {
+                            Section = r.Section,
+                            ProformaId = section.Header.ProformaId,
+                            Spec = r.SpecNumber > 0 ? $"SPEC {r.SpecNumber}" : "ALL",
+                            Item = $"{r.Kind}: {r.Description}",
+                            Basis = $"Qty {r.Quantity:0.##}; rate {r.PricePerSqm:N2}/{r.UnitLabel}",
+                            SheetOrTarget = $"{r.SheetDisplay}; {r.SheetSource}",
+                            Amount = r.Amount,
+                            Detail = r.SpecName
+                        });
+                    }
+
+                    foreach (var r in step9.TargetRows)
+                    {
+                        rows.Add(new OrderReportStep9ExportRow
+                        {
+                            Section = "STEP 9 SPEC TARGET / QUOTE BASIS",
+                            ProformaId = section.Header.ProformaId,
+                            Spec = r.SpecNumber > 0 ? $"SPEC {r.SpecNumber}" : "ALL",
+                            Item = r.SpecName,
+                            Basis = $"Base {r.BasePricePerSqm:N2}/m²; outer {r.OuterGlassRatePerSqm:N2}; inner {r.InnerGlassRatePerSqm:N2}; ASP {r.AspRatePerSqm:N2}",
+                            SheetOrTarget = $"Given {r.GivenPricePerSqm:N2}/m²; target {r.FinalRequiredTargetPerSqm:N2}/m²; diff {r.DifferencePerSqm:N2}/m²",
+                            Amount = r.FinalRequiredTargetPerSqm * r.AreaSqm,
+                            Detail = $"{r.Status}; {r.FormulaText}; {string.Join(" | ", r.Warnings)}"
+                        });
+                    }
+                }
+            }
+
+            return rows;
+        }
+
+        /// <summary>Exports the report generator data as CSV or Excel, including Step 9 sections when saved with the PI.</summary>
         private async Task ExportSpecsAsync(ExportFormat format)
         {
-            var rows = BuildSpecExportRows();
-            string title = _lastBundle?.Title ?? "Order Report Specifications";
+            var rows = BuildGeneratorExportRows();
+            string title = _lastBundle?.Title ?? "Order Report Generator";
 
             try
             {
                 ExportResult result = format == ExportFormat.Csv
                     ? await ReportingExportService.ExportCsvAsync(
-                        rows, title, OrderReportSpecExportRow.Headers, r => r.ToCsvRow())
+                        rows, title, OrderReportStep9ExportRow.Headers, r => r.ToCsvRow())
                     : await ReportingExportService.ExportExcelAsync(
-                        rows, title, OrderReportSpecExportRow.Headers, r => r.ToExcelRow());
+                        rows, title, OrderReportStep9ExportRow.Headers, r => r.ToExcelRow());
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";

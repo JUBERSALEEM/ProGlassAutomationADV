@@ -43,6 +43,9 @@ namespace ProGlassAutomation.Models.OrderReport
         /// <summary>Real attachment counts + missing-document detection.</summary>
         public OrderReportAttachmentCompleteness Attachments { get; set; } = new();
 
+        /// <summary>Step 9 Profit & Loss / target-price analysis captured from the saved PI snapshot.</summary>
+        public OrderReportStep9Analysis Step9 { get; set; } = new();
+
         /// <summary>Cross-PI/DN/TI line reconciliation (reuses existing engine).</summary>
         public OrderReconciliationSummary? Reconciliation { get; set; }
 
@@ -54,6 +57,7 @@ namespace ProGlassAutomation.Models.OrderReport
 
         public bool HasDeliveryNotes => DeliveryNotes.Count > 0;
         public bool HasTaxInvoices => TaxInvoices.Count > 0;
+        public bool HasStep9 => Step9?.HasData == true;
     }
 
     // ═════════════════════════════════════════════════════════════════════
@@ -182,6 +186,88 @@ namespace ProGlassAutomation.Models.OrderReport
         }
 
         public string CompositeKey => $"{GroupNumber}|{SerialNumber}";
+    }
+
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  STEP 9 — P&L / target profitability carried into Report Generator
+    // ═════════════════════════════════════════════════════════════════════
+
+    public class OrderReportStep9Analysis
+    {
+        public bool HasData => CostRows.Count > 0 || TargetRows.Count > 0;
+
+        public decimal NetExVat { get; set; }
+        public decimal TotalGlassCost { get; set; }
+        public decimal TotalProductionCost { get; set; }
+        public decimal Profit { get; set; }
+        public decimal MarginPercent { get; set; }
+        public decimal OverallMarginPercent { get; set; }
+        public decimal WastagePercent { get; set; }
+        public bool CostAtSellingPrice { get; set; }
+        public DateTime? ComputedAtUtc { get; set; }
+        public string GlassPriceStamp { get; set; } = "";
+
+        public decimal TargetTotalGivenValue { get; set; }
+        public decimal TargetTotalRequiredValue { get; set; }
+        public decimal TargetTotalDifferenceValue { get; set; }
+        public decimal TargetAverageBasePricePerSqm { get; set; }
+        public decimal? TargetExtraProfitMarginPercent { get; set; }
+        public decimal? TargetMarginAgainstTargetPercent { get; set; }
+        public string TargetStatus { get; set; } = "";
+        public string TargetUInsertTreatmentSummary { get; set; } = "";
+        public string TargetCalculationVersion { get; set; } = "";
+
+        public List<OrderReportStep9CostRow> CostRows { get; set; } = new();
+        public List<OrderReportStep9TargetRow> TargetRows { get; set; } = new();
+        public List<string> Recommendations { get; set; } = new();
+        public List<string> Warnings { get; set; } = new();
+
+        public decimal TotalCost => TotalGlassCost + TotalProductionCost;
+    }
+
+    public class OrderReportStep9CostRow
+    {
+        public string Section { get; set; } = "";
+        public int SpecNumber { get; set; }
+        public string SpecName { get; set; } = "";
+        public string Kind { get; set; } = "";
+        public string Description { get; set; } = "";
+        public int SheetWidthMm { get; set; }
+        public int SheetHeightMm { get; set; }
+        public decimal SheetSqm { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal PricePerSqm { get; set; }
+        public string UnitLabel { get; set; } = "SQM";
+        public decimal Amount { get; set; }
+        public string SheetSource { get; set; } = "";
+
+        public string SheetDisplay => SheetWidthMm > 0 && SheetHeightMm > 0
+            ? $"{SheetWidthMm} × {SheetHeightMm} · {SheetSqm:0.####} SQM"
+            : "—";
+    }
+
+    public class OrderReportStep9TargetRow
+    {
+        public int SpecNumber { get; set; }
+        public string SpecName { get; set; } = "";
+        public string GlassTypeCode { get; set; } = "";
+        public string BuildType { get; set; } = "";
+        public decimal AreaSqm { get; set; }
+        public decimal GivenPricePerSqm { get; set; }
+        public decimal BasePricePerSqm { get; set; }
+        public decimal OuterGlassRatePerSqm { get; set; }
+        public decimal InnerGlassRatePerSqm { get; set; }
+        public decimal ThirdGlassRatePerSqm { get; set; }
+        public decimal AspRatePerSqm { get; set; }
+        public decimal ProcessingRatePerSqm { get; set; }
+        public decimal FinalRequiredTargetPerSqm { get; set; }
+        public decimal DifferencePerSqm { get; set; }
+        public decimal? ExtraProfitMarginPercent { get; set; }
+        public decimal? MarginAgainstTargetPercent { get; set; }
+        public string Status { get; set; } = "";
+        public string FormulaText { get; set; } = "";
+        public List<string> Warnings { get; set; } = new();
     }
 
     // ═════════════════════════════════════════════════════════════════════

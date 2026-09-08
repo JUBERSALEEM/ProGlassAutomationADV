@@ -122,6 +122,7 @@ namespace ProGlassAutomation.Services.OrderReport
                         snapshot.Header.CompanyTrn = piSnapshot.Company?.CompanyTrn ?? "";
                         snapshot.Header.Salesman = piSnapshot.Client?.SalesRepresentative ?? "";
                         snapshot.Header.PreparedBy = piSnapshot.PreparedBy?.PreparedByName ?? "";
+                        snapshot.Step9 = BuildStep9Analysis(piSnapshot);
                     }
                 }
 
@@ -383,6 +384,116 @@ namespace ProGlassAutomation.Services.OrderReport
         // ═════════════════════════════════════════════════════════════════
         //  PRIVATE
         // ═════════════════════════════════════════════════════════════════
+
+        private static OrderReportStep9Analysis BuildStep9Analysis(ProformaInvoiceSnapshot pi)
+        {
+            var result = new OrderReportStep9Analysis();
+            var pnl = pi?.ProfitLoss;
+            if (pnl == null) return result;
+
+            result.NetExVat = pnl.NetExVat;
+            result.TotalGlassCost = pnl.TotalGlassCost;
+            result.TotalProductionCost = pnl.TotalProductionCost;
+            result.Profit = pnl.Profit;
+            result.MarginPercent = pnl.MarginPercent;
+            result.OverallMarginPercent = pnl.OverallMarginPercent;
+            result.WastagePercent = pnl.WastagePercent;
+            result.CostAtSellingPrice = pnl.CostAtSellingPrice;
+            result.ComputedAtUtc = pnl.ComputedAtUtc;
+            result.GlassPriceStamp = pnl.GlassPriceStamp ?? "";
+            result.TargetTotalGivenValue = pnl.TargetTotalGivenValue;
+            result.TargetTotalRequiredValue = pnl.TargetTotalRequiredValue;
+            result.TargetTotalDifferenceValue = pnl.TargetTotalDifferenceValue;
+            result.TargetAverageBasePricePerSqm = pnl.TargetAverageBasePricePerSqm;
+            result.TargetExtraProfitMarginPercent = pnl.TargetExtraProfitMarginPercent;
+            result.TargetMarginAgainstTargetPercent = pnl.TargetMarginAgainstTargetPercent;
+            result.TargetStatus = pnl.TargetStatus ?? "";
+            result.TargetUInsertTreatmentSummary = pnl.TargetUInsertTreatmentSummary ?? "";
+            result.TargetCalculationVersion = pnl.TargetCalculationVersion ?? "";
+
+            foreach (var row in pnl.Rows ?? new List<ProfitLossRowSnapshot>())
+            {
+                string kind = row.Kind ?? "";
+                string section = kind.Equals("Glass", StringComparison.OrdinalIgnoreCase)
+                    ? "STEP 9 · SHEET MATERIAL COST"
+                    : kind.Equals("Spacer", StringComparison.OrdinalIgnoreCase)
+                        ? "STEP 9 · SPACER / PRODUCTION SERVICES"
+                        : "STEP 9 · PRODUCTION / ADD-ONS";
+
+                result.CostRows.Add(new OrderReportStep9CostRow
+                {
+                    Section = section,
+                    SpecNumber = row.SpecNumber,
+                    SpecName = row.SpecName ?? "",
+                    Kind = kind,
+                    Description = row.Description ?? "",
+                    SheetWidthMm = row.SheetWidthMm,
+                    SheetHeightMm = row.SheetHeightMm,
+                    SheetSqm = row.SheetSqm,
+                    Quantity = row.Quantity,
+                    PricePerSqm = row.PricePerSqm,
+                    UnitLabel = row.UnitLabel ?? "SQM",
+                    Amount = row.Amount,
+                    SheetSource = row.SheetSource ?? ""
+                });
+            }
+
+            foreach (var target in pnl.SpecTargets ?? new List<SpecTargetSnapshot>())
+            {
+                result.TargetRows.Add(new OrderReportStep9TargetRow
+                {
+                    SpecNumber = target.SpecNumber,
+                    SpecName = target.SpecName ?? "",
+                    GlassTypeCode = target.GlassTypeCode ?? "",
+                    BuildType = target.BuildType ?? "",
+                    AreaSqm = target.AreaSqm,
+                    GivenPricePerSqm = target.GivenPricePerSqm,
+                    BasePricePerSqm = target.BasePricePerSqm,
+                    OuterGlassRatePerSqm = target.OuterGlassRatePerSqm,
+                    InnerGlassRatePerSqm = target.InnerGlassRatePerSqm,
+                    ThirdGlassRatePerSqm = target.ThirdGlassRatePerSqm,
+                    AspRatePerSqm = target.AspRatePerSqm,
+                    ProcessingRatePerSqm = target.ProcessingRatePerSqm,
+                    FinalRequiredTargetPerSqm = target.FinalRequiredTargetPerSqm,
+                    DifferencePerSqm = target.DifferencePerSqm,
+                    ExtraProfitMarginPercent = target.ExtraProfitMarginPercent,
+                    MarginAgainstTargetPercent = target.MarginAgainstTargetPercent,
+                    Status = target.Status ?? "",
+                    FormulaText = target.FormulaText ?? "",
+                    Warnings = target.Warnings ?? new List<string>()
+                });
+            }
+
+            if (!result.HasData)
+            {
+                result.Warnings.Add("Step 9 P&L was not saved with this PI; open PI Step 9 and recalculate before generating financial reports.");
+                return result;
+            }
+
+            result.Recommendations.Add(BuildStep9Recommendation(result));
+            if (result.TargetRows.Any(r => r.Warnings.Count > 0))
+                result.Warnings.Add("One or more Step 9 target specifications have warnings; review target cards before approval.");
+            if (result.CostRows.Any(r => r.SheetSource.IndexOf("MISSING", StringComparison.OrdinalIgnoreCase) >= 0))
+                result.Warnings.Add("One or more Step 9 material rows are missing an authoritative Step 4 selected sheet.");
+            if (pnl.TargetWarnings != null)
+                result.Warnings.AddRange(pnl.TargetWarnings.Where(w => !string.IsNullOrWhiteSpace(w)));
+
+            return result;
+        }
+
+        private static string BuildStep9Recommendation(OrderReportStep9Analysis step9)
+        {
+            if (step9 == null || !step9.HasData)
+                return "Run Step 9 before approval so material, spacer and target margins are available.";
+
+            if (step9.Profit < 0m)
+                return $"Loss warning: Step 9 shows AED {Math.Abs(step9.Profit):N2} loss. Recheck given price, sheet selection, wastage and production add-ons.";
+
+            if (step9.TargetMarginAgainstTargetPercent.HasValue && step9.TargetMarginAgainstTargetPercent.Value < 0m)
+                return $"Below target: margin against target is {step9.TargetMarginAgainstTargetPercent.Value:0.##}%. Review base price or production charges before release.";
+
+            return $"Step 9 appears commercially acceptable: profit AED {step9.Profit:N2}, margin {step9.MarginPercent:0.#}%, target status {step9.TargetStatus}.";
+        }
 
         private static OrderReportTotals BuildTotals(
             OrderReportSnapshot snapshot,

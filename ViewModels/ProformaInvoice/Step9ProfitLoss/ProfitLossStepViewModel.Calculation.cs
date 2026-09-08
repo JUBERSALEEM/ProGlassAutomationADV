@@ -512,9 +512,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 // by specification name. A recalculation fires on every edit
                 // now, so discarding them would make the field unusable —
                 // the value would vanish while being typed next to it.
-                var previousQuotes = SpecGroupsView
-                    .Where(g => g.QuotedRatePerSqm > 0m)
-                    .ToDictionary(g => g.SpecName, g => g.QuotedRatePerSqm,
+                var previousQuotesByNumber = SpecGroupsView
+                    .Where(g => g.SpecNumber > 0 && g.QuotedRatePerSqm > 0m)
+                    .GroupBy(g => g.SpecNumber)
+                    .ToDictionary(g => g.Key, g => g.Last().QuotedRatePerSqm);
+                var previousQuotesByName = SpecGroupsView
+                    .Where(g => g.QuotedRatePerSqm > 0m && !string.IsNullOrWhiteSpace(g.SpecName))
+                    .GroupBy(g => g.SpecName, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(g => g.Key, g => g.Last().QuotedRatePerSqm,
                                   StringComparer.OrdinalIgnoreCase);
 
                 SpecGroupsView.Clear();
@@ -540,8 +545,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                     foreach (var r in bySpec) specGroup.Rows.Add(r);
 
-                    if (previousQuotes.TryGetValue(specGroup.SpecName, out decimal q))
+                    if (previousQuotesByNumber.TryGetValue(specGroup.SpecNumber, out decimal q)
+                        || previousQuotesByName.TryGetValue(specGroup.SpecName, out q))
+                    {
                         specGroup.QuotedRatePerSqm = q;
+                    }
 
                     specGroup.NotifyTotalsChanged();
                     SpecGroupsView.Add(specGroup);

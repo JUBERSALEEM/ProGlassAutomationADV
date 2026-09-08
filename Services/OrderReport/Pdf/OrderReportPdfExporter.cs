@@ -212,7 +212,15 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                     .FontSize(10).SemiBold();
                 col.Item().Element(c => RenderSpecTable(c, s));
 
-                // ── 3. Delivery notes ─────────────────────────────────────
+                // ── 3. Step 9 P&L / production cost ─────────────────────
+                if (s.HasStep9)
+                {
+                    col.Item().PaddingTop(10).Text("Step 9 — Material, Spacer Production and Target Analysis")
+                        .FontSize(10).SemiBold();
+                    col.Item().Element(c => RenderStep9(c, s.Step9));
+                }
+
+                // ── 4. Delivery notes ─────────────────────────────────────
                 if (s.DeliveryNotes.Count > 0)
                 {
                     col.Item().PaddingTop(10).Text("Delivery Notes")
@@ -234,6 +242,47 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
                 col.Item().PaddingTop(8).Element(c => RenderCompleteness(c, s));
 
                 col.Item().PaddingTop(12).LineHorizontal(1).LineColor(LINE);
+            });
+        }
+
+        private static void RenderStep9(IContainer container, OrderReportStep9Analysis step9)
+        {
+            container.Column(col =>
+            {
+                col.Item().Background(SURFACE).Padding(8).Column(card =>
+                {
+                    card.Item().Text($"Overview: revenue AED {step9.NetExVat:N2} · glass AED {step9.TotalGlassCost:N2} · production AED {step9.TotalProductionCost:N2} · profit AED {step9.Profit:N2} · margin {step9.MarginPercent:0.#}%")
+                        .FontSize(8).SemiBold();
+                    card.Item().Text($"Target: given AED {step9.TargetTotalGivenValue:N2} · required AED {step9.TargetTotalRequiredValue:N2} · difference AED {step9.TargetTotalDifferenceValue:N2} · status {step9.TargetStatus} · U-insert {step9.TargetUInsertTreatmentSummary}")
+                        .FontSize(8).FontColor(MUTED);
+                });
+
+                foreach (var group in step9.CostRows.GroupBy(r => r.Section).OrderBy(g => g.Key))
+                {
+                    col.Item().PaddingTop(6).Text(group.Key).FontSize(8).SemiBold().FontColor(ACCENT);
+                    foreach (var row in group.Take(18))
+                    {
+                        col.Item().BorderBottom(0.5f).BorderColor(LINE).PaddingVertical(2).Text(
+                            $"Spec {row.SpecNumber} · {row.Kind} · {row.Description} · sheet {row.SheetDisplay} · qty {row.Quantity:0.##} · rate {row.PricePerSqm:N2}/{row.UnitLabel} · AED {row.Amount:N2} · {row.SheetSource}")
+                            .FontSize(7).FontColor(DARK);
+                    }
+                    if (group.Count() > 18)
+                        col.Item().Text($"+{group.Count() - 18} more Step 9 row(s) in saved data/export.").FontSize(7).FontColor(MUTED);
+                }
+
+                if (step9.TargetRows.Count > 0)
+                {
+                    col.Item().PaddingTop(6).Text("STEP 9 · SPEC TARGET / QUOTE BASIS").FontSize(8).SemiBold().FontColor(ACCENT);
+                    foreach (var row in step9.TargetRows.OrderBy(r => r.SpecNumber).Take(12))
+                    {
+                        col.Item().BorderBottom(0.5f).BorderColor(LINE).PaddingVertical(2).Text(
+                            $"Spec {row.SpecNumber} · {row.BuildType} · {row.SpecName} · area {row.AreaSqm:0.###} SQM · basis {row.BasePricePerSqm:N2}/m² · outer {row.OuterGlassRatePerSqm:N2} · inner {row.InnerGlassRatePerSqm:N2} · ASP {row.AspRatePerSqm:N2} · final target {row.FinalRequiredTargetPerSqm:N2}/m² · {row.Status}")
+                            .FontSize(7).FontColor(DARK);
+                    }
+                }
+
+                foreach (var rec in step9.Recommendations.Concat(step9.Warnings).Where(x => !string.IsNullOrWhiteSpace(x)).Take(6))
+                    col.Item().PaddingTop(3).Text("• " + rec).FontSize(7).FontColor(MUTED);
             });
         }
 
