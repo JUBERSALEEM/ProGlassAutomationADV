@@ -45,7 +45,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.JobOrder.Repository;
+using ProGlassAutomation.Services.Logging;
 using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
 {
@@ -192,16 +194,35 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
         // ── Core load ────────────────────────────────────────────────
         protected override async Task LoadCoreAsync()
         {
-            var all = await _jobs.GetAllAsync();
+            // Both may be null if this page loads before App.StartupCore has
+            // finished. Degrade to an empty page rather than throwing inside
+            // the load — the same guard the Statement dashboard uses.
+            if (_jobs == null || App.DashboardMetrics == null)
+            {
+                AppLogService.Debug("[JoDashboard] dependencies not yet initialized.");
+                return;
+            }
+
+            // Phase 3: counts come from IDashboardMetricsService instead of
+            // loading every job order into this ViewModel. The service projects
+            // five columns, not the whole row, and owns the two status rules
+            // that used to be re-implemented here — IsInProduction matching
+            // both "InProduction" and "In Production", and Overdue excluding
+            // finished jobs.
+            //
+            // AllTime is deliberate: this page's four cards are lifetime
+            // figures. The range only feeds CompletedThisPeriod, which this
+            // page does not display, and AllTime also skips the
+            // previous-period pass.
+            var prod = await App.DashboardMetrics
+                .GetProductionMetricsAsync(DashboardDateRange.AllTime());
             var today = DateTime.Today;
 
             // ── Counts ───────────────────────────────────────────────
-            int total = all.Count;
-            int inProd = all.Count(j => JobOrderStatusValues.IsInProduction(j.Status));
-            int completed = all.Count(j => JobOrderStatusValues.IsFinished(j.Status));
-            int overdue = all.Count(j => j.DeliveryDate.HasValue
-                                        && j.DeliveryDate.Value.Date < today
-                                        && !JobOrderStatusValues.IsFinished(j.Status));
+            int total = prod.TotalJobs;
+            int inProd = prod.InProduction;
+            int completed = prod.Completed;
+            int overdue = prod.Overdue;
 
             // ── KPI cards ────────────────────────────────────────────
             //   v2.5 BUG FIX: theme-correct brush keys
@@ -262,11 +283,15 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
 
             _statusBars = statusDefs.Select(sd =>
             {
-                // Keyed on the canonical label, not the raw stored string,
-                // so "InProduction" and "In Production" land in the same bar
-                // instead of the legacy rows vanishing from the chart.
-                int count = all.Count(j =>
-                    JobOrderStatusValues.Canonical(j.Status) == sd.Label);
+                // The service groups on JobOrderStatusValues.Canonical(status),
+                // so "InProduction" and "In Production" already land in the
+                // same bucket. Matching the label case-insensitively against
+                // that key is equivalent to the old per-row Canonical() ==
+                // comparison, without holding the rows here.
+                int count = prod.StatusBreakdown
+                    .Where(b => string.Equals(b.Name, sd.Label,
+                                              StringComparison.OrdinalIgnoreCase))
+                    .Sum(b => b.Count);
                 return new ChartBarModel
                 {
                     Label = sd.Label,
@@ -292,7 +317,15 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
 
             _priorityBars = priorityDefs.Select(pd =>
             {
-                int count = all.Count(j => j.Priority == pd.Key);
+                // NOTE — small deliberate change. This matched the stored
+                // Priority string exactly; the service groups on the trimmed
+                // value, case-insensitively, with blanks falling into a
+                // separate "Normal" bucket. A row stored as "high " or "HIGH"
+                // now counts toward High instead of no bar at all.
+                int count = prod.PriorityBreakdown
+                    .Where(b => string.Equals(b.Name, pd.Key,
+                                              StringComparison.OrdinalIgnoreCase))
+                    .Sum(b => b.Count);
                 return new ChartBarModel
                 {
                     Label = pd.Label,
@@ -305,9 +338,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
             }).ToList();
 
             // ── Recent feed ───────────────────────────────────────────
-            _recentFeed = all
-                .OrderByDescending(j => j.UpdatedAt)
-                .Take(10)
+            // Already the ten newest, newest first — the service applies
+            // Take() after ordering, so this page no longer reads the table
+            // to render ten rows.
+            _recentFeed = prod.RecentJobs
                 .Select(j => BuildFeedItem(j, today))
                 .ToList();
 
@@ -335,8 +369,11 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
 
         // ── Feed item builder ─────────────────────────────────────────
         //   v2.5 BUG FIX: theme-correct brush keys for status pills.
+        // Takes RecentJobRow rather than a SavedJobOrder entity: the feed
+        // needs seven scalar columns, and carrying the entity here is what
+        // forced the whole-table load this page used to do.
         private static ActivityFeedItem BuildFeedItem(
-            SavedJobOrder job,
+            RecentJobRow job,
             DateTime today)
         {
             bool isOverdue = job.DeliveryDate.HasValue

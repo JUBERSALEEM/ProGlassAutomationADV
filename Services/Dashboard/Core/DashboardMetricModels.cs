@@ -116,6 +116,15 @@ namespace ProGlassAutomation.Services.Dashboard.Core
         public List<NamedValue> StatusBreakdown { get; set; } = new();
         public List<NamedValue> PriorityBreakdown { get; set; } = new();
         public List<TimeBucket> CompletionTrend { get; set; } = new();
+
+        /// <summary>
+        /// Newest jobs for the dashboard's activity feed, newest first.
+        ///
+        /// Added 2026-09-08 for Phase 3: the Job Order dashboard loaded every
+        /// job into its ViewModel to render ten feed rows. Bounded here with
+        /// Take() so a 50,000-job table costs the same as a 50-job one.
+        /// </summary>
+        public List<RecentJobRow> RecentJobs { get; set; } = new();
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -152,8 +161,37 @@ namespace ProGlassAutomation.Services.Dashboard.Core
         /// </summary>
         public int PendingPieces { get; set; }
 
+        /// <summary>
+        /// COUNT of notes delivered today — not to be confused with
+        /// <see cref="PiecesDeliveredToday"/>, which counts pieces.
+        ///
+        /// The Delivery Note dashboard's "Delivered Today" card has always
+        /// counted notes. Migrating it onto this service without this field
+        /// would have silently changed the card from a note count to a piece
+        /// count — the same figure, two units, one label.
+        /// </summary>
+        public int NotesDeliveredToday { get; set; }
+
+        /// <summary>
+        /// Notes whose type is Rework or Return.
+        ///
+        /// Kept as a first-class count rather than derived from
+        /// <see cref="TypeBreakdown"/>, because the breakdown groups on a
+        /// trimmed, case-insensitive key with a "Standard" fallback while the
+        /// dashboard matched the stored string exactly. Deriving one from the
+        /// other would quietly change the number for any row with stray
+        /// whitespace.
+        /// </summary>
+        public int ReworkReturned { get; set; }
+
         public List<NamedValue> StatusBreakdown { get; set; } = new();
         public List<NamedValue> TypeBreakdown { get; set; } = new();
+
+        /// <summary>
+        /// Newest delivery notes for the dashboard's activity feed, newest
+        /// first. See <see cref="ProductionMetrics.RecentJobs"/>.
+        /// </summary>
+        public List<RecentDeliveryRow> RecentNotes { get; set; } = new();
     }
 
     // ═════════════════════════════════════════════════════════════════
@@ -178,8 +216,50 @@ namespace ProGlassAutomation.Services.Dashboard.Core
         /// <summary>Sheet types with no stock left at all.</summary>
         public int OutOfStockCount { get; set; }
 
-        public List<NamedValue> CategoryBreakdown { get; set; } = new();
+        /// <summary>
+        /// Number of distinct categories in store.
+        ///
+        /// Grouped the same way as <see cref="CategoryBreakdown"/> — trimmed
+        /// and case-insensitive, blanks as "Uncategorised" — so this always
+        /// equals CategoryBreakdown.Count. The dashboard previously counted
+        /// raw Category strings, which treated "Clear" and "clear " as two
+        /// categories.
+        /// </summary>
+        public int CategoryCount { get; set; }
+
+        /// <summary>
+        /// Stock grouped by category, carrying every measure a caller needs:
+        /// sheet count, square metres, sell value and cost value.
+        ///
+        /// Retyped 2026-09-08 from <c>List&lt;NamedValue&gt;</c>. NamedValue
+        /// holds one decimal and one int, so the Sheet Store dashboard — which
+        /// charts square metres per category — could not be served by it
+        /// without loading the table itself. No caller read this property
+        /// before the retyping, so nothing breaks.
+        /// </summary>
+        public List<InventoryCategoryValue> CategoryBreakdown { get; set; } = new();
+
         public List<LowStockItem> LowStockItems { get; set; } = new();
+    }
+
+    /// <summary>
+    /// One category's share of stock, in all four measures at once.
+    /// </summary>
+    public sealed class InventoryCategoryValue
+    {
+        public string Name { get; set; } = string.Empty;
+
+        /// <summary>Sheets remaining (sum of Balance).</summary>
+        public int Sheets { get; set; }
+
+        /// <summary>Square metres remaining (sum of Balance × area).</summary>
+        public decimal Sqm { get; set; }
+
+        /// <summary>Remaining stock valued at sell price.</summary>
+        public decimal SellValue { get; set; }
+
+        /// <summary>Remaining stock valued at purchase price.</summary>
+        public decimal CostValue { get; set; }
     }
 
     public sealed class LowStockItem
@@ -257,6 +337,16 @@ namespace ProGlassAutomation.Services.Dashboard.Core
         public string Status { get; set; } = string.Empty;
         public DateTime DeliveryDate { get; set; }
         public int TotalDeliveredQty { get; set; }
+
+        // ── Added 2026-09-08 (Phase 3) ──────────────────────────────────
+        // The Delivery Note dashboard feed renders a type icon, a driver
+        // line, an ordered-quantity fallback and sorts by UpdatedAt. Carrying
+        // these four columns means the feed no longer needs the full
+        // DeliveryNoteListItem — and still never touches the snapshot blob.
+        public string DeliveryType { get; set; } = string.Empty;
+        public string DriverName { get; set; } = string.Empty;
+        public int TotalOrderedQty { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 
     /// <summary>The three recent-row sets the activity feed merges.</summary>

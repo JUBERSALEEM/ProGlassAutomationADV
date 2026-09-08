@@ -23,6 +23,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Dashboard;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.SheetStore;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -84,8 +85,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             private set { if (_hasChartData == value) return; _hasChartData = value; OnPropertyChanged(); }
         }
 
-        private readonly ISheetStoreRepository _sheetRepo = new SheetStoreRepository();
-
         // Chat 23 v2.1: green slot replaced with teal-blue for industrial palette.
         //   Old: "#6366F1", "#10B981" (green), "#F59E0B", "#3B82F6", "#EC4899", "#8B5CF6"
         //   New: "#1D4ED8", "#0369A1" (teal-blue), "#F59E0B", "#3B82F6", "#EC4899", "#8B5CF6"
@@ -100,14 +99,44 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         // ═════════════════════════════════════════════════════════════════
         protected override async Task LoadCoreAsync()
         {
-            var sheets = await _sheetRepo.GetAllAsync();
+            if (App.DashboardMetrics == null)
+            {
+                // Degrade to an empty page rather than throwing inside the
+                // load. Same guard the Statement dashboard uses.
+                AppLogService.Debug("[SheetStoreDashboard] metrics service not ready.");
+                HasChartData = false;
+                return;
+            }
 
-            int sheetTypes = sheets.Count;
-            decimal totalValue = sheets.Sum(s => s.BalanceValue);
-            decimal totalSqm = sheets.Sum(s => s.TotalSqmBalance);
-            int lowStockCount = sheets.Count(s => s.Balance <= 5);
-            int outOfStock = sheets.Count(s => s.Balance == 0);
-            int categories = sheets.Select(s => s.Category).Distinct().Count();
+            // Phase 3: aggregates come from IDashboardMetricsService instead of
+            // loading every glass sheet into this ViewModel. The service
+            // projects only the columns these figures need and skips the
+            // snapshot blobs, and it owns the low-stock threshold that used to
+            // be a bare `5` here.
+            var inv = await App.DashboardMetrics.GetInventoryMetricsAsync();
+
+            int sheetTypes = inv.SheetTypes;
+            decimal totalValue = inv.StockValueAtSellPrice;
+            decimal totalSqm = inv.TotalSqmAvailable;
+            int lowStockCount = inv.LowStockCount;
+            int outOfStock = inv.OutOfStockCount;
+            int categories = inv.CategoryCount;
+
+            // Two deliberate semantic notes, both recorded rather than hidden:
+            //
+            // 1. outOfStock was `Balance == 0` here and is `Balance <= 0` in
+            //    the service. These agree on real data: SheetStoreRepository.
+            //    UseStockAsync throws before incrementing Used when
+            //    Balance < quantity, and the CSV importer clamps Used into
+            //    [0, Stock], so Balance can never go negative. `<= 0` is also
+            //    what the rest of the app already treats as out of stock
+            //    (UseDialogViewModel.IsOutOfStock, SheetStoreViewModel.Part2).
+            //
+            // 2. categories was a Distinct() over raw Category strings; the
+            //    service groups trimmed and case-insensitive with blanks as
+            //    "Uncategorised". If two rows were stored as "Clear" and
+            //    "clear " the count drops by one — that is the same category
+            //    shown as two bars before.
 
             // ── KPI cards (theme brush keys) ──────────────────────────────
             KpiCards = new ObservableCollection<KpiCardModel>
@@ -161,15 +190,23 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             };
 
             // ── category bars ─────────────────────────────────────────────
-            var grouped = sheets
-                .GroupBy(s => s.Category)
-                .Select((g, idx) => new
+            // Sorted by square metres descending, THEN coloured by position.
+            //
+            // This is a deliberate, visible change and not a preservation:
+            // the old code coloured by a category's first-appearance position
+            // in the raw sheet list, which is not recoverable from an
+            // aggregate and was never stable — inserting one new sheet row
+            // could recolour every bar. Position after sorting is
+            // deterministic, so the largest category is always the first
+            // palette colour and the chart stops shifting between loads.
+            var grouped = inv.CategoryBreakdown
+                .OrderByDescending(c => c.Sqm)
+                .Select((c, idx) => new
                 {
-                    Category = g.Key,
-                    SqmBalance = g.Sum(s => s.TotalSqmBalance),
+                    Category = c.Name,
+                    SqmBalance = c.Sqm,
                     ColorIndex = idx % CategoryColors.Length
                 })
-                .OrderByDescending(g => g.SqmBalance)
                 .ToList();
 
             decimal maxSqm = grouped.Any() ? grouped.Max(g => g.SqmBalance) : 1m;

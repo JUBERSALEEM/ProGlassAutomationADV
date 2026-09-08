@@ -33,6 +33,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
+using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
@@ -194,7 +195,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
         // ── Core load ────────────────────────────────────────────────
         protected override async Task LoadCoreAsync()
         {
-            if (_deliveryNotes == null)
+            if (_deliveryNotes == null || App.DashboardMetrics == null)
             {
                 _kpiCards = new List<KpiCardModel>();
                 _statusBars = new List<ChartBarModel>();
@@ -217,32 +218,32 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                 return;
             }
 
-            // ── Parallel loads for speed — Phase 3: no .Result, use await
-            var allTask = _deliveryNotes.GetAllAsync();
-            var pendingTask = _deliveryNotes.GetPendingQtyJobsAsync();
-
-            await Task.WhenAll(allTask, pendingTask);
-
-            var all = await allTask;
-            var pending = await pendingTask;
-            var today = DateTime.Today;
+            // Phase 3: one metrics call replaces two repository calls plus a
+            // whole-table load. The service excludes Master DNs exactly as
+            // GetAllAsync did, computes the pending balance from the per-job
+            // aggregation rather than summing per-note snapshots, and returns
+            // the ten newest notes for the feed.
+            //
+            // AllTime is deliberate: all four cards are lifetime figures. The
+            // range only feeds the period-over-period delta, which this page
+            // does not display.
+            var m = await App.DashboardMetrics
+                .GetDeliveryMetricsAsync(DashboardDateRange.AllTime());
 
             // ── Counts ───────────────────────────────────────────────
-            int total = all.Count;
+            int total = m.TotalNotes;
 
-            int deliveredToday = all.Count(d =>
-                d.DeliveryDate.Date == today &&
-                DeliveryNoteStatusValues.HasLeftTheBuilding(d.Status));
+            // A NOTE count, not a piece count. DeliveryMetrics carries both;
+            // this card has always shown notes, and its label says so.
+            int deliveredToday = m.NotesDeliveredToday;
 
-            // GOTCHA #40 FIX: Sum per-JO balances (already de-duplicated by repo),
-            // NOT per-DN snapshots. GetPendingQtyJobsAsync returns:
-            //   { JobOrderId, TotalOrdered, TotalDelivered, TotalBalance }
-            // per JO with only JOs that have balance > 0.
-            int pendingBalance = pending.Sum(p => p.TotalBalance);
+            // GOTCHA #40 is now encoded once, in the service: it sums the
+            // repository's per-job balances, never TotalBalanceQty across
+            // notes, which double-counts the same outstanding pieces once per
+            // note.
+            int pendingBalance = m.PendingPieces;
 
-            int reworkReturned = all.Count(d =>
-                d.DeliveryType == TypeRework ||
-                d.DeliveryType == TypeReturn);
+            int reworkReturned = m.ReworkReturned;
 
             // ── KPI cards ────────────────────────────────────────────
             //   v2.5 BUG FIX: theme-correct brush keys
@@ -303,8 +304,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
 
             _statusBars = statusDefs.Select(sd =>
             {
-                int count = all.Count(d =>
-                    DeliveryNoteStatusValues.Canonical(d.Status) == sd.Label);
+                // The service groups on DeliveryNoteStatusValues.Canonical,
+                // which already collapses Draft/Dispatching — so matching the
+                // label case-insensitively is equivalent to the old per-row
+                // comparison without holding the rows here.
+                int count = m.StatusBreakdown
+                    .Where(b => string.Equals(b.Name, sd.Label,
+                                              StringComparison.OrdinalIgnoreCase))
+                    .Sum(b => b.Count);
                 return new ChartBarModel
                 {
                     Label = sd.Label,
@@ -330,7 +337,15 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
 
             _typeBars = typeDefs.Select(td =>
             {
-                int count = all.Count(d => d.DeliveryType == td.Key);
+                // NOTE — small deliberate change. This matched the stored
+                // DeliveryType exactly; the service groups on the trimmed
+                // value case-insensitively, with blanks in a "Standard" bucket
+                // that no bar matches. A row stored as "rework " now counts
+                // toward Rework instead of no bar at all.
+                int count = m.TypeBreakdown
+                    .Where(b => string.Equals(b.Name, td.Key,
+                                              StringComparison.OrdinalIgnoreCase))
+                    .Sum(b => b.Count);
                 return new ChartBarModel
                 {
                     Label = td.Label,
@@ -343,9 +358,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
             }).ToList();
 
             // ── Recent feed ───────────────────────────────────────────
-            _recentFeed = all
-                .OrderByDescending(d => d.UpdatedAt)
-                .Take(10)
+            // Already the ten newest, newest first.
+            _recentFeed = m.RecentNotes
                 .Select(BuildFeedItem)
                 .ToList();
 
@@ -373,7 +387,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
 
         // ── Feed item builder ─────────────────────────────────────────
         //   v2.5 BUG FIX: theme-correct brush keys for status pills.
-        private static ActivityFeedItem BuildFeedItem(DeliveryNoteListItem dn)
+        // Takes RecentDeliveryRow rather than a DeliveryNoteListItem: the feed
+        // renders six scalar columns, and requiring the list item is what forced
+        // the whole-table load this page used to do.
+        private static ActivityFeedItem BuildFeedItem(RecentDeliveryRow dn)
         {
             // Switch on the canonical form so "Draft" and "Dispatching" get
             // the same pill instead of the legacy one falling through to the

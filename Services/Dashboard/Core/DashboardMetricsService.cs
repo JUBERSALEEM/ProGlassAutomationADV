@@ -59,6 +59,12 @@ namespace ProGlassAutomation.Services.Dashboard.Core
         // Matches the threshold the Overview dashboard already used.
         private const int LowStockThreshold = 5;
 
+        /// <summary>
+        /// How many rows a dashboard activity feed shows. Bounded so the feed
+        /// costs the same whether the table holds 50 rows or 50,000.
+        /// </summary>
+        private const int RecentFeedSize = 10;
+
         private static bool Eq(string? a, string b) =>
             string.Equals(a?.Trim(), b, StringComparison.OrdinalIgnoreCase);
 
@@ -102,6 +108,12 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             public string Priority { get; set; } = "";
             public DateTime? DeliveryDate { get; set; }
             public DateTime UpdatedAt { get; set; }
+
+            // Added 2026-09-08 (Phase 3) for the Job Order dashboard's
+            // activity feed. All scalar columns; no snapshot blob.
+            public string JobOrderId { get; set; } = "";
+            public string CustomerName { get; set; } = "";
+            public decimal GrandTotalVatInclusive { get; set; }
         }
 
         private sealed class DnRow
@@ -110,6 +122,15 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             public string DeliveryType { get; set; } = "";
             public DateTime DeliveryDate { get; set; }
             public int TotalDeliveredQty { get; set; }
+
+            // Added 2026-09-08 (Phase 3) so the Delivery Note dashboard can
+            // build its activity feed from this projection. Still no snapshot
+            // blob column — these are all scalar columns.
+            public string DeliveryNoteId { get; set; } = "";
+            public string CustomerName { get; set; } = "";
+            public string DriverName { get; set; } = "";
+            public int TotalOrderedQty { get; set; }
+            public DateTime UpdatedAt { get; set; }
         }
 
         private sealed class SheetRow
@@ -230,10 +251,13 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                 .AsNoTracking()
                 .Select(j => new JobRow
                 {
-                    Status       = j.Status,
-                    Priority     = j.Priority,
-                    DeliveryDate = j.DeliveryDate,
-                    UpdatedAt    = j.UpdatedAt
+                    Status                 = j.Status,
+                    Priority               = j.Priority,
+                    DeliveryDate           = j.DeliveryDate,
+                    UpdatedAt              = j.UpdatedAt,
+                    JobOrderId             = j.JobOrderId,
+                    CustomerName           = j.CustomerName,
+                    GrandTotalVatInclusive = j.GrandTotalVatInclusive
                 })
                 .ToListAsync(ct).ConfigureAwait(false);
 
@@ -302,6 +326,24 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             m.CompletionTrend = BuildMonthlyCountTrend(
                 rows.Where(IsDone).Select(r => r.UpdatedAt), 6);
 
+            // Ten newest jobs for the dashboard's activity feed, derived from
+            // the set already in memory. The Job Order dashboard previously
+            // loaded every job to render these ten rows.
+            m.RecentJobs = rows
+                .OrderByDescending(r => r.UpdatedAt)
+                .Take(RecentFeedSize)
+                .Select(r => new RecentJobRow
+                {
+                    JobOrderId             = r.JobOrderId,
+                    CustomerName           = r.CustomerName,
+                    Status                 = r.Status,
+                    Priority               = r.Priority,
+                    GrandTotalVatInclusive = r.GrandTotalVatInclusive,
+                    DeliveryDate           = r.DeliveryDate,
+                    UpdatedAt              = r.UpdatedAt
+                })
+                .ToList();
+
             return m;
         }
 
@@ -316,14 +358,29 @@ namespace ProGlassAutomation.Services.Dashboard.Core
 
             using var db = new DeliveryNotesDbContext();
 
+            // !IsMasterDn matches DeliveryNoteRepository.GetAllAsync and
+            // every per-status query beside it (GetPreparedAsync,
+            // GetDeliveredAsync). Those lists are what the user acts on, so
+            // they are the ground truth for "how many delivery notes are
+            // there". This method previously had no such filter, which meant
+            // the Overview delivery tiles counted master notes that no list
+            // screen ever shows — two answers to the same question.
+            //
+            // Covered by Tests/Architecture/MasterDnFilterParityTests.cs.
             var rows = await db.DeliveryNotes
                 .AsNoTracking()
+                .Where(d => !d.IsMasterDn)
                 .Select(d => new DnRow
                 {
                     Status            = d.Status,
                     DeliveryType      = d.DeliveryType,
                     DeliveryDate      = d.DeliveryDate,
-                    TotalDeliveredQty = d.TotalDeliveredQty
+                    TotalDeliveredQty = d.TotalDeliveredQty,
+                    DeliveryNoteId    = d.DeliveryNoteId,
+                    CustomerName      = d.CustomerName,
+                    DriverName        = d.DriverName,
+                    TotalOrderedQty   = d.TotalOrderedQty,
+                    UpdatedAt         = d.UpdatedAt
                 })
                 .ToListAsync(ct).ConfigureAwait(false);
 
@@ -355,6 +412,27 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                     .Where(r => r.DeliveryDate.Date == today && IsSentOut(r))
                     .Sum(r => r.TotalDeliveredQty);
 
+                // Same predicate, counted rather than summed. The Delivery
+                // Note dashboard's "Delivered Today" card has always shown a
+                // NOTE count; reusing the piece sum above would have changed
+                // its unit while leaving its label alone.
+                m.NotesDeliveredToday = rows
+                    .Count(r => r.DeliveryDate.Date == today && IsSentOut(r));
+
+                // Exact match on the stored type string, matching what the
+                // dashboard did. TypeBreakdown below is trimmed and
+                // case-insensitive with a "Standard" fallback, so deriving
+                // this from the breakdown would change the figure for any row
+                // carrying stray whitespace.
+                // Routes through DeliveryTypeValues, the canonical home for
+                // the four type strings. Fully qualified on purpose: that
+                // namespace's last segment is also the DeliveryType enum's
+                // name, so importing it would make `DeliveryType` ambiguous
+                // for the rest of this file.
+                m.ReworkReturned = rows.Count(r =>
+                    r.DeliveryType == Models.DeliveryNote.Common.DeliveryType.DeliveryTypeValues.Rework ||
+                    r.DeliveryType == Models.DeliveryNote.Common.DeliveryType.DeliveryTypeValues.Return);
+
                 // Safe to sum: TotalDeliveredQty is the quantity delivered
                 // BY THIS NOTE, so the sum across notes is the true total.
                 m.PiecesDeliveredTotal = rows
@@ -375,6 +453,25 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                              StringComparer.OrdinalIgnoreCase)
                     .Select(g => new NamedValue { Name = g.Key, Count = g.Count() })
                     .OrderByDescending(x => x.Count)
+                    .ToList();
+
+                // Feed rows derived from the set already in memory rather
+                // than a second query against the same SQLite file.
+                m.RecentNotes = rows
+                    .OrderByDescending(r => r.UpdatedAt)
+                    .Take(RecentFeedSize)
+                    .Select(r => new RecentDeliveryRow
+                    {
+                        DeliveryNoteId    = r.DeliveryNoteId,
+                        CustomerName      = r.CustomerName,
+                        Status            = r.Status,
+                        DeliveryType      = r.DeliveryType,
+                        DriverName        = r.DriverName,
+                        DeliveryDate      = r.DeliveryDate,
+                        TotalDeliveredQty = r.TotalDeliveredQty,
+                        TotalOrderedQty   = r.TotalOrderedQty,
+                        UpdatedAt         = r.UpdatedAt
+                    })
                     .ToList();
             }
 
@@ -444,17 +541,22 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             m.OutOfStockCount = rows.Count(r => r.Balance <= 0);
             m.LowStockCount   = rows.Count(r => r.Balance <= LowStockThreshold);
 
-            m.CategoryBreakdown = rows
+            var byCategory = rows
                 .GroupBy(r => string.IsNullOrWhiteSpace(r.Category) ? "Uncategorised" : r.Category.Trim(),
                          StringComparer.OrdinalIgnoreCase)
-                .Select(g => new NamedValue
+                .Select(g => new InventoryCategoryValue
                 {
-                    Name  = g.Key,
-                    Count = g.Sum(x => x.Balance),
-                    Value = g.Sum(x => x.BalanceValue)
+                    Name      = g.Key,
+                    Sheets    = g.Sum(x => x.Balance),
+                    Sqm       = g.Sum(x => x.SqmBalance),
+                    SellValue = g.Sum(x => x.BalanceValue),
+                    CostValue = g.Sum(x => x.BalanceCost)
                 })
-                .OrderByDescending(x => x.Value)
+                .OrderByDescending(x => x.SellValue)
                 .ToList();
+
+            m.CategoryBreakdown = byCategory;
+            m.CategoryCount     = byCategory.Count;
 
             m.LowStockItems = rows
                 .Where(r => r.Balance <= LowStockThreshold)
@@ -559,8 +661,14 @@ namespace ProGlassAutomation.Services.Dashboard.Core
 
             using (var db = new DeliveryNotesDbContext())
             {
+                // Master DNs excluded, and the filter sits BEFORE Take() so
+                // master notes cannot consume slots in the feed and push real
+                // ones off the end. This query had no filter at all until
+                // 2026-09-08 — the same gap the delivery aggregates had,
+                // found by Tests/Architecture/MasterDnFilterParityTests.cs.
                 result.DeliveryNotes = await db.DeliveryNotes
                     .AsNoTracking()
+                    .Where(d => !d.IsMasterDn)
                     .OrderByDescending(d => d.UpdatedAt)
                     .Take(limit)
                     .Select(d => new RecentDeliveryRow
@@ -569,7 +677,11 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                         CustomerName      = d.CustomerName,
                         Status            = d.Status,
                         DeliveryDate      = d.DeliveryDate,
-                        TotalDeliveredQty = d.TotalDeliveredQty
+                        TotalDeliveredQty = d.TotalDeliveredQty,
+                        DeliveryType      = d.DeliveryType,
+                        DriverName        = d.DriverName,
+                        TotalOrderedQty   = d.TotalOrderedQty,
+                        UpdatedAt         = d.UpdatedAt
                     })
                     .ToListAsync(ct).ConfigureAwait(false);
             }

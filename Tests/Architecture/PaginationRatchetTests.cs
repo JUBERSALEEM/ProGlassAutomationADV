@@ -52,12 +52,13 @@ namespace ProGlassAutomation.Tests.Architecture
         /// </summary>
         private static readonly HashSet<string> AllowList = new(StringComparer.Ordinal)
         {
-            // ── Phase 3 targets: dashboards loading whole tables to compute
-            //    four numbers. IDashboardMetricsService already exists and
-            //    Overview was migrated to it; these four were not.
-            "Dashboard/DeliveryNote/DnDashboard/DnDashboardViewModel.cs",
-            "Dashboard/JobOrder/JoDashboard/JoDashboardViewModel.cs",
-            "Dashboard/SheetStore/SheetStoreDashboardViewModel.cs",
+            // DnDashboardViewModel.cs, JoDashboardViewModel.cs and
+            // SheetStoreDashboardViewModel.cs were here until 2026-09-08.
+            // Phase 3 moved all three onto IDashboardMetricsService
+            // (GetDeliveryMetricsAsync, GetProductionMetricsAsync,
+            // GetInventoryMetricsAsync), completing the dashboard side of the
+            // migration — Overview and Statement were already on it. Every
+            // dashboard now reads aggregates, never tables.
 
             // StDashboardViewModel.cs was here until 2026-09-08, when Phase 3
             // moved its aggregates to IDashboardMetricsService
