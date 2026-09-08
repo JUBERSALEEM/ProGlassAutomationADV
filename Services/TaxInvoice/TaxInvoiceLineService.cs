@@ -36,7 +36,12 @@ namespace ProGlassAutomation.Services.TaxInvoice
         public static (decimal Subtotal, decimal Vat, decimal GrandTotal) CalculateFinancials(
             IEnumerable<TaxInvoiceItem> items,
             decimal discountAmount,
-            decimal vatRate = 0.05m)
+            // Default parameter values must be compile-time constants, and
+            // VatCalculator.VAT_RATE_DECIMAL is one — so the UAE rate has a
+            // single declaration even here. It was a bare 0.05m until
+            // 2026-09-08, which meant a rate change would have silently left
+            // this overload computing at 5%.
+            decimal vatRate = ProGlassAutomation.Services.Reporting.VatCalculator.VAT_RATE_DECIMAL)
         {
             decimal subtotal = items.Sum(i => i.Value);
             decimal afterDiscount = Math.Max(0, subtotal - discountAmount);

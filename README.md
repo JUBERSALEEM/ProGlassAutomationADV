@@ -268,6 +268,7 @@ disagreement was silently wrong rather than loudly broken.
 | Job Order | `"In Production"` vs `"InProduction"` | Overview under-counted jobs in production; the Job Order screen disagreed with it |
 | Delivery Note | `"Draft"` vs `"Dispatching"` | `Preparing + Dispatched` did not equal `TotalNotes` |
 | Target pricing | `0.005m` vs `0.05m` | One invoice read **ABOVE TARGET** on the quotation and **AT TARGET** in Job Profitability |
+| VAT | `0.05m` / `1.05m` hardcoded in three money paths | Nothing wrong *today* — all three said 5%. It would have gone wrong the day the UAE rate changed |
 
 The root cause was structural: `SavedJobOrder.Status` and
 `SavedDeliveryNote.Status` are `string`, not the enums sitting next to them, so

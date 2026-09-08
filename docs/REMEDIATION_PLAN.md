@@ -59,6 +59,7 @@ once, in two spellings or two values, with no single home.
 | Job Order | `"In Production"` vs `"InProduction"` | Overview under-counted In Production; disagreed with the Job Order dashboard |
 | Delivery Note | `"Draft"` vs `"Dispatching"` | `Preparing + Dispatched ≠ TotalNotes` |
 | Target pricing | `0.005m` vs `0.05m` | Same invoice read ABOVE TARGET on the quotation, AT TARGET in Job Profitability |
+| VAT | `0.05m` / `1.05m` in three money paths | Nothing wrong *today* — all three said 5%. It would have gone wrong the day the UAE rate changed |
 
 The structural fix is the same in each case — one canonical home
 (`JobOrderStatusValues`, `DeliveryNoteStatusValues`, `TargetMarginTolerance`)
@@ -72,6 +73,7 @@ appears.
 | `PaginationRatchetTests` | `GetAllAsync()` call sites | 20 files / 28 sites | an unlisted file calls it, or a listed one stops offending |
 | `StatusLiteralRatchetTests` | `.Status` compared to a bare literal | 12 files / 60 comparisons | a new file offends, a listed file grows, a ceiling goes stale, or a module has no canonical home |
 | `TargetMarginToleranceTests` | target-status band literals | 0 outside the canonical file | any file classifies a target margin with its own number |
+| `VatRateSingleSourceTests` | VAT literals next to VAT vocabulary | 0 outside `VatCalculator.cs` | any file applies VAT with its own `0.05m` / `1.05m` |
 
 The status ratchet is the one that generalises: it does not know about
 "In Production" or "Dispatching" specifically. It flags the *shape* — a
@@ -82,6 +84,33 @@ and then adding a new comparison back to it still fails.
 The largest remaining offender is
 `Services/DeliveryNote/Repository/DeliveryNoteRepository.Part1.cs` at 17; it is
 the natural first migration.
+
+### VAT — the same class, found by generalising
+
+Having found one duplicated threshold, I swept for the whole category: named
+numeric constants whose value appears in more than one file. Most of the 32
+groups were coincidental collisions (UI sizes, row limits). One was not.
+
+The UAE VAT rate was declared canonically in `VatCalculator` and then
+hardcoded independently in three money paths:
+
+| Site | Was |
+|---|---|
+| `TaxInvoiceLineService.CalculateFinancials` | default parameter `vatRate = 0.05m` |
+| `TaxInvoiceDetailViewModel.PrivateHelpers` | `Math.Round(afterDiscount * 0.05m, 2)` |
+| `ProfitLossStepViewModel.VatDivisor` | its own `1.05m` — named *divisor* while the canonical one is named *multiplier* |
+
+Unlike the other three defects this one was **not producing a wrong number
+today** — all three said 5%. It was a latent fault: the day the rate changes,
+the tax invoice detail screen and the financials overload would have kept
+computing at the old rate while everything else moved. All three now reference
+`VatCalculator`, whose constants are const and therefore valid as a default
+parameter value.
+
+`ProfitLossStepViewModel.EffectiveYieldFactor` also uses `0.05m`, but as a
+wastage-yield floor, not VAT. It is deliberately left independent, and a guard
+test stops the ratchet being widened into something that forces an unrelated
+constant to track the tax rate.
 
 ---
 

@@ -288,7 +288,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
             decimal discountAmt = Math.Round(subtotal * (_discountPercent / 100m), 2);
             decimal afterDiscount = subtotal - discountAmt;
-            decimal vatAmount = Math.Round(afterDiscount * 0.05m, 2);
+            // Was a bare 0.05m. VatCalculator is the single declaration of
+            // the UAE rate; duplicating it here meant the tax invoice detail
+            // screen could drift from every other VAT calculation.
+            decimal vatAmount = Math.Round(
+                afterDiscount * ProGlassAutomation.Services.Reporting.VatCalculator.VAT_RATE_DECIMAL, 2);
 
             _subtotal = Math.Round(subtotal, 2);
             _discountAmount = discountAmt;

@@ -103,8 +103,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>
         /// Legacy fallback only. New bindings pass Step 7 SubtotalBeforeVat directly
         /// so zero-rated/custom-VAT invoices are not forced through a 5% divisor.
+        ///
+        /// Aliased to <c>VatCalculator.VAT_MULTIPLIER</c> rather than declared
+        /// as its own 1.05m, so a change to the UAE rate moves this too.
         /// </summary>
-        private const decimal VatDivisor = 1.05m;
+        private const decimal VatDivisor =
+            ProGlassAutomation.Services.Reporting.VatCalculator.VAT_MULTIPLIER;
 
         // ── Bound dependencies (assigned by the shell via Bind) ──────────
         private DataGridViewModel? _dataGrid;
