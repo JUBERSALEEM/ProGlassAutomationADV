@@ -117,6 +117,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private Func<decimal>? _netRevenueProvider;
         private INotifyPropertyChanged? _revenueSource;
         private Func<IReadOnlyList<Step4PricingSnapshot>>? _step4SnapshotProvider;
+        private Func<ProGlassAutomation.Services.Reporting.ReportDocumentContext>? _reportDocumentContextProvider;
 
         // Spec-name grammar lives in PnLSpecParser — one definition for
         // the view-model and the tests. Do not re-declare those regexes.
@@ -273,7 +274,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     Step9ReportExport.OverviewHeaders,
                     Step9ReportExport.OverviewMap,
                     Step9ReportExport.OverviewMapExcel,
-                    $"Step9_Executive_Cost_Summary_{DateTime.Now:yyyyMMdd}");
+                    Step9ReportExport.ReportCodeOverview,
+                    GetReportDocumentContext());
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";
@@ -340,7 +342,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     Step9ReportExport.PnlHeaders,
                     Step9ReportExport.PnlMap,
                     Step9ReportExport.PnlMapExcel,
-                    $"Step9_Material_Production_Ledger_{DateTime.Now:yyyyMMdd}");
+                    Step9ReportExport.ReportCodeCostLedger,
+                    GetReportDocumentContext());
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";
@@ -365,7 +368,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 var rows = TargetSpecsView.ToList();
                 const string reportTitle = "Step 9 Specification Price Decision Report";
-                string suggestedFileName = $"Step9_Specification_Target_Report_{DateTime.Now:yyyyMMdd}";
+                var reportIdentity = GetReportDocumentContext();
 
                 // Nine audit columns are practical in CSV/Excel, but make a
                 // dense PDF table that truncates exactly the explanation an
@@ -380,13 +383,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         Step9ReportExport.OverviewHeaders,
                         Step9ReportExport.OverviewMap,
                         Step9ReportExport.OverviewMapExcel,
-                        suggestedFileName)
+                        Step9ReportExport.ReportCodePriceDecision,
+                        reportIdentity)
                     : await Step9ReportExport.RunAsync(
                         format, rows, reportTitle,
                         Step9ReportExport.TargetHeaders,
                         Step9ReportExport.TargetMap,
                         Step9ReportExport.TargetMapExcel,
-                        suggestedFileName);
+                        Step9ReportExport.ReportCodePriceDecision,
+                        reportIdentity);
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";

@@ -326,7 +326,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     Step9ReportExport.SheetHeaders,
                     Step9ReportExport.SheetMap,
                     Step9ReportExport.SheetMapExcel,
-                    $"Step9_Sheet_Price_Wastage_Report_{DateTime.Now:yyyyMMdd}");
+                    Step9ReportExport.ReportCodeSheetPricing,
+                    _parentViewModel.GetReportDocumentContext());
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";

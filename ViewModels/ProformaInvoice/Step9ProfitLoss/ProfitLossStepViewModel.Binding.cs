@@ -10,6 +10,7 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.ProformaInvoice;
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguLamParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.LamParameters;
@@ -53,7 +54,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             OtherChargesViewModel? otherChargesVm = null,
             Func<decimal>? netRevenueProvider = null,
             INotifyPropertyChanged? revenueSource = null,
-            Func<IReadOnlyList<Step4PricingSnapshot>>? step4SnapshotProvider = null)
+            Func<IReadOnlyList<Step4PricingSnapshot>>? step4SnapshotProvider = null,
+            Func<ReportDocumentContext>? reportDocumentContextProvider = null)
         {
             _dataGrid = dataGrid;
             _dguVm = dguVm;
@@ -65,12 +67,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             _netRevenueProvider = netRevenueProvider;
             _revenueSource = revenueSource;
             _step4SnapshotProvider = step4SnapshotProvider;
+            _reportDocumentContextProvider = reportDocumentContextProvider;
 
             // Full subscribe/unsubscribe cycle: Bind() can be re-invoked for a
             // freshly loaded invoice, and every old handler must be detached
             // first (see RebindToCurrentSources in ProfitLossStepViewModel.LiveRecalc.cs).
             RebindToCurrentSources();
         }
+
+        /// <summary>
+        /// Projects the current Step 1–3 PI identity at export time. The
+        /// shell supplies a delegate rather than a cached snapshot, so edits
+        /// made immediately before exporting are reflected in every Step 9
+        /// artifact.
+        /// </summary>
+        internal ReportDocumentContext GetReportDocumentContext() =>
+            _reportDocumentContextProvider?.Invoke() ?? new ReportDocumentContext();
 
     }
 }

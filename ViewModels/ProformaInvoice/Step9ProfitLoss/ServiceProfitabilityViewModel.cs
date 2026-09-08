@@ -198,7 +198,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     Step9ReportExport.ServiceHeaders,
                     Step9ReportExport.ServiceMap,
                     Step9ReportExport.ServiceMapExcel,
-                    $"Step9_Production_Services_AddOns_{DateTime.Now:yyyyMMdd}");
+                    Step9ReportExport.ReportCodeServices,
+                    _parentViewModel.GetReportDocumentContext());
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";

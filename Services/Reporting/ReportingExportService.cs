@@ -18,22 +18,23 @@
 //   • Filenames follow ExportFileNamer: {Report}_{Filter}_{Date}.ext
 // ═══════════════════════════════════════════════════════════════════════
 
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading.Tasks;
 using ClosedXML.Excel;
 using CsvHelper;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
+using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Utilities;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-using System.Globalization;
 namespace ProGlassAutomation.Services.Reporting
 {
     public static class ReportingExportService
@@ -45,9 +46,10 @@ namespace ProGlassAutomation.Services.Reporting
             string reportTitle,
             string[] headers,
             Func<T, string[]> rowMapper,
-            ExportRequest? request = null)
+            ExportRequest? request = null,
+            ReportDocumentContext? documentContext = null)
         {
-            var layout = new GenericCsvLayout<T>(rows, reportTitle, headers, rowMapper);
+            var layout = new GenericCsvLayout<T>(rows, reportTitle, headers, rowMapper, documentContext);
             var engine = new CsvExportEngine();
             return await engine.ExportAsync(layout, request ?? new ExportRequest());
         }
@@ -57,9 +59,10 @@ namespace ProGlassAutomation.Services.Reporting
             string reportTitle,
             string[] headers,
             Func<T, object[]> rowMapper,
-            ExportRequest? request = null)
+            ExportRequest? request = null,
+            ReportDocumentContext? documentContext = null)
         {
-            var layout = new GenericExcelLayout<T>(rows, reportTitle, headers, rowMapper);
+            var layout = new GenericExcelLayout<T>(rows, reportTitle, headers, rowMapper, documentContext);
             var engine = new ExcelExportEngine();
             return await engine.ExportAsync(layout, request ?? new ExportRequest());
         }
@@ -69,9 +72,10 @@ namespace ProGlassAutomation.Services.Reporting
             string reportTitle,
             string[] headers,
             Func<T, string[]> rowMapper,
-            ExportRequest? request = null)
+            ExportRequest? request = null,
+            ReportDocumentContext? documentContext = null)
         {
-            var layout = new GenericPdfLayout<T>(rows, reportTitle, headers, rowMapper);
+            var layout = new GenericPdfLayout<T>(rows, reportTitle, headers, rowMapper, documentContext);
             var engine = new PdfExportEngine();
             return await engine.ExportAsync(layout, request ?? new ExportRequest());
         }
@@ -84,18 +88,31 @@ namespace ProGlassAutomation.Services.Reporting
             private readonly string _title;
             private readonly string[] _headers;
             private readonly Func<T, string[]> _mapper;
+            private readonly ReportDocumentContext? _documentContext;
 
-            public GenericCsvLayout(IReadOnlyList<T> rows, string title, string[] headers, Func<T, string[]> mapper)
+            public GenericCsvLayout(
+                IReadOnlyList<T> rows,
+                string title,
+                string[] headers,
+                Func<T, string[]> mapper,
+                ReportDocumentContext? documentContext)
             {
-                _rows = rows; _title = title; _headers = headers; _mapper = mapper;
+                _rows = rows;
+                _title = title;
+                _headers = headers;
+                _mapper = mapper;
+                _documentContext = documentContext;
             }
 
-            public string DocumentPrefix => "REP";
-            public string DocumentId => _title.Replace(" ", "-").ToUpperInvariant();
+            public string DocumentPrefix => _documentContext?.DocumentPrefix ?? "REP";
+            public string DocumentId => ExportFileNamer.FirstFilled(
+                _documentContext?.DocumentId,
+                _title.Replace(" ", "-").ToUpperInvariant());
             public string DocumentTitle => _title;
-            public string CompanyName => "ProGlass";
-            public string Reference => DateTime.Now.ToString("yyyy-MM-dd");
-            public DateTime DocumentDate => DateTime.Now;
+            public string CompanyName => _documentContext?.FilenameCustomer ?? "ProGlass";
+            public string Reference => _documentContext?.FilenameReference
+                ?? DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            public DateTime DocumentDate => _documentContext?.FilenameDate ?? DateTime.Now;
 
             private bool IsSectionedReport => _headers.Length > 0 &&
                 (_headers[0].Equals("SECTION", StringComparison.OrdinalIgnoreCase) ||
@@ -103,11 +120,28 @@ namespace ProGlassAutomation.Services.Reporting
 
             public void WriteRows(CsvWriter csv)
             {
-                if (IsSectionedReport)
+                if (_documentContext != null)
                 {
+                    csv.WriteField("REPORT");
                     csv.WriteField(_title.ToUpperInvariant());
                     csv.NextRecord();
+                    foreach (var field in _documentContext.MetadataFields)
+                    {
+                        csv.WriteField(field.Key);
+                        csv.WriteField(field.Value);
+                        csv.NextRecord();
+                    }
                     csv.NextRecord();
+                }
+
+                if (IsSectionedReport)
+                {
+                    if (_documentContext == null)
+                    {
+                        csv.WriteField(_title.ToUpperInvariant());
+                        csv.NextRecord();
+                        csv.NextRecord();
+                    }
 
                     foreach (var group in _rows
                         .Select(r => _mapper(r))
@@ -144,18 +178,31 @@ namespace ProGlassAutomation.Services.Reporting
             private readonly string _title;
             private readonly string[] _headers;
             private readonly Func<T, object[]> _mapper;
+            private readonly ReportDocumentContext? _documentContext;
 
-            public GenericExcelLayout(IReadOnlyList<T> rows, string title, string[] headers, Func<T, object[]> mapper)
+            public GenericExcelLayout(
+                IReadOnlyList<T> rows,
+                string title,
+                string[] headers,
+                Func<T, object[]> mapper,
+                ReportDocumentContext? documentContext)
             {
-                _rows = rows; _title = title; _headers = headers; _mapper = mapper;
+                _rows = rows;
+                _title = title;
+                _headers = headers;
+                _mapper = mapper;
+                _documentContext = documentContext;
             }
 
-            public string DocumentPrefix => "REP";
-            public string DocumentId => _title.Replace(" ", "-").ToUpperInvariant();
+            public string DocumentPrefix => _documentContext?.DocumentPrefix ?? "REP";
+            public string DocumentId => ExportFileNamer.FirstFilled(
+                _documentContext?.DocumentId,
+                _title.Replace(" ", "-").ToUpperInvariant());
             public string DocumentTitle => _title;
-            public string CompanyName => "ProGlass";
-            public string Reference => DateTime.Now.ToString("yyyy-MM-dd");
-            public DateTime DocumentDate => DateTime.Now;
+            public string CompanyName => _documentContext?.FilenameCustomer ?? "ProGlass";
+            public string Reference => _documentContext?.FilenameReference
+                ?? DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            public DateTime DocumentDate => _documentContext?.FilenameDate ?? DateTime.Now;
 
             private bool IsSectionedReport => _headers.Length > 0 &&
                 (_headers[0].Equals("SECTION", StringComparison.OrdinalIgnoreCase) ||
@@ -164,12 +211,26 @@ namespace ProGlassAutomation.Services.Reporting
             public void RenderWorkbook(IXLWorkbook wb)
             {
                 var ws = wb.Worksheets.Add("Report");
-                ws.Cell(1, 1).Value = _title.ToUpperInvariant();
-                ws.Cell(1, 1).Style.Font.SetBold().Font.SetFontSize(14).Font.SetFontColor(XLColor.FromHtml("#1D4ED8"));
-                ws.Cell(2, 1).Value = $"Generated {DateTime.Now:dd MMM yyyy HH:mm}  •  {_rows.Count} row(s)";
-                ws.Cell(2, 1).Style.Font.SetFontSize(9).Font.SetFontColor(XLColor.FromHtml("#6B7280"));
-
-                int headerRow = 4;
+                int headerRow;
+                if (_documentContext != null)
+                {
+                    int metadataColumns = Math.Max(1, IsSectionedReport ? _headers.Length - 1 : _headers.Length);
+                    ws.Range(1, 1, 1, metadataColumns).Merge();
+                    ws.Cell(1, 1).Value = _title.ToUpperInvariant();
+                    ws.Cell(1, 1).Style.Font.SetBold().Font.SetFontSize(14).Font.SetFontColor(XLColor.FromHtml("#1D4ED8"));
+                    WriteDocumentMetadata(ws, metadataColumns);
+                    headerRow = 6;
+                }
+                else
+                {
+                    // Keep the historical generic layout intact for every
+                    // caller that did not opt into document identity.
+                    ws.Cell(1, 1).Value = _title.ToUpperInvariant();
+                    ws.Cell(1, 1).Style.Font.SetBold().Font.SetFontSize(14).Font.SetFontColor(XLColor.FromHtml("#1D4ED8"));
+                    ws.Cell(2, 1).Value = $"Generated {DateTime.Now.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture)}  •  {_rows.Count} row(s)";
+                    ws.Cell(2, 1).Style.Font.SetFontSize(9).Font.SetFontColor(XLColor.FromHtml("#6B7280"));
+                    headerRow = 4;
+                }
                 if (IsSectionedReport)
                 {
                     int dataCols = Math.Max(1, _headers.Length - 1);
@@ -226,7 +287,7 @@ namespace ProGlassAutomation.Services.Reporting
                         if (ws.Column(c).Width > 58) ws.Column(c).Width = 58;
                         if (ws.Column(c).Width < 14) ws.Column(c).Width = 14;
                     }
-                    ws.SheetView.FreezeRows(3);
+                    ws.SheetView.FreezeRows(headerRow - 1);
                     return;
                 }
 
@@ -284,6 +345,26 @@ namespace ProGlassAutomation.Services.Reporting
                 ws.SheetView.FreezeRows(headerRow);
                 ws.Range(headerRow, 1, headerRow, _headers.Length).SetAutoFilter();
             }
+
+            private void WriteDocumentMetadata(IXLWorksheet ws, int metadataColumns)
+            {
+                var context = _documentContext!;
+                string[] lines =
+                {
+                    context.PrimaryMetadataLine,
+                    context.SecondaryMetadataLine,
+                    $"{context.TertiaryMetadataLine}  •  Generated {context.GeneratedAtDisplay}  •  {_rows.Count} row(s)"
+                };
+
+                for (int row = 0; row < lines.Length; row++)
+                {
+                    int worksheetRow = row + 2;
+                    ws.Range(worksheetRow, 1, worksheetRow, metadataColumns).Merge();
+                    ws.Cell(worksheetRow, 1).Value = lines[row];
+                    ws.Cell(worksheetRow, 1).Style.Font.SetFontSize(9).Font.SetFontColor(XLColor.FromHtml("#4B5563"));
+                    ws.Cell(worksheetRow, 1).Style.Alignment.SetWrapText(true);
+                }
+            }
         }
 
         private sealed class GenericPdfLayout<T> : IPdfLayout
@@ -292,18 +373,31 @@ namespace ProGlassAutomation.Services.Reporting
             private readonly string _title;
             private readonly string[] _headers;
             private readonly Func<T, string[]> _mapper;
+            private readonly ReportDocumentContext? _documentContext;
 
-            public GenericPdfLayout(IReadOnlyList<T> rows, string title, string[] headers, Func<T, string[]> mapper)
+            public GenericPdfLayout(
+                IReadOnlyList<T> rows,
+                string title,
+                string[] headers,
+                Func<T, string[]> mapper,
+                ReportDocumentContext? documentContext)
             {
-                _rows = rows; _title = title; _headers = headers; _mapper = mapper;
+                _rows = rows;
+                _title = title;
+                _headers = headers;
+                _mapper = mapper;
+                _documentContext = documentContext;
             }
 
-            public string DocumentPrefix => "REP";
-            public string DocumentId => _title.Replace(" ", "-").ToUpperInvariant();
+            public string DocumentPrefix => _documentContext?.DocumentPrefix ?? "REP";
+            public string DocumentId => ExportFileNamer.FirstFilled(
+                _documentContext?.DocumentId,
+                _title.Replace(" ", "-").ToUpperInvariant());
             public string DocumentTitle => _title;
-            public string CompanyName => "ProGlass";
-            public string Reference => DateTime.Now.ToString("yyyy-MM-dd");
-            public DateTime DocumentDate => DateTime.Now;
+            public string CompanyName => _documentContext?.FilenameCustomer ?? "ProGlass";
+            public string Reference => _documentContext?.FilenameReference
+                ?? DateTime.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+            public DateTime DocumentDate => _documentContext?.FilenameDate ?? DateTime.Now;
             public LetterheadInfo? Letterhead => null;
             public PageLayout PageLayout => new PageLayout { Orientation = _headers.Length > 7 ? PageOrientation.Landscape : PageOrientation.Portrait };
 
@@ -314,7 +408,22 @@ namespace ProGlassAutomation.Services.Reporting
             public void RenderContent(ColumnDescriptor column)
             {
                 column.Item().Text(_title).FontSize(18).Bold().FontColor("#1D4ED8");
-                column.Item().Text($"Generated {DateTime.Now:dd MMM yyyy HH:mm}  •  {_rows.Count} row(s)").FontSize(8).FontColor("#6B7280");
+                if (_documentContext != null)
+                {
+                    column.Item().PaddingTop(3).Text(_documentContext.PrimaryMetadataLine).FontSize(8).FontColor("#4B5563");
+                    column.Item().Text(_documentContext.SecondaryMetadataLine).FontSize(8).FontColor("#4B5563");
+                    column.Item().Text(
+                        $"{_documentContext.TertiaryMetadataLine}  •  Generated {_documentContext.GeneratedAtDisplay}  •  {_rows.Count} row(s)")
+                        .FontSize(8)
+                        .FontColor("#6B7280");
+                }
+                else
+                {
+                    column.Item().Text(
+                        $"Generated {DateTime.Now.ToString("dd MMM yyyy HH:mm", CultureInfo.InvariantCulture)}  •  {_rows.Count} row(s)")
+                        .FontSize(8)
+                        .FontColor("#6B7280");
+                }
                 column.Item().PaddingTop(8).LineHorizontal(1).LineColor("#E5E7EB");
 
                 if (IsSectionedReport)

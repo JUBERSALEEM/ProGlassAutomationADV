@@ -10,7 +10,7 @@
 //   This static helper maps each row type to column arrays and hands them
 //   to the SAME central ReportingExportService used by every Reports-hub
 //   screen, so Step 9 exports behave and look identical to the rest of
-//   the product (save-dialog, auto-open, {Report}_{date}.ext naming).
+//   the product while retaining PI identity in the save name and body.
 //
 //   A synthetic "TOTAL" row is appended by the owning ViewModels (their
 //   totals are recomputed from the source rows, never summed margins) so
@@ -19,6 +19,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.ProformaInvoice.TargetPricing;
 using System;
@@ -36,8 +37,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
     /// </summary>
     public static class Step9ReportExport
     {
+        /// <summary>Professional report codes shared by every Step 9 export surface.</summary>
+        public const string ReportCodeOverview = "OVERVIEW";
+        public const string ReportCodeCostLedger = "COST-LEDGER";
+        public const string ReportCodePriceDecision = "PRICE-DECISION";
+        public const string ReportCodeServices = "SERVICES";
+        public const string ReportCodeSheetPricing = "SHEET-PRICING";
+        public const string ReportCodeSpecStrategy = "SPEC-STRATEGY";
+
         /// <summary>
-        /// Runs a report export through the central <see cref="ReportingExportService"/>.
+        /// Legacy generic-report overload retained for source compatibility.
+        /// Step 9 surfaces use the PI-aware overload below.
         /// </summary>
         public static async Task<ExportResult> RunAsync<T>(
             ExportFormat format,
@@ -65,6 +75,85 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     rows, reportTitle, headers, textMapper, request)
             };
         }
+
+        /// <summary>
+        /// Exports a Step 9 report with a live proforma identity in both its
+        /// filename and visible CSV/Excel/PDF header.
+        /// </summary>
+        public static async Task<ExportResult> RunAsync<T>(
+            ExportFormat format,
+            IReadOnlyList<T> rows,
+            string reportTitle,
+            string[] headers,
+            Func<T, string[]> textMapper,
+            Func<T, object[]> excelMapper,
+            string reportCode,
+            ReportDocumentContext? reportIdentity)
+        {
+            var documentContext = BuildDocumentContext(
+                reportCode,
+                reportIdentity,
+                DateTime.Now);
+            var request = new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true,
+                SuggestedFileName = BuildSuggestedFileName(format, documentContext)
+            };
+
+            return format switch
+            {
+                ExportFormat.Csv => await ReportingExportService.ExportCsvAsync(
+                    rows, reportTitle, headers, textMapper, request, documentContext),
+                ExportFormat.Excel => await ReportingExportService.ExportExcelAsync(
+                    rows, reportTitle, headers, excelMapper, request, documentContext),
+                _ => await ReportingExportService.ExportPdfAsync(
+                    rows, reportTitle, headers, textMapper, request, documentContext)
+            };
+        }
+
+        /// <summary>
+        /// Applies one report code to a live PI identity without mutating the
+        /// binding object. A fresh context also guarantees one generated-time
+        /// value across the filename and all three rendered formats.
+        /// </summary>
+        internal static ReportDocumentContext BuildDocumentContext(
+            string reportCode,
+            ReportDocumentContext? reportIdentity,
+            DateTime generatedAt)
+        {
+            var identity = reportIdentity ?? new ReportDocumentContext();
+            string proformaId = string.IsNullOrWhiteSpace(identity.ProformaId)
+                ? "PI-DRAFT"
+                : identity.ProformaId.Trim();
+            string normalizedReportCode = string.IsNullOrWhiteSpace(reportCode)
+                ? "REPORT"
+                : reportCode.Trim();
+
+            return new ReportDocumentContext
+            {
+                DocumentPrefix = "PI",
+                DocumentId = $"{proformaId} STEP9 {normalizedReportCode}",
+                ProformaId = identity.ProformaId,
+                CompanyName = identity.CompanyName,
+                CustomerName = identity.CustomerName,
+                ProjectName = identity.ProjectName,
+                IssueDate = identity.IssueDate,
+                Status = identity.Status,
+                GeneratedAt = generatedAt
+            };
+        }
+
+        /// <summary>Builds the standard safe PI-oriented filename for a Step 9 artifact.</summary>
+        internal static string BuildSuggestedFileName(
+            ExportFormat format,
+            ReportDocumentContext documentContext) =>
+            ExportFileNamer.Build(
+                documentContext.DocumentId,
+                documentContext.FilenameCustomer,
+                documentContext.FilenameReference,
+                documentContext.FilenameDate,
+                format);
 
         // ── Formatting helpers ──────────────────────────────────────────
         private static string N(decimal v) => v.ToString("N2", CultureInfo.InvariantCulture);
@@ -725,6 +814,172 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             return result;
         }
 
+        /// <summary>
+        /// Projects the authoritative Step 9 glass cost rows before any
+        /// summary totals. This is intentionally a projection only: it never
+        /// recomputes sheet quantity, rate, amount or cost basis.
+        /// </summary>
+        private static IReadOnlyList<OverviewReportRow> BuildOperationalSheetRows(ProfitLossStepViewModel vm)
+        {
+            var result = new List<OverviewReportRow>();
+            var glassRows = (vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
+                .Where(row => string.Equals(row.Kind, "Glass", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            foreach (var row in glassRows)
+            {
+                bool wholeSheetBasis = row.SheetSqm > 0m
+                    && row.Quantity == Math.Round(row.Quantity, 0)
+                    && Math.Abs(row.Amount - Math.Round(
+                        row.SheetSqm * row.Quantity * row.PricePerSqm, 2)) <= 0.02m;
+                string size = row.SheetWidthMm > 0 && row.SheetHeightMm > 0
+                    ? $"{row.SheetWidthMm} × {row.SheetHeightMm} mm · {Compact(row.SheetSqm)} SQM"
+                    : "—";
+                string quantityLabel = wholeSheetBasis ? "sheet quantity" : "required quantity";
+                string quantityUnit = wholeSheetBasis ? "sheet(s)" : (row.UnitLabel ?? "SQM");
+                string source = string.IsNullOrWhiteSpace(row.SheetSource)
+                    ? "not recorded"
+                    : OneLine(row.SheetSource);
+
+                result.Add(new OverviewReportRow
+                {
+                    Section = "SHEET OPERATIONAL DETAIL",
+                    Item = $"{row.SpecDisplay} — {OneLine(row.Description)}",
+                    Value = Money(row.Amount),
+                    Detail = $"Sheet size {size}; {quantityLabel} {Compact(row.Quantity)} {quantityUnit}; " +
+                             $"rate {MoneyRate(row.PricePerSqm)}; amount {Money(row.Amount)}; " +
+                             $"source {source}; cost basis {CostBasis(row)}."
+                });
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gives spacer/ASP its own production-service block immediately after
+        /// the sheet operation rows. The values are carried directly from the
+        /// existing Step 9 rows; no production costing is recalculated here.
+        /// </summary>
+        private static IReadOnlyList<OverviewReportRow> BuildSpacerOperationalRows(ProfitLossStepViewModel vm)
+        {
+            var result = new List<OverviewReportRow>();
+            var spacerRows = (vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
+                .Where(row => IsSpacerKind(row.Kind))
+                .ToList();
+
+            foreach (var row in spacerRows)
+            {
+                result.Add(new OverviewReportRow
+                {
+                    Section = "SPACER / ASP PRODUCTION DETAIL",
+                    Item = $"{row.SpecDisplay} — {OneLine(row.Description)}",
+                    Value = Money(row.Amount),
+                    Detail = $"Spacer / ASP production service; quantity {Compact(row.Quantity)} " +
+                             $"{row.UnitLabel}; rate {MoneyRate(row.PricePerSqm)}; " +
+                             $"amount {Money(row.Amount)}; cost basis {CostBasis(row)}."
+                });
+            }
+
+            if (spacerRows.Count == 0 && (vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
+                .Any(row => string.Equals(row.Kind, "Glass", StringComparison.OrdinalIgnoreCase)))
+            {
+                result.Add(new OverviewReportRow
+                {
+                    Section = "SPACER / ASP PRODUCTION DETAIL",
+                    Item = "No spacer / ASP production service",
+                    Value = "—",
+                    Detail = "No spacer / ASP production row applies to the current glass build."
+                });
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Adds the richer buy/used/wastage view already calculated by the
+        /// Sheet Pricing tab. It is supplemental to the direct cost-row block
+        /// above and preserves the tab's existing Step 6 allocation logic.
+        /// </summary>
+        private static IReadOnlyList<OverviewReportRow> BuildSheetPricingRows(ProfitLossStepViewModel vm)
+        {
+            var result = new List<OverviewReportRow>();
+            var analysis = vm.SheetProfitability;
+            var sheetRows = analysis.SheetBreakdown
+                .Where(row => !string.Equals(row.GlassTypeLabel, "TOTAL", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (sheetRows.Count == 0)
+            {
+                var directGlassRows = (vm.Rows ?? Enumerable.Empty<ProfitLossRow>())
+                    .Where(row => string.Equals(row.Kind, "Glass", StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                if (directGlassRows.Count > 0)
+                {
+                    result.Add(new OverviewReportRow
+                    {
+                        Section = "SHEET PRICING SUMMARY",
+                        Item = "Step 9 glass sheet cost",
+                        Value = Money(directGlassRows.Sum(row => row.Amount)),
+                        Detail = "Bought/used/wastage allocation is not currently available; " +
+                                 "the exact sheet size, quantity, rate, amount, source and cost basis " +
+                                 "remain visible in SHEET OPERATIONAL DETAIL."
+                    });
+                }
+
+                return result;
+            }
+
+            result.Add(new OverviewReportRow
+            {
+                Section = "SHEET PRICING SUMMARY",
+                Item = "Purchased sheets / area",
+                Value = $"{Compact(analysis.TotalBuySheets)} sheet(s) · {Compact(analysis.TotalBuySheetArea)} SQM",
+                Detail = $"Purchased sheet value {Money(analysis.TotalBuyPrice)}."
+            });
+            result.Add(new OverviewReportRow
+            {
+                Section = "SHEET PRICING SUMMARY",
+                Item = "Used sheets / area",
+                Value = $"{Compact(analysis.TotalUsedSheets)} sheet(s) · {Compact(analysis.TotalUsedArea)} SQM",
+                Detail = $"Used material value {Money(analysis.TotalUsedPrice)}."
+            });
+            result.Add(new OverviewReportRow
+            {
+                Section = "SHEET PRICING SUMMARY",
+                Item = "Wastage / leftover",
+                Value = $"{Compact(analysis.TotalWastageSheets)} sheet(s)",
+                Detail = $"Wastage material value {Money(analysis.TotalWastageValue)}; usage efficiency {Compact(analysis.UsageEfficiencyPercent)}%."
+            });
+            result.Add(new OverviewReportRow
+            {
+                Section = "SHEET PRICING SUMMARY",
+                Item = "Step 6 wastage charge",
+                Value = Money(analysis.TotalStep6Charge),
+                Detail = $"Buy − used − wastage reconciliation: AED {N(analysis.ReconciliationBalance)}."
+            });
+
+            foreach (var row in sheetRows)
+            {
+                string source = string.IsNullOrWhiteSpace(row.Step6SourceLabel)
+                    ? "Step 9 cost-row fallback"
+                    : $"Step 6 source {OneLine(row.Step6SourceLabel)}";
+                result.Add(new OverviewReportRow
+                {
+                    Section = "SHEET PRICING DETAIL",
+                    Item = $"{row.SpecPaneGlassDisplay} — {row.SheetSize}",
+                    Value = Money(row.BuySheetPrice),
+                    Detail = $"Sheet size {row.SheetSize}; buy {Compact(row.BuySheets)} sheet(s) " +
+                             $"({Compact(row.BuySheetArea)} SQM); rate {MoneyRate(row.PricePerSqm)}; " +
+                             $"amount {Money(row.BuySheetPrice)}; used {Compact(row.UsedSheets)} sheet(s) / " +
+                             $"{Compact(row.UsedArea)} SQM = {Money(row.UsedSheetPrice)}; leftover " +
+                             $"{Compact(row.WastageSheets)} sheet(s) / {Compact(row.WastageArea)} SQM = " +
+                             $"{Money(row.WastageValue)}; {source}."
+                });
+            }
+
+            return result;
+        }
+
         public static IReadOnlyList<OverviewReportRow> BuildOverviewRows(ProfitLossStepViewModel vm)
         {
             var rows = new List<OverviewReportRow>();
@@ -732,6 +987,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             void Add(string section, string item, string value, string detail = "") =>
                 rows.Add(new OverviewReportRow { Section = section, Item = item, Value = value, Detail = detail });
+
+            // Report order is deliberate: operations first, the spacer/ASP
+            // production separator second, then sheet pricing and management
+            // totals/decisions.
+            rows.AddRange(BuildOperationalSheetRows(vm));
+            rows.AddRange(BuildSpacerOperationalRows(vm));
+            rows.AddRange(BuildSheetPricingRows(vm));
 
             Add("OVERVIEW", "Step 9 rating", vm.Step9MaintenanceRating, vm.Step9ImprovementSummary);
             Add("OVERVIEW", "Target status", vm.TargetJobStatusLabel, vm.MarginAgainstTargetDisplay);

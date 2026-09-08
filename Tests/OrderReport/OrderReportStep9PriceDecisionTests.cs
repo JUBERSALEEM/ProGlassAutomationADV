@@ -71,6 +71,49 @@ namespace ProGlassAutomation.Tests.OrderReport
             Assert.Equal(9.49m, firstTargetResult.Amount!.Value);
         }
 
+        [Theory]
+        [InlineData("STEP 9 OVERVIEW", "PI-2026-001", true, "PI PI-2026-001 · STEP 9 OVERVIEW")]
+        [InlineData("STEP 9 OVERVIEW", "PI-2026-001", false, "STEP 9 OVERVIEW")]
+        [InlineData("PI SPECIFICATION ROWS", "", true, "PI DRAFT · PI SPECIFICATION ROWS")]
+        public void Batch_section_labels_keep_each_pi_visible_to_the_sectioned_export_renderer(
+            string sectionName,
+            string proformaId,
+            bool isBatch,
+            string expected)
+        {
+            Assert.Equal(
+                expected,
+                OrderReportGeneratorViewModel.BuildBatchScopedSectionName(
+                    sectionName,
+                    proformaId,
+                    isBatch));
+        }
+
+        [Fact]
+        public void Saved_order_report_adds_a_complete_pi_identity_row_before_its_step9_sections()
+        {
+            var row = OrderReportGeneratorViewModel.BuildDocumentIdentityExportRow(
+                new OrderReportHeader
+                {
+                    ProformaId = "PI-2026-001",
+                    CompanyName = "Skyline Interiors LLC",
+                    CustomerName = "Emaar Properties",
+                    ProjectName = "Showroom Partition Works",
+                    IssueDate = new DateTime(2026, 9, 8),
+                    PiStatus = "Draft"
+                });
+
+            Assert.Equal("PI DOCUMENT IDENTITY · PI-2026-001", row.Section);
+            Assert.Equal("PI-2026-001", row.ProformaId);
+            Assert.Equal("DOCUMENT", row.Spec);
+            Assert.Contains("Company Skyline Interiors LLC", row.Basis);
+            Assert.Contains("Customer Emaar Properties", row.Basis);
+            Assert.Contains("PI date 08 Sep 2026", row.SheetOrTarget);
+            Assert.Contains("Status Draft", row.SheetOrTarget);
+            Assert.Equal("Project Showroom Partition Works", row.Detail);
+            Assert.Null(row.Amount);
+        }
+
         [Fact]
         public void Older_saved_report_row_marks_missing_additive_values_instead_of_making_them_zero()
         {

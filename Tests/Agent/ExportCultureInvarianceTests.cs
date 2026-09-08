@@ -51,6 +51,7 @@ namespace ProGlassAutomation.Tests.Agent
             string[] exportFiles =
             {
                 "Services/Reporting/ReportingExportService.cs",
+                "Services/Reporting/ReportDocumentContext.cs",
                 "Services/ProformaInvoice/Export/ProformaInvoiceCsvLayout.cs",
                 "Services/ProformaInvoice/Export/ProformaInvoiceExcelLayout.cs",
                 "Services/ProformaInvoice/Export/ProformaInvoiceListExcelLayout.cs",

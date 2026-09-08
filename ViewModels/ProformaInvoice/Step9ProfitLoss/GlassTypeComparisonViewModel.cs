@@ -248,7 +248,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     Step9ReportExport.GlassTypeHeaders,
                     Step9ReportExport.GlassTypeMap,
                     Step9ReportExport.GlassTypeMapExcel,
-                    $"Step9_Spec_Build_Strategy_Report_{DateTime.Now:yyyyMMdd}");
+                    Step9ReportExport.ReportCodeSpecStrategy,
+                    _parentViewModel.GetReportDocumentContext());
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";

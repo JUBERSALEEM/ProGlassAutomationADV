@@ -126,6 +126,75 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         }
 
         [Fact]
+        public void Overview_starts_with_sheet_operations_then_spacer_asp_detail_without_recalculating_costs()
+        {
+            var vm = new ProfitLossStepViewModel();
+            try
+            {
+                vm.Rows.Add(new ProfitLossRow
+                {
+                    Kind = "Glass",
+                    SpecNumber = 1,
+                    SpecName = "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass",
+                    Description = "6mm HD Grey FT Glass",
+                    SheetWidthMm = 3210,
+                    SheetHeightMm = 2250,
+                    SheetSqm = 7.2225m,
+                    Quantity = 2m,
+                    PricePerSqm = 48m,
+                    Amount = 693.36m,
+                    SheetSource = "from Sheet Store"
+                });
+                vm.Rows.Add(new ProfitLossRow
+                {
+                    Kind = "Spacer",
+                    SpecNumber = 1,
+                    SpecName = "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass",
+                    Description = "12mm ASP",
+                    Quantity = 3.5m,
+                    UnitLabel = "SQM",
+                    PricePerSqm = 45m,
+                    Amount = 157.50m
+                });
+
+                var rows = Step9ReportExport.BuildOverviewRows(vm).ToList();
+
+                var sheet = rows.Single(row => row.Section == "SHEET OPERATIONAL DETAIL");
+                var spacer = rows.Single(row => row.Section == "SPACER / ASP PRODUCTION DETAIL");
+                var sheetPricing = rows.Single(row => row.Section == "SHEET PRICING SUMMARY");
+                int sheetIndex = rows.IndexOf(sheet);
+                int spacerIndex = rows.IndexOf(spacer);
+                int sheetPricingIndex = rows.IndexOf(sheetPricing);
+                int overviewIndex = rows.FindIndex(row => row.Section == "OVERVIEW");
+
+                Assert.Equal(0, sheetIndex);
+                Assert.True(sheetIndex < spacerIndex);
+                Assert.True(spacerIndex < sheetPricingIndex);
+                Assert.True(sheetPricingIndex < overviewIndex);
+                Assert.Equal("AED 693.36", sheetPricing.Value);
+                Assert.Contains("SHEET OPERATIONAL DETAIL", sheetPricing.Detail);
+                Assert.Equal("AED 693.36", sheet.Value);
+                Assert.Contains("Sheet size 3210 × 2250 mm · 7.2225 SQM", sheet.Detail);
+                Assert.Contains("sheet quantity 2 sheet(s)", sheet.Detail);
+                Assert.Contains("rate AED 48.00/SQM", sheet.Detail);
+                Assert.Contains("amount AED 693.36", sheet.Detail);
+                Assert.Contains("source from Sheet Store", sheet.Detail);
+                Assert.Contains("7.2225 sheet SQM × 2 sheet(s) × AED 48.00/SQM", sheet.Detail);
+
+                Assert.Equal("AED 157.50", spacer.Value);
+                Assert.Contains("Spacer / ASP production service", spacer.Detail);
+                Assert.Contains("quantity 3.5 SQM", spacer.Detail);
+                Assert.Contains("rate AED 45.00/SQM", spacer.Detail);
+                Assert.Contains("amount AED 157.50", spacer.Detail);
+                Assert.Contains("Spacer service quantity 3.5 SQM × AED 45.00/SQM", spacer.Detail);
+            }
+            finally
+            {
+                vm.Dispose();
+            }
+        }
+
+        [Fact]
         public void Included_u_insert_keeps_the_required_target_normal_and_explains_the_judged_given_price()
         {
             var result = SpecificationTargetCalculator.Calculate(

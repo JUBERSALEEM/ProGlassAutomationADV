@@ -37,6 +37,7 @@ using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -937,13 +938,52 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             return rows;
         }
 
+        /// <summary>
+        /// Gives each PI in a saved/batch report an explicit identity row.
+        /// This keeps company, customer, PI date and status visible even when
+        /// a report contains multiple customer/project combinations.
+        /// </summary>
+        internal static OrderReportStep9ExportRow BuildDocumentIdentityExportRow(OrderReportHeader header)
+        {
+            var identity = header ?? new OrderReportHeader();
+            string issueDate = identity.IssueDate == default
+                ? ""
+                : $"PI date {identity.IssueDate.ToString("dd MMM yyyy", CultureInfo.InvariantCulture)} · ";
+
+            return new OrderReportStep9ExportRow
+            {
+                Section = $"PI DOCUMENT IDENTITY · {identity.ProformaId}",
+                ProformaId = identity.ProformaId,
+                Spec = "DOCUMENT",
+                Item = "Company / customer / project",
+                Basis = $"Company {identity.CompanyName} · Customer {identity.CustomerName}",
+                SheetOrTarget = issueDate + $"Status {identity.PiStatus}",
+                Amount = null,
+                Detail = $"Project {identity.ProjectName}"
+            };
+        }
+
         private List<OrderReportStep9ExportRow> BuildGeneratorExportRows()
         {
             var rows = new List<OrderReportStep9ExportRow>();
             if (_lastBundle == null) return rows;
 
+            bool isBatch = _lastBundle.Sections.Count > 1;
             foreach (var section in _lastBundle.Sections)
             {
+                // Preserve document identity inside a multi-PI export as well:
+                // a report-level header cannot faithfully represent every PI
+                // in a batch, so each PI gets its own identity block. The
+                // following batch section labels are PI-qualified too because
+                // the generic CSV/Excel renderer groups same-named sections.
+                // That keeps every identity block immediately associated with
+                // that PI's data rather than merging batches by section name.
+                rows.Add(BuildDocumentIdentityExportRow(section.Header));
+                string SectionForPi(string sectionName) => BuildBatchScopedSectionName(
+                    sectionName,
+                    section.Header.ProformaId,
+                    isBatch);
+
                 foreach (var group in section.SpecRows.GroupBy(r => r.GroupNumber).OrderBy(g => g.Key))
                 {
                     var first = group.First();
@@ -952,7 +992,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                                 : first.GlassType;
                     rows.Add(new OrderReportStep9ExportRow
                     {
-                        Section = "PI SPECIFICATION ROWS",
+                        Section = SectionForPi("PI SPECIFICATION ROWS"),
                         ProformaId = section.Header.ProformaId,
                         Spec = $"SPEC {first.GroupNumber}",
                         Item = spec,
@@ -968,7 +1008,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                 {
                     rows.Add(new OrderReportStep9ExportRow
                     {
-                        Section = "STEP 9 OVERVIEW",
+                        Section = SectionForPi("STEP 9 OVERVIEW"),
                         ProformaId = section.Header.ProformaId,
                         Spec = "ALL",
                         Item = "Material + production profitability",
@@ -982,7 +1022,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                     {
                         rows.Add(new OrderReportStep9ExportRow
                         {
-                            Section = r.Section,
+                            Section = SectionForPi(r.Section),
                             ProformaId = section.Header.ProformaId,
                             Spec = r.SpecNumber > 0 ? $"SPEC {r.SpecNumber}" : "ALL",
                             Item = $"{r.Kind}: {r.Description}",
@@ -1098,19 +1138,102 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             return rows;
         }
 
+        /// <summary>
+        /// Makes a batch section unique to its PI. The generic sectioned
+        /// renderers group identical section labels, so retaining the PI here
+        /// is what preserves an identity block and its rows as one visible
+        /// document unit in a multi-PI CSV or Excel export.
+        /// </summary>
+        internal static string BuildBatchScopedSectionName(
+            string sectionName,
+            string? proformaId,
+            bool isBatch)
+        {
+            if (!isBatch)
+                return sectionName ?? string.Empty;
+
+            string pi = string.IsNullOrWhiteSpace(proformaId)
+                ? "DRAFT"
+                : proformaId.Trim();
+            return $"PI {pi} · {sectionName}";
+        }
+
+        /// <summary>
+        /// Creates the report-level identity for the saved Order Report CSV /
+        /// Excel export. Single-PI reports retain the PI-oriented filename
+        /// convention; batch reports identify themselves honestly while the
+        /// per-PI identity rows above retain each invoice's details.
+        /// </summary>
+        private ReportDocumentContext BuildGeneratorDocumentContext()
+        {
+            var sections = _lastBundle?.Sections?.ToList() ?? new List<OrderReportSnapshot>();
+            // The saved bundle owns the report's generated timestamp. Reuse
+            // it across PDF, CSV and Excel rather than replacing it with the
+            // later moment a user clicks an export button.
+            DateTime savedReportDate = _lastBundle?.GeneratedAt ?? default;
+            if (savedReportDate == default)
+                savedReportDate = DateTime.Now;
+            var first = sections.FirstOrDefault()?.Header;
+            bool isSinglePi = sections.Count == 1 && first != null;
+
+            return new ReportDocumentContext
+            {
+                DocumentPrefix = "PI",
+                DocumentId = isSinglePi && !string.IsNullOrWhiteSpace(first!.ProformaId)
+                    ? $"{first.ProformaId} STEP9 ORDER REPORT"
+                    : "STEP9 ORDER REPORT",
+                ProformaId = isSinglePi
+                    ? first!.ProformaId
+                    : sections.Count > 0 ? $"{sections.Count} proforma invoice(s)" : "",
+                CompanyName = CommonReportIdentity(
+                    sections.Select(section => section.Header.CompanyName),
+                    "Multiple companies"),
+                CustomerName = CommonReportIdentity(
+                    sections.Select(section => section.Header.CustomerName),
+                    "Multiple customers"),
+                ProjectName = CommonReportIdentity(
+                    sections.Select(section => section.Header.ProjectName),
+                    "Multiple projects"),
+                // For a batch, this is the report date. Individual PI dates
+                // remain visible in the PI DOCUMENT IDENTITY rows.
+                IssueDate = isSinglePi ? first!.IssueDate : savedReportDate.Date,
+                Status = isSinglePi ? first!.PiStatus : "Batch report",
+                GeneratedAt = savedReportDate
+            };
+        }
+
+        private static string CommonReportIdentity(IEnumerable<string?> values, string multipleLabel)
+        {
+            var distinct = values
+                .Where(value => !string.IsNullOrWhiteSpace(value))
+                .Select(value => value!.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            return distinct.Count switch
+            {
+                0 => "",
+                1 => distinct[0],
+                _ => multipleLabel
+            };
+        }
+
         /// <summary>Exports the report generator data as CSV or Excel, including Step 9 sections when saved with the PI.</summary>
         private async Task ExportSpecsAsync(ExportFormat format)
         {
             var rows = BuildGeneratorExportRows();
             string title = _lastBundle?.Title ?? "Order Report Generator";
+            var documentContext = BuildGeneratorDocumentContext();
 
             try
             {
                 ExportResult result = format == ExportFormat.Csv
                     ? await ReportingExportService.ExportCsvAsync(
-                        rows, title, OrderReportStep9ExportRow.Headers, r => r.ToCsvRow())
+                        rows, title, OrderReportStep9ExportRow.Headers, r => r.ToCsvRow(),
+                        documentContext: documentContext)
                     : await ReportingExportService.ExportExcelAsync(
-                        rows, title, OrderReportStep9ExportRow.Headers, r => r.ToExcelRow());
+                        rows, title, OrderReportStep9ExportRow.Headers, r => r.ToExcelRow(),
+                        documentContext: documentContext);
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";

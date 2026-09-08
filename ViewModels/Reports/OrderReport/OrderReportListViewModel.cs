@@ -227,7 +227,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
 
             try
             {
-                OrderReportPdfExporter.DeletePdfs(row.ReportNumber);
+                OrderReportPdfExporter.DeletePdfs(row.ReportNumber, row.PdfPath);
                 await Task.Run(() => _repo.DeleteAsync(row.Id));
 
                 _allRows.Remove(row);

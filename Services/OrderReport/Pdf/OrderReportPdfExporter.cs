@@ -16,6 +16,8 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.OrderReport;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Export.Pdf.Renderers;
 using ProGlassAutomation.Services.Logging;
@@ -23,6 +25,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -52,11 +55,7 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
             EnsureLicense();
             if (bundle == null) throw new ArgumentNullException(nameof(bundle));
 
-            string number = string.IsNullOrWhiteSpace(bundle.ReportNumber)
-                ? "REPORT"
-                : bundle.ReportNumber.Replace("/", "-").Replace("\\", "-");
-
-            string path = Path.Combine(OutputFolder, $"{number}.pdf");
+            string path = Path.Combine(OutputFolder, BuildOutputFileName(bundle));
 
             var document = new OrderReportPdfDocument(bundle);
             document.GeneratePdf(path);
@@ -83,18 +82,91 @@ namespace ProGlassAutomation.Services.OrderReport.Pdf
             }
         }
 
-        /// <summary>Deletes all PDFs for a report number (best-effort).</summary>
-        public static void DeletePdfs(string reportNumber)
+        /// <summary>
+        /// Builds the managed filename using the same safe PI/customer/project
+        /// convention as Proforma Invoice exports. The saved report number is
+        /// retained in the reference segment so separate report records for
+        /// one PI cannot overwrite or delete one another's PDFs.
+        /// </summary>
+        internal static string BuildOutputFileName(OrderReportBundle bundle)
+        {
+            if (bundle == null) throw new ArgumentNullException(nameof(bundle));
+
+            var sections = bundle.Sections ?? new List<OrderReportSnapshot>();
+            bool isSinglePi = sections.Count == 1;
+            var header = isSinglePi ? sections[0].Header : null;
+            string headerProformaId = header?.ProformaId ?? string.Empty;
+            string proformaId = string.IsNullOrWhiteSpace(headerProformaId)
+                ? "PI-DRAFT"
+                : headerProformaId.Trim();
+            string documentId = isSinglePi
+                ? $"{proformaId} STEP9 ORDER REPORT"
+                : "STEP9 ORDER REPORT";
+            string reportReference = ExportFileNamer.FirstFilled(
+                string.Join(" ", new[] { bundle.ReportNumber, header?.ProjectName }
+                    .Where(value => !string.IsNullOrWhiteSpace(value))),
+                bundle.ReportNumber,
+                header?.ProjectName);
+            DateTime issueDate = header?.IssueDate ?? default;
+            DateTime documentDate = issueDate != default
+                ? issueDate
+                : bundle.GeneratedAt != default
+                    ? bundle.GeneratedAt
+                    : DateTime.Now;
+
+            return ExportFileNamer.Build(
+                documentId,
+                header?.CustomerName,
+                reportReference,
+                documentDate,
+                ExportFormat.Pdf);
+        }
+
+        /// <summary>
+        /// Retains the original one-argument API for existing callers and
+        /// deletes the legacy report-number filename when it exists.
+        /// </summary>
+        public static void DeletePdfs(string reportNumber) =>
+            DeletePdfs(reportNumber, null);
+
+        /// <summary>
+        /// Deletes a saved report's known PDF path and the pre-PI-naming
+        /// legacy filename, both best-effort. Passing the persisted path keeps
+        /// deletion correct after filenames became PI-oriented.
+        /// </summary>
+        public static void DeletePdfs(string reportNumber, string? pdfPath)
         {
             try
             {
-                string path = Path.Combine(OutputFolder, $"{reportNumber}.pdf");
-                if (File.Exists(path)) File.Delete(path);
+                DeleteManagedPdf(pdfPath);
+
+                string legacyNumber = string.IsNullOrWhiteSpace(reportNumber)
+                    ? "REPORT"
+                    : reportNumber.Replace("/", "-").Replace("\\", "-");
+                string legacyPath = Path.Combine(OutputFolder, $"{legacyNumber}.pdf");
+                if (!string.Equals(legacyPath, pdfPath, StringComparison.OrdinalIgnoreCase))
+                    DeleteManagedPdf(legacyPath);
             }
             catch (Exception ex)
             {
                 AppLogService.Debug($"[OrderReport] DeletePdfs failed: {ex.Message}");
             }
+        }
+
+        private static void DeleteManagedPdf(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) return;
+
+            string outputFolder = Path.GetFullPath(OutputFolder)
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+            string fullPath = Path.GetFullPath(path);
+            if (!fullPath.StartsWith(outputFolder, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(Path.GetExtension(fullPath), ".pdf", StringComparison.OrdinalIgnoreCase))
+                return;
+
+            if (File.Exists(fullPath))
+                File.Delete(fullPath);
         }
     }
 

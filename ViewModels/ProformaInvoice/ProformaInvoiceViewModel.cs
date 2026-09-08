@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
+using ProGlassAutomation.Services.Reporting;
 
 using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.MasterData.Repository;
@@ -239,7 +240,19 @@ public ProformaInvoiceViewModel() : this(
                 Step6VM,
                 () => Step7VM.InvoiceMainSummary.SubtotalBeforeVat,
                 Step7VM.InvoiceMainSummary,
-                () => Step4VM.CaptureSectionSnapshots());
+                () => Step4VM.CaptureSectionSnapshots(),
+                reportDocumentContextProvider: () => new ReportDocumentContext
+                {
+                    // Read the live wizard bindings at the instant the user
+                    // exports: a cached copy here would produce stale PI
+                    // identity after a company/customer/project edit.
+                    ProformaId = Step1VM.ProformaId,
+                    CompanyName = Step1VM.CompanyName,
+                    CustomerName = Step2VM.CustomerName,
+                    ProjectName = FirstFilledProjectIdentity(),
+                    IssueDate = Step1VM.IssueDate,
+                    Status = Step1VM.ProformaStatus
+                });
 
             // Step 9's Glass / Spec Comparison report references Step 6
             // U-insert / wastage rows; wire the "Go to Step 6" jump back
@@ -318,6 +331,24 @@ public ProformaInvoiceViewModel() : this(
                 AsyncUtility.SafeFireAndForget(() => RestoreSnapshotIntoWizardAsync(json), "PI RestoreSnapshot");
 
             Step2VM.PropertyChanged += OnStep2PropertyChanged;
+        }
+
+        /// <summary>
+        /// Step 9 report filenames and headers use the same concise project
+        /// identity as the PI layouts: identifier name first, then reference,
+        /// contract number and LPO only when an identifier is unavailable.
+        /// </summary>
+        private string FirstFilledProjectIdentity()
+        {
+            string[] candidates =
+            {
+                Step3VM?.ProjectIdentifierName ?? "",
+                Step3VM?.ProjectReference ?? "",
+                Step3VM?.ProjectContractNo ?? "",
+                Step3VM?.LpoNumber ?? ""
+            };
+
+            return candidates.FirstOrDefault(value => !string.IsNullOrWhiteSpace(value))?.Trim() ?? "";
         }
 
         // ══════════════════════════════════════════════════════════════
