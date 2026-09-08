@@ -38,25 +38,45 @@ with GitHub admin rights, because the App pushing this repo lacks the
 
 ## The phases
 
-| # | Phase | Severity | Est. | Depends on |
-|---|---|---|---|---|
-| [1](PHASE-01-transactions-and-concurrency.md) | Transactions and optimistic concurrency | **C** | 4-6 d | green build |
-| [2](PHASE-02-rounding-policy.md) | One rounding policy for all money | **C** | 2-3 d | green build |
-| [3](PHASE-03-vat-validation.md) | Make VAT submission validation real | **C** | 1 d | green build |
-| [4](PHASE-04-licensing-hardening.md) | Licensing hardening | M | 2-3 d | — |
-| [5](PHASE-05-tax-and-currency-config.md) | Tax and currency as configuration | M | 5-8 d | 2, 3 |
-| [6](PHASE-06-utc-everywhere.md) | UTC everywhere | M | 3-4 d | — |
-| [7](PHASE-07-startup-and-di.md) | Startup resilience and DI completeness | M | 2 d | — |
-| [8](PHASE-08-pagination.md) | Finish pagination | M | 4-5 d | — |
-| [9](PHASE-09-security-hardening.md) | Security hardening | m | 2 d | — |
-| [10](PHASE-10-decomposition.md) | Decompose the god files | m | 5-7 d | 7 helps |
-| [11](PHASE-11-theme-consolidation.md) | Theme and design-system consolidation | m | 3-4 d | — |
-| [12](PHASE-12-rules-single-home.md) | One home for every rule | m | 3 d | — |
-| [13](PHASE-13-test-depth.md) | Test depth where money is computed | M | 4-6 d | 1, 2, 3 |
-| [14](PHASE-14-observability.md) | Observability and audit completeness | m | 3 d | 1, 7 |
-| [15](PHASE-15-release-hardening.md) | Release hardening | L | 2-3 d | all |
+| # | Phase | Severity | Est. | Depends on | Status |
+|---|---|---|---|---|---|
+| [1](PHASE-01-transactions-and-concurrency.md) | Transactions and optimistic concurrency | **C** | 4-6 d | green build | **Part applied** `f683602` — glass-sheet race closed; consumables + tokens open |
+| [2](PHASE-02-rounding-policy.md) | One rounding policy for all money | **C** | 2-3 d | green build | **Part applied** `d3c2b29` — single home + ratchet; 334 sites to migrate |
+| [3](PHASE-03-vat-validation.md) | Make VAT submission validation real | **C** | 1 d | green build | **DONE** `601a76a` |
+| [4](PHASE-04-licensing-hardening.md) | Licensing hardening | M | 2-3 d | — | **Part applied** `a04632f` — 4.1 done; 4.2-4.4 open |
+| [5](PHASE-05-tax-and-currency-config.md) | Tax and currency as configuration | M | 5-8 d | 2, 3 | **Blocked** — see below |
+| [6](PHASE-06-utc-everywhere.md) | UTC everywhere | M | 3-4 d | — | **Blocked** — see below |
+| [7](PHASE-07-startup-and-di.md) | Startup resilience and DI completeness | M | 2 d | — | **Part applied** `d5df6a8` — 3 of 4; splash delay open |
+| [8](PHASE-08-pagination.md) | Finish pagination | M | 4-5 d | — | **Blocked** — see below |
+| [9](PHASE-09-security-hardening.md) | Security hardening | m | 2 d | — | **Part applied** `deec7dd` — 9.1, 9.2 done; 9.3, 9.4 open |
+| [10](PHASE-10-decomposition.md) | Decompose the god files | m | 5-7 d | 7 helps | **Blocked** — see below |
+| [11](PHASE-11-theme-consolidation.md) | Theme and design-system consolidation | m | 3-4 d | — | **Blocked** — see below |
+| [12](PHASE-12-rules-single-home.md) | One home for every rule | m | 3 d | — | **Blocked** — see below |
+| [13](PHASE-13-test-depth.md) | Test depth where money is computed | M | 4-6 d | 1, 2, 3 | **Part applied** `dfa8c0b` — build-type gap closed |
+| [14](PHASE-14-observability.md) | Observability and audit completeness | m | 3 d | 1, 7 | **Part applied** `972f445` — 14.1 log levels; health panel open |
+| [15](PHASE-15-release-hardening.md) | Release hardening | L | 2-3 d | all | **Part applied** `56a6244` — 15.3 measured; 15.1/15.4/15.5 open |
 
-**C** critical · **M** major · **m** moderate · **L** low
+## Where the six blocked phases stand, and what unblocks each
+
+Nine of the fifteen phases have real code behind them. Six do not, and the
+reason is the same in every case: the change is large, the environment has no
+.NET SDK, and a mistake is silent rather than loud. The instruction was not to
+apply phases blindly or break working code, so these are recorded rather than
+guessed at.
+
+| Phase | What it needs | Why it cannot be done blind |
+|---|---|---|
+| **5** Tax and currency as configuration | Replace `VatCalculator.VAT_RATE_PERCENT` and friends — `public const decimal` — with configuration | `const decimal` is **inlined at compile time** into every call site. Changing it to a property or a service is a signature change rippling through pricing, invoicing and reporting at once. It also depends on Phase 2 finishing, because a configurable rate multiplies the rounding-migration surface. |
+| **6** UTC everywhere | 245 `DateTime.Now` sites against 151 `UtcNow` | Not a find-and-replace. Display strings, SQLite text columns, `SheetHistory.Timestamp` indexes and existing stored data all encode local time. Converting the write side without migrating the stored rows splits the timeline in half, and the failure is a dashboard that is quietly wrong rather than a crash. |
+| **8** Finish pagination | 13 remaining whole-table loads across 11 ViewModels, plus a pager in 6 XAML views | The repository side is ready — `PagedResult<T>` and `GlobalQueryEngine.ExecutePagedQueryAsync` exist. What is left is XAML: adding pager chrome to six views. XAML has no compiler feedback here beyond well-formedness, and a broken binding shows up as a blank screen at runtime. |
+| **10** Decompose the god files | Split 13 files above 990 lines | Mechanical in principle, but `partial` splitting moves code across files and the risk is a silently shadowed member or a `using` that no longer resolves. With no compiler, every one of the 13 splits is unverifiable, and the payoff is readability — the one phase where a mistake costs more than the fix gains. |
+| **11** Theme consolidation | 48 XAML files, 4.6 MB, across `CrystalFluid/`, `DarkTheme.xaml`, `LightTheme.xaml` | Resource-dictionary merges are resolved at runtime. A duplicated or shadowed key does not fail a parse; it changes a colour on one screen. Earlier work in this repository already had to retract a claim that bar colours were preserved through a migration — this is the same hazard at larger scale. |
+| **12** One home for every rule | Consolidate duplicated status, pricing and lifecycle rules | Requires knowing which of two divergent implementations is correct. Where they differ, picking one changes behaviour, and picking correctly needs the tests that only a build can run. Doing it without that is choosing a number at random. |
+
+Each of these is scoped in its own phase file with evidence and ordered steps.
+What they share is a prerequisite, not an insight: **a green build.** Run
+`docs/BUILD_VERIFICATION_GUIDE.md` once, and six blocked phases become ordinary
+work.
 
 ## If you only do three things
 
