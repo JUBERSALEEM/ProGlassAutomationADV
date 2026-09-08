@@ -145,7 +145,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // now emitted; unpriced panes stay visible and are not
                     // added into the profit total.
                     var panesToCost = CollectPanes(
-                        specName, isDgu, isLam, isDguLam, hasInnerPane);
+                        group, specName, isDgu, isLam, isDguLam, hasInnerPane);
 
                     int spacerInsertAt = -1;
                     int interlayerInsertAt = -1;
