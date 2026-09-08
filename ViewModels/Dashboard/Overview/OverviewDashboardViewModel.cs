@@ -43,7 +43,10 @@ using System.Windows;
 using System.Windows.Input;
 
 using ProGlassAutomation.Services.Dashboard.Core;
+using ProGlassAutomation.Services.Dashboard.TaxInvoiceMetrics;
+using ProGlassAutomation.Models.Dashboard.TaxInvoiceDashboard;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Dashboard
 {
@@ -53,11 +56,23 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         private readonly IDashboardMetricsService _dashboardMetrics = null!;
         private readonly IProformaInvoiceRepository _invoices = null!;
 
+        // Optional: the workflow pipeline's Invoice and Payment stages come
+        // from the tax invoice module, which the metrics service does not
+        // aggregate. Nullable so a caller that does not care about the
+        // pipeline (tests, designers) still constructs, and so a missing
+        // registration degrades to a 3-stage rail instead of throwing on a
+        // dashboard load.
+        private readonly ITaxInvoiceMetricsService? _taxInvoiceMetrics;
+
         public OverviewDashboardViewModel(IDashboardFilterService? dashboardFilter, IDashboardMetricsService? dashboardMetrics, IProformaInvoiceRepository? invoices)
+            : this(dashboardFilter, dashboardMetrics, invoices, null) { }
+
+        public OverviewDashboardViewModel(IDashboardFilterService? dashboardFilter, IDashboardMetricsService? dashboardMetrics, IProformaInvoiceRepository? invoices, ITaxInvoiceMetricsService? taxInvoiceMetrics)
         {
             _dashboardFilter = dashboardFilter!;
             _dashboardMetrics = dashboardMetrics!;
             _invoices = invoices!;
+            _taxInvoiceMetrics = taxInvoiceMetrics;
         
             // ERR-633EEB: run shared initialization on EVERY construction
             // path. DI selects this (greediest) ctor, so without this call the
@@ -116,6 +131,30 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         {
             get => _inventoryTiles;
             private set { if (_inventoryTiles == value) return; _inventoryTiles = value; OnPropertyChanged(); }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  WORKFLOW PIPELINE — Quote → Production → Delivery → Invoice
+        //                     → Payment
+        //
+        //  The four KPI bands above are per-module snapshots; they answer
+        //  "how is sales / production / delivery / stock doing". They do
+        //  not answer "where is a given order right now", which is the
+        //  question an operator actually asks first. This rail does, in
+        //  one glance, by counting the live work sitting in each handoff.
+        //
+        //  Stages 1-3 come from ExecutiveMetrics, which Overview already
+        //  loads. Stages 4-5 come from the tax invoice module. When that
+        //  service is unavailable the rail still renders its first three
+        //  stages rather than disappearing, so a partial data set never
+        //  leaves a hole in the layout.
+        // ═════════════════════════════════════════════════════════════════
+
+        private ObservableCollection<WorkflowStageModel> _workflowStages = new();
+        public ObservableCollection<WorkflowStageModel> WorkflowStages
+        {
+            get => _workflowStages;
+            private set { if (_workflowStages == value) return; _workflowStages = value; OnPropertyChanged(); }
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -227,7 +266,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
          : this(
             App.ServiceProvider?.GetService<IDashboardFilterService>()!,
             App.ServiceProvider?.GetService<IDashboardMetricsService>()!,
-            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!){ }
+            App.ServiceProvider?.GetService<IProformaInvoiceRepository>()!,
+            App.ServiceProvider?.GetService<ITaxInvoiceMetricsService>()){ }
 
         // ── Shared initialization (ERR-633EEB) ─────────────────────
         // Extracted verbatim from the parameterless ctor so both it
@@ -296,6 +336,29 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             int totalStockQty      = exec.Inventory.TotalSheetsAvailable;
 
             // ═════════════════════════════════════════════════════════════
+            //  🔗 WORKFLOW PIPELINE
+            //
+            //  Stages 4-5 need tax invoice figures. The call is guarded and
+            //  awaited only when the service resolved, so a missing
+            //  registration costs nothing and cannot fail the dashboard.
+            // ═════════════════════════════════════════════════════════════
+            TaxInvoiceKpiSummary? tax = null;
+            if (_taxInvoiceMetrics is not null)
+            {
+                try { tax = await _taxInvoiceMetrics.GetKpiSummaryAsync(); }
+                catch (Exception ex)
+                {
+                    // A failure in the two downstream stages must not blank
+                    // the whole Overview page — the first three stages and
+                    // every KPI band are independent of it.
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                        "[OverviewDashboard] workflow pipeline tax stage skipped: "
+                        + ExceptionMessages.Deep(ex));
+                }
+            }
+            BuildWorkflowPipeline(exec, tax);
+
+            // ═════════════════════════════════════════════════════════════
             //  💰 SALES CARD — 4 tiles
             // ═════════════════════════════════════════════════════════════
             // Phase 1 C-4 fix: update existing collection instead of replacing.
@@ -336,10 +399,18 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             // ═════════════════════════════════════════════════════════════
             // Phase 1 C-4: update existing collection
             _inventoryTiles.Clear();
-            _inventoryTiles.Add(new KpiTileModel { Icon = "\uE8EF", Label = "Stock Value", DisplayValue = $"AED {inventoryValue:N2}", Accent = "Red" });
-            _inventoryTiles.Add(new KpiTileModel { Icon = lowStock > 0 ? "\uE7BA" : "\uE73E", Label = "Low Stock", DisplayValue = lowStock.ToString("N0"), Accent = lowStock > 0 ? "Red" : "Red", IsAlert = lowStock > 0 });
-            _inventoryTiles.Add(new KpiTileModel { Icon = "\uE719", Label = "Sheet Types", DisplayValue = totalSheets.ToString("N0"), Accent = "Red" });
-            _inventoryTiles.Add(new KpiTileModel { Icon = "\uE7B8", Label = "Total Sheets", DisplayValue = totalStockQty.ToString("N0"), Accent = "Red" });
+            // The inventory band used to set Accent = "Red" on all four
+            // tiles, and "Low Stock" read `lowStock > 0 ? "Red" : "Red"` —
+            // both branches identical, so the ternary did nothing. Red is
+            // the danger colour, so a healthy stock position rendered with
+            // four alarm chips and the one tile that can genuinely be in
+            // trouble was indistinguishable from the three that cannot.
+            // Neutral counts are now Blue; only Low Stock goes Red, and
+            // only when there is actually something low.
+            _inventoryTiles.Add(new KpiTileModel { Icon = "\uE8EF", Label = "Stock Value", DisplayValue = $"AED {inventoryValue:N2}", Accent = "Blue" });
+            _inventoryTiles.Add(new KpiTileModel { Icon = lowStock > 0 ? "\uE7BA" : "\uE73E", Label = "Low Stock", DisplayValue = lowStock.ToString("N0"), Accent = lowStock > 0 ? "Red" : "Green", IsAlert = lowStock > 0 });
+            _inventoryTiles.Add(new KpiTileModel { Icon = "\uE719", Label = "Sheet Types", DisplayValue = totalSheets.ToString("N0"), Accent = "Blue" });
+            _inventoryTiles.Add(new KpiTileModel { Icon = "\uE7B8", Label = "Total Sheets", DisplayValue = totalStockQty.ToString("N0"), Accent = "Blue" });
             OnPropertyChanged(nameof(InventoryTiles));
 
             // ═════════════════════════════════════════════════════════════
@@ -551,6 +622,116 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         }
 
         // ═════════════════════════════════════════════════════════════════
+        //  WORKFLOW PIPELINE BUILD
+        //
+        //  Each stage counts the live work sitting in that handoff, not a
+        //  lifetime total — a rail that showed "14,203 invoices ever"
+        //  would tell an operator nothing about what to chase today.
+        //
+        //  A stage whose backing module is unavailable renders an em dash
+        //  rather than a zero. A zero asserts "there is no work here",
+        //  which is a different claim from "we could not read it", and on
+        //  a money document that difference matters.
+        // ═════════════════════════════════════════════════════════════════
+        private void BuildWorkflowPipeline(ExecutiveMetrics exec, TaxInvoiceKpiSummary? tax)
+        {
+            _workflowStages.Clear();
+
+            // ── 1 · QUOTE ────────────────────────────────────────────────
+            _workflowStages.Add(new WorkflowStageModel
+            {
+                Glyph = "\uE8A5",
+                Name = "Quote",
+                ValueDisplay = exec.Sales.TotalInvoices.ToString("N0"),
+                Foot = $"{exec.Sales.ApprovedInvoices:N0} approved · "
+                     + $"{exec.Sales.DraftInvoices:N0} draft",
+                AccentKey = "InfoBrush",
+                ModuleKey = "ProformaInvoice",
+                IsFirst = true,
+            });
+
+            // ── 2 · PRODUCTION ───────────────────────────────────────────
+            // Overdue jobs are the stage most worth interrupting someone
+            // for, so this is the stage that goes alert.
+            _workflowStages.Add(new WorkflowStageModel
+            {
+                Glyph = exec.Production.Overdue > 0 ? "\uE7BA" : "\uE713",
+                Name = "Production",
+                ValueDisplay = exec.Production.InProduction.ToString("N0"),
+                Foot = exec.Production.Overdue > 0
+                    ? $"{exec.Production.Overdue:N0} overdue"
+                    : "on schedule",
+                AccentKey = exec.Production.Overdue > 0 ? "DangerBrush" : "AccentBrush",
+                IsActive = exec.Production.Overdue > 0,
+                ModuleKey = "JobOrder",
+            });
+
+            // ── 3 · DELIVERY ─────────────────────────────────────────────
+            // "In flight" = preparing + dispatched, i.e. everything that
+            // has left the floor but has not been received yet.
+            var dnInFlight = exec.Delivery.Preparing + exec.Delivery.Dispatched;
+            _workflowStages.Add(new WorkflowStageModel
+            {
+                Glyph = "\uE806",
+                Name = "Delivery",
+                ValueDisplay = dnInFlight.ToString("N0"),
+                Foot = exec.Delivery.PendingPieces > 0
+                    ? $"{exec.Delivery.PendingPieces:N0} pcs pending"
+                    : "fully dispatched",
+                AccentKey = exec.Delivery.PendingPieces > 0 ? "WarningBrush" : "SuccessBrush",
+                IsActive = exec.Delivery.PendingPieces > 0,
+                ModuleKey = "DeliveryNote",
+            });
+
+            // ── 4 · INVOICE ── and ── 5 · PAYMENT ────────────────────────
+            if (tax is null)
+            {
+                foreach (var name in new[] { "Invoice", "Payment" })
+                {
+                    _workflowStages.Add(new WorkflowStageModel
+                    {
+                        Glyph = "\uE9CE",
+                        Name = name,
+                        ValueDisplay = "\u2014",
+                        Foot = "tax invoice data unavailable",
+                        AccentKey = "MutedForegroundBrush",
+                        ModuleKey = name == "Invoice" ? "TaxInvoice" : "Statement",
+                    });
+                }
+            }
+            else
+            {
+                _workflowStages.Add(new WorkflowStageModel
+                {
+                    Glyph = tax.OverdueCount > 0 ? "\uE7BA" : "\uE8EF",
+                    Name = "Invoice",
+                    ValueDisplay = tax.IssuedCount.ToString("N0"),
+                    Foot = tax.OverdueCount > 0
+                        ? $"{tax.OverdueCount:N0} past terms"
+                        : $"{tax.PendingCount:N0} awaiting payment",
+                    AccentKey = tax.OverdueCount > 0 ? "DangerBrush" : "AccentBrush",
+                    IsActive = tax.OverdueCount > 0,
+                    ModuleKey = "TaxInvoice",
+                });
+
+                _workflowStages.Add(new WorkflowStageModel
+                {
+                    Glyph = "\uE8C7",
+                    Name = "Payment",
+                    ValueDisplay = tax.PaidThisMonthCount.ToString("N0"),
+                    Foot = tax.OverdueAmount > 0
+                        ? $"AED {tax.OverdueAmount:N2} overdue"
+                        : "nothing overdue",
+                    AccentKey = tax.OverdueAmount > 0 ? "WarningBrush" : "SuccessBrush",
+                    IsActive = tax.OverdueAmount > 0,
+                    ModuleKey = "Statement",
+                });
+            }
+
+            OnPropertyChanged(nameof(WorkflowStages));
+        }
+
+        // ═════════════════════════════════════════════════════════════════
         //  THEME SWAP
         // ═════════════════════════════════════════════════════════════════
 
@@ -562,6 +743,11 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             InventoryTiles = new ObservableCollection<KpiTileModel>(_inventoryTiles);
             RecentActivity = new ObservableCollection<ActivityFeedItem>(_recentActivity);
             DeliveryMixSlices = new ObservableCollection<ChartSliceModel>(_deliveryMixSlices);
+            // The pipeline colours its stage chips through BrushKeyConverter,
+            // which resolves once at bind time — so the rail has to be
+            // re-materialised on a theme swap or its chips keep the old
+            // theme's brushes, same reason the KPI bands above are rebuilt.
+            WorkflowStages = new ObservableCollection<WorkflowStageModel>(_workflowStages);
         }
 
         // ═════════════════════════════════════════════════════════════════

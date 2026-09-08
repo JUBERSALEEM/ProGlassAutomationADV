@@ -117,6 +117,18 @@
                      DynamicResource against keys present in BOTH themes. -->
                 <ResourceDictionary Source="Styles/DashboardStyles.xaml"/>
 
+                <!-- ── THE DASHBOARD GRAMMAR (2026-09-08) ──
+                     One design language for all seven module dashboards,
+                     replacing the three stacked generations (Dash*, Soft*,
+                     IndustrialDashboard*) that made the pages disagree on
+                     card weight, page margin, KPI tile shape and type
+                     scale. Merged AFTER DashboardStyles.xaml because it
+                     BasedOn's SurfacePrimaryStyle / SurfaceDetailStyle from
+                     DesignTokens.xaml and reads the Text* scale from
+                     TypeScaleTokens.xaml, both of which are merged above.
+                     Dashboard pages must use Db* keys only. ── -->
+                <ResourceDictionary Source="Styles/DashboardKit.xaml"/>
+
                 <!-- ═══════════════════════════════════════════════════════════════
                          CHAT 21 v3 — Statement Generator WIZARD shared styles
                          Registered globally so all 4 wizard step UserControls

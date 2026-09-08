@@ -63,7 +63,7 @@
              STATEMENT ROW
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="StStatementRowTemplate">
-            <Border Style="{StaticResource IndustrialDashboardRowCardStyle}"
+            <Border Style="{StaticResource DbRowCardStyle}"
                     Margin="0,0,0,8"
                     Padding="12,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
@@ -183,7 +183,7 @@
                             Tag="&#xE8A5;"
                             Margin="10,0,0,0"
                             VerticalAlignment="Center"
-                            Style="{StaticResource SoftPillButtonStyle}"
+                            Style="{StaticResource DbActionButtonStyle}"
                             ToolTip="{DynamicResource Dashboard.OpenStatementPDF}"
                             Command="{Binding DataContext.OpenPdfCommand,
                                       RelativeSource={RelativeSource
@@ -206,7 +206,7 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="{StaticResource IndustrialDashboardPageMargin}">
+            <Grid Margin="{StaticResource DbPageMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -221,13 +221,13 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Dashboard.Statements}"
-                                   Style="{StaticResource SoftHeroTitleStyle}"/>
+                                   Style="{StaticResource DbTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Dashboard.CustomerBalancesOutstandingValueCollection}"
-                                   Style="{StaticResource SoftHeroSubtitleStyle}"/>
+                                   Style="{StaticResource DbSubtitleStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
                                 VerticalAlignment="Center">
-                        <Border Style="{StaticResource SoftChipStyle}" Margin="0,0,8,0">
+                        <Border Style="{StaticResource DbChipStyle}" Margin="0,0,8,0">
                             <StackPanel Orientation="Horizontal">
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
@@ -237,27 +237,27 @@
                             </StackPanel>
                         </Border>
                         <TextBlock Text="{Binding LastRefreshed}"
-                                   Style="{StaticResource SoftMetaStyle}"
+                                   Style="{StaticResource DbMetaStyle}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,12,0"/>
                         <Button Content="{DynamicResource Dashboard.NewStatement}" Tag="&#xE710;"
-                                Style="{StaticResource SoftPillAccentStyle}"
+                                Style="{StaticResource DbActionButtonAccentStyle}"
                                 Command="{Binding NewStatementCommand}" ToolTip="{DynamicResource Dashboard.GenerateNewCustomerStatement}"/>
                         <Button Content="{DynamicResource Dashboard.View}" Tag="&#xE8FD;" Margin="0"
-                                Style="{StaticResource SoftPillButtonStyle}"
+                                Style="{StaticResource DbActionButtonStyle}"
                                 Command="{Binding GoToStatementsCommand}" ToolTip="{DynamicResource Dashboard.ViewGeneratedStatements}"/>
                     </StackPanel>
                 </Grid>
 
                 <StackPanel Grid.Row="1">
-                    <Border Style="{StaticResource SoftSectionStyle}"
+                    <Border Style="{StaticResource DbStateBandStyle}"
                             Padding="16,12"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{DynamicResource Dashboard.LoadingStatements}"
-                                   Style="{StaticResource SoftKpiFootStyle}"/>
+                                   Style="{StaticResource DbKpiFootStyle}"/>
                     </Border>
-                    <Border Style="{StaticResource SoftSectionStyle}"
+                    <Border Style="{StaticResource DbStateBandStyle}"
                             Padding="16,12"
                             Background="{DynamicResource TintRedBrush}"
                             BorderBrush="{DynamicResource DangerBrush}"
@@ -280,34 +280,29 @@
                          module dashboard (SoftKpiCardTemplate), built from the
                          KpiCards collection so the Statement page matches the
                          rest of the suite. -->
-                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}"
+                    <Border Grid.Column="0" Style="{StaticResource DbCardStyle}"
                             Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.StatementPulse}"
-                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                           Style="{StaticResource DbSectionTitleStyle}"/>
                                 <TextBlock Text="{DynamicResource Dashboard.StatementsInvoicedOutstandingOverdue}"
-                                           Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                                           Style="{StaticResource DbSectionSubStyle}"/>
                             </StackPanel>
-                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                            <ItemsControl Style="{StaticResource DbKpiBandStyle}"
                                           ItemsSource="{Binding KpiCards}"
-                                          ItemTemplate="{StaticResource SoftKpiCardTemplate}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Columns="2"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                                          ItemTemplate="{StaticResource DbKpiTileTemplate}"
+                                          ItemsPanel="{StaticResource DbKpiBandPanel}"/>
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}"
+                    <Border Grid.Column="1" Style="{StaticResource DbCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Dashboard.CollectionMix}"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                                       Style="{StaticResource DbSectionTitleStyle}"/>
                             <TextBlock Text="{DynamicResource Dashboard.CollectedVsOutstandingVsOverdue}"
-                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                                       Style="{StaticResource DbSectionSubStyle}"/>
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding BalanceMixSlices}"
                                                      HoleLabel="AED"
@@ -316,16 +311,16 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="2" Style="{StaticResource IndustrialDashboardCardStyle}" Padding="16,12">
+                    <Border Grid.Column="2" Style="{StaticResource DbCardStyle}" Padding="16,12">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Common.Overdue}"
-                                       Style="{StaticResource SoftKpiLabelStyle}"/>
+                                       Style="{StaticResource DbKpiLabelStyle}"/>
                             <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
                                      StretchDirection="DownOnly" Margin="0,8,0,4">
                                 <TextBlock Text="{Binding OverdueAmountDisplay}" Margin="0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock"
-                                               BasedOn="{StaticResource SoftKpiValueStyle}">
+                                               BasedOn="{StaticResource DbKpiValueStyle}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasOverdue}" Value="True">
                                                     <Setter Property="Foreground"
@@ -337,15 +332,15 @@
                                 </TextBlock>
                             </Viewbox>
                             <TextBlock Text="{DynamicResource Dashboard.PastPaymentTerms}"
-                                       Style="{StaticResource SoftKpiFootStyle}"/>
+                                       Style="{StaticResource DbKpiFootStyle}"/>
                         </StackPanel>
                     </Border>
                 </Grid>
 
-                <Border Grid.Row="3" Style="{StaticResource IndustrialDashboardCardStyle}">
+                <Border Grid.Row="3" Style="{StaticResource DbCardStyle}">
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Dashboard.RecentStatements}"
-                                   Style="{StaticResource SoftSectionTitleStyle}"
+                                   Style="{StaticResource DbSectionTitleStyle}"
                                    Margin="0,0,0,8"/>
 
                         <Border Padding="0,40"
@@ -353,18 +348,18 @@
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                             <StackPanel HorizontalAlignment="Center">
                                 <TextBlock Text="&#xE9D9;"
-                                           Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                           Style="{StaticResource DbEmptyGlyphStyle}"/>
                                 <TextBlock Text="{DynamicResource Dashboard.NoStatementsYet}"
-                                           Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                           Style="{StaticResource DbEmptyTextStyle}"/>
                                 <TextBlock Text="{DynamicResource Dashboard.GenerateStatementSeeCustomerBalancesHere}"
-                                           Style="{StaticResource SoftMetaStyle}"
+                                           Style="{StaticResource DbMetaStyle}"
                                            HorizontalAlignment="Center"
                                            Margin="0,6,0,14"/>
                                 <Button Content="{DynamicResource Dashboard.NewStatement}"
                                         Tag="&#xE710;"
                                         Margin="0"
                                         HorizontalAlignment="Center"
-                                        Style="{StaticResource SoftPillAccentStyle}"
+                                        Style="{StaticResource DbActionButtonAccentStyle}"
                                         Command="{Binding NewStatementCommand}" ToolTip="{DynamicResource Dashboard.GenerateNewCustomerStatement}"/>
                             </StackPanel>
                         </Border>
@@ -375,7 +370,7 @@
                                       HorizontalScrollBarVisibility="Disabled"
                                       Visibility="{Binding HasStatements,
                                           Converter={StaticResource BoolToVisibilityConverter}}">
-                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                            <ItemsControl Style="{StaticResource DbFeedItemsStyle}"
                                           ItemsSource="{Binding RecentStatements}"
                                           ItemTemplate="{StaticResource StStatementRowTemplate}"/>
                         </ScrollViewer>

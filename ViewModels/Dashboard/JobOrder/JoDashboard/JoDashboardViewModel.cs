@@ -158,20 +158,12 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
         }
 
         // ── Footer timestamp ─────────────────────────────────────────
-        // Intentionally hides DashboardPageBase.LastRefreshed so this page
-        // can use its own format ("Last refreshed dd MMM yyyy, HH:mm")
-        // instead of the base's generic "Updated HH:mm:ss" stamp.
-        private string _lastRefreshed = string.Empty;
-        public new string LastRefreshed
-        {
-            get => _lastRefreshed;
-            private set
-            {
-                if (_lastRefreshed == value) return;
-                _lastRefreshed = value;
-                OnPropertyChanged();
-            }
-        }
+        // Was a `new` shadow over DashboardPageBase.LastRefreshed so this
+        // page could print "Last refreshed dd MMM yyyy, HH:mm" instead of
+        // the base's "Updated HH:mm:ss". The base now uses that richer
+        // format for every page, so the shadow is gone: one writer, one
+        // format, and a DashboardPageBase reference can finally read the
+        // stamp the view is showing.
 
         // ── Status string constants (matches SavedJobOrder.Status storage) ─
         private const string StatusDraft = "Draft";
@@ -311,7 +303,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
 
             HasStatusData = total > 0;
             HasRecentFeed = _recentFeed.Count > 0;
-            LastRefreshed = $"Last refreshed {DateTime.Now:dd MMM yyyy, HH:mm}";
+            // LastRefreshed is written once, by DashboardPageBase.LoadAsync.
         }
 
         // ── Theme swap ────────────────────────────────────────────────

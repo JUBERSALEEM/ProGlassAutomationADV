@@ -184,7 +184,15 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
                 await LoadCoreAsync();
 
-                LastRefreshed = $"Updated {DateTime.Now:HH:mm:ss}";
+                // One stamp format for all seven dashboards. This used to be
+                // "Updated HH:mm:ss" here while JobOrder and DeliveryNote
+                // each shadowed LastRefreshed with their own
+                // "Last refreshed dd MMM yyyy, HH:mm" — so the same app
+                // showed the refresh time three different ways, and the
+                // assignment below was dead on those two pages because the
+                // view bound the derived property instead. Sub-pages must
+                // NOT redeclare LastRefreshed; this is the only writer.
+                LastRefreshed = $"Last refreshed {DateTime.Now:dd MMM yyyy, HH:mm}";
             }
             catch (Exception ex)
             {

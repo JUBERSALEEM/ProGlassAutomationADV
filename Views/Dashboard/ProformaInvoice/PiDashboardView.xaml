@@ -1,6 +1,13 @@
-<!-- LAYOUT-03 BENTO MOSAIC — Proforma Invoice. Bindings unchanged. -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     PROFORMA INVOICE DASHBOARD — on the shared dashboard grammar.
+
+     Grammar: Styles/DashboardKit.xaml (Db* keys only).
+     Contract: hero → states → KPI band → primary visual → detail.
+
+     Bindings unchanged: KpiCards, StatusBars, StatusMixSlices,
+     TopCustomerBars, HasChartData, plus the DashboardPageBase states.
+═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.ProformaInvoice.PiDashboardView"
-             TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
@@ -9,6 +16,7 @@
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
@@ -22,160 +30,171 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="{StaticResource IndustrialDashboardPageMargin}">
+            <Grid Margin="{StaticResource DbPageMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*" MinHeight="260"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="0,0,0,20">
+                <!-- ── hero ────────────────────────────────────────── -->
+                <Grid Grid.Row="0" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock Text="{DynamicResource Module.ProformaInvoice}"
-                                   Style="{StaticResource SoftHeroTitleStyle}"/>
+                                   Style="{StaticResource DbTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Dashboard.QuotePipelineStatusDistributionTopCustomers}"
-                                   Style="{StaticResource SoftHeroSubtitleStyle}"/>
+                                   Style="{StaticResource DbSubtitleStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Border Style="{StaticResource SoftChipStyle}" Margin="0,0,8,0">
+                                VerticalAlignment="Center" Margin="12,0,0,0">
+                        <Border Style="{StaticResource DbChipStyle}" Margin="0,0,10,0">
                             <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="8" Height="8" Margin="0,0,6,0"
+                                <Ellipse Width="7" Height="7" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="{DynamicResource Common.Live}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                <TextBlock Text="{DynamicResource Common.Live}"
+                                           FontSize="{StaticResource TextCaption}"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
                         <TextBlock Text="{Binding LastRefreshed}"
-                                   Style="{StaticResource SoftMetaStyle}"
-                                   VerticalAlignment="Center"/>
+                                   Style="{StaticResource DbMetaStyle}"/>
                     </StackPanel>
                 </Grid>
 
+                <!-- ── loading + error ─────────────────────────────── -->
                 <StackPanel Grid.Row="1">
-                    <Border Style="{StaticResource SoftSectionStyle}"
-                            Padding="16,12"
+                    <Border Style="{StaticResource DbStateBandStyle}"
                             Visibility="{Binding IsLoading,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{DynamicResource Dashboard.LoadingInvoiceData}"
-                                   Style="{StaticResource SoftKpiFootStyle}"/>
+                                   Style="{StaticResource DbStateTextStyle}"/>
                     </Border>
-                    <Border Style="{StaticResource SoftSectionStyle}"
-                            Padding="16,12"
+                    <Border Style="{StaticResource DbStateBandStyle}"
                             Background="{DynamicResource TintRedBrush}"
                             BorderBrush="{DynamicResource DangerBrush}"
                             Visibility="{Binding HasError,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource DangerBrush}"/>
+                                   Style="{StaticResource DbErrorTextStyle}"/>
                     </Border>
                 </StackPanel>
 
-                <Grid Grid.Row="2" Margin="0,0,0,20">
+                <!-- ── KPI band ────────────────────────────────────── -->
+                <Border Grid.Row="2" Style="{StaticResource DbCardStyle}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <StackPanel Style="{StaticResource DbSectionHeadStyle}">
+                            <TextBlock Text="{DynamicResource Dashboard.QuotePulse}"
+                                       Style="{StaticResource DbSectionTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Dashboard.PipelineVolumeConfirmation}"
+                                       Style="{StaticResource DbSectionSubStyle}"/>
+                        </StackPanel>
+                        <ItemsControl Style="{StaticResource DbKpiBandStyle}"
+                                      ItemsSource="{Binding KpiCards}"
+                                      ItemsPanel="{StaticResource DbKpiBandPanel}"
+                                      ItemTemplate="{StaticResource DbKpiTileTemplate}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── status distribution + mix ───────────────────── -->
+                <Grid Grid.Row="3" Margin="0,0,0,14">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1.2*"/>
-                        <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}"
-                            Margin="0,0,18,0" >
+                    <Border Grid.Column="0" Style="{StaticResource DbCardStyle}"
+                            Margin="0,0,7,0">
                         <DockPanel>
-                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="{DynamicResource Dashboard.QuotePulse}"
-                                           Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="{DynamicResource Dashboard.PipelineVolumeConfirmation}"
-                                           Style="{StaticResource SoftSectionSubtitleStyle}"/>
-                            </StackPanel>
-                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
-                                          ItemsSource="{Binding KpiCards}"
-                                          ItemTemplate="{StaticResource SoftKpiCardTemplate}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Columns="2"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+                                <TextBlock Text="{DynamicResource Dashboard.StatusDistribution}"
+                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Dashboard.InvoicesGroupedCurrentStatus}"
+                                           Style="{StaticResource DbMetaStyle}"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Grid>
+                                <Border Style="{StaticResource DbChartWellStyle}"
+                                        Visibility="{Binding HasChartData,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <trend:TrendChartControl
+                                        Points="{Binding StatusBars}"
+                                        SeriesKind="Bar"
+                                        SeriesBrush="{DynamicResource AccentBrush}"
+                                        SeriesEndBrush="{DynamicResource AccentDarkBrush}"
+                                        GridBrush="{DynamicResource DividerBrush}"
+                                        LabelBrush="{DynamicResource MutedForegroundBrush}"
+                                        EmptyMessage=""/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center" Margin="0,32"
+                                            Visibility="{Binding HasChartData,
+                                                Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <TextBlock Text="&#xE8A5;"
+                                               Style="{StaticResource DbEmptyGlyphStyle}"/>
+                                    <TextBlock Text="{DynamicResource Dashboard.NoInvoicesYet}"
+                                               Style="{StaticResource DbEmptyTextStyle}"/>
+                                </StackPanel>
+                            </Grid>
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}"
-                            Margin="0,0,18,0">
+                    <Border Grid.Column="1" Style="{StaticResource DbCardStyle}"
+                            Margin="7,0,0,0">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Dashboard.StatusMix}"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Dashboard.InvoicesGroupedCurrentStatus}"
-                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
-                            <donut:DonutChartControl Height="150"
+                            <StackPanel Style="{StaticResource DbSectionHeadStyle}">
+                                <TextBlock Text="{DynamicResource Dashboard.StatusMix}"
+                                           Style="{StaticResource DbSectionTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Dashboard.CountQuotes}"
+                                           Style="{StaticResource DbSectionSubStyle}"/>
+                            </StackPanel>
+                            <donut:DonutChartControl Height="158"
                                                      Slices="{Binding StatusMixSlices}"
-                                                     HoleLabel="PIs"
-                                                     EmptyMessage="No invoice mix yet."
+                                                     HoleLabel="{DynamicResource Dashboard.Status}"
+                                                     EmptyMessage="No quotes yet."
                                                      Thickness="16"/>
                         </StackPanel>
                     </Border>
-
-                    <Border Grid.Column="2" Style="{StaticResource IndustrialDashboardCardStyle}">
-                        <DockPanel>
-                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="{DynamicResource Dashboard.Status}"
-                                           Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="{DynamicResource Dashboard.CountQuotes}"
-                                           Style="{StaticResource SoftSectionSubtitleStyle}"/>
-                            </StackPanel>
-                            <Border Style="{StaticResource IndustrialDashboardChartWellStyle}">
-                                <trend:TrendChartControl
-                                    Points="{Binding StatusBars}"
-                                    SeriesKind="Bar"
-                                    EmptyMessage="Invoice count by status — no data yet."
-                                    SeriesBrush="{DynamicResource AccentBrush}"
-                                    SeriesEndBrush="{DynamicResource AccentDarkBrush}"
-                                    GridBrush="{DynamicResource DividerBrush}"
-                                    LabelBrush="{DynamicResource MutedForegroundBrush}"/>
-                            </Border>
-                        </DockPanel>
-                    </Border>
                 </Grid>
 
-                <Border Grid.Row="3" Style="{StaticResource IndustrialDashboardCardStyle}">
+                <!-- ── top customers ───────────────────────────────── -->
+                <Border Grid.Row="4" Style="{StaticResource DbCardStyle}">
                     <DockPanel>
-                        <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                            <TextBlock Text="{DynamicResource Dashboard.Top5Customers}"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                        <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+                            <TextBlock Text="{DynamicResource Dashboard.TopCustomers}"
+                                       Style="{StaticResource DbSectionTitleStyle}"/>
                             <TextBlock Text="{DynamicResource Dashboard.RankedTotalInvoiceValueVATInclusive}"
-                                       Style="{StaticResource SoftMetaStyle}"
+                                       Style="{StaticResource DbMetaStyle}"
                                        HorizontalAlignment="Right"/>
                         </Grid>
                         <Grid>
-                            <Border Style="{StaticResource IndustrialDashboardChartWellStyle}"
+                            <Border Style="{StaticResource DbChartWellStyle}"
                                     Visibility="{Binding HasChartData,
                                         Converter={StaticResource BoolToVisibilityConverter}}">
                                 <trend:TrendChartControl
                                     Points="{Binding TopCustomerBars}"
                                     SeriesKind="Bar"
-                                    ValuePrefix="AED "
-                                    EmptyMessage="Revenue by customer — no data yet."
                                     SeriesBrush="{DynamicResource AccentBrush}"
                                     SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                     GridBrush="{DynamicResource DividerBrush}"
-                                    LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                                    LabelBrush="{DynamicResource MutedForegroundBrush}"
+                                    EmptyMessage=""/>
                             </Border>
-                            <Border Padding="0,40"
-                                    Visibility="{Binding HasChartData,
-                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE716;"
-                                               Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="{DynamicResource Dashboard.NoCustomerDataYet}"
-                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                </StackPanel>
-                            </Border>
+                            <StackPanel VerticalAlignment="Center" Margin="0,32"
+                                        Visibility="{Binding HasChartData,
+                                            Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <TextBlock Text="&#xE7EE;"
+                                           Style="{StaticResource DbEmptyGlyphStyle}"/>
+                                <TextBlock Text="{DynamicResource Dashboard.NoCustomerDataYet}"
+                                           Style="{StaticResource DbEmptyTextStyle}"/>
+                            </StackPanel>
                         </Grid>
                     </DockPanel>
                 </Border>

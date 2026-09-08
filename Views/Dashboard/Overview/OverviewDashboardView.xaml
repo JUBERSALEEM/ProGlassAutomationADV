@@ -23,9 +23,11 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="{StaticResource IndustrialDashboardPageMargin}">
+            <Grid Margin="{StaticResource DbPageMargin}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <!-- 2026-09-08: the order-to-cash pipeline rail. -->
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <!-- 2026-08-25: revenue trend + recent documents row
@@ -42,13 +44,13 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Dashboard.FactoryPulse}"
-                                   Style="{StaticResource SoftHeroTitleStyle}"/>
+                                   Style="{StaticResource DbTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Dashboard.OperationalAnalyticsInvoicesJobsDelivery}"
-                                   Style="{StaticResource SoftHeroSubtitleStyle}"/>
+                                   Style="{StaticResource DbSubtitleStyle}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
                                 VerticalAlignment="Center">
-                        <Border Style="{StaticResource SoftChipStyle}" Margin="0,0,8,0">
+                        <Border Style="{StaticResource DbChipStyle}" Margin="0,0,8,0">
                             <StackPanel Orientation="Horizontal">
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
@@ -58,29 +60,29 @@
                             </StackPanel>
                         </Border>
                         <TextBlock Text="{Binding LastRefreshed}"
-                                   Style="{StaticResource SoftMetaStyle}"
+                                   Style="{StaticResource DbMetaStyle}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,12,0"/>
                         <Button Content="{DynamicResource Dashboard.NewInvoice}" Tag="&#xE710;"
-                                Style="{StaticResource SoftPillAccentStyle}"
+                                Style="{StaticResource DbActionButtonAccentStyle}"
                                 Command="{Binding NewInvoiceCommand}" ToolTip="{DynamicResource Dashboard.CreateNewTaxInvoice}"/>
                         <Button Content="{DynamicResource Dashboard.Jobs}" Tag="&#xE9F9;"
-                                Style="{StaticResource SoftPillButtonStyle}"
+                                Style="{StaticResource DbActionButtonStyle}"
                                 Command="{Binding ViewJobsCommand}" ToolTip="{DynamicResource Dashboard.ViewJobOrders}"/>
                         <Button Content="{DynamicResource Dashboard.Deliveries}" Tag="&#xE806;" Margin="0"
-                                Style="{StaticResource SoftPillButtonStyle}"
+                                Style="{StaticResource DbActionButtonStyle}"
                                 Command="{Binding ViewDeliveriesCommand}" ToolTip="{DynamicResource Dashboard.ViewDeliveryNotes}"/>
                     </StackPanel>
                 </Grid>
 
-                <Border Grid.Row="1" Style="{StaticResource SoftSectionStyle}"
+                <Border Grid.Row="1" Style="{StaticResource DbStateBandStyle}"
                         Padding="16,12"
                         Visibility="{Binding IsLoading,
                             Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock Text="{DynamicResource Dashboard.LoadingLiveBusinessData}"
-                               Style="{StaticResource SoftKpiFootStyle}"/>
+                               Style="{StaticResource DbKpiFootStyle}"/>
                 </Border>
-                <Border Grid.Row="1" Style="{StaticResource SoftSectionStyle}"
+                <Border Grid.Row="1" Style="{StaticResource DbStateBandStyle}"
                         Padding="16,12"
                         Background="{DynamicResource TintRedBrush}"
                         BorderBrush="{DynamicResource DangerBrush}"
@@ -92,8 +94,38 @@
                 </Border>
 
 
+                <!-- ═════════════════════════════════════════════════════
+                     ROW 2 · ORDER-TO-CASH PIPELINE
+
+                     Quote → Production → Delivery → Invoice → Payment.
+
+                     This is the one visual on the dashboard that crosses
+                     module boundaries. The four KPI bands below answer
+                     "how is each department doing"; this rail answers
+                     "where is the work stuck", which is the question an
+                     operator asks first. Each stage counts live work in
+                     that handoff and the chip colour escalates only when
+                     the stage is carrying something overdue.
+
+                     Only the Overview carries this rail — it is the whole
+                     book of work, so it belongs where the whole book is
+                     summarised, not repeated on seven tabs.
+                ═════════════════════════════════════════════════════ -->
+                <Border Grid.Row="2" Style="{StaticResource DbCardStyle}" Margin="0,0,0,20">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top"
+                                   Text="{DynamicResource Dashboard.PipelineVolumeConfirmation}"
+                                   Style="{StaticResource DbSectionTitleStyle}"
+                                   Margin="0,0,0,12"/>
+                        <ItemsControl Style="{StaticResource DbPipelineItemsStyle}"
+                                      ItemsSource="{Binding WorkflowStages}"
+                                      ItemsPanel="{StaticResource DbPipelinePanel}"
+                                      ItemTemplate="{StaticResource DbPipelineStageTemplate}"/>
+                    </DockPanel>
+                </Border>
+
                 <!-- ROW: pulse | mix | in-prod / overdue / pending -->
-                <Grid Grid.Row="2" Margin="0,0,0,20">
+                <Grid Grid.Row="3" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1.2*"/>
@@ -168,13 +200,13 @@
                         </Grid>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}"
+                    <Border Grid.Column="1" Style="{StaticResource DbCardStyle}"
                             Margin="0,0,18,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Dashboard.DeliveryMix}"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                                       Style="{StaticResource DbSectionTitleStyle}"/>
                             <TextBlock Text="{DynamicResource Dashboard.NotesRemainingPcs}"
-                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                                       Style="{StaticResource DbSectionSubStyle}"/>
                             <donut:DonutChartControl Height="150"
                                                      Slices="{Binding DeliveryMixSlices}"
                                                      HoleLabel="MIX"
@@ -184,22 +216,22 @@
                     </Border>
 
                     <StackPanel Grid.Column="2">
-                        <Border Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,0,18" Padding="16,12">
+                        <Border Style="{StaticResource DbCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Dashboard.Production}"
-                                           Style="{StaticResource SoftKpiLabelStyle}"/>
+                                           Style="{StaticResource DbKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding InProductionDisplay}"
-                                           Style="{StaticResource SoftKpiValueStyle}"
+                                           Style="{StaticResource DbKpiValueStyle}"
                                            Foreground="{DynamicResource InfoBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,0,18" Padding="16,12">
+                        <Border Style="{StaticResource DbCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Overdue}"
-                                           Style="{StaticResource SoftKpiLabelStyle}"/>
+                                           Style="{StaticResource DbKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding OverdueDisplay}">
                                     <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource SoftKpiValueStyle}">
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource DbKpiValueStyle}">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasOverdueJobs}" Value="True">
                                                     <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -210,12 +242,12 @@
                                 </TextBlock>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource IndustrialDashboardCardStyle}" Padding="16,12">
+                        <Border Style="{StaticResource DbCardStyle}" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Dashboard.PendingPCS}"
-                                           Style="{StaticResource SoftKpiLabelStyle}"/>
+                                           Style="{StaticResource DbKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding PendingPcsDisplay}"
-                                           Style="{StaticResource SoftKpiValueStyle}"
+                                           Style="{StaticResource DbKpiValueStyle}"
                                            Foreground="{DynamicResource WarningBrush}"/>
                             </StackPanel>
                         </Border>
@@ -224,22 +256,22 @@
 
                 <!-- ROW: trend + activity (2026-08-25 rev 2: activity
                      column widened 1* -> 1.2* so feed rows breathe) -->
-                <Grid Grid.Row="3" Margin="0,0,0,20">
+                <Grid Grid.Row="4" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.8*"/>
                         <ColumnDefinition Width="1.2*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,18,0">
+                    <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="{DynamicResource Dashboard.RevenueTrend}"
-                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                           Style="{StaticResource DbSectionTitleStyle}"/>
                                 <TextBlock Text="{Binding ChartTitle}"
-                                           Style="{StaticResource SoftMetaStyle}"
+                                           Style="{StaticResource DbMetaStyle}"
                                            HorizontalAlignment="Right"/>
                             </Grid>
-                            <Border Style="{StaticResource IndustrialDashboardChartWellStyle}">
+                            <Border Style="{StaticResource DbChartWellStyle}">
                                 <trend:TrendChartControl
                                     Points="{Binding MonthlySalesBars}"
                                     SeriesKind="Bar"
@@ -253,10 +285,10 @@
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}">
+                    <Border Grid.Column="1" Style="{StaticResource DbCardStyle}">
                         <DockPanel>
                             <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Dashboard.RecentDocuments}"
-                                       Style="{StaticResource SoftSectionTitleStyle}"
+                                       Style="{StaticResource DbSectionTitleStyle}"
                                        Margin="0,0,0,8"/>
                             <!-- Mouse-wheel scroller. The page ScrollViewer above
                                  owns vertical scrolling, so this inner list is
@@ -274,16 +306,16 @@
                                           behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           Focusable="False"
                                           FocusVisualStyle="{x:Null}">
-                                <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                                <ItemsControl Style="{StaticResource DbFeedItemsStyle}"
                                           ItemsSource="{Binding RecentActivity}"
-                                              ItemTemplate="{StaticResource SoftFeedRowTemplate}"/>
+                                              ItemTemplate="{StaticResource DbFeedRowTemplate}"/>
                             </ScrollViewer>
                         </DockPanel>
                     </Border>
                 </Grid>
 
                 <!-- ROW: sales / production / inventory strips -->
-                <Grid Grid.Row="4">
+                <Grid Grid.Row="5">
                     <!-- 4 columns since 2026-09-02: the view model computes
                          SalesTiles, ProductionTiles, InventoryTiles AND
                          DeliveryTiles, but only three were ever rendered, so
@@ -295,43 +327,43 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="0,0,18,0">
+                    <Border Grid.Column="0" Style="{StaticResource DbCardStyle}" Margin="0,0,18,0">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Nav.GroupSales}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
-                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                            <TextBlock Text="{DynamicResource Nav.GroupSales}" Style="{StaticResource DbSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <ItemsControl Style="{StaticResource DbKpiBandStyle}"
                                           ItemsSource="{Binding SalesTiles}"
-                                          ItemTemplate="{StaticResource SoftKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
+                                          ItemTemplate="{StaticResource DbKpiTileTemplate}"
+                                          ItemsPanel="{StaticResource DbKpiBandPanel}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Style="{StaticResource IndustrialDashboardCardStyle}">
+                    <Border Grid.Column="1" Style="{StaticResource DbCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Module.Production}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
-                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                            <TextBlock Text="{DynamicResource Module.Production}" Style="{StaticResource DbSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <ItemsControl Style="{StaticResource DbKpiBandStyle}"
                                           ItemsSource="{Binding ProductionTiles}"
-                                          ItemTemplate="{StaticResource SoftKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
+                                          ItemTemplate="{StaticResource DbKpiTileTemplate}"
+                                          ItemsPanel="{StaticResource DbKpiBandPanel}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="18,0,0,0">
+                    <Border Grid.Column="2" Style="{StaticResource DbCardStyle}" Margin="18,0,0,0">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Module.SheetStore}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
-                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                            <TextBlock Text="{DynamicResource Module.SheetStore}" Style="{StaticResource DbSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <ItemsControl Style="{StaticResource DbKpiBandStyle}"
                                           ItemsSource="{Binding InventoryTiles}"
-                                          ItemTemplate="{StaticResource SoftKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
+                                          ItemTemplate="{StaticResource DbKpiTileTemplate}"
+                                          ItemsPanel="{StaticResource DbKpiBandPanel}"/>
                         </StackPanel>
                     </Border>
                     <!-- Delivery KPIs — same shared template and panel as the
                          other three, so this adds a card without adding any
                          new hardcoded tile markup. -->
-                    <Border Grid.Column="3" Style="{StaticResource IndustrialDashboardCardStyle}" Margin="18,0,0,0">
+                    <Border Grid.Column="3" Style="{StaticResource DbCardStyle}" Margin="18,0,0,0">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Nav.Delivery}" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
-                            <ItemsControl Style="{StaticResource IndustrialDashboardFeedItemsStyle}"
+                            <TextBlock Text="{DynamicResource Nav.Delivery}" Style="{StaticResource DbSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <ItemsControl Style="{StaticResource DbKpiBandStyle}"
                                           ItemsSource="{Binding DeliveryTiles}"
-                                          ItemTemplate="{StaticResource SoftKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
+                                          ItemTemplate="{StaticResource DbKpiTileTemplate}"
+                                          ItemsPanel="{StaticResource DbKpiBandPanel}"/>
                         </StackPanel>
                     </Border>
                 </Grid>

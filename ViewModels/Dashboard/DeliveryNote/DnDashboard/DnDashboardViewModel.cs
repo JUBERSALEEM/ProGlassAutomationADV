@@ -164,21 +164,12 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
         }
 
         // ── Footer timestamp ─────────────────────────────────────────
-        // Intentionally hides DashboardPageBase.LastRefreshed so this page
-        // can use its own format ("Last refreshed dd MMM yyyy, HH:mm") and
-        // an error message ("… not initialized.") instead of the base's
-        // generic "Updated HH:mm:ss" stamp.
-        private string _lastRefreshed = string.Empty;
-        public new string LastRefreshed
-        {
-            get => _lastRefreshed;
-            private set
-            {
-                if (_lastRefreshed == value) return;
-                _lastRefreshed = value;
-                OnPropertyChanged();
-            }
-        }
+        // Was a `new` shadow over DashboardPageBase.LastRefreshed, used for
+        // two things: a nicer format, and as a place to park the "database
+        // not initialized" notice. The base now uses that format for every
+        // page, and a missing database is an ERROR — it belongs on
+        // HasError/ErrorMessage where the page's error band renders it, not
+        // smuggled into a timestamp. Both reasons for the shadow are gone.
 
         // ── Status string constants (matches SavedDeliveryNote.Status) ─
         private const string StatusDraft = "Draft";
@@ -210,7 +201,12 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
 
                 HasStatusData = false;
                 HasRecentFeed = false;
-                LastRefreshed = "Delivery Notes database not initialized.";
+                // An uninitialised database is an error state, not a refresh
+                // stamp. The page's error band renders this; previously it was
+                // parked in LastRefreshed, which only worked because this class
+                // shadowed the base property.
+                HasError = true;
+                ErrorMessage = "Delivery Notes database not initialized.";
                 return;
             }
 
@@ -350,7 +346,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
 
             HasStatusData = total > 0;
             HasRecentFeed = _recentFeed.Count > 0;
-            LastRefreshed = $"Last refreshed {DateTime.Now:dd MMM yyyy, HH:mm}";
+            // LastRefreshed is written once, by DashboardPageBase.LoadAsync.
         }
 
         // ── Theme swap ────────────────────────────────────────────────
