@@ -108,7 +108,12 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             IsGenerating = true;
             StatusMessage = "Preparing workflow…";
-            var generationStart = DateTime.Now;
+            // UtcNow, not Now (Phase 6): this is a stopwatch, not a timestamp.
+            // It is only ever subtracted from itself a few lines below to report
+            // how long generation took, and is never stored or displayed as a
+            // date. A DST transition during a long generation would otherwise
+            // move the reported figure by exactly 3600 seconds.
+            var generationStart = DateTime.UtcNow;
 
             var engine = new StatementWorkflowEngine();
             PrepareForNewWorkflowRun();
@@ -232,7 +237,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 LiveAddLogEntry(LogSeverity.Success,
                     $"› ✓ PDF ready: {Path.GetFileName(pdfPath)}");
 
-                double elapsedSec = (DateTime.Now - generationStart).TotalSeconds;
+                double elapsedSec = (DateTime.UtcNow - generationStart).TotalSeconds;
                 LiftWorkflowResultAfterCompletion(wfResult, pdfPath, elapsedSec);
 
                 AuditService.Log(

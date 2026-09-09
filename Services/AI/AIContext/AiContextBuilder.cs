@@ -90,6 +90,24 @@ namespace ProGlassAutomation.Services.AI.AIContext
     {
         // ── Cache ──────────────────────────────────────────────────────────
         private static string _cachedContext = string.Empty;
+        /// <summary>
+        /// When the cached AI context stops being usable.
+        /// </summary>
+        /// <remarks>
+        /// Compared against <see cref="DateTime.UtcNow"/>, not <c>Now</c>
+        /// (Phase 6). This value never leaves the process — it is not persisted,
+        /// not sent anywhere, not shown to anybody — so it is an elapsed-time
+        /// measurement wearing a DateTime's clothes. <c>Now</c> is local time,
+        /// and local time jumps: on a spring-forward the clock skips an hour and
+        /// the cache serves stale context for an hour longer than
+        /// <c>CacheSeconds</c>; on a fall-back it throws a perfectly good cache
+        /// away an hour early. UTC has no transitions, so the interval is the
+        /// interval that was asked for.
+        ///
+        /// All three uses were converted together. Converting only the read or
+        /// only the write would compare a UTC instant against a local one and be
+        /// wrong by the whole UTC offset — far worse than the bug this fixes.
+        /// </remarks>
         private static DateTime _cacheExpiry = DateTime.MinValue;
         private const int CacheSeconds = 120;
 
@@ -109,7 +127,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
         public static async Task<string> BuildContextAsync()
         {
             // Check cache first (outside lock for performance)
-            if (DateTime.Now < _cacheExpiry &&
+            if (DateTime.UtcNow < _cacheExpiry &&
                 !string.IsNullOrEmpty(_cachedContext))
                 return _cachedContext;
 
@@ -118,7 +136,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
             try
             {
                 // Double-check after acquiring lock
-                if (DateTime.Now < _cacheExpiry &&
+                if (DateTime.UtcNow < _cacheExpiry &&
                     !string.IsNullOrEmpty(_cachedContext))
                     return _cachedContext;
 
@@ -127,7 +145,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
                 if (!string.IsNullOrEmpty(result))
                 {
                     _cachedContext = result;
-                    _cacheExpiry = DateTime.Now.AddSeconds(CacheSeconds);
+                    _cacheExpiry = DateTime.UtcNow.AddSeconds(CacheSeconds);
                 }
 
                 return result;
