@@ -119,14 +119,95 @@
          also exactly what made the page ignore Settings → Appearance.)
          -->
     <Grid>
+        <!-- 2026-09-10 fluid upgrade: the two aurora orbs now drift and
+             breathe continuously (named transforms + Grid.Triggers loop
+             below). Motion is slow (18-24s), eased and AutoReverse — a
+             calm living backdrop, never a distraction. Purely decorative
+             transforms, so the live theme/accent re-tint still works. -->
         <Ellipse Width="560" Height="560"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
                  Margin="0,-180,-140,0" IsHitTestVisible="False"
-                 Fill="{DynamicResource LiquidOrbA}"/>
+                 Fill="{DynamicResource LiquidOrbA}"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="AboutOrbAScale" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform x:Name="AboutOrbAMove" X="0" Y="0"/>
+                </TransformGroup>
+            </Ellipse.RenderTransform>
+        </Ellipse>
         <Ellipse Width="420" Height="420"
                  HorizontalAlignment="Left" VerticalAlignment="Bottom"
                  Margin="-120,0,0,-120" IsHitTestVisible="False"
-                 Fill="{DynamicResource LiquidOrbB}"/>
+                 Fill="{DynamicResource LiquidOrbB}"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="AboutOrbBScale" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform x:Name="AboutOrbBMove" X="0" Y="0"/>
+                </TransformGroup>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+
+        <Grid.Triggers>
+            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <!-- Orb A: drift + gentle swell -->
+                        <DoubleAnimation Storyboard.TargetName="AboutOrbAMove"
+                                         Storyboard.TargetProperty="X"
+                                         From="0" To="-30" Duration="0:0:21"
+                                         AutoReverse="True" RepeatBehavior="Forever">
+                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation Storyboard.TargetName="AboutOrbAMove"
+                                         Storyboard.TargetProperty="Y"
+                                         From="0" To="24" Duration="0:0:24"
+                                         AutoReverse="True" RepeatBehavior="Forever">
+                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation Storyboard.TargetName="AboutOrbAScale"
+                                         Storyboard.TargetProperty="ScaleX"
+                                         From="1" To="1.07" Duration="0:0:17"
+                                         AutoReverse="True" RepeatBehavior="Forever">
+                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation Storyboard.TargetName="AboutOrbAScale"
+                                         Storyboard.TargetProperty="ScaleY"
+                                         From="1" To="1.07" Duration="0:0:17"
+                                         AutoReverse="True" RepeatBehavior="Forever">
+                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+
+                        <!-- Orb B: counter-drift + swell (offset periods) -->
+                        <DoubleAnimation Storyboard.TargetName="AboutOrbBMove"
+                                         Storyboard.TargetProperty="X"
+                                         From="0" To="26" Duration="0:0:23"
+                                         AutoReverse="True" RepeatBehavior="Forever">
+                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation Storyboard.TargetName="AboutOrbBMove"
+                                         Storyboard.TargetProperty="Y"
+                                         From="0" To="-20" Duration="0:0:19"
+                                         AutoReverse="True" RepeatBehavior="Forever">
+                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation Storyboard.TargetName="AboutOrbBScale"
+                                         Storyboard.TargetProperty="ScaleX"
+                                         From="1.05" To="1" Duration="0:0:20"
+                                         AutoReverse="True" RepeatBehavior="Forever">
+                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation Storyboard.TargetName="AboutOrbBScale"
+                                         Storyboard.TargetProperty="ScaleY"
+                                         From="1.05" To="1" Duration="0:0:20"
+                                         AutoReverse="True" RepeatBehavior="Forever">
+                            <DoubleAnimation.EasingFunction><SineEase EasingMode="EaseInOut"/></DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Grid.Triggers>
 
         <ScrollViewer x:Name="RootScrollViewer"
                       VerticalScrollBarVisibility="Auto"
@@ -162,7 +243,24 @@
                                 <Ellipse Width="104" Height="104"
                                          Stroke="{DynamicResource LiquidAccent}"
                                          StrokeThickness="1" StrokeDashArray="4 6"
-                                         Opacity="0.5" IsHitTestVisible="False"/>
+                                         Opacity="0.5" IsHitTestVisible="False"
+                                         RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <RotateTransform x:Name="AboutIconRingRotate" Angle="0"/>
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="AboutIconRingRotate"
+                                                                     Storyboard.TargetProperty="Angle"
+                                                                     From="0" To="360" Duration="0:0:60"
+                                                                     RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
                                 <Border Width="84" Height="84"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Background="{DynamicResource AboutInteractiveHoverBrush}"
@@ -301,9 +399,18 @@
                          ItemContainerStyle="{StaticResource AboutTabItemStyle}"
                          Margin="0,0,0,22"/>
 
-                <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══ -->
+                <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══
+                     2026-09-10 fluid upgrade: each section now fades and
+                     slides up smoothly as it becomes the selected tab
+                     (IsVisible-driven storyboard on a per-section
+                     TranslateTransform + Opacity). The switch is instant
+                     to the user's click but reads as a polished, gentle
+                     reveal instead of a hard cut. -->
                 <Grid>
-                    <aboutSections:AboutOverviewSection>
+                    <aboutSections:AboutOverviewSection RenderTransformOrigin="0.5,0.5">
+                        <aboutSections:AboutOverviewSection.RenderTransform>
+                            <TranslateTransform Y="0"/>
+                        </aboutSections:AboutOverviewSection.RenderTransform>
                         <aboutSections:AboutOverviewSection.Style>
                             <Style TargetType="UserControl">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -311,12 +418,29 @@
                                     <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
+                                    <Trigger Property="IsVisible" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                     From="0" To="1" Duration="0:0:0.32"/>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                                     From="14" To="0" Duration="0:0:0.34">
+                                                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                    </Trigger>
                                 </Style.Triggers>
                             </Style>
                         </aboutSections:AboutOverviewSection.Style>
                     </aboutSections:AboutOverviewSection>
 
-                    <aboutSections:ModulesSection>
+                    <aboutSections:ModulesSection RenderTransformOrigin="0.5,0.5">
+                        <aboutSections:ModulesSection.RenderTransform>
+                            <TranslateTransform Y="0"/>
+                        </aboutSections:ModulesSection.RenderTransform>
                         <aboutSections:ModulesSection.Style>
                             <Style TargetType="UserControl">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -324,12 +448,29 @@
                                     <DataTrigger Binding="{Binding SelectedTabIndex}" Value="1">
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
+                                    <Trigger Property="IsVisible" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                     From="0" To="1" Duration="0:0:0.32"/>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                                     From="14" To="0" Duration="0:0:0.34">
+                                                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                    </Trigger>
                                 </Style.Triggers>
                             </Style>
                         </aboutSections:ModulesSection.Style>
                     </aboutSections:ModulesSection>
 
-                    <aboutSections:DeveloperSection>
+                    <aboutSections:DeveloperSection RenderTransformOrigin="0.5,0.5">
+                        <aboutSections:DeveloperSection.RenderTransform>
+                            <TranslateTransform Y="0"/>
+                        </aboutSections:DeveloperSection.RenderTransform>
                         <aboutSections:DeveloperSection.Style>
                             <Style TargetType="UserControl">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -337,6 +478,20 @@
                                     <DataTrigger Binding="{Binding SelectedTabIndex}" Value="2">
                                         <Setter Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
+                                    <Trigger Property="IsVisible" Value="True">
+                                        <Trigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                     From="0" To="1" Duration="0:0:0.32"/>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                                     From="14" To="0" Duration="0:0:0.34">
+                                                        <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                                    </DoubleAnimation>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </Trigger.EnterActions>
+                                    </Trigger>
                                 </Style.Triggers>
                             </Style>
                         </aboutSections:DeveloperSection.Style>

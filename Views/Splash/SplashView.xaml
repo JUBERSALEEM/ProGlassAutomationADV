@@ -287,21 +287,159 @@
 
     </Window.Resources>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         AMBIENT MOTION — continuous, buttery-smooth stage life
+         2026-09-10 upgrade. Runs on Loaded ALONGSIDE the code-behind
+         entrance choreography (which animates Opacity / logo scale).
+         These loops touch ONLY the decorative atmosphere transforms
+         declared above (orbs, hero glow, orbit ring) — never layout,
+         never a code-behind-owned property — so there is zero conflict
+         and zero regression. Every loop is slow, eased and AutoReverse
+         for a calm, premium, never-jarring feel.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <!-- Hero glow: slow luminous breathing -->
+                    <DoubleAnimation Storyboard.TargetName="HeroGlowScale"
+                                     Storyboard.TargetProperty="ScaleX"
+                                     From="1" To="1.09" Duration="0:0:7"
+                                     AutoReverse="True" RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetName="HeroGlowScale"
+                                     Storyboard.TargetProperty="ScaleY"
+                                     From="1" To="1.09" Duration="0:0:7"
+                                     AutoReverse="True" RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+
+                    <!-- Right orb: gentle drift + swell -->
+                    <DoubleAnimation Storyboard.TargetName="OrbRightMove"
+                                     Storyboard.TargetProperty="X"
+                                     From="0" To="-34" Duration="0:0:19"
+                                     AutoReverse="True" RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetName="OrbRightMove"
+                                     Storyboard.TargetProperty="Y"
+                                     From="0" To="26" Duration="0:0:23"
+                                     AutoReverse="True" RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetName="OrbRightScale"
+                                     Storyboard.TargetProperty="ScaleX"
+                                     From="1" To="1.08" Duration="0:0:16"
+                                     AutoReverse="True" RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetName="OrbRightScale"
+                                     Storyboard.TargetProperty="ScaleY"
+                                     From="1" To="1.08" Duration="0:0:16"
+                                     AutoReverse="True" RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+
+                    <!-- Left orb: counter-drift + swell (different periods
+                         so the two orbs never beat in lockstep) -->
+                    <DoubleAnimation Storyboard.TargetName="OrbLeftMove"
+                                     Storyboard.TargetProperty="X"
+                                     From="0" To="30" Duration="0:0:26"
+                                     AutoReverse="True" RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetName="OrbLeftMove"
+                                     Storyboard.TargetProperty="Y"
+                                     From="0" To="-22" Duration="0:0:21"
+                                     AutoReverse="True" RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetName="OrbLeftScale"
+                                     Storyboard.TargetProperty="ScaleX"
+                                     From="1.06" To="1" Duration="0:0:18"
+                                     AutoReverse="True" RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                    <DoubleAnimation Storyboard.TargetName="OrbLeftScale"
+                                     Storyboard.TargetProperty="ScaleY"
+                                     From="1.06" To="1" Duration="0:0:18"
+                                     AutoReverse="True" RepeatBehavior="Forever">
+                        <DoubleAnimation.EasingFunction>
+                            <SineEase EasingMode="EaseInOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+
+                    <!-- Orbit ring: one slow, perfectly linear revolution -->
+                    <DoubleAnimation Storyboard.TargetName="OrbitRingRotate"
+                                     Storyboard.TargetProperty="Angle"
+                                     From="0" To="360" Duration="0:0:48"
+                                     RepeatBehavior="Forever"/>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </Window.Triggers>
+
     <Grid Background="{DynamicResource PageBg}">
 
-        <!-- ── ATMOSPHERE — soft accent orbs + hero spotlight ── -->
-        <Ellipse Width="520" Height="520"
+        <!-- ── ATMOSPHERE — soft accent orbs + hero spotlight ──
+             2026-09-10 upgrade: every atmosphere layer now carries a named
+             render transform so the Window.Triggers storyboard can give the
+             stage a continuous, gentle drift/breathe. Motion is slow (14-26s
+             loops), sub-pixel-smooth (CubicEase, AutoReverse) and purely
+             decorative — it never touches layout or the code-behind
+             choreography. RenderTransformOrigin centres each scale. -->
+        <Ellipse x:Name="OrbRightShape" Width="520" Height="520"
                  Fill="{DynamicResource OrbRight}"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
-                 Margin="0,-160,-160,0" IsHitTestVisible="False"/>
-        <Ellipse Width="440" Height="440"
+                 Margin="0,-160,-160,0" IsHitTestVisible="False"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="OrbRightScale" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform x:Name="OrbRightMove" X="0" Y="0"/>
+                </TransformGroup>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+        <Ellipse x:Name="OrbLeftShape" Width="440" Height="440"
                  Fill="{DynamicResource OrbLeft}"
                  HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                 Margin="-140,0,0,-140" IsHitTestVisible="False"/>
-        <Ellipse Width="620" Height="620"
+                 Margin="-140,0,0,-140" IsHitTestVisible="False"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform x:Name="OrbLeftScale" ScaleX="1" ScaleY="1"/>
+                    <TranslateTransform x:Name="OrbLeftMove" X="0" Y="0"/>
+                </TransformGroup>
+            </Ellipse.RenderTransform>
+        </Ellipse>
+        <Ellipse x:Name="HeroGlowOrb" Width="620" Height="620"
                  Fill="{DynamicResource HeroGlow}"
                  HorizontalAlignment="Center" VerticalAlignment="Center"
-                 Margin="0,-40,0,0" IsHitTestVisible="False"/>
+                 Margin="0,-40,0,0" IsHitTestVisible="False"
+                 RenderTransformOrigin="0.5,0.5">
+            <Ellipse.RenderTransform>
+                <ScaleTransform x:Name="HeroGlowScale" ScaleX="1" ScaleY="1"/>
+            </Ellipse.RenderTransform>
+        </Ellipse>
 
         <!-- ═══════════════════════════════════════════════════════════
              POSTER — brand block
@@ -365,7 +503,12 @@
                         <Ellipse Width="152" Height="152" Fill="{DynamicResource SplashCerulean}" Opacity="0.22" Effect="{StaticResource HaloBlur}"/>
                         <Ellipse Width="142" Height="142"
                                  Stroke="{DynamicResource SplashCerulean}" Opacity="0.5" StrokeThickness="1"
-                                 StrokeDashArray="2 6"/>
+                                 StrokeDashArray="2 6"
+                                 RenderTransformOrigin="0.5,0.5">
+                            <Ellipse.RenderTransform>
+                                <RotateTransform x:Name="OrbitRingRotate" Angle="0"/>
+                            </Ellipse.RenderTransform>
+                        </Ellipse>
                         <Ellipse Width="120" Height="120"
                                  Stroke="{DynamicResource SplashOutline}" StrokeThickness="1"/>
                         <Border Width="104" Height="104" CornerRadius="{DynamicResource Radius.Hero}"
