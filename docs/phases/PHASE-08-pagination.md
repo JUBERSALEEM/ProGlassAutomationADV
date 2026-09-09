@@ -6,6 +6,63 @@ This is the remainder of the original P1 item. As of 2026-09-09 there are
 **13 unfiltered `GetAllAsync()` call sites across 11 ViewModels**, down from
 25 / 18, locked by `Tests/Architecture/PaginationRatchetTests.cs`.
 
+## Status — remaining sites classified 2026-09-09; nothing paginated
+
+| | |
+|---|---|
+| Ratchet verified accurate | **done** — 11 offenders, 11 allow-list entries, no drift |
+| Every remaining site classified by what it would break | **done** |
+| Actual pagination applied | **NOT done — see below** |
+
+### Most of these must NOT be paginated
+
+This phase's premise — "20 call sites load whole tables; add pagination" — was
+already corrected once when the ratchet was narrowed from "any `GetAllAsync`" to
+"`GetAllAsync()` with no arguments". Read individually, the remaining 11 split
+into two groups, and the larger one is a trap.
+
+**Six are lookups or complete-set consumers. Paginating them is a regression:**
+
+| site | what the result feeds | what pagination would do |
+|---|---|---|
+| `SheetStore/AddEditSheetViewModel.cs:293` | `_stocked = all.Where(...)`, a progressively-narrowed stock match | report "no matching sheet" for a sheet that exists |
+| `Specifications/SpecificationsCenterViewModel.cs:286` | `_all`, then `RebuildFilterOptions()` | silently drop filter choices |
+| `SheetStore/SheetStoreViewModel.Part1.cs:359` | `_allSheets`, then `RebuildFilterOptions()` | silently drop filter choices |
+| `SheetStore/SheetStoreViewModel.Consumables.cs:186` | `_allItems`, then `ApplyItemFilters()` | silently drop filter choices |
+| `Reports/StatementGenerator/StatementGeneratorViewModel.Helpers.cs:103` | `foreach (var item in existing)` with `SameText` duplicate detection | create duplicate statements |
+| `Shared/GlobalSearchViewModel.cs:429` | full-text search across every sheet | stop finding sheets beyond page one |
+
+None of these fails loudly. A missing filter option, a phantom "no match", a
+duplicate statement — all of them are silent, and three of the four filter cases
+look identical in the code to a list screen until you read what the variable is
+used for.
+
+`GlobalSearchViewModel` already carries a comment saying exactly this: a sheet
+stops appearing in search with no error, and that is not worth the risk for a
+table this size.
+
+**Four are genuine list screens** — `OrderReportListViewModel.cs:149`,
+`StatementListViewModel.cs:224`, `TaxInvoiceGodViewViewModel.cs:100`,
+`SheetStoreHistory/HistoryViewModel.cs:255` — each mapping rows into a grid.
+These are the real work.
+
+**One is both.** `DeliveryNoteListViewModel.Part1.cs` has two calls: line 719
+loads `allJobOrders` as a picker source, which needs the complete set, and line
+797 loads `dns` for the list, which does not.
+
+### Why the four genuine ones are not done
+
+Each needs a pager added to its XAML view — next/previous controls, a row
+counter, and the current filter carried across pages. That is a UI change across
+four screens with no compiler and no running app to look at it, on code that
+works today. Adding a control that cannot be seen, to a screen that cannot be
+opened, is exactly the kind of edit that turns a working product into a broken
+one with nothing to show which change did it.
+
+The ratchet holds at 11 and fails on growth, so none of these can be quietly
+multiplied while the four are waiting.
+
+
 ## What is already done
 
 - **Category B — single-row lookups:** complete. Five converted to targeted
