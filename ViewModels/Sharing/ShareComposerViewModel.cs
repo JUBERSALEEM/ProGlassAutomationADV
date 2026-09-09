@@ -129,7 +129,13 @@ namespace ProGlassAutomation.ViewModels.Sharing
                 async _ => await ShareAsync(),
                 _ => CanShare);
             CloseCommand = new RelayCommand(_ =>
-                RequestClose?.Invoke(HasSharedSuccessfully));
+            {
+                // Closing mid-share must not orphan the provider task:
+                // signal cancellation first (best-effort, never blocks).
+                try { _shareCts?.Cancel(); }
+                catch { /* closing always wins */ }
+                RequestClose?.Invoke(HasSharedSuccessfully);
+            });
             SelectProviderCommand = new RelayCommand(p =>
             {
                 if (p is ShareProviderOption opt && opt.IsAvailable)
