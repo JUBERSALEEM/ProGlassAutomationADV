@@ -516,8 +516,21 @@ namespace ProGlassAutomation.Services.Audit
             try
             {
                 using var db = new AuditDbContext();
+                // USERNAME MATCHING IS CASE-INSENSITIVE.
+                // AppUser.Username carries no COLLATE NOCASE -
+                // AuditDbContext.cs:54 declares a plain unique index -
+                // and SQLite's '=' on TEXT uses BINARY collation. So a
+                // straight equality compared bytes: an operator who created
+                // "Admin" at first-run setup and then typed "admin", or the
+                // other way round, was told "Unknown username." and could
+                // not get into their own ERP. Both sign-in and
+                // change-password now fold case, so the account an operator
+                // created is reachable whatever capitalisation they type -
+                // and the two paths cannot disagree about who they are.
+                string lookupName = username.ToLowerInvariant();
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
+                    .FirstOrDefaultAsync(u => u.Username.ToLower() == lookupName)
+                    .ConfigureAwait(false);
 
                 if (user == null)
                     return (false, "Unknown username.");
@@ -612,8 +625,21 @@ namespace ProGlassAutomation.Services.Audit
                         "New password must differ from the current one.");
 
                 using var db = new AuditDbContext();
+                // USERNAME MATCHING IS CASE-INSENSITIVE.
+                // AppUser.Username carries no COLLATE NOCASE -
+                // AuditDbContext.cs:54 declares a plain unique index -
+                // and SQLite's '=' on TEXT uses BINARY collation. So a
+                // straight equality compared bytes: an operator who created
+                // "Admin" at first-run setup and then typed "admin", or the
+                // other way round, was told "Unknown username." and could
+                // not get into their own ERP. Both sign-in and
+                // change-password now fold case, so the account an operator
+                // created is reachable whatever capitalisation they type -
+                // and the two paths cannot disagree about who they are.
+                string lookupName = username.ToLowerInvariant();
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
+                    .FirstOrDefaultAsync(u => u.Username.ToLower() == lookupName)
+                    .ConfigureAwait(false);
 
                 if (user == null)
                     return (false, "Unknown username.");
