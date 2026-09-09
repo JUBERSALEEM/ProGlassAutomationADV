@@ -269,7 +269,10 @@
                                                     <Setter Property="Background"
                                                             Value="{DynamicResource AccentBrush}"/>
                                                     <Setter Property="Foreground"
-                                                            Value="{DynamicResource OnAccentForegroundB                      </Style>
+                                                            Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
                                     </Button.Style>
                                     <TextBlock Text="{Binding Provider.DisplayName}"/>
                                 </Button>
@@ -361,13 +364,6 @@
                         Style="{StaticResource OutlinedPillButton}"
                         Command="{Binding CloseCommand}"
                         IsCancel="True"
-                        MinWidth="110"
-                        Cursor="Hand"/>
-            </Grid>
-        </Grid>
-    </Border>
-</Window>
-ancel="True"
                         MinWidth="110"
                         Cursor="Hand"/>
             </Grid>
