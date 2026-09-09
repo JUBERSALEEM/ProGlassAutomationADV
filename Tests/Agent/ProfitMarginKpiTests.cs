@@ -148,8 +148,16 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(8.94m, priceBased);
             Assert.True(priceBased < existingMargin); // U-insert reduces it
 
-            // Evidence the components match the screen: U-insert ≈ 572.00.
-            Assert.Equal(572.00m, decimal.Round(uInsert, 2));
+            // Evidence the components match the screen.
+            //
+            // The prose above rounds the area to 57.2 m² and says
+            // "U-Insert 572.00". That is an approximation: the area is
+            // 7,149.50 ÷ 125 = 57.196 m² exactly, so the U-insert is
+            // 10 × 57.196 = 571.96. The assertion pins the REAL computed
+            // value, not the rounded figure from the narrative — a test that
+            // agrees with a comment instead of the arithmetic is not
+            // verifying anything.
+            Assert.Equal(571.96m, decimal.Round(uInsert, 2));
         }
 
         [Fact]
@@ -196,10 +204,18 @@ namespace ProGlassAutomation.Tests.Agent
             // but NOT valid). The average must use only the 3.
             decimal[] costedMargins = { 10m, 20m, 30m };
 
-            Assert.Equal(20.0m, decimal.Round(
+            Assert.Equal(20m, decimal.Round(
                 Sum(costedMargins) / costedMargins.Length, 1));
-            Assert.NotEqual(12.0m, decimal.Round(
-                Sum(new[] { 10m, 20m, 30m, 0m, 0m }) / 5m, 1));
+
+            // This used to read Assert.NotEqual(12m, 60 ÷ 5) — which asserts
+            // that 12 is not 12, and can only ever fail. The point of the test
+            // is the contrast: dragging the two uncosted rows in pulls the
+            // average from the true 20 down to 12, so they must be excluded.
+            // Assert the real arithmetic on both sides of that contrast.
+            decimal naiveIncludingUncosted = decimal.Round(
+                Sum(new[] { 10m, 20m, 30m, 0m, 0m }) / 5m, 1);
+            Assert.Equal(12m, naiveIncludingUncosted);
+            Assert.NotEqual(20m, naiveIncludingUncosted);
         }
 
         [Fact]
