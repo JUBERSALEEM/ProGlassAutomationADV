@@ -1399,6 +1399,11 @@
     <sys:String x:Key="Reports.DeliveryReport.UnableLoadRecords">रिकॉर्ड लोड करने में असमर्थ</sys:String>
     <sys:String x:Key="Reports.DispatchedPending">डिस्पैच किया गया / लंबित</sys:String>
     <sys:String x:Key="Reports.Documents">दस्तावेज़</sys:String>
+    <sys:String x:Key="Reports.Relationships">संबंध</sys:String>
+    <sys:String x:Key="Reports.Nav.Customers">ग्राहक</sys:String>
+    <sys:String x:Key="Reports.Nav.CustomersSub">निर्देशिका और बकाया</sys:String>
+    <sys:String x:Key="Reports.Nav.Salesmen">विक्रेता</sys:String>
+    <sys:String x:Key="Reports.Nav.SalesmenSub">प्रदर्शन और राजस्व</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">दस्तावेज़ और पूर्ति</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">अब लापता इनवॉइस ठीक करें</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">चेतावनी के साथ बनाएँ</sys:String>

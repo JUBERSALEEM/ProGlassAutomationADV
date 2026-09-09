@@ -1399,6 +1399,11 @@
     <sys:String x:Key="Reports.DeliveryReport.UnableLoadRecords">ریکارڈز لوڈ کرنے سے قاصر</sys:String>
     <sys:String x:Key="Reports.DispatchedPending">ڈسپیچ شدہ / زیر التوا</sys:String>
     <sys:String x:Key="Reports.Documents">دستاویزات</sys:String>
+    <sys:String x:Key="Reports.Relationships">تعلقات</sys:String>
+    <sys:String x:Key="Reports.Nav.Customers">کسٹمرز</sys:String>
+    <sys:String x:Key="Reports.Nav.CustomersSub">ڈائریکٹری اور واجبات</sys:String>
+    <sys:String x:Key="Reports.Nav.Salesmen">سیلز مین</sys:String>
+    <sys:String x:Key="Reports.Nav.SalesmenSub">کارکردگی اور آمدنی</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">دستاویزات اور تکمیل</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">ابھی لاپتہ انوائس ٹھیک کریں</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">انتباہ کے ساتھ بنائیں</sys:String>

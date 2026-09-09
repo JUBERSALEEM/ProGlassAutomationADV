@@ -1399,6 +1399,11 @@
     <sys:String x:Key="Reports.DeliveryReport.UnableLoadRecords">Kayıtlar yüklenemiyor</sys:String>
     <sys:String x:Key="Reports.DispatchedPending">Sevk edildi / bekliyor</sys:String>
     <sys:String x:Key="Reports.Documents">BELGELER</sys:String>
+    <sys:String x:Key="Reports.Relationships">İLİŞKİLER</sys:String>
+    <sys:String x:Key="Reports.Nav.Customers">Müşteriler</sys:String>
+    <sys:String x:Key="Reports.Nav.CustomersSub">Dizin ve alacaklar</sys:String>
+    <sys:String x:Key="Reports.Nav.Salesmen">Satış Temsilcileri</sys:String>
+    <sys:String x:Key="Reports.Nav.SalesmenSub">Performans ve gelir</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Belgeler ve karşılama</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Eksik faturayı şimdi düzelt</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Uyarıyla oluştur</sys:String>

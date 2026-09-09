@@ -17,11 +17,15 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vmPi="clr-namespace:ProGlassAutomation.ViewModels.Reports.PiReport"
+    xmlns:vmCust="clr-namespace:ProGlassAutomation.ViewModels.Reports.CustomerReport"
+    xmlns:vmSm="clr-namespace:ProGlassAutomation.ViewModels.Reports.SalesmanReport"
     xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.Reports.JoReport"
     xmlns:vmDn="clr-namespace:ProGlassAutomation.ViewModels.Reports.DeliveryReport"
     xmlns:vmTi="clr-namespace:ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport"
     xmlns:vmStRep="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementReport"
     xmlns:vPi="clr-namespace:ProGlassAutomation.Views.Reports.PiReport"
+    xmlns:vCust="clr-namespace:ProGlassAutomation.Views.Reports.CustomerReport"
+    xmlns:vSm="clr-namespace:ProGlassAutomation.Views.Reports.SalesmanReport"
     xmlns:vJo="clr-namespace:ProGlassAutomation.Views.Reports.JoReport"
     xmlns:vDn="clr-namespace:ProGlassAutomation.Views.Reports.DeliveryReport"
     xmlns:vTi="clr-namespace:ProGlassAutomation.Views.Reports.TaxInvoiceReport"
@@ -36,6 +40,8 @@
 
         <!-- VM → View Mappings -->
         <DataTemplate DataType="{x:Type vmPi:PiReportViewModel}"><vPi:PiReportView/></DataTemplate>
+        <DataTemplate DataType="{x:Type vmCust:CustomerReportViewModel}"><vCust:CustomerReportView/></DataTemplate>
+        <DataTemplate DataType="{x:Type vmSm:SalesmanReportViewModel}"><vSm:SalesmanReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmJo:JoReportViewModel}"><vJo:JoReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmDn:DeliveryReportViewModel}"><vDn:DeliveryReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmTi:TaxInvoiceReportViewModel}"><vTi:TaxInvoiceReportView/></DataTemplate>
@@ -583,6 +589,106 @@
                                             <TextBlock Text="{Binding StatementReport.Summary.TotalCount}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
                                             <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
                                                 <Run Text="AED "/><Run Text="{Binding StatementReport.Summary.ClosingBalance, Mode=OneWay, StringFormat={}{0:N0}}"/><Run Text="{DynamicResource Common.Outstanding}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+
+                    <!-- ══════════════════════════════════════════════════════
+                         RELATIONSHIPS STRIP — customers, salesmen, receivables.
+                         Bound to the same report VMs the hub already builds; a
+                         click opens the matching report. Mirrors the document
+                         KPI cards above so the dashboard reads as one board.
+                    ══════════════════════════════════════════════════════ -->
+                    <TextBlock Text="{DynamicResource Reports.Relationships}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="2,4,0,8"/>
+                    <Grid Margin="0,0,0,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Customers -->
+                        <Button Grid.Column="0" Command="{Binding NavigateReportCommand}" CommandParameter="Customer" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.Nav.CustomersSub}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintBlueBrush}">
+                                                    <TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="{DynamicResource Reports.Nav.Customers}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding CustomerReport.TotalCustomers}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                                <Run Text="{Binding CustomerReport.SavedClientCount, Mode=OneWay}"/><Run Text=" saved · AED "/><Run Text="{Binding CustomerReport.TotalInvoiced, Mode=OneWay, StringFormat={}{0:N0}}"/><Run Text=" invoiced"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Salesmen -->
+                        <Button Grid.Column="2" Command="{Binding NavigateReportCommand}" CommandParameter="Salesman" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.Nav.SalesmenSub}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintIndigoBrush}">
+                                                    <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="{DynamicResource Reports.Nav.Salesmen}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding SalesmanReport.TotalSalesmen}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                                <Run Text="AED "/><Run Text="{Binding SalesmanReport.TotalRevenue, Mode=OneWay, StringFormat={}{0:N0}}"/><Run Text=" confirmed revenue"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Outstanding -->
+                        <Button Grid.Column="4" Command="{Binding NavigateReportCommand}" CommandParameter="Customer" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Common.Outstanding}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Card" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
+                                        <StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintAmberBrush}">
+                                                    <TextBlock Text="&#xE825;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="{DynamicResource Common.Outstanding}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                            </StackPanel>
+                                            <TextBlock FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0">
+                                                <Run Text="AED "/><Run Text="{Binding CustomerReport.TotalOutstanding, Mode=OneWay, StringFormat={}{0:N0}}"/>
+                                            </TextBlock>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                                <Run Text="{Binding CustomerReport.WithOutstandingCount, Mode=OneWay}"/><Run Text=" customers with balance due"/>
                                             </TextBlock>
                                         </StackPanel>
                                     </Border>

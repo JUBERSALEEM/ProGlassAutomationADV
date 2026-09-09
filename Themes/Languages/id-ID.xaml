@@ -1399,6 +1399,11 @@
     <sys:String x:Key="Reports.DeliveryReport.UnableLoadRecords">Tidak dapat memuat catatan</sys:String>
     <sys:String x:Key="Reports.DispatchedPending">Dikirim / tertunda</sys:String>
     <sys:String x:Key="Reports.Documents">DOKUMEN</sys:String>
+    <sys:String x:Key="Reports.Relationships">RELASI</sys:String>
+    <sys:String x:Key="Reports.Nav.Customers">Pelanggan</sys:String>
+    <sys:String x:Key="Reports.Nav.CustomersSub">Direktori &amp; piutang</sys:String>
+    <sys:String x:Key="Reports.Nav.Salesmen">Salesman</sys:String>
+    <sys:String x:Key="Reports.Nav.SalesmenSub">Kinerja &amp; pendapatan</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Dokumen dan pemenuhan</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Perbaiki faktur hilang sekarang</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Buat dengan peringatan</sys:String>

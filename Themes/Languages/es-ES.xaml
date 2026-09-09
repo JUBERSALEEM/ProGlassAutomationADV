@@ -1399,6 +1399,11 @@
     <sys:String x:Key="Reports.DeliveryReport.UnableLoadRecords">No se pueden cargar los registros</sys:String>
     <sys:String x:Key="Reports.DispatchedPending">Despachado / pendiente</sys:String>
     <sys:String x:Key="Reports.Documents">DOCUMENTOS</sys:String>
+    <sys:String x:Key="Reports.Relationships">RELACIONES</sys:String>
+    <sys:String x:Key="Reports.Nav.Customers">Clientes</sys:String>
+    <sys:String x:Key="Reports.Nav.CustomersSub">Directorio y cobros</sys:String>
+    <sys:String x:Key="Reports.Nav.Salesmen">Vendedores</sys:String>
+    <sys:String x:Key="Reports.Nav.SalesmenSub">Rendimiento e ingresos</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Documentos y cumplimiento</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Corregir factura faltante ahora</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Generar con advertencia</sys:String>

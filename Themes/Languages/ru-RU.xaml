@@ -1399,6 +1399,11 @@
     <sys:String x:Key="Reports.DeliveryReport.UnableLoadRecords">Не удалось загрузить записи</sys:String>
     <sys:String x:Key="Reports.DispatchedPending">Отгружено / в ожидании</sys:String>
     <sys:String x:Key="Reports.Documents">ДОКУМЕНТЫ</sys:String>
+    <sys:String x:Key="Reports.Relationships">ОТНОШЕНИЯ</sys:String>
+    <sys:String x:Key="Reports.Nav.Customers">Клиенты</sys:String>
+    <sys:String x:Key="Reports.Nav.CustomersSub">Справочник и задолженность</sys:String>
+    <sys:String x:Key="Reports.Nav.Salesmen">Продавцы</sys:String>
+    <sys:String x:Key="Reports.Nav.SalesmenSub">Результаты и выручка</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Документы и выполнение</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Исправить отсутствующий счёт сейчас</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Сгенерировать с предупреждением</sys:String>

@@ -1399,6 +1399,11 @@
     <sys:String x:Key="Reports.DeliveryReport.UnableLoadRecords">Datensätze können nicht geladen werden</sys:String>
     <sys:String x:Key="Reports.DispatchedPending">Versendet / ausstehend</sys:String>
     <sys:String x:Key="Reports.Documents">DOKUMENTE</sys:String>
+    <sys:String x:Key="Reports.Relationships">BEZIEHUNGEN</sys:String>
+    <sys:String x:Key="Reports.Nav.Customers">Kunden</sys:String>
+    <sys:String x:Key="Reports.Nav.CustomersSub">Verzeichnis &amp; Forderungen</sys:String>
+    <sys:String x:Key="Reports.Nav.Salesmen">Verkäufer</sys:String>
+    <sys:String x:Key="Reports.Nav.SalesmenSub">Leistung &amp; Umsatz</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Dokumente &amp; Erfüllung</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Fehlende Rechnung jetzt korrigieren</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Mit Warnung erzeugen</sys:String>

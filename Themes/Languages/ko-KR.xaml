@@ -1399,6 +1399,11 @@
     <sys:String x:Key="Reports.DeliveryReport.UnableLoadRecords">레코드를 로드할 수 없습니다</sys:String>
     <sys:String x:Key="Reports.DispatchedPending">출하됨 / 보류 중</sys:String>
     <sys:String x:Key="Reports.Documents">문서</sys:String>
+    <sys:String x:Key="Reports.Relationships">관계</sys:String>
+    <sys:String x:Key="Reports.Nav.Customers">고객</sys:String>
+    <sys:String x:Key="Reports.Nav.CustomersSub">디렉터리 및 미수금</sys:String>
+    <sys:String x:Key="Reports.Nav.Salesmen">영업사원</sys:String>
+    <sys:String x:Key="Reports.Nav.SalesmenSub">실적 및 매출</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">문서 및 이행</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">누락된 청구서 지금 수정</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">경고와 함께 생성</sys:String>

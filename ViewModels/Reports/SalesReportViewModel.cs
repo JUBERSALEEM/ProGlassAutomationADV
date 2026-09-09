@@ -20,9 +20,11 @@
 using ProGlassAutomation;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Reporting;
+using ProGlassAutomation.ViewModels.Reports.CustomerReport;
 using ProGlassAutomation.ViewModels.Reports.DeliveryReport;
 using ProGlassAutomation.ViewModels.Reports.JoReport;
 using ProGlassAutomation.ViewModels.Reports.PiReport;
+using ProGlassAutomation.ViewModels.Reports.SalesmanReport;
 using ProGlassAutomation.ViewModels.Reports.StatementReport;
 using ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport;
 using ProGlassAutomation.ViewModels.Reports.VatSubmission;
@@ -63,6 +65,8 @@ namespace ProGlassAutomation.ViewModels.Reports
 
         // ── Central reporting modules ─────────────────────────────────────
         public PiReportViewModel PiReport { get; private set; }
+        public CustomerReportViewModel CustomerReport { get; private set; }
+        public SalesmanReportViewModel SalesmanReport { get; private set; }
         public JoReportViewModel JoReport { get; private set; }
         public DeliveryReportViewModel DeliveryReport { get; private set; }
         public TaxInvoiceReportViewModel TaxInvoiceReport { get; private set; }
@@ -104,6 +108,8 @@ namespace ProGlassAutomation.ViewModels.Reports
         public List<ReportNavItem> NavItems { get; } = new()
         {
             new ReportNavItem{ Key="Overview",   Icon="\uE9D2", TitleKey="Nav.Overview",           SubtitleKey="Reports.KPIDashboard" },
+            new ReportNavItem{ Key="Customer",   Icon="\uE716", TitleKey="Reports.Nav.Customers", SubtitleKey="Reports.Nav.CustomersSub",   Group="Reports.Relationships" },
+            new ReportNavItem{ Key="Salesman",   Icon="\uE77B", TitleKey="Reports.Nav.Salesmen",  SubtitleKey="Reports.Nav.SalesmenSub" },
             new ReportNavItem{ Key="Pi",         Icon="\uE8A5", TitleKey="Module.ProformaInvoice", SubtitleKey="Reports.QuotesConversion",   Group="Reports.Documents" },
             new ReportNavItem{ Key="Jo",         Icon="\uE8B7", TitleKey="Common.JobOrder",        SubtitleKey="Reports.ProductionStatus" },
             new ReportNavItem{ Key="Delivery",   Icon="\uE814", TitleKey="Nav.Delivery",           SubtitleKey="Reports.DispatchedPending" },
@@ -130,6 +136,8 @@ namespace ProGlassAutomation.ViewModels.Reports
         /// <summary>Human title of the active report, for the module header strip.</summary>
         public string CurrentReportTitle => _activeKey switch
         {
+            "Customer" => "Customer Directory & Receivables",
+            "Salesman" => "Salesman Performance",
             "Pi" => "Proforma Invoice Report",
             "Jo" => "Job Order Report",
             "Delivery" => "Delivery Note Report",
@@ -141,6 +149,8 @@ namespace ProGlassAutomation.ViewModels.Reports
 
         public ViewModelBase? ActiveViewModel => _activeKey switch
         {
+            "Customer" => CustomerReport,
+            "Salesman" => SalesmanReport,
             "Pi" => PiReport,
             "Jo" => JoReport,
             "Delivery" => DeliveryReport,
@@ -183,6 +193,8 @@ namespace ProGlassAutomation.ViewModels.Reports
             ToggleRailCommand = new RelayCommand(_ => IsRailOpen = !IsRailOpen);
 
             PiReport = new PiReportViewModel(_dialogs, _reportingService, _database);
+            CustomerReport = new CustomerReportViewModel(_dialogs, _reportingService, _database);
+            SalesmanReport = new SalesmanReportViewModel(_dialogs, _reportingService, _database);
             JoReport = new JoReportViewModel(_dialogs, _reportingService, _database);
             DeliveryReport = new DeliveryReportViewModel(_dialogs, _reportingService, _database);
             TaxInvoiceReport = new TaxInvoiceReportViewModel(_dialogs, _reportingService, _database);
@@ -213,6 +225,14 @@ namespace ProGlassAutomation.ViewModels.Reports
                     // reflects the latest generated statements.
                     if (key == "Statement")
                         _ = StatementReport.LoadAsync();
+
+                    // Customer & Salesman reports merge the master-data roster
+                    // with live analytics; reload on open so a client/salesman
+                    // saved since the hub was built shows immediately.
+                    if (key == "Customer")
+                        _ = CustomerReport.LoadAsync();
+                    if (key == "Salesman")
+                        _ = SalesmanReport.LoadAsync();
 
                     IsRailOpen = false; // auto-close (see above)
                 }
