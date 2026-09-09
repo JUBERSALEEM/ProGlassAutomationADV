@@ -35,8 +35,15 @@ namespace ProGlassAutomation.ViewModels.UserCenter
         public string Username { get; set; } = "";
         public string DisplayName { get; set; } = "";
         public string Role { get; set; } = "";
+        public string Mobile { get; set; } = "";
+        public string Email { get; set; } = "";
         public bool IsActive { get; set; }
         public bool IsCurrent { get; set; }
+
+        /// <summary>Contact line under the name (blank when none on file).</summary>
+        public string ContactLine =>
+            !string.IsNullOrWhiteSpace(Mobile) ? Mobile
+            : !string.IsNullOrWhiteSpace(Email) ? Email : "";
 
         private bool _isSelected;
         public bool IsSelected
@@ -64,6 +71,10 @@ namespace ProGlassAutomation.ViewModels.UserCenter
         private string _username = "";
         private string _displayName = "";
         private string _role = "Operator";
+        private string _mobile = "";
+        private string _email = "";
+        private string _selectedMobile = "";
+        private string _selectedEmail = "";
         private string _status = "";
         private int _selectedUserId;
 
@@ -82,6 +93,36 @@ namespace ProGlassAutomation.ViewModels.UserCenter
             get => _role;
             set { _role = value; OnPropertyChanged(); }
         }
+
+        /// <summary>Sharing Center contact for the user being created.</summary>
+        public string Mobile
+        {
+            get => _mobile;
+            set { _mobile = value ?? ""; OnPropertyChanged(); }
+        }
+
+        /// <summary>Sharing Center contact for the user being created.</summary>
+        public string Email
+        {
+            get => _email;
+            set { _email = value ?? ""; OnPropertyChanged(); }
+        }
+
+        /// <summary>Contact editor for the SELECTED user card.</summary>
+        public string SelectedMobile
+        {
+            get => _selectedMobile;
+            set { _selectedMobile = value ?? ""; OnPropertyChanged(); }
+        }
+
+        /// <summary>Contact editor for the SELECTED user card.</summary>
+        public string SelectedEmail
+        {
+            get => _selectedEmail;
+            set { _selectedEmail = value ?? ""; OnPropertyChanged(); }
+        }
+
+        public bool HasSelectedUser => _selectedUserId != 0;
         public string Status
         {
             get => _status;
@@ -141,6 +182,11 @@ namespace ProGlassAutomation.ViewModels.UserCenter
                 _selectedUserId = p is UserCard c ? c.Id : 0;
                 foreach (var u in _users)
                     u.IsSelected = u.Id == _selectedUserId;
+                // The contact editor follows the selection.
+                var selected = _users.FirstOrDefault(u => u.Id == _selectedUserId);
+                SelectedMobile = selected?.Mobile ?? "";
+                SelectedEmail = selected?.Email ?? "";
+                OnPropertyChanged(nameof(HasSelectedUser));
             });
 
             ToggleActiveCommand = new RelayCommand(async p =>
@@ -177,6 +223,8 @@ namespace ProGlassAutomation.ViewModels.UserCenter
                         Username = u.Username,
                         DisplayName = u.DisplayName,
                         Role = u.Role,
+                        Mobile = u.Mobile ?? "",
+                        Email = u.Email ?? "",
                         IsActive = u.IsActive,
                         IsCurrent = current != null && current.Id == u.Id,
                         IsSelected = u.Id == _selectedUserId
@@ -230,16 +278,39 @@ namespace ProGlassAutomation.ViewModels.UserCenter
 
             var (ok, error) = await AuditService.CreateUserAsync(
                 Username.Trim(), DisplayName.Trim(), SelectedRole, password,
-                ReasonNote.Trim());
+                ReasonNote.Trim(), Mobile.Trim(), Email.Trim());
 
             Status = ok ? "User created ✔ " + DisplayName : error;
             if (ok)
             {
                 Username = "";
                 DisplayName = "";
+                Mobile = "";
+                Email = "";
                 ReasonNote = "";
                 await LoadAsync();
             }
+        }
+
+        /// <summary>
+        /// Saves the Sharing Center contact (mobile/email) for the selected
+        /// user card. Existing users gain their numbers this way — create
+        /// alone would strand every account made before Phase 17.
+        /// </summary>
+        public async System.Threading.Tasks.Task SaveSelectedContactAsync()
+        {
+            var card = _users.FirstOrDefault(u => u.Id == _selectedUserId);
+            if (card == null)
+            {
+                Status = "Select a user card first.";
+                return;
+            }
+
+            var (ok, error) = await AuditService.UpdateUserContactAsync(
+                card.Username, SelectedMobile.Trim(), SelectedEmail.Trim());
+            Status = ok ? "Contact saved ✔ " + card.DisplayName : error;
+            if (ok)
+                await LoadAsync();
         }
 
         /// <summary>

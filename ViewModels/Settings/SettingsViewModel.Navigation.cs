@@ -106,6 +106,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 new("Demo",       "\uE714", "Settings.SecDemo"),
                 new("License",    "\uE762", "Settings.SecLicense"),
                 new("Features",   "\uE192", "Settings.SecFeatures"),
+                new("Sharing",    "\uE72D", "Settings.SecSharing"),
                 new("About",      "\uE946", "Settings.SecAbout"),
             };
             rows[0].IsActive = true;

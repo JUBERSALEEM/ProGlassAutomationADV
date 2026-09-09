@@ -203,5 +203,12 @@ with prefilled text. They cannot attach files and report no delivery. So:
   `AuditSections.Sharing` + `ProcessStartGuard.TryOpenUrl` +
   `AppConfig.Sharing` (+ load hydration) + `AppUser.Mobile/Email`
   (+ audit.db migration). Composer/settings/integration not yet wired.
-- [ ] Stage 2 — Composer + identity + settings UI
+- [x] Stage 2 — Composer + identity + settings UI. 2026-09-09 —
+  `ShareComposerViewModel` + `ShareComposerWindow` (glass card,
+  localized, FROM/TO/manual/attachments/message/providers/outcome);
+  `AuditService.CreateUserAsync` contact params +
+  `UpdateUserContactAsync` + UserCenter create fields + per-user contact
+  editor + card contact lines; Settings "Sharing" rail page (providers,
+  defaults, document rules, template editor with signature-guarded save);
+  51 `Sharing.*`/`UserCenter.*`/`Settings.SecSharing` keys × 15 locales.
 - [ ] Stage 3 — Integration + tests + regression

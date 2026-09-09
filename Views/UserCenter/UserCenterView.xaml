@@ -170,6 +170,11 @@
                                             <Run Text="  ·  "/>
                                             <Run Text="{Binding Role, Mode=OneWay}"/>
                                         </TextBlock>
+                                        <!-- Sharing Center contact (blank when none on file). -->
+                                        <TextBlock Text="{Binding ContactLine}"
+                                                   FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
@@ -233,6 +238,9 @@
                                 <!-- PHASE D: WHY note row -->
                                 <RowDefinition Height="14"/>
                                 <RowDefinition Height="Auto"/>
+                                <!-- Sharing Center contact row -->
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.Column="0">
@@ -290,7 +298,19 @@
                                          ToolTip="{DynamicResource UserCenter.ReasonCreatingUserEGNewEstimatorJoinedDubai}"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="8" Grid.ColumnSpan="3"
+                            <!-- Sharing Center FROM contact (optional). -->
+                            <StackPanel Grid.Row="8" Grid.Column="0">
+                                <TextBlock Text="{DynamicResource UserCenter.Mobile}" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBox Text="{Binding Mobile, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource UcTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="8" Grid.Column="2">
+                                <TextBlock Text="{DynamicResource UserCenter.Email}" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource UcTextBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="10" Grid.ColumnSpan="3"
                                         Orientation="Horizontal" Margin="0,4,0,0">
                                 <Button Style="{StaticResource SuccessPillButton}"
                                         Tag="&#xE710;" Content="{DynamicResource SystemCenter.CreateUSER}"
@@ -372,6 +392,35 @@
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE72E;" Content="{DynamicResource UserCenter.ChangePassword}"
                                     Click="ChangePassword_Click"
+                                    VerticalAlignment="Bottom"/>
+                        </StackPanel>
+
+                        <Border Height="1" Margin="0,20,0,20"
+                                Background="{DynamicResource DividerBrush}"/>
+
+                        <!-- Sharing Center contact for the SELECTED card. -->
+                        <TextBlock Text="{DynamicResource Sharing.Title}"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="{DynamicResource UserCenter.Mobile}"
+                                           Style="{StaticResource UcFieldLabel}"/>
+                                <TextBox Text="{Binding SelectedMobile, UpdateSourceTrigger=PropertyChanged}"
+                                         Width="200"
+                                         Style="{StaticResource UcTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="{DynamicResource UserCenter.Email}"
+                                           Style="{StaticResource UcFieldLabel}"/>
+                                <TextBox Text="{Binding SelectedEmail, UpdateSourceTrigger=PropertyChanged}"
+                                         Width="240"
+                                         Style="{StaticResource UcTextBox}"/>
+                            </StackPanel>
+                            <Button Style="{StaticResource PrimaryPillButton}"
+                                    Tag="&#xE74E;" Content="{DynamicResource UserCenter.SaveContact}"
+                                    Click="SaveContact_Click"
                                     VerticalAlignment="Bottom"/>
                         </StackPanel>
 

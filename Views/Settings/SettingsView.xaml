@@ -367,6 +367,12 @@
                     Converter={StaticResource EqualityToVisibilityConverter},
                     ConverterParameter=License,
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
+            <sections:SettingsSharingSection
+                Visibility="{Binding DataContext.SettingsPage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource EqualityToVisibilityConverter},
+                    ConverterParameter=Sharing,
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsAboutSection
                 Visibility="{Binding DataContext.SettingsPage,
                     ElementName=SettingsRoot,

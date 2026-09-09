@@ -418,6 +418,7 @@ namespace ProGlassAutomation.Services.Audit
         /// <summary>
         /// Creates a new user. Returns (success, error).
         /// Validates username uniqueness and minimum password length.
+        /// Mobile/email are optional Sharing Center contact fields.
         /// </summary>
         public static async Task<(bool Success, string Error)>
             CreateUserAsync(
@@ -425,7 +426,9 @@ namespace ProGlassAutomation.Services.Audit
                 string displayName,
                 string role,
                 string password,
-                string reason = "")
+                string reason = "",
+                string mobile = "",
+                string email = "")
         {
             try
             {
@@ -460,6 +463,11 @@ namespace ProGlassAutomation.Services.Audit
 
                 var user = BuildUser(username, displayName, role, password);
                 user.CreatedAtUtc = DateTime.UtcNow;
+                // Sharing Center FROM contact (optional; composer shows
+                // name + role when blank). Trimmed + capped, never validated
+                // beyond that — the composer validates at share time.
+                user.Mobile = TruncateContact(mobile, 40);
+                user.Email = TruncateContact(email, 200);
 
                 db.Users.Add(user);
                 await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
@@ -474,6 +482,59 @@ namespace ProGlassAutomation.Services.Audit
             {
                 return (false, $"Could not create user: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Updates a user's Sharing Center contact fields (mobile/email).
+        /// Case-insensitive lookup like every other username read. Returns
+        /// (success, error). Never touches credentials or role.
+        /// </summary>
+        public static async Task<(bool Success, string Error)>
+            UpdateUserContactAsync(string username, string mobile, string email)
+        {
+            try
+            {
+                username = (username ?? "").Trim();
+                if (username.Length == 0)
+                    return (false, "Select a user first.");
+
+                using var db = new AuditDbContext();
+                string lookup = username.ToLowerInvariant();
+                var user = await db.Users
+                    .FirstOrDefaultAsync(u => u.Username.ToLower() == lookup)
+                    .ConfigureAwait(false);
+                if (user == null)
+                    return (false, $"User '{username}' not found.");
+
+                user.Mobile = TruncateContact(mobile, 40);
+                user.Email = TruncateContact(email, 200);
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+
+                // Refresh the live session copy so the composer shows the
+                // new contact immediately when editing yourself.
+                if (_currentUser != null &&
+                    string.Equals(_currentUser.Username, user.Username,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    _currentUser.Mobile = user.Mobile;
+                    _currentUser.Email = user.Email;
+                }
+
+                Log(AuditSections.Users, "User contact updated",
+                    user.Username, "USER", user.Username);
+                return (true, "");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Could not save contact: {ex.Message}");
+            }
+        }
+
+        private static string TruncateContact(string? value, int maxLen)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return "";
+            value = value.Trim();
+            return value.Length <= maxLen ? value : value.Substring(0, maxLen);
         }
 
         /// <summary>Activate / deactivate a user (never deletes them).</summary>
