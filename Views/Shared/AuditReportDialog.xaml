@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Audit Event Report"
-        Width="920" Height="680"
-        MinWidth="720" MinHeight="520"
+        Width="920" Height="780"
+        MinWidth="720" MinHeight="620"
         WindowStartupLocation="CenterOwner"
         FontFamily="{DynamicResource AppFontFamily}"
         Background="{DynamicResource WindowBackgroundBrush}"
@@ -14,10 +14,29 @@
         SnapsToDevicePixels="True">
 
     <Grid Margin="22">
+        <!--
+          Row allocation is the reason the narrative panel looked empty.
+
+          Row 1 is Auto and holds four cards in a UniformGrid, which forces all
+          four to the height of the TALLEST one. Every card also inherits
+          MinHeight="86" from SecondarySurfaceCardStyle — a floor designed for
+          large dashboard stat tiles, not for these compact info cards. So one
+          long "why" line stretched all four cards, Row 1 ate the dialog, and
+          Row 2 (the narrative and the before/after diff) was left with scraps.
+
+          Adding TextWrapping made this WORSE, not better: text that used to
+          clip at one line now wraps to several, so the cards grew taller and
+          Row 2 shrank further. That is why the previous change looked like
+          nothing had happened.
+
+          Row 2 now carries a MinHeight so the two panels that actually hold
+          the content can never be squeezed away, and the window is 100px
+          taller to pay for it.
+        -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="*" MinHeight="300"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -57,7 +76,7 @@
 
         <!-- Who/When/What/Why -->
         <UniformGrid Grid.Row="1" Columns="4" Margin="0,14,0,14">
-            <Border Style="{StaticResource SecondarySurfaceCardStyle}" Margin="0,0,8,0" Padding="12">
+            <Border Style="{StaticResource SecondarySurfaceCardStyle}" MinHeight="0" Margin="0,0,8,0" Padding="12">
                 <StackPanel>
                     <TextBlock Text="WHO" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
                     <TextBlock Text="{Binding ActorDisplay}" Margin="0,4,0,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
@@ -65,21 +84,21 @@
                     <TextBlock Text="{Binding OtherUserNotice}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
-            <Border Style="{StaticResource SecondarySurfaceCardStyle}" Margin="0,0,8,0" Padding="12">
+            <Border Style="{StaticResource SecondarySurfaceCardStyle}" MinHeight="0" Margin="0,0,8,0" Padding="12">
                 <StackPanel>
                     <TextBlock Text="WHEN" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
                     <TextBlock Text="{Binding TimeDisplay}" Margin="0,4,0,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
                     <TextBlock Text="{Binding UtcTimeDisplay}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
-            <Border Style="{StaticResource SecondarySurfaceCardStyle}" Margin="0,0,8,0" Padding="12">
+            <Border Style="{StaticResource SecondarySurfaceCardStyle}" MinHeight="0" Margin="0,0,8,0" Padding="12">
                 <StackPanel>
                     <TextBlock Text="WHAT" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
                     <TextBlock Text="{Binding Action}" Margin="0,4,0,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
                     <TextBlock Text="{Binding EntityLine}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
-            <Border Style="{StaticResource SecondarySurfaceCardStyle}" Padding="12">
+            <Border Style="{StaticResource SecondarySurfaceCardStyle}" MinHeight="0" Padding="12">
                 <StackPanel>
                     <TextBlock Text="WHY" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
                     <TextBlock Text="{Binding WhySummary}" Margin="0,4,0,0" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
@@ -167,7 +186,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,0,0,8" Padding="10">
+                                                BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,0,0,10" Padding="12">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>
