@@ -432,15 +432,57 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
 
                 if (result != System.Windows.MessageBoxResult.Yes) return;
 
+                // ERP lifecycle hardening (Phase 1): decide PER MEMBER. Draft
+                // invoices are physically deleted; ISSUED / paid / etc. fiscal
+                // invoices are VOIDED (retained). If any member must be voided
+                // we capture ONE reason for the whole family action.
+                bool anyMustVoid = fam.Members.Any(m =>
+                    !ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanHardDelete(
+                        ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.TaxInvoice,
+                        m.Status, hasChildren: false));
+
+                string voidReason = "";
+                if (anyMustVoid)
+                {
+                    var proceed = _dialogs.Show(
+                        string.Format(LocalizationService.Instance.T("Void.MsgConfirmVoidX"), fam.ProformaId),
+                        LocalizationService.Instance.T("Void.Title"),
+                        System.Windows.MessageBoxButton.YesNo,
+                        System.Windows.MessageBoxImage.Warning,
+                        System.Windows.MessageBoxResult.No);
+                    if (proceed != System.Windows.MessageBoxResult.Yes) return;
+
+                    var dlg = _dialogs.Create<ProGlassAutomation.Views.Shared.VoidReasonDialog>(fam.ProformaId);
+                    if (dlg.ShowDialog() != true) return;
+                    voidReason = dlg.ResultReason;
+                }
+
                 try
                 {
+                    int deleted = 0, voided = 0;
                     foreach (var m in fam.Members)
-                        await _taxInvoices.DeleteAsync(m.Id);
+                    {
+                        bool canHardDelete =
+                            ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanHardDelete(
+                                ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.TaxInvoice,
+                                m.Status, hasChildren: false);
+                        if (canHardDelete)
+                        {
+                            await _taxInvoices.DeleteAsync(m.Id);
+                            deleted++;
+                        }
+                        else
+                        {
+                            await _taxInvoices.VoidAsync(m.Id, voidReason);
+                            voided++;
+                        }
+                    }
 
                     ProGlassAutomation.Services.Audit.AuditService.Log(
                         ProGlassAutomation.Services.Audit.AuditSections.TaxInvoice,
-                        "Invoice family deleted",
-                        $"{fam.ProformaId} ({fam.InvoiceCount} invoice(s))");
+                        "Invoice family delete/void",
+                        $"{fam.ProformaId} ({fam.InvoiceCount} invoice(s): {deleted} deleted, {voided} voided)",
+                        "TI", fam.ProformaId, voidReason);
 
                     await LoadAsync();
                 }

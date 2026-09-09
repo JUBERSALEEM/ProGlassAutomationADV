@@ -55,6 +55,46 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             DocumentLifecycle.Raise();
         }
 
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): soft-close (void) instead of a
+        /// physical delete. Keeps the row (DN number + audit trail survive);
+        /// Status moves to the void target (Cancelled). Items/attachments are
+        /// left intact — the note still exists, it is simply cancelled.
+        /// </summary>
+        public async Task VoidAsync(int id, string reason)
+        {
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "void a delivery note");
+
+            using var ctx = new DeliveryNotesDbContext();
+            var entity = await ctx.DeliveryNotes
+                .FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
+
+            if (entity == null) return;
+            if (entity.IsVoid) return;   // idempotent
+
+            string? proformaId = entity.ProformaId;
+            bool isMaster = entity.IsMasterDn;
+
+            entity.IsVoid = true;
+            entity.VoidedAtUtc = DateTime.UtcNow;
+            entity.VoidedBy = AuditService.CurrentUsername;
+            entity.VoidReason = string.IsNullOrWhiteSpace(reason) ? "(no reason given)" : reason.Trim();
+            entity.Status = Services.Workflow.DocumentLifecyclePolicy.VoidTargetStatus(
+                Services.Workflow.StatusTransitions.Kind.DeliveryNote);
+            entity.UpdatedAt = DateTime.Now;
+
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+
+            if (!isMaster)
+            {
+                await ProGlassAutomation.Services.ProformaInvoice
+                    .ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
+            }
+
+            DocumentLifecycle.Raise();
+        }
+
         // ── Existence checks ─────────────────────────────────────────────
 
         public async Task<bool> ExistsByDeliveryNoteIdAsync(string deliveryNoteId)

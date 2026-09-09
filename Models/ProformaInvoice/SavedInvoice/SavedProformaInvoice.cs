@@ -49,6 +49,29 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         [MaxLength(50)]
         public string Status { get; set; } = "Draft";
 
+        // ── Void / soft-close (ERP lifecycle hardening — Phase 1) ─────────
+        // A posted or dependent document is never physically deleted; it is
+        // VOIDED so its number, snapshot and audit trail survive. These are
+        // additive and nullable — a fresh row is IsVoid=false with null
+        // audit fields, identical to legacy behaviour.
+
+        /// <summary>True when this document has been soft-closed (voided)
+        /// instead of deleted. Voided rows are hidden from the default list
+        /// but remain in reports / VAT / audit.</summary>
+        public bool IsVoid { get; set; }
+
+        /// <summary>UTC timestamp the void was applied. Null when live.</summary>
+        public DateTime? VoidedAtUtc { get; set; }
+
+        /// <summary>Username that voided the document. Null when live.</summary>
+        [MaxLength(100)]
+        public string? VoidedBy { get; set; }
+
+        /// <summary>Mandatory reason captured when voiding (auditor's first
+        /// question). Null when live.</summary>
+        [MaxLength(500)]
+        public string? VoidReason { get; set; }
+
         /// <summary>
         /// BUG-04: Removed DateTime.Now default. Set by mapper on save.
         /// </summary>

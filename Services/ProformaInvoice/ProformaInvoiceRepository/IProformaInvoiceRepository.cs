@@ -108,6 +108,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         Task DeleteAsync(int id);
 
         /// <summary>
+        /// ERP lifecycle hardening (Phase 1): SOFT-CLOSE (void) a posted or
+        /// dependent invoice instead of deleting it. Sets the void audit
+        /// columns, moves Status to the void target, and keeps the row so the
+        /// number, snapshot and audit trail survive. Permission-gated exactly
+        /// like DeleteAsync.
+        /// </summary>
+        Task VoidAsync(int id, string reason);
+
+        /// <summary>
         /// Internal lifecycle write: marks the invoice with the given
         /// ProformaId as Cancelled (stored "Rejected") and syncs the
         /// snapshot's ProformaStatus, WITHOUT demanding ProformaEdit.

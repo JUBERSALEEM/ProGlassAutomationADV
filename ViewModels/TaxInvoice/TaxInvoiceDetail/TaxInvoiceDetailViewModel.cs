@@ -171,6 +171,21 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             DeleteCommand = new RelayCommand(async _ =>
             {
                 if (IsNewInvoice) return;
+
+                // ERP lifecycle hardening (Phase 1): a Tax Invoice is a fiscal
+                // document. Only a Draft may be physically deleted; an Issued /
+                // Paid / etc. invoice is VOIDED so the number, figures and
+                // audit trail survive (and can later be corrected by a credit
+                // note). TI is a leaf, so there are never cross-doc children.
+                bool canHardDelete = Services.Workflow.DocumentLifecyclePolicy.CanHardDelete(
+                    Services.Workflow.StatusTransitions.Kind.TaxInvoice, _status, hasChildren: false);
+
+                if (!canHardDelete)
+                {
+                    await VoidInvoiceAsync();
+                    return;
+                }
+
                 var result = _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DeleteInvoiceXThisCannot"), _editingInvoiceNumber),
                     LocalizationService.Instance.T("Msg.CapConfirmDelete"),
@@ -182,6 +197,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 try
                 {
                     await _taxInvoices!.DeleteAsync(_editingId);
+                    AuditService.Log(
+                        AuditSections.TaxInvoice, "Tax invoice deleted",
+                        _editingInvoiceNumber, "TI", _editingInvoiceNumber);
                     OnRequestBackToList?.Invoke();
                 }
                 catch (Exception ex)

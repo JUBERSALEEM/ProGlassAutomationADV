@@ -41,6 +41,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         // ── CHAT 19 — Master DN ───────────────────────────────────────────
 
         public bool IsMasterDn { get; }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): true when this delivery note has
+        /// been voided (soft-closed). Hidden from the list unless "Show voided".
+        /// </summary>
+        public bool IsVoid { get; }
         public double DeliveryProgressPercent { get; }
         public bool IsFullyDelivered { get; }
 
@@ -131,6 +137,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
             // CHAT 19: Master DN
             IsMasterDn = e.IsMasterDn;
+
+            // ERP lifecycle hardening (Phase 1): carry the void flag through.
+            IsVoid = e.IsVoid;
 
             DeliveryProgressPercent = e.TotalOrderedQty > 0
                 ? Math.Min(100.0,

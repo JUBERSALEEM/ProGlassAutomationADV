@@ -112,7 +112,15 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
         // joborders.db
         public static IReadOnlyList<SchemaMigration> JobOrders { get; }
-            = new List<SchemaMigration>();
+            = new List<SchemaMigration>
+            {
+                // ERP lifecycle hardening (Phase 1): void / soft-close columns.
+                // Additive + idempotent. EnsureCreated builds a fresh DB at the
+                // current model (columns already present); existing installs get
+                // them here so EF never queries a missing column.
+                new(1001, "Job Order: void / soft-close columns", connection =>
+                    AddVoidColumns(connection, "JobOrders"))
+            };
 
         // deliverynotes.db
         public static IReadOnlyList<SchemaMigration> DeliveryNotes { get; } = new List<SchemaMigration>
@@ -120,12 +128,23 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             new(1, "Add WeightPerPiece column for glass weight tracking", connection =>
             {
                 SchemaMigrationSql.AddColumnIfMissing(connection, "DeliveryNoteItems", "WeightPerPiece", "REAL NOT NULL DEFAULT 0");
-            })
+            }),
+
+            // ERP lifecycle hardening (Phase 1): void / soft-close columns.
+            new(1001, "Delivery Note: void / soft-close columns", connection =>
+                AddVoidColumns(connection, "DeliveryNotes"))
         };
 
         // taxinvoices.db
         public static IReadOnlyList<SchemaMigration> TaxInvoices { get; }
-            = new List<SchemaMigration>();
+            = new List<SchemaMigration>
+            {
+                // ERP lifecycle hardening (Phase 1): void / soft-close columns.
+                // A Tax Invoice is a fiscal document — it is voided, never
+                // deleted once issued. Additive + idempotent.
+                new(1001, "Tax Invoice: void / soft-close columns", connection =>
+                    AddVoidColumns(connection, "TaxInvoices"))
+            };
 
         // inquiries.db
         //
@@ -193,7 +212,11 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                     SchemaMigrationSql.AddColumnIfMissing(connection, "ProformaInvoices", "InquiryId", "INTEGER NULL");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
                         "CREATE INDEX IF NOT EXISTS IX_ProformaInvoices_InquiryId ON ProformaInvoices(InquiryId);");
-                })
+                }),
+
+                // ERP lifecycle hardening (Phase 1): void / soft-close columns.
+                new(1002, "Proforma Invoice: void / soft-close columns", connection =>
+                    AddVoidColumns(connection, "ProformaInvoices"))
             };
 
         // specifications.db
@@ -289,6 +312,27 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         // aimemory.db
         public static IReadOnlyList<SchemaMigration> AiMemory { get; }
             = new List<SchemaMigration>();
+
+        // ── shared: ERP lifecycle void / soft-close columns ─────────────
+
+        /// <summary>
+        /// Adds the four void / soft-close columns to a saved-document table
+        /// (ProformaInvoices / JobOrders / DeliveryNotes / TaxInvoices).
+        /// Idempotent — a fresh table created by EnsureCreated already carries
+        /// them, so each ADD COLUMN is a no-op. IsVoid is INTEGER (SQLite bool)
+        /// NOT NULL DEFAULT 0, so every existing row is "live" after upgrade.
+        /// The rest are nullable audit fields, null until a void happens.
+        /// </summary>
+        private static void AddVoidColumns(SqliteConnection connection, string table)
+        {
+            SchemaMigrationSql.AddColumnIfMissing(connection, table, "IsVoid",      "INTEGER NOT NULL DEFAULT 0");
+            SchemaMigrationSql.AddColumnIfMissing(connection, table, "VoidedAtUtc", "TEXT NULL");
+            SchemaMigrationSql.AddColumnIfMissing(connection, table, "VoidedBy",    "TEXT NULL");
+            SchemaMigrationSql.AddColumnIfMissing(connection, table, "VoidReason",  "TEXT NULL");
+
+            SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                $"CREATE INDEX IF NOT EXISTS IX_{table}_IsVoid ON {table}(IsVoid);");
+        }
 
         // ── inquiries.db helpers (migration 1001) ───────────────────────
 

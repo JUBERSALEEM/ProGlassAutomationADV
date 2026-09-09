@@ -377,6 +377,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
@@ -388,12 +389,18 @@
                                   SelectedItem="{Binding SelectedStatusFilter}"
                                   Style="{StaticResource ModuleListFilterComboStyle}"
                                   Margin="0,0,8,0"/>
-                        <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                        <CheckBox Grid.Column="2"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,12,0"
+                                  IsChecked="{Binding ShowVoided}"
+                                  Content="{DynamicResource Void.ShowVoided}"
+                                  ToolTip="{DynamicResource Void.ShowVoidedTip}"/>
+                        <Button Grid.Column="3" Style="{StaticResource OutlinedPillButton}"
                                 Tag="&#xE711;" Content="{DynamicResource God.Clear}"
                                 Margin="0,0,8,0"
                                 ToolTip="{DynamicResource Dnl.ClearFilters}"
                                 Command="{Binding ClearFiltersCommand}"/>
-                        <Button Grid.Column="3" Style="{StaticResource PrimaryPillButton}"
+                        <Button Grid.Column="4" Style="{StaticResource PrimaryPillButton}"
                                 Tag="&#xE72C;" Content="{DynamicResource God.Refresh}"
                                 ToolTip="{DynamicResource Dnl.RefreshList}"
                                 Command="{Binding RefreshCommand}"/>

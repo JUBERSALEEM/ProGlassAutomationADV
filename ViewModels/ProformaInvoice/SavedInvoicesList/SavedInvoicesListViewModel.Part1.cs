@@ -102,6 +102,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             set { if (_searchText == value) return; _searchText = value; OnPropertyChanged(); ApplyFilters(); }
         }
 
+        // ERP lifecycle hardening (Phase 1): voided invoices are hidden by
+        // default; flip this to include them (reports/VAT always see them).
+        private bool _showVoided;
+        public bool ShowVoided
+        {
+            get => _showVoided;
+            set { if (_showVoided == value) return; _showVoided = value; OnPropertyChanged(); ApplyFilters(); }
+        }
+
         private string _selectedStatusFilter = "All Statuses";
         public string SelectedStatusFilter
         {
@@ -479,7 +488,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         Status = e.Status,
                         GrandTotal = e.GrandTotalVatInclusive,
                         CreatedAt = e.CreatedAt,
-                        UpdatedAt = e.UpdatedAt
+                        UpdatedAt = e.UpdatedAt,
+                        IsVoid = e.IsVoid
                     };
 
                     bool hasApprovalProof = confirmedWithAttachments.Contains(e.ProformaId ?? "");
@@ -583,6 +593,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         private void ApplyFilters()
         {
             IEnumerable<SavedInvoiceListItem> query = _allItems;
+
+            // ERP lifecycle hardening (Phase 1): hide voided (soft-closed)
+            // invoices unless the user explicitly asks to see them.
+            if (!_showVoided)
+                query = query.Where(x => !x.IsVoid);
 
             if (!string.IsNullOrWhiteSpace(_searchText))
             {
@@ -734,42 +749,100 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             if (item == null || _invoices == null) return;
 
-            // Phase 14: orphan protection — refuse to delete a PI that has
-            // dependent Job Orders / Tax Invoices.
+            // Phase 14: orphan protection — cross-database dependency check.
             var guard = await _database.CheckDependencyAsync(
                 DependencyGuard.Kind.ProformaInvoice,
                 item.ProformaId ?? "");
-            if (guard.HasDependents)
+            bool hasChildren = guard.HasDependents;
+
+            // ERP lifecycle hardening (Phase 1): three-way decision.
+            //   HardDelete → childless pre-posting draft
+            //   Blocked    → has LIVE children (handle those first)
+            //   Void       → posted but childless (soft-close, keep the record)
+            var decision = DocumentLifecyclePolicy.DecideDelete(
+                StatusTransitions.Kind.ProformaInvoice, item.Status, hasChildren);
+
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.Blocked)
             {
                 _dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            var confirm = _dialogs.Show(
-                string.Format(LocalizationService.Instance.T("Msg.DeleteInvoiceXPermanentlyThis"), item.ProformaId),
-                LocalizationService.Instance.T("Msg.CapConfirmDelete"),
+            if (decision == DocumentLifecyclePolicy.DeleteDecision.HardDelete)
+            {
+                var confirm = _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Msg.DeleteInvoiceXPermanentlyThis"), item.ProformaId),
+                    LocalizationService.Instance.T("Msg.CapConfirmDelete"),
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                if (confirm != MessageBoxResult.Yes) return;
+
+                try
+                {
+                    await _invoices.DeleteAsync(item.Id);
+                    AuditService.Log(
+                        AuditSections.Proforma, "Invoice deleted",
+                        item.ProformaId, "PI", item.ProformaId);
+                    await LoadInvoicesAsync();
+                }
+                catch (Exception ex)
+                {
+                    _dialogs.Show(
+                        string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX2"), ExceptionMessages.Deep(ex)),
+                        LocalizationService.Instance.T("Msg.CapDeleteFailed"),
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+                return;
+            }
+
+            // Must void, not delete. Explain why, capture a mandatory reason.
+            await VoidDocumentAsync(item);
+        }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): soft-close (void) a PI that may
+        /// not be hard-deleted. Explains why, captures a mandatory reason via
+        /// the shared dialog, calls the repository VoidAsync, and audits it.
+        /// </summary>
+        private async Task VoidDocumentAsync(SavedInvoiceListItem item)
+        {
+            if (item == null || _invoices == null) return;
+
+            var proceed = _dialogs.Show(
+                string.Format(LocalizationService.Instance.T("Void.MsgConfirmVoidX"), item.ProformaId),
+                LocalizationService.Instance.T("Void.Title"),
                 MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-            if (confirm != MessageBoxResult.Yes) return;
+                MessageBoxImage.Warning,
+                MessageBoxResult.No);
+            if (proceed != MessageBoxResult.Yes) return;
+
+            var dlg = _dialogs.Create<ProGlassAutomation.Views.Shared.VoidReasonDialog>(item.ProformaId);
+            if (dlg.ShowDialog() != true) return;
+            string reason = dlg.ResultReason;
 
             try
             {
-                await _invoices.DeleteAsync(item.Id);
+                await _invoices.VoidAsync(item.Id, reason);
 
                 AuditService.Log(
-                    AuditSections.Proforma, "Invoice deleted",
-                    item.ProformaId, "PI", item.ProformaId);
+                    AuditSections.Proforma, "Invoice voided",
+                    item.ProformaId, "PI", item.ProformaId, reason);
+
+                _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Void.MsgVoidedX"), item.ProformaId),
+                    LocalizationService.Instance.T("Void.CapVoided"),
+                    MessageBoxButton.OK, MessageBoxImage.Information);
 
                 await LoadInvoicesAsync();
             }
             catch (Exception ex)
             {
                 _dialogs.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToDeleteX2"), ExceptionMessages.Deep(ex)),
-                    LocalizationService.Instance.T("Msg.CapDeleteFailed"),
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                    string.Format(LocalizationService.Instance.T("Void.MsgVoidFailedX"), ExceptionMessages.Deep(ex)),
+                    LocalizationService.Instance.T("Void.CapVoidFailed"),
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

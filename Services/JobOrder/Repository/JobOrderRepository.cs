@@ -66,7 +66,8 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
                     Priority = j.Priority ?? "",
                     DeliveryDate = j.DeliveryDate,
                     CreatedAt = j.CreatedAt,
-                    UpdatedAt = j.UpdatedAt
+                    UpdatedAt = j.UpdatedAt,
+                    IsVoid = j.IsVoid
                 })
                 .ToListAsync().ConfigureAwait(false);
         }
@@ -135,6 +136,41 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             // Run the lifecycle sync BEFORE raising the change signal so a
             // PI list refresh sees the final (cancelled) status the first
             // time — no stale "PI confirmed / PI created" frame.
+            await ProformaLifecycleSync.AfterDownstreamChangeAsync(sourcePi);
+            DocumentLifecycle.Raise();
+        }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): soft-close (void) instead of a
+        /// physical delete. Keeps the row (job-order number + immutable PI
+        /// snapshot + audit trail survive); Status moves to the void target
+        /// (Rejected). The master DN is intentionally left intact — the job
+        /// order still exists, it is simply cancelled.
+        /// </summary>
+        public async Task VoidAsync(int id, string reason)
+        {
+            ReadOnlyGate.Demand("void a job order");
+            OperationGuard.Demand(
+                AppPermissions.JobOrderDelete, "void a job order");
+
+            using var db = new JobOrdersDbContext();
+            var job = await db.JobOrders.FindAsync(id).ConfigureAwait(false);
+            if (job == null) return;
+            if (job.IsVoid) return;   // idempotent
+
+            string? sourcePi = job.SourceProformaId;
+
+            job.IsVoid = true;
+            job.VoidedAtUtc = DateTime.UtcNow;
+            job.VoidedBy = AuditService.CurrentUsername;
+            job.VoidReason = string.IsNullOrWhiteSpace(reason) ? "(no reason given)" : reason.Trim();
+            job.Status = Services.Workflow.DocumentLifecyclePolicy.VoidTargetStatus(
+                Services.Workflow.StatusTransitions.Kind.JobOrder);
+            job.UpdatedAt = DateTime.Now;
+
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+
+            // Recover the parent PI's derived status just like a delete would.
             await ProformaLifecycleSync.AfterDownstreamChangeAsync(sourcePi);
             DocumentLifecycle.Raise();
         }

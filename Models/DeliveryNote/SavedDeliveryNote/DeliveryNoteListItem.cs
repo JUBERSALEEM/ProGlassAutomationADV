@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
 {
@@ -82,5 +82,9 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         /// True when a Tax Invoice has been generated from this DN.
         /// </summary>
         public bool HasTaxInvoice { get; set; }
+
+        /// <summary>ERP lifecycle hardening (Phase 1): true when this delivery
+        /// note has been voided (soft-closed).</summary>
+        public bool IsVoid { get; set; }
     }
 }

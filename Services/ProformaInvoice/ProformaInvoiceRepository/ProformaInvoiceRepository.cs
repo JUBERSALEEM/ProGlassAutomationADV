@@ -419,7 +419,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     GrandTotalVatInclusive = x.GrandTotalVatInclusive,
                     IssueDate = x.IssueDate,
                     CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt
+                    UpdatedAt = x.UpdatedAt,
+                    IsVoid = x.IsVoid
                 })
                 .ToListAsync(cancellationToken).ConfigureAwait(false);
         }
@@ -521,6 +522,37 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             // so no orphaned files remain and a re-created invoice with
             // the same Proforma ID cannot resurrect stale attachments.
             await ClearAttachmentsQuietlyAsync(proformaId);
+        }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): soft-close (void) instead of a
+        /// physical delete. The row — and therefore the Proforma number,
+        /// snapshot and audit trail — is kept; Status moves to the void
+        /// target and the void audit columns are stamped. Attachments and
+        /// the Inquiry back-link are intentionally NOT torn down (unlike
+        /// DeleteAsync), because the voided document still exists.
+        /// </summary>
+        public async Task VoidAsync(int id, string reason)
+        {
+            OperationGuard.Demand(
+                AppPermissions.ProformaDelete, "void a proforma invoice");
+            ReadOnlyGate.Demand("void a proforma invoice");
+
+            using var db = new ProformaInvoicesDbContext();
+            var entity = await db.ProformaInvoices.FindAsync(id).ConfigureAwait(false);
+            if (entity == null) return;
+            if (entity.IsVoid) return;   // idempotent — already voided
+
+            entity.IsVoid = true;
+            entity.VoidedAtUtc = DateTime.UtcNow;
+            entity.VoidedBy = AuditService.CurrentUsername;
+            entity.VoidReason = string.IsNullOrWhiteSpace(reason) ? "(no reason given)" : reason.Trim();
+            entity.Status = Services.Workflow.DocumentLifecyclePolicy.VoidTargetStatus(
+                Services.Workflow.StatusTransitions.Kind.ProformaInvoice);
+            entity.UpdatedAt = DateTime.Now;
+
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
+            RaiseChanged();
         }
 
         /// <summary>

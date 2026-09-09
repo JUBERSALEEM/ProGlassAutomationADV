@@ -148,6 +148,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         {
             IEnumerable<DeliveryNoteRowViewModel> query = source;
 
+            // ERP lifecycle hardening (Phase 1): hide voided delivery notes
+            // unless the user explicitly asks to see them.
+            if (!_showVoided)
+                query = query.Where(x => !x.IsVoid);
+
             if (!string.IsNullOrWhiteSpace(_searchText))
             {
                 string q = _searchText.Trim().ToLowerInvariant();
@@ -209,15 +214,26 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 return;
             }
 
-            // Phase 14: orphan protection — refuse to delete a DN that has
-            // been invoiced.
+            // Cross-database dependency check (has this DN been invoiced?).
             var guard = await _database.CheckDependencyAsync(
                 DependencyGuard.Kind.DeliveryNote,
                 row.DeliveryNoteId);
-            if (guard.HasDependents)
+            bool hasChildren = guard.HasDependents;
+
+            // ERP lifecycle hardening (Phase 1): three-way decision.
+            var decision = ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.DecideDelete(
+                ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.DeliveryNote, row.Status, hasChildren);
+
+            if (decision == ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.DeleteDecision.Blocked)
             {
                 _dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (decision == ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.DeleteDecision.Void)
+            {
+                await VoidDeliveryNoteAsync(row);
                 return;
             }
 
@@ -233,6 +249,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             {
                 if (SelectedRow == row) SelectedRow = null;
                 await _deliveryNotes!.DeleteAsync(row.Id);
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Delivery note deleted",
+                    row.DeliveryNoteId, "DN", row.DeliveryNoteId);
                 await LoadAsync();
             }
             catch (Exception ex)
@@ -242,6 +261,52 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): soft-close (void) a delivery
+        /// note that may not be hard-deleted. Explains why, captures a
+        /// mandatory reason, voids via the repository, audits it.
+        /// </summary>
+        private async Task VoidDeliveryNoteAsync(DeliveryNoteRowViewModel row)
+        {
+            if (row == null || _deliveryNotes == null) return;
+
+            var proceed = _dialogs.Show(
+                string.Format(LocalizationService.Instance.T("Void.MsgConfirmVoidX"), row.DeliveryNoteId),
+                LocalizationService.Instance.T("Void.Title"),
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning,
+                MessageBoxResult.No);
+            if (proceed != MessageBoxResult.Yes) return;
+
+            var dlg = _dialogs.Create<ProGlassAutomation.Views.Shared.VoidReasonDialog>(row.DeliveryNoteId);
+            if (dlg.ShowDialog() != true) return;
+            string reason = dlg.ResultReason;
+
+            try
+            {
+                if (SelectedRow == row) SelectedRow = null;
+                await _deliveryNotes.VoidAsync(row.Id, reason);
+
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Delivery note voided",
+                    row.DeliveryNoteId, "DN", row.DeliveryNoteId, reason);
+
+                _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Void.MsgVoidedX"), row.DeliveryNoteId),
+                    LocalizationService.Instance.T("Void.CapVoided"),
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                await LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Void.MsgVoidFailedX"), ExceptionMessages.Deep(ex)),
+                    LocalizationService.Instance.T("Void.CapVoidFailed"),
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

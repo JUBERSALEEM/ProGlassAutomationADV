@@ -33,6 +33,13 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
         Task UpdateAsync(SavedJobOrder jobOrder);
         Task DeleteAsync(int id);
 
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): SOFT-CLOSE (void) a posted or
+        /// dependent job order instead of deleting it. Keeps the row + audit
+        /// trail; sets Status to the void target. Permission-gated like Delete.
+        /// </summary>
+        Task VoidAsync(int id, string reason);
+
         // ── DUPLICATE DETECTION ───────────────────────────────────────────
 
         /// <summary>True if a job order with this ID already exists.</summary>

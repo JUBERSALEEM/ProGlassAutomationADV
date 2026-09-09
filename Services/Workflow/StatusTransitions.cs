@@ -89,12 +89,17 @@ namespace ProGlassAutomation.Services.Workflow
         private static readonly Dictionary<string, HashSet<string>> DeliveryNote =
             BuildTable(new (string, string[])[]
             {
-                ("Draft",        new[] { "Draft", "Dispatching", "Dispatched", "Delivered", "Signed", "Received" }),
-                ("Dispatching",  new[] { "Dispatching", "Dispatched", "Delivered", "Signed", "Received", "Draft" }),
-                ("Dispatched",   new[] { "Dispatched", "Delivered", "Signed", "Received" }),
-                ("Delivered",    new[] { "Delivered", "Signed", "Received" }),
-                ("Signed",       new[] { "Signed", "Received" }),
+                // "Cancelled" is the void (soft-close) target for a delivery
+                // note (ERP lifecycle hardening, Phase 1) and is reachable
+                // from every non-terminal state, plus Cancelled → Draft to
+                // recover from an accidental void.
+                ("Draft",        new[] { "Draft", "Dispatching", "Dispatched", "Delivered", "Signed", "Received", "Cancelled" }),
+                ("Dispatching",  new[] { "Dispatching", "Dispatched", "Delivered", "Signed", "Received", "Draft", "Cancelled" }),
+                ("Dispatched",   new[] { "Dispatched", "Delivered", "Signed", "Received", "Cancelled" }),
+                ("Delivered",    new[] { "Delivered", "Signed", "Received", "Cancelled" }),
+                ("Signed",       new[] { "Signed", "Received", "Cancelled" }),
                 ("Received",     new[] { "Received" }),
+                ("Cancelled",    new[] { "Cancelled", "Draft" }),
             });
 
         private static readonly Dictionary<string, HashSet<string>> TaxInvoice =

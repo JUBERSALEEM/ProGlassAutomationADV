@@ -445,6 +445,22 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
         }
 
+        // ERP lifecycle hardening (Phase 1): voided delivery notes are hidden
+        // by default; flip this to include them.
+        private bool _showVoided;
+        public bool ShowVoided
+        {
+            get => _showVoided;
+            set
+            {
+                if (_showVoided == value) return;
+                _showVoided = value;
+                OnPropertyChanged();
+                SelectedRow = null;
+                ApplyFilters();
+            }
+        }
+
         // Delivery statuses only — no tax-invoice state ("Invoiced" removed).
         // "Delivered" was also added (it was missing from the list).
         public List<string> StatusFilterOptions { get; } = new()

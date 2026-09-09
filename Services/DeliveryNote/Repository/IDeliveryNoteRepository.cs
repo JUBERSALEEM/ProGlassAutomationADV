@@ -219,6 +219,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         Task UpdateAsync(SavedDeliveryNote entity);
         Task DeleteAsync(int id);
 
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): SOFT-CLOSE (void) a posted or
+        /// dependent delivery note instead of deleting it. Keeps the row +
+        /// audit trail; sets Status to the void target. Permission-gated like
+        /// the edit path.
+        /// </summary>
+        Task VoidAsync(int id, string reason);
+
         // ── Existence checks ─────────────────────────────────────────────
 
         Task<bool> ExistsByDeliveryNoteIdAsync(string deliveryNoteId);

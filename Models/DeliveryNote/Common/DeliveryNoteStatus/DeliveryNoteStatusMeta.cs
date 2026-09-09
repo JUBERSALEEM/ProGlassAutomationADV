@@ -22,7 +22,10 @@ namespace ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus
                 ["Dispatched"] = new("Dispatched", "🚚", "TintBlueBrush"),
                 ["Delivered"] = new("Delivered", "📦", "TintIndigoBrush"),
                 ["Signed"] = new("Signed", "✍️", "TintGreenBrush"),
-                ["Received"] = new("Received", "✅", "AccentBrush")
+                ["Received"] = new("Received", "✅", "AccentBrush"),
+                // ERP lifecycle hardening (Phase 1): a voided (soft-closed)
+                // delivery note carries the Cancelled status.
+                ["Cancelled"] = new("Cancelled", "🚫", "TintRedBrush")
             };
 
         /// <summary>

@@ -52,10 +52,23 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             var guard = await _database.CheckDependencyAsync(
                 DependencyGuard.Kind.DeliveryNote,
                 _entity.DeliveryNoteId);
-            if (guard.HasDependents)
+            bool hasChildren = guard.HasDependents;
+
+            // ERP lifecycle hardening (Phase 1): three-way decision.
+            var decision = ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.DecideDelete(
+                ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.DeliveryNote,
+                _entity.Status, hasChildren);
+
+            if (decision == ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.DeleteDecision.Blocked)
             {
                 _dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (decision == ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.DeleteDecision.Void)
+            {
+                await VoidDnAsync();
                 return;
             }
 
@@ -82,6 +95,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 await _deliveryNotes.DeleteAsync(_entity.Id);
 
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Delivery note deleted",
+                    DeliveryNoteId, "DN", DeliveryNoteId);
+
                 _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DeliveryNoteXDeletedSuccessfully"), DeliveryNoteId),
                     LocalizationService.Instance.T("SheetStore.Deleted"),
@@ -97,6 +114,56 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsSaving = false;
+            }
+        }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): soft-close (void) this delivery
+        /// note when it may not be hard-deleted. Attachments are kept — the
+        /// note still exists.
+        /// </summary>
+        private async Task VoidDnAsync()
+        {
+            if (_entity == null || _deliveryNotes == null) return;
+
+            var proceed = _dialogs.Show(
+                string.Format(LocalizationService.Instance.T("Void.MsgConfirmVoidX"), DeliveryNoteId),
+                LocalizationService.Instance.T("Void.Title"),
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning,
+                MessageBoxResult.No);
+            if (proceed != MessageBoxResult.Yes) return;
+
+            var dlg = _dialogs.Create<ProGlassAutomation.Views.Shared.VoidReasonDialog>(DeliveryNoteId);
+            if (dlg.ShowDialog() != true) return;
+            string reason = dlg.ResultReason;
+
+            try
+            {
+                IsSaving = true;
+                await _deliveryNotes.VoidAsync(_entity.Id, reason);
+
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Delivery note voided",
+                    DeliveryNoteId, "DN", DeliveryNoteId, reason);
+
+                _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Void.MsgVoidedX"), DeliveryNoteId),
+                    LocalizationService.Instance.T("Void.CapVoided"),
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                OnRequestBackToList?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Void.MsgVoidFailedX"), ExceptionMessages.Deep(ex)),
+                    LocalizationService.Instance.T("Void.CapVoidFailed"),
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {

@@ -83,5 +83,51 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         /// </summary>
         public ICommand SelectFamilyMemberCommand { get; private set; }
 
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): soft-close (void) an ISSUED tax
+        /// invoice instead of deleting it. A fiscal document is retained, not
+        /// erased — the number, figures and audit trail survive, and linked
+        /// DNs are freed for re-invoicing. Captures a mandatory reason.
+        /// </summary>
+        private async Task VoidInvoiceAsync()
+        {
+            if (IsNewInvoice || _taxInvoices == null) return;
+
+            var proceed = _dialogs.Show(
+                string.Format(LocalizationService.Instance.T("Void.MsgConfirmVoidX"), _editingInvoiceNumber),
+                LocalizationService.Instance.T("Void.Title"),
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning,
+                MessageBoxResult.No);
+            if (proceed != MessageBoxResult.Yes) return;
+
+            var dlg = _dialogs.Create<ProGlassAutomation.Views.Shared.VoidReasonDialog>(_editingInvoiceNumber);
+            if (dlg.ShowDialog() != true) return;
+            string reason = dlg.ResultReason;
+
+            try
+            {
+                await _taxInvoices.VoidAsync(_editingId, reason);
+
+                AuditService.Log(
+                    AuditSections.TaxInvoice, "Tax invoice voided",
+                    _editingInvoiceNumber, "TI", _editingInvoiceNumber, reason);
+
+                _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Void.MsgVoidedX"), _editingInvoiceNumber),
+                    LocalizationService.Instance.T("Void.CapVoided"),
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                OnRequestBackToList?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Void.MsgVoidFailedX"), ExceptionMessages.Deep(ex)),
+                    LocalizationService.Instance.T("Void.CapVoidFailed"),
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
     }
 }

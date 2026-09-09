@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -51,6 +51,25 @@ namespace ProGlassAutomation.Models.JobOrder.SavedJobOrder
         /// </summary>
         [Required, MaxLength(30)]
         public string Status { get; set; } = "Draft";
+
+        // ── Void / soft-close (ERP lifecycle hardening — Phase 1) ─────────
+        // Additive, nullable. A live job order is IsVoid=false with null
+        // audit fields — byte-identical to legacy rows.
+
+        /// <summary>True when the job order was soft-closed (voided) instead
+        /// of deleted.</summary>
+        public bool IsVoid { get; set; }
+
+        /// <summary>UTC timestamp the void was applied. Null when live.</summary>
+        public DateTime? VoidedAtUtc { get; set; }
+
+        /// <summary>Username that voided the job order. Null when live.</summary>
+        [MaxLength(100)]
+        public string? VoidedBy { get; set; }
+
+        /// <summary>Mandatory reason captured when voiding. Null when live.</summary>
+        [MaxLength(500)]
+        public string? VoidReason { get; set; }
 
         /// <summary>
         /// Production priority (High / Medium / Low).

@@ -41,5 +41,12 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
 
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): true when the invoice has been
+        /// voided (soft-closed). Voided rows are hidden from the list by
+        /// default and revealed by the "Show voided" toggle.
+        /// </summary>
+        public bool IsVoid { get; set; }
     }
 }

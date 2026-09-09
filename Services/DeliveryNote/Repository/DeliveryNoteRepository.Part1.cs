@@ -53,7 +53,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 CreatedAt = x.CreatedAt,
                 UpdatedAt = x.UpdatedAt,
                 TaxInvoiceId = x.TaxInvoiceId,
-                HasTaxInvoice = x.HasTaxInvoice
+                HasTaxInvoice = x.HasTaxInvoice,
+                IsVoid = x.IsVoid
             };
 
         public async Task InitializeAsync()

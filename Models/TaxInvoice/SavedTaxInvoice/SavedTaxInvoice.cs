@@ -1,4 +1,4 @@
-﻿    using ProGlassAutomation.Models.TaxInvoice.Attachment;
+    using ProGlassAutomation.Models.TaxInvoice.Attachment;
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
@@ -108,6 +108,28 @@
             /// </summary>
             [MaxLength(30)]
             public string Status { get; set; } = "Draft";
+
+            // ── Void / soft-close (ERP lifecycle hardening — Phase 1) ─────
+            // A Tax Invoice is a fiscal document: once Issued it is NEVER
+            // physically deleted — it is voided (and later corrected by a
+            // credit note). Additive, nullable; a live invoice is
+            // IsVoid=false with null audit fields, identical to legacy rows.
+
+            /// <summary>True when the invoice was soft-closed (voided)
+            /// instead of deleted. Voided invoices remain visible to VAT /
+            /// reports / audit so the number is never silently missing.</summary>
+            public bool IsVoid { get; set; }
+
+            /// <summary>UTC timestamp the void was applied. Null when live.</summary>
+            public DateTime? VoidedAtUtc { get; set; }
+
+            /// <summary>Username that voided the invoice. Null when live.</summary>
+            [MaxLength(100)]
+            public string? VoidedBy { get; set; }
+
+            /// <summary>Mandatory reason captured when voiding. Null when live.</summary>
+            [MaxLength(500)]
+            public string? VoidReason { get; set; }
 
             // ── Customer + project (indexed for list search) ──────────────────
 

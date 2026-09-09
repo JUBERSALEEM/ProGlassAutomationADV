@@ -68,6 +68,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
             set { if (_updatedAt == value) return; _updatedAt = value; OnPropertyChanged(); }
         }
 
+        // ERP lifecycle hardening (Phase 1): voided (soft-closed) invoices are
+        // hidden from the list by default, shown via the "Show voided" toggle.
+        private bool _isVoid;
+        public bool IsVoid
+        {
+            get => _isVoid;
+            set { if (_isVoid == value) return; _isVoid = value; OnPropertyChanged(); }
+        }
+
         // ── computed list status (business lifecycle) ─────────────────────
         // Populated by SavedInvoicesListViewModel from DocumentProgressSnapshot.
         // Draft tax invoices do not count as invoiced.

@@ -124,7 +124,8 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                     TotalQty = x.TotalQty,
                     TotalSqm = x.TotalSqm,
                     CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt
+                    UpdatedAt = x.UpdatedAt,
+                    IsVoid = x.IsVoid
                 })
                 .ToListAsync().ConfigureAwait(false);
         }
@@ -344,6 +345,44 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             string? proformaId = entity.ProformaId;
 
             ctx.TaxInvoices.Remove(entity);
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+
+            await ClearLinkedDeliveryNotesAsync(invoiceNumber);
+            await ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
+            DocumentLifecycle.Raise();
+        }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): soft-close (void) instead of a
+        /// physical delete — a Tax Invoice is a fiscal document that must be
+        /// retained, never erased. The row (and its number) is kept and made
+        /// visible-but-voided to VAT/reports/audit; Status moves to the void
+        /// target (Cancelled). Linked DNs are un-invoiced so they can be
+        /// re-invoiced (or credited) — the same cleanup a delete did.
+        /// </summary>
+        public async Task VoidAsync(int id, string reason)
+        {
+            OperationGuard.Demand(AppPermissions.TaxInvoiceEdit, "void a tax invoice");
+            ReadOnlyGate.Demand("void a tax invoice");
+
+            using var ctx = new TaxInvoiceDbContext();
+            var entity = await ctx.TaxInvoices
+                .FirstOrDefaultAsync(x => x.Id == id).ConfigureAwait(false);
+
+            if (entity == null) return;
+            if (entity.IsVoid) return;   // idempotent
+
+            string invoiceNumber = entity.InvoiceNumber;
+            string? proformaId = entity.ProformaId;
+
+            entity.IsVoid = true;
+            entity.VoidedAtUtc = DateTime.UtcNow;
+            entity.VoidedBy = AuditService.CurrentUsername;
+            entity.VoidReason = string.IsNullOrWhiteSpace(reason) ? "(no reason given)" : reason.Trim();
+            entity.Status = Services.Workflow.DocumentLifecyclePolicy.VoidTargetStatus(
+                Services.Workflow.StatusTransitions.Kind.TaxInvoice);
+            entity.UpdatedAt = DateTime.Now;
+
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
 
             await ClearLinkedDeliveryNotesAsync(invoiceNumber);

@@ -98,15 +98,17 @@ namespace ProGlassAutomation.Services.Database
             if (App.Jobs != null)
             {
                 var jobs = await App.Jobs.GetBySourceProformaIdAsync(piId);
-                if (jobs != null && jobs.Count > 0)
-                    parts.Add("Job Order: " + FormatIds(jobs.Select(j => j.JobOrderId)));
+                // A VOIDED (soft-closed) child no longer blocks the parent.
+                var live = (jobs ?? new()).Where(j => !j.IsVoid).ToList();
+                if (live.Count > 0)
+                    parts.Add("Job Order: " + FormatIds(live.Select(j => j.JobOrderId)));
             }
 
             if (App.DeliveryNotes != null)
             {
                 var notes = await App.DeliveryNotes.GetAllAsync();
                 var related = notes
-                    .Where(d => string.Equals(d.ProformaId, piId,
+                    .Where(d => !d.IsVoid && string.Equals(d.ProformaId, piId,
                         StringComparison.OrdinalIgnoreCase))
                     .Select(d => d.DeliveryNoteId)
                     .ToList();
@@ -117,8 +119,9 @@ namespace ProGlassAutomation.Services.Database
             if (App.TaxInvoices != null)
             {
                 var tis = await App.TaxInvoices.GetByProformaIdAsync(piId);
-                if (tis != null && tis.Count > 0)
-                    parts.Add("Tax Invoice: " + FormatIds(tis.Select(t => t.InvoiceNumber)));
+                var live = (tis ?? new()).Where(t => !t.IsVoid).ToList();
+                if (live.Count > 0)
+                    parts.Add("Tax Invoice: " + FormatIds(live.Select(t => t.InvoiceNumber)));
             }
 
             return BlockedIfAny(parts);
@@ -138,20 +141,22 @@ namespace ProGlassAutomation.Services.Database
             if (App.DeliveryNotes != null)
             {
                 var dns = await App.DeliveryNotes.GetByJobOrderIdAsync(jobId);
-                if (dns != null && dns.Count > 0)
-                    parts.Add("Delivery Note: " + FormatIds(dns.Select(d => d.DeliveryNoteId)));
+                var live = (dns ?? new()).Where(d => !d.IsVoid).ToList();
+                if (live.Count > 0)
+                    parts.Add("Delivery Note: " + FormatIds(live.Select(d => d.DeliveryNoteId)));
             }
 
             if (App.TaxInvoices != null)
             {
                 var tis = await App.TaxInvoices.GetAllAsync();
-                var related = tis
+                var related = (tis ?? new())
                     .Where(t =>
-                        string.Equals(t.JobOrderId, jobId,
+                        !t.IsVoid &&
+                        (string.Equals(t.JobOrderId, jobId,
                             StringComparison.OrdinalIgnoreCase) ||
                         (!string.IsNullOrWhiteSpace(sourcePi) &&
                          string.Equals(t.ProformaId, sourcePi,
-                             StringComparison.OrdinalIgnoreCase)))
+                             StringComparison.OrdinalIgnoreCase))))
                     .Select(t => t.InvoiceNumber)
                     .ToList();
                 if (related.Count > 0)
@@ -179,6 +184,7 @@ namespace ProGlassAutomation.Services.Database
                 var tis = await App.TaxInvoices.GetAllAsync();
                 foreach (var t in tis ?? new())
                 {
+                    if (t.IsVoid) continue;   // a voided TI no longer blocks its DN
                     var refs = TaxInvoiceDnReconciler.ParseDnRefs(t.DeliveryNoteReference);
                     if (refs.Any(r => string.Equals(r, dnId, StringComparison.OrdinalIgnoreCase)))
                         tiIds.Add(t.InvoiceNumber);

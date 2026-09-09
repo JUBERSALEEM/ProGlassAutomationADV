@@ -103,6 +103,15 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         Task DeleteAsync(int id);
 
         /// <summary>
+        /// ERP lifecycle hardening (Phase 1): SOFT-CLOSE (void) an ISSUED tax
+        /// invoice instead of deleting it — a fiscal document must never be
+        /// erased. Keeps the row (number + audit trail survive), sets Status
+        /// to the void target, and clears any DN "invoiced" links so those
+        /// DNs can be re-invoiced. Permission-gated like DeleteAsync.
+        /// </summary>
+        Task VoidAsync(int id, string reason);
+
+        /// <summary>
         /// Invoices (any family) whose PurchaseOrderNumber equals the given
         /// LPO/PO reference for the same customer. Used by the save path to
         /// WARN on a re-used LPO reference (audit P1, 2026-09-05): entering

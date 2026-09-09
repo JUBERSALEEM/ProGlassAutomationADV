@@ -168,6 +168,11 @@
                                   Style="{StaticResource ModuleListFilterComboStyle}"/>
 
                         <StackPanel Grid.Column="10" Orientation="Horizontal">
+                            <CheckBox VerticalAlignment="Center"
+                                      Margin="0,0,12,0"
+                                      IsChecked="{Binding ShowVoided}"
+                                      Content="{DynamicResource Void.ShowVoided}"
+                                      ToolTip="{DynamicResource Void.ShowVoidedTip}"/>
                             <Button Style="{StaticResource OutlinedPillButton}"
                                     Command="{Binding ClearFiltersCommand}"
                                     Margin="0,0,8,0"

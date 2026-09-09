@@ -175,6 +175,21 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             }
         }
 
+        // ERP lifecycle hardening (Phase 1): voided job orders are hidden by
+        // default; flip this to include them.
+        private bool _showVoided;
+        public bool ShowVoided
+        {
+            get => _showVoided;
+            set
+            {
+                if (_showVoided == value) return;
+                _showVoided = value;
+                OnPropertyChanged();
+                ApplyFilters();
+            }
+        }
+
         public List<string> PriorityFilterOptions { get; } = new()
         {
             "All Priorities", "High", "Medium", "Low"
@@ -407,6 +422,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         {
             IEnumerable<JobOrderRowViewModel> query = _allJobs;
 
+            // ERP lifecycle hardening (Phase 1): hide voided job orders unless
+            // the user explicitly asks to see them.
+            if (!_showVoided)
+                query = query.Where(j => !j.IsVoid);
+
             if (!string.IsNullOrWhiteSpace(_searchText))
             {
                 string q = _searchText.Trim().ToLowerInvariant();
@@ -497,15 +517,27 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 ProGlassAutomation.Services.Audit.AppPermissions.JobOrderDelete, "delete a job order"))
                 return;
 
-            // Refuse to delete a Job Order that still has real Delivery
-            // Notes or Tax Invoices. The message lists their IDs.
+            // Cross-database dependency check (real Delivery Notes / Tax
+            // Invoices under this job order).
             var guard = await _database.CheckDependencyAsync(
                 DependencyGuard.Kind.JobOrder,
                 row.JobOrderId);
-            if (guard.HasDependents)
+            bool hasChildren = guard.HasDependents;
+
+            // ERP lifecycle hardening (Phase 1): three-way decision.
+            var decision = Services.Workflow.DocumentLifecyclePolicy.DecideDelete(
+                Services.Workflow.StatusTransitions.Kind.JobOrder, row.StatusRaw, hasChildren);
+
+            if (decision == Services.Workflow.DocumentLifecyclePolicy.DeleteDecision.Blocked)
             {
                 _dialogs.Show(guard.Message, LocalizationService.Instance.T("Msg.CapCannotDelete"),
                     MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (decision == Services.Workflow.DocumentLifecyclePolicy.DeleteDecision.Void)
+            {
+                await VoidJobOrderAsync(row);
                 return;
             }
 
@@ -583,6 +615,52 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     LocalizationService.Instance.T("Msg.CapDeleteFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): soft-close (void) a job order
+        /// that may not be hard-deleted (posted or has dependents). Explains
+        /// why, captures a mandatory reason, voids via the repository, audits.
+        /// Attachments are deliberately left intact — the JO still exists.
+        /// </summary>
+        private async Task VoidJobOrderAsync(JobOrderRowViewModel row)
+        {
+            if (row == null || _jobs == null) return;
+
+            var proceed = _dialogs.Show(
+                string.Format(LocalizationService.Instance.T("Void.MsgConfirmVoidX"), row.JobOrderId),
+                LocalizationService.Instance.T("Void.Title"),
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning,
+                MessageBoxResult.No);
+            if (proceed != MessageBoxResult.Yes) return;
+
+            var dlg = _dialogs.Create<ProGlassAutomation.Views.Shared.VoidReasonDialog>(row.JobOrderId);
+            if (dlg.ShowDialog() != true) return;
+            string reason = dlg.ResultReason;
+
+            try
+            {
+                await _jobs.VoidAsync(row.Id, reason);
+
+                AuditService.Log(
+                    AuditSections.JobOrder, "Job order voided",
+                    row.JobOrderId, "JO", row.JobOrderId, reason);
+
+                _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Void.MsgVoidedX"), row.JobOrderId),
+                    LocalizationService.Instance.T("Void.CapVoided"),
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+
+                await LoadJobOrdersAsync();
+            }
+            catch (Exception ex)
+            {
+                _dialogs.Show(
+                    string.Format(LocalizationService.Instance.T("Void.MsgVoidFailedX"), ExceptionMessages.Deep(ex)),
+                    LocalizationService.Instance.T("Void.CapVoidFailed"),
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

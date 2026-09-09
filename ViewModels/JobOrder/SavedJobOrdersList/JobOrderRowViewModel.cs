@@ -33,6 +33,12 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         public DateTime CreatedAt { get; }
         public DateTime UpdatedAt { get; }
 
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 1): true when this job order has been
+        /// voided (soft-closed). Hidden from the list unless "Show voided" is on.
+        /// </summary>
+        public bool IsVoid { get; }
+
         // These values are resolved by ResolveDisplays after the raw fields
         // have been populated by either constructor. Keep the setters private
         // so the row remains read-only to consumers while the shared resolver
@@ -92,6 +98,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             DeliveryDate = row.DeliveryDate;
             CreatedAt = row.CreatedAt;
             UpdatedAt = row.UpdatedAt;
+            IsVoid = row.IsVoid;
 
             ResolveDisplays();
         }
@@ -115,6 +122,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             DeliveryDate = entity.DeliveryDate;
             CreatedAt = entity.CreatedAt;
             UpdatedAt = entity.UpdatedAt;
+            IsVoid = entity.IsVoid;
 
             ResolveDisplays();
         }
