@@ -116,8 +116,22 @@ namespace ProGlassAutomation.Services.Security
         ///
         /// Length only. There is still no complexity rule and no breached-
         /// password check — see docs/phases/PHASE-09-security-hardening.md.
+        ///
+        /// CHANGED 12 -> 6, 2026-09-09. The doc comment above claimed the rule
+        /// and the text shown to the user "cannot drift apart" because every
+        /// call site interpolates this constant. That was true of the ERROR
+        /// MESSAGES and false of the on-screen HINT: FirstRunSetupPanel.xaml
+        /// binds Login.PasswordMustLeast6CharactersChooseSomething, a
+        /// localised string that promises "at least 6 characters" in all 15
+        /// locales and never reads this constant. So the setup screen told the
+        /// operator 6 was fine while CreateUserAsync rejected it — they chose a
+        /// password the UI approved, and then could not sign in with it. Lowering
+        /// the constant to 6 makes the code agree with what every locale
+        /// already promises. A localised string cannot interpolate a C#
+        /// constant, so the durable fix is to keep the two numbers equal and
+        /// treat this constant as the single source both must match.
         /// </remarks>
-        public const int MinLength = 12;
+        public const int MinLength = 6;
 
         /// <summary>Marker for the current scheme.</summary>
         private const string Pbkdf2Prefix = "PBKDF2";

@@ -343,7 +343,7 @@
                                                     <TextBlock Text="{Binding Before}"
                                                                TextWrapping="Wrap"
                                                                FontSize="{StaticResource TextBody}"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               Foreground="{DynamicResource DangerBrush}"
                                                                Margin="0,2,0,0"/>
                                                 </StackPanel>
                                             </Grid>
@@ -369,7 +369,7 @@
                                                     <TextBlock Text="{Binding After}"
                                                                TextWrapping="Wrap"
                                                                FontSize="{StaticResource TextBody}"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               Foreground="{DynamicResource SuccessBrush}"
                                                                Margin="0,2,0,0"/>
                                                 </StackPanel>
                                             </Grid>
@@ -419,16 +419,41 @@
                           scrolling the page — the old nested scroller fought
                           the outer one for height.
                         -->
-                        <TextBox x:Name="ReportTextBox"
-                                 Margin="0,10,0,0"
-                                 Text="{Binding AuditReportText, Mode=OneWay}"
-                                 IsReadOnly="True"
-                                 AcceptsReturn="True"
-                                 TextWrapping="Wrap"
-                                 BorderThickness="0"
-                                 Background="Transparent"
-                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                 FontSize="{StaticResource TextBody}"/>
+                        <!--
+                          A TextBlock, NOT a read-only TextBox.
+
+                          This was a TextBox with IsReadOnly="True",
+                          Background="Transparent" and BorderThickness="0" —
+                          and it still rendered as an inset code block. Those
+                          local values lose to the CONTROL TEMPLATE: the app
+                          merges an implicit TextBox style whose template
+                          draws its own surface and padding, so no amount of
+                          Background="Transparent" removed the box. That is
+                          the "text under a code block" the report described.
+
+                          The correct control for read-only display text is a
+                          TextBlock. It has no template, no surface, no caret
+                          and no selection chrome — it renders glyphs and
+                          nothing else. It also sizes to its content inside
+                          the StackPanel, so the whole narrative is visible by
+                          scrolling the page instead of scrolling a small
+                          inner box.
+
+                          Mode=OneWay is no longer needed either: TextBlock.Text
+                          is not a TwoWay-by-default property, only TextBox.Text
+                          is. That is what caused ERR-EDBDCD, and switching
+                          control removes the hazard rather than working
+                          around it. x:Name is kept so the generated field
+                          still exists; nothing in the code-behind reads it —
+                          CopyReport_Click pulls AuditReportText straight off
+                          the DataContext.
+                        -->
+                        <TextBlock x:Name="ReportTextBox"
+                                   Margin="0,10,0,0"
+                                   Text="{Binding AuditReportText}"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   FontSize="{StaticResource TextBody}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
