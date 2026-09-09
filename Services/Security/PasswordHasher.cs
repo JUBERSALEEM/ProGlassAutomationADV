@@ -181,12 +181,12 @@ namespace ProGlassAutomation.Services.Security
                     // DefaultIterations later migrates every account without
                     // a forced reset. Never reported on FAILURE — re-hashing
                     // a wrong password would lock the user out.
-                    var (ok, storedIterations) =
+                    var (pbkdf2Ok, storedIterations) =
                         VerifyPbkdf2(password, storedHash);
-                    bool needsUpgrade = ok
+                    bool needsUpgrade = pbkdf2Ok
                         && storedIterations > 0
                         && storedIterations < DefaultIterations;
-                    return new PasswordVerificationResult(ok, needsUpgrade);
+                    return new PasswordVerificationResult(pbkdf2Ok, needsUpgrade);
                 }
 
                 // ── Legacy salted SHA-256 ─────────────────────────────

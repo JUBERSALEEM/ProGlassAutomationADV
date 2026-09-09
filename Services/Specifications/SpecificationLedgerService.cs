@@ -524,7 +524,7 @@ namespace ProGlassAutomation.Services.Specifications
                     }
 
                     var times = finalUseTimes.TryGetValue(key, out var t) ? t : new List<DateTime>();
-                    var pis = finalUsePis.TryGetValue(key, out var p) ? p : new List<(DateTime, string)>();
+                    var pis = finalUsePis.TryGetValue(key, out var p) ? p : new List<(DateTime At, string Pi)>();
                     DateTime lastUsed = times.Count > 0 ? times.Max() : DateTime.Now;
                     string latestPi = pis.Count > 0
                         ? pis.OrderByDescending(x => x.At).First().Pi

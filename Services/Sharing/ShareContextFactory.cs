@@ -144,8 +144,8 @@ namespace ProGlassAutomation.Services.Sharing
                 if (entity.DeliveryDate != default)
                     ctx.DocumentDate = entity.DeliveryDate;
                 string receiver = (entity.ReceiverName ?? "").Trim();
-                if (receiver.Length == 0 && snapshot?.ReceiverName != null)
-                    receiver = (snapshot.ReceiverName ?? "").Trim();
+                if (receiver.Length == 0 && snapshot?.Header != null)
+                    receiver = (snapshot.Header.ReceiverName ?? "").Trim();
                 ctx.AttentionName = receiver;
             }
 
