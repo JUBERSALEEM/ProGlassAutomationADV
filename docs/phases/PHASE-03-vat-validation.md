@@ -5,6 +5,32 @@
 The smallest phase in this list and one of the most important, because it is a
 validation step that reports success while validating nothing — on a tax filing.
 
+## Status — DONE, `601a76a`
+
+The only phase in the set that is complete rather than partial.
+
+`VatCalculator` now carries the real submission checks, and its actual public
+surface is worth recording because it is not the one a reader would guess —
+there is no `Calculate` method:
+
+`VAT_RATE_PERCENT 5.0m` · `VAT_RATE_DECIMAL 0.05m` · `VAT_MULTIPLIER 1.05m` ·
+`DEFAULT_TOLERANCE 0.01m` · `Round` · `CalculateSubtotal` ·
+`CalculateVatFromGross` · `CalculateVatFromSubtotal` · `CalculateGrossFromSubtotal`
+· `ValidateVat` · `ValidateVatFromGross` · `ValidateInvoice`
+
+**Rejects:** an unreconciled VAT figure beyond 0.01 tolerance; VAT charged on a
+zero total. **Warns:** negative amounts; a date more than one day in the
+future.
+
+One limitation is recorded rather than fixed, because fixing it is Phase 5: a
+zero-rated line and an exempt line are indistinguishable. Both are legitimately
+taxable at 0, and the difference matters for the return, so this stays a known
+gap until the tax profile exists.
+
+The rate itself is still a `const`, and that is the boundary of this phase — see
+Phase 5 for why replacing it is not a one-line change.
+
+
 ## The defect
 
 `Services/Reporting/VatCalculator.cs:131`:
