@@ -30,6 +30,7 @@ using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.Sharing;
 using ProGlassAutomation.Services.JobOrder.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList;
@@ -431,6 +432,62 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     LocalizationService.Instance.T("Msg.CapExportFailed"),
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        // ── Sharing Center ──────────────────────────────────────────
+        // Same exporter as ExportPdf/Excel/CsvFromListAsync, run ONCE into
+        // the share temp folder (rule's default format), then the composer.
+        private async Task ShareFromListAsync(SavedInvoiceListItem? item)
+        {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.ProformaExport, "share an invoice"))
+                return;
+
+            if (item == null || _invoices == null) return;
+
+            try
+            {
+                var entity = await _invoices.GetByIdAsync(item.Id);
+                if (entity == null) return;
+
+                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+                var context = ShareContextFactory.FromProformaInvoice(entity, snapshot);
+
+                await ShareLauncher.GenerateAndShareAsync(context, async folder =>
+                    {
+                        string ruleFormat = App.Config.Sharing
+                            .RuleFor("PI").DefaultFormat ?? "Pdf";
+                        IDocumentLayout layout;
+                        ExportFormat format;
+                        if (string.Equals(ruleFormat, "Excel",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            layout = new ProformaInvoiceExcelLayout(entity, snapshot);
+                            format = ExportFormat.Excel;
+                        }
+                        else if (string.Equals(ruleFormat, "Csv",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            layout = new ProformaInvoiceCsvLayout(entity, snapshot);
+                            format = ExportFormat.Csv;
+                        }
+                        else
+                        {
+                            layout = new ProformaInvoicePdfLayout(entity, snapshot);
+                            format = ExportFormat.Pdf;
+                        }
+
+                        var staged = await ShareLauncher.ExportLayoutToFolderAsync(
+                            layout, format, folder);
+                        if (!staged.Success)
+                            LastExportStatus = $"✗ Share failed: {staged.ErrorMessage}";
+                        return staged.SavedPath;
+                    }, _dialogs);
+            }
+            catch (Exception ex)
+            {
+                LastExportStatus = $"✗ Share failed: {ExceptionMessages.Deep(ex)}";
             }
         }
 

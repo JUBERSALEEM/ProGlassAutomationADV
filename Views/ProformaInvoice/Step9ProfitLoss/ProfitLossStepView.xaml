@@ -185,6 +185,9 @@
                             <Button Content="PDF" Command="{Binding ExportOverviewPdfCommand}"
                                     Style="{StaticResource TgtExportButton}"
                                     ToolTip="Export the full Step 9 overview, target summary and cost audit as PDF."/>
+                            <Button Content="{DynamicResource Sharing.Share}" Command="{Binding ShareOverviewCommand}"
+                                    Style="{StaticResource TgtExportButton}"
+                                    ToolTip="Share the full Step 9 overview via the Sharing Center."/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -712,6 +715,7 @@
                         <Button Content="CSV" Command="{Binding ExportPnlCsvCommand}" Style="{StaticResource TgtExportButton}" ToolTip="Export only the actual P&amp;L cost rows as CSV."/>
                         <Button Content="EXCEL" Command="{Binding ExportPnlExcelCommand}" Style="{StaticResource TgtExportButton}" ToolTip="Export only the actual P&amp;L cost rows as Excel."/>
                         <Button Content="PDF" Command="{Binding ExportPnlPdfCommand}" Style="{StaticResource TgtExportButton}" ToolTip="Export only the actual P&amp;L cost rows as PDF."/>
+                        <Button Content="{DynamicResource Sharing.Share}" Command="{Binding SharePnlCommand}" Style="{StaticResource TgtExportButton}" ToolTip="Share the actual P&amp;L cost rows via the Sharing Center."/>
                     </StackPanel>
                 </Grid>
                 <TextBlock Text="This Target Profitability summary keeps the commercial glass-cost lens clean: active Step 6 extras such as U-insert, argon, fanhole, holes, cutout, polish and custom charges are billed separately and are not imported here. If an extra toggle is OFF, it is treated as included inside the Step 5 given AED/m² price/target judgement, not as a separate production-cost line in this card."
@@ -1007,6 +1011,10 @@
                                         Command="{Binding ExportTargetPdfCommand}"
                                         Style="{StaticResource TgtExportButton}"
                                         ToolTip="Export the per-spec target comparison as PDF."/>
+                                <Button Content="{DynamicResource Sharing.Share}"
+                                        Command="{Binding ShareTargetCommand}"
+                                        Style="{StaticResource TgtExportButton}"
+                                        ToolTip="Share the per-spec target comparison via the Sharing Center."/>
                                 <Button Content="GO TO STEP 6 · OTHER CHARGES"
                                         Command="{Binding GoToStep6Command}"
                                         Style="{StaticResource PrimaryPillButton}"

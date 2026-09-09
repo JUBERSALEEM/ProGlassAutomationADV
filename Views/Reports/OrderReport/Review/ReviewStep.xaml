@@ -106,6 +106,8 @@
                             <ColumnDefinition Width="20"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <Border Grid.Column="0" Width="56" Height="56"
@@ -144,6 +146,37 @@
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center" Margin="0,0,8,0"/>
                                             <TextBlock Text="Download PDF" FontSize="{StaticResource TextBodyLarge}"
+                                                       FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                        </Trigger>
+                                        <Trigger Property="IsEnabled" Value="False">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <Button Grid.Column="5" Command="{Binding ShareLastPdfCommand}"
+                                VerticalAlignment="Center"
+                                IsEnabled="{Binding HasLastPdf}"
+                                ToolTip="{DynamicResource Sharing.Share}"
+                                Height="44" Padding="20,0" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" Background="{DynamicResource ModuleBackgroundBrush}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Padding="{TemplateBinding Padding}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE72D;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}"
+                                                       Foreground="{DynamicResource AccentBrush}"
+                                                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{DynamicResource Sharing.Share}" FontSize="{StaticResource TextBodyLarge}"
                                                        FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>

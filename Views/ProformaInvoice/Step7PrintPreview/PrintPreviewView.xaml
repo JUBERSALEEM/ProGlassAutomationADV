@@ -79,6 +79,11 @@
                                         ToolTip="{DynamicResource ProformaInvoice.ExportGlassPanelDataCSV}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Button Style="{StaticResource PiInvoiceMenuActionItem}"
+                                        Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
+                                        Command="{Binding PrintableInvoice.ShareCommand}"
+                                        ToolTip="{DynamicResource Sharing.ShareVia}"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                <Button Style="{StaticResource PiInvoiceMenuActionItem}"
                                         Tag="&#xE715;" Content="{DynamicResource ProformaInvoice.EmailSoon}"
                                         Command="{Binding PrintableInvoice.SendEmailCommand}"
                                         ToolTip="{DynamicResource ProformaInvoice.ComingPhase720}"

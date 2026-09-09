@@ -100,6 +100,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         public ICommand NewReportCommand { get; }
         public ICommand OpenReportCommand { get; }
         public ICommand OpenPdfCommand { get; }
+        public ICommand ShareReportCommand { get; }
         public ICommand DeleteReportCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand ClearSearchCommand { get; }
@@ -129,6 +130,10 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
 
             OpenPdfCommand = new RelayCommand(
                 p => OpenPdf(p as OrderReportListRowViewModel ?? SelectedRow),
+                p => (p as OrderReportListRowViewModel ?? SelectedRow)?.HasPdf == true);
+
+            ShareReportCommand = new RelayCommand(
+                p => ShareReport(p as OrderReportListRowViewModel ?? SelectedRow),
                 p => (p as OrderReportListRowViewModel ?? SelectedRow)?.HasPdf == true);
 
             DeleteReportCommand = new RelayCommand(
@@ -208,6 +213,31 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         {
             if (row == null || !row.HasPdf) return;
             OrderReportPdfExporter.OpenPdf(row.PdfPath);
+        }
+
+        // ── Sharing Center (Pattern B: the report PDF already exists) ──
+        private void ShareReport(OrderReportListRowViewModel? row)
+        {
+            if (row == null || !row.HasPdf) return;
+
+            var item = row.Source;
+            var context = new ProGlassAutomation.Services.Sharing.ShareContext
+            {
+                DocumentTypeKey = "OrderReport",
+                DocumentNumber = item?.ReportNumber ?? "",
+                Title = string.IsNullOrWhiteSpace(item?.Title)
+                    ? $"Order Report {item?.ReportNumber}"
+                    : item.Title.Trim(),
+                CustomerName = item?.FilterCustomer ?? "",
+                CompanyName = item?.FilterCompany ?? "",
+                SalesmanName = item?.FilterSalesman ?? "",
+                SourceModule = "OrderReport"
+            };
+
+            if (ProGlassAutomation.Services.Sharing.ShareLauncher
+                    .AttachFile(context, row.PdfPath, _dialogs))
+                ProGlassAutomation.Services.Sharing.ShareLauncher
+                    .OpenComposer(context, _dialogs);
         }
 
         private async Task DeleteAsync(OrderReportListRowViewModel? row)

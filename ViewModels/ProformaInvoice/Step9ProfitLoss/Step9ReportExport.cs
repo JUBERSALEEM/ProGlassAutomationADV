@@ -56,9 +56,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             string[] headers,
             Func<T, string[]> textMapper,
             Func<T, object[]> excelMapper,
-            string suggestedFileName)
+            string suggestedFileName,
+            ExportRequest? requestOverride = null)
         {
-            var request = new ExportRequest
+            var request = requestOverride ?? new ExportRequest
             {
                 PromptForLocation = true,
                 OpenAfterSave = true,
@@ -88,13 +89,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             Func<T, string[]> textMapper,
             Func<T, object[]> excelMapper,
             string reportCode,
-            ReportDocumentContext? reportIdentity)
+            ReportDocumentContext? reportIdentity,
+            ExportRequest? requestOverride = null)
         {
             var documentContext = BuildDocumentContext(
                 reportCode,
                 reportIdentity,
                 DateTime.Now);
-            var request = new ExportRequest
+            var request = requestOverride ?? new ExportRequest
             {
                 PromptForLocation = true,
                 OpenAfterSave = true,
@@ -141,6 +143,29 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 IssueDate = identity.IssueDate,
                 Status = identity.Status,
                 GeneratedAt = generatedAt
+            };
+        }
+
+        /// <summary>
+        /// Builds a no-dialog staged request for the share temp folder,
+        /// using the SAME filename logic as the interactive save dialog.
+        /// Additive Stage 3 seam — existing callers are unaffected.
+        /// </summary>
+        internal static ExportRequest StagedRequest(
+            ExportFormat format,
+            string reportCode,
+            ReportDocumentContext? reportIdentity,
+            string folder)
+        {
+            var documentContext = BuildDocumentContext(
+                reportCode, reportIdentity, DateTime.Now);
+            return new ExportRequest
+            {
+                OutputPath = System.IO.Path.Combine(
+                    folder,
+                    BuildSuggestedFileName(format, documentContext)),
+                PromptForLocation = false,
+                OpenAfterSave = false
             };
         }
 

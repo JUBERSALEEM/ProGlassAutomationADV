@@ -703,6 +703,7 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <!-- Header with green gradient -->
@@ -853,8 +854,43 @@
                             </Button.Template>
                         </Button>
 
-                        <!-- Copy Path button (secondary) -->
+                        <!-- Share button (secondary) -->
                         <Button Grid.Row="3"
+                                Command="{Binding ShareLastPdfCommand}"
+                                Height="40" Margin="24,0,24,8"
+                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd"
+                                            Background="{DynamicResource SuccessBrush}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}">
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="&#xE72D;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                       Margin="0,0,8,0"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="{DynamicResource Sharing.Share}"
+                                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Copy Path button (secondary) -->
+                        <Button Grid.Row="4"
                                 Command="{Binding CopyPdfPathCommand}"
                                 Height="40" Margin="24,0,24,24"
                                 Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}">

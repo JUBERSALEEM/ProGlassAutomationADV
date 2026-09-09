@@ -85,6 +85,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
             ImportCsvCommand = new RelayCommand(_ => _ = ImportCsvAsync());
             ExportExcelCommand = new RelayCommand(_ => _ = ExportExcelAsync());
             ExportPdfCommand = new RelayCommand(_ => _ = ExportPdfAsync());
+            ShareCommand = new RelayCommand(_ => _ = ShareAsync());
 
             // Live catalogue sync: Step 4 saving a spec updates this list
             // with no manual refresh, same channel Step 5's dropdown uses.
@@ -178,6 +179,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
         public ICommand ImportCsvCommand { get; private set; } = null!;
         public ICommand ExportExcelCommand { get; private set; } = null!;
         public ICommand ExportPdfCommand { get; private set; } = null!;
+        public ICommand ShareCommand { get; private set; } = null!;
 
         // ── Filters ──────────────────────────────────────────────────────
 
@@ -640,15 +642,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
                 // Pull ALL usage rows so the workbook's second sheet can
                 // show the per-proforma price history, which is the part a
                 // flat catalogue export cannot express.
-                List<SpecificationUsage> usage = new();
-                if (_specs != null)
-                {
-                    try { usage = await _specs.GetRecentUsageAsync(5000); }
-                    catch (Exception ux)
-                    {
-                        AppLogService.Debug($"[SpecCenter.ExcelUsage] {ux.Message}");
-                    }
-                }
+                List<SpecificationUsage> usage = await GetUsageForExportAsync();
 
                 var layout = new Services.Specifications.Export
                     .SpecificationsExcelLayout(Specifications.ToList(), usage);
@@ -711,6 +705,90 @@ namespace ProGlassAutomation.ViewModels.Specifications
                     $"Specifications PDF export failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Specifications", Operation = "ExportPdf" });
                 _dialogs?.Error("PDF export failed.\n\n" + ExceptionMessages.Deep(ex), "Specifications");
+            }
+        }
+
+        // Shared by ExportExcelAsync and ShareAsync so the shared workbook
+        // carries the identical price-history second sheet.
+        private async Task<List<SpecificationUsage>> GetUsageForExportAsync()
+        {
+            List<SpecificationUsage> usage = new();
+            if (_specs != null)
+            {
+                try { usage = await _specs.GetRecentUsageAsync(5000); }
+                catch (Exception ux)
+                {
+                    AppLogService.Debug($"[SpecCenter.ExcelUsage] {ux.Message}");
+                }
+            }
+            return usage;
+        }
+
+        // ── Sharing Center ──────────────────────────────────────────
+        // Same layouts as the exports above (including the Excel usage
+        // sheet), staged once into the share temp folder (rule's default
+        // format), then the composer.
+        private async Task ShareAsync()
+        {
+            if (Specifications.Count == 0)
+            {
+                _dialogs?.Info("There is nothing to share.", "Specifications");
+                return;
+            }
+
+            try
+            {
+                var context = Services.Sharing.ShareContextFactory.FromListReport(
+                    "Specifications", "Specifications Catalogue", "Specifications");
+
+                await Services.Sharing.ShareLauncher.GenerateAndShareAsync(
+                    context,
+                    async folder =>
+                    {
+                        string ruleFormat = App.Config.Sharing
+                            .RuleFor("Specifications").DefaultFormat ?? "Pdf";
+                        Services.Export.Core.IDocumentLayout layout;
+                        Services.Export.Core.ExportFormat format;
+                        if (string.Equals(ruleFormat, "Excel",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            layout = new Services.Specifications.Export
+                                .SpecificationsExcelLayout(
+                                    Specifications.ToList(),
+                                    await GetUsageForExportAsync());
+                            format = Services.Export.Core.ExportFormat.Excel;
+                        }
+                        else if (string.Equals(ruleFormat, "Csv",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            layout = new Services.Specifications.Export
+                                .SpecificationsCsvLayout(Specifications.ToList());
+                            format = Services.Export.Core.ExportFormat.Csv;
+                        }
+                        else
+                        {
+                            layout = new Services.Specifications.Export
+                                .SpecificationsPdfLayout(Specifications.ToList());
+                            format = Services.Export.Core.ExportFormat.Pdf;
+                        }
+
+                        var staged = await Services.Sharing.ShareLauncher
+                            .ExportLayoutToFolderAsync(layout, format, folder);
+                        if (!staged.Success)
+                            _dialogs?.Error(
+                                "Share failed.\n\n"
+                                    + (staged.ErrorMessage ?? "Export failed."),
+                                "Specifications");
+                        return staged.SavedPath;
+                    },
+                    _dialogs);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Specifications share failed: {ExceptionMessages.Deep(ex)}",
+                    new LogContext { Module = "Specifications", Operation = "Share" });
+                _dialogs?.Error("Share failed.\n\n" + ExceptionMessages.Deep(ex), "Specifications");
             }
         }
 

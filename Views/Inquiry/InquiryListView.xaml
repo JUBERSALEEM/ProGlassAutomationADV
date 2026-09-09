@@ -259,6 +259,11 @@
                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                         Command="{Binding ExportCommand}"
                         Content="EXPORT" Tag="↥"/>
+                <Button Margin="0,0,8,0" MinWidth="92"
+                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                        Command="{Binding ShareCommand}"
+                        Content="{DynamicResource Sharing.Share}" Tag="⇪"
+                        ToolTip="{DynamicResource Sharing.Share}"/>
                 <Button MinWidth="140"
                         Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
                         Command="{Binding NewInquiryCommand}"

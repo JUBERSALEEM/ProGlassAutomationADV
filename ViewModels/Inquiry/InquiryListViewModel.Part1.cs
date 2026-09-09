@@ -176,6 +176,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ICommand SelectStatusTabCommand { get; }
         public ICommand SelectPipelineTabCommand { get; }
         public ICommand ExportCommand { get; }
+        public ICommand ShareCommand { get; }
         public ICommand ImportCommand { get; }
         public ICommand ResetFiltersCommand { get; }
         public ICommand RefreshCommand { get; }
@@ -308,6 +309,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 ResetAndReload();
             });
             ExportCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExportAsync, "Inquiry Export"));
+            ShareCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ShareAsync, "Inquiry Share"));
             ImportCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ImportAsync, "Inquiry Import"));
             ResetFiltersCommand = new RelayCommand(_ => ResetFilters());
             RefreshCommand = new RelayCommand(_ => Reload());

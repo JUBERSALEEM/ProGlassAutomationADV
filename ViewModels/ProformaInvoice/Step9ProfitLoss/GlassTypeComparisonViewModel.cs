@@ -30,6 +30,7 @@ using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.Services.ProformaInvoice.TargetPricing;
 using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Sharing;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -58,6 +59,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Excel), "Step9 GlassType Excel"));
             ExportPdfCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(() => ExportAsync(ExportFormat.Pdf), "Step9 GlassType PDF"));
+            ShareCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(ShareAsync, "Step9 GlassType share"));
             
             // Initial load
             RefreshAnalysis();
@@ -211,6 +214,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public ICommand ExportCsvCommand { get; }
         public ICommand ExportExcelCommand { get; }
         public ICommand ExportPdfCommand { get; }
+        public ICommand ShareCommand { get; }
 
         private bool _isExporting;
         /// <summary>True while an export runs (disables the toolbar).</summary>
@@ -240,16 +244,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             IsExporting = true;
             try
             {
-                var rows = GlassTypeRows.ToList();
-                rows.Add(BuildTotalRow());
-
-                var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Spec Build Strategy Report",
-                    Step9ReportExport.GlassTypeHeaders,
-                    Step9ReportExport.GlassTypeMap,
-                    Step9ReportExport.GlassTypeMapExcel,
-                    Step9ReportExport.ReportCodeSpecStrategy,
-                    _parentViewModel.GetReportDocumentContext());
+                var result = await ExportCoreAsync(format, null);
+                if (result == null) return;
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";
@@ -259,6 +255,72 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             catch (Exception ex)
             {
                 App.Dialogs.Error($"Export failed: {ExceptionMessages.Deep(ex)}", "Export");
+            }
+            finally
+            {
+                IsExporting = false;
+            }
+        }
+
+        /// <summary>
+        /// Single report builder behind export (request null → save
+        /// dialog) and share (staged temp request). One code path, no
+        /// duplicated row mapping.
+        /// </summary>
+        private async Task<ExportResult?> ExportCoreAsync(
+            ExportFormat format, ExportRequest? request)
+        {
+            var rows = GlassTypeRows.ToList();
+            rows.Add(BuildTotalRow());
+
+            return await Step9ReportExport.RunAsync(
+                format, rows, "Spec Build Strategy Report",
+                Step9ReportExport.GlassTypeHeaders,
+                Step9ReportExport.GlassTypeMap,
+                Step9ReportExport.GlassTypeMapExcel,
+                Step9ReportExport.ReportCodeSpecStrategy,
+                _parentViewModel.GetReportDocumentContext(),
+                request);
+        }
+
+        // Sharing Center — the SAME analysis staged once into the share
+        // temp folder (Report rule's default format), then the composer.
+        // An internal cost analysis, so it shares under the Report
+        // rule/template — never the PI invoice wording.
+        private async Task ShareAsync()
+        {
+            if (IsExporting || GlassTypeRows.Count == 0) return;
+            IsExporting = true;
+            try
+            {
+                var identity = _parentViewModel.GetReportDocumentContext();
+                var context = ShareContextFactory.FromListReport(
+                    "Report", "Spec Build Strategy Report", "ProformaInvoice",
+                    identity.CustomerName, identity.CompanyName);
+                context.DocumentNumber = identity.ProformaId;
+
+                ExportFormat format = ShareLauncher.RuleFormat("Report");
+                await ShareLauncher.GenerateAndShareAsync(
+                    context,
+                    async folder =>
+                    {
+                        var result = await ExportCoreAsync(
+                            format,
+                            Step9ReportExport.StagedRequest(
+                                format,
+                                Step9ReportExport.ReportCodeSpecStrategy,
+                                identity,
+                                folder));
+                        if (result == null || !result.Success)
+                            App.Dialogs.Warning(
+                                result?.ErrorMessage ?? "Export failed.", "Share");
+                        return result?.SavedPath;
+                    },
+                    App.Dialogs);
+            }
+            catch (Exception ex)
+            {
+                App.Dialogs.Error($"Share failed: {ExceptionMessages.Deep(ex)}", "Share");
             }
             finally
             {

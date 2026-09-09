@@ -464,6 +464,18 @@
                                                     </ContextMenu>
                                                 </Button.ContextMenu>
                                             </Button>
+                                            <!-- Sharing Center. -->
+                                            <Button Style="{StaticResource RowOutlinedButton}"
+                                                    Command="{Binding DataContext.ShareFromListCommand,
+                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="{DynamicResource Sharing.Share}"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,8,0"
+                                                    MinWidth="36"
+                                                    Content="&#xE72D;"
+                                                    FontFamily="Segoe MDL2 Assets"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>

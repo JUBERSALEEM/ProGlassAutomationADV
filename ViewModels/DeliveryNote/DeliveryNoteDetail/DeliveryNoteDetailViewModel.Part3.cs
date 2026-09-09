@@ -252,6 +252,49 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     }), "CSV");
         }
 
+        // Sharing Center — same layouts as the exports above, staged once
+        // into the share temp folder (rule's default format), then composer.
+        private async Task ShareAsync()
+        {
+            if (!EnsureLoaded(out var entity, out var snapshot)) return;
+
+            var context = ProGlassAutomation.Services.Sharing
+                .ShareContextFactory.FromDeliveryNote(entity, snapshot);
+
+            await ProGlassAutomation.Services.Sharing.ShareLauncher
+                .GenerateAndShareAsync(context, async folder =>
+                {
+                    string ruleFormat = ProGlassAutomation.App.Config.Sharing
+                        .RuleFor("DN").DefaultFormat ?? "Pdf";
+                    ProGlassAutomation.Services.Export.Core.IDocumentLayout layout;
+                    ProGlassAutomation.Services.Export.Core.ExportFormat format;
+                    if (string.Equals(ruleFormat, "Excel",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        layout = new DeliveryNoteExcelLayout(entity, snapshot);
+                        format = ProGlassAutomation.Services.Export.Core.ExportFormat.Excel;
+                    }
+                    else if (string.Equals(ruleFormat, "Csv",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        layout = new DeliveryNoteCsvLayout(entity, snapshot);
+                        format = ProGlassAutomation.Services.Export.Core.ExportFormat.Csv;
+                    }
+                    else
+                    {
+                        layout = new DeliveryNotePdfLayout(entity, snapshot);
+                        format = ProGlassAutomation.Services.Export.Core.ExportFormat.Pdf;
+                    }
+
+                    var staged = await ProGlassAutomation.Services.Sharing.ShareLauncher
+                        .ExportLayoutToFolderAsync(layout, format, folder);
+                    if (!staged.Success)
+                        _dialogs.Error(
+                            staged.ErrorMessage ?? "Export failed.", "Share");
+                    return staged.SavedPath;
+                }, _dialogs);
+        }
+
         private bool EnsureLoaded(
             out SavedDeliveryNote entity,
             out DeliveryNoteSnapshot snapshot)

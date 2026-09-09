@@ -89,6 +89,14 @@
                         Foreground="{DynamicResource PrimaryForegroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}"/>
+                <Button Command="{Binding ShareCommand}"
+                        Content="{DynamicResource Sharing.Share}"
+                        ToolTip="{DynamicResource Sharing.Share}"
+                        Height="34" Padding="16,0" Cursor="Hand" Margin="0,0,8,0"
+                        Background="{DynamicResource GlassSurfaceElevated}"
+                        Foreground="{DynamicResource PrimaryForegroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"/>
                 <Button Command="{Binding RefreshCommand}"
                         Content="{DynamicResource Common.Refresh}"
                         Height="34" Padding="16,0" Cursor="Hand"

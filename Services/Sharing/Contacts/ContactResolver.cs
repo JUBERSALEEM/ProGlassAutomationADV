@@ -16,8 +16,17 @@
 //
 // LIVE LOOKUPS, NO DUPLICATION. When the context carries only a customer
 // NAME (reports), the resolver fills phone/attention from MasterData
-// (FindClientByNameAsync). Nothing is copied into a sharing database —
-// there is none, by design.
+// (FindClientByNameAsync); the company representative is likewise filled
+// from SavedCompany (FindCompanyByNameAsync). Nothing is copied into a
+// sharing database — there is none, by design.
+//
+// CONTACT REALITY (verified against this codebase):
+//   • SavedClient: AttentionExecutiveName + ClientContactPhone (no email).
+//   • SavedCompany: Representative + RepresentativeMobile + CompanyEmail.
+//   • SavedSalesman: NAME ONLY — no phone/email columns exist, so the
+//     salesman is offered name-only and the operator supplies a number via
+//     the composer's manual contact when needed. Nothing is fabricated.
+//   • Direct channels win: TI snapshots carry CustomerPhone/CustomerEmail.
 //
 // Never throws: resolution failure yields fewer candidates, never a crash.
 // The composer shows "no contact on file" with the manual fallback when
@@ -27,6 +36,7 @@
 using ProGlassAutomation.Models.Audit;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.MasterData.Repository;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -73,16 +83,45 @@ namespace ProGlassAutomation.Services.Sharing.Contacts
 
     public sealed class ContactResolver : IContactResolver
     {
+        private readonly IMasterDataRepository? _masterData;
+
+        /// <summary>
+        /// Production uses the app-wide MasterData repository; tests (and
+        /// future callers) may inject a fake. Additive overload — the
+        /// parameterless construction used by the composer is unchanged.
+        /// </summary>
+        public ContactResolver(IMasterDataRepository? masterData = null)
+        {
+            _masterData = masterData;
+        }
+
+        private IMasterDataRepository? MasterData
+        {
+            get
+            {
+                if (_masterData != null) return _masterData;
+                try { return App.MasterData; }
+                catch { return null; }
+            }
+        }
+
         public ShareSender ResolveSender(ShareContext context)
         {
             try
             {
                 AppUser? live = AuditService.CurrentUser;
-                if (live != null && !string.IsNullOrWhiteSpace(live.DisplayName))
+                if (live != null)
                 {
-                    return new ShareSender(
-                        live.DisplayName, live.Role,
-                        live.Mobile, live.Email, isLiveUser: true);
+                    string name = !string.IsNullOrWhiteSpace(live.DisplayName)
+                        ? live.DisplayName.Trim()
+                        : (live.Username ?? "").Trim();
+                    if (!string.IsNullOrWhiteSpace(name))
+                    {
+                        return new ShareSender(
+                            name, live.Role ?? "",
+                            live.Mobile ?? "", live.Email ?? "",
+                            isLiveUser: true);
+                    }
                 }
             }
             catch (Exception ex)
@@ -110,6 +149,7 @@ namespace ProGlassAutomation.Services.Sharing.Contacts
                 string customer = (context.CustomerName ?? "").Trim();
                 string attention = (context.AttentionName ?? "").Trim();
                 string phone = (context.CustomerPhone ?? "").Trim();
+                string email = (context.CustomerEmail ?? "").Trim();
 
                 // Gap-fill from MasterData when the context only names the
                 // customer (reports) — a live read, never a copy.
@@ -119,8 +159,9 @@ namespace ProGlassAutomation.Services.Sharing.Contacts
                 {
                     try
                     {
-                        var client = App.MasterData == null ? null
-                            : await App.MasterData
+                        var repo = MasterData;
+                        var client = repo == null ? null
+                            : await repo
                                 .FindClientByNameAsync(customer)
                                 .ConfigureAwait(false);
                         if (client != null)
@@ -138,31 +179,64 @@ namespace ProGlassAutomation.Services.Sharing.Contacts
                     }
                 }
 
-                // 1. Customer attention (name + customer phone).
+                // 1. Customer attention (name + customer channels). Skipped
+                // when it would duplicate the customer row exactly.
                 if (!string.IsNullOrWhiteSpace(attention)
-                    && !string.IsNullOrWhiteSpace(customer))
+                    && !string.IsNullOrWhiteSpace(customer)
+                    && !string.Equals(attention, customer,
+                        StringComparison.OrdinalIgnoreCase))
                 {
                     result.Add(new ShareRecipient(
                         ShareRecipientKind.CustomerAttention,
-                        attention, customer, phone));
+                        attention, customer, phone, email));
                 }
                 // 2. Customer primary.
                 if (!string.IsNullOrWhiteSpace(customer))
                 {
                     result.Add(new ShareRecipient(
                         ShareRecipientKind.Customer,
-                        customer, customer, phone));
+                        customer, customer, phone, email));
                 }
 
                 // 3. Own-company representative (internal forwarding).
+                // Direct context channels win; MasterData fills the gaps.
+                string company = (context.CompanyName ?? "").Trim();
                 string rep = (context.CompanyRepresentative ?? "").Trim();
+                string repPhone = (context.CompanyRepMobile ?? "").Trim();
+                string repEmail = (context.CompanyEmail ?? "").Trim();
+                if (!string.IsNullOrWhiteSpace(company)
+                    && (string.IsNullOrWhiteSpace(rep)
+                        || string.IsNullOrWhiteSpace(repPhone)
+                        || string.IsNullOrWhiteSpace(repEmail)))
+                {
+                    try
+                    {
+                        var repo = MasterData;
+                        var saved = repo == null ? null
+                            : await repo
+                                .FindCompanyByNameAsync(company)
+                                .ConfigureAwait(false);
+                        if (saved != null)
+                        {
+                            if (string.IsNullOrWhiteSpace(rep))
+                                rep = (saved.Representative ?? "").Trim();
+                            if (string.IsNullOrWhiteSpace(repPhone))
+                                repPhone = (saved.RepresentativeMobile ?? "").Trim();
+                            if (string.IsNullOrWhiteSpace(repEmail))
+                                repEmail = (saved.CompanyEmail ?? "").Trim();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Debug(
+                            $"[Sharing.Resolver] company lookup failed: {ex.Message}");
+                    }
+                }
                 if (!string.IsNullOrWhiteSpace(rep))
                 {
                     result.Add(new ShareRecipient(
                         ShareRecipientKind.CompanyRepresentative,
-                        rep, context.CompanyName ?? "",
-                        context.CompanyRepMobile ?? "",
-                        context.CompanyEmail ?? ""));
+                        rep, company, repPhone, repEmail));
                 }
 
                 // 4. Salesman on the document (name only — the ERP stores no

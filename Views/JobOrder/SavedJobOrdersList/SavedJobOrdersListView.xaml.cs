@@ -107,6 +107,27 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
 
             menu.Items.Add(exportMenu);
 
+            // Sharing Center — staged export + composer.
+            var shareItem = new MenuItem
+            {
+                Header = "\uE72D  Share…",
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
+            };
+            shareItem.Click += async (_, __) =>
+            {
+                try
+                {
+                    await vm.ShareAsync(row);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed:\n{ExceptionMessages.Deep(ex)}", "Share Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            };
+            menu.Items.Add(shareItem);
+
             menu.Items.Add(new Separator
             {
                 Style = (Style)FindResource("ModernMenuSeparatorStyle")

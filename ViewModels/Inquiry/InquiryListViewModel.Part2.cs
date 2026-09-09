@@ -76,39 +76,86 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             if (string.IsNullOrWhiteSpace(path)) return;
             try
             {
-                // Export every row matching the current filter (paged fetch, bounded),
-                // not just the visible page.
-                var range = DateRange(SelectedDateRange, DateTime.Now);
-                InquiryQuery Build(int page) => new()
-                {
-                    Search = SearchText, Status = SelectedStatusKey.Length == 0 ? "All statuses" : SelectedStatusKey,
-                    SalesmanName = SelectedSalesman, PreparedByName = SelectedPreparedBy,
-                    From = range.From, ToExclusive = range.ToExclusive,
-                    HasAttachmentsOnly = HasAttachmentsOnly, Priority = SelectedPriority,
-                    Sort = SelectedSort, Page = page, PageSize = 200
-                };
-                var rows = new System.Collections.Generic.List<InquiryListProjection>();
-                var result = await _repository.QueryAsync(Build(1));
-                rows.AddRange(result.Items);
-                while (result.HasNext && rows.Count < 5000)
-                {
-                    result = await _repository.QueryAsync(Build(result.Page + 1));
-                    rows.AddRange(result.Items);
-                }
-                // Apply the same in-memory pipeline filter that LoadAsync
-                // applies. Without this, a user who filtered to "PI only"
-                // would export ALL inquiries regardless of the visible
-                // filter — which is almost never what they want.
-                var pipelineFilter = SelectedPipelineKind;
-                if (pipelineFilter.HasValue)
-                {
-                    int minStage = (int)pipelineFilter.Value;
-                    rows = rows.Where(x => x.Lifecycle.FurthestStageReached >= minStage).ToList();
-                }
-                await _io.ExportCsvAsync(path, rows);
-                SetStatus($"Exported {rows.Count} inquiries to {System.IO.Path.GetFileName(path)}.");
+                int count = await ExportInquiriesToPathAsync(path);
+                SetStatus($"Exported {count} inquiries to {System.IO.Path.GetFileName(path)}.");
             }
             catch (Exception ex) { SetStatus("Export failed: " + ExceptionMessages.Deep(ex)); }
+        }
+
+        // Shared export core: the filtered, pipeline-aware row fetch plus
+        // the CSV write. ExportAsync targets the user's chosen path;
+        // ShareAsync stages the SAME core into the share temp folder.
+        private async Task<int> ExportInquiriesToPathAsync(string path)
+        {
+            // Export every row matching the current filter (paged fetch, bounded),
+            // not just the visible page.
+            var range = DateRange(SelectedDateRange, DateTime.Now);
+            InquiryQuery Build(int page) => new()
+            {
+                Search = SearchText, Status = SelectedStatusKey.Length == 0 ? "All statuses" : SelectedStatusKey,
+                SalesmanName = SelectedSalesman, PreparedByName = SelectedPreparedBy,
+                From = range.From, ToExclusive = range.ToExclusive,
+                HasAttachmentsOnly = HasAttachmentsOnly, Priority = SelectedPriority,
+                Sort = SelectedSort, Page = page, PageSize = 200
+            };
+            var rows = new System.Collections.Generic.List<InquiryListProjection>();
+            var result = await _repository.QueryAsync(Build(1));
+            rows.AddRange(result.Items);
+            while (result.HasNext && rows.Count < 5000)
+            {
+                result = await _repository.QueryAsync(Build(result.Page + 1));
+                rows.AddRange(result.Items);
+            }
+            // Apply the same in-memory pipeline filter that LoadAsync
+            // applies. Without this, a user who filtered to "PI only"
+            // would export ALL inquiries regardless of the visible
+            // filter — which is almost never what they want.
+            var pipelineFilter = SelectedPipelineKind;
+            if (pipelineFilter.HasValue)
+            {
+                int minStage = (int)pipelineFilter.Value;
+                rows = rows.Where(x => x.Lifecycle.FurthestStageReached >= minStage).ToList();
+            }
+            await _io.ExportCsvAsync(path, rows);
+            return rows.Count;
+        }
+
+        // ── Sharing Center (inquiries export CSV only — no rule lookup) ──
+        private async Task ShareAsync()
+        {
+            if (!Services.Audit.PermissionService.Require(Services.Audit.AppPermissions.ProformaExport, "share inquiries")) return;
+
+            var context = new ProGlassAutomation.Services.Sharing.ShareContext
+            {
+                DocumentTypeKey = "Inquiry",
+                Title = "Inquiries",
+                SalesmanName = SelectedSalesman ?? "",
+                SourceModule = "Inquiry"
+            };
+
+            await ProGlassAutomation.Services.Sharing.ShareLauncher.GenerateAndShareAsync(
+                context,
+                async folder =>
+                {
+                    try
+                    {
+                        string path = System.IO.Path.Combine(folder,
+                            $"Inquiries_{DateTime.Now:yyyy-MM-dd_HH-mm}.csv");
+                        int count = await ExportInquiriesToPathAsync(path);
+                        if (count == 0)
+                        {
+                            SetStatus("There is nothing to share.");
+                            return null;
+                        }
+                        return path;
+                    }
+                    catch (Exception ex)
+                    {
+                        SetStatus("Share failed: " + ExceptionMessages.Deep(ex));
+                        return null;
+                    }
+                },
+                _dialogs);
         }
 
         private async Task ImportAsync()

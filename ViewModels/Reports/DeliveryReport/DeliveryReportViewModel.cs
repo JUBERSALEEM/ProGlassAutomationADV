@@ -376,13 +376,30 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
             try
             {
                 var req = new ExportRequest { PromptForLocation = true, OpenAfterSave = true, SuggestedFileName = $"Delivery_Report_{DateTime.Now:yyyyMMdd}" };
-                ExportResult res;
-                if (format == ExportFormat.Csv) res = await ReportingExportService.ExportCsvAsync(Rows.ToList(), "Delivery Report", ReportingExportService.DnHeaders, ReportingExportService.DnMap, req);
-                else if (format == ExportFormat.Excel) res = await ReportingExportService.ExportExcelAsync(Rows.ToList(), "Delivery Report", ReportingExportService.DnHeaders, ReportingExportService.DnMapExcel, req);
-                else res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Delivery Report", ReportingExportService.DnHeaders, ReportingExportService.DnMap, req);
-                if (!res.Success && !res.Cancelled) _dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                ExportResult res = await ExportCoreAsync(format, req);
+                if (!res.Success && !resCancelled) _dialogs.Show(res.ErrorMessage ?? "Export failed.", LocalizationService.Instance.T("Action.Export"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }
+        }
+
+        // ── Sharing Center — the SAME core above, staged to temp ──
+        protected override string ShareReportTitle => "Delivery Report";
+
+        protected override IDialogService? ShareDialogs => _dialogs;
+
+        protected override async Task<string?> ExportStagedAsync(ExportFormat format, string folder)
+        {
+            if (Rows.Count == 0) return null;
+            ExportResult res = await ExportCoreAsync(format,
+                StagedRequest(folder, $"Delivery_Report_{DateTime.Now:yyyyMMdd}", format));
+            return res.Success ? res.SavedPath : null;
+        }
+
+        private async Task<ExportResult> ExportCoreAsync(ExportFormat format, ExportRequest req)
+        {
+            if (format == ExportFormat.Csv) return await ReportingExportService.ExportCsvAsync(Rows.ToList(), "Delivery Report", ReportingExportService.DnHeaders, ReportingExportService.DnMap, req);
+            else if (format == ExportFormat.Excel) return await ReportingExportService.ExportExcelAsync(Rows.ToList(), "Delivery Report", ReportingExportService.DnHeaders, ReportingExportService.DnMapExcel, req);
+            else return await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Delivery Report", ReportingExportService.DnHeaders, ReportingExportService.DnMap, req);
         }
     }
 }

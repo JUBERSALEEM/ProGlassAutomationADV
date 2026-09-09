@@ -231,5 +231,26 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             catch (Exception ex) { StatusMessage = $"Could not copy path: {ExceptionMessages.Deep(ex)}"; }
         }
 
+        // ── Sharing Center (Pattern B: the generated PDF already exists) ──
+        private void ShareLastPdf()
+        {
+            if (!HasLastPdf) return;
+
+            var context = new ProGlassAutomation.Services.Sharing.ShareContext
+            {
+                DocumentTypeKey = "Statement",
+                Title = "Statement of Account",
+                CustomerName = FilterCustomer ?? "",
+                CompanyName = FilterCompany ?? "",
+                SalesmanName = FilterSalesman ?? "",
+                SourceModule = "Statement"
+            };
+
+            if (ProGlassAutomation.Services.Sharing.ShareLauncher
+                    .AttachFile(context, _lastPdfPath, _dialogs))
+                ProGlassAutomation.Services.Sharing.ShareLauncher
+                    .OpenComposer(context, _dialogs);
+        }
+
     }
 }

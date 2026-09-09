@@ -128,6 +128,7 @@
                 <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ExportToolbarButton}" ToolTip="Export this analysis as CSV."/>
                 <Button Content="EXCEL" Command="{Binding ExportExcelCommand}" Style="{StaticResource ExportToolbarButton}" ToolTip="Export this analysis as Excel."/>
                 <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ExportToolbarButton}" ToolTip="Export this analysis as PDF."/>
+                <Button Content="{DynamicResource Sharing.Share}" Command="{Binding ShareCommand}" Style="{StaticResource ExportToolbarButton}" ToolTip="Share this analysis via the Sharing Center."/>
             </StackPanel>
         </Grid>
 

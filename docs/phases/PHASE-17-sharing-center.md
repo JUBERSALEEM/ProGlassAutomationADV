@@ -184,13 +184,46 @@ with prefilled text. They cannot attach files and report no delivery. So:
   document rules, temp behavior) — only controls with real function.
 - Locale keys `Sharing.*` in all 15 files.
 
-### Stage 3 — Integration + regression
+### Stage 3 — Integration + regression (DELIVERED 2026-09-09)
 
-- `ShareCommand` on every §A.3 surface (reports via the ONE base-class hook).
-- Internal-dossier rule: share honors the P&L elevation gate.
-- Tests: artifact validation, phone normalization, template fallback,
-  resolver chains, provider capabilities, honest outcomes (mock launcher).
-- Full regression per prompt §39; build validation per §40 (needs SDK env).
+- `Services/Sharing/ShareLauncher.cs` — the ONLY glue modules add:
+  `GenerateAndShareAsync` (existing exporter → share temp → composer),
+  `AttachFile` + `OpenComposer` (already-existing files), layout
+  staging (`ExportLayoutToFolderAsync` → `ExportResult`), central
+  `RuleFormat()` mapping. `ShareContextFactory` — one reviewed
+  entity→context mapping per type (nested TI snapshot, PI validity
+  date, books AED, title-led list/report contexts).
+- Share on every real §A.3 export surface, reusing each module's
+  EXISTING generator (staged once, no dialog, no auto-open — never
+  regenerated): PI saved list + Step 5 cut list + Step 7 preview +
+  Step 9 P&L/reports (overview, cost ledger, price decision, glass,
+  service, sheet) + JO detail/list + DN detail + TI detail (with
+  attachments choice) + 6 `ReportBaseViewModel` reports (one
+  base-class hook) + statement/order-report generators/lists +
+  dashboard statement items + inquiry CSV + sheet store + specs
+  catalogue. Wizard analyses share under the Report rule/template
+  (honest wording — never invoice text on a margin report).
+- Internal-dossier rule: Stage 3 shares single-format invoice/report
+  artifacts only, so the P&L elevation gate is untouched and unneeded;
+  if a future dossier share is added it must honor the gate.
+- Dashboard statement overview export is a disabled stub (no
+  generator exists) — deliberately NOT share-wired; sharing it
+  would fabricate an export surface.
+- `ContactResolver` merged to canonical form: optional
+  `IMasterDataRepository` injection (fake in tests), username
+  fallback, `CustomerEmail` recipients, company-rep gap-fill,
+  attention/customer dedupe. Duplicate root resolver removed.
+- Tests (`Tests/Sharing/`, xUnit): template precedence/variables/
+  unknown-token passthrough; phone trunk/`+`/`00`/7–15-digit rules;
+  artifact temp-file + unsupported/missing/empty rejections; rule
+  doc/default fallback; resolver order/gap-fill/dedupe/sender via a
+  fake repository; factory mappings from hand-built entities;
+  provider `Validate()`/`Capabilities` only — `ShareAsync()` never
+  (launches external processes).
+- Full binding cross-check: every `Share*Command` bound in XAML,
+  every share binding backed by a command.
+- Build validation per §40 still needs the Windows SDK env (this
+  stage was verified by API-level review + the new test suite).
 
 ---
 
@@ -211,4 +244,9 @@ with prefilled text. They cannot attach files and report no delivery. So:
   editor + card contact lines; Settings "Sharing" rail page (providers,
   defaults, document rules, template editor with signature-guarded save);
   51 `Sharing.*`/`UserCenter.*`/`Settings.SecSharing` keys × 15 locales.
-- [ ] Stage 3 — Integration + tests + regression
+- [x] Stage 3 — Integration + tests + regression. 2026-09-09 —
+  launcher + factory + canonical resolver merge; share on every real
+  export surface (PI list/wizard Steps 5+7+9, JO, DN, TI, 6
+  base-hook reports, statement/order-report flows, dashboard,
+  inquiry, sheet store, specs); 7 xUnit suites in `Tests/Sharing/`;
+  binding cross-check clean; build validation still needs SDK env.

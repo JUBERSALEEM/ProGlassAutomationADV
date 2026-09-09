@@ -15,6 +15,7 @@ using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.Sharing;
 using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList;
@@ -142,6 +143,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         public ICommand SendEmailCommand { get; }
         public ICommand ExportExcelCommand { get; }
         public ICommand ExportCsvCommand { get; }
+        public ICommand ShareCommand { get; }
 
         public FrameworkElement PrintTarget { get; set; }
 
@@ -239,6 +241,7 @@ public PrintableInvoiceViewModel(
             SendEmailCommand = new RelayCommand(_ => ShowComingSoon("Send Email", "Phase 7.20"));
             ExportExcelCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteExportExcelAsync, "PI Step7"));
             ExportCsvCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteExportCsvAsync, "PI Step7"));
+            ShareCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteShareAsync, "PI Step7 share"));
 
             Client.PropertyChanged += OnClientChanged;
             Company.PropertyChanged += OnCompanyChanged;
@@ -852,6 +855,39 @@ public PrintableInvoiceViewModel(
 
             var result = await engine.ExportAsync(layout, request);
             ShowExportFailureIfAny(result, "CSV");
+        }
+
+        // Sharing Center — the SAME wizard entity + layouts as the exports
+        // above, staged once into the share temp folder (PI rule's default
+        // format), then the composer. Draft or loaded invoice alike: the
+        // context (attention, phones, salesman, validity) comes from the
+        // live wizard snapshot, exactly like the printed preview.
+        private async Task ExecuteShareAsync()
+        {
+            if (!EnsureExportable("Share")) return;
+
+            var entity = ProformaInvoiceMapper.BuildEntityFromWizard(
+                Company, Client, Project, DataGrid, OtherCharges,
+                MainSummary, Terms, this);
+            var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+            var context = ShareContextFactory.FromProformaInvoice(entity, snapshot);
+
+            await ShareLauncher.GenerateAndShareAsync(context, async folder =>
+            {
+                ExportFormat format = ShareLauncher.RuleFormat("PI");
+                IDocumentLayout layout = format switch
+                {
+                    ExportFormat.Excel => new ProformaInvoiceExcelLayout(entity, snapshot),
+                    ExportFormat.Csv => new ProformaInvoiceCsvLayout(entity, snapshot),
+                    _ => new ProformaInvoicePdfLayout(entity, snapshot)
+                };
+
+                var staged = await ShareLauncher.ExportLayoutToFolderAsync(
+                    layout, format, folder);
+                if (!staged.Success)
+                    _dialogs.Error(staged.ErrorMessage ?? "Export failed.", "Share");
+                return staged.SavedPath;
+            }, _dialogs);
         }
 
         private bool EnsureExportable(string formatLabel)

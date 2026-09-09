@@ -801,6 +801,47 @@
                                             </Button.Template>
                                         </Button>
 
+                                        <Button Command="{Binding DataContext.ShareStatementCommand,
+                                                    RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                CommandParameter="{Binding}"
+                                                Height="34"
+                                                Padding="12,0"
+                                                Margin="0,0,6,0"
+                                                FontSize="{StaticResource TextBody}"
+                                                FontWeight="SemiBold"
+                                                Cursor="Hand"
+                                                IsEnabled="{Binding HasPdf}"
+                                                ToolTip="{DynamicResource Sharing.Share}"
+                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                BorderThickness="{DynamicResource Border.NoneThickness}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="bd"
+                                                            Background="{DynamicResource SuccessBrush}"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <TextBlock Text="&#xE72D;"
+                                                                   FontFamily="Segoe MDL2 Assets"
+                                                                   FontSize="{StaticResource TextBody}"
+                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                                   VerticalAlignment="Center"
+                                                                   HorizontalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="bd" Property="Opacity" Value="0.84"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter TargetName="bd" Property="Opacity" Value="0.70"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsEnabled" Value="False">
+                                                            <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+
                                         <Button Command="{Binding DataContext.EditStatementCommand,
                                                     RelativeSource={RelativeSource AncestorType=ListView}}"
                                                 CommandParameter="{Binding}"

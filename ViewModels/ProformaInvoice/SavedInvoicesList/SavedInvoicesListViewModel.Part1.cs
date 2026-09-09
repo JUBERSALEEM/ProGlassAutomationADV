@@ -191,6 +191,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public ICommand ExportPdfFromListCommand { get; private set; }
         public ICommand ExportExcelFromListCommand { get; private set; }
         public ICommand ExportCsvFromListCommand { get; private set; }   // BUG-76
+        public ICommand ShareFromListCommand { get; private set; } = null!;
 
         /// <summary>Full dossier, customer-safe — NO profit &amp; loss.</summary>
         public ICommand ExportDossierCommand { get; private set; }
@@ -283,6 +284,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             // BUG-76: CSV export from list for parity with detail view
             ExportCsvFromListCommand = new RelayCommand(
                 async p => await ExportCsvFromListAsync(p as SavedInvoiceListItem));
+
+            // Sharing Center: staged export (rule's default format) + composer.
+            ShareFromListCommand = new RelayCommand(
+                async p => await ShareFromListAsync(p as SavedInvoiceListItem));
 
             // Full dossier. The customer-safe variant is the plain command;
             // the P&L one is deliberately separate and separately gated, so

@@ -103,38 +103,55 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
 
         public static async Task<ExportResult> ExportExcelAsync(
             IReadOnlyList<SpecGroup> groups, string documentId,
-            string? customer = null, string? project = null)
+            string? customer = null, string? project = null,
+            string? outputPath = null)
         {
             var layout = new CutListExcelLayout(groups, documentId, customer, project);
-            return await new ExcelExportEngine().ExportAsync(layout, new ExportRequest
-            {
-                PromptForLocation = true,
-                OpenAfterSave = true
-            });
+            return await new ExcelExportEngine().ExportAsync(
+                layout, RequestFor(outputPath));
         }
 
         public static async Task<ExportResult> ExportCsvAsync(
             IReadOnlyList<SpecGroup> groups, string documentId,
-            string? customer = null, string? project = null)
+            string? customer = null, string? project = null,
+            string? outputPath = null)
         {
             var layout = new CutListCsvLayout(groups, documentId, customer, project);
-            return await new CsvExportEngine().ExportAsync(layout, new ExportRequest
-            {
-                PromptForLocation = true,
-                OpenAfterSave = true
-            });
+            return await new CsvExportEngine().ExportAsync(
+                layout, RequestFor(outputPath));
         }
 
         public static async Task<ExportResult> ExportPdfAsync(
             IReadOnlyList<SpecGroup> groups, string documentId,
-            string? customer = null, string? project = null)
+            string? customer = null, string? project = null,
+            string? outputPath = null)
         {
             var layout = new CutListPdfLayout(groups, documentId, customer, project);
-            return await new PdfExportEngine().ExportAsync(layout, new ExportRequest
+            return await new PdfExportEngine().ExportAsync(
+                layout, RequestFor(outputPath));
+        }
+
+        /// <summary>
+        /// Interactive save-dialog request by default; a direct staged
+        /// write (no dialog, no auto-open) when Sharing hands a temp path.
+        /// Additive Stage 3 seam — existing callers are unaffected.
+        /// </summary>
+        private static ExportRequest RequestFor(string? outputPath)
+        {
+            if (!string.IsNullOrWhiteSpace(outputPath))
+            {
+                return new ExportRequest
+                {
+                    OutputPath = outputPath,
+                    PromptForLocation = false,
+                    OpenAfterSave = false
+                };
+            }
+            return new ExportRequest
             {
                 PromptForLocation = true,
                 OpenAfterSave = true
-            });
+            };
         }
 
         private static async Task<CutListImportResult> ScanDocumentAsync(string path, string ext)

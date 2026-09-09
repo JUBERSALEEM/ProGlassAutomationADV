@@ -309,6 +309,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ICommand ImportCsvCommand { get; }
         public ICommand ExportExcelCommand { get; }
         public ICommand ExportPdfCommand { get; }
+        public ICommand ShareCommand { get; }
 
         public SheetStoreViewModel() : this(null, initialize: true)
         {
@@ -345,6 +346,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             ImportCsvCommand = new RelayCommand(async _ => await ImportCsvAsync());
             ExportExcelCommand = new RelayCommand(async _ => await ExportExcelAsync());
             ExportPdfCommand = new RelayCommand(async _ => await ExportPdfAsync());
+            ShareCommand = new RelayCommand(async _ => await ShareAsync());
 
             _ = LoadAsync();
         }
@@ -705,6 +707,66 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             {
                 ShowError("PDF export failed.\n\n" + ExceptionMessages.Deep(ex));
             }
+        }
+
+        // ============ SHARE (same services as the exports above) ============
+        // The export services are path-based, so sharing stages the SAME
+        // call into the share temp folder (rule's default format), then
+        // opens the composer. No generation is duplicated.
+
+        private async Task ShareAsync()
+        {
+            if (!Sheets.Any())
+            {
+                _dialogs.Show(LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2"),
+                    LocalizationService.Instance.T("Sharing.Share"), MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var context = ProGlassAutomation.Services.Sharing.ShareContextFactory
+                .FromListReport("SheetStore", "Sheet Store Report", "SheetStore");
+
+            await ProGlassAutomation.Services.Sharing.ShareLauncher.GenerateAndShareAsync(
+                context,
+                async folder =>
+                {
+                    string ruleFormat = ProGlassAutomation.App.Config.Sharing
+                        .RuleFor("SheetStore").DefaultFormat ?? "Pdf";
+                    try
+                    {
+                        if (string.Equals(ruleFormat, "Excel",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            string path = System.IO.Path.Combine(folder,
+                                $"SheetStore_{DateTime.Now:yyyy-MM-dd_HH-mm}.xlsx");
+                            await _excelService.ExportAsync(
+                                path, Sheets.ToList(), BuildFilterInfoString());
+                            return path;
+                        }
+                        else if (string.Equals(ruleFormat, "Csv",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            string path = System.IO.Path.Combine(folder,
+                                $"SheetStore_{DateTime.Now:yyyy-MM-dd_HH-mm}.csv");
+                            await _csvService.ExportAsync(path, Sheets.ToList());
+                            return path;
+                        }
+                        else
+                        {
+                            string path = System.IO.Path.Combine(folder,
+                                $"SheetStore_Report_{DateTime.Now:yyyy-MM-dd_HH-mm}.pdf");
+                            await _pdfService.GenerateReportAsync(
+                                path, Sheets.ToList(), BuildFilterInfoString());
+                            return path;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ShowError("Share failed.\n\n" + ExceptionMessages.Deep(ex));
+                        return null;
+                    }
+                },
+                _dialogs);
         }
 
         // ============ CSV IMPORT ============

@@ -123,6 +123,47 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             ShowExportResult(result, "Excel");
         }
 
+        /// <summary>
+        /// Sharing Center — same layouts as the exports above, staged once
+        /// into the share temp folder (rule's default format), then the
+        /// composer. Wired to the "Share" menu item next to Export.
+        /// </summary>
+        public async Task ShareAsync(JobOrderRowViewModel row)
+        {
+            var (entity, snapshot) = await LoadEntityAndSnapshotAsync(row);
+            if (entity == null || snapshot == null) return;
+
+            var context = ProGlassAutomation.Services.Sharing
+                .ShareContextFactory.FromJobOrder(entity);
+
+            await ProGlassAutomation.Services.Sharing.ShareLauncher
+                .GenerateAndShareAsync(context, async folder =>
+                {
+                    string ruleFormat = ProGlassAutomation.App.Config.Sharing
+                        .RuleFor("JO").DefaultFormat ?? "Pdf";
+                    ProGlassAutomation.Services.Export.Core.IDocumentLayout layout;
+                    ProGlassAutomation.Services.Export.Core.ExportFormat format;
+                    if (string.Equals(ruleFormat, "Excel",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        layout = new JobOrderExcelLayout(entity, snapshot);
+                        format = ProGlassAutomation.Services.Export.Core.ExportFormat.Excel;
+                    }
+                    else
+                    {
+                        layout = new JobOrderPdfLayout(entity, snapshot);
+                        format = ProGlassAutomation.Services.Export.Core.ExportFormat.Pdf;
+                    }
+
+                    var staged = await ProGlassAutomation.Services.Sharing.ShareLauncher
+                        .ExportLayoutToFolderAsync(layout, format, folder);
+                    if (!staged.Success)
+                        _dialogs.Error(
+                            staged.ErrorMessage ?? "Export failed.", "Share");
+                    return staged.SavedPath;
+                }, _dialogs);
+        }
+
         private async Task<(SavedJobOrder? entity, Models.JobOrder.SavedJobOrder.JobOrderSnapshot? snapshot)>
             LoadEntityAndSnapshotAsync(JobOrderRowViewModel row)
         {

@@ -11,6 +11,7 @@ using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.JobOrder.Export;
 using ProGlassAutomation.Services.JobOrder.Mapper;
+using ProGlassAutomation.Services.Sharing;
 using System;
 using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
@@ -317,6 +318,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         public ICommand BackToListCommand { get; private set; }
 
         // Phase 9.5a-r3 — export
+        public ICommand ShareCommand { get; private set; } = null!;
         public ICommand ExportPdfCommand { get; private set; }
         public ICommand ExportExcelCommand { get; private set; }
         public ICommand ExportCsvCommand { get; private set; }
@@ -352,6 +354,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             ExportPdfCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportPdfAsync, "PDF"));
             ExportExcelCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportExcelAsync, "Excel"));
             ExportCsvCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportCsvAsync, "CSV"));
+            ShareCommand = new RelayCommand(async _ => await GuardedExportAsync(ShareAsync, "Share"));
 
             CreateDeliveryNoteCommand = new RelayCommand(async _ => await CreateDeliveryNoteAsync());
             OpenMasterDnCommand = new RelayCommand(async _ => await OpenMasterDnAsync());
@@ -799,6 +802,49 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
             var result = await engine.ExportAsync(layout, request);
             ShowExportResult(result, "CSV");
+        }
+
+        // Sharing Center — same layouts as the exports above, staged once
+        // into the share temp folder (rule's default format), then composer.
+        private async Task ShareAsync()
+        {
+            if (!EnsureLoaded()) return;
+
+            var entity = _entity!;
+            var snapshot = _snapshot!;
+            var context = ShareContextFactory.FromJobOrder(entity);
+
+            await ShareLauncher.GenerateAndShareAsync(context, async folder =>
+            {
+                string ruleFormat = App.Config.Sharing
+                    .RuleFor("JO").DefaultFormat ?? "Pdf";
+                IDocumentLayout layout;
+                ExportFormat format;
+                if (string.Equals(ruleFormat, "Excel",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    layout = new JobOrderExcelLayout(entity, snapshot);
+                    format = ExportFormat.Excel;
+                }
+                else if (string.Equals(ruleFormat, "Csv",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    layout = new JobOrderCsvLayout(entity, snapshot);
+                    format = ExportFormat.Csv;
+                }
+                else
+                {
+                    layout = new JobOrderPdfLayout(entity, snapshot);
+                    format = ExportFormat.Pdf;
+                }
+
+                var staged = await ShareLauncher.ExportLayoutToFolderAsync(
+                    layout, format, folder);
+                if (!staged.Success)
+                    _dialogs.Error(
+                        staged.ErrorMessage ?? "Export failed.", "Share");
+                return staged.SavedPath;
+            }, _dialogs);
         }
 
         private bool EnsureLoaded()

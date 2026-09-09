@@ -811,6 +811,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public ICommand ExportPdfCommand { get; private set; }
         public ICommand ExportExcelCommand { get; private set; }
         public ICommand ExportCsvCommand { get; private set; }
+        public ICommand ShareCommand { get; private set; } = null!;
         public ICommand ConvertToTaxInvoiceCommand { get; private set; }
 
         /// <summary>

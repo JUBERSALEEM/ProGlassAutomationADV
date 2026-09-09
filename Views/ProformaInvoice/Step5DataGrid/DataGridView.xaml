@@ -149,6 +149,10 @@
                                 <MenuItem Header="{DynamicResource Dg.Pdf}"
                                           Style="{StaticResource ModernMenuItemStyle}"
                                           Command="{Binding ExportPdfCommand}"/>
+                                <Separator/>
+                                <MenuItem Header="{DynamicResource Sharing.Share}"
+                                          Style="{StaticResource ModernMenuItemStyle}"
+                                          Command="{Binding ShareCutListCommand}"/>
                             </ContextMenu>
                         </Button.ContextMenu>
                     </Button>

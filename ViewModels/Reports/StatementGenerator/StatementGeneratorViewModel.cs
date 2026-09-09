@@ -213,6 +213,7 @@ public StatementGeneratorViewModel(IDialogService? dialogs,
 
             DownloadLastPdfCommand = new RelayCommand(_ => OpenLastPdf(), _ => HasLastPdf);
             CopyPdfPathCommand = new RelayCommand(_ => CopyLastPdfPathToClipboard(), _ => HasLastPdf);
+            ShareLastPdfCommand = new RelayCommand(_ => ShareLastPdf(), _ => HasLastPdf);
 
             SelectMergedTabCommand = new RelayCommand(_ => ActivePdfTab = "Merged");
             SelectBalanceTabCommand = new RelayCommand(_ => ActivePdfTab = "Balance");

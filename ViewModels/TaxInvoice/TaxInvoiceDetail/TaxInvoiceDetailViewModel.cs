@@ -161,6 +161,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 async _ => await ExportPdfAsync(),
                 _ => !IsNewInvoice && !IsSaving);
 
+            ShareCommand = new RelayCommand(
+                async _ => await ShareAsync(),
+                _ => !IsNewInvoice && !IsSaving);
+
             SwitchDetailTabCommand = new RelayCommand(p =>
                 DetailTab = p as string ?? "Overview");
 

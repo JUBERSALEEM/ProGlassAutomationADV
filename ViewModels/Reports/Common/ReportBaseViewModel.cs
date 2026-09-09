@@ -18,11 +18,16 @@
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Dialogs;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Reporting;
+using ProGlassAutomation.Services.Sharing;
 using System;
 using ProGlassAutomation.Utilities;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -168,6 +173,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
         public ICommand ExportCsvCommand { get; protected set; } = null!;
         public ICommand ExportExcelCommand { get; protected set; } = null!;
         public ICommand ExportPdfCommand { get; protected set; } = null!;
+        public ICommand ShareCommand { get; protected set; } = null!;
 
         protected virtual void InitCommands()
         {
@@ -176,9 +182,10 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             NextPageCommand = new RelayCommand(_ => { if (HasNextPage) Page++; }, _ => HasNextPage);
             PrevPageCommand = new RelayCommand(_ => { if (HasPrevPage) Page--; }, _ => HasPrevPage);
-            ExportCsvCommand = new RelayCommand(async _ => await ExportAsync(ProGlassAutomation.Services.Export.Core.ExportFormat.Csv));
-            ExportExcelCommand = new RelayCommand(async _ => await ExportAsync(ProGlassAutomation.Services.Export.Core.ExportFormat.Excel));
-            ExportPdfCommand = new RelayCommand(async _ => await ExportAsync(ProGlassAutomation.Services.Export.Core.ExportFormat.Pdf));
+            ExportCsvCommand = new RelayCommand(async _ => await ExportAsync(ExportFormat.Csv));
+            ExportExcelCommand = new RelayCommand(async _ => await ExportAsync(ExportFormat.Excel));
+            ExportPdfCommand = new RelayCommand(async _ => await ExportAsync(ExportFormat.Pdf));
+            ShareCommand = new RelayCommand(async _ => await ShareAsync());
         }
 
         protected void ClearFilters()
@@ -266,7 +273,70 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
 
         public abstract Task LoadAsync();
 
-        protected abstract Task ExportAsync(ProGlassAutomation.Services.Export.Core.ExportFormat format);
+        protected abstract Task ExportAsync(ExportFormat format);
+
+        // ── Sharing Center ──────────────────────────────────────────
+        // Each report keeps its own row mapping in ExportCoreAsync; the
+        // base only stages that same core into the share temp folder
+        // (rule's default format) and opens the composer. Recipients
+        // resolve from the report's current customer/company filters.
+
+        /// <summary>The report's display title (composer + templates).</summary>
+        protected abstract string ShareReportTitle { get; }
+
+        /// <summary>Failure dialogs; defaults to the app dialog service.</summary>
+        protected virtual IDialogService? ShareDialogs => null;
+
+        /// <summary>
+        /// Runs the report's EXISTING export core into the share temp
+        /// folder. Returns the staged path, or null when there is nothing
+        /// to share. Implemented per report (4 lines each).
+        /// </summary>
+        protected abstract Task<string?> ExportStagedAsync(
+            ExportFormat format, string folder);
+
+        /// <summary>
+        /// Builds a no-dialog staged request for the temp folder. The
+        /// engine writes OutputPath verbatim, so the extension is added.
+        /// </summary>
+        protected static ExportRequest StagedRequest(
+            string folder, string suggestedBaseName, ExportFormat format)
+        {
+            return new ExportRequest
+            {
+                OutputPath = Path.Combine(folder,
+                    suggestedBaseName + "." + ExportFileNamer.Extension(format)),
+                PromptForLocation = false,
+                OpenAfterSave = false
+            };
+        }
+
+        protected async Task ShareAsync()
+        {
+            if (IsExporting) return;
+
+            string ruleFormat = App.Config.Sharing
+                .RuleFor("Report").DefaultFormat ?? "Pdf";
+            ExportFormat format = ruleFormat switch
+            {
+                "Excel" => ExportFormat.Excel,
+                "Csv" => ExportFormat.Csv,
+                _ => ExportFormat.Pdf
+            };
+
+            IsExporting = true;
+            try
+            {
+                var context = ShareContextFactory.FromListReport(
+                    "Report", ShareReportTitle, "Reports",
+                    SelectedCustomer, SelectedCompany);
+                await ShareLauncher.GenerateAndShareAsync(
+                    context,
+                    folder => ExportStagedAsync(format, folder),
+                    ShareDialogs);
+            }
+            finally { IsExporting = false; }
+        }
 
         protected void CancelPrevious()
         {

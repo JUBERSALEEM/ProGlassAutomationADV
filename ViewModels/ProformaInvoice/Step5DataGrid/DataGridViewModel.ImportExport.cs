@@ -1,8 +1,12 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Utilities;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Services.ProformaInvoice.Step5Grid;
+using ProGlassAutomation.Services.Sharing;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,6 +22,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public ICommand ExportExcelCommand { get; private set; }
         public ICommand ExportCsvCommand { get; private set; }
         public ICommand ExportPdfCommand { get; private set; }
+        public ICommand ShareCutListCommand { get; private set; }
 
         private string _ioStatus = "";
         public string IoStatus
@@ -49,6 +54,70 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 var (id, customer, project) = CurrentDocumentParts();
                 return CutListGridIo.ExportPdfAsync(SpecGroups, id, customer, project);
             }, "PI Step5"));
+            ShareCutListCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(
+                ShareAsync, "PI Step5 share"));
+        }
+
+        // Sharing Center — the SAME CutListGridIo exporter staged once
+        // into the share temp folder (Report rule's default format),
+        // then the composer. The cut list is a working analysis, so it
+        // shares under the Report rule/template — never the PI invoice
+        // wording, which would misdescribe the attachment.
+        private async Task ShareAsync()
+        {
+            if (SpecGroups == null || SpecGroups.Count == 0)
+            {
+                IoStatus = LocalizationService.Instance.T("Msg.NothingToExportTheCurrent2");
+                return;
+            }
+
+            var (id, customer, project) = CurrentDocumentParts();
+            var context = ShareContextFactory.FromListReport(
+                "Report", $"Cut List · {id}", "ProformaInvoice", customer);
+            context.DocumentNumber = id;
+
+            await ShareLauncher.GenerateAndShareAsync(
+                context,
+                async folder =>
+                {
+                    try
+                    {
+                        ExportFormat format = ShareLauncher.RuleFormat("Report");
+                        string safeId = string.Concat((id ?? "PI")
+                            .Select(ch => Path.GetInvalidFileNameChars()
+                                .Contains(ch) ? '_' : ch));
+                        if (safeId.Length == 0) safeId = "PI";
+                        string ext = ExportFileNamer.Extension(format);
+                        string path = Path.Combine(folder,
+                            $"CutList_{safeId}_{DateTime.Now:yyyy-MM-dd_HH-mm}.{ext}");
+
+                        ExportResult result = format switch
+                        {
+                            ExportFormat.Excel => await CutListGridIo.ExportExcelAsync(
+                                SpecGroups, id, customer, project, path),
+                            ExportFormat.Csv => await CutListGridIo.ExportCsvAsync(
+                                SpecGroups, id, customer, project, path),
+                            _ => await CutListGridIo.ExportPdfAsync(
+                                SpecGroups, id, customer, project, path)
+                        };
+
+                        if (!result.Success)
+                        {
+                            IoStatus = "Share failed.";
+                            _dialogs.Error(
+                                result.ErrorMessage ?? "Export failed.", "Share");
+                        }
+                        return result.SavedPath;
+                    }
+                    catch (Exception ex)
+                    {
+                        IoStatus = "Share failed.";
+                        _dialogs.Error(
+                            "Share failed.\n\n" + ExceptionMessages.Deep(ex), "Share");
+                        return null;
+                    }
+                },
+                _dialogs);
         }
 
         private static (string Id, string Customer, string Project) CurrentDocumentParts()

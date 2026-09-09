@@ -116,5 +116,76 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
         }
 
+        // ── Sharing Center ──────────────────────────────────────────
+        // Same generation core as ExportPdfAsync (GenerateAsync /
+        // GenerateWithAttachmentsAsync + the same attachments question),
+        // staged once into the share temp folder, then the composer.
+        private async Task ShareAsync()
+        {
+            if (_taxInvoices == null || _editingId == 0) return;
+
+            try
+            {
+                IsSaving = true;
+                StatusMessage = "Preparing share…";
+
+                var entity = await _taxInvoices.GetByIdAsync(_editingId);
+                if (entity == null)
+                {
+                    StatusMessage = "Invoice not found.";
+                    return;
+                }
+
+                var attachments = await _taxInvoices
+                    .GetAttachmentsAsync(entity.InvoiceNumber);
+
+                bool includeAttachments = false;
+                if (attachments != null && attachments.Count > 0)
+                {
+                    var choice = _dialogs.Show(
+                        string.Format(LocalizationService.Instance.T("Msg.InvoiceHasXAttachmentS"), attachments.Count),
+                        LocalizationService.Instance.T("Msg.CapIncludeAttachments"),
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+                    includeAttachments = choice == MessageBoxResult.Yes;
+                }
+
+                var snapshot = Services.TaxInvoice.Mapper
+                    .TaxInvoiceMapper.DeserializeSnapshot(entity);
+                var context = ProGlassAutomation.Services.Sharing
+                    .ShareContextFactory.FromTaxInvoice(entity, snapshot);
+
+                await ProGlassAutomation.Services.Sharing.ShareLauncher
+                    .GenerateAndShareAsync(context, async folder =>
+                    {
+                        byte[] pdf = includeAttachments
+                            ? await Services.TaxInvoice.Pdf.TaxInvoicePdfExporter
+                                .GenerateWithAttachmentsAsync(entity, attachments)
+                            : await Services.TaxInvoice.Pdf.TaxInvoicePdfExporter
+                                .GenerateAsync(entity);
+
+                        string safeName = string.Concat(
+                            (entity.InvoiceNumber ?? "invoice").Trim()
+                                .Select(ch => System.IO.Path.GetInvalidFileNameChars()
+                                    .Contains(ch) ? '_' : ch));
+                        if (safeName.Length == 0) safeName = "invoice";
+                        if (includeAttachments) safeName += "_WITH-ATTACHMENTS";
+                        string path = System.IO.Path.Combine(folder, safeName + ".pdf");
+                        await System.IO.File.WriteAllBytesAsync(path, pdf);
+                        return path;
+                    }, _dialogs);
+
+                StatusMessage = "";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Share failed: {ExceptionMessages.Deep(ex)}";
+            }
+            finally
+            {
+                IsSaving = false;
+            }
+        }
+
     }
 }

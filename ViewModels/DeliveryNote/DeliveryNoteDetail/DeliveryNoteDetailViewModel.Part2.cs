@@ -124,6 +124,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 async _ => await GuardedExportAsync(ExportCsvAsync, "CSV"),
                 _ => _entity != null && !IsSaving && !IsLoading);
 
+            ShareCommand = new RelayCommand(
+                async _ => await GuardedExportAsync(ShareAsync, "Share"),
+                _ => _entity != null && !IsSaving && !IsLoading);
+
             // Phase 3: No async void — wrapper uses central AsyncUtility
             ConvertToTaxInvoiceCommand = new RelayCommand(
                 execute: param => AsyncUtility.SafeFireAndForget(

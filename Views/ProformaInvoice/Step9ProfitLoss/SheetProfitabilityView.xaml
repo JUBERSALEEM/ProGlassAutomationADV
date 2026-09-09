@@ -159,6 +159,9 @@
                     <Button Content="PDF" Command="{Binding ExportPdfCommand}"
                             Style="{StaticResource SheetExportButton}"
                             ToolTip="Export this analysis as PDF."/>
+                    <Button Content="{DynamicResource Sharing.Share}" Command="{Binding ShareCommand}"
+                            Style="{StaticResource SheetExportButton}"
+                            ToolTip="Share this analysis via the Sharing Center."/>
                     <Button Content="REFRESH"
                             Command="{Binding RefreshCommand}"
                             Style="{StaticResource PrimaryPillButton}"

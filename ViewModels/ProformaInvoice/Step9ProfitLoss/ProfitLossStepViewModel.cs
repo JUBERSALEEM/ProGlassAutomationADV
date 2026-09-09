@@ -52,6 +52,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Sharing;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.ProformaInvoice;
@@ -150,6 +151,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _ => AsyncUtility.SafeFireAndForget(() => ExportPnlAsync(ExportFormat.Excel), "Step9 PnL Excel"));
             ExportPnlPdfCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(() => ExportPnlAsync(ExportFormat.Pdf), "Step9 PnL PDF"));
+            ShareOverviewCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(ShareOverviewAsync, "Step9 Overview share"));
+            ShareTargetCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(ShareTargetAsync, "Step9 Target share"));
+            SharePnlCommand = new RelayCommand(
+                _ => AsyncUtility.SafeFireAndForget(SharePnlAsync, "Step9 PnL share"));
 
             Rows.CollectionChanged += OnRowsCollectionChanged;
 
@@ -224,6 +231,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public ICommand ExportOverviewCsvCommand { get; }
         public ICommand ExportOverviewExcelCommand { get; }
         public ICommand ExportOverviewPdfCommand { get; }
+        public ICommand ShareOverviewCommand { get; }
 
         // ══════════════════════════════════════════════════════════════
         //  TARGET-COMPARISON EXPORT (CSV / Excel / PDF)
@@ -232,6 +240,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public ICommand ExportTargetCsvCommand { get; }
         public ICommand ExportTargetExcelCommand { get; }
         public ICommand ExportTargetPdfCommand { get; }
+        public ICommand ShareTargetCommand { get; }
 
         private bool _isTargetExporting;
         /// <summary>True while a target-comparison export runs.</summary>
@@ -250,6 +259,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public ICommand ExportPnlCsvCommand { get; }
         public ICommand ExportPnlExcelCommand { get; }
         public ICommand ExportPnlPdfCommand { get; }
+        public ICommand SharePnlCommand { get; }
 
         private bool _isPnlExporting;
         /// <summary>True while a cost-breakdown export runs.</summary>
@@ -270,16 +280,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             _isPnlExporting = true;
             try
             {
-                var rows = Step9ReportExport.BuildOverviewRows(this);
-                if (rows.Count == 0) return;
-
-                var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Step 9 Executive Cost & Price Decision Summary",
-                    Step9ReportExport.OverviewHeaders,
-                    Step9ReportExport.OverviewMap,
-                    Step9ReportExport.OverviewMapExcel,
-                    Step9ReportExport.ReportCodeOverview,
-                    GetReportDocumentContext());
+                var result = await ExportOverviewCoreAsync(format, null);
+                if (result == null) return;
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";
@@ -296,58 +298,90 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
+        /// <summary>
+        /// Single overview builder behind export (request null → save
+        /// dialog) and share (staged temp request).
+        /// </summary>
+        private async Task<ExportResult?> ExportOverviewCoreAsync(
+            ExportFormat format, ExportRequest? request)
+        {
+            var rows = Step9ReportExport.BuildOverviewRows(this);
+            if (rows.Count == 0) return null;
+
+            return await Step9ReportExport.RunAsync(
+                format, rows, "Step 9 Executive Cost & Price Decision Summary",
+                Step9ReportExport.OverviewHeaders,
+                Step9ReportExport.OverviewMap,
+                Step9ReportExport.OverviewMapExcel,
+                Step9ReportExport.ReportCodeOverview,
+                GetReportDocumentContext(),
+                request);
+        }
+
+        // Sharing Center — the SAME overview staged once into the share
+        // temp folder (Report rule's default format), then the composer.
+        private async Task ShareOverviewAsync()
+        {
+            if (_isPnlExporting) return;
+            _isPnlExporting = true;
+            try
+            {
+                await ShareStep9ReportAsync(
+                    "Step 9 Executive Cost & Price Decision Summary",
+                    Step9ReportExport.ReportCodeOverview,
+                    (format, request) => ExportOverviewCoreAsync(format, request));
+            }
+            catch (Exception ex)
+            {
+                App.Dialogs.Error($"Share failed: {ExceptionMessages.Deep(ex)}", "Share");
+            }
+            finally
+            {
+                _isPnlExporting = false;
+            }
+        }
+
+        /// <summary>
+        /// Shared share flow for the three Step 9 parent reports: one
+        /// context shape, one staged request, one composer handoff. The
+        /// caller supplies only its title, report code and core builder.
+        /// </summary>
+        private async Task ShareStep9ReportAsync(
+            string reportTitle,
+            string reportCode,
+            Func<ExportFormat, ExportRequest, Task<ExportResult?>> runCoreAsync)
+        {
+            var identity = GetReportDocumentContext();
+            var context = ShareContextFactory.FromListReport(
+                "Report", reportTitle, "ProformaInvoice",
+                identity.CustomerName, identity.CompanyName);
+            context.DocumentNumber = identity.ProformaId;
+
+            ExportFormat format = ShareLauncher.RuleFormat("Report");
+            await ShareLauncher.GenerateAndShareAsync(
+                context,
+                async folder =>
+                {
+                    var result = await runCoreAsync(
+                        format,
+                        Step9ReportExport.StagedRequest(
+                            format, reportCode, identity, folder));
+                    if (result == null || !result.Success)
+                        App.Dialogs.Warning(
+                            result?.ErrorMessage ?? "Export failed.", "Share");
+                    return result?.SavedPath;
+                },
+                App.Dialogs);
+        }
+
         private async Task ExportPnlAsync(ExportFormat format)
         {
             if (_isPnlExporting || Rows.Count == 0) return;
             _isPnlExporting = true;
             try
             {
-                var rows = Rows.ToList();
-                var spacerRows = Rows
-                    .Where(r => string.Equals(r.Kind, "Spacer", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-                if (spacerRows.Count > 0)
-                {
-                    var spacerQty = spacerRows.Sum(r => r.Quantity);
-                    var spacerAmount = spacerRows.Sum(r => r.Amount);
-                    rows.Add(new ProfitLossRow
-                    {
-                        Kind = "SPACER TOTAL",
-                        Description = $"Spacer / ASP production service total ({spacerRows.Count} line(s))",
-                        Quantity = spacerQty,
-                        UnitLabel = "SQM",
-                        PricePerSqm = spacerQty > 0m ? Math.Round(spacerAmount / spacerQty, 2) : 0m,
-                        Amount = spacerAmount
-                    });
-                }
-
-                var productionRows = Rows
-                    .Where(r => string.Equals(r.Kind, "Production", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-                if (productionRows.Count > 0)
-                {
-                    rows.Add(new ProfitLossRow
-                    {
-                        Kind = "PRODUCTION TOTAL",
-                        Description = $"Other production service total ({productionRows.Count} line(s))",
-                        Amount = productionRows.Sum(r => r.Amount)
-                    });
-                }
-
-                rows.Add(new ProfitLossRow
-                {
-                    Kind = "TOTAL",
-                    Description = $"All costed lines ({Rows.Count})",
-                    Amount = Rows.Sum(r => r.Amount)
-                });
-
-                var result = await Step9ReportExport.RunAsync(
-                    format, rows, "Material and Production Cost Ledger",
-                    Step9ReportExport.PnlHeaders,
-                    Step9ReportExport.PnlMap,
-                    Step9ReportExport.PnlMapExcel,
-                    Step9ReportExport.ReportCodeCostLedger,
-                    GetReportDocumentContext());
+                var result = await ExportPnlCoreAsync(format, null);
+                if (result == null) return;
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";
@@ -357,6 +391,86 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             catch (Exception ex)
             {
                 App.Dialogs.Error($"Export failed: {ExceptionMessages.Deep(ex)}", "Export");
+            }
+            finally
+            {
+                _isPnlExporting = false;
+            }
+        }
+
+        /// <summary>
+        /// Single cost-ledger builder behind export (request null → save
+        /// dialog) and share (staged temp request).
+        /// </summary>
+        private async Task<ExportResult?> ExportPnlCoreAsync(
+            ExportFormat format, ExportRequest? request)
+        {
+            var rows = Rows.ToList();
+            var spacerRows = Rows
+                .Where(r => string.Equals(r.Kind, "Spacer", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (spacerRows.Count > 0)
+            {
+                var spacerQty = spacerRows.Sum(r => r.Quantity);
+                var spacerAmount = spacerRows.Sum(r => r.Amount);
+                rows.Add(new ProfitLossRow
+                {
+                    Kind = "SPACER TOTAL",
+                    Description = $"Spacer / ASP production service total ({spacerRows.Count} line(s))",
+                    Quantity = spacerQty,
+                    UnitLabel = "SQM",
+                    PricePerSqm = spacerQty > 0m ? Math.Round(spacerAmount / spacerQty, 2) : 0m,
+                    Amount = spacerAmount
+                });
+            }
+
+            var productionRows = Rows
+                .Where(r => string.Equals(r.Kind, "Production", StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (productionRows.Count > 0)
+            {
+                rows.Add(new ProfitLossRow
+                {
+                    Kind = "PRODUCTION TOTAL",
+                    Description = $"Other production service total ({productionRows.Count} line(s))",
+                    Amount = productionRows.Sum(r => r.Amount)
+                });
+            }
+
+            rows.Add(new ProfitLossRow
+            {
+                Kind = "TOTAL",
+                Description = $"All costed lines ({Rows.Count})",
+                Amount = Rows.Sum(r => r.Amount)
+            });
+
+            return await Step9ReportExport.RunAsync(
+                format, rows, "Material and Production Cost Ledger",
+                Step9ReportExport.PnlHeaders,
+                Step9ReportExport.PnlMap,
+                Step9ReportExport.PnlMapExcel,
+                Step9ReportExport.ReportCodeCostLedger,
+                GetReportDocumentContext(),
+                request);
+        }
+
+        // Sharing Center — the SAME cost ledger staged once into the
+        // share temp folder (Report rule's default format), then the
+        // composer.
+        private async Task SharePnlAsync()
+        {
+            if (_isPnlExporting || Rows.Count == 0) return;
+            _isPnlExporting = true;
+            try
+            {
+                await ShareStep9ReportAsync(
+                    "Material and Production Cost Ledger",
+                    Step9ReportExport.ReportCodeCostLedger,
+                    (format, request) => ExportPnlCoreAsync(format, request));
+            }
+            catch (Exception ex)
+            {
+                App.Dialogs.Error($"Share failed: {ExceptionMessages.Deep(ex)}", "Share");
             }
             finally
             {
@@ -370,32 +484,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             _isTargetExporting = true;
             try
             {
-                var rows = TargetSpecsView.ToList();
-                const string reportTitle = "Step 9 Specification Price Decision Report";
-                var reportIdentity = GetReportDocumentContext();
-
-                // Nine audit columns are practical in CSV/Excel, but make a
-                // dense PDF table that truncates exactly the explanation an
-                // approver needs. PDF therefore uses the same eight discrete
-                // price-decision lines as the Overview: one complete card per
-                // specification, with the same canonical values and formula.
-                var result = format == ExportFormat.Pdf
-                    ? await Step9ReportExport.RunAsync(
-                        format,
-                        rows.SelectMany(Step9ReportExport.BuildPriceDecisionRows).ToList(),
-                        reportTitle,
-                        Step9ReportExport.OverviewHeaders,
-                        Step9ReportExport.OverviewMap,
-                        Step9ReportExport.OverviewMapExcel,
-                        Step9ReportExport.ReportCodePriceDecision,
-                        reportIdentity)
-                    : await Step9ReportExport.RunAsync(
-                        format, rows, reportTitle,
-                        Step9ReportExport.TargetHeaders,
-                        Step9ReportExport.TargetMap,
-                        Step9ReportExport.TargetMapExcel,
-                        Step9ReportExport.ReportCodePriceDecision,
-                        reportIdentity);
+                var result = await ExportTargetCoreAsync(format, null);
+                if (result == null) return;
 
                 if (result.Success)
                     StatusMessage = $"Exported {format} — {result.SavedPath}";
@@ -405,6 +495,67 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             catch (Exception ex)
             {
                 App.Dialogs.Error($"Export failed: {ExceptionMessages.Deep(ex)}", "Export");
+            }
+            finally
+            {
+                _isTargetExporting = false;
+            }
+        }
+
+        /// <summary>
+        /// Single price-decision builder behind export (request null →
+        /// save dialog) and share (staged temp request).
+        /// </summary>
+        private async Task<ExportResult?> ExportTargetCoreAsync(
+            ExportFormat format, ExportRequest? request)
+        {
+            var rows = TargetSpecsView.ToList();
+            const string reportTitle = "Step 9 Specification Price Decision Report";
+            var reportIdentity = GetReportDocumentContext();
+
+            // Nine audit columns are practical in CSV/Excel, but make a
+            // dense PDF table that truncates exactly the explanation an
+            // approver needs. PDF therefore uses the same eight discrete
+            // price-decision lines as the Overview: one complete card per
+            // specification, with the same canonical values and formula.
+            return format == ExportFormat.Pdf
+                ? await Step9ReportExport.RunAsync(
+                    format,
+                    rows.SelectMany(Step9ReportExport.BuildPriceDecisionRows).ToList(),
+                    reportTitle,
+                    Step9ReportExport.OverviewHeaders,
+                    Step9ReportExport.OverviewMap,
+                    Step9ReportExport.OverviewMapExcel,
+                    Step9ReportExport.ReportCodePriceDecision,
+                    reportIdentity,
+                    request)
+                : await Step9ReportExport.RunAsync(
+                    format, rows, reportTitle,
+                    Step9ReportExport.TargetHeaders,
+                    Step9ReportExport.TargetMap,
+                    Step9ReportExport.TargetMapExcel,
+                    Step9ReportExport.ReportCodePriceDecision,
+                    reportIdentity,
+                    request);
+        }
+
+        // Sharing Center — the SAME price-decision report staged once
+        // into the share temp folder (Report rule's default format),
+        // then the composer.
+        private async Task ShareTargetAsync()
+        {
+            if (_isTargetExporting || TargetSpecsView.Count == 0) return;
+            _isTargetExporting = true;
+            try
+            {
+                await ShareStep9ReportAsync(
+                    "Step 9 Specification Price Decision Report",
+                    Step9ReportExport.ReportCodePriceDecision,
+                    (format, request) => ExportTargetCoreAsync(format, request));
+            }
+            catch (Exception ex)
+            {
+                App.Dialogs.Error($"Share failed: {ExceptionMessages.Deep(ex)}", "Share");
             }
             finally
             {

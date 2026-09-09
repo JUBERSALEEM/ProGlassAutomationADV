@@ -148,6 +148,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         public ICommand NewStatementCommand { get; }
         public ICommand EditStatementCommand { get; }
         public ICommand OpenPdfCommand { get; }
+        public ICommand ShareStatementCommand { get; }
         public ICommand DeleteStatementCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand ClearSearchCommand { get; }
@@ -193,6 +194,11 @@ public StatementListViewModel(IDialogService? dialogs,
 
             OpenPdfCommand = new RelayCommand(
                 p => OpenPdf(p as StatementListRowViewModel ?? SelectedRow),
+                p => (p as StatementListRowViewModel
+                      ?? SelectedRow)?.HasPdf == true);
+
+            ShareStatementCommand = new RelayCommand(
+                p => ShareStatement(p as StatementListRowViewModel ?? SelectedRow),
                 p => (p as StatementListRowViewModel
                       ?? SelectedRow)?.HasPdf == true);
 
@@ -321,6 +327,31 @@ public StatementListViewModel(IDialogService? dialogs,
         {
             if (row == null || !row.HasPdf) return;
             StatementPdfExporter.OpenPdf(row.PdfPath);
+        }
+
+        // ── Sharing Center (Pattern B: the statement PDF already exists) ──
+        private void ShareStatement(StatementListRowViewModel? row)
+        {
+            if (row == null || !row.HasPdf) return;
+
+            var item = row.Source;
+            var context = new ProGlassAutomation.Services.Sharing.ShareContext
+            {
+                DocumentTypeKey = "Statement",
+                DocumentNumber = item?.StatementNumber ?? "",
+                Title = string.IsNullOrWhiteSpace(item?.Title)
+                    ? $"Statement {item?.StatementNumber}"
+                    : item.Title.Trim(),
+                CustomerName = item?.FilterCustomer ?? "",
+                CompanyName = item?.FilterCompany ?? "",
+                SalesmanName = item?.FilterSalesman ?? "",
+                SourceModule = "Statement"
+            };
+
+            if (ProGlassAutomation.Services.Sharing.ShareLauncher
+                    .AttachFile(context, row.PdfPath, _dialogs))
+                ProGlassAutomation.Services.Sharing.ShareLauncher
+                    .OpenComposer(context, _dialogs);
         }
 
         // ═════════════════════════════════════════════════════════════════

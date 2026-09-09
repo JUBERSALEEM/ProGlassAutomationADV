@@ -126,6 +126,11 @@
                             ToolTip="{DynamicResource DeliveryNote.ExportCSV}"
                             Command="{Binding ExportCsvCommand}"
                             Margin="0,0,8,0"/>
+                    <Button Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
+                            ToolTip="{DynamicResource Sharing.Share}"
+                            Command="{Binding ShareCommand}"
+                            Margin="0,0,8,0"/>
                     <Button Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
                             ToolTip="{DynamicResource JobOrder.SaveJobOrder}"

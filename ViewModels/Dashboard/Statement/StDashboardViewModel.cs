@@ -35,6 +35,7 @@ using System.Windows;
 using System.Windows.Input;
 
 using ProGlassAutomation.Services.Statement.Repository;
+using ProGlassAutomation.Services.Sharing;
 using Microsoft.Extensions.DependencyInjection;
 namespace ProGlassAutomation.ViewModels.Dashboard.Statement
 {
@@ -109,6 +110,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
         public ICommand GoToStatementsCommand { get; private set; }
         public ICommand NewStatementCommand { get; private set; }
         public ICommand OpenPdfCommand { get; private set; }
+        public ICommand ShareCommand { get; private set; } = null!;
 
         // ═════════════════════════════════════════════════════════════════
         public StDashboardViewModel()
@@ -130,6 +132,12 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
             {
                 if (p is RecentStatementItem item && item.HasPdf)
                     StatementPdfExporter.OpenPdf(item.PdfPath);
+            });
+
+            ShareCommand = new RelayCommand(async p =>
+            {
+                if (p is RecentStatementItem item && item.HasPdf)
+                    await ShareAsync(item);
             });
         }
 
@@ -226,6 +234,38 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
                 // Batch notification — single fire
                 OnPropertyChanged(string.Empty);
             }));
+        }
+
+        // Sharing Center (Pattern B) — full context via the repository so
+        // recipients resolve from the real customer/company filters.
+        private async Task ShareAsync(RecentStatementItem item)
+        {
+            if (item == null || !item.HasPdf || _statements == null) return;
+
+            ShareContext context;
+            try
+            {
+                var saved = await _statements
+                    .GetByStatementNumberAsync(item.StatementNumber);
+                context = saved != null
+                    ? ShareContextFactory.FromStatement(saved)
+                    : ShareContextFactory.FromListReport(
+                        "Statement", item.Title, "Statement");
+                if (string.IsNullOrWhiteSpace(context.DocumentNumber))
+                    context.DocumentNumber = item.StatementNumber ?? "";
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Debug(
+                    $"[Sharing] statement lookup failed: {ex.Message}");
+                context = ShareContextFactory.FromListReport(
+                    "Statement", item.Title, "Statement");
+                context.DocumentNumber = item.StatementNumber ?? "";
+            }
+
+            var dialogs = ProGlassAutomation.App.Dialogs;
+            if (ShareLauncher.AttachFile(context, item.PdfPath, dialogs))
+                ShareLauncher.OpenComposer(context, dialogs);
         }
 
         private void RebuildBalanceMix()

@@ -141,6 +141,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         public ICommand DeselectAllCommand { get; }
         public ICommand DownloadLastPdfCommand { get; }
         public ICommand CopyPdfPathCommand { get; }
+        public ICommand ShareLastPdfCommand { get; }
         public ICommand SelectMergedTabCommand { get; }
         public ICommand SelectBalanceTabCommand { get; }
         public ICommand SelectAlertsTabCommand { get; }

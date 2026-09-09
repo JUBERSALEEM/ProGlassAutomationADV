@@ -303,6 +303,10 @@
                                         Tag="&#xE8A5;" Content="{DynamicResource SheetStore.ExportPDFReport}"
                                         Command="{Binding ExportPdfCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                <Button Style="{StaticResource SheetMenuActionItem}"
+                                        Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
+                                        Command="{Binding ShareCommand}"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource SheetMenuActionItem}"

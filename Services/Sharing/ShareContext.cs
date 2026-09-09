@@ -37,6 +37,13 @@ namespace ProGlassAutomation.Services.Sharing
         /// <summary>Display name: Proforma Invoice, Job Order…</summary>
         public string DocumentTypeDisplay { get; set; } = "";
 
+        /// <summary>
+        /// Explicit display title (saved statement/report titles, list
+        /// screens). When set, DisplayTitle shows it verbatim instead of
+        /// composing type + number.
+        /// </summary>
+        public string Title { get; set; } = "";
+
         /// <summary>PI-2026-001, JO-2026-014… ("" for ad-hoc reports).</summary>
         public string DocumentNumber { get; set; } = "";
 
@@ -63,6 +70,12 @@ namespace ProGlassAutomation.Services.Sharing
         public string AttentionName { get; set; } = "";
 
         public string CustomerPhone { get; set; } = "";
+
+        /// <summary>
+        /// Direct customer email (Tax Invoice snapshot carries one; most
+        /// documents leave this blank and recipients resolve phone-only).
+        /// </summary>
+        public string CustomerEmail { get; set; } = "";
 
         public string SalesmanName { get; set; } = "";
 
@@ -109,6 +122,8 @@ namespace ProGlassAutomation.Services.Sharing
         {
             get
             {
+                if (!string.IsNullOrWhiteSpace(Title))
+                    return Title.Trim();
                 if (!string.IsNullOrWhiteSpace(DocumentTypeDisplay)
                     && !string.IsNullOrWhiteSpace(DocumentNumber))
                     return $"{DocumentTypeDisplay} · {DocumentNumber}";

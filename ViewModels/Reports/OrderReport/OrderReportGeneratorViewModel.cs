@@ -134,6 +134,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             DeselectAllCommand = new RelayCommand(_ => PreviewVM.DeselectAll(), _ => PreviewVM.Rows.Count > 0);
 
             DownloadLastPdfCommand = new RelayCommand(_ => OrderReportPdfExporter.OpenPdf(LastPdfPath), _ => HasLastPdf);
+            ShareLastPdfCommand = new RelayCommand(_ => ShareLastPdf(), _ => HasLastPdf);
 
             ExportCsvCommand = new RelayCommand(async _ => await ExportSpecsAsync(ExportFormat.Csv),
                 _ => HasReport && !_isGenerating);
@@ -492,6 +493,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         public ICommand SelectAllCommand { get; }
         public ICommand DeselectAllCommand { get; }
         public ICommand DownloadLastPdfCommand { get; }
+        public ICommand ShareLastPdfCommand { get; }
         public ICommand ExportCsvCommand { get; }
         public ICommand ExportExcelCommand { get; }
         public ICommand ExportPdfCommand { get; }
@@ -1245,6 +1247,30 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                 StatusMessage = $"Export failed: {ExceptionMessages.Deep(ex)}";
                 AppLogService.Error($"[OrderReport] {format} export failed", ex);
             }
+        }
+
+        // ── Sharing Center (Pattern B: the generated PDF already exists) ──
+        private void ShareLastPdf()
+        {
+            if (!HasLastPdf) return;
+
+            var bundle = _lastBundle;
+            var context = new ProGlassAutomation.Services.Sharing.ShareContext
+            {
+                DocumentTypeKey = "OrderReport",
+                DocumentNumber = bundle?.ReportNumber ?? "",
+                Title = string.IsNullOrWhiteSpace(bundle?.Title)
+                    ? "Order Report" : bundle.Title.Trim(),
+                CustomerName = FilterCustomer ?? "",
+                CompanyName = FilterCompany ?? "",
+                SalesmanName = FilterSalesman ?? "",
+                SourceModule = "OrderReport"
+            };
+
+            if (ProGlassAutomation.Services.Sharing.ShareLauncher
+                    .AttachFile(context, LastPdfPath, _dialogs))
+                ProGlassAutomation.Services.Sharing.ShareLauncher
+                    .OpenComposer(context, _dialogs);
         }
 
         // ═════════════════════════════════════════════════════════════════

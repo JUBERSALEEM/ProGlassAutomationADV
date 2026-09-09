@@ -178,18 +178,32 @@
                         </TextBlock>
                     </StackPanel>
 
-                    <Button Grid.Column="2"
-                            Content="PDF"
-                            Tag="&#xE8A5;"
-                            Margin="10,0,0,0"
-                            VerticalAlignment="Center"
-                            Style="{StaticResource DbActionButtonStyle}"
-                            ToolTip="{DynamicResource Dashboard.OpenStatementPDF}"
-                            Command="{Binding DataContext.OpenPdfCommand,
-                                      RelativeSource={RelativeSource
-                                          AncestorType=ItemsControl}}"
-                            CommandParameter="{Binding}"
-                            IsEnabled="{Binding HasPdf}"/>
+                    <StackPanel Grid.Column="2"
+                                  Orientation="Horizontal"
+                                  VerticalAlignment="Center">
+                        <Button Content="PDF"
+                                Tag="&#xE8A5;"
+                                Margin="10,0,0,0"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource DbActionButtonStyle}"
+                                ToolTip="{DynamicResource Dashboard.OpenStatementPDF}"
+                                Command="{Binding DataContext.OpenPdfCommand,
+                                          RelativeSource={RelativeSource
+                                              AncestorType=ItemsControl}}"
+                                CommandParameter="{Binding}"
+                                IsEnabled="{Binding HasPdf}"/>
+                        <Button Content="&#xE72D;"
+                                FontFamily="Segoe MDL2 Assets"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Center"
+                                Style="{StaticResource DbActionButtonStyle}"
+                                ToolTip="{DynamicResource Sharing.Share}"
+                                Command="{Binding DataContext.ShareCommand,
+                                          RelativeSource={RelativeSource
+                                              AncestorType=ItemsControl}}"
+                                CommandParameter="{Binding}"
+                                IsEnabled="{Binding HasPdf}"/>
+                    </StackPanel>
                 </Grid>
             </Border>
         </DataTemplate>

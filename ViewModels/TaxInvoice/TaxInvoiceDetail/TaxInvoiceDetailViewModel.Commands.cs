@@ -53,6 +53,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public ICommand RemoveSpecGroupCommand { get; private set; }
         public ICommand RecalculateCommand { get; private set; }
         public ICommand ExportPdfCommand { get; private set; }
+        public ICommand ShareCommand { get; private set; } = null!;
         // ═══ DETAIL TAB SWITCHER (Overview / Attachments / Family) ═══
         private string _detailTab = "Overview";
         public string DetailTab

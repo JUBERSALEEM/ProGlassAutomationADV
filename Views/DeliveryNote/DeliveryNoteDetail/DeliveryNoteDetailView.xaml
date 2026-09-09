@@ -348,6 +348,10 @@
                                         Tag="&#xE72D;" Content="{DynamicResource DeliveryNote.ExportCSV}"
                                         Command="{Binding ExportCsvCommand}"
                                         behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                <Button Style="{StaticResource DnMenuActionItem}"
+                                        Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
+                                        Command="{Binding ShareCommand}"
+                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource DnMenuRealOnlyItem}"
