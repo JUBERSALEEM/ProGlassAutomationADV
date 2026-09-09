@@ -1408,6 +1408,8 @@
     <sys:String x:Key="Reports.Nav.CompaniesSub">Livre &amp; créances</sys:String>
     <sys:String x:Key="Reports.Nav.Projects">Projets</sys:String>
     <sys:String x:Key="Reports.Nav.ProjectsSub">Registre &amp; progression</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecs">Spécifications verre</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecsSub">Traçabilité par ligne</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Documents et réalisation</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Corriger la facture manquante maintenant</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Générer avec avertissement</sys:String>

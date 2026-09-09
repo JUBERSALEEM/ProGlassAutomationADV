@@ -23,6 +23,7 @@ using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.CompanyReport;
 using ProGlassAutomation.ViewModels.Reports.CustomerReport;
 using ProGlassAutomation.ViewModels.Reports.DeliveryReport;
+using ProGlassAutomation.ViewModels.Reports.GlassSpecReport;
 using ProGlassAutomation.ViewModels.Reports.ProjectReport;
 using ProGlassAutomation.ViewModels.Reports.JoReport;
 using ProGlassAutomation.ViewModels.Reports.PiReport;
@@ -71,6 +72,7 @@ namespace ProGlassAutomation.ViewModels.Reports
         public SalesmanReportViewModel SalesmanReport { get; private set; }
         public CompanyReportViewModel CompanyReport { get; private set; }
         public ProjectReportViewModel ProjectReport { get; private set; }
+        public GlassSpecReportViewModel GlassSpecReport { get; private set; }
         public JoReportViewModel JoReport { get; private set; }
         public DeliveryReportViewModel DeliveryReport { get; private set; }
         public TaxInvoiceReportViewModel TaxInvoiceReport { get; private set; }
@@ -120,6 +122,7 @@ namespace ProGlassAutomation.ViewModels.Reports
             new ReportNavItem{ Key="Jo",         Icon="\uE8B7", TitleKey="Common.JobOrder",        SubtitleKey="Reports.ProductionStatus" },
             new ReportNavItem{ Key="Delivery",   Icon="\uE814", TitleKey="Nav.Delivery",           SubtitleKey="Reports.DispatchedPending" },
             new ReportNavItem{ Key="TaxInvoice", Icon="\uE8C7", TitleKey="Module.TaxInvoice",      SubtitleKey="Reports.BilledOverdue" },
+            new ReportNavItem{ Key="GlassSpec",  Icon="\uE7C1", TitleKey="Reports.Nav.GlassSpecs", SubtitleKey="Reports.Nav.GlassSpecsSub" },
             new ReportNavItem{ Key="Statement",  Icon="\uE9F7", TitleKey="Module.Statement",       SubtitleKey="Reports.CustomerStatements" },
             new ReportNavItem{ Key="VatSubmission", Icon="\uE8C7", TitleKey="Nav.VatSubmission",   SubtitleKey="Reports.VatSubmission.5FTARate" },
         };
@@ -150,6 +153,7 @@ namespace ProGlassAutomation.ViewModels.Reports
             "Jo" => "Job Order Report",
             "Delivery" => "Delivery Note Report",
             "TaxInvoice" => "Tax Invoice Report",
+            "GlassSpec" => "Glass Specifications & Traceability",
             "Statement" => "Statement Report",
             "VatSubmission" => "VAT Submission Report",
             _ => "Reports Overview"
@@ -165,6 +169,7 @@ namespace ProGlassAutomation.ViewModels.Reports
             "Jo" => JoReport,
             "Delivery" => DeliveryReport,
             "TaxInvoice" => TaxInvoiceReport,
+            "GlassSpec" => GlassSpecReport,
             "Statement" => StatementReport,
             "VatSubmission" => VatSubmission,
             _ => null
@@ -207,6 +212,7 @@ namespace ProGlassAutomation.ViewModels.Reports
             SalesmanReport = new SalesmanReportViewModel(_dialogs, _reportingService, _database);
             CompanyReport = new CompanyReportViewModel(_dialogs, _reportingService, _database);
             ProjectReport = new ProjectReportViewModel(_dialogs, _reportingService, _database);
+            GlassSpecReport = new GlassSpecReportViewModel(_dialogs, _reportingService, _database);
             JoReport = new JoReportViewModel(_dialogs, _reportingService, _database);
             DeliveryReport = new DeliveryReportViewModel(_dialogs, _reportingService, _database);
             TaxInvoiceReport = new TaxInvoiceReportViewModel(_dialogs, _reportingService, _database);
@@ -249,6 +255,8 @@ namespace ProGlassAutomation.ViewModels.Reports
                         _ = CompanyReport.LoadAsync();
                     if (key == "Project")
                         _ = ProjectReport.LoadAsync();
+                    if (key == "GlassSpec")
+                        _ = GlassSpecReport.LoadAsync();
 
                     IsRailOpen = false; // auto-close (see above)
                 }

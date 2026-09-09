@@ -1408,6 +1408,8 @@
     <sys:String x:Key="Reports.Nav.CompaniesSub">台帳・売掛金</sys:String>
     <sys:String x:Key="Reports.Nav.Projects">プロジェクト</sys:String>
     <sys:String x:Key="Reports.Nav.ProjectsSub">登録・進捗</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecs">ガラス仕様</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecsSub">行レベルの追跡</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">文書と履行</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">不足請求書を今すぐ修正</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">警告付きで生成</sys:String>

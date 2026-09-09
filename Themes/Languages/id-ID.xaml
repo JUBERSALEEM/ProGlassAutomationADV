@@ -1408,6 +1408,8 @@
     <sys:String x:Key="Reports.Nav.CompaniesSub">Buku &amp; piutang</sys:String>
     <sys:String x:Key="Reports.Nav.Projects">Proyek</sys:String>
     <sys:String x:Key="Reports.Nav.ProjectsSub">Register &amp; kemajuan</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecs">Spesifikasi Kaca</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecsSub">Ketertelusuran per baris</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Dokumen dan pemenuhan</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Perbaiki faktur hilang sekarang</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Buat dengan peringatan</sys:String>

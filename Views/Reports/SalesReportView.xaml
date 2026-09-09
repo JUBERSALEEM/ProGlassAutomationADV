@@ -24,6 +24,7 @@
     xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.Reports.JoReport"
     xmlns:vmDn="clr-namespace:ProGlassAutomation.ViewModels.Reports.DeliveryReport"
     xmlns:vmTi="clr-namespace:ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport"
+    xmlns:vmGs="clr-namespace:ProGlassAutomation.ViewModels.Reports.GlassSpecReport"
     xmlns:vmStRep="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementReport"
     xmlns:vPi="clr-namespace:ProGlassAutomation.Views.Reports.PiReport"
     xmlns:vCust="clr-namespace:ProGlassAutomation.Views.Reports.CustomerReport"
@@ -33,6 +34,7 @@
     xmlns:vJo="clr-namespace:ProGlassAutomation.Views.Reports.JoReport"
     xmlns:vDn="clr-namespace:ProGlassAutomation.Views.Reports.DeliveryReport"
     xmlns:vTi="clr-namespace:ProGlassAutomation.Views.Reports.TaxInvoiceReport"
+    xmlns:vGs="clr-namespace:ProGlassAutomation.Views.Reports.GlassSpecReport"
     xmlns:vStRep="clr-namespace:ProGlassAutomation.Views.Reports.StatementReport"
     FontFamily="{DynamicResource AppFontFamily}"
     TextOptions.TextFormattingMode="Ideal"
@@ -51,6 +53,7 @@
         <DataTemplate DataType="{x:Type vmJo:JoReportViewModel}"><vJo:JoReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmDn:DeliveryReportViewModel}"><vDn:DeliveryReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmTi:TaxInvoiceReportViewModel}"><vTi:TaxInvoiceReportView/></DataTemplate>
+        <DataTemplate DataType="{x:Type vmGs:GlassSpecReportViewModel}"><vGs:GlassSpecReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmStRep:StatementReportViewModel}"><vStRep:StatementReportView/></DataTemplate>
 
         <!-- Report Navigation Button Style -->

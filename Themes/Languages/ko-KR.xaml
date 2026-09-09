@@ -1408,6 +1408,8 @@
     <sys:String x:Key="Reports.Nav.CompaniesSub">장부 및 미수금</sys:String>
     <sys:String x:Key="Reports.Nav.Projects">프로젝트</sys:String>
     <sys:String x:Key="Reports.Nav.ProjectsSub">등록 및 진행</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecs">유리 사양</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecsSub">행 단위 추적성</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">문서 및 이행</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">누락된 청구서 지금 수정</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">경고와 함께 생성</sys:String>

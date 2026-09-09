@@ -1408,6 +1408,8 @@
     <sys:String x:Key="Reports.Nav.CompaniesSub">বই ও বকেয়া</sys:String>
     <sys:String x:Key="Reports.Nav.Projects">প্রকল্প</sys:String>
     <sys:String x:Key="Reports.Nav.ProjectsSub">নিবন্ধন ও অগ্রগতি</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecs">গ্লাস স্পেক</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecsSub">সারি-স্তরের ট্রেসেবিলিটি</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">দস্তাবেজ ও পূরণ</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">এখনই অনুপস্থিত ইনভয়েস ঠিক করুন</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">সতর্কতা সহ তৈরি করুন</sys:String>

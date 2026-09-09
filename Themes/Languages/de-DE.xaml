@@ -1408,6 +1408,8 @@
     <sys:String x:Key="Reports.Nav.CompaniesSub">Buch &amp; Forderungen</sys:String>
     <sys:String x:Key="Reports.Nav.Projects">Projekte</sys:String>
     <sys:String x:Key="Reports.Nav.ProjectsSub">Register &amp; Fortschritt</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecs">Glasspezifikationen</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecsSub">Zeilengenaue Rückverfolgung</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Dokumente &amp; Erfüllung</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Fehlende Rechnung jetzt korrigieren</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Mit Warnung erzeugen</sys:String>

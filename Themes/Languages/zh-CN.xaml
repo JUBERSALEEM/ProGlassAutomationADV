@@ -1408,6 +1408,8 @@
     <sys:String x:Key="Reports.Nav.CompaniesSub">账簿与应收</sys:String>
     <sys:String x:Key="Reports.Nav.Projects">项目</sys:String>
     <sys:String x:Key="Reports.Nav.ProjectsSub">登记与进度</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecs">玻璃规格</sys:String>
+    <sys:String x:Key="Reports.Nav.GlassSpecsSub">行级可追溯性</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">文档和履约</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">立即修复缺失发票</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">带警告生成</sys:String>
