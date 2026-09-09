@@ -58,11 +58,23 @@ namespace ProGlassAutomation.Services.Database
 
         /// <summary>
         /// Checks whether deleting the given document would orphan dependent
-        /// records in other databases. When <paramref name="blockOnDependents"/>
-        /// is true the caller should block; the message explains why.
+        /// records in other databases. The result's <c>HasDependents</c> tells
+        /// the caller whether to block; the message explains why.
         /// </summary>
+        /// <param name="strict">
+        /// ERP hardening (Phase 3, G-4). Controls what happens when the
+        /// dependency query itself FAILS (a transient DB error), not what it
+        /// finds:
+        ///   • false (default) — fail OPEN: a failed check returns Ok() so a
+        ///     genuinely childless draft is never blocked by an unrelated glitch.
+        ///     Correct for pre-posting drafts, and preserves every existing
+        ///     caller's behaviour.
+        ///   • true — fail CLOSED: a failed check returns Blocked(...) so a
+        ///     posted/fiscal parent can NEVER orphan its children just because
+        ///     the verification could not be completed. Use for posted parents.
+        /// </param>
         public static async Task<DependencyCheckResult> CheckAsync(
-            Kind kind, string id)
+            Kind kind, string id, bool strict = false)
         {
             if (string.IsNullOrWhiteSpace(id))
                 return DependencyCheckResult.Ok();
@@ -83,10 +95,22 @@ namespace ProGlassAutomation.Services.Database
                         return DependencyCheckResult.Ok();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // A dependency check must never block an otherwise valid
-                // delete because the check itself failed. Fail-open here.
+                if (strict)
+                {
+                    // Posted/fiscal parent: we could not verify dependents, so
+                    // we must NOT allow a delete that might orphan them.
+                    Logging.AppLogService.Warning(
+                        "DependencyGuard strict check failed — blocking to protect a posted parent: "
+                        + ex.Message);
+                    return DependencyCheckResult.Blocked(
+                        "Could not verify related documents right now. "
+                        + "For safety this document was not changed — please try again.");
+                }
+
+                // Pre-posting draft: a check failure must never block an
+                // otherwise valid delete. Fail-open.
                 return DependencyCheckResult.Ok();
             }
         }

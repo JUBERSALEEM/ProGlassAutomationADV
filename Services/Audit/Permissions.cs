@@ -75,6 +75,10 @@ namespace ProGlassAutomation.Services.Audit
         public const string TaxInvoiceView = "TaxInvoice.View";
         public const string TaxInvoiceEdit = "TaxInvoice.Edit";
         public const string TaxInvoiceExport = "TaxInvoice.Export";
+        // ERP lifecycle hardening (Phase 3, G-6): deleting/voiding a fiscal
+        // document is a Manager/Admin-only capability. An Accountant may edit
+        // and issue invoices but must NOT be able to erase a posted one.
+        public const string TaxInvoiceDelete = "TaxInvoice.Delete";
 
         public const string SheetStoreView = "SheetStore.View";
         public const string SheetStoreCreate = "SheetStore.Create";
@@ -110,6 +114,7 @@ namespace ProGlassAutomation.Services.Audit
                 AppPermissions.JobOrderEdit, AppPermissions.JobOrderDelete,
                 AppPermissions.DeliveryNoteEdit,
                 AppPermissions.TaxInvoiceEdit, AppPermissions.TaxInvoiceExport,
+                AppPermissions.TaxInvoiceDelete,
                 AppPermissions.SheetStoreCreate, AppPermissions.SheetStoreEdit,
                 AppPermissions.SheetStoreDelete,
                 AppPermissions.ReportsExport, AppPermissions.StatementGenerate

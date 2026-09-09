@@ -750,9 +750,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             if (item == null || _invoices == null) return;
 
             // Phase 14: orphan protection — cross-database dependency check.
+            // ERP hardening (Phase 3, G-4): a posted parent (not hard-deletable)
+            // uses STRICT mode so a failed verification fails closed (blocks)
+            // rather than risk orphaning its children.
+            bool strict = !DocumentLifecyclePolicy.CanHardDelete(
+                StatusTransitions.Kind.ProformaInvoice, item.Status, hasChildren: false);
             var guard = await _database.CheckDependencyAsync(
                 DependencyGuard.Kind.ProformaInvoice,
-                item.ProformaId ?? "");
+                item.ProformaId ?? "", strict);
             bool hasChildren = guard.HasDependents;
 
             // ERP lifecycle hardening (Phase 1): three-way decision.

@@ -423,6 +423,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 if (param is not InvoiceFamilyRowViewModel fam) return;
                 if (_taxInvoices == null) return;
 
+                // ERP hardening (Phase 3, G-6): deleting OR voiding fiscal
+                // documents is a Manager/Admin-only capability. Check once here
+                // (the repository re-checks at the unbypassable boundary).
+                if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                    ProGlassAutomation.Services.Audit.AppPermissions.TaxInvoiceDelete,
+                    "delete or void a tax invoice family"))
+                    return;
+
                 // NEVER delete directly — explicit confirmation first.
                 var result = _dialogs.Show(
                     string.Format(LocalizationService.Instance.T("Msg.DeleteTaxInvoiceFamilyX"), fam.ProformaId, fam.InvoiceCount),

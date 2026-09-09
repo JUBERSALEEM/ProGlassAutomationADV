@@ -215,9 +215,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
 
             // Cross-database dependency check (has this DN been invoiced?).
+            // ERP hardening (Phase 3, G-4): a posted DN (not hard-deletable)
+            // uses STRICT mode so a failed verification fails closed rather
+            // than orphan a linked tax invoice.
+            bool strict = !ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanHardDelete(
+                ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.DeliveryNote, row.Status, hasChildren: false);
             var guard = await _database.CheckDependencyAsync(
                 DependencyGuard.Kind.DeliveryNote,
-                row.DeliveryNoteId);
+                row.DeliveryNoteId, strict);
             bool hasChildren = guard.HasDependents;
 
             // ERP lifecycle hardening (Phase 1): three-way decision.

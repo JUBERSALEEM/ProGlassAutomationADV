@@ -26,8 +26,13 @@ namespace ProGlassAutomation.Services.Database
     /// </summary>
     public interface IDatabaseServices
     {
-        /// <summary>Delete guard: would deleting this document orphan dependents?</summary>
-        Task<DependencyCheckResult> CheckDependencyAsync(DependencyGuard.Kind kind, string id);
+        /// <summary>
+        /// Delete guard: would deleting this document orphan dependents?
+        /// Pass <paramref name="strict"/> = true for a posted/fiscal parent so
+        /// a failed verification fails CLOSED (blocks) instead of open.
+        /// </summary>
+        Task<DependencyCheckResult> CheckDependencyAsync(
+            DependencyGuard.Kind kind, string id, bool strict = false);
 
         /// <summary>Subscribe to document-changed notifications (static DocumentLifecycle).</summary>
         void SubscribeDocumentsChanged(Func<Task> reload);
@@ -51,8 +56,9 @@ namespace ProGlassAutomation.Services.Database
     /// <summary>Default implementation — delegates to the existing statics.</summary>
     public sealed class DatabaseServices : IDatabaseServices
     {
-        public Task<DependencyCheckResult> CheckDependencyAsync(DependencyGuard.Kind kind, string id)
-            => DependencyGuard.CheckAsync(kind, id);
+        public Task<DependencyCheckResult> CheckDependencyAsync(
+            DependencyGuard.Kind kind, string id, bool strict = false)
+            => DependencyGuard.CheckAsync(kind, id, strict);
 
         public void SubscribeDocumentsChanged(Func<Task> reload)
             => DocumentLifecycle.Subscribe(reload);

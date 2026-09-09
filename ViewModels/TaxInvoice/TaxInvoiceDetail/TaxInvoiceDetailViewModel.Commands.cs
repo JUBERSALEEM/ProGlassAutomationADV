@@ -93,6 +93,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         {
             if (IsNewInvoice || _taxInvoices == null) return;
 
+            // ERP hardening (Phase 3, G-6): voiding a fiscal document is a
+            // Manager/Admin-only capability (an Accountant may issue but not
+            // erase). The repository re-checks at the unbypassable boundary.
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.TaxInvoiceDelete,
+                "void a tax invoice"))
+                return;
+
             var proceed = _dialogs.Show(
                 string.Format(LocalizationService.Instance.T("Void.MsgConfirmVoidX"), _editingInvoiceNumber),
                 LocalizationService.Instance.T("Void.Title"),

@@ -49,9 +49,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (_entity == null || _deliveryNotes == null) return;
             if (_entity.IsMasterDn) return;
 
+            // ERP hardening (Phase 3, G-4): a posted DN (not hard-deletable)
+            // uses STRICT mode so a failed verification fails closed rather
+            // than orphan a linked tax invoice.
+            bool strict = !ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanHardDelete(
+                ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.DeliveryNote,
+                _entity.Status, hasChildren: false);
             var guard = await _database.CheckDependencyAsync(
                 DependencyGuard.Kind.DeliveryNote,
-                _entity.DeliveryNoteId);
+                _entity.DeliveryNoteId, strict);
             bool hasChildren = guard.HasDependents;
 
             // ERP lifecycle hardening (Phase 1): three-way decision.

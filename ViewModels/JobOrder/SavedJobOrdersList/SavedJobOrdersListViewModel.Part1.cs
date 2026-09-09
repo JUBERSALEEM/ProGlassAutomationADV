@@ -518,10 +518,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 return;
 
             // Cross-database dependency check (real Delivery Notes / Tax
-            // Invoices under this job order).
+            // Invoices under this job order). ERP hardening (Phase 3, G-4): a
+            // posted job order (not hard-deletable) uses STRICT mode so a
+            // failed verification fails closed rather than orphan its children.
+            bool strict = !Services.Workflow.DocumentLifecyclePolicy.CanHardDelete(
+                Services.Workflow.StatusTransitions.Kind.JobOrder, row.StatusRaw, hasChildren: false);
             var guard = await _database.CheckDependencyAsync(
                 DependencyGuard.Kind.JobOrder,
-                row.JobOrderId);
+                row.JobOrderId, strict);
             bool hasChildren = guard.HasDependents;
 
             // ERP lifecycle hardening (Phase 1): three-way decision.

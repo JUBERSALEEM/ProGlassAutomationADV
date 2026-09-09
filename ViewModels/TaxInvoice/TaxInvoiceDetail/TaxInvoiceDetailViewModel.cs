@@ -176,6 +176,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             {
                 if (IsNewInvoice) return;
 
+                // ERP hardening (Phase 3, G-6): deleting OR voiding a fiscal
+                // document is a Manager/Admin-only capability. Check once here
+                // (the repository re-checks at the boundary that can't be
+                // bypassed).
+                if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                    ProGlassAutomation.Services.Audit.AppPermissions.TaxInvoiceDelete,
+                    "delete or void a tax invoice"))
+                    return;
+
                 // ERP lifecycle hardening (Phase 1): a Tax Invoice is a fiscal
                 // document. Only a Draft may be physically deleted; an Issued /
                 // Paid / etc. invoice is VOIDED so the number, figures and

@@ -330,7 +330,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         public async Task DeleteAsync(int id)
         {
-            OperationGuard.Demand(AppPermissions.TaxInvoiceEdit, "delete a tax invoice");
+            OperationGuard.Demand(AppPermissions.TaxInvoiceDelete, "delete a tax invoice");
             ReadOnlyGate.Demand("delete a tax invoice");
 
             using var ctx = new TaxInvoiceDbContext();
@@ -362,7 +362,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         /// </summary>
         public async Task VoidAsync(int id, string reason)
         {
-            OperationGuard.Demand(AppPermissions.TaxInvoiceEdit, "void a tax invoice");
+            OperationGuard.Demand(AppPermissions.TaxInvoiceDelete, "void a tax invoice");
             ReadOnlyGate.Demand("void a tax invoice");
 
             using var ctx = new TaxInvoiceDbContext();
@@ -661,7 +661,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         public async Task<Result> DeleteWithResultAsync(int id, string? invoiceNumber = null, string? correlationId = null)
         {
-            OperationGuard.Demand(AppPermissions.TaxInvoiceEdit, "delete a tax invoice (Result variant)");
+            OperationGuard.Demand(AppPermissions.TaxInvoiceDelete, "delete a tax invoice (Result variant)");
             ReadOnlyGate.Demand("delete a tax invoice");
 
             var corrId = correlationId ?? CorrelationContext.NewIdFor("TaxInvoice", invoiceNumber ?? id.ToString());
