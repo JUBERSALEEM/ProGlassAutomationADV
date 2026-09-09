@@ -184,7 +184,19 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     dnReferenceLabel: dnRefs,
                     importLabel: $"Master ({refList.Count} DN{(refList.Count > 1 ? "s" : "")})");
 
-                var firstJo = allDns.FirstOrDefault(d =>
+                // Phase 2 left this referencing `allDns`, the whole-table load
+                // that GetByProformaIdAsync replaced — it compiled nowhere and
+                // failed as CS0103. `siblingDns` is the scoped equivalent.
+                //
+                // One deliberate narrowing: the old code scanned every delivery
+                // note in the database for a match, master notes included.
+                // GetByProformaIdAsync excludes IsMasterDn, so a master can no
+                // longer supply the JobOrderId. That is the intended behaviour —
+                // a master note is a synthetic aggregate of its children, not a
+                // delivery in its own right, and everything else in this method
+                // already works from the non-master set. We also returned early
+                // above if that set is empty, so siblingDns is non-empty here.
+                var firstJo = siblingDns.FirstOrDefault(d =>
                     string.Equals(d.ProformaId, proformaId,
                         StringComparison.OrdinalIgnoreCase)
                     && !string.IsNullOrWhiteSpace(d.JobOrderId));

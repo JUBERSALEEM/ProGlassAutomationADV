@@ -45,7 +45,21 @@ namespace ProGlassAutomation.Services.Database
         /// tree rather than leaving a captured variable for EF to
         /// parameterise.
         /// </summary>
-        public const char EscapeChar = '\\';
+        /// <remarks>
+        /// <para>
+        /// A <c>string</c>, not a <c>char</c>, because that is the type the
+        /// overload takes: <c>Like(this DbFunctions, string matchExpression,
+        /// string pattern, string? escapeCharacter)</c>. It was declared
+        /// <c>const char</c> until 2026-09-09, which failed to compile at all
+        /// eight call sites with CS1503 — and note the error names <i>argument
+        /// 4</i>, not 3, because the implicit <c>this DbFunctions</c> receiver
+        /// of the extension method counts as the first argument.
+        /// </para>
+        /// <para>
+        /// Single backslash, matching what <see cref="Contains"/> escapes with.
+        /// </para>
+        /// </remarks>
+        public const string EscapeChar = "\\";
 
         /// <summary>
         /// Builds a <c>%…%</c> pattern matching rows that contain
