@@ -94,6 +94,7 @@ namespace ProGlassAutomation
         public static IDeliveryNoteRepository DeliveryNotes { get; private set; }
         public static IMasterDataRepository MasterData { get; private set; }
         public static ITaxInvoiceRepository TaxInvoices { get; private set; }
+        public static Services.CreditNote.Repository.ICreditNoteRepository CreditNotes { get; private set; }
         public static IStatementRepository Statements { get; private set; }
         public static IOrderReportRepository OrderReports { get; private set; }
 

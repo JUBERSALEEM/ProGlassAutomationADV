@@ -317,6 +317,14 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 })
             };
 
+        // creditnotes.db (ERP hardening — Phase 4)
+        //
+        // Brand-new database: EnsureCreated builds it at the current model, so
+        // this registry starts empty. Future schema changes are added here as
+        // versioned, additive migrations (same convention as every other DB).
+        public static IReadOnlyList<SchemaMigration> CreditNotes { get; }
+            = new List<SchemaMigration>();
+
         // masterdata.db
         public static IReadOnlyList<SchemaMigration> MasterData { get; }
             = new List<SchemaMigration>();

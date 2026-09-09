@@ -75,8 +75,14 @@ namespace ProGlassAutomation.Services.Workflow
 
                 // A Tax Invoice is a fiscal document the moment it is Issued —
                 // only a Draft may ever be deleted. Everything else = void +
-                // (future) credit note.
+                // credit note.
                 [StatusTransitions.Kind.TaxInvoice] = CaseInsensitive(
+                    "Draft"),
+
+                // A Credit Note is itself a fiscal correction document: once
+                // Issued it must be retained (voided, never deleted). Only a
+                // Draft may be physically deleted.
+                [StatusTransitions.Kind.CreditNote] = CaseInsensitive(
                     "Draft"),
             };
 
@@ -102,6 +108,11 @@ namespace ProGlassAutomation.Services.Workflow
                 // figures are frozen.
                 [StatusTransitions.Kind.TaxInvoice] = CaseInsensitive(
                     "Draft"),
+
+                // Only a Draft Credit Note body is editable. Once Issued its
+                // figures are frozen — it has legal effect on the ledger.
+                [StatusTransitions.Kind.CreditNote] = CaseInsensitive(
+                    "Draft"),
             };
 
         // ── The terminal status a Void writes, per kind ───────────────────
@@ -112,6 +123,7 @@ namespace ProGlassAutomation.Services.Workflow
                 [StatusTransitions.Kind.JobOrder]        = "Rejected",
                 [StatusTransitions.Kind.DeliveryNote]    = "Cancelled",
                 [StatusTransitions.Kind.TaxInvoice]      = "Cancelled",
+                [StatusTransitions.Kind.CreditNote]      = "Cancelled",
             };
 
         /// <summary>

@@ -21,6 +21,7 @@ namespace ProGlassAutomation.Services.Audit
         public const string JobOrder     = "Job Order";
         public const string DeliveryNote = "Delivery Note";
         public const string TaxInvoice   = "Tax Invoice";
+        public const string CreditNote   = "Credit Note";
         public const string Statement    = "Statement";
         public const string Reports      = "Reports";
         public const string Settings     = "Settings";

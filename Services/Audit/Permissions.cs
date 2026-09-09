@@ -80,6 +80,15 @@ namespace ProGlassAutomation.Services.Audit
         // and issue invoices but must NOT be able to erase a posted one.
         public const string TaxInvoiceDelete = "TaxInvoice.Delete";
 
+        // Credit Note (ERP hardening — Phase 4). A credit note is a fiscal
+        // correction document. View/Edit follow the invoice roles; Delete (=
+        // delete a draft OR void an issued one) is Manager/Admin-only for the
+        // same reason as TaxInvoice.Delete.
+        public const string CreditNoteView = "CreditNote.View";
+        public const string CreditNoteEdit = "CreditNote.Edit";
+        public const string CreditNoteExport = "CreditNote.Export";
+        public const string CreditNoteDelete = "CreditNote.Delete";
+
         public const string SheetStoreView = "SheetStore.View";
         public const string SheetStoreCreate = "SheetStore.Create";
         public const string SheetStoreEdit = "SheetStore.Edit";
@@ -115,6 +124,8 @@ namespace ProGlassAutomation.Services.Audit
                 AppPermissions.DeliveryNoteEdit,
                 AppPermissions.TaxInvoiceEdit, AppPermissions.TaxInvoiceExport,
                 AppPermissions.TaxInvoiceDelete,
+                AppPermissions.CreditNoteEdit, AppPermissions.CreditNoteExport,
+                AppPermissions.CreditNoteDelete,
                 AppPermissions.SheetStoreCreate, AppPermissions.SheetStoreEdit,
                 AppPermissions.SheetStoreDelete,
                 AppPermissions.ReportsExport, AppPermissions.StatementGenerate
@@ -167,6 +178,8 @@ namespace ProGlassAutomation.Services.Audit
                 AppPermissions.DashboardView,
                 AppPermissions.TaxInvoiceView, AppPermissions.TaxInvoiceEdit,
                 AppPermissions.TaxInvoiceExport,
+                AppPermissions.CreditNoteView, AppPermissions.CreditNoteEdit,
+                AppPermissions.CreditNoteExport,
                 AppPermissions.ReportsView, AppPermissions.ReportsExport,
                 AppPermissions.StatementGenerate,
                 AppPermissions.ProformaView
@@ -186,7 +199,8 @@ namespace ProGlassAutomation.Services.Audit
         {
             AppPermissions.DashboardView, AppPermissions.ProformaView,
             AppPermissions.JobOrderView, AppPermissions.DeliveryNoteView,
-            AppPermissions.TaxInvoiceView, AppPermissions.SheetStoreView,
+            AppPermissions.TaxInvoiceView, AppPermissions.CreditNoteView,
+            AppPermissions.SheetStoreView,
             AppPermissions.ReportsView, AppPermissions.LogsView,
             AppPermissions.AuditView
         };

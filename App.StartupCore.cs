@@ -307,6 +307,7 @@ namespace ProGlassAutomation
                 DeliveryNotes = ServiceProvider.GetRequiredService<IDeliveryNoteRepository>();
                 MasterData = ServiceProvider.GetRequiredService<IMasterDataRepository>();
                 TaxInvoices = ServiceProvider.GetRequiredService<ITaxInvoiceRepository>();
+                CreditNotes = ServiceProvider.GetRequiredService<Services.CreditNote.Repository.ICreditNoteRepository>();
                 Statements = ServiceProvider.GetRequiredService<IStatementRepository>();
                 OrderReports = ServiceProvider.GetRequiredService<IOrderReportRepository>();
                 Reporting = ServiceProvider.GetRequiredService<IReportingDataService>();
@@ -345,6 +346,7 @@ namespace ProGlassAutomation
                 DeliveryNotes = new DeliveryNoteRepository();
                 MasterData = new MasterDataRepository();
                 TaxInvoices = new TaxInvoiceRepository();
+                CreditNotes = new Services.CreditNote.Repository.CreditNoteRepository();
                 Statements = new StatementRepository();
                 OrderReports = new Services.OrderReport.Repository.OrderReportRepository();
                 Reporting = new ReportingDataService();
@@ -385,6 +387,7 @@ namespace ProGlassAutomation
                 ("deliverynotes",   DeliveryNotes.InitializeAsync()),
                 ("masterdata",      MasterData.InitializeAsync()),
                 ("taxinvoices",     TaxInvoices.InitializeAsync()),
+                ("creditnotes",     CreditNotes.InitializeAsync()),
                 ("statements",      Statements.InitializeAsync()),
                 ("orderreports",    OrderReports.InitializeAsync()),
 

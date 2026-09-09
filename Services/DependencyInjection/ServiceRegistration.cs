@@ -103,6 +103,8 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<IJobOrderRepository, JobOrderRepository>();
             services.AddSingleton<IDeliveryNoteRepository, DeliveryNoteRepository>();
             services.AddSingleton<ITaxInvoiceRepository, TaxInvoiceRepository>();
+            services.AddSingleton<Services.CreditNote.Repository.ICreditNoteRepository,
+                Services.CreditNote.Repository.CreditNoteRepository>();
             services.AddSingleton<IStatementRepository, StatementRepository>();
             services.AddSingleton<IOrderReportRepository, OrderReportRepository>();
             services.AddSingleton<IMasterDataRepository, MasterDataRepository>();

@@ -59,6 +59,7 @@ namespace ProGlassAutomation.Services.Workflow
             JobOrder,
             DeliveryNote,
             TaxInvoice,
+            CreditNote,
         }
 
         // ── Transition tables ─────────────────────────────────────────────
@@ -114,6 +115,21 @@ namespace ProGlassAutomation.Services.Workflow
                 ("Void",          new[] { "Void" }),
             });
 
+        // Credit Note (ERP hardening — Phase 4). A fiscal correction:
+        //   Draft   → still editable, can be issued or cancelled outright.
+        //   Issued  → committed against the invoice; can be Applied (settled)
+        //             or Cancelled (soft-close/void path).
+        //   Applied → terminal (its value has reduced the ledger).
+        //   Cancelled → terminal (the void target).
+        private static readonly Dictionary<string, HashSet<string>> CreditNote =
+            BuildTable(new (string, string[])[]
+            {
+                ("Draft",     new[] { "Draft", "Issued", "Cancelled" }),
+                ("Issued",    new[] { "Issued", "Applied", "Cancelled" }),
+                ("Applied",   new[] { "Applied" }),
+                ("Cancelled", new[] { "Cancelled" }),
+            });
+
         /// <summary>
         /// Validates a transition. Returns Ok when the transition is allowed
         /// (or the target equals the source — idempotent). Case-insensitive.
@@ -151,6 +167,7 @@ namespace ProGlassAutomation.Services.Workflow
                 Kind.JobOrder => JobOrder,
                 Kind.DeliveryNote => DeliveryNote,
                 Kind.TaxInvoice => TaxInvoice,
+                Kind.CreditNote => CreditNote,
                 _ => null
             };
 
