@@ -347,6 +347,14 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             ctx.TaxInvoices.Remove(entity);
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
 
+            // ERP hardening (Phase 5): destroying a fiscal document must leave
+            // an audit trail even though only a childless draft can reach here.
+            AuditService.Log(
+                AuditSections.TaxInvoice, "Tax invoice deleted",
+                $"Deleted draft tax invoice {invoiceNumber}"
+                    + (string.IsNullOrWhiteSpace(proformaId) ? "" : $" (proforma {proformaId})"),
+                entityType: nameof(SavedTaxInvoice), entityId: invoiceNumber);
+
             await ClearLinkedDeliveryNotesAsync(invoiceNumber);
             await ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
             DocumentLifecycle.Raise();
@@ -384,6 +392,15 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             entity.UpdatedAt = DateTime.Now;
 
             await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+
+            // ERP hardening (Phase 5): a void carries a mandatory reason and
+            // must be auditable — it's the compliant alternative to deletion.
+            AuditService.Log(
+                AuditSections.TaxInvoice, "Tax invoice voided",
+                $"Voided tax invoice {invoiceNumber}"
+                    + (string.IsNullOrWhiteSpace(proformaId) ? "" : $" (proforma {proformaId})"),
+                entityType: nameof(SavedTaxInvoice), entityId: invoiceNumber,
+                reason: entity.VoidReason);
 
             await ClearLinkedDeliveryNotesAsync(invoiceNumber);
             await ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
