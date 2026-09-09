@@ -144,7 +144,7 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
             var card = DguCard(outer: 25m, inner: 25m, asp: 45m, yield: 0.85m);
             var spec = SpecificationTargetCalculator.Calculate(
                 9, "6mm Clear FT + 12mm ASP (45) + 6mm Clear FT",
-                "DGU", GlassBuildType.Dgu, card, given: 125m, area: 10m);
+                "DGU", GlassBuildType.Dgu, card, givenPricePerSqm: 125m, areaSqm: 10m);
             SpecificationTargetCalculator.ApplyUInsert(spec, uInsert);
             return spec;
         }

@@ -748,12 +748,16 @@ namespace ProGlassAutomation.Tests.Agent
                     RegexOptions.Singleline).Value;
                 Assert.False(string.IsNullOrWhiteSpace(block),
                     styleKey + " style block not found");
+                // xunit 2.9.2 has no (pattern, input, options) overload —
+                // RegexOptions must be carried by the Regex itself.
                 Assert.DoesNotMatch(
-                    "Foreground.*?Value=\"[{]DynamicResource GlassBorderSoft[}]\"",
-                    block, RegexOptions.Singleline);
+                    new Regex("Foreground.*?Value=\"[{]DynamicResource GlassBorderSoft[}]\"",
+                        RegexOptions.Singleline),
+                    block);
                 Assert.Matches(
-                    "Foreground.*?Value=\"[{]DynamicResource (TextPrimaryBrush|AccentBrush)[}]\"",
-                    block, RegexOptions.Singleline);
+                    new Regex("Foreground.*?Value=\"[{]DynamicResource (TextPrimaryBrush|AccentBrush)[}]\"",
+                        RegexOptions.Singleline),
+                    block);
             }
         }
 

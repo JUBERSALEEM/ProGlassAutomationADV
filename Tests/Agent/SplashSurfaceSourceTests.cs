@@ -75,13 +75,16 @@ namespace ProGlassAutomation.Tests.Agent
 
             // The splash is a brand moment: theme brushes were a
             // boot-flip defect, so the palette stays frozen forever.
-            foreach (string key in
+            // A collection expression in a foreach has no target type to
+            // infer from, so it has to be given one.
+            string[] frozenKeys =
             [
                 "SplashCerulean", "SplashCeruleanDark", "SplashOutline",
                 "SplashPillBg", "SplashTrackBg",
                 "SplashTextPrimary", "SplashTextSecondary",
                 "PageBg", "ProgressGradient", "NameGradient",
-            ])
+            ];
+            foreach (string key in frozenKeys)
             {
                 Assert.Contains($"x:Key=\"{key}\"", view);
             }
