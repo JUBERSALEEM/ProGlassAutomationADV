@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">Просрочено</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">Утверждённые и выпущенные котировки, готовые к производству</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">ожидает конвертации</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">КОМПАНИЯ / ПРОЕКТ</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">ПРОЕКТ</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">КОНВЕРТИРОВАНО</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">Экспортировать отфильтрованные записи в CSV</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">Экспортировать отфильтрованные записи в Excel (.xlsx)</sys:String>

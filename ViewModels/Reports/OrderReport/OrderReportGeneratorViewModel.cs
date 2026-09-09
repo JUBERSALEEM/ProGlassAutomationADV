@@ -1260,34 +1260,11 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                 var projects = await Task.Run(() => _masterData.GetAllProjectsAsync());
                 var salesmen = await Task.Run(() => _masterData.GetAllSalesmenAsync());
 
-                // ── Scope the filter lists to LIVE documents ─────────────
-                // Master data survives deleting every document that used it,
-                // and should — the client record is reused by the next
-                // quotation. A report filter is not master data: offering a
-                // customer, salesman or project with no live document behind
-                // it produces an empty report, which reads as a broken one,
-                // and it surfaces seeded sample rows the user never acted on.
-                // Company is deliberately NOT filtered — it is the letterhead,
-                // resolved from IsDefault, and must be selectable before any
-                // document exists. See the same block in
+                // NOTE 2026-09-09 — a filter scoping these lists to live
+                // proforma snapshots was added here and REVERTED the same day.
+                // It hid legitimate customers whose records exist but which had
+                // no live proforma. See the same note in
                 // StatementGeneratorViewModel.Prepare.cs.
-                var docScope = new ReportingDataService();
-                var liveCustomers = new HashSet<string>(
-                    await docScope.GetCustomerOptionsAsync().ConfigureAwait(false),
-                    StringComparer.OrdinalIgnoreCase);
-                var liveSalesmen = new HashSet<string>(
-                    await docScope.GetSalesmanOptionsAsync().ConfigureAwait(false),
-                    StringComparer.OrdinalIgnoreCase);
-                var liveProjects = new HashSet<string>(
-                    await docScope.GetProjectOptionsAsync().ConfigureAwait(false),
-                    StringComparer.OrdinalIgnoreCase);
-
-                clients = (clients ?? new List<SavedClient>())
-                    .Where(c => liveCustomers.Contains(c.CustomerName?.Trim() ?? "")).ToList();
-                salesmen = (salesmen ?? new List<SavedSalesman>())
-                    .Where(s => liveSalesmen.Contains(s.Name?.Trim() ?? "")).ToList();
-                projects = (projects ?? new List<SavedProject>())
-                    .Where(p => liveProjects.Contains(p.ProjectIdentifierName?.Trim() ?? "")).ToList();
 
                 ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
                 {

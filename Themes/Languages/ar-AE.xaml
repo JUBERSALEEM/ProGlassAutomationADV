@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">متأخر عن تاريخ الاستحقاق</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">عروض أسعار معتمدة وصادرة وجاهزة للتصنيع</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">بانتظار التحويل</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">الشركة / المشروع</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">المشروع</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">تم التحويل</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">تصدير السجلات المصفّاة إلى CSV</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">تصدير السجلات المصفّاة إلى Excel (.xlsx)</sys:String>

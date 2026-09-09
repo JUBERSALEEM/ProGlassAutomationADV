@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">期限超過</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">承認・発行済みの見積は製造準備完了</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">変換待ち</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">会社 / プロジェクト</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">プロジェクト</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">変換済み</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">フィルター済みレコードをCSVにエクスポート</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">フィルター済みレコードをExcel（.xlsx）にエクスポート</sys:String>

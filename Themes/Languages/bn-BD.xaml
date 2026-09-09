@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">নির্ধারিত তারিখ পার হয়েছে</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">উৎপাদনের জন্য প্রস্তুত অনুমোদিত ও জারি কোটা</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">রূপান্তরের অপেক্ষায়</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">কোম্পানি / প্রজেক্ট</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">প্রজেক্ট</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">রূপান্তরিত</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">ফিল্টারকৃত রেকর্ড CSV-তে রপ্তানি করুন</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">ফিল্টারকৃত রেকর্ড Excel (.xlsx)-এ রপ্তানি করুন</sys:String>

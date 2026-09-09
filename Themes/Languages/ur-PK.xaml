@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">مقررہ تاریخ گزر چکی</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">مینوفیکچرنگ کے لیے تیار منظور شدہ اور جاری کردہ کوٹیشنز</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">تبدیلی کا انتظار</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">کمپنی / پروجیکٹ</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">پروجیکٹ</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">تبدیل شدہ</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">فلٹر شدہ ریکارڈز CSV میں برآمد کریں</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">فلٹر شدہ ریکارڈز Excel (.xlsx) میں برآمد کریں</sys:String>

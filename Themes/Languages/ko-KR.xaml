@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">기한 초과</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">승인되고 발행된 견적은 제조 준비 완료</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">변환 대기</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">회사 / 프로젝트</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">프로젝트</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">변환됨</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">필터링된 레코드를 CSV로 내보내기</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">필터링된 레코드를 Excel(.xlsx)로 내보내기</sys:String>

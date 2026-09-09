@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">Vade tarihi geçti</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">Üretime hazır onaylanmış ve verilmiş teklifler</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">dönüşüm bekliyor</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">ŞİRKET / PROJE</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">PROJE</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">DÖNÜŞTÜRÜLDÜ</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">Filtrelenen kayıtları CSV&#x27;ye dışa aktar</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">Filtrelenen kayıtları Excel (.xlsx)&#x27;e dışa aktar</sys:String>

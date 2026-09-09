@@ -38,7 +38,6 @@ using System.Windows.Threading;
 using ProGlassAutomation.Services.Localization;
 using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.MasterData.Repository;
-using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
@@ -227,46 +226,15 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 var projects = await Task.Run(() => _masterData.GetAllProjectsAsync());
                 var salesmen = await Task.Run(() => _masterData.GetAllSalesmenAsync());
 
-                // ══════════════════════════════════════════════════════
-                //  SCOPE THE FILTER LISTS TO LIVE DOCUMENTS
-                //
-                //  These four calls read the MASTER DATA tables. A master
-                //  record survives the deletion of every document that used
-                //  it — and it should, because the same client is reused by
-                //  the next quotation. But a report filter is not master
-                //  data. Offering a customer, salesman or project with no
-                //  live document behind it produces an empty report, and an
-                //  empty report reads as a broken report. It also surfaces
-                //  seeded sample records the user has never acted on.
-                //
-                //  So: keep the master records in the database, and filter
-                //  the dropdown to values that appear in a live document.
-                //  ReportingDataService already derives exactly those from
-                //  the live proforma snapshots — the same source the reports
-                //  themselves read — so the filter and the data it filters
-                //  cannot disagree.
-                //
-                //  Company is deliberately NOT filtered. It is the
-                //  letterhead / "our company", resolved from IsDefault, and
-                //  must be selectable even when no document exists yet.
-                // ══════════════════════════════════════════════════════
-                var docScope = new ReportingDataService();
-                var liveCustomers = new HashSet<string>(
-                    await docScope.GetCustomerOptionsAsync().ConfigureAwait(false),
-                    StringComparer.OrdinalIgnoreCase);
-                var liveSalesmen = new HashSet<string>(
-                    await docScope.GetSalesmanOptionsAsync().ConfigureAwait(false),
-                    StringComparer.OrdinalIgnoreCase);
-                var liveProjects = new HashSet<string>(
-                    await docScope.GetProjectOptionsAsync().ConfigureAwait(false),
-                    StringComparer.OrdinalIgnoreCase);
-
-                clients = (clients ?? new List<SavedClient>())
-                    .Where(c => liveCustomers.Contains(c.CustomerName?.Trim() ?? "")).ToList();
-                salesmen = (salesmen ?? new List<SavedSalesman>())
-                    .Where(s => liveSalesmen.Contains(s.Name?.Trim() ?? "")).ToList();
-                projects = (projects ?? new List<SavedProject>())
-                    .Where(p => liveProjects.Contains(p.ProjectIdentifierName?.Trim() ?? "")).ToList();
+                // NOTE 2026-09-09 — a filter that scoped these lists to live
+                // proforma snapshots was added here and REVERTED the same day.
+                // It hid legitimate customers: this generator works from
+                // statements, delivery notes and tax invoices as well as
+                // proformas, so a customer with no live PI disappeared from the
+                // dropdown while still resolving by name on the next step. A
+                // filter that hides valid choices is worse than one that shows
+                // too many. If this is revisited, "live" must mean live in
+                // whichever documents THIS generator reads — not proformas.
 
                 ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
                 {

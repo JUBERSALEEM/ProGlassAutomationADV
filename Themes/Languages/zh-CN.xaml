@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">已逾期</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">已批准和已签发的报价准备制造</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">待转换</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">公司 / 项目</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">项目</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">已转换</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">将筛选的记录导出为 CSV</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">将筛选的记录导出为 Excel（.xlsx）</sys:String>

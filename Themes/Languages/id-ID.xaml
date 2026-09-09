@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">Lewat jatuh tempo</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">Kutipan disetujui dan diterbitkan siap untuk produksi</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">menunggu konversi</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">PERUSAHAAN / PROYEK</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">PROYEK</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">DIKONVERSI</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">Ekspor catatan terfilter ke CSV</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">Ekspor catatan terfilter ke Excel (.xlsx)</sys:String>

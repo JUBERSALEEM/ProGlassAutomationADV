@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">Fecha de vencimiento pasada</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">Cotizaciones aprobadas y emitidas listas para fabricación</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">en espera de conversión</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">EMPRESA / PROYECTO</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">PROYECTO</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">CONVERTIDO</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">Exportar registros filtrados a CSV</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">Exportar registros filtrados a Excel (.xlsx)</sys:String>

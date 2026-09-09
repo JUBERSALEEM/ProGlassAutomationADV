@@ -1456,7 +1456,7 @@
     <sys:String x:Key="Reports.PastDueDate">Fälligkeitsdatum überschritten</sys:String>
     <sys:String x:Key="Reports.PiReport.ApprovedIssuedQuotesReadyManufacturing">Genehmigte und ausgestellte Angebote, bereit für die Fertigung</sys:String>
     <sys:String x:Key="Reports.PiReport.AwaitingConversion">wartet auf Umwandlung</sys:String>
-    <sys:String x:Key="Reports.PiReport.CompanyProject">UNTERNEHMEN / PROJEKT</sys:String>
+    <sys:String x:Key="Reports.PiReport.CompanyProject">PROJEKT</sys:String>
     <sys:String x:Key="Reports.PiReport.Converted">UMGEWANDELT</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsCSV">Gefilterte Datensätze als CSV exportieren</sys:String>
     <sys:String x:Key="Reports.PiReport.ExportFilteredRecordsExcelXlsx">Gefilterte Datensätze als Excel (.xlsx) exportieren</sys:String>
