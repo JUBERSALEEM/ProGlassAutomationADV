@@ -226,6 +226,10 @@ namespace ProGlassAutomation.Services.Reporting
         public int StatementCount { get; set; }
         public decimal PiValue { get; set; }
         public decimal InvoicedValue { get; set; }
+        // Outstanding = max(0, PiValue - InvoicedValue). Same definition the
+        // Customer report uses, so a company total reconciles with the sum of
+        // its customers' outstanding balances.
+        public decimal Outstanding { get; set; }
         public int TotalQty { get; set; }
         public decimal TotalSqm { get; set; }
         public int PendingQty { get; set; }
@@ -282,6 +286,8 @@ namespace ProGlassAutomation.Services.Reporting
         public int TiCount { get; set; }
         public decimal PiValue { get; set; }
         public decimal InvoicedValue { get; set; }
+        // Outstanding = max(0, PiValue - InvoicedValue).
+        public decimal Outstanding { get; set; }
         public int TotalQty { get; set; }
         public decimal TotalSqm { get; set; }
         public decimal Profit { get; set; }

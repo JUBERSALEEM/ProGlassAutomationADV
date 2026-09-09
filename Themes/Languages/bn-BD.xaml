@@ -1404,6 +1404,10 @@
     <sys:String x:Key="Reports.Nav.CustomersSub">ডিরেক্টরি ও বকেয়া</sys:String>
     <sys:String x:Key="Reports.Nav.Salesmen">বিক্রয়কর্মী</sys:String>
     <sys:String x:Key="Reports.Nav.SalesmenSub">পারফরম্যান্স ও রাজস্ব</sys:String>
+    <sys:String x:Key="Reports.Nav.Companies">কোম্পানি</sys:String>
+    <sys:String x:Key="Reports.Nav.CompaniesSub">বই ও বকেয়া</sys:String>
+    <sys:String x:Key="Reports.Nav.Projects">প্রকল্প</sys:String>
+    <sys:String x:Key="Reports.Nav.ProjectsSub">নিবন্ধন ও অগ্রগতি</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">দস্তাবেজ ও পূরণ</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">এখনই অনুপস্থিত ইনভয়েস ঠিক করুন</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">সতর্কতা সহ তৈরি করুন</sys:String>

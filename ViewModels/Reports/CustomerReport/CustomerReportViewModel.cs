@@ -79,18 +79,7 @@ namespace ProGlassAutomation.ViewModels.Reports.CustomerReport
 
         // ── Presentation helpers ─────────────────────────────────────
         public bool HasOutstanding => Outstanding > 0m;
-        public string Initials
-        {
-            get
-            {
-                var n = (CustomerName ?? "").Trim();
-                if (n.Length == 0) return "—";
-                var parts = n.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length == 1)
-                    return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpperInvariant();
-                return (parts[0].Substring(0, 1) + parts[^1].Substring(0, 1)).ToUpperInvariant();
-            }
-        }
+        public string Initials => ReportInitials.From(CustomerName);
 
         /// <summary>Projects the merged row back onto the export contract so
         /// the CSV/Excel/PDF exporters can reuse CustomerHeaders/CustomerMap.</summary>

@@ -20,8 +20,10 @@
 using ProGlassAutomation;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Reporting;
+using ProGlassAutomation.ViewModels.Reports.CompanyReport;
 using ProGlassAutomation.ViewModels.Reports.CustomerReport;
 using ProGlassAutomation.ViewModels.Reports.DeliveryReport;
+using ProGlassAutomation.ViewModels.Reports.ProjectReport;
 using ProGlassAutomation.ViewModels.Reports.JoReport;
 using ProGlassAutomation.ViewModels.Reports.PiReport;
 using ProGlassAutomation.ViewModels.Reports.SalesmanReport;
@@ -67,6 +69,8 @@ namespace ProGlassAutomation.ViewModels.Reports
         public PiReportViewModel PiReport { get; private set; }
         public CustomerReportViewModel CustomerReport { get; private set; }
         public SalesmanReportViewModel SalesmanReport { get; private set; }
+        public CompanyReportViewModel CompanyReport { get; private set; }
+        public ProjectReportViewModel ProjectReport { get; private set; }
         public JoReportViewModel JoReport { get; private set; }
         public DeliveryReportViewModel DeliveryReport { get; private set; }
         public TaxInvoiceReportViewModel TaxInvoiceReport { get; private set; }
@@ -110,6 +114,8 @@ namespace ProGlassAutomation.ViewModels.Reports
             new ReportNavItem{ Key="Overview",   Icon="\uE9D2", TitleKey="Nav.Overview",           SubtitleKey="Reports.KPIDashboard" },
             new ReportNavItem{ Key="Customer",   Icon="\uE716", TitleKey="Reports.Nav.Customers", SubtitleKey="Reports.Nav.CustomersSub",   Group="Reports.Relationships" },
             new ReportNavItem{ Key="Salesman",   Icon="\uE77B", TitleKey="Reports.Nav.Salesmen",  SubtitleKey="Reports.Nav.SalesmenSub" },
+            new ReportNavItem{ Key="Company",    Icon="\uE821", TitleKey="Reports.Nav.Companies", SubtitleKey="Reports.Nav.CompaniesSub" },
+            new ReportNavItem{ Key="Project",    Icon="\uE8A5", TitleKey="Reports.Nav.Projects",  SubtitleKey="Reports.Nav.ProjectsSub" },
             new ReportNavItem{ Key="Pi",         Icon="\uE8A5", TitleKey="Module.ProformaInvoice", SubtitleKey="Reports.QuotesConversion",   Group="Reports.Documents" },
             new ReportNavItem{ Key="Jo",         Icon="\uE8B7", TitleKey="Common.JobOrder",        SubtitleKey="Reports.ProductionStatus" },
             new ReportNavItem{ Key="Delivery",   Icon="\uE814", TitleKey="Nav.Delivery",           SubtitleKey="Reports.DispatchedPending" },
@@ -138,6 +144,8 @@ namespace ProGlassAutomation.ViewModels.Reports
         {
             "Customer" => "Customer Directory & Receivables",
             "Salesman" => "Salesman Performance",
+            "Company" => "Company Book & Receivables",
+            "Project" => "Project Register & Progress",
             "Pi" => "Proforma Invoice Report",
             "Jo" => "Job Order Report",
             "Delivery" => "Delivery Note Report",
@@ -151,6 +159,8 @@ namespace ProGlassAutomation.ViewModels.Reports
         {
             "Customer" => CustomerReport,
             "Salesman" => SalesmanReport,
+            "Company" => CompanyReport,
+            "Project" => ProjectReport,
             "Pi" => PiReport,
             "Jo" => JoReport,
             "Delivery" => DeliveryReport,
@@ -195,6 +205,8 @@ namespace ProGlassAutomation.ViewModels.Reports
             PiReport = new PiReportViewModel(_dialogs, _reportingService, _database);
             CustomerReport = new CustomerReportViewModel(_dialogs, _reportingService, _database);
             SalesmanReport = new SalesmanReportViewModel(_dialogs, _reportingService, _database);
+            CompanyReport = new CompanyReportViewModel(_dialogs, _reportingService, _database);
+            ProjectReport = new ProjectReportViewModel(_dialogs, _reportingService, _database);
             JoReport = new JoReportViewModel(_dialogs, _reportingService, _database);
             DeliveryReport = new DeliveryReportViewModel(_dialogs, _reportingService, _database);
             TaxInvoiceReport = new TaxInvoiceReportViewModel(_dialogs, _reportingService, _database);
@@ -233,6 +245,10 @@ namespace ProGlassAutomation.ViewModels.Reports
                         _ = CustomerReport.LoadAsync();
                     if (key == "Salesman")
                         _ = SalesmanReport.LoadAsync();
+                    if (key == "Company")
+                        _ = CompanyReport.LoadAsync();
+                    if (key == "Project")
+                        _ = ProjectReport.LoadAsync();
 
                     IsRailOpen = false; // auto-close (see above)
                 }

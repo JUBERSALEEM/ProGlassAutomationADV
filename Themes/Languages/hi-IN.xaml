@@ -1404,6 +1404,10 @@
     <sys:String x:Key="Reports.Nav.CustomersSub">निर्देशिका और बकाया</sys:String>
     <sys:String x:Key="Reports.Nav.Salesmen">विक्रेता</sys:String>
     <sys:String x:Key="Reports.Nav.SalesmenSub">प्रदर्शन और राजस्व</sys:String>
+    <sys:String x:Key="Reports.Nav.Companies">कंपनियां</sys:String>
+    <sys:String x:Key="Reports.Nav.CompaniesSub">बही एवं बकाया</sys:String>
+    <sys:String x:Key="Reports.Nav.Projects">परियोजनाएं</sys:String>
+    <sys:String x:Key="Reports.Nav.ProjectsSub">रजिस्टर एवं प्रगति</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">दस्तावेज़ और पूर्ति</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">अब लापता इनवॉइस ठीक करें</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">चेतावनी के साथ बनाएँ</sys:String>

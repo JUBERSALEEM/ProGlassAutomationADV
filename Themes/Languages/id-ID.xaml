@@ -1404,6 +1404,10 @@
     <sys:String x:Key="Reports.Nav.CustomersSub">Direktori &amp; piutang</sys:String>
     <sys:String x:Key="Reports.Nav.Salesmen">Salesman</sys:String>
     <sys:String x:Key="Reports.Nav.SalesmenSub">Kinerja &amp; pendapatan</sys:String>
+    <sys:String x:Key="Reports.Nav.Companies">Perusahaan</sys:String>
+    <sys:String x:Key="Reports.Nav.CompaniesSub">Buku &amp; piutang</sys:String>
+    <sys:String x:Key="Reports.Nav.Projects">Proyek</sys:String>
+    <sys:String x:Key="Reports.Nav.ProjectsSub">Register &amp; kemajuan</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Dokumen dan pemenuhan</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Perbaiki faktur hilang sekarang</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Buat dengan peringatan</sys:String>

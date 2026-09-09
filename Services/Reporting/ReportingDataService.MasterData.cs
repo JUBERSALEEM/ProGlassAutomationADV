@@ -95,6 +95,7 @@ namespace ProGlassAutomation.Services.Reporting
                     }
                     g.TaxInvoiceCount = tiCount;
                     g.InvoicedValue = invoiced;
+                    g.Outstanding = Math.Max(0, g.PiValue - invoiced);
                 }
             }
             catch (Exception ex) { AppLogService.Warning($"Company TI count warning: {ex.Message}"); }
@@ -280,6 +281,24 @@ namespace ProGlassAutomation.Services.Reporting
                 list = list.Where(r => ContainsCI(r.ProjectName, filter.Project)).ToList();
             if (filter.HasCustomer)
                 list = list.Where(r => ContainsCI(r.CustomerName, filter.Customer)).ToList();
+            if (filter.HasCompany)
+                list = list.Where(r => ContainsCI(r.CompanyName, filter.Company)).ToList();
+            if (filter.HasSalesman)
+                list = list.Where(r => ContainsCI(r.Salesman, filter.Salesman)).ToList();
+
+            // JO count per project — a PI is "in production" once any job order
+            // sources it. Mirrors the customer/company JO enrichment so the
+            // three master-data reports count job orders the same way.
+            try
+            {
+                using var joDb = new JobOrdersDbContext();
+                var joPis = (await joDb.JobOrders.AsNoTracking().Select(j => j.SourceProformaId).ToListAsync(ct))
+                    .Where(s => !string.IsNullOrWhiteSpace(s)).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                foreach (var r in list)
+                    if (piByProject.TryGetValue(r.ProjectName, out var pis))
+                        r.JoCount = pis.Count(pi => joPis.Contains(pi));
+            }
+            catch (Exception ex) { AppLogService.Warning($"Project JO count warning: {ex.Message}"); }
 
             try
             {
@@ -294,6 +313,7 @@ namespace ProGlassAutomation.Services.Reporting
                         foreach (var pi in pis) if (tiByPi.TryGetValue(pi, out var v)) { c++; sum += v; }
                         r.TiCount = c;
                         r.InvoicedValue = sum;
+                        r.Outstanding = Math.Max(0, r.PiValue - sum);
                     }
             }
             catch (Exception ex) { AppLogService.Warning($"Project TI calculation warning: {ex.Message}"); }

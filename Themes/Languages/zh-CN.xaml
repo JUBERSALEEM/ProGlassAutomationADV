@@ -1404,6 +1404,10 @@
     <sys:String x:Key="Reports.Nav.CustomersSub">目录与应收</sys:String>
     <sys:String x:Key="Reports.Nav.Salesmen">销售员</sys:String>
     <sys:String x:Key="Reports.Nav.SalesmenSub">业绩与收入</sys:String>
+    <sys:String x:Key="Reports.Nav.Companies">公司</sys:String>
+    <sys:String x:Key="Reports.Nav.CompaniesSub">账簿与应收</sys:String>
+    <sys:String x:Key="Reports.Nav.Projects">项目</sys:String>
+    <sys:String x:Key="Reports.Nav.ProjectsSub">登记与进度</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">文档和履约</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">立即修复缺失发票</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">带警告生成</sys:String>

@@ -57,18 +57,7 @@ namespace ProGlassAutomation.ViewModels.Reports.SalesmanReport
         public string ConversionDisplay =>
             PiCount <= 0 ? "—" : $"{ConversionRate:0.#}%";
 
-        public string Initials
-        {
-            get
-            {
-                var n = (SalesmanName ?? "").Trim();
-                if (n.Length == 0) return "—";
-                var parts = n.Split(new[] { ' ', '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length == 1)
-                    return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpperInvariant();
-                return (parts[0].Substring(0, 1) + parts[^1].Substring(0, 1)).ToUpperInvariant();
-            }
-        }
+        public string Initials => ReportInitials.From(SalesmanName);
 
         public SalesmanReportRow ToReportRow() => new()
         {

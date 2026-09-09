@@ -19,6 +19,8 @@
     xmlns:vmPi="clr-namespace:ProGlassAutomation.ViewModels.Reports.PiReport"
     xmlns:vmCust="clr-namespace:ProGlassAutomation.ViewModels.Reports.CustomerReport"
     xmlns:vmSm="clr-namespace:ProGlassAutomation.ViewModels.Reports.SalesmanReport"
+    xmlns:vmCo="clr-namespace:ProGlassAutomation.ViewModels.Reports.CompanyReport"
+    xmlns:vmPr="clr-namespace:ProGlassAutomation.ViewModels.Reports.ProjectReport"
     xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.Reports.JoReport"
     xmlns:vmDn="clr-namespace:ProGlassAutomation.ViewModels.Reports.DeliveryReport"
     xmlns:vmTi="clr-namespace:ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport"
@@ -26,6 +28,8 @@
     xmlns:vPi="clr-namespace:ProGlassAutomation.Views.Reports.PiReport"
     xmlns:vCust="clr-namespace:ProGlassAutomation.Views.Reports.CustomerReport"
     xmlns:vSm="clr-namespace:ProGlassAutomation.Views.Reports.SalesmanReport"
+    xmlns:vCo="clr-namespace:ProGlassAutomation.Views.Reports.CompanyReport"
+    xmlns:vPr="clr-namespace:ProGlassAutomation.Views.Reports.ProjectReport"
     xmlns:vJo="clr-namespace:ProGlassAutomation.Views.Reports.JoReport"
     xmlns:vDn="clr-namespace:ProGlassAutomation.Views.Reports.DeliveryReport"
     xmlns:vTi="clr-namespace:ProGlassAutomation.Views.Reports.TaxInvoiceReport"
@@ -42,6 +46,8 @@
         <DataTemplate DataType="{x:Type vmPi:PiReportViewModel}"><vPi:PiReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmCust:CustomerReportViewModel}"><vCust:CustomerReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmSm:SalesmanReportViewModel}"><vSm:SalesmanReportView/></DataTemplate>
+        <DataTemplate DataType="{x:Type vmCo:CompanyReportViewModel}"><vCo:CompanyReportView/></DataTemplate>
+        <DataTemplate DataType="{x:Type vmPr:ProjectReportViewModel}"><vPr:ProjectReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmJo:JoReportViewModel}"><vJo:JoReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmDn:DeliveryReportViewModel}"><vDn:DeliveryReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmTi:TaxInvoiceReportViewModel}"><vTi:TaxInvoiceReportView/></DataTemplate>

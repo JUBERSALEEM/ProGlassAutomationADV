@@ -1404,6 +1404,10 @@
     <sys:String x:Key="Reports.Nav.CustomersSub">Справочник и задолженность</sys:String>
     <sys:String x:Key="Reports.Nav.Salesmen">Продавцы</sys:String>
     <sys:String x:Key="Reports.Nav.SalesmenSub">Результаты и выручка</sys:String>
+    <sys:String x:Key="Reports.Nav.Companies">Компании</sys:String>
+    <sys:String x:Key="Reports.Nav.CompaniesSub">Книга и задолженность</sys:String>
+    <sys:String x:Key="Reports.Nav.Projects">Проекты</sys:String>
+    <sys:String x:Key="Reports.Nav.ProjectsSub">Реестр и прогресс</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Документы и выполнение</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Исправить отсутствующий счёт сейчас</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Сгенерировать с предупреждением</sys:String>

@@ -1404,6 +1404,10 @@
     <sys:String x:Key="Reports.Nav.CustomersSub">Directorio y cobros</sys:String>
     <sys:String x:Key="Reports.Nav.Salesmen">Vendedores</sys:String>
     <sys:String x:Key="Reports.Nav.SalesmenSub">Rendimiento e ingresos</sys:String>
+    <sys:String x:Key="Reports.Nav.Companies">Empresas</sys:String>
+    <sys:String x:Key="Reports.Nav.CompaniesSub">Libro y cuentas por cobrar</sys:String>
+    <sys:String x:Key="Reports.Nav.Projects">Proyectos</sys:String>
+    <sys:String x:Key="Reports.Nav.ProjectsSub">Registro y progreso</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Documentos y cumplimiento</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Corregir factura faltante ahora</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Generar con advertencia</sys:String>

@@ -1404,6 +1404,10 @@
     <sys:String x:Key="Reports.Nav.CustomersSub">Dizin ve alacaklar</sys:String>
     <sys:String x:Key="Reports.Nav.Salesmen">Satış Temsilcileri</sys:String>
     <sys:String x:Key="Reports.Nav.SalesmenSub">Performans ve gelir</sys:String>
+    <sys:String x:Key="Reports.Nav.Companies">Şirketler</sys:String>
+    <sys:String x:Key="Reports.Nav.CompaniesSub">Defter &amp; alacaklar</sys:String>
+    <sys:String x:Key="Reports.Nav.Projects">Projeler</sys:String>
+    <sys:String x:Key="Reports.Nav.ProjectsSub">Kayıt &amp; ilerleme</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Belgeler ve karşılama</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Eksik faturayı şimdi düzelt</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Uyarıyla oluştur</sys:String>

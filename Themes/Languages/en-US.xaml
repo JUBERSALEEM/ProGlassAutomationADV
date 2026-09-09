@@ -1405,6 +1405,10 @@
     <sys:String x:Key="Reports.Nav.CustomersSub">Directory &amp; receivables</sys:String>
     <sys:String x:Key="Reports.Nav.Salesmen">Salesmen</sys:String>
     <sys:String x:Key="Reports.Nav.SalesmenSub">Performance &amp; revenue</sys:String>
+    <sys:String x:Key="Reports.Nav.Companies">Companies</sys:String>
+    <sys:String x:Key="Reports.Nav.CompaniesSub">Book &amp; receivables</sys:String>
+    <sys:String x:Key="Reports.Nav.Projects">Projects</sys:String>
+    <sys:String x:Key="Reports.Nav.ProjectsSub">Register &amp; progress</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Documents &amp; Fulfillment</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Fix missing invoice now</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Generate with warning</sys:String>

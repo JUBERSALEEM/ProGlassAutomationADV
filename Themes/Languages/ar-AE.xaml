@@ -1404,6 +1404,10 @@
     <sys:String x:Key="Reports.Nav.CustomersSub">الدليل والمستحقات</sys:String>
     <sys:String x:Key="Reports.Nav.Salesmen">المندوبون</sys:String>
     <sys:String x:Key="Reports.Nav.SalesmenSub">الأداء والإيرادات</sys:String>
+    <sys:String x:Key="Reports.Nav.Companies">الشركات</sys:String>
+    <sys:String x:Key="Reports.Nav.CompaniesSub">السجل والذمم المدينة</sys:String>
+    <sys:String x:Key="Reports.Nav.Projects">المشاريع</sys:String>
+    <sys:String x:Key="Reports.Nav.ProjectsSub">السجل والتقدم</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">المستندات والتنفيذ</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">إصلاح الفاتورة المفقودة الآن</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">إنشاء مع تحذير</sys:String>
