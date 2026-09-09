@@ -245,10 +245,12 @@ namespace ProGlassAutomation.ViewModels.Reports
                 {
                     ActiveKey = key;
                     OnPropertyChanged(nameof(IsOverview));
-                    // 2026-09-05 owner directive: choosing a report from the
-                    // rail CLOSES the rail automatically so the report gets
-                    // the full module width (drawer behaviour; re-opens via
-                    // the floating menu button or the header toggle).
+                    // The navigation rail STAYS OPEN when a report is picked
+                    // (restored behaviour): a reports hub is used to jump
+                    // between reports constantly, so keeping the rail visible
+                    // is faster than re-opening a drawer every time. The
+                    // hamburger (ToggleRailCommand) still collapses it on
+                    // demand for a full-width view.
 
                     // Statements can be generated in the Dispatch section now;
                     // refresh the read-only Statement report when it opens so it
@@ -274,7 +276,8 @@ namespace ProGlassAutomation.ViewModels.Reports
                     if (key == "Executive")
                         _ = ExecutiveReport.LoadAsync();
 
-                    IsRailOpen = false; // auto-close (see above)
+                    // NOTE: intentionally NOT closing the rail here — see the
+                    // comment above. Use ToggleRailCommand to collapse it.
                 }
             });
 

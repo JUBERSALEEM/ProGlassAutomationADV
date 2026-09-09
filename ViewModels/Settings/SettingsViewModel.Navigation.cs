@@ -132,12 +132,11 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (_settingsPage == value) return;
                 _settingsPage = value;
                 OnPropertyChanged();
-                // 2026-09-05 owner directive: picking a page from the rail
-                // CLOSES the rail automatically so the section gets the
-                // full module width. Applies to every switch path — rail
-                // buttons AND programmatic GoToPage navigation — because it
-                // lives here in the single setter.
-                IsSettingsRailOpen = false;
+                // The settings rail STAYS OPEN when a page is picked
+                // (restored behaviour): users move between settings pages
+                // frequently, so keeping the rail visible is faster than
+                // re-opening a drawer each time. ToggleSettingsRailCommand
+                // still collapses it on demand for a full-width view.
                 foreach (var row in NavRows)
                     row.IsActive = row.Key == value;
                 OnPropertyChanged(nameof(ActivePageLabel));
@@ -148,10 +147,10 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand SwitchSettingsPageCommand { get; private set; }
 
         /// <summary>
-        /// Settings navigation rail visibility (2026-09-05 drawer behaviour).
-        /// True when entering the module; closes automatically as soon as a
-        /// page is picked, and re-opens with a single click on the floating
-        /// menu button. Single-click open/close, no double state.
+        /// Settings navigation rail visibility. True when entering the module
+        /// and STAYS open across page switches; the hamburger
+        /// (ToggleSettingsRailCommand) collapses/expands it on demand.
+        /// Single-click open/close, no double state.
         /// </summary>
         private bool _isSettingsRailOpen = true;
         public bool IsSettingsRailOpen
