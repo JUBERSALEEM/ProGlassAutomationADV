@@ -287,7 +287,24 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToolTip">
-                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                    <!--
+                      Background is PopupSurfaceBrush, and this is a bug fix
+                      rather than a restyle. It was ModuleBackgroundBrush, which
+                      is #00FFFFFF in LightTheme and #00000000 in DarkTheme —
+                      alpha 00, i.e. FULLY TRANSPARENT in both. The tooltip had
+                      no background at all, so whatever sat behind it showed
+                      through, and because the text below was hardcoded White
+                      the whole thing was white-on-white and unreadable.
+
+                      PopupSurfaceBrush is the token that exists for exactly
+                      this: opaque #FFF8FAFC in light, #FF111827 in dark.
+
+                      A border is added because an opaque light surface on a
+                      light window needs an edge to read as a popup.
+                    -->
+                    <Border Background="{DynamicResource PopupSurfaceBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="1"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="12,8"
                             MaxWidth="320"
@@ -298,7 +315,7 @@
                              The default TextBlock style scoped inside
                              this template ensures wrapping applies. -->
                         <ContentPresenter x:Name="cp"
-                                          TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                          TextElement.Foreground="{DynamicResource PrimaryForegroundBrush}"
                                           TextElement.FontSize="{StaticResource TextBody}"
                                           TextElement.FontFamily="{DynamicResource AppFontFamily}">
                             <ContentPresenter.Resources>
@@ -307,7 +324,11 @@
                                      content) gets these defaults. -->
                                 <Style TargetType="TextBlock">
                                     <Setter Property="TextWrapping" Value="Wrap"/>
-                                    <Setter Property="Foreground" Value="White"/>
+                                    <!-- Was a hardcoded White, which is what
+                                         made the text invisible once the
+                                         background was fixed. Must track the
+                                         theme. -->
+                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
                                     <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                                     <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                                     <Setter Property="LineHeight" Value="17"/>
@@ -320,9 +341,15 @@
         </Setter>
     </Style>
 
-    <!-- Global implicit style so EVERY ToolTip in the app gets the
-         rounded dark treatment. Uses BasedOn so all default ToolTip
-         behaviors (open/close animations, positioning) are preserved. -->
+    <!-- Global implicit style so EVERY ToolTip in the app gets the rounded
+         treatment. Uses BasedOn so all default ToolTip behaviors (open/close
+         animations, positioning) are preserved.
+
+         Note "dark" was removed from this comment: the treatment is
+         theme-driven, and describing it as dark is part of how the hardcoded
+         White text below survived review. It is merged app-wide from
+         App.xaml, so a mistake here is not a Statement Generator problem — it
+         is every tooltip in the product. -->
     <Style TargetType="ToolTip" BasedOn="{StaticResource WizardToolTipStyle}"/>
 
     <!-- ═════════════════════════════════════════════════════════════════
