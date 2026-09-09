@@ -138,7 +138,7 @@
                         <StackPanel>
                             <ComboBox ItemsSource="{Binding RecipientOptions}"
                                       SelectedItem="{Binding SelectedRecipient, Mode=TwoWay}"
-                                      IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}">
+                                      IsEnabled="{Binding IsNotBusy}">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel>

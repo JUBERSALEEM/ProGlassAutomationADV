@@ -304,8 +304,11 @@ namespace ProGlassAutomation.ViewModels.Sharing
         public bool IsBusy
         {
             get => _isBusy;
-            private set { _isBusy = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanShare)); }
+            private set { _isBusy = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanShare)); OnPropertyChanged(nameof(IsNotBusy)); }
         }
+
+        /// <summary>Inverse of IsBusy for control enablement (no converter needed).</summary>
+        public bool IsNotBusy => !_isBusy;
 
         private string _statusMessage = "";
         public string StatusMessage
