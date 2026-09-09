@@ -426,6 +426,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
 
             IsLoadingSalesmanOptions = true;
 
+            // BUG (fields blank on reopen): SalesRepresentative binds to an
+            // EDITABLE ComboBox whose ItemsSource is SalesmanOptions. When a
+            // saved invoice is reopened the wizard first RESTORES the value,
+            // then calls this method — and clearing/repopulating an editable
+            // ComboBox's ItemsSource makes WPF reset its edit text to empty
+            // and push that empty string back through the TwoWay binding,
+            // silently wiping the restored salesman (which the next save then
+            // persists as blank). Capture the true value before the rebuild
+            // and restore it after, so the dropdown never eats the data.
+            string preserved = _salesRepresentative ?? string.Empty;
+
             try
             {
                 var salesmen = await _masterData.GetAllSalesmenAsync();
@@ -436,6 +447,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
                     if (!string.IsNullOrWhiteSpace(s.Name))
                         SalesmanOptions.Add(s.Name);
                 }
+
+                // Make sure the current value is offered by the list so the
+                // editable ComboBox shows it as a proper item (covers a
+                // salesman typed on this invoice but not yet in master data).
+                if (!string.IsNullOrWhiteSpace(preserved) &&
+                    !SalesmanOptions.Any(o =>
+                        string.Equals(o, preserved, StringComparison.OrdinalIgnoreCase)))
+                {
+                    SalesmanOptions.Insert(0, preserved);
+                }
             }
             catch (System.Exception ex)
             {
@@ -444,6 +465,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
             }
             finally
             {
+                // Restore the value the ItemsSource swap may have cleared.
+                // Reassigning through the property re-raises PropertyChanged
+                // so the ComboBox text re-syncs to the correct salesman.
+                if (!string.IsNullOrWhiteSpace(preserved) &&
+                    !string.Equals(_salesRepresentative, preserved, StringComparison.Ordinal))
+                {
+                    SalesRepresentative = preserved;
+                }
+
                 IsLoadingSalesmanOptions = false;
             }
         }
