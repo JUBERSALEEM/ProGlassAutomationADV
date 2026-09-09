@@ -4,6 +4,49 @@
 
 ## Status — the glass-sheet race APPLIED 2026-09-09
 
+### Correction, 2026-09-09 — "needs a migration" was wrong
+
+This phase has said the consumables fix is blocked behind a schema migration. It
+is not. Two of the three candidate fixes are model- or client-side only:
+
+- `IsConcurrencyToken()` is **model configuration**. It makes EF add
+  `AND "Used" = @original` to the UPDATE's WHERE clause. No column is added, no
+  migration is generated.
+- A guarded `ExecuteUpdateAsync` — the exact pattern already proven in
+  `SheetStoreRepository.UseStockAsync` — needs no schema change either.
+
+Only a `rowversion`/`[Timestamp]` column would need a migration, and SQLite has
+no native rowversion, so that option was never really on the table.
+
+**What actually blocks the fix is narrower, and it is not a migration:**
+
+1. **SQL arithmetic is ruled out on measured evidence.** `Stock` and `Used` are
+   TEXT affinity, so `Used + @q` in SQLite routes through REAL and loses
+   precision above 15 significant digits, while the schema declares 18,2. This
+   part of the original analysis was right and stays.
+2. **The equality guard has a permanent-failure mode.** `WHERE Used = @original`
+   compares TEXT byte-for-byte. If a row's stored formatting differs from what
+   EF writes for the same decimal — `"45.550"` against `"45.55"` — the guard
+   never matches, and it will not match on retry either, because the retry
+   re-reads the same stored text. That row becomes unconsumable. A CSV import
+   path exists in this codebase, so rows not written by EF are plausible. This
+   needs checking against a real database before it ships.
+3. **`BEGIN IMMEDIATE` cannot be assumed.** The intended fix, per the doc comment
+   already on `ReceiveAsync`, is "a transaction around the read-modify-write with
+   a retry on conflict". That works only if the transaction actually takes the
+   write lock before the read. The single `BeginTransaction` in 1,112 production
+   files is a raw `SqliteConnection.BeginTransaction()` in
+   `SchemaMigrationRunner.cs:84` with **no isolation level**, i.e. deferred — so
+   there is no precedent in this tree for an immediate transaction, and
+   Microsoft.Data.Sqlite's isolation-level mapping was not verifiable here.
+
+Net: the fix is available, the migration was never the obstacle, and the two
+remaining risks are both about *runtime behaviour against real data* rather than
+about the schema. Both are answerable in one session on a machine with a build
+and the production database to hand.
+
+
+
 | | |
 |---|---|
 | `SheetStoreRepository.UseStockAsync` | **fixed** — guarded atomic UPDATE |

@@ -84,16 +84,16 @@ Full detail, with the code path for each handoff: **[`docs/WORKFLOW.md`](docs/WO
 
 ## At a glance
 
-Numbers below were measured against this tree on 2026-09-08, not copied from
+Numbers below were measured against this tree on 2026-09-09, not copied from
 an earlier release note. The measurement is stated so you can reproduce it and
 disagree with it.
 
 | | |
 |---|---|
-| **Production code** | 1,109 C# files · 224,583 lines |
+| **Production code** | 1,112 C# files · 225,914 lines |
 | **UI** | 229 XAML files · 114,658 lines |
-| **Tests** | 171 files · **1,306 `[Fact]`/`[Theory]`** · 30,272 lines |
-| **Test-to-production ratio** | 1 : 7.4 |
+| **Tests** | 185 files · **1,394 `[Fact]`/`[Theory]`** · 33,146 lines |
+| **Test-to-production ratio** | 1 : 6.8 |
 | **Modules** | 24 view areas · 38 service domains |
 | **Data** | 12 SQLite databases, one `DbContext` each, additive-only migrations |
 | **Authorisation** | 8 roles (`AppRoles.All`) + 1 legacy · 29 granular `Module.Capability` permissions |
@@ -112,8 +112,9 @@ the only way it stays true.
 > *1,273 production C# files*. That number counted **every** `.cs` in the
 > tree, tests included. At the time that was 1,106 production plus 167 test
 > files. The ratio was therefore computed against an inflated production
-> figure. Both numbers above are production-only, and the honest ratio is
-> 1 : 7.4, not 1 : 7.6.
+> figure. Both numbers above are production-only, and the honest ratio at the
+> time was 1 : 7.4, not 1 : 7.6. It has since improved to **1 : 6.8** as the
+> 2026-09-09 work added 88 tests against 1,331 new production lines.
 > The class count was dropped rather than restated: "test classes" has no
 > stable definition here (nested helper classes and shared fixtures make any
 > count arbitrary), and a number that cannot be defined cannot be measured.
@@ -180,7 +181,7 @@ ProGlassAutomationADV/
 │   └── Database/              12 DbContexts, additive-only migrations
 ├── Controls/ Themes/ Styles/  design system, chart controls, themes
 ├── Models/                    domain models, one folder per module
-├── Tests/                     xUnit — 1,306 tests
+├── Tests/                     xUnit — 1,394 tests
 ├── docs/                      140 documents, indexed at docs/README.md
 └── scripts/                   verification and generation tooling
 ```
@@ -224,8 +225,10 @@ rules, not aspirations.
 > in this repository and they disagree: `docs/ERP_UPGRADE_ROADMAP.md` claims
 > **9.7/10** (after Phase 4) while `docs/CODE_RATING_REPORT.md` (2026-09-02) rates
 > **9.0/10** after an independent deep audit. Neither was produced by a green
-> `dotnet build` + `dotnet test`, because **this repository currently has no
-> CI**. Treat both as engineering judgement, not as measured results.
+> `dotnet build` + `dotnet test`, because **this repository has no CI**. Treat
+> both as engineering judgement, not as measured results. A first manual build
+> was run on 2026-09-09 — see the P1 row in the table below — which is evidence
+> about the code, but it is not a green build and it is not repeatable.
 
 ### What is genuinely strong
 
@@ -235,8 +238,8 @@ rules, not aspirations.
 | **Error discipline** | Zero empty catches and zero raw `ex.Message` to users in shipped code; `ExceptionMessages.Deep()` everywhere; correlation IDs end-to-end. |
 | **Data safety** | Migrations run backup → transaction → rollback and are additive-only. Delete guards check downstream documents first. |
 | **Security** | RSA-2048-PSS with no v1.5 fallback, DPAPI for secrets, PBKDF2 for passwords, machine fingerprinting, rate-limited key generation. |
-| **Test intent** | 1,306 tests targeting the *workflow invariants* rather than getters — company semantics, conversion, price-basis determinism. |
-| **Hygiene** | Zero TODO/FIXME/`NotImplementedException` in 223k lines of production code. Rare at this size. |
+| **Test intent** | 1,394 tests targeting the *workflow invariants* rather than getters — company semantics, conversion, price-basis determinism. |
+| **Hygiene** | Zero TODO/FIXME/`NotImplementedException` in 225,914 lines of production code. Rare at this size. |
 
 ### What is open
 
@@ -245,20 +248,70 @@ Every item below has a phase, a concrete action and an acceptance test in
 
 | Priority | Issue | Evidence |
 |---|---|---|
-| **P0** | **Stock counter race — glass sheets fixed, consumables and concurrency tokens open.** `SheetStoreRepository.UseStockAsync` read, checked and wrote stock in three steps, so two operators issuing from the same sheet both passed a check against the same stale balance and one movement was lost silently. The check now lives in the UPDATE's WHERE clause, so SQLite evaluates it and applies the increment under one write lock; 6 regression tests run against a real SQLite file. **Still open:** `InventoryItemRepository` has the same race and must *not* get the same fix — its quantity columns are TEXT affinity by design, and SQL arithmetic would route them through a binary float that loses precision above 15 significant digits (measured). Concurrency tokens and multi-context transactions are untouched; both need a migration and a green build. | `docs/phases/PHASE-01-transactions-and-concurrency.md` |
+| **P0** | **Stock counter race — glass sheets fixed, consumables still open.** `SheetStoreRepository.UseStockAsync` read, checked and wrote stock in three steps, so two operators issuing from the same sheet both passed a check against the same stale balance and one movement was lost silently. The check now lives in the UPDATE's WHERE clause, so SQLite evaluates it and applies the increment under one write lock; 6 regression tests run against a real SQLite file. **Still open:** `InventoryItemRepository.ConsumeAsync` and `ReceiveAsync` have the identical race — both read `item`, check, then do `item.Used += quantity` / `item.Stock += quantity`, so the second writer overwrites the first. **Corrected 2026-09-09:** the claim that this "needs a migration" is wrong. `IsConcurrencyToken()` is model-only and a guarded `ExecuteUpdateAsync` needs no schema change at all — only a `rowversion`/`[Timestamp]` column would need one, and SQLite has no native rowversion. Both fixes are genuinely available. What actually blocks them is narrower and worth stating precisely: the SQL-arithmetic fix is ruled out on measured evidence (the columns are TEXT affinity, so `Used + @q` routes through a REAL and loses precision above 15 significant digits, while the schema permits 18,2), and the two that remain each carry a risk that cannot be retired without running the app — an equality guard on a TEXT column can fail permanently against rows whose stored formatting differs from EF's (a CSV-import path exists), and `BEGIN IMMEDIATE` cannot be assumed because the one transaction in the tree is a raw deferred `BeginTransaction()` with no isolation level. | `docs/phases/PHASE-01-transactions-and-concurrency.md` |
 | ~~P0~~ | ~~**The VAT submission report validates nothing.**~~ **Fixed 2026-09-09.** `IsValid` is now derived from `Errors.Count` so the flag cannot drift from the list beside it. `ValidateInvoice` rejects on irreconcilable VAT and on VAT charged to a zero total, warns (but still files) on negatives, zero-rated supplies and future dates, and `ReportingDataService.Vat.cs` logs *which* invoice was excluded and why instead of only a count. 9 tests. | `docs/phases/PHASE-03-vat-validation.md` |
 | **P0** | **Two rounding policies in one money pipeline — structural fix applied, migration open.** `Services/Reporting/MoneyRounding.cs` is now the single declaration, the misleading "banker's rounding" comment is corrected, and the VAT and invoice layers route through it (behaviour-identical — they already rounded `AwayFromZero`). Policy: [`docs/MONEY_ROUNDING_POLICY.md`](docs/MONEY_ROUNDING_POLICY.md). **What remains:** 334 call sites in 62 files still inherit the framework default `ToEven`. They are *not* converted blind, because the same call rounds square metres to 3-4 dp elsewhere in the same files and there is no compiler here to catch a misclassification. `MoneyRoundingRatchetTests` pins the count at 334 and fails on any growth, so the migration proceeds one file at a time. | `docs/phases/PHASE-02-rounding-policy.md` |
-| **P0** | **No CI.** `.github/workflows/` does not exist. Four complete workflow files sit in `docs/ci/` and `docs/CI/`, unused. Nothing proves this tree builds. | `ls .github/` → `CODEOWNERS`, `dependabot.yml`, `pull_request_template.md` |
-| **P1** | **Whole-table loads — 13 sites / 11 ViewModels left, all of them real list screens.** Down from 25 / 18. Every lookup, dashboard aggregate, picker and full-text search is done: those were the categories where adding a page would have silently dropped the row being looked for. What remains is the one category that genuinely needs pagination — and pagination needs a pager in six XAML views, which is a change to make with a compiler open, not without one. `PagedResult<T>` and `GlobalQueryEngine.ExecutePagedQueryAsync` already exist; `InquiryListView.xaml:1403-1430` is the pager to copy. | `docs/REMEDIATION_PLAN.md` § Phase 2 |
-| **P0** | **Nothing since `b86a3bc` has been compiled.** No SDK and no reachable NuGet feed in the environment the 2026-09-08 work was written in. Logic was simulated in Python and every assertion re-run, but that is *reviewed*, not *proven*. Build on Windows before shipping — [`docs/BUILD_VERIFICATION_GUIDE.md`](docs/BUILD_VERIFICATION_GUIDE.md) has the commands, the likely failure points and what to send back. | commits `041a231`…`HEAD` |
-| **P2** | **Test ratio 1 : 7.4.** Still thin for software that computes money. The pricing engine in particular deserves property-based coverage. The earlier *1 : 7.6* figure was computed with test files counted as production — see the correction in [At a glance](#at-a-glance). | 30,272 test lines vs 224,583 |
-| **P2** | **Large classes.** 13 files exceed 990 lines; `JobProfitabilityViewModel.cs` is 1,930. Partial-class splitting contains the file size but not the responsibility count. | `find . -name '*.cs' \| xargs wc -l` |
+| **P0** | **No CI — deliberately deferred, not overlooked.** `.github/workflows/` does not exist. Four complete workflow files sit in `docs/ci/` and `docs/CI/`, ready to drop in. Phase 0 is **skipped by the owner's instruction** until a machine is available; the GitHub App token in this environment also lacks the `workflows` scope, so the files could not be committed from here regardless. Until then nothing proves this tree builds automatically — the 2026-09-09 build below was run by hand. | `ls .github/` → `CODEOWNERS`, `dependabot.yml`, `pull_request_template.md` |
+| **P1** | **Whole-table loads — 11 sites left, and six of them must *not* be paginated.** Down from 25 / 18. Every lookup, dashboard aggregate, picker and full-text search is done: those were the categories where adding a page would have silently dropped the row being looked for. **Corrected 2026-09-09:** "all of them real list screens" was wrong. Read individually, six of the eleven are lookups or complete-set consumers where adding a page is a regression — three feed `RebuildFilterOptions()`/`ApplyItemFilters()` so pagination silently drops filter choices, one feeds a progressively-narrowed stock match that would report "no matching sheet" for a sheet that exists, one is a duplicate check that would start creating duplicate statements, and one is full-text search that would stop finding anything past page one. None of those fails loudly. **Four** are genuine list screens (`OrderReportListViewModel`, `StatementListViewModel`, `TaxInvoiceGodViewViewModel`, `HistoryViewModel`); the eleventh file is both, with a picker source at line 719 and a list at line 797. Those four need a pager in XAML, which is a change to make with a compiler open. `PagedResult<T>` and `GlobalQueryEngine.ExecutePagedQueryAsync` already exist; `InquiryListView.xaml:1403-1430` is the pager to copy. The ratchet holds at 11 and fails on growth. | `docs/phases/PHASE-08-pagination.md` |
+| **P1** | **First real build happened 2026-09-09 — 9 errors, 2 root causes, both fixed.** This row was **P0 "nothing has been compiled"** and it is now materially different. The owner built on Windows and reported nine errors; every one traced to two mistakes made while writing blind. **(1)** `SearchPattern.EscapeChar` was declared `const char`, but the overload is `Like(this DbFunctions, string, string, string? escapeCharacter)` — a string. One declaration change cleared all eight CS1503s. The error said *argument 4* for a three-argument call because an extension method's implicit `this` receiver counts as the first argument. **(2)** `TaxInvoiceDetailViewModel.InitNew.cs:187` still referenced `allDns`, the whole-table load that `GetByProformaIdAsync` replaced — a rename that missed one use (CS0103). Fixed in `0673ffd`. Rather than patch only what was reported, every changed file was diffed against the base for removed declarations with surviving references: six candidates, five false positives, one real. The **absence** of IDE0005 in that error list is evidence too, not luck — it is not in `WarningsNotAsErrors` while `TreatWarningsAsErrors` is on, so a single orphaned `using` would have appeared. **Still unproven:** whether the tree is now clean. Rebuild and report. | commit `0673ffd` |
+| **P2** | **Test ratio 1 : 6.8.** Improved from 1 : 7.4 as the 2026-09-09 work added 88 tests, but still thin for software that computes money. The pricing engine in particular deserves property-based coverage. The earlier *1 : 7.6* figure was computed with test files counted as production — see the correction in [At a glance](#at-a-glance). | 33,146 test lines vs 225,914 |
+| **P2** | **Large classes.** 13 files exceed 990 lines; `JobProfitabilityViewModel.cs` is 1,933 and contains **no `#region` markers at all**. The real target is not the file but `LoadAsync` — **350 lines** (1187-1536), larger than every method in most files, and the entry point where every data dependency is visible at once. Extracting its stages would do more than splitting the file. Four of the 13 already carry `Part1` in the name: those splits were started and not finished. | `find . -name '*.cs' \| xargs wc -l` |
 | **P2** | **No obfuscation.** Release binaries are readable in dnSpy. Acceptable for desktop, a raised bar for a commercial product. | `docs/CODE_RATING_REPORT.md` |
-| **P3** | **One acknowledged hack, still open.** `OtherChargeRow.MetricQty` hardcodes delivery quantity to `1m` per invoice — a multi-trip delivery cannot be billed without a manual Custom Charge. Documented, deliberate, and marked *"proper fix planned for Chat 8"*; Chat 8 happened, the fix did not. **Step 1 of the fix is now in place**: characterisation tests pin current behaviour for every branch, so the replacement can be made against a net rather than against hope. | `OtherChargeRow.cs:320` · `OtherChargeRowMetricQtyCharacterisationTests.cs` |
+| **P3** | **One acknowledged hack, still open — and the blocker is now precise.** `OtherChargeRow.MetricQty` hardcodes delivery quantity to `1m` per invoice (`if (IsDeliveryRow) return 1m;`), so a multi-trip delivery cannot be billed without a manual Custom Charge. Documented, deliberate, and marked *"proper fix planned for Chat 8"*; Chat 8 happened, the fix did not. **Step 1 is in place:** characterisation tests pin current behaviour for every branch. What the real fix needs is now stated rather than assumed, and it is why this stays open: a settable per-trip quantity means a **persisted field**, an **editable UI column**, and **PDF/Excel export parity** — the comment says the current `1m` "matches PDF/Excel export behavior", so all three must change together or the printed invoice stops agreeing with the screen. That is a money-path change across schema, UI and export with no compiler; the characterisation tests are the precondition, not the fix. | `OtherChargeRow.cs:316` · `OtherChargeRowMetricQtyCharacterisationTests.cs` |
 | ~~P3~~ | ~~**25 `.md` files in the repository root.**~~ **Resolved 2026-09-08** — 24 audit/analysis documents moved to `docs/` with `git mv`, all inbound references rewritten, links re-verified. `README.md` is now the only root document. | `ls *.md` |
 | **P3** | **No anti-debug checks.** A debugger can patch memory to bypass licensing. Acceptable for desktop ERP; not zero-risk. | `docs/CODE_RATING_REPORT.md` |
 | ~~P1~~ | ~~**Status vocabularies disagreed between screens.**~~ **Resolved 2026-09-08** — see the section below. | commits `122a32b`, `fdfea80`, `5c10f90` |
 | ~~P1~~ | ~~**Every dashboard loaded its whole table to compute four numbers.**~~ **Resolved 2026-09-08** — all seven dashboards now read aggregates from `IDashboardMetricsService`. Migrating the last three turned up a second copy of the Master-DN rule: the metrics service counted notes that no list screen shows, in both its aggregates *and* the Overview activity feed. Both now filter, and a new ratchet fails if an unfiltered delivery query is added. | commit `52f69ee` · `MasterDnFilterParityTests.cs` |
+
+### The fifteen-phase programme, and what it actually changed
+
+Everything above is the residue of a systematic pass, not a backlog discovered
+by accident. Fifteen phases were written from a full read of the code, then each
+was applied as far as this environment safely allows — one commit per phase, in
+[`docs/phases/`](docs/phases/README.md). **Phase 0 (CI) is skipped by
+instruction.** Two phases are complete; the rest are partial, and in every case
+the phase file records exactly which piece stopped and why.
+
+| | Phase | Outcome |
+|---|---|---|
+| ✅ | 3 VAT validation · 12 one home per rule | **Complete** |
+| ◐ | 1 transactions · 2 rounding · 4 licensing · 5 tax/currency · 6 UTC · 7 startup · 8 pagination · 9 security · 11 themes · 13 test depth · 14 observability · 15 release | **Partial** — each with a ratchet or a characterisation test holding the line |
+| ▣ | 10 decomposition | **Mapped, not moved** — the premise was wrong and the real target is now identified |
+| — | 0 CI | **Skipped by instruction** |
+
+The blocking reason is worth stating precisely, because "blocked" is doing real
+work here and it is not a euphemism for *difficult*. This workspace has no .NET
+SDK and no network, so nothing written in it has ever been compiled, and four
+specific classes of change cannot be made safely without one:
+
+| class | why | phases |
+|---|---|---|
+| signature changes that ripple | a `const` is inlined into every call site, so changing one is not a local edit | 1, 5 |
+| schema migrations | a migration can silently change a reported number through one missing `WHERE` | 1, 5, 14 |
+| XAML layout edits | a control that cannot be seen cannot be checked | 8, 11 |
+| file and method splits | "behaviour unchanged" depends on the compiler catching a lost `using` — and `TreatWarningsAsErrors` makes that a hard error | 10 |
+
+**Three premises in the original analysis were wrong**, and each would have
+produced confident, plausible, broken work. They are recorded here rather than
+quietly fixed, because the pattern is more useful than the corrections:
+
+- **Phase 12** was scoped to give proforma status a canonical home.
+  `ProformaInvoiceStatus.cs` already existed with all six constants, an `All`
+  list and a `Normalize`. The genuine duplicate was elsewhere — a low-stock
+  threshold that read **2** to the AI agent and **5** on the dashboard, from the
+  same column, so a sheet holding 3 or 4 was simultaneously low stock and fine.
+- **Phase 10** was scoped to a "12,162-line `MainViewModel`". No such file
+  exists: `MainViewModel` is 1,467 lines across three partials and the largest
+  file here is 1,933.
+- **Phase 8** was scoped as "20 call sites to paginate". Six of the eleven that
+  remain are lookups, filter sources or search, where pagination is a regression
+  rather than a fix.
+
+The lesson the programme keeps producing: **a count is not a finding.** Each of
+those three came from counting something — literals, lines, call sites — and
+stopping there. In every case the authority (a transition table, a partial-class
+split, what the loaded collection is actually *used for*) said something
+different.
 
 ### One defect class, three screens, one afternoon
 
@@ -303,9 +356,20 @@ Two things worth saying plainly:
 
 If you want one number: **9.0/10 is the defensible figure**, because it came
 from an audit rather than a phase sign-off. The missing point is not missing
-features — it is missing *verification*. Get CI green, paginate the list
-views, and deepen pricing-engine coverage, and the higher number becomes
-something you can evidence rather than assert.
+features — it is missing *verification*.
+
+That gap narrowed on 2026-09-09, when the tree was compiled for the first time
+since the analysis work began. It came back with **nine errors from two root
+causes**, both from code written blind, both now fixed. That is a better result
+than it sounds — 225,914 lines with nine errors, no architectural surprises, and
+not one of them a logic error in the money path — but it is also exactly why the
+number is not higher: the errors existed because nothing had been compiled, and
+the tree has not been proven clean since.
+
+To move the number from judgement to evidence: get a green build and keep it
+green with the CI files already sitting in `docs/ci/`; paginate the four list
+views that genuinely need it; and deepen pricing-engine coverage, which is where
+the money is computed and where 1 : 6.8 is still thin.
 
 ---
 
