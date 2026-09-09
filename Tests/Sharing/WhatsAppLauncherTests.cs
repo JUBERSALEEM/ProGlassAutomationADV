@@ -25,9 +25,12 @@ namespace ProGlassAutomation.Tests.Sharing
         {
             // Whatever the CI machine has (or hasn't), this must be a safe,
             // non-throwing probe — the provider relies on it degrading to
-            // the web channel rather than crashing the share.
-            bool installed = WhatsAppLauncher.IsDesktopInstalled();
-            Assert.True(installed || !installed);
+            // the web channel rather than crashing the share. It must also
+            // be STABLE (multi-signal detection must not flip between
+            // calls) so the launch order is deterministic.
+            bool first = WhatsAppLauncher.IsDesktopInstalled();
+            bool second = WhatsAppLauncher.IsDesktopInstalled();
+            Assert.Equal(first, second);
         }
 
         [Fact]
