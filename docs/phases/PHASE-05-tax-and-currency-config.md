@@ -2,6 +2,62 @@
 
 **Severity: Major · Estimate: 5-8 days · Prerequisite: Phases 2 and 3**
 
+## Status — 5.3 APPLIED 2026-09-09; 5.1, 5.2, 5.4, 5.5 blocked
+
+| | |
+|---|---|
+| 5.3 currency minor unit | **applied** — precision tied to the books currency and checked |
+| 5.1 introduce a tax profile | **blocked** — see below |
+| 5.2 replace the constants with the profile | **blocked** |
+| 5.4 tax treatment per line | **blocked** |
+| 5.5 effective dating | **blocked** |
+
+### 5.3 — the infrastructure was already there
+
+`Services/Localization/CurrencyCatalog.cs` already carries the minor unit of
+every currency it lists: AED 2, JPY 0, BHD 3, KRW 0. `CurrencyService` already
+separates `BaseCurrency` (the books, a `const "AED"`) from `DisplayCurrency`
+(what the operator chose to read prices in).
+
+So the work was not to build a currency model — it was to connect
+`MoneyRounding.DecimalPlaces`, hard-coded at 2, to the thing that already knew
+the answer, and to make that connection fail loudly rather than drift.
+
+`MoneyRoundingPolicyTests` now asserts `MoneyRounding.DecimalPlaces` equals
+`CurrencyCatalog.Find(CurrencyService.BaseCurrency).Decimals`. If the base
+currency ever changes, that fails instead of silently rounding money to the
+wrong precision. Verified against the source: `Find` is case-insensitive, AED
+is 2, JPY is 0, BHD is 3.
+
+### The distinction that matters, now written down and tested
+
+Rounding precision follows the **books** currency, never the **display**
+currency. That is not a detail — it is the difference between a correct change
+and a data-corrupting one. If `MoneyRounding` followed `DisplayCurrency`, an
+operator switching the UI to yen would quietly truncate every stored amount to
+whole units, because JPY's minor unit is 0. Display converts; storage rounds.
+
+`MoneyRounding`'s doc comment now says so, and a second test pins JPY at 0 and
+BHD at 3 so the two concepts provably can diverge — which makes the distinction
+live rather than hypothetical.
+
+### Why 5.1 and 5.2 are still blocked
+
+`VatCalculator` declares its rate as `public const decimal VAT_RATE_PERCENT =
+5.0m`. A `const decimal` is **inlined at compile time into every call site**, so
+replacing it with a configured value is not a one-line change — it is a
+signature change rippling through pricing, invoicing and reporting at once, with
+no compiler here to find the sites that assumed a compile-time constant.
+
+It is also the wrong order. Phase 2's migration of 334 rounding call sites is
+still open, and a configurable rate multiplies that surface: every rounding
+decision becomes per-currency at the same moment the rate becomes per-jurisdiction.
+Finishing Phase 2 first keeps one variable moving at a time.
+
+5.4 (tax treatment per line) and 5.5 (effective dating) both need a schema
+change and a green build.
+
+
 ## The problem
 
 `Services/Reporting/VatCalculator.cs` declares UAE VAT as compile-time constants:

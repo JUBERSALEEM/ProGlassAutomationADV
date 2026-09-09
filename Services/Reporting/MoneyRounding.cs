@@ -45,10 +45,35 @@ namespace ProGlassAutomation.Services.Reporting
     public static class MoneyRounding
     {
         /// <summary>
-        /// Decimal places for money. Two for AED (fils). Becomes a function of
-        /// the active currency when tax and currency configuration lands
-        /// (Phase 5) — JPY has zero, BHD has three.
+        /// Decimal places for money: the minor unit of the currency the BOOKS
+        /// are kept in.
         /// </summary>
+        /// <remarks>
+        /// <para>
+        /// Two, because <see cref="ProGlassAutomation.Services.Localization.CurrencyService.BaseCurrency"/>
+        /// is AED and a dirham has 100 fils. That is not an assumption left to
+        /// drift: <c>MoneyRoundingPolicyTests</c> asserts it equals
+        /// <c>CurrencyCatalog.Find(BaseCurrency).Decimals</c>, so changing the
+        /// base currency without changing this fails a test rather than silently
+        /// rounding money to the wrong precision.
+        /// </para>
+        /// <para>
+        /// <b>Deliberately NOT the display currency.</b>
+        /// <see cref="ProGlassAutomation.Services.Localization.CurrencyService.DisplayCurrency"/>
+        /// is what the operator chose to read prices in, and
+        /// <c>CurrencyCatalog</c> already knows JPY has 0 decimals and BHD has 3.
+        /// Rounding <i>stored</i> money to the display currency's minor unit
+        /// would mean switching the UI to yen quietly truncated every stored
+        /// amount to whole units. Display converts; storage rounds. Only the
+        /// books currency decides precision.
+        /// </para>
+        /// <para>
+        /// A multi-currency ledger — genuinely booking in a currency other than
+        /// AED — is Phase 5 and needs this to become per-currency at the same
+        /// time as the amounts carry their currency. Changing this number alone
+        /// would corrupt every existing figure.
+        /// </para>
+        /// </remarks>
         public const int DecimalPlaces = 2;
 
         /// <summary>

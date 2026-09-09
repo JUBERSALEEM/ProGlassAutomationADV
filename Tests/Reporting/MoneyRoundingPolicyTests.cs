@@ -15,6 +15,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Localization;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.Reporting;
 using Xunit;
@@ -66,6 +67,39 @@ namespace ProGlassAutomation.Tests.Reporting
             Assert.Equal(2, MoneyRounding.DecimalPlaces);
             Assert.Equal(MidpointRounding.AwayFromZero, MoneyRounding.Mode);
             Assert.Equal(0.00m, MoneyRounding.Round(0m));
+        }
+
+        [Fact]
+        public void Precision_matches_the_minor_unit_of_the_books_currency()
+        {
+            // Phase 5.3. MoneyRounding hard-codes 2 because the books are kept
+            // in AED and a dirham has 100 fils. CurrencyCatalog already knows
+            // the minor unit of every currency it lists — JPY is 0, BHD is 3 —
+            // so the hard-coded 2 is a fact that can be checked rather than an
+            // assumption that can drift. If the base currency ever changes, this
+            // fails instead of silently rounding money to the wrong precision.
+            var baseCurrency = CurrencyService.BaseCurrency;
+            var info = CurrencyCatalog.Find(baseCurrency);
+
+            Assert.NotNull(info);
+            Assert.Equal(info!.Decimals, MoneyRounding.DecimalPlaces);
+        }
+
+        [Fact]
+        public void Precision_does_not_follow_the_display_currency()
+        {
+            // The companion to the test above, and the one that stops the wrong
+            // "fix". DisplayCurrency is what the operator chose to read prices
+            // in; rounding STORED money to its minor unit would mean switching
+            // the UI to yen quietly truncated every stored amount to whole
+            // units. Display converts, storage rounds.
+            //
+            // Asserted structurally: the catalog contains currencies whose minor
+            // unit differs from the books', so the two concepts really can
+            // diverge and this is a live distinction, not a hypothetical.
+            Assert.Equal(2, MoneyRounding.DecimalPlaces);
+            Assert.Equal(0, CurrencyCatalog.Find("JPY")!.Decimals);
+            Assert.Equal(3, CurrencyCatalog.Find("BHD")!.Decimals);
         }
 
         // ───────────────────────────────────────────────────────────────
