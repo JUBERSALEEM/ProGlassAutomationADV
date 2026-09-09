@@ -103,8 +103,24 @@
                     </Grid.RowDefinitions>
                     <TextBlock Text="AUDIT NARRATIVE" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <ScrollViewer Grid.Row="1" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
+                        <!--
+                          Mode=OneWay is required, not decorative. TextBox.Text
+                          is one of the handful of dependency properties that
+                          binds TwoWay BY DEFAULT, and AuditReportText is a
+                          computed get-only property — so WPF threw at binding
+                          activation rather than at load:
+
+                              A TwoWay or OneWayToSource binding cannot work on
+                              the read-only property 'AuditReportText'
+                                                      (ERR-EDBDCD, 2026-09-09)
+
+                          It surfaced ~90s after startup on a window resize,
+                          because the binding only activates when the element is
+                          laid out. IsReadOnly="True" means the user can never
+                          edit this box, so nothing is lost by OneWay.
+                        -->
                         <TextBox x:Name="ReportTextBox"
-                                 Text="{Binding AuditReportText}"
+                                 Text="{Binding AuditReportText, Mode=OneWay}"
                                  IsReadOnly="True"
                                  TextWrapping="Wrap"
                                  BorderThickness="0"
