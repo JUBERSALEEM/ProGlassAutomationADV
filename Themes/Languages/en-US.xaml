@@ -1414,6 +1414,8 @@
     <sys:String x:Key="Reports.Financial">FINANCIAL</sys:String>
     <sys:String x:Key="Reports.Nav.Profitability">Profitability</sys:String>
     <sys:String x:Key="Reports.Nav.ProfitabilitySub">P&amp;L &amp; margins</sys:String>
+    <sys:String x:Key="Reports.Nav.Executive">Executive</sys:String>
+    <sys:String x:Key="Reports.Nav.ExecutiveSub">Order-to-cash funnel</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Documents &amp; Fulfillment</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Fix missing invoice now</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Generate with warning</sys:String>

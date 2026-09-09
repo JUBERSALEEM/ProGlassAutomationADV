@@ -23,6 +23,7 @@ using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.CompanyReport;
 using ProGlassAutomation.ViewModels.Reports.CustomerReport;
 using ProGlassAutomation.ViewModels.Reports.DeliveryReport;
+using ProGlassAutomation.ViewModels.Reports.ExecutiveReport;
 using ProGlassAutomation.ViewModels.Reports.GlassSpecReport;
 using ProGlassAutomation.ViewModels.Reports.ProjectReport;
 using ProGlassAutomation.ViewModels.Reports.JoReport;
@@ -75,6 +76,7 @@ namespace ProGlassAutomation.ViewModels.Reports
         public ProjectReportViewModel ProjectReport { get; private set; }
         public GlassSpecReportViewModel GlassSpecReport { get; private set; }
         public ProfitabilityReportViewModel ProfitabilityReport { get; private set; }
+        public ExecutiveReportViewModel ExecutiveReport { get; private set; }
         public JoReportViewModel JoReport { get; private set; }
         public DeliveryReportViewModel DeliveryReport { get; private set; }
         public TaxInvoiceReportViewModel TaxInvoiceReport { get; private set; }
@@ -116,6 +118,7 @@ namespace ProGlassAutomation.ViewModels.Reports
         public List<ReportNavItem> NavItems { get; } = new()
         {
             new ReportNavItem{ Key="Overview",   Icon="\uE9D2", TitleKey="Nav.Overview",           SubtitleKey="Reports.KPIDashboard" },
+            new ReportNavItem{ Key="Executive",  Icon="\uEB05", TitleKey="Reports.Nav.Executive",  SubtitleKey="Reports.Nav.ExecutiveSub" },
             new ReportNavItem{ Key="Customer",   Icon="\uE716", TitleKey="Reports.Nav.Customers", SubtitleKey="Reports.Nav.CustomersSub",   Group="Reports.Relationships" },
             new ReportNavItem{ Key="Salesman",   Icon="\uE77B", TitleKey="Reports.Nav.Salesmen",  SubtitleKey="Reports.Nav.SalesmenSub" },
             new ReportNavItem{ Key="Company",    Icon="\uE821", TitleKey="Reports.Nav.Companies", SubtitleKey="Reports.Nav.CompaniesSub" },
@@ -148,6 +151,7 @@ namespace ProGlassAutomation.ViewModels.Reports
         /// <summary>Human title of the active report, for the module header strip.</summary>
         public string CurrentReportTitle => _activeKey switch
         {
+            "Executive" => "Executive Summary",
             "Customer" => "Customer Directory & Receivables",
             "Salesman" => "Salesman Performance",
             "Company" => "Company Book & Receivables",
@@ -165,6 +169,7 @@ namespace ProGlassAutomation.ViewModels.Reports
 
         public ViewModelBase? ActiveViewModel => _activeKey switch
         {
+            "Executive" => ExecutiveReport,
             "Customer" => CustomerReport,
             "Salesman" => SalesmanReport,
             "Company" => CompanyReport,
@@ -219,6 +224,7 @@ namespace ProGlassAutomation.ViewModels.Reports
             ProjectReport = new ProjectReportViewModel(_dialogs, _reportingService, _database);
             GlassSpecReport = new GlassSpecReportViewModel(_dialogs, _reportingService, _database);
             ProfitabilityReport = new ProfitabilityReportViewModel(_dialogs, _reportingService, _database);
+            ExecutiveReport = new ExecutiveReportViewModel(_dialogs, _reportingService);
             JoReport = new JoReportViewModel(_dialogs, _reportingService, _database);
             DeliveryReport = new DeliveryReportViewModel(_dialogs, _reportingService, _database);
             TaxInvoiceReport = new TaxInvoiceReportViewModel(_dialogs, _reportingService, _database);
@@ -265,6 +271,8 @@ namespace ProGlassAutomation.ViewModels.Reports
                         _ = GlassSpecReport.LoadAsync();
                     if (key == "Profit")
                         _ = ProfitabilityReport.LoadAsync();
+                    if (key == "Executive")
+                        _ = ExecutiveReport.LoadAsync();
 
                     IsRailOpen = false; // auto-close (see above)
                 }

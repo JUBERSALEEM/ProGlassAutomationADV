@@ -1413,6 +1413,8 @@
     <sys:String x:Key="Reports.Financial">वित्तीय</sys:String>
     <sys:String x:Key="Reports.Nav.Profitability">लाभप्रदता</sys:String>
     <sys:String x:Key="Reports.Nav.ProfitabilitySub">लाभ-हानि एवं मार्जिन</sys:String>
+    <sys:String x:Key="Reports.Nav.Executive">कार्यकारी</sys:String>
+    <sys:String x:Key="Reports.Nav.ExecutiveSub">ऑर्डर-टू-कैश फ़नल</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">दस्तावेज़ और पूर्ति</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">अब लापता इनवॉइस ठीक करें</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">चेतावनी के साथ बनाएँ</sys:String>

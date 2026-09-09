@@ -60,6 +60,11 @@ namespace ProGlassAutomation.Services.Reporting
 
                 result.QuotedValue = pi?.TotalValue ?? 0m;
                 result.InvoicedValue = ti?.TotalAmount ?? 0m;
+                // Balance due across tax invoices in the period. Previously
+                // left at 0 (the executive page showed no receivables at all);
+                // the TI summary already carries the figure the TaxInvoice
+                // report shows, so the two now reconcile.
+                result.OutstandingValue = ti?.Outstanding ?? 0m;
                 result.UnconvertedQuotes = pi?.NotConverted ?? 0;
                 result.UninvoicedConfirmed = ti?.PendingInvoice ?? 0;
                 result.OverdueInvoices = ti?.Overdue ?? 0;
@@ -206,7 +211,8 @@ namespace ProGlassAutomation.Services.Reporting
                 if (dn != null)
                 {
                     result.CriticalPendingQty = dn.CriticalPendingQty;
-                    result.OutstandingValue = 0m;
+                    // OutstandingValue is set from the tax-invoice summary in
+                    // the main method (delivery analytics carries no money).
                 }
             }
             catch (OperationCanceledException) { throw; }

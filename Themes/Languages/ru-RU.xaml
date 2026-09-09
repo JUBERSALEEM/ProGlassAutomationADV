@@ -1413,6 +1413,8 @@
     <sys:String x:Key="Reports.Financial">ФИНАНСЫ</sys:String>
     <sys:String x:Key="Reports.Nav.Profitability">Рентабельность</sys:String>
     <sys:String x:Key="Reports.Nav.ProfitabilitySub">Прибыль и маржа</sys:String>
+    <sys:String x:Key="Reports.Nav.Executive">Сводка</sys:String>
+    <sys:String x:Key="Reports.Nav.ExecutiveSub">Воронка заказ-оплата</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Документы и выполнение</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Исправить отсутствующий счёт сейчас</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Сгенерировать с предупреждением</sys:String>

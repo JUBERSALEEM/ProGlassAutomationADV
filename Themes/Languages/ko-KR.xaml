@@ -1413,6 +1413,8 @@
     <sys:String x:Key="Reports.Financial">재무</sys:String>
     <sys:String x:Key="Reports.Nav.Profitability">수익성</sys:String>
     <sys:String x:Key="Reports.Nav.ProfitabilitySub">손익 및 마진</sys:String>
+    <sys:String x:Key="Reports.Nav.Executive">경영 요약</sys:String>
+    <sys:String x:Key="Reports.Nav.ExecutiveSub">수주-회수 퍼널</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">문서 및 이행</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">누락된 청구서 지금 수정</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">경고와 함께 생성</sys:String>

@@ -1413,6 +1413,8 @@
     <sys:String x:Key="Reports.Financial">财务</sys:String>
     <sys:String x:Key="Reports.Nav.Profitability">盈利能力</sys:String>
     <sys:String x:Key="Reports.Nav.ProfitabilitySub">损益与利润率</sys:String>
+    <sys:String x:Key="Reports.Nav.Executive">经营摘要</sys:String>
+    <sys:String x:Key="Reports.Nav.ExecutiveSub">订单到收款漏斗</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">文档和履约</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">立即修复缺失发票</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">带警告生成</sys:String>

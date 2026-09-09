@@ -1413,6 +1413,8 @@
     <sys:String x:Key="Reports.Financial">FINANCEIRO</sys:String>
     <sys:String x:Key="Reports.Nav.Profitability">Rentabilidade</sys:String>
     <sys:String x:Key="Reports.Nav.ProfitabilitySub">DRE &amp; margens</sys:String>
+    <sys:String x:Key="Reports.Nav.Executive">Executivo</sys:String>
+    <sys:String x:Key="Reports.Nav.ExecutiveSub">Funil pedido a caixa</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Documentos e cumprimento</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Corrigir fatura ausente agora</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Gerar com aviso</sys:String>

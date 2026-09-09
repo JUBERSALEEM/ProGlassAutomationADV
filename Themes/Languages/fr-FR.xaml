@@ -1413,6 +1413,8 @@
     <sys:String x:Key="Reports.Financial">FINANCE</sys:String>
     <sys:String x:Key="Reports.Nav.Profitability">Rentabilité</sys:String>
     <sys:String x:Key="Reports.Nav.ProfitabilitySub">P&amp;L &amp; marges</sys:String>
+    <sys:String x:Key="Reports.Nav.Executive">Direction</sys:String>
+    <sys:String x:Key="Reports.Nav.ExecutiveSub">Entonnoir commande-encaissement</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Documents et réalisation</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Corriger la facture manquante maintenant</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Générer avec avertissement</sys:String>
