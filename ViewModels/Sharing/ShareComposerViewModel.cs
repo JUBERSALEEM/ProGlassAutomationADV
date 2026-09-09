@@ -389,7 +389,7 @@ namespace ProGlassAutomation.ViewModels.Sharing
                 // Manual fallback is always offered, last.
                 RecipientOptions.Add(new RecipientOption(
                     new ShareRecipient(ShareRecipientKind.Manual, ""),
-                    T("Sharing.OtherContact"), isManualEntry: true);
+                    T("Sharing.OtherContact"), isManualEntry: true));
 
                 BuildProviderOptions();
                 SelectSmartDefaults();
