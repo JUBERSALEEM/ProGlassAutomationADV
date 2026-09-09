@@ -483,11 +483,31 @@ namespace ProGlassAutomation.ViewModels.Sharing
 
         private bool SatisfiesSelectedProvider(ShareRecipient recipient)
         {
-            var caps = SelectedProvider?.Provider.Capabilities;
-            if (caps == null || !caps.RequiresRecipient) return true;
-            if (caps.RequiresPhone && !recipient.HasPhone) return false;
-            if (caps.RequiresEmail && !recipient.HasEmail) return false;
-            return true;
+            var provider = SelectedProvider?.Provider;
+            if (provider == null) return true;
+            var caps = provider.Capabilities;
+            if (!caps.RequiresRecipient) return true;
+
+            // Use the provider's OWN validation so a contact is only picked
+            // as the smart default when its number/email will actually work
+            // — not merely when the field is non-empty. This closes the gap
+            // where a present-but-unusable phone (e.g. a WhatsApp number
+            // that fails E.164 normalization) was auto-selected and the
+            // operator only discovered the problem after pressing Share.
+            try
+            {
+                var probe = new ShareExecutionRequest(
+                    _context, _context.Artifacts, recipient,
+                    Message ?? "", Subject ?? "", CancellationToken.None);
+                return provider.Validate(probe).Length == 0;
+            }
+            catch
+            {
+                // Fall back to the presence check if validation throws.
+                if (caps.RequiresPhone && !recipient.HasPhone) return false;
+                if (caps.RequiresEmail && !recipient.HasEmail) return false;
+                return true;
+            }
         }
 
         private void RenderMessageIfPristine(bool force = false)
