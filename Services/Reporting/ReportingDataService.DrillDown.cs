@@ -17,7 +17,6 @@ using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.DeliveryNote.Database;
 using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.JobOrder.Mapper;
-using ProGlassAutomation.Services.MasterData.Database;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Services.Statement.Database;
@@ -109,19 +108,54 @@ namespace ProGlassAutomation.Services.Reporting
             catch { return new List<string>(); }
         }
 
+        /// <remarks>
+        /// <para>
+        /// Sourced from LIVE proforma snapshots, which is the same place the
+        /// report itself reads the salesman from —
+        /// <c>ReportingDataService.Pi.cs</c> uses
+        /// <c>snap?.Client?.SalesRepresentative</c>. A filter dropdown and the
+        /// data it filters must come from one source.
+        /// </para>
+        /// <para>
+        /// It used to read the <c>Salesmen</c> and <c>Clients</c> master tables
+        /// instead. That is why deleting a proforma left its salesman in the
+        /// dropdown: a document delete does not delete master data, and should
+        /// not — the client record is still there for the next quotation. But a
+        /// report filter is not master data. Offering a salesman the report can
+        /// never return is worse than an empty list, because selecting him
+        /// produces an empty report and the user reasonably concludes the
+        /// report is broken.
+        /// </para>
+        /// <para>
+        /// Cost: this loads and deserialises the live proforma rows rather than
+        /// running a cheap <c>SELECT DISTINCT</c>. It cannot be a
+        /// <c>DISTINCT</c> in SQL because the salesman lives inside the
+        /// snapshot JSON, not in a column — the same reason the report has to
+        /// deserialize. That is the price of the dropdown and the report
+        /// agreeing, and it is the right trade; a fast wrong list is the bug.
+        /// </para>
+        /// </remarks>
         public async Task<List<string>> GetSalesmanOptionsAsync(CancellationToken ct = default)
         {
             try
             {
-                using var db = new MasterDataDbContext();
-                var list = await db.Salesmen.AsNoTracking().Select(s => s.Name).ToListAsync(ct).ConfigureAwait(false);
-                var clientReps = await db.Clients.AsNoTracking().Select(c => c.SalesRepresentative).Distinct().ToListAsync(ct).ConfigureAwait(false);
+                using var db = new ProformaInvoicesDbContext();
+                var rows = await db.ProformaInvoices.AsNoTracking()
+                    .ToListAsync(ct).ConfigureAwait(false);
+
                 var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                foreach (var s in list.Where(x => !string.IsNullOrWhiteSpace(x))) set.Add(s.Trim());
-                foreach (var s in clientReps.Where(x => !string.IsNullOrWhiteSpace(x))) set.Add(s.Trim());
-                return set.OrderBy(s => s).ToList();
+                foreach (var row in rows)
+                {
+                    // DeserializeSnapshot guards malformed JSON and returns
+                    // null rather than throwing, so one bad row cannot empty
+                    // the dropdown.
+                    var name = ProformaInvoiceMapper.DeserializeSnapshot(row)
+                        ?.Client?.SalesRepresentative;
+                    if (!string.IsNullOrWhiteSpace(name)) set.Add(name.Trim());
+                }
+                return set.OrderBy(s => s, StringComparer.OrdinalIgnoreCase).ToList();
             }
-            catch (Exception ex) { AppLogService.Warning($"Salesman options masterdata warning: {ex.Message}"); }
+            catch (Exception ex) { AppLogService.Warning($"Salesman options warning: {ExceptionMessages.Deep(ex)}"); }
             return new List<string>();
         }
 
