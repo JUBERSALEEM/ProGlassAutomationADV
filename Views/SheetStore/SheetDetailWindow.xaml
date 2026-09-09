@@ -1158,8 +1158,12 @@
                                   HorizontalContentAlignment="Stretch"
                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                  ScrollViewer.CanContentScroll="True"
                                   VirtualizingStackPanel.IsVirtualizing="True"
                                   VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                  VirtualizingStackPanel.ScrollUnit="Pixel"
+                                  VirtualizingStackPanel.CacheLength="400,800"
+                                  VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                   behaviors:SmoothScrollBehavior.IsEnabled="True">
                             <ListView.ItemTemplate>
                                 <DataTemplate>
