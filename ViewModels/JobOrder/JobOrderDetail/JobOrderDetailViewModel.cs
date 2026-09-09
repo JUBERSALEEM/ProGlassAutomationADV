@@ -130,8 +130,34 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 _selectedStatus = value;
                 OnPropertyChanged();
                 UpdateStatusMeta();
+                // ERP hardening (Phase 2): editability follows the status.
+                OnPropertyChanged(nameof(IsBodyEditable));
+                OnPropertyChanged(nameof(IsBodyLocked));
+                OnPropertyChanged(nameof(BodyLockBannerVisibility));
             }
         }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 2): true while the job order's
+        /// production body (site/delivery details, instructions, drawing ref,
+        /// notes, priority, delivery date) may still be edited. Once the job
+        /// is Delivered or Rejected the body freezes; the status ComboBox
+        /// itself stays enabled so a legitimate transition (e.g. Delivered →
+        /// Rejected) is still possible.
+        /// </summary>
+        public bool IsBodyEditable =>
+            ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanEditBody(
+                ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.JobOrder,
+                _selectedStatus);
+
+        /// <summary>Inverse of <see cref="IsBodyEditable"/>, for XAML.</summary>
+        public bool IsBodyLocked => !IsBodyEditable;
+
+        /// <summary>Shows the "body locked" banner only when locked.</summary>
+        public System.Windows.Visibility BodyLockBannerVisibility =>
+            IsBodyLocked
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
 
         public List<string> PriorityOptions { get; } = new()
         {
@@ -497,6 +523,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             _internalNotes = prod.InternalNotes ?? string.Empty;
 
             OnPropertyChanged(nameof(SelectedStatus));
+            // ERP hardening (Phase 2): refresh the body-edit lock after load.
+            OnPropertyChanged(nameof(IsBodyEditable));
+            OnPropertyChanged(nameof(IsBodyLocked));
+            OnPropertyChanged(nameof(BodyLockBannerVisibility));
             OnPropertyChanged(nameof(SelectedPriority));
             OnPropertyChanged(nameof(DeliveryDate));
             OnPropertyChanged(nameof(SiteDeliveryContact));

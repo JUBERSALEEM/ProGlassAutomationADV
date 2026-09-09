@@ -134,6 +134,10 @@
     <sys:String x:Key="Void.MsgVoidFailedX">Failed to void the document: {0}</sys:String>
     <sys:String x:Key="Void.ShowVoided">Show voided</sys:String>
     <sys:String x:Key="Void.ShowVoidedTip">Include voided (soft-closed) documents in the list. Voided documents are always visible to reports and the audit trail.</sys:String>
+
+    <!-- ERP lifecycle hardening (Phase 2): body-edit lock banners. -->
+    <sys:String x:Key="Lock.PostedBodyLocked">This document is posted, so its contents are locked. You can still change its status; to correct the figures, cancel/void it or issue a credit note.</sys:String>
+    <sys:String x:Key="Lock.PostedBodyLockedShort">Posted — contents locked</sys:String>
     <sys:String x:Key="Action.Delete">Delete</sys:String>
     <sys:String x:Key="Action.Done">Done</sys:String>
     <sys:String x:Key="Action.Edit">Edit</sys:String>

@@ -71,8 +71,38 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public string Status
         {
             get => _status;
-            set { _status = value; OnPropertyChanged(); }
+            set
+            {
+                _status = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsBodyEditable));
+                OnPropertyChanged(nameof(IsBodyLocked));
+                OnPropertyChanged(nameof(BodyLockBannerVisibility));
+            }
         }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 2): true while the invoice body
+        /// (line items, totals, party, dates) may still be edited. Once the
+        /// invoice is posted (Issued and beyond) the body freezes — it is
+        /// corrected via Cancel/Void or a Credit Note, never by rewriting the
+        /// original. Status-only transitions (Issued→Paid) remain available.
+        /// A brand-new, unsaved invoice is always editable.
+        /// </summary>
+        public bool IsBodyEditable =>
+            IsNewInvoice ||
+            ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanEditBody(
+                ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.TaxInvoice,
+                _status);
+
+        /// <summary>Inverse of <see cref="IsBodyEditable"/>, for XAML.</summary>
+        public bool IsBodyLocked => !IsBodyEditable;
+
+        /// <summary>Shows the "posted — body locked" banner only when locked.</summary>
+        public System.Windows.Visibility BodyLockBannerVisibility =>
+            IsBodyLocked
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
 
         private DateTime _issueDate = DateTime.Today;
         public DateTime IssueDate

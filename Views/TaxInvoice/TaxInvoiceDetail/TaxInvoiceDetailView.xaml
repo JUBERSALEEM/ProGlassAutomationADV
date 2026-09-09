@@ -247,6 +247,26 @@
                            FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
             </Border>
+
+            <!-- ERP hardening (Phase 2): posted-document body-edit lock banner. -->
+            <Border BorderBrush="{DynamicResource WarningBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    Background="{DynamicResource TintAmberBrush}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10"
+                    Margin="0,0,0,10"
+                    Visibility="{Binding BodyLockBannerVisibility}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="{StaticResource TextBodyLarge}"
+                               Foreground="{DynamicResource WarningBrush}"
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="{DynamicResource Lock.PostedBodyLocked}"
+                               TextWrapping="Wrap"
+                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
 
         <!-- ══ ROW 2 — FINANCIAL STATS + ATTACHMENTS ═════════════════ -->
@@ -298,7 +318,10 @@
 
         <!-- ══ TAB CONTENT — each section is its own UserControl ═════ -->
         <Grid Grid.Row="3">
+            <!-- ERP hardening (Phase 2): the body (Overview) form freezes once
+                 the invoice is posted; attachments and family stay usable. -->
             <sections:TiOverviewSection
+                IsEnabled="{Binding IsBodyEditable}"
                 Visibility="{Binding IsOverviewTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <sections:TiAttachmentsSection
                 Visibility="{Binding IsAttachmentsTab, Converter={StaticResource BoolToVisibilityConverter}}"/>

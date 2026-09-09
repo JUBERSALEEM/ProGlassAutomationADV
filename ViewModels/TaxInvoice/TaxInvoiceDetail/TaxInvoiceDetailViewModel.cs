@@ -81,6 +81,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 _isNewInvoice = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(PageTitle));
+                // ERP hardening (Phase 2): editability depends on new-vs-saved.
+                OnPropertyChanged(nameof(IsBodyEditable));
+                OnPropertyChanged(nameof(IsBodyLocked));
+                OnPropertyChanged(nameof(BodyLockBannerVisibility));
             }
         }
 

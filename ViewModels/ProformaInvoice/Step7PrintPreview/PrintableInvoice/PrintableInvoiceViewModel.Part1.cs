@@ -354,6 +354,19 @@ public PrintableInvoiceViewModel(
                     return false;
 
                 var existing = await _invoices.GetByProformaIdAsync(entity.ProformaId);
+
+                // ERP hardening (Phase 2): never let the auto/silent draft save
+                // rewrite the body of a posted (Approved) or cancelled PI. The
+                // committed document is immutable; a background navigation save
+                // must not silently mutate it.
+                if (existing != null &&
+                    !ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanEditBody(
+                        ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.ProformaInvoice,
+                        existing.Status))
+                {
+                    return false;
+                }
+
                 entity.Status = NormalizeSaveOnlyStatus(existing?.Status);
                 Company.ProformaStatus = entity.Status;
                 OnPropertyChanged(nameof(PreparedByStatus));
@@ -479,6 +492,33 @@ public PrintableInvoiceViewModel(
                     LocalizationService.Instance.T("Msg.CannotSaveProformaIDIs"),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
+            }
+
+            // ERP hardening (Phase 2): a posted proforma (Approved) — or a
+            // cancelled one — has its body frozen. It is corrected by a new
+            // revision, not by rewriting the committed document. Status-only
+            // moves go through the list's Change-status action, not this Save.
+            try
+            {
+                var locked = await _invoices.GetByProformaIdAsync(Company.ProformaId);
+                if (locked != null &&
+                    !ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanEditBody(
+                        ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.ProformaInvoice,
+                        locked.Status))
+                {
+                    _dialogs.Show(
+                        LocalizationService.Instance.T("Lock.PostedBodyLocked"),
+                        LocalizationService.Instance.T("Lock.PostedBodyLockedShort"),
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+            catch (Exception lockEx)
+            {
+                // The lock check must not itself break a legitimate save on a
+                // transient read error; log and continue (the repository still
+                // enforces permissions/read-only mode).
+                AppLogService.Warning($"[PI Save] body-lock check skipped: {ExceptionMessages.Deep(lockEx)}");
             }
 
             // ── CROSS-STEP VALIDATION ──────────────────────────────

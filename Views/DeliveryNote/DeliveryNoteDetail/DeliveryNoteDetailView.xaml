@@ -382,6 +382,27 @@
                            FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                            TextWrapping="Wrap"/>
             </Border>
+
+            <!-- ERP hardening (Phase 2): once a delivery note is Dispatched
+                 (goods have left) its body is locked. -->
+            <Border BorderBrush="{DynamicResource WarningBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    Background="{DynamicResource TintAmberBrush}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10"
+                    Margin="0,0,0,10"
+                    Visibility="{Binding BodyLockBannerVisibility}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="{StaticResource TextBodyLarge}"
+                               Foreground="{DynamicResource WarningBrush}"
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="{DynamicResource Lock.PostedBodyLocked}"
+                               TextWrapping="Wrap"
+                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
 
         <!-- ═══ ROW 3 — STATS | ATTACHMENTS ═══ -->
@@ -433,7 +454,10 @@
 
         <!-- ══ TAB CONTENT — each section its own UserControl ════════ -->
         <Grid Grid.Row="4">
+            <!-- ERP hardening (Phase 2): the body (Overview) form freezes once
+                 the DN is Dispatched; attachments and history stay usable. -->
             <sections:DnOverviewSection
+                IsEnabled="{Binding IsBodyEditable}"
                 Visibility="{Binding IsOverviewTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
             <sections:DnAttachmentsSection
                 Visibility="{Binding IsAttachmentsTab, Converter={StaticResource BoolToVisibilityConverter}}"/>

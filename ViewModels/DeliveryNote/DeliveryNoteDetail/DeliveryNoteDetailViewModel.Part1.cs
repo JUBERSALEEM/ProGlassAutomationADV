@@ -97,6 +97,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 _isMasterDn = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsNotMasterDn));
+                // ERP hardening (Phase 2): master DNs are never body-edited.
+                OnPropertyChanged(nameof(IsBodyEditable));
+                OnPropertyChanged(nameof(IsBodyLocked));
+                OnPropertyChanged(nameof(BodyLockBannerVisibility));
                 ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
@@ -369,10 +373,36 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_status == value) return;
                 _status = value;
                 OnPropertyChanged();
+                // ERP hardening (Phase 2): editability follows the status.
+                OnPropertyChanged(nameof(IsBodyEditable));
+                OnPropertyChanged(nameof(IsBodyLocked));
+                OnPropertyChanged(nameof(BodyLockBannerVisibility));
                 MarkDirty();
                 ProGlassAutomation.Utilities.AsyncUtility.InvalidateCommandsThrottled();
             }
         }
+
+        /// <summary>
+        /// ERP lifecycle hardening (Phase 2): true while the delivery note
+        /// body may still be edited (Draft / Dispatching). Once the goods are
+        /// Dispatched and beyond the body freezes. A Master DN is a live
+        /// aggregate and is never edited through this form. Mirrors the
+        /// existing IsOpenForDispatch save gate via the central policy.
+        /// </summary>
+        public bool IsBodyEditable =>
+            !IsMasterDn &&
+            ProGlassAutomation.Services.Workflow.DocumentLifecyclePolicy.CanEditBody(
+                ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.DeliveryNote,
+                _status);
+
+        /// <summary>Inverse of <see cref="IsBodyEditable"/>, for XAML.</summary>
+        public bool IsBodyLocked => !IsBodyEditable;
+
+        /// <summary>Shows the "body locked" banner only when locked (and not a master DN).</summary>
+        public System.Windows.Visibility BodyLockBannerVisibility =>
+            (!IsMasterDn && IsBodyLocked)
+                ? System.Windows.Visibility.Visible
+                : System.Windows.Visibility.Collapsed;
 
         private bool _isFoc;
         public bool IsFoc
