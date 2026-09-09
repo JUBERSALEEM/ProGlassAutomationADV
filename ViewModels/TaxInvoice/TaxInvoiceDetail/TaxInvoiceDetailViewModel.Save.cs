@@ -170,7 +170,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     updated.CreatedAt = entity.CreatedAt;
                     savedSnapshotJson = updated.FullSnapshotJson;
 
-                    await _taxInvoices.UpdateAsync(updated);
+                    // ERP hardening (Phase 5): pass the RowVersion we loaded so
+                    // a concurrent save by another user is detected instead of
+                    // silently overwritten.
+                    await _taxInvoices.UpdateAsync(updated, _loadedRowVersion);
+                    _loadedRowVersion = updated.RowVersion;   // re-baseline for next save
                     savedInvoiceNumber = entity.InvoiceNumber;
                     StatusMessage = $"✅ Updated {entity.InvoiceNumber}";
                 }
@@ -212,6 +216,16 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 // Chat 16: reload family sidebar after save
                 await LoadFamilyAsync(ProformaId);
+            }
+            catch (ProGlassAutomation.Services.Database.ConcurrencyConflictException cc)
+            {
+                // ERP hardening (Phase 5): another user saved this invoice
+                // after we opened it. Don't overwrite their work — tell the
+                // operator to reload.
+                StatusMessage = "⚠ Saved elsewhere — reload before saving.";
+                _dialogs.Show(cc.Message,
+                    LocalizationService.Instance.T("Msg.CapSaveFailed"),
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             catch (Exception ex)
             {

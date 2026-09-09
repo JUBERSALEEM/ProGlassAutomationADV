@@ -31,6 +31,13 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
         Task<SavedJobOrder?> GetByJobOrderIdAsync(string jobOrderId);
         Task<SavedJobOrder> InsertAsync(SavedJobOrder jobOrder);
         Task UpdateAsync(SavedJobOrder jobOrder);
+
+        /// <summary>
+        /// Update with optimistic-concurrency check (Phase 5). Pass the loaded
+        /// RowVersion; throws ConcurrencyConflictException if it moved on. Pass
+        /// null for legacy behaviour.
+        /// </summary>
+        Task UpdateAsync(SavedJobOrder jobOrder, int? expectedRowVersion);
         Task DeleteAsync(int id);
 
         /// <summary>

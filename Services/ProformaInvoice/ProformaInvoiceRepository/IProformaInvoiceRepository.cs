@@ -35,6 +35,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         Task UpdateAsync(SavedProformaInvoice invoice);
 
         /// <summary>
+        /// Update with optimistic-concurrency check (Phase 5). Pass the loaded
+        /// RowVersion; throws ConcurrencyConflictException if it moved on. Pass
+        /// null for legacy behaviour.
+        /// </summary>
+        Task UpdateAsync(SavedProformaInvoice invoice, int? expectedRowVersion);
+
+        /// <summary>
         /// Fetches by numeric primary key.
         /// BUG-07: Returns null if not found — callers must handle nulls.
         /// </summary>

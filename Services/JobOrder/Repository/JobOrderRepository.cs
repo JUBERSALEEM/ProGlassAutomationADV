@@ -99,6 +99,16 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
         }
 
         public async Task UpdateAsync(SavedJobOrder jobOrder)
+            => await UpdateAsync(jobOrder, expectedRowVersion: null).ConfigureAwait(false);
+
+        /// <summary>
+        /// Updates a job order. When <paramref name="expectedRowVersion"/> is
+        /// supplied and the stored RowVersion has moved on, a
+        /// <see cref="Services.Database.ConcurrencyConflictException"/> is thrown
+        /// so a concurrent save isn't silently overwritten. Null keeps legacy
+        /// behaviour; the counter still increments.
+        /// </summary>
+        public async Task UpdateAsync(SavedJobOrder jobOrder, int? expectedRowVersion)
         {
             ReadOnlyGate.Demand("update a job order");
             // A-1: service-layer authorization. The UI also checks,
@@ -107,6 +117,23 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
                 AppPermissions.JobOrderEdit, "update a job order");
 
             using var db = new JobOrdersDbContext();
+
+            // ERP hardening (Phase 5): optimistic-concurrency check + counter.
+            var storedRowVersion = await db.JobOrders
+                .Where(x => x.Id == jobOrder.Id)
+                .Select(x => (int?)x.RowVersion)
+                .FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if (expectedRowVersion.HasValue
+                && storedRowVersion.HasValue
+                && storedRowVersion.Value != expectedRowVersion.Value)
+            {
+                throw new Services.Database.ConcurrencyConflictException(
+                    "Job Order", jobOrder.JobOrderId,
+                    expectedRowVersion.Value, storedRowVersion.Value);
+            }
+
+            jobOrder.RowVersion = (storedRowVersion ?? jobOrder.RowVersion) + 1;
             jobOrder.UpdatedAt = DateTime.Now;
             db.JobOrders.Update(jobOrder);
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());

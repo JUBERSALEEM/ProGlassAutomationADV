@@ -244,6 +244,19 @@
             /// <summary>Set explicitly by repository in InsertAsync + UpdateAsync.</summary>
             public DateTime UpdatedAt { get; set; }
 
+            /// <summary>
+            /// ERP hardening (Phase 5): optimistic-concurrency counter. The
+            /// repository increments this on every successful UpdateAsync. An
+            /// editor captures the value it loaded and passes it back on save;
+            /// if the stored value has moved on, another user saved first and
+            /// the repository raises a ConcurrencyConflictException instead of
+            /// silently overwriting their work. Application-level (not EF's
+            /// native token) because editors rebuild a detached entity via the
+            /// mapper, so the token must be carried explicitly.
+            /// </summary>
+            public int RowVersion { get; set; }
+
+
             // ── Navigation (EF relationships) ─────────────────────────────────
 
             /// <summary>

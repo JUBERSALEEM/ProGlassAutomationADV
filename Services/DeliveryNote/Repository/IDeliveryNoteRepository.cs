@@ -217,6 +217,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         Task<SavedDeliveryNote> InsertAsync(SavedDeliveryNote entity);
         Task UpdateAsync(SavedDeliveryNote entity);
+
+        /// <summary>
+        /// Update with optimistic-concurrency check (Phase 5). Pass the loaded
+        /// RowVersion; throws ConcurrencyConflictException if it moved on. Pass
+        /// null for legacy behaviour.
+        /// </summary>
+        Task UpdateAsync(SavedDeliveryNote entity, int? expectedRowVersion);
         Task DeleteAsync(int id);
 
         /// <summary>

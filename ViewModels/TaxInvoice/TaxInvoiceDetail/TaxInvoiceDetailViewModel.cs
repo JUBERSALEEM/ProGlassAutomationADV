@@ -91,6 +91,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         private int _editingId;
         private string _editingInvoiceNumber = "";
 
+        /// <summary>
+        /// ERP hardening (Phase 5): the RowVersion captured when this invoice
+        /// was loaded for edit. Passed back on save so the repository can
+        /// detect that another user saved first (optimistic concurrency).
+        /// Null means "no captured version" → legacy last-writer-wins.
+        /// </summary>
+        private int? _loadedRowVersion;
+
         public string PageTitle => IsNewInvoice
             ? "New Tax Invoice"
             : $"Edit Invoice — {_editingInvoiceNumber}";

@@ -89,6 +89,13 @@ namespace ProGlassAutomation.Models.JobOrder.SavedJobOrder
         /// <summary>Last status change or production detail edit.</summary>
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
+        /// <summary>
+        /// ERP hardening (Phase 5): optimistic-concurrency counter, incremented
+        /// by the repository on every successful UpdateAsync. See
+        /// SavedTaxInvoice.RowVersion for the full rationale.
+        /// </summary>
+        public int RowVersion { get; set; }
+
         // ── full snapshot blob ────────────────────────────────────────────
 
         /// <summary>

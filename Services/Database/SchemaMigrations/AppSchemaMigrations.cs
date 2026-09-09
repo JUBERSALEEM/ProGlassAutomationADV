@@ -119,7 +119,11 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 // current model (columns already present); existing installs get
                 // them here so EF never queries a missing column.
                 new(1001, "Job Order: void / soft-close columns", connection =>
-                    AddVoidColumns(connection, "JobOrders"))
+                    AddVoidColumns(connection, "JobOrders")),
+
+                // ERP hardening (Phase 5): optimistic-concurrency counter.
+                new(1002, "Job Order: RowVersion concurrency counter", connection =>
+                    AddRowVersionColumn(connection, "JobOrders"))
             };
 
         // deliverynotes.db
@@ -132,7 +136,11 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
             // ERP lifecycle hardening (Phase 1): void / soft-close columns.
             new(1001, "Delivery Note: void / soft-close columns", connection =>
-                AddVoidColumns(connection, "DeliveryNotes"))
+                AddVoidColumns(connection, "DeliveryNotes")),
+
+            // ERP hardening (Phase 5): optimistic-concurrency counter.
+            new(1002, "Delivery Note: RowVersion concurrency counter", connection =>
+                AddRowVersionColumn(connection, "DeliveryNotes"))
         };
 
         // taxinvoices.db
@@ -143,7 +151,11 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 // A Tax Invoice is a fiscal document — it is voided, never
                 // deleted once issued. Additive + idempotent.
                 new(1001, "Tax Invoice: void / soft-close columns", connection =>
-                    AddVoidColumns(connection, "TaxInvoices"))
+                    AddVoidColumns(connection, "TaxInvoices")),
+
+                // ERP hardening (Phase 5): optimistic-concurrency counter.
+                new(1002, "Tax Invoice: RowVersion concurrency counter", connection =>
+                    AddRowVersionColumn(connection, "TaxInvoices"))
             };
 
         // inquiries.db
@@ -216,7 +228,11 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
                 // ERP lifecycle hardening (Phase 1): void / soft-close columns.
                 new(1002, "Proforma Invoice: void / soft-close columns", connection =>
-                    AddVoidColumns(connection, "ProformaInvoices"))
+                    AddVoidColumns(connection, "ProformaInvoices")),
+
+                // ERP hardening (Phase 5): optimistic-concurrency counter.
+                new(1003, "Proforma Invoice: RowVersion concurrency counter", connection =>
+                    AddRowVersionColumn(connection, "ProformaInvoices"))
             };
 
         // specifications.db
@@ -332,6 +348,20 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
             SchemaMigrationSql.CreateIndexIfNotExists(connection,
                 $"CREATE INDEX IF NOT EXISTS IX_{table}_IsVoid ON {table}(IsVoid);");
+        }
+
+        // ── shared: ERP optimistic-concurrency counter (Phase 5) ────────
+
+        /// <summary>
+        /// Adds the RowVersion optimistic-concurrency counter to a saved-
+        /// document table. Idempotent — a fresh table created by EnsureCreated
+        /// already carries it, so the ADD COLUMN is a no-op. INTEGER NOT NULL
+        /// DEFAULT 0, so every existing row starts at version 0 and the first
+        /// save moves it to 1.
+        /// </summary>
+        private static void AddRowVersionColumn(SqliteConnection connection, string table)
+        {
+            SchemaMigrationSql.AddColumnIfMissing(connection, table, "RowVersion", "INTEGER NOT NULL DEFAULT 0");
         }
 
         // ── inquiries.db helpers (migration 1001) ───────────────────────

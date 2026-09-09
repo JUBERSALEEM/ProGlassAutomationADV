@@ -308,12 +308,39 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         }
 
         public async Task UpdateAsync(SavedTaxInvoice entity)
+            => await UpdateAsync(entity, expectedRowVersion: null).ConfigureAwait(false);
+
+        /// <summary>
+        /// Updates a tax invoice. When <paramref name="expectedRowVersion"/> is
+        /// supplied (the value the editor loaded) and the stored RowVersion has
+        /// moved on, a <see cref="ConcurrencyConflictException"/> is thrown so a
+        /// second user's save can't be silently overwritten. Passing null keeps
+        /// the legacy last-writer-wins behaviour; the counter still increments.
+        /// </summary>
+        public async Task UpdateAsync(SavedTaxInvoice entity, int? expectedRowVersion)
         {
             OperationGuard.Demand(AppPermissions.TaxInvoiceEdit, "update a tax invoice");
             ReadOnlyGate.Demand("update a tax invoice");
             ThrowIfInvalid(TaxInvoiceValidationService.ValidateSave(entity));
 
             using var ctx = new TaxInvoiceDbContext();
+
+            // ERP hardening (Phase 5): optimistic-concurrency check + counter.
+            var storedRowVersion = await ctx.TaxInvoices
+                .Where(x => x.Id == entity.Id)
+                .Select(x => (int?)x.RowVersion)
+                .FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if (expectedRowVersion.HasValue
+                && storedRowVersion.HasValue
+                && storedRowVersion.Value != expectedRowVersion.Value)
+            {
+                throw new ConcurrencyConflictException(
+                    "Tax Invoice", entity.InvoiceNumber,
+                    expectedRowVersion.Value, storedRowVersion.Value);
+            }
+
+            entity.RowVersion = (storedRowVersion ?? entity.RowVersion) + 1;
             entity.UpdatedAt = DateTime.Now;
 
             var existingItems = await ctx.TaxInvoiceItems

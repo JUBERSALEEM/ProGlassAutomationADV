@@ -264,6 +264,17 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// doing insert inline within the current context.
         /// </summary>
         public async Task UpdateAsync(SavedProformaInvoice invoice)
+            => await UpdateAsync(invoice, expectedRowVersion: null).ConfigureAwait(false);
+
+        /// <summary>
+        /// Updates a proforma invoice (or inserts if missing). When
+        /// <paramref name="expectedRowVersion"/> is supplied and the stored
+        /// RowVersion has moved on, a
+        /// <see cref="ProGlassAutomation.Services.Database.ConcurrencyConflictException"/>
+        /// is thrown so a concurrent save isn't silently overwritten. Null keeps
+        /// legacy behaviour; the counter still increments on update.
+        /// </summary>
+        public async Task UpdateAsync(SavedProformaInvoice invoice, int? expectedRowVersion)
         {
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
@@ -281,6 +292,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 .FirstOrDefaultAsync(x => x.ProformaId == invoice.ProformaId).ConfigureAwait(false);
 
             int? previousInquiryId = existing?.InquiryId;
+
+            // ERP hardening (Phase 5): optimistic-concurrency check.
+            if (expectedRowVersion.HasValue
+                && existing != null
+                && existing.RowVersion != expectedRowVersion.Value)
+            {
+                throw new ProGlassAutomation.Services.Database.ConcurrencyConflictException(
+                    "Proforma Invoice", invoice.ProformaId,
+                    expectedRowVersion.Value, existing.RowVersion);
+            }
 
             if (existing == null)
             {
@@ -317,6 +338,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             existing.VatAmount = invoice.VatAmount;
             existing.GrandTotalVatInclusive = invoice.GrandTotalVatInclusive;
             existing.FullSnapshotJson = invoice.FullSnapshotJson;
+            existing.RowVersion = existing.RowVersion + 1;   // Phase 5: concurrency counter
             existing.UpdatedAt = DateTime.Now;
 
             await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());

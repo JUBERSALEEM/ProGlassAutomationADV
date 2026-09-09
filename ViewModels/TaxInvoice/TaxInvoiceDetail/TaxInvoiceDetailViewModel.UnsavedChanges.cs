@@ -107,6 +107,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 _editingId = entity.Id;
                 _editingInvoiceNumber = entity.InvoiceNumber;
+                _loadedRowVersion = entity.RowVersion;   // Phase 5: concurrency token
                 IsNewInvoice = false;
 
                 RestoreFromSnapshot(entity, snapshot);

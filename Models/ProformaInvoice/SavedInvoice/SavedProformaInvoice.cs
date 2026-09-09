@@ -120,5 +120,12 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// BUG-04: Removed DateTime.Now default. Set by repository on every save.
         /// </summary>
         public DateTime UpdatedAt { get; set; }
+
+        /// <summary>
+        /// ERP hardening (Phase 5): optimistic-concurrency counter, incremented
+        /// by the repository on every successful UpdateAsync. See
+        /// SavedTaxInvoice.RowVersion for the full rationale.
+        /// </summary>
+        public int RowVersion { get; set; }
     }
 }

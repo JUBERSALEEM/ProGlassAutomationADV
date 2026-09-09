@@ -913,6 +913,16 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         }
 
         public async Task UpdateAsync(SavedDeliveryNote entity)
+            => await UpdateAsync(entity, expectedRowVersion: null).ConfigureAwait(false);
+
+        /// <summary>
+        /// Updates a delivery note. When <paramref name="expectedRowVersion"/>
+        /// is supplied and the stored RowVersion has moved on, a
+        /// <see cref="Services.Database.ConcurrencyConflictException"/> is thrown
+        /// so a concurrent save isn't silently overwritten. Null keeps legacy
+        /// behaviour; the counter still increments.
+        /// </summary>
+        public async Task UpdateAsync(SavedDeliveryNote entity, int? expectedRowVersion)
         {
             // A-1: service-layer authorization. The UI also checks,
             // but this is the boundary that cannot be bypassed.
@@ -920,6 +930,23 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 AppPermissions.DeliveryNoteEdit, "update a delivery note");
 
             using var ctx = new DeliveryNotesDbContext();
+
+            // ERP hardening (Phase 5): optimistic-concurrency check + counter.
+            var storedRowVersion = await ctx.DeliveryNotes
+                .Where(x => x.Id == entity.Id)
+                .Select(x => (int?)x.RowVersion)
+                .FirstOrDefaultAsync().ConfigureAwait(false);
+
+            if (expectedRowVersion.HasValue
+                && storedRowVersion.HasValue
+                && storedRowVersion.Value != expectedRowVersion.Value)
+            {
+                throw new Services.Database.ConcurrencyConflictException(
+                    "Delivery Note", entity.DeliveryNoteId,
+                    expectedRowVersion.Value, storedRowVersion.Value);
+            }
+
+            entity.RowVersion = (storedRowVersion ?? entity.RowVersion) + 1;
             entity.UpdatedAt = DateTime.Now;
 
             var existingItems = await ctx.DeliveryNoteItems

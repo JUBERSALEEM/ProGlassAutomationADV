@@ -100,6 +100,13 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         Task<SavedTaxInvoice> InsertAsync(SavedTaxInvoice entity);
         Task UpdateAsync(SavedTaxInvoice entity);
+
+        /// <summary>
+        /// Update with optimistic-concurrency check (Phase 5). Pass the
+        /// RowVersion the editor loaded; throws ConcurrencyConflictException if
+        /// the stored version moved on. Pass null for legacy behaviour.
+        /// </summary>
+        Task UpdateAsync(SavedTaxInvoice entity, int? expectedRowVersion);
         Task DeleteAsync(int id);
 
         /// <summary>
