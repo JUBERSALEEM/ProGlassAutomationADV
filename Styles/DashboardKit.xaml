@@ -69,7 +69,26 @@
     <Thickness x:Key="DbCardPadding">18,16</Thickness>
     <Thickness x:Key="DbTilePadding">14,13</Thickness>
     <sys:Double x:Key="DbGutter">14</sys:Double>
-    <sys:Double x:Key="DbGutterHalf">7</sys:Double>
+    <!--
+      A Thickness, NOT a sys:Double. Margin is a Thickness property, and WPF
+      does not type-convert the result of a StaticResource lookup — assigning a
+      Double to it throws at measure time, not at parse time:
+
+          InvalidOperationException: '7' is not a valid value for
+          property 'Margin'
+
+      That was a real crash (ERR-F4C120, 2026-09-09): DbKpiBandStyle set a
+      ContentPresenter Margin from a Double token, so every dashboard carrying a
+      KPI band took the app down during layout, after sign-in and after the
+      VAT figures had already loaded. The value 7 in the message was this token.
+
+      Kept as a separate token from DbGutter above because the two have
+      different types for different consumers: DbGutter is a scalar rhythm unit
+      for widths and offsets, this one is a margin. Tests/Theme/
+      ResourceTokenTypeTests.cs fails the build if any typed Setter is fed a
+      resource of the wrong type, which is the check that was missing.
+    -->
+    <Thickness x:Key="DbGutterHalfMargin">7</Thickness>
     <sys:Double x:Key="DbKpiTileMinHeight">100</sys:Double>
     <sys:Double x:Key="DbChartMinHeight">212</sys:Double>
 
@@ -366,7 +385,7 @@
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="ContentPresenter">
-                    <Setter Property="Margin" Value="{StaticResource DbGutterHalf}"/>
+                    <Setter Property="Margin" Value="{StaticResource DbGutterHalfMargin}"/>
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 </Style>
             </Setter.Value>
