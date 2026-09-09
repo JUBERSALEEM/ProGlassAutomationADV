@@ -30,6 +30,7 @@ using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.FileSystem;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -69,9 +70,9 @@ namespace ProGlassAutomation.Services.Sharing
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[Sharing.Launcher] generate failed: {ex.Message}");
+                LogSharingFailure("generate", context, ex);
                 dialogs?.Error(
-                    $"Could not generate the file to share: {ex.Message}",
+                    $"Could not generate the file to share: {UserFacingDetail(ex)}",
                     "Share");
                 return false;
             }
@@ -126,7 +127,10 @@ namespace ProGlassAutomation.Services.Sharing
             IDialogService? dialogs = null)
         {
             if (context == null)
+            {
+                AppLogService.Debug("[Sharing.Launcher] composer not opened: context was null.");
                 return false;
+            }
 
             if (context.Artifacts.Count == 0)
             {
@@ -145,16 +149,23 @@ namespace ProGlassAutomation.Services.Sharing
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[Sharing.Launcher] composer failed: {ex.Message}");
+                // Industrial rule: never show a wrapper's message
+                // ("Exception has been thrown by the target of an
+                // invocation" explains nothing). Unwrap the full chain so
+                // the dialog names the REAL cause, and log type + stack.
+                LogSharingFailure("open-composer", context, ex);
                 try
                 {
-                    dialogs?.Error(
-                        $"Could not open the share window: {ex.Message}", "Share");
+                    var report = dialogs ?? App.Dialogs;
+                    report?.Error(
+                        $"Could not open the share window: {UserFacingDetail(ex)}",
+                        "Share");
                 }
                 catch (Exception dialogEx)
                 {
                     AppLogService.Debug(
-                        $"[Sharing.Launcher] error dialog failed: {dialogEx.Message}");
+                        "[Sharing.Launcher] error dialog failed: "
+                        + ExceptionMessages.Deep(dialogEx));
                 }
                 return false;
             }
@@ -230,8 +241,84 @@ namespace ProGlassAutomation.Services.Sharing
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[Sharing.Launcher] staged export failed: {ex.Message}");
-                return ExportResult.Fail(ex.Message);
+                LogSharingFailure("staged-export", null, ex);
+                return ExportResult.Fail(UserFacingDetail(ex));
+            }
+        }
+
+        /// <summary>
+        /// User-facing failure detail: the FULL inner-exception chain
+        /// ("outer -> inner -> root cause"), never a wrapper's empty
+        /// message. Falls back to the exception type name. Never throws.
+        /// </summary>
+        private static string UserFacingDetail(Exception ex)
+        {
+            try
+            {
+                string deep = ExceptionMessages.Deep(ex);
+                if (!string.IsNullOrWhiteSpace(deep))
+                    return deep;
+                return ex?.GetType().Name ?? "Unknown error";
+            }
+            catch
+            {
+                return "Unknown error";
+            }
+        }
+
+        /// <summary>
+        /// Logs a launcher failure with the full exception chain (type +
+        /// message per level) and the stack trace, capped so the log row
+        /// stays readable. Never throws.
+        /// </summary>
+        private static void LogSharingFailure(
+            string operation,
+            ShareContext? context,
+            Exception ex,
+            [System.Runtime.CompilerServices.CallerMemberName] string method = "")
+        {
+            try
+            {
+                var chain = new System.Text.StringBuilder();
+                for (Exception? e = ex; e != null; e = e.InnerException)
+                {
+                    if (chain.Length > 0)
+                        chain.Append(" -> ");
+                    chain.Append(e.GetType().Name);
+                    string message = (e.Message ?? "")
+                        .Replace("\r", " ").Replace("\n", " ").Trim();
+                    if (message.Length > 0)
+                    {
+                        chain.Append(": ");
+                        chain.Append(message);
+                    }
+                    if (chain.Length > 1200)
+                        break;
+                }
+
+                string stack = (ex?.StackTrace ?? "")
+                    .Replace("\r", " ").Replace("\n", " ").Trim();
+                if (stack.Length > 1500)
+                    stack = stack.Substring(0, 1500) + "...";
+
+                string artifacts = context == null ? "no-context"
+                    : context.Artifacts == null ? "artifacts-null"
+                    : context.Artifacts.Count + "-artifact(s)";
+
+                AppLogService.Warning(
+                    $"[Sharing.Launcher] {operation} failed ({artifacts}): {chain}"
+                    + (stack.Length > 0 ? $" | Stack: {stack}" : ""),
+                    new LogContext
+                    {
+                        Module = "Sharing",
+                        Class = nameof(ShareLauncher),
+                        Method = method,
+                        Operation = operation
+                    });
+            }
+            catch
+            {
+                // Logging must never break the share flow.
             }
         }
 
