@@ -70,6 +70,15 @@ namespace ProGlassAutomation.Services.Audit
                 AddColumnIfMissing(connection,
                     "AppUsers", "LockedUntilUtc", "TEXT NULL");
 
+                // PHASE 17 — Sharing Center FROM identity. Optional contact
+                // fields on users; existing installs keep their users with
+                // blank values, and the composer simply shows name + role.
+                AddColumnIfMissing(connection,
+                    "AppUsers", "Mobile", "TEXT NOT NULL DEFAULT ''");
+
+                AddColumnIfMissing(connection,
+                    "AppUsers", "Email", "TEXT NOT NULL DEFAULT ''");
+
                 Execute(connection, @"
                     CREATE TABLE IF NOT EXISTS RecordMetadata (
                         EntityType     TEXT NOT NULL,

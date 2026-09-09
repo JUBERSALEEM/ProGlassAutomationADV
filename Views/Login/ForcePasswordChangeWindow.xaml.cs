@@ -33,8 +33,18 @@ namespace ProGlassAutomation.Views.Login
             InitializeComponent();
             _username = username ?? "";
             UsernameBox.Text = _username;
+            // Read from the policy so the hint number can never drift from
+            // the enforced rule again (it said 8 while the rule was 6).
+            PasswordHintText.Text =
+                ProGlassAutomation.Services.Security.PasswordPolicy.HintText;
             Loaded += (s, e) => CurrentPasswordBox.Focus();
         }
+
+        private void NewPasswordBox_PasswordChanged(
+            object sender, RoutedEventArgs e) =>
+            Shared.PasswordMeterHelper.Update(
+                PasswordMeter, PasswordMeterLabel, PasswordGuidance,
+                NewPasswordBox.Password, _username);
 
         private async void Save_Click(object sender, RoutedEventArgs e)
         {
@@ -42,14 +52,14 @@ namespace ProGlassAutomation.Views.Login
             string newPassword = NewPasswordBox.Password ?? "";
             string confirm = ConfirmPasswordBox.Password ?? "";
 
-            // Local validation mirrors AuditService.ChangePasswordAsync so the
-            // user gets immediate feedback without an extra DB round-trip.
-            int minLength =
-                ProGlassAutomation.Services.Security.PasswordHasher.MinLength;
-            if (newPassword.Length < minLength)
+            // Local validation mirrors AuditService.ChangePasswordAsync via the
+            // same single home (PasswordPolicy) so the user gets immediate
+            // feedback without an extra DB round-trip — and without drift.
+            var policy = ProGlassAutomation.Services.Security.PasswordPolicy
+                .ValidateNewPassword(newPassword, _username);
+            if (!policy.Accepted)
             {
-                ShowError(
-                    $"Password must be at least {minLength} characters.");
+                ShowError(policy.Error);
                 NewPasswordBox.Focus();
                 return;
             }

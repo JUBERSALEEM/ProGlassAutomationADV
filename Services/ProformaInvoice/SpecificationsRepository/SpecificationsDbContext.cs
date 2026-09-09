@@ -80,6 +80,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 entity.Property(u => u.SpecName).IsRequired().HasMaxLength(500);
                 entity.Property(u => u.GlassType).HasMaxLength(20);
                 entity.Property(u => u.ProformaId).HasMaxLength(100);
+                entity.Property(u => u.CompanyName).HasMaxLength(300);
                 entity.Property(u => u.CustomerName).HasMaxLength(300);
                 entity.Property(u => u.ProjectName).HasMaxLength(300);
                 entity.Property(u => u.UserName).HasMaxLength(150);

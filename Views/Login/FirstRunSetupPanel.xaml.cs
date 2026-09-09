@@ -70,7 +70,20 @@ namespace ProGlassAutomation.Views.Login
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             FocusField(UsernameBox);
+            // The meter's identity check depends on the username / display
+            // name being typed, so it refreshes as they change too.
+            UsernameBox.TextChanged += (_, __) => RefreshMeter();
+            DisplayNameBox.TextChanged += (_, __) => RefreshMeter();
         }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e) =>
+            RefreshMeter();
+
+        private void RefreshMeter() =>
+            Views.Shared.PasswordMeterHelper.Update(
+                PasswordMeter, PasswordMeterLabel, PasswordGuidance,
+                PasswordBox.Password,
+                UsernameBox.Text?.Trim(), DisplayNameBox.Text?.Trim());
 
         // ── Keyboard ───────────────────────────────────────────
 
@@ -121,11 +134,15 @@ namespace ProGlassAutomation.Views.Login
                 return;
             }
 
-            if (password.Length < PasswordHasher.MinLength)
+            // Mirrors AuditService.CreateUserAsync via the same single home
+            // (PasswordPolicy), so the local pre-check and the enforced rule
+            // can never disagree — instant feedback without a DB round-trip.
+            var policy = PasswordPolicy.ValidateNewPassword(
+                password, username, displayName);
+            if (!policy.Accepted)
             {
                 _creating = false;
-                ShowError($"Password must be at least " +
-                    $"{PasswordHasher.MinLength} characters.");
+                ShowError(policy.Error);
                 FocusField(PasswordBox);
                 return;
             }

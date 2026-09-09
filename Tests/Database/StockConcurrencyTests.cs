@@ -46,6 +46,11 @@ using Xunit;
 
 namespace ProGlassAutomation.Tests.Database
 {
+    // Shares AppDataRoot.TestFolderOverride with the other hermetic tests —
+    // serialized via the shared collection (defined in
+    // Tests/Specifications/SpecificationLedgerTests.cs) so two classes can
+    // never flip the folder static mid-run.
+    [Collection("HermeticDb")]
     public sealed class StockConcurrencyTests : IDisposable
     {
         private readonly string _tempFolder;

@@ -47,6 +47,14 @@
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
+        <!-- Strength-meter segment: 4 per meter, lit left-to-right by score. -->
+        <Style x:Key="UcMeterSegment" TargetType="Border">
+            <Setter Property="Height" Value="5"/>
+            <Setter Property="Width" Value="44"/>
+            <Setter Property="CornerRadius" Value="2.5"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Background" Value="{DynamicResource OutlineBrush}"/>
+        </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -248,7 +256,23 @@
                             <StackPanel Grid.Row="2" Grid.Column="2">
                                 <TextBlock Text="{DynamicResource UserCenter.Password}" Style="{StaticResource UcFieldLabel}"/>
                                 <PasswordBox x:Name="NewPasswordBox"
-                                             Style="{StaticResource UcPasswordBox}"/>
+                                             Style="{StaticResource UcPasswordBox}"
+                                             PasswordChanged="NewPasswordBox_PasswordChanged"/>
+                                <!-- Strength meter: lit by PasswordMeterHelper. -->
+                                <StackPanel x:Name="NewPasswordMeter" Orientation="Horizontal" Margin="0,6,0,0">
+                                    <Border Style="{StaticResource UcMeterSegment}"/>
+                                    <Border Style="{StaticResource UcMeterSegment}"/>
+                                    <Border Style="{StaticResource UcMeterSegment}"/>
+                                    <Border Style="{StaticResource UcMeterSegment}"/>
+                                    <TextBlock x:Name="NewPasswordMeterLabel"
+                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock x:Name="NewPasswordGuidance"
+                                           FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           TextWrapping="Wrap" Margin="0,2,0,0"
+                                           Visibility="Collapsed"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="4" Grid.ColumnSpan="3">
@@ -319,7 +343,24 @@
                                            Style="{StaticResource UcFieldLabel}"/>
                                 <PasswordBox x:Name="ChangeNewPasswordBox"
                                              Width="200"
-                                             Style="{StaticResource UcPasswordBox}"/>
+                                             Style="{StaticResource UcPasswordBox}"
+                                             PasswordChanged="ChangeNewPasswordBox_PasswordChanged"/>
+                                <!-- Strength meter: lit by PasswordMeterHelper. -->
+                                <StackPanel x:Name="ChangePasswordMeter" Orientation="Horizontal" Margin="0,6,0,0">
+                                    <Border Style="{StaticResource UcMeterSegment}"/>
+                                    <Border Style="{StaticResource UcMeterSegment}"/>
+                                    <Border Style="{StaticResource UcMeterSegment}"/>
+                                    <Border Style="{StaticResource UcMeterSegment}"/>
+                                    <TextBlock x:Name="ChangePasswordMeterLabel"
+                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock x:Name="ChangePasswordGuidance"
+                                           Width="200"
+                                           FontSize="{StaticResource TextCaption}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           TextWrapping="Wrap" Margin="0,2,0,0"
+                                           Visibility="Collapsed"/>
                             </StackPanel>
                             <StackPanel Margin="0,0,12,0">
                                 <TextBlock Text="{DynamicResource UserCenter.ConfirmNEW}"

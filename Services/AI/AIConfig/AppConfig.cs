@@ -761,5 +761,15 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 }
             }
         }
+
+        /// <summary>
+        /// Sharing Center preferences (providers, defaults, document rules,
+        /// template overrides, temp behavior). Additive schema change —
+        /// older config.json files hydrate to defaults via
+        /// ConfigService.Load's null-coalescing pass. Nothing existing
+        /// changes until the operator opens the share composer.
+        /// </summary>
+        public Services.Sharing.SharingSettings Sharing { get; set; }
+            = new Services.Sharing.SharingSettings();
     }
 }

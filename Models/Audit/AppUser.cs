@@ -39,6 +39,22 @@ namespace ProGlassAutomation.Models.Audit
         [Required, MaxLength(30)]
         public string Role { get; set; } = "Operator";
 
+        /// <summary>
+        /// Mobile number for the Sharing Center FROM identity
+        /// ("Juber Saleem · Estimator · +971…"). Optional — blank means
+        /// the composer shows name + role only. Added Phase 17; existing
+        /// rows hydrate to "" via the audit.db migration.
+        /// </summary>
+        [MaxLength(40)]
+        public string Mobile { get; set; } = "";
+
+        /// <summary>
+        /// Email for the Sharing Center FROM identity and mailto handoff.
+        /// Optional — blank is normal. Added Phase 17.
+        /// </summary>
+        [MaxLength(200)]
+        public string Email { get; set; } = "";
+
         /// <summary>SHA-256(salt + password) as hex. Set by AuditService.</summary>
         [Required, MaxLength(128)]
         public string PasswordHash { get; set; } = "";

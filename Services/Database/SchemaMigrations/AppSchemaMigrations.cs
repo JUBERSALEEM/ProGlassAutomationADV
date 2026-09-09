@@ -264,6 +264,17 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 {
                     SchemaMigrationSql.AddColumnIfMissing(
                         connection, "Specifications", "PanesJson", "TEXT NULL");
+                }),
+
+                // Ledger ground truth. Usage rows are derived from SAVED
+                // proforma snapshots (SpecificationLedgerService), and the
+                // snapshot's company name travels with each row so the
+                // Center's last-activity card and history can name the
+                // company without deserialising invoice JSON per row.
+                new(1004, "Specifications ledger: company column on usage history", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(
+                        connection, "SpecificationUsages", "CompanyName", "TEXT NULL");
                 })
             };
 

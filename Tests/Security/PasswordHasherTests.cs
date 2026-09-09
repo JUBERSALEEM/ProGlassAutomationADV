@@ -160,13 +160,16 @@ namespace ProGlassAutomation.Tests.Security
         // ───────────────────────────────────────────────────────────────
 
         [Fact]
-        public void Minimum_length_is_twelve_for_new_passwords()
+        public void Minimum_length_is_six_and_single_sourced_from_policy()
         {
-            // Phase 9.1. Asserted here so a future change is a deliberate edit
-            // to a test, not a silent constant bump. This governs only passwords
-            // being chosen now — Verify never checks length, so no existing
-            // user is locked out.
-            Assert.Equal(12, PasswordHasher.MinLength);
+            // Was 12 (Phase 9.1), lowered to 6 on 2026-09-09 to match the
+            // on-screen hint — but this assertion was never updated, so it
+            // has been failing since. Asserted here so a future change is a
+            // deliberate edit to a test, not a silent constant bump. This
+            // governs only passwords being chosen now — Verify never checks
+            // length, so no existing user is locked out.
+            Assert.Equal(6, PasswordHasher.MinLength);
+            Assert.Equal(PasswordPolicy.MinLength, PasswordHasher.MinLength);
         }
     }
 }

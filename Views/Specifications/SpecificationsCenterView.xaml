@@ -100,7 +100,7 @@
         </Grid>
 
         <!-- ══ KPI CARDS ══ -->
-        <UniformGrid Grid.Row="1" Columns="5" Margin="0,0,0,14">
+        <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,14">
             <Border Style="{StaticResource InteractiveStatCardStyle}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Specifications.TotalSpecs}"
@@ -154,6 +154,30 @@
                                FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!--
+                LAST ACTIVITY. The most recent ledger-verified use: which
+                spec, on which saved invoice for which company, and when.
+                Global (not filter-scoped) — it answers "last used anywhere".
+            -->
+            <Border Style="{StaticResource InteractiveStatCardStyle}">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Specifications.LastActivity}"
+                               FontSize="{StaticResource TextBody}"
+                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                    <TextBlock Text="{Binding LastActivitySpec, Mode=OneWay}"
+                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding LastActivityInvoice, Mode=OneWay}"
+                               FontSize="{StaticResource TextBody}"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource AccentBrush}"/>
+                    <TextBlock Text="{Binding LastActivityDate, Mode=OneWay}"
+                               FontSize="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource MutedForegroundBrush}"/>
                 </StackPanel>
             </Border>
         </UniformGrid>
@@ -335,6 +359,26 @@
                                                        TextTrimming="CharacterEllipsis"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                                        Margin="0,2,0,0"/>
+                                            <!-- Draft/library entry: built or imported, but not
+                                                 quoted on any saved invoice yet. Visibility lives
+                                                 in the style (never a local value) so the trigger
+                                                 can control it. -->
+                                            <TextBlock Text="{DynamicResource Specifications.DraftOnly}"
+                                                       FontSize="{StaticResource TextCaption}"
+                                                       FontStyle="Italic"
+                                                       Foreground="{DynamicResource WarningBrush}"
+                                                       Margin="0,2,0,0">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding UsageCount}" Value="0">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
                                         </StackPanel>
 
                                         <!-- Usage count -->

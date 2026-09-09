@@ -2488,6 +2488,8 @@
     <sys:String x:Key="Specifications.FilterGlassType">Filter by glass type</sys:String>
     <sys:String x:Key="Specifications.MatchedSheet">MATCHED SHEET SIZE</sys:String>
     <sys:String x:Key="Specifications.MostUsed">MOST USED</sys:String>
+    <sys:String x:Key="Specifications.LastActivity">LAST ACTIVITY</sys:String>
+    <sys:String x:Key="Specifications.DraftOnly">Not on any saved invoice yet</sys:String>
     <sys:String x:Key="Specifications.SearchHint">Search by name, colour or proforma…</sys:String>
     <sys:String x:Key="Specifications.SheetLinked">SHEET MATCHED</sys:String>
     <sys:String x:Key="Specifications.Sort">Sort specifications</sys:String>

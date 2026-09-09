@@ -37,6 +37,11 @@ using Xunit;
 
 namespace ProGlassAutomation.Tests.Inquiry
 {
+    // Shares AppDataRoot.TestFolderOverride with the other hermetic tests —
+    // serialized via the shared collection (defined in
+    // Tests/Specifications/SpecificationLedgerTests.cs) so two classes can
+    // never flip the folder static mid-run.
+    [Collection("HermeticDb")]
     public class InquiryRepositoryCreateResilienceTests : IDisposable
     {
         private readonly string _tempFolder;

@@ -24,6 +24,15 @@
 //  costs against — so a pane recognised here is exactly a pane recognised
 //  there. No second, drifting definition of "what is a pane".
 //
+//  STORED JSON IS A HINT, NOT TRUTH. ResolveAsync used to return the
+//  stored PanesJson verbatim whenever present — so a size that was edited
+//  or deleted in Sheet Store afterwards kept showing as if it still
+//  existed. Now the stored size is kept only when the CURRENT store still
+//  stocks that colour/thickness in exactly that size (it was the
+//  operator's actual Step 4 choice, which the live "largest stocked"
+//  fallback cannot know); otherwise the live match wins, and when the
+//  store has nothing the pane honestly reports no match.
+//
 //  NEVER THROWS. A spec whose name cannot be parsed returns an empty list
 //  and the UI says so, which is honest. Guessing a size would put a wrong
 //  number in front of someone pricing glass.
@@ -102,14 +111,24 @@ namespace ProGlassAutomation.Services.Specifications
         /// colour + thickness. A pane with no match keeps 0/0 and the UI
         /// reports it explicitly rather than substituting a default.
         /// </summary>
+        public static Task<List<SpecPane>> MatchSheetsAsync(
+            List<SpecPane> panes) =>
+            MatchSheetsAsync(panes, storedPreference: null);
+
+        /// <summary>
+        /// Live match with a validated stored preference (see
+        /// <see cref="ResolveAsync"/>): the stored size wins only when the
+        /// current store still stocks it for the same colour/thickness.
+        /// </summary>
         public static async Task<List<SpecPane>> MatchSheetsAsync(
-            List<SpecPane> panes)
+            List<SpecPane> panes, List<SpecPane>? storedPreference)
         {
             if (panes == null || panes.Count == 0)
                 return panes ?? new List<SpecPane>();
 
-            foreach (var pane in panes)
+            for (int i = 0; i < panes.Count; i++)
             {
+                var pane = panes[i];
                 if (string.IsNullOrWhiteSpace(pane.Color) || pane.ThicknessMm <= 0)
                     continue;
 
@@ -120,6 +139,29 @@ namespace ProGlassAutomation.Services.Specifications
                         .ConfigureAwait(false);
 
                     if (sizes.Count == 0) continue;
+
+                    // The stored size is the operator's actual Step 4 choice
+                    // — more truthful than "largest stocked" — but ONLY when
+                    // the current store still offers it. Colour/thickness
+                    // must match too: stored JSON from a renamed spec must
+                    // never donate its size to a different glass.
+                    var stored = storedPreference != null && i < storedPreference.Count
+                        ? storedPreference[i]
+                        : null;
+
+                    if (stored != null
+                        && stored.SheetWidthMm > 0 && stored.SheetHeightMm > 0
+                        && string.Equals(
+                            (stored.Color ?? "").Trim(), pane.Color.Trim(),
+                            StringComparison.OrdinalIgnoreCase)
+                        && stored.ThicknessMm == pane.ThicknessMm
+                        && sizes.Any(s => s.W == stored.SheetWidthMm
+                                       && s.H == stored.SheetHeightMm))
+                    {
+                        pane.SheetWidthMm = stored.SheetWidthMm;
+                        pane.SheetHeightMm = stored.SheetHeightMm;
+                        continue;
+                    }
 
                     // Largest sheet first: when a colour/thickness is stocked
                     // in several sizes the jumbo is the normal cutting stock,
@@ -144,20 +186,23 @@ namespace ProGlassAutomation.Services.Specifications
         }
 
         /// <summary>
-        /// Panes for a saved specification: uses the stored JSON when
-        /// present, otherwise derives them from the name and matches live.
-        /// This is what makes the whole existing catalogue display correctly
-        /// without a data backfill pass.
+        /// Panes for a saved specification: parsed from the name, matched
+        /// against the CURRENT Sheet Store, with the stored JSON kept only
+        /// where the store still stocks that exact size. A name that cannot
+        /// be parsed at all falls back to the stored record — it is
+        /// literally all there is — and anything else honestly reports no
+        /// match instead of showing a size that no longer exists.
         /// </summary>
         public static async Task<List<SpecPane>> ResolveAsync(SavedSpecification spec)
         {
             if (spec == null) return new List<SpecPane>();
 
-            var stored = Deserialize(spec.PanesJson);
-            if (stored.Count > 0) return stored;
-
             var parsed = Parse(spec.SpecName);
-            return await MatchSheetsAsync(parsed).ConfigureAwait(false);
+            if (parsed.Count == 0)
+                return Deserialize(spec.PanesJson);
+
+            var stored = Deserialize(spec.PanesJson);
+            return await MatchSheetsAsync(parsed, stored).ConfigureAwait(false);
         }
 
         public static string? Serialize(List<SpecPane>? panes)

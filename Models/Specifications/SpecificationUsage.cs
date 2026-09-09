@@ -54,6 +54,14 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Specifications
         /// </summary>
         public string ProformaId { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Company (letterhead) on the invoice that used this spec, copied
+        /// from the saved invoice row by the ledger. Lets the history and
+        /// the last-activity card name the company without deserialising
+        /// invoice JSON per row. Empty on rows written before migration 1004.
+        /// </summary>
+        public string CompanyName { get; set; } = string.Empty;
+
         /// <summary>Customer/project labels, for a readable history list.</summary>
         public string CustomerName { get; set; } = string.Empty;
         public string ProjectName { get; set; } = string.Empty;
@@ -97,6 +105,24 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Specifications
                 if (hasCustomer && hasProject) return $"{CustomerName} · {ProjectName}";
                 if (hasCustomer) return CustomerName;
                 if (hasProject) return ProjectName;
+                return "—";
+            }
+        }
+
+        /// <summary>
+        /// "PI-2026-001 · ProGlass LLC" for the last-activity card,
+        /// collapsing blanks cleanly.
+        /// </summary>
+        public string InvoiceContextDisplay
+        {
+            get
+            {
+                bool hasPi = !string.IsNullOrWhiteSpace(ProformaId);
+                bool hasCompany = !string.IsNullOrWhiteSpace(CompanyName);
+
+                if (hasPi && hasCompany) return $"{ProformaId} · {CompanyName}";
+                if (hasPi) return ProformaId;
+                if (hasCompany) return CompanyName;
                 return "—";
             }
         }

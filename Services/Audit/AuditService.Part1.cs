@@ -440,11 +440,14 @@ namespace ProGlassAutomation.Services.Audit
                 if (string.IsNullOrWhiteSpace(displayName))
                     return (false, "Display name is required.");
 
-                if ((password ?? "").Length <
-                    ProGlassAutomation.Services.Security.PasswordHasher.MinLength)
-                    return (false,
-                        $"Password must be at least " +
-                        $"{ProGlassAutomation.Services.Security.PasswordHasher.MinLength} characters.");
+                // Single enforcement home: PasswordPolicy is what the UI
+                // pre-checks mirror, so the rule and the message shown can
+                // never disagree. Length floor is 6 with no maximum; the
+                // blocklist / identity / sequence rejections apply here.
+                var policy = ProGlassAutomation.Services.Security.PasswordPolicy
+                    .ValidateNewPassword(password, username, displayName);
+                if (!policy.Accepted)
+                    return (false, policy.Error);
 
                 using var db = new AuditDbContext();
 
@@ -614,11 +617,12 @@ namespace ProGlassAutomation.Services.Audit
             {
                 username = (username ?? "").Trim();
 
-                if ((newPassword ?? "").Length <
-                    ProGlassAutomation.Services.Security.PasswordHasher.MinLength)
-                    return (false,
-                        $"New password must be at least " +
-                        $"{ProGlassAutomation.Services.Security.PasswordHasher.MinLength} characters.");
+                // Same single home as creation: the only additional rule is
+                // "must differ", which is about rotation, not strength.
+                var policy = ProGlassAutomation.Services.Security.PasswordPolicy
+                    .ValidateNewPassword(newPassword, username);
+                if (!policy.Accepted)
+                    return (false, policy.Error);
 
                 if (currentPassword == newPassword)
                     return (false,
@@ -699,16 +703,21 @@ namespace ProGlassAutomation.Services.Audit
                 adminUsername = (adminUsername ?? "").Trim();
                 targetUsername = (targetUsername ?? "").Trim();
 
-                if ((newPassword ?? "").Length <
-                    ProGlassAutomation.Services.Security.PasswordHasher.MinLength)
-                    return (false,
-                        $"Password must be at least " +
-                        $"{ProGlassAutomation.Services.Security.PasswordHasher.MinLength} characters.");
+                var policy = ProGlassAutomation.Services.Security.PasswordPolicy
+                    .ValidateNewPassword(newPassword, targetUsername);
+                if (!policy.Accepted)
+                    return (false, policy.Error);
 
                 using var db = new AuditDbContext();
 
+                // USERNAME MATCHING IS CASE-INSENSITIVE — same rule as
+                // sign-in and change-password (see SwitchUserAsync). These
+                // two lookups used straight equality, so resetting the
+                // password of "Admin" while typing "admin" failed with
+                // "not found" on an account that provably exists.
+                string adminLookup = adminUsername.ToLowerInvariant();
                 var admin = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == adminUsername).ConfigureAwait(false);
+                    .FirstOrDefaultAsync(u => u.Username.ToLower() == adminLookup).ConfigureAwait(false);
                 if (admin == null || !admin.IsActive)
                     return (false, "Administrator account not found or inactive.");
 
@@ -721,8 +730,9 @@ namespace ProGlassAutomation.Services.Audit
                 if (!VerifyPassword(admin, adminPassword ?? ""))
                     return (false, "Administrator password is incorrect.");
 
+                string targetLookup = targetUsername.ToLowerInvariant();
                 var target = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == targetUsername).ConfigureAwait(false);
+                    .FirstOrDefaultAsync(u => u.Username.ToLower() == targetLookup).ConfigureAwait(false);
                 if (target == null)
                     return (false, $"User '{targetUsername}' not found.");
                 if (!target.IsActive)
@@ -766,8 +776,13 @@ namespace ProGlassAutomation.Services.Audit
             try
             {
                 using var db = new AuditDbContext();
+                // Case-insensitive like every other username lookup: the
+                // default-credential warning must fire for "Admin" as well
+                // as "admin", or the banner silently misses the account it
+                // exists to warn about.
+                string lookup = (username ?? "").ToLowerInvariant();
                 var user = await db.Users
-                    .FirstOrDefaultAsync(u => u.Username == username).ConfigureAwait(false);
+                    .FirstOrDefaultAsync(u => u.Username.ToLower() == lookup).ConfigureAwait(false);
 
                 if (user == null || !user.IsActive) return false;
 

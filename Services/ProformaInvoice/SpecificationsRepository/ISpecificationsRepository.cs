@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.ProformaInvoice.Specifications;
+using ProGlassAutomation.Models.ProformaInvoice.Specifications;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -17,9 +17,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
         Task<List<SavedSpecification>> GetAllAsync(string glassTypeFilter = null);
 
         /// <summary>
-        /// Save or update a spec.
-        /// If a spec with same GlassType + SpecName exists, updates its rate
-        /// and increments usage count. Otherwise creates new record.
+        /// Save or update a spec in the reusable LIBRARY (rate + catalogue
+        /// details) so Step 5 can offer it before its invoice is saved.
+        /// Does NOT touch UsageCount / LastUsedAt — those are DERIVED by
+        /// SpecificationLedgerService from SAVED invoices only.
         /// </summary>
         Task<SavedSpecification> SaveOrUpdateAsync(string glassType, string specName, decimal pricePerSqm);
 
@@ -50,19 +51,27 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             string? panesJson = null);
 
         /// <summary>
-        /// Increment usage count and update LastUsedAt when a spec is picked
-        /// in Step 5. Called when spec is selected from dropdown.
+        /// LEGACY. Usage counts are ledger-derived from saved invoices
+        /// (SpecificationLedgerService) — nothing should call this. Kept so
+        /// existing compiled callers keep working; any drift it causes is
+        /// healed by the next ledger pass.
         /// </summary>
+        [System.Obsolete("Usage counts are ledger-derived from saved invoices; do not call.")]
         Task MarkAsUsedAsync(int specId);
 
         /// <summary>
         /// Appends one usage row recording that <paramref name="specId"/> was
-        /// applied to a proforma, at the price quoted at that moment.
+        /// quoted on a proforma, at the price quoted at that moment.
         ///
         /// Append-only: a spec used on five invoices has five rows, so the
         /// Center can list every PI instead of one arbitrary number. Never
         /// throws -- history is diagnostic, and failing to record it must
         /// never block the save that already succeeded.
+        ///
+        /// LEDGER-OWNED: the only writer is the ledger reconcile, which
+        /// derives rows from SAVED invoices. Step 4 must not call this (an
+        /// APPLY press is not a use), and rows the ledger did not derive
+        /// are purged as orphans on the next pass.
         /// </summary>
         Task RecordUsageAsync(
             int specId,

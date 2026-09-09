@@ -294,6 +294,10 @@ namespace ProGlassAutomation
             // Phase 4: Detach static events — no leak
             try { AuditService.CurrentUserChanged -= OnCurrentUserChanged; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[App] OnExit event-detach failed: " + ex.Message); }
 
+            // Ledger: unsubscribe from invoice writes (cancels any pending
+            // debounced pass so shutdown never waits on it).
+            try { Services.Specifications.SpecificationLedgerService.Stop(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[App] OnExit ledger stop failed: " + ex.Message); }
+
             // Record shutdown in the audit trail (bounded wait — the
             // app must still exit promptly even if the DB is locked).
             try

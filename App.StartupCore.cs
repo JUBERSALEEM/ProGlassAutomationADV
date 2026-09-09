@@ -471,6 +471,24 @@ namespace ProGlassAutomation
                     new LogContext { Module = "Network", Operation = "Startup" });
             }
 
+            // 9c-0) Specification ledger ground truth. Subscribes to invoice
+            // writes and runs the initial heal on a background thread: spec
+            // counts/history are derived from SAVED invoices only, purging
+            // phantom Step-4-APPLY rows and deleted-PI references. Start()
+            // never throws and never blocks startup (same contract as the
+            // TI→DN sweep above).
+            try
+            {
+                ProGlassAutomation.Services.Specifications
+                    .SpecificationLedgerService.Start();
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Specification ledger unavailable: {ex.Message}",
+                    new LogContext { Module = "Specifications", Operation = "Startup" });
+            }
+
             // 9c) Hardware-adaptive motion profile.
             //     Detects the display refresh rate and snaps to the
             //     nearest tier in 60/90/120/144/165 fps, then publishes

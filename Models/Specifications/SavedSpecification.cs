@@ -38,14 +38,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Specifications
         public DateTime CreatedAt { get; set; }
 
         /// <summary>
-        /// Last time this spec was picked/used in a proforma.
+        /// Last time this spec was quoted on a SAVED proforma.
+        /// LEDGER-DERIVED (SpecificationLedgerService) — Step 4 never writes
+        /// it. Default (0001-01-01) means "not on any saved invoice yet".
         /// Used for smart sorting (most recently used first).
         /// </summary>
         public DateTime LastUsedAt { get; set; }
 
         /// <summary>
-        /// How many times this spec has been used across all proformas.
-        /// Higher usage = show first in dropdown suggestions.
+        /// How many saved Step-5 groups quote this spec, across all saved
+        /// proformas. LEDGER-DERIVED (SpecificationLedgerService) — Step 4
+        /// never writes it. 0 means a draft/library entry: built or imported
+        /// but not on any saved invoice yet. Higher usage = show first in
+        /// dropdown suggestions.
         /// </summary>
         public int UsageCount { get; set; }
 
@@ -92,8 +97,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Specifications
         public int SheetId { get; set; }
 
         /// <summary>
-        /// Proforma number this spec was first generated from, for
-        /// traceability in the catalogue list.
+        /// Most recent SAVED proforma quoting this spec, for traceability in
+        /// the catalogue list. LEDGER-DERIVED (SpecificationLedgerService);
+        /// null means "not on any saved invoice yet". The full per-invoice
+        /// history lives in SpecificationUsages, not here.
         /// </summary>
         public string? ProformaId { get; set; }
 

@@ -33,5 +33,13 @@ namespace ProGlassAutomation.Services.Audit
         // no existing section string changed.
         public const string MasterData   = "Master Data";
         public const string Inquiry      = "Inquiry";
+        // Ledger ground truth: the specification reconcile service writes
+        // here when it heals counts or purges orphan usage rows. Additive;
+        // no existing section string changed.
+        public const string Specifications = "Specifications";
+        // Sharing Center: share initiated / external app opened /
+        // completed / cancelled / failed. Additive; no existing section
+        // string changed.
+        public const string Sharing = "Sharing";
     }
 }

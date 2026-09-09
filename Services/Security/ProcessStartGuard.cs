@@ -348,6 +348,62 @@ namespace ProGlassAutomation.Services.Security
             }
         }
 
+        // ── Safe open URL (Sharing Center handoff) ───────────────────────
+        // Opens a URL with the OS default handler. Scheme-allowlisted:
+        // only https (wa.me chat handoff) and mailto (email handoff).
+        // No other scheme, no javascript:, no file:. The URL is built by
+        // the sharing providers from validated parts (digits-only phone,
+        // Uri-escaped text) — never from raw operator input. Failures are
+        // logged with CorrelationId + ErrorId, never thrown.
+
+        private static readonly HashSet<string> AllowedUrlSchemes =
+            new(StringComparer.OrdinalIgnoreCase) { "https", "mailto" };
+
+        public static Result TryOpenUrl(string url, string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewId();
+            using var scope = CorrelationContext.BeginScope(corrId);
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(url))
+                    return Result.Fail("URL is empty", corrId);
+
+                if (!Uri.TryCreate(url.Trim(), UriKind.Absolute, out Uri? uri)
+                    || string.IsNullOrWhiteSpace(uri.Scheme)
+                    || !AllowedUrlSchemes.Contains(uri.Scheme))
+                    return Result.Fail("URL scheme is not allowed", corrId);
+
+                // Defense in depth: even an allowlisted scheme must not
+                // smuggle credentials or a second scheme.
+                if (!string.IsNullOrEmpty(uri.UserInfo)
+                    || url.Contains("javascript:", StringComparison.OrdinalIgnoreCase))
+                    return Result.Fail("URL is not safe to open", corrId);
+
+                var psi = new ProcessStartInfo
+                {
+                    FileName = uri.AbsoluteUri,
+                    UseShellExecute = true
+                };
+
+                Process.Start(psi);
+
+                // Log the target host/shape, never the full query (the
+                // message text is operator content, not audit content).
+                AppLogService.Info(
+                    $"Opened URL scheme={uri.Scheme} host={uri.Host} [{corrId}]",
+                    new LogContext { Module = "Security", Operation = "TryOpenUrl", CorrelationId = corrId });
+
+                return Result.Ok(corrId);
+            }
+            catch (Exception ex)
+            {
+                var errId = AppLogService.Error($"TryOpenUrl failed: {ex.Message}", ex,
+                    new LogContext { Module = "Security", Operation = "TryOpenUrl", CorrelationId = corrId });
+                return Result.Fail($"Could not open link: {ex.Message}", ex, corrId, errId);
+            }
+        }
+
         // ── Safe explorer /select ──────────────────────────────────────
 
         public static Result TryOpenExplorerSelect(string filePath, string? correlationId = null)

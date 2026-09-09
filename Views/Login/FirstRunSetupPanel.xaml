@@ -134,7 +134,25 @@
                                        Margin="2,14,0,6"/>
                             <PasswordBox x:Name="PasswordBox"
                                          Tag="&#xE72E;"
-                                         Style="{StaticResource RoundedPasswordBox}"/>
+                                         Style="{StaticResource RoundedPasswordBox}"
+                                         PasswordChanged="PasswordBox_PasswordChanged"/>
+
+                            <!-- ── STRENGTH METER ─────────────────────── -->
+                            <StackPanel x:Name="PasswordMeter" Orientation="Horizontal" Margin="2,6,0,0">
+                                <Border Height="5" Width="52" CornerRadius="2.5" Margin="0,0,6,0" Background="{DynamicResource OutlineBrush}"/>
+                                <Border Height="5" Width="52" CornerRadius="2.5" Margin="0,0,6,0" Background="{DynamicResource OutlineBrush}"/>
+                                <Border Height="5" Width="52" CornerRadius="2.5" Margin="0,0,6,0" Background="{DynamicResource OutlineBrush}"/>
+                                <Border Height="5" Width="52" CornerRadius="2.5" Margin="0,0,8,0" Background="{DynamicResource OutlineBrush}"/>
+                                <TextBlock x:Name="PasswordMeterLabel"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock x:Name="PasswordGuidance"
+                                       TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
+                                       Foreground="{DynamicResource Frost}"
+                                       Opacity="0.85"
+                                       Margin="2,2,0,0"
+                                       Visibility="Collapsed"/>
 
                             <!-- ── CONFIRM PASSWORD ─────────────────── -->
                             <TextBlock Text="{DynamicResource Login.ConfirmPassword}" Style="{StaticResource FieldLabel}"

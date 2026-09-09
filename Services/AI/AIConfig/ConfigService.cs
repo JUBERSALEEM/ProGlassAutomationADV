@@ -158,6 +158,7 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 config.DeliveryNoteFields ??= new DeliveryNoteFeatureFlags();
                 config.TaxInvoiceFields ??= new TaxInvoiceFeatureFlags();
                 config.Recording ??= new RecordingPreferences();
+                config.Sharing ??= new ProGlassAutomation.Services.Sharing.SharingSettings();
 
                 // v2: migrate legacy plain-text keys out of config.json
                 // into the encrypted vault, then hydrate from the vault.

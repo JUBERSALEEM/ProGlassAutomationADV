@@ -94,44 +94,23 @@ namespace ProGlassAutomation.Services.Security
     public static class PasswordHasher
     {
         /// <summary>
-        /// Minimum length for a NEW or CHANGED password. Existing stored
-        /// hashes are unaffected, so this only raises the bar for passwords
-        /// set from this version onward (Phase 13 — security hardening).
-        /// </summary>
-        /// <summary>
-        /// Minimum length for a NEW or CHANGED password.
+        /// Minimum length for a NEW or CHANGED password. Aliases
+        /// <see cref="PasswordPolicy.MinLength"/> — the policy class is the
+        /// single source, this constant stays so existing call sites and
+        /// tests keep compiling unchanged.
         /// </summary>
         /// <remarks>
-        /// Raised from 8 to 12 (Phase 9, 2026-09-09). This governs only the
-        /// password someone is choosing right now — <see cref="Verify"/> never
-        /// checks length, so no existing user is locked out of signing in and no
-        /// stored hash becomes invalid. An 8-character password keeps working
-        /// until that user next changes it, at which point the stronger floor
-        /// applies.
+        /// History: 8 → 12 (Phase 9) → 6 (2026-09-09, to match the on-screen
+        /// hint that promises 6 in all 15 locales). Governs only passwords
+        /// being chosen NOW — <see cref="Verify"/> never checks length, so no
+        /// existing user is locked out and no stored hash becomes invalid.
         ///
-        /// Single-sourced deliberately: every call site
-        /// (<c>AuditService.Part1.cs</c>, <c>UserCenterViewModel.cs</c>) reads
-        /// this constant and interpolates it into its own error message, so the
-        /// rule and the text shown to the user cannot drift apart.
-        ///
-        /// Length only. There is still no complexity rule and no breached-
-        /// password check — see docs/phases/PHASE-09-security-hardening.md.
-        ///
-        /// CHANGED 12 -> 6, 2026-09-09. The doc comment above claimed the rule
-        /// and the text shown to the user "cannot drift apart" because every
-        /// call site interpolates this constant. That was true of the ERROR
-        /// MESSAGES and false of the on-screen HINT: FirstRunSetupPanel.xaml
-        /// binds Login.PasswordMustLeast6CharactersChooseSomething, a
-        /// localised string that promises "at least 6 characters" in all 15
-        /// locales and never reads this constant. So the setup screen told the
-        /// operator 6 was fine while CreateUserAsync rejected it — they chose a
-        /// password the UI approved, and then could not sign in with it. Lowering
-        /// the constant to 6 makes the code agree with what every locale
-        /// already promises. A localised string cannot interpolate a C#
-        /// constant, so the durable fix is to keep the two numbers equal and
-        /// treat this constant as the single source both must match.
+        /// Length is only the FLOOR. The full acceptance rules (common-
+        /// password blocklist, username containment, trivial sequences) and
+        /// the strength meter live in <see cref="PasswordPolicy"/>, which is
+        /// what new code should call.
         /// </remarks>
-        public const int MinLength = 6;
+        public const int MinLength = PasswordPolicy.MinLength;
 
         /// <summary>Marker for the current scheme.</summary>
         private const string Pbkdf2Prefix = "PBKDF2";
@@ -194,8 +173,20 @@ namespace ProGlassAutomation.Services.Security
                 if (storedHash.StartsWith(Pbkdf2Prefix + "$",
                         StringComparison.Ordinal))
                 {
-                    return new PasswordVerificationResult(
-                        VerifyPbkdf2(password, storedHash), false);
+                    // A correct password on FEWER iterations than current
+                    // still verifies (old hashes keep working) but reports
+                    // NeedsUpgrade, so the caller silently re-hashes at the
+                    // current count on next sign-in. This is the upgrade path
+                    // the self-describing format was designed for: raising
+                    // DefaultIterations later migrates every account without
+                    // a forced reset. Never reported on FAILURE — re-hashing
+                    // a wrong password would lock the user out.
+                    var (ok, storedIterations) =
+                        VerifyPbkdf2(password, storedHash);
+                    bool needsUpgrade = ok
+                        && storedIterations > 0
+                        && storedIterations < DefaultIterations;
+                    return new PasswordVerificationResult(ok, needsUpgrade);
                 }
 
                 // ── Legacy salted SHA-256 ─────────────────────────────
@@ -214,18 +205,25 @@ namespace ProGlassAutomation.Services.Security
             }
         }
 
-        private static bool VerifyPbkdf2(string password, string stored)
+        /// <summary>
+        /// Verifies a PBKDF2 stored value. Returns the match result plus the
+        /// iteration count the hash was created with (0 when the value is
+        /// malformed), so <see cref="Verify"/> can flag below-current
+        /// hashes for silent upgrade.
+        /// </summary>
+        private static (bool Ok, int Iterations) VerifyPbkdf2(
+            string password, string stored)
         {
             // PBKDF2 $ iterations $ salt $ hash
             var parts = stored.Split('$');
-            if (parts.Length != 4) return false;
+            if (parts.Length != 4) return (false, 0);
 
             if (!int.TryParse(parts[1], out int iterations) ||
                 iterations <= 0 || iterations > 10_000_000)
             {
                 // Guard against a corrupted or hostile iteration count
                 // that would otherwise hang the UI thread for minutes.
-                return false;
+                return (false, 0);
             }
 
             byte[] salt = Convert.FromBase64String(parts[2]);
@@ -240,7 +238,8 @@ namespace ProGlassAutomation.Services.Security
 
             // Constant-time comparison: a byte-by-byte early-exit compare
             // leaks how many leading bytes matched via timing.
-            return CryptographicOperations.FixedTimeEquals(actual, expected);
+            bool ok = CryptographicOperations.FixedTimeEquals(actual, expected);
+            return (ok, iterations);
         }
 
         /// <summary>

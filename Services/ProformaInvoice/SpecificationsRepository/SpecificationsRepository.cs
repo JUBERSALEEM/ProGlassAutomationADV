@@ -94,10 +94,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
             if (existing != null)
             {
-                // Update rate to latest calculation + increment usage
+                // LEDGER GROUND TRUTH: this writes the reusable LIBRARY
+                // (rate + catalogue details) so Step 5 can offer the spec
+                // before its invoice is saved. It deliberately does NOT
+                // touch UsageCount / LastUsedAt — those are DERIVED by
+                // SpecificationLedgerService from SAVED invoices only. The
+                // old code bumped the count on every Step 4 APPLY, including
+                // drafts that were never saved, which is how the Center came
+                // to show uses that never happened.
                 existing.PricePerSqm = pricePerSqm;
-                existing.LastUsedAt = DateTime.Now;
-                existing.UsageCount += 1;
 
                 // Refresh catalogue columns, but only when the caller
                 // actually supplied a value. A 3-arg save (or a caller that
@@ -112,6 +117,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                     existing.SheetHeightMm = sheetHeightMm;
                 }
                 if (sheetId > 0)                            existing.SheetId = sheetId;
+                // ProformaId is ledger-owned verified provenance (most recent
+                // SAVED invoice). Honoured here only when a caller explicitly
+                // supplies one (CSV round-trip); Step 4 passes null because a
+                // draft PI id is not a fact yet, and the ledger heals the rest.
                 if (!string.IsNullOrWhiteSpace(proformaId)) existing.ProformaId = proformaId;
                 if (!string.IsNullOrWhiteSpace(panesJson)) existing.PanesJson = panesJson;
                 await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
@@ -123,7 +132,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 return existing;
             }
 
-            // Create new spec
+            // Create new spec. UsageCount starts at ZERO — being built in
+            // Step 4 is not being used, and the ledger sets the verified
+            // count from saved invoices. LastUsedAt starts at creation (a
+            // touch timestamp, healed by the ledger on next reconcile).
             var newSpec = new SavedSpecification
             {
                 GlassType = glassType,
@@ -131,7 +143,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 PricePerSqm = pricePerSqm,
                 CreatedAt = DateTime.Now,
                 LastUsedAt = DateTime.Now,
-                UsageCount = 1,
+                UsageCount = 0,
 
                 Category = category,
                 Color = color,
@@ -154,6 +166,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
         public async Task MarkAsUsedAsync(int specId)
         {
+            // LEGACY. Usage counts are ledger-derived from saved invoices
+            // (SpecificationLedgerService) — see the interface contract.
+            // Kept working for backward compatibility; the ledger heals any
+            // drift this causes on its next pass.
             ReadOnlyGate.Demand("mark a specification as used");
             using var db = new SpecificationsDbContext();
             var spec = await db.Specifications.FindAsync(specId).ConfigureAwait(false);
@@ -181,6 +197,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             // a save that has already been authorised; blocking it would
             // leave the catalogue and its history inconsistent. Wrapped so a
             // history failure can never surface as a save failure.
+            //
+            // LEDGER OWNERSHIP: the only writer is now the ledger reconcile
+            // (in bulk). Step 4 must NOT call this — an APPLY press is not a
+            // use until its invoice is saved. Rows the ledger did not derive
+            // are purged as orphans on the next pass.
             try
             {
                 using var db = new SpecificationsDbContext();

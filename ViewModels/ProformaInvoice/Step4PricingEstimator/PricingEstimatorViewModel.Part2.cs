@@ -175,6 +175,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                         $"[Step4.Panes] {paneEx.Message}");
                 }
 
+                // LEDGER GROUND TRUTH: this writes the reusable LIBRARY row
+                // (name + rate + catalogue details) so Step 5 can offer the
+                // spec. It records NO usage: an APPLY press is not a use —
+                // counts and history are derived by SpecificationLedgerService
+                // from SAVED invoices only, once this invoice is saved.
+                // proformaId is null for the same reason: a draft PI number
+                // is not a fact yet, and the ledger owns that column.
                 var savedSpec = await _specs.SaveOrUpdateAsync(
                     glassType, specName, rate,
                     category: null,          // Sheet Store category: resolved
@@ -184,28 +191,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     sheetWidthMm: specW,
                     sheetHeightMm: specH,
                     sheetId: 0,
-                    proformaId: Services.ProformaInvoice.ActiveInvoiceContext.ProformaId,
+                    proformaId: null,
                     panesJson: panesJson);
-
-                // USAGE HISTORY: one append-only row per APPLY, so the
-                // Specifications Center can list EVERY proforma that used
-                // this spec. The catalogue row itself is deduped on
-                // GlassType + SpecName, so it cannot carry more than one PI
-                // number on its own.
-                //
-                // Price is captured here because savedSpec.PricePerSqm is
-                // overwritten on the next re-apply -- this is the only
-                // record of what THIS invoice was quoted at.
-                await _specs.RecordUsageAsync(
-                    savedSpec.Id,
-                    specName,
-                    glassType,
-                    Services.ProformaInvoice.ActiveInvoiceContext.ProformaId,
-                    Services.ProformaInvoice.ActiveInvoiceContext.CustomerName,
-                    Services.ProformaInvoice.ActiveInvoiceContext.ProjectName,
-                    rate,
-                    specW,
-                    specH);
 
                 // PHASE G: remember WHICH stock sheet this spec was priced
                 // against, so Step 5 can carry it and Step 9 can cost the
@@ -214,12 +201,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 // sheet choice is a per-invoice decision, not a spec property.
                 RecordSheetSelection(glassType, specName);
 
-                bool isNew = savedSpec.UsageCount == 1;
-
-                // BUG-44: non-blocking one-line status
-                ApplyStatusMessage = isNew
+                // BUG-44: non-blocking one-line status. The count is the
+                // LEDGER-verified uses on saved invoices (healed on every
+                // invoice save) — honest about what is real, which an
+                // APPLY-press counter never was.
+                int verifiedUses = Math.Max(0, savedSpec.UsageCount);
+                ApplyStatusMessage = verifiedUses == 0
                     ? $"✓  Saved '{specName}' — AED {rate:N2}/sqm. Now available in Step 5."
-                    : $"✓  Updated '{specName}' — AED {rate:N2}/sqm  (used {savedSpec.UsageCount}×).";
+                    : $"✓  Updated '{specName}' — AED {rate:N2}/sqm  (on {verifiedUses} saved group{(verifiedUses == 1 ? "" : "s")}).";
             }
             catch (Services.Audit.PermissionDeniedException denied)
             {

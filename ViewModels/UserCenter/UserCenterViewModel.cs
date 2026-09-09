@@ -212,12 +212,14 @@ namespace ProGlassAutomation.ViewModels.UserCenter
                 Status = "Username and display name are required.";
                 return;
             }
-            if (password.Length <
-                ProGlassAutomation.Services.Security.PasswordHasher.MinLength)
+            // Mirrors AuditService.CreateUserAsync via the same single home
+            // (PasswordPolicy), so the local pre-check and the enforced rule
+            // can never disagree — instant feedback without a DB round-trip.
+            var policy = ProGlassAutomation.Services.Security.PasswordPolicy
+                .ValidateNewPassword(password, Username, DisplayName);
+            if (!policy.Accepted)
             {
-                Status =
-                    $"Password must be at least " +
-                    $"{ProGlassAutomation.Services.Security.PasswordHasher.MinLength} characters.";
+                Status = policy.Error;
                 return;
             }
             if (password != confirm)
@@ -278,12 +280,13 @@ namespace ProGlassAutomation.ViewModels.UserCenter
                 return;
             }
 
-            if (newPassword.Length <
-                ProGlassAutomation.Services.Security.PasswordHasher.MinLength)
+            // Mirrors AuditService.ChangePasswordAsync via the same single
+            // home (PasswordPolicy) — see CreateUserAsync above.
+            var policy = ProGlassAutomation.Services.Security.PasswordPolicy
+                .ValidateNewPassword(newPassword, card.Username);
+            if (!policy.Accepted)
             {
-                Status =
-                    $"New password must be at least " +
-                    $"{ProGlassAutomation.Services.Security.PasswordHasher.MinLength} characters.";
+                Status = policy.Error;
                 return;
             }
 

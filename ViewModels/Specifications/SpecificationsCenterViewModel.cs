@@ -22,13 +22,21 @@
 //
 //  The only mutation offered is DELETE, for pruning mistakes out of the
 //  catalogue, and it is permission-gated in the repository.
+//
+//  GROUND TRUTH (ledger). Every count, history row and PI number shown
+//  here is derived by SpecificationLedgerService from SAVED proforma
+//  snapshots' Step 5 groups — never from Step 4 APPLY presses, and never
+//  from invoices that no longer exist. This VM reads the ledger's output
+//  and re-syncs on every invoice write; it trusts nothing else.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
 using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
+using ProGlassAutomation.Services.Specifications;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
@@ -68,7 +76,7 @@ namespace ProGlassAutomation.ViewModels.Specifications
 
         private void InitializeCore()
         {
-            RefreshCommand = new RelayCommand(_ => _ = LoadAsync());
+            RefreshCommand = new RelayCommand(_ => _ = RefreshWithReconcileAsync());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             SelectSpecCommand = new RelayCommand(p => _ = SelectSpecAsync(p as SavedSpecification));
             CloseDetailCommand = new RelayCommand(_ => SelectedSpec = null);
@@ -82,17 +90,54 @@ namespace ProGlassAutomation.ViewModels.Specifications
             // with no manual refresh, same channel Step 5's dropdown uses.
             SpecCatalogNotifier.Changed += OnCatalogChanged;
 
+            // Ledger sync: an invoice save/edit/delete changes the verified
+            // counts (via the ledger's debounced reconcile, which also
+            // raises SpecCatalogNotifier when done). Both signals funnel
+            // into the same coalesced reload, so a burst of saves costs one
+            // refresh, never a queue of them.
+            ProformaInvoiceRepository.SavedInvoicesChanged += OnInvoicesChanged;
+
             _ = LoadAsync();
         }
 
-        private void OnCatalogChanged(object? sender, EventArgs e)
+        private void OnCatalogChanged(object? sender, EventArgs e) =>
+            RequestReload();
+
+        private void OnInvoicesChanged() =>
+            RequestReload();
+
+        private void RequestReload()
         {
-            // May arrive on a background thread (async repository writes).
+            // May arrive on a background thread (async repository writes,
+            // ledger reconcile). LoadAsync coalesces overlapping calls, so
+            // firing on both signals is safe.
             var dispatcher = Application.Current?.Dispatcher;
             if (dispatcher == null || dispatcher.CheckAccess())
                 _ = LoadAsync();
             else
                 dispatcher.BeginInvoke(new Action(() => _ = LoadAsync()));
+        }
+
+        /// <summary>
+        /// Manual resync: re-derive counts/history from saved invoices,
+        /// then reload. The one place the Center WRITES (through the
+        /// ledger) instead of only reading.
+        /// </summary>
+        private async Task RefreshWithReconcileAsync()
+        {
+            try
+            {
+                StatusMessage = "Syncing with saved invoices…";
+                await SpecificationLedgerService.ReconcileAsync();
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SpecificationsCenter.Reconcile] {ex.Message}");
+            }
+
+            await LoadAsync();
+            // LoadAsync clears the "Syncing…" message on success; on failure
+            // it carries the failure text, which must stay.
         }
 
         // ── Collections ──────────────────────────────────────────────────
@@ -269,10 +314,62 @@ namespace ProGlassAutomation.ViewModels.Specifications
             OnPropertyChanged(nameof(IsEmpty));
         }
 
+        // ── Last activity (top stat) ─────────────────────────────────────
+        // The most recent VERIFIED use: which spec, on which saved invoice,
+        // for which company, and when. Ledger-sourced, so it can only ever
+        // name invoices that exist. Unlike the KPIs above it is GLOBAL (not
+        // filtered) — "last used anywhere" is the question it answers.
+
+        private SpecLastActivity? _lastActivity;
+
+        public bool HasLastActivity => _lastActivity != null;
+
+        public string LastActivitySpec =>
+            _lastActivity?.SpecName ?? "—";
+
+        public string LastActivityInvoice =>
+            _lastActivity?.InvoiceContextDisplay ?? "—";
+
+        public string LastActivityDate =>
+            _lastActivity?.UsedAtDisplay ?? "";
+
+        private void SetLastActivity(SpecLastActivity? value)
+        {
+            _lastActivity = value;
+            OnPropertyChanged(nameof(HasLastActivity));
+            OnPropertyChanged(nameof(LastActivitySpec));
+            OnPropertyChanged(nameof(LastActivityInvoice));
+            OnPropertyChanged(nameof(LastActivityDate));
+        }
+
+        private async Task LoadLastActivityAsync()
+        {
+            try
+            {
+                SetLastActivity(await SpecificationLedgerService.GetLastActivityAsync());
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SpecificationsCenter.LastActivity] {ex.Message}");
+                SetLastActivity(null);
+            }
+        }
+
         // ── Load / filter ────────────────────────────────────────────────
+
+        // Coalescing gate: the Center listens to BOTH the catalogue signal
+        // and the invoice signal, and a single save raises several of each.
+        // Overlapping calls queue ONE follow-up pass instead of racing.
+        private bool _loadQueued;
 
         public async Task LoadAsync()
         {
+            if (IsLoading)
+            {
+                _loadQueued = true;
+                return;
+            }
+
             if (_specs == null)
             {
                 StatusMessage = "Specifications repository unavailable.";
@@ -288,6 +385,8 @@ namespace ProGlassAutomation.ViewModels.Specifications
 
                 RebuildFilterOptions();
                 ApplyFilters();
+
+                await LoadLastActivityAsync();
 
                 StatusMessage = "";
             }
@@ -306,6 +405,12 @@ namespace ProGlassAutomation.ViewModels.Specifications
             {
                 IsLoading = false;
                 OnPropertyChanged(nameof(IsEmpty));
+
+                if (_loadQueued)
+                {
+                    _loadQueued = false;
+                    await LoadAsync();
+                }
             }
         }
 
@@ -712,17 +817,19 @@ namespace ProGlassAutomation.ViewModels.Specifications
             return result;
         }
 
-        // ── IDisposable — detach static event subscription ────────────
-        // SpecCatalogNotifier.Changed is a static event that outlives
-        // any single VM instance. Without detaching, the VM leaks until
-        // the app exits (or until the next SpecCatalogNotifier.Changed
-        // fires and tries to call a method on a dead VM).
+        // ── IDisposable — detach static event subscriptions ──────────
+        // SpecCatalogNotifier.Changed and SavedInvoicesChanged are static
+        // events that outlive any single VM instance. Without detaching,
+        // the VM leaks until the app exits (or until the next signal fires
+        // and tries to call a method on a dead VM).
         private bool _disposed;
         public void Dispose()
         {
             if (_disposed) return;
             _disposed = true;
             try { SpecCatalogNotifier.Changed -= OnCatalogChanged; }
+            catch { /* best-effort */ }
+            try { ProformaInvoiceRepository.SavedInvoicesChanged -= OnInvoicesChanged; }
             catch { /* best-effort */ }
             GC.SuppressFinalize(this);
         }
@@ -766,12 +873,46 @@ namespace ProGlassAutomation.ViewModels.Specifications
         {
             if (spec == null || _specs == null) return;
 
+            // Ledger-verified guard: deleting a spec NEVER touches saved
+            // invoices (their snapshots are self-contained — quoted prices
+            // stay exactly as quoted). But when the spec IS quoted on saved
+            // invoices, the operator must see WHERE before confirming, and
+            // re-saving one of those invoices will recreate the catalogue
+            // row on the next ledger pass (the invoice is the truth, not the
+            // catalogue). A spec on no invoice deletes plainly.
+            List<string> livePis = new();
+            try
+            {
+                var uses = await _specs.GetUsageHistoryAsync(spec.Id);
+                livePis = uses
+                    .Select(u => u.ProformaId)
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(id => id)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SpecificationsCenter.DeleteCheck] {ex.Message}");
+            }
+
+            string message = livePis.Count == 0
+                ? $"Delete the specification \"{spec.SpecName}\"?\n\n"
+                  + "It is not quoted on any saved invoice.\n\n"
+                  + "This only removes it from the catalogue and the Step 5 "
+                  + "dropdown."
+                : $"Delete the specification \"{spec.SpecName}\"?\n\n"
+                  + $"It is quoted on {livePis.Count} saved invoice"
+                  + (livePis.Count == 1 ? "" : "s") + ": "
+                  + string.Join(", ", livePis.Take(5))
+                  + (livePis.Count > 5 ? $" (+{livePis.Count - 5} more)" : "")
+                  + ".\n\nSaved invoices keep the price they were quoted at — "
+                  + "this only removes it from the catalogue and the Step 5 "
+                  + "dropdown, and the next sync will list it again while "
+                  + "those invoices still quote it.";
+
             bool confirmed = _dialogs?.Confirm(
-                $"Delete the specification \"{spec.SpecName}\"?\n\n"
-                + "Existing invoices keep the price they were quoted at. "
-                + "This only removes it from the catalogue and the Step 5 "
-                + "dropdown.",
-                "Delete specification") ?? false;
+                message, "Delete specification") ?? false;
 
             if (!confirmed) return;
 
