@@ -349,7 +349,27 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                                      / targetPerSqm * 100m;
                     r.MarginAgainstTargetPercent = Math.Round(margin, 2);
 
-                    if (r.Status == TargetStatus.UpToDate)
+                    // Re-derive the classification whenever the result is
+                    // already in a CLASSIFIED state — not only from UpToDate.
+                    //
+                    // Calculate() leaves the status at AboveTarget/BelowTarget/
+                    // AtTarget, and ApplyUInsert() then calls FinalizeValues
+                    // again after netting an included U-insert out of the
+                    // judged price. With the guard limited to UpToDate, that
+                    // second pass recomputed the margin but left the status
+                    // frozen at whatever Calculate() decided: a toggle-off
+                    // quotation showed -2.20% beside a stale ABOVE TARGET.
+                    // The two numbers on the same card disagreed, and the
+                    // disagreement was silent.
+                    //
+                    // Safe because marginEligible above already excludes every
+                    // incomplete state (Missing*, CalculationIncomplete,
+                    // SnapshotStale), so this cannot promote a result whose
+                    // formula inputs are absent.
+                    if (r.Status is TargetStatus.UpToDate
+                                    or TargetStatus.BelowTarget
+                                    or TargetStatus.AtTarget
+                                    or TargetStatus.AboveTarget)
                     {
                         decimal m = r.MarginAgainstTargetPercent.Value;
                         r.Status = TargetMarginTolerance.IsBelow(m)
