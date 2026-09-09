@@ -350,14 +350,18 @@ namespace ProGlassAutomation.Services.Security
 
         // ── Safe open URL (Sharing Center handoff) ───────────────────────
         // Opens a URL with the OS default handler. Scheme-allowlisted:
-        // only https (wa.me chat handoff) and mailto (email handoff).
+        //   • https    — wa.me / web.whatsapp.com chat handoff, mail links
+        //   • mailto   — email handoff
+        //   • whatsapp — WhatsApp Desktop deep link (whatsapp://send?...),
+        //                opens the installed, logged-in desktop app on the
+        //                recipient's chat with the message prefilled.
         // No other scheme, no javascript:, no file:. The URL is built by
         // the sharing providers from validated parts (digits-only phone,
         // Uri-escaped text) — never from raw operator input. Failures are
         // logged with CorrelationId + ErrorId, never thrown.
 
         private static readonly HashSet<string> AllowedUrlSchemes =
-            new(StringComparer.OrdinalIgnoreCase) { "https", "mailto" };
+            new(StringComparer.OrdinalIgnoreCase) { "https", "mailto", "whatsapp" };
 
         public static Result TryOpenUrl(string url, string? correlationId = null)
         {

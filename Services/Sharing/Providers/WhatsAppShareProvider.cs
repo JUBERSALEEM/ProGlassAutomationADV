@@ -1,24 +1,34 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Sharing/Providers/WhatsAppShareProvider.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Sharing Center — WhatsApp provider (Stage 1)
+// MODULE: Sharing Center — WhatsApp provider (Stage 1, Stage 3 upgrade)
 //
-// LEGITIMATE HANDOFF ONLY. This opens the device's WhatsApp (app or web,
-// whichever the OS routes wa.me to) on the recipient's chat with the
-// message prefilled. No scraping, no DOM automation, no session, no paid
-// API, no third-party upload.
+// LEGITIMATE HANDOFF ONLY. This opens the machine's WhatsApp on the
+// recipient's chat with the message prefilled. No scraping, no DOM
+// automation, no session hijack, no paid API, no third-party upload.
+//
+// CHANNEL SELECTION (Sept 2026 senior audit — "WhatsApp never opened")
+// ────────────────────────────────────────────────────────────────────
+//   Delegates the actual launch to WhatsAppLauncher, which deep-links
+//   into whichever WhatsApp the machine has, on the recipient's chat:
+//     1. WhatsApp Desktop  (whatsapp://send)   — installed, logged-in app
+//     2. WhatsApp Web      (web.whatsapp.com/send) — logged-in web chat
+//     3. wa.me                                   — universal last resort
+//   The previous bare wa.me link opened a browser INTERSTITIAL on desktop
+//   (not a chat), so operators saw only the Explorer reveal and thought
+//   sharing was broken. It now lands directly in the chat.
 //
 // WHAT IT CANNOT DO (stated so nobody "fixes" it later)
 // ──────────────
-// wa.me carries TEXT ONLY — no attachment parameter exists. The provider
-// therefore stages the artifact(s) in the share temp folder, REVEALS the
-// first in Explorer beside the chat, and tells the operator exactly that.
-// The outcome is ExternalAppOpened — never "Sent". Delivery/read status
-// is unknowable and never claimed.
+// WhatsApp click-to-chat links carry TEXT ONLY — no attachment parameter
+// exists on ANY channel. The provider therefore stages the artifact(s) in
+// the share temp folder, REVEALS the first in Explorer beside the chat,
+// and tells the operator exactly that. The outcome is ExternalAppOpened —
+// never "Sent". Delivery/read status is unknowable and never claimed.
 //
 // FROM/TO HONESTY. FROM is the ProGlass user identity shown in OUR
 // composer for context; the WhatsApp account that actually sends is
-// whichever is active on the device, and the UI says so.
+// whichever is logged in on the machine, and the UI says so.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Logging;
@@ -114,16 +124,16 @@ namespace ProGlassAutomation.Services.Sharing.Providers
                 string text = request.Message ?? "";
                 if (text.Length == 0)
                     text = $"Please find attached: {request.Artifacts[0].FileName}";
-                string url = "https://wa.me/" + digits
-                    + "?text=" + Uri.EscapeDataString(text);
 
+                // Deep-link into whichever WhatsApp the machine has, on the
+                // recipient's chat: Desktop app → logged-in Web → wa.me.
                 var launched = await Task.Run(() =>
-                    ProcessStartGuard.TryOpenUrl(url)).ConfigureAwait(false);
+                    WhatsAppLauncher.OpenChat(digits, text)).ConfigureAwait(false);
                 if (!launched.IsSuccess)
                     return ShareOutcome.Failed(Id,
                         "WhatsApp could not be opened. " +
                         (launched.Error.Length > 0 ? launched.Error
-                            : "Is a browser or WhatsApp installed?"),
+                            : "Install WhatsApp Desktop, or sign in to WhatsApp Web in your browser, and try again."),
                         "launch failed: " + launched.Error);
 
                 // Reveal the staged file(s) beside the chat so the operator
@@ -141,10 +151,11 @@ namespace ProGlassAutomation.Services.Sharing.Providers
                     request.Artifacts.Select(a => a.FileName));
                 return ShareOutcome.ExternalAppOpened(
                     Id,
-                    $"Opened WhatsApp chat with {request.Recipient.Name}.",
-                    $"Attach {files} from the opened folder into the chat — " +
-                    "WhatsApp was opened with your message, nothing was sent automatically.",
-                    $"to {request.Recipient.AuditIdentity}; files: {files}");
+                    $"Opened {launched.ChannelName} chat with {request.Recipient.Name}.",
+                    $"Your message is prefilled in {launched.ChannelName} — press send when ready. " +
+                    $"WhatsApp links can't carry files, so attach {files} " +
+                    "from the folder that just opened (nothing was sent automatically).",
+                    $"via {launched.ChannelName} to {request.Recipient.AuditIdentity}; files: {files}");
             }
             catch (Exception ex)
             {
