@@ -90,9 +90,9 @@ disagree with it.
 
 | | |
 |---|---|
-| **Production code** | 1,112 C# files · 225,914 lines |
+| **Production code** | 1,112 C# files · 225,915 lines |
 | **UI** | 229 XAML files · 114,658 lines |
-| **Tests** | 185 files · **1,394 `[Fact]`/`[Theory]`** · 33,146 lines |
+| **Tests** | 186 files · **1,396 `[Fact]`/`[Theory]`** · 33,405 lines |
 | **Test-to-production ratio** | 1 : 6.8 |
 | **Modules** | 24 view areas · 38 service domains |
 | **Data** | 12 SQLite databases, one `DbContext` each, additive-only migrations |
@@ -239,7 +239,7 @@ rules, not aspirations.
 | **Data safety** | Migrations run backup → transaction → rollback and are additive-only. Delete guards check downstream documents first. |
 | **Security** | RSA-2048-PSS with no v1.5 fallback, DPAPI for secrets, PBKDF2 for passwords, machine fingerprinting, rate-limited key generation. |
 | **Test intent** | 1,394 tests targeting the *workflow invariants* rather than getters — company semantics, conversion, price-basis determinism. |
-| **Hygiene** | Zero TODO/FIXME/`NotImplementedException` in 225,914 lines of production code. Rare at this size. |
+| **Hygiene** | Zero TODO/FIXME/`NotImplementedException` in 225,915 lines of production code. Rare at this size. |
 
 ### What is open
 
@@ -254,13 +254,14 @@ Every item below has a phase, a concrete action and an acceptance test in
 | **P0** | **No CI — deliberately deferred, not overlooked.** `.github/workflows/` does not exist. Four complete workflow files sit in `docs/ci/` and `docs/CI/`, ready to drop in. Phase 0 is **skipped by the owner's instruction** until a machine is available; the GitHub App token in this environment also lacks the `workflows` scope, so the files could not be committed from here regardless. Until then nothing proves this tree builds automatically — the 2026-09-09 build below was run by hand. | `ls .github/` → `CODEOWNERS`, `dependabot.yml`, `pull_request_template.md` |
 | **P1** | **Whole-table loads — 11 sites left, and six of them must *not* be paginated.** Down from 25 / 18. Every lookup, dashboard aggregate, picker and full-text search is done: those were the categories where adding a page would have silently dropped the row being looked for. **Corrected 2026-09-09:** "all of them real list screens" was wrong. Read individually, six of the eleven are lookups or complete-set consumers where adding a page is a regression — three feed `RebuildFilterOptions()`/`ApplyItemFilters()` so pagination silently drops filter choices, one feeds a progressively-narrowed stock match that would report "no matching sheet" for a sheet that exists, one is a duplicate check that would start creating duplicate statements, and one is full-text search that would stop finding anything past page one. None of those fails loudly. **Four** are genuine list screens (`OrderReportListViewModel`, `StatementListViewModel`, `TaxInvoiceGodViewViewModel`, `HistoryViewModel`); the eleventh file is both, with a picker source at line 719 and a list at line 797. Those four need a pager in XAML, which is a change to make with a compiler open. `PagedResult<T>` and `GlobalQueryEngine.ExecutePagedQueryAsync` already exist; `InquiryListView.xaml:1403-1430` is the pager to copy. The ratchet holds at 11 and fails on growth. | `docs/phases/PHASE-08-pagination.md` |
 | **P1** | **First real build happened 2026-09-09 — 9 errors, 2 root causes, both fixed.** This row was **P0 "nothing has been compiled"** and it is now materially different. The owner built on Windows and reported nine errors; every one traced to two mistakes made while writing blind. **(1)** `SearchPattern.EscapeChar` was declared `const char`, but the overload is `Like(this DbFunctions, string, string, string? escapeCharacter)` — a string. One declaration change cleared all eight CS1503s. The error said *argument 4* for a three-argument call because an extension method's implicit `this` receiver counts as the first argument. **(2)** `TaxInvoiceDetailViewModel.InitNew.cs:187` still referenced `allDns`, the whole-table load that `GetByProformaIdAsync` replaced — a rename that missed one use (CS0103). Fixed in `0673ffd`. Rather than patch only what was reported, every changed file was diffed against the base for removed declarations with surviving references: six candidates, five false positives, one real. The **absence** of IDE0005 in that error list is evidence too, not luck — it is not in `WarningsNotAsErrors` while `TreatWarningsAsErrors` is on, so a single orphaned `using` would have appeared. **Still unproven:** whether the tree is now clean. Rebuild and report. | commit `0673ffd` |
-| **P2** | **Test ratio 1 : 6.8.** Improved from 1 : 7.4 as the 2026-09-09 work added 88 tests, but still thin for software that computes money. The pricing engine in particular deserves property-based coverage. The earlier *1 : 7.6* figure was computed with test files counted as production — see the correction in [At a glance](#at-a-glance). | 33,146 test lines vs 225,914 |
+| **P2** | **Test ratio 1 : 6.8.** Improved from 1 : 7.4 as the 2026-09-09 work added 88 tests, but still thin for software that computes money. The pricing engine in particular deserves property-based coverage. The earlier *1 : 7.6* figure was computed with test files counted as production — see the correction in [At a glance](#at-a-glance). | 33,405 test lines vs 225,915 |
 | **P2** | **Large classes.** 13 files exceed 990 lines; `JobProfitabilityViewModel.cs` is 1,933 and contains **no `#region` markers at all**. The real target is not the file but `LoadAsync` — **350 lines** (1187-1536), larger than every method in most files, and the entry point where every data dependency is visible at once. Extracting its stages would do more than splitting the file. Four of the 13 already carry `Part1` in the name: those splits were started and not finished. | `find . -name '*.cs' \| xargs wc -l` |
 | **P2** | **No obfuscation.** Release binaries are readable in dnSpy. Acceptable for desktop, a raised bar for a commercial product. | `docs/CODE_RATING_REPORT.md` |
 | **P3** | **One acknowledged hack, still open — and the blocker is now precise.** `OtherChargeRow.MetricQty` hardcodes delivery quantity to `1m` per invoice (`if (IsDeliveryRow) return 1m;`), so a multi-trip delivery cannot be billed without a manual Custom Charge. Documented, deliberate, and marked *"proper fix planned for Chat 8"*; Chat 8 happened, the fix did not. **Step 1 is in place:** characterisation tests pin current behaviour for every branch. What the real fix needs is now stated rather than assumed, and it is why this stays open: a settable per-trip quantity means a **persisted field**, an **editable UI column**, and **PDF/Excel export parity** — the comment says the current `1m` "matches PDF/Excel export behavior", so all three must change together or the printed invoice stops agreeing with the screen. That is a money-path change across schema, UI and export with no compiler; the characterisation tests are the precondition, not the fix. | `OtherChargeRow.cs:316` · `OtherChargeRowMetricQtyCharacterisationTests.cs` |
 | ~~P3~~ | ~~**25 `.md` files in the repository root.**~~ **Resolved 2026-09-08** — 24 audit/analysis documents moved to `docs/` with `git mv`, all inbound references rewritten, links re-verified. `README.md` is now the only root document. | `ls *.md` |
 | **P3** | **No anti-debug checks.** A debugger can patch memory to bypass licensing. Acceptable for desktop ERP; not zero-risk. | `docs/CODE_RATING_REPORT.md` |
 | ~~P1~~ | ~~**Status vocabularies disagreed between screens.**~~ **Resolved 2026-09-08** — see the section below. | commits `122a32b`, `fdfea80`, `5c10f90` |
+| ~~P1~~ | ~~**The largest status-literal offender still had 17 raw comparisons.**~~ **Resolved 2026-09-09** — all 17 in `DeliveryNoteRepository.Part1.cs` now read from `DeliveryNoteStatusValues`. The ratchet baseline falls **60 → 43 across 11 files**, and its stale-entry test forced the allow-list update rather than letting the cleaned file linger. Safe without a build because the constants are `const string`: the compiler inlines them into the LINQ tree, so EF sees the same literal and **the generated SQL is byte-identical**. | `StatusLiteralRatchetTests` · commit below |
 | ~~P1~~ | ~~**Every dashboard loaded its whole table to compute four numbers.**~~ **Resolved 2026-09-08** — all seven dashboards now read aggregates from `IDashboardMetricsService`. Migrating the last three turned up a second copy of the Master-DN rule: the metrics service counted notes that no list screen shows, in both its aggregates *and* the Overview activity feed. Both now filter, and a new ratchet fails if an unfiltered delivery query is added. | commit `52f69ee` · `MasterDnFilterParityTests.cs` |
 
 ### The fifteen-phase programme, and what it actually changed
@@ -337,9 +338,21 @@ if a second declaration appears.
 `StatusLiteralRatchetTests` generalises the lesson. It does not know about
 `"In Production"` or `"Dispatching"`; it flags the *shape* — a persisted status
 compared against an inline literal — which is the shape all three bugs had. The
-baseline is 60 such comparisons across 12 files, capped per file, so the number
-can only fall. The largest offender
-(`DeliveryNoteRepository.Part1.cs`, 17) is the natural first migration.
+baseline was 60 such comparisons across 12 files, capped per file, so the number
+can only fall.
+
+**The first migration is done (2026-09-09).** `DeliveryNoteRepository.Part1.cs`
+was the largest offender at 17 — all of them per-status filters in the list
+query — and every one now reads from `DeliveryNoteStatusValues`. The baseline is
+**43 across 11 files**, and the ratchet's own stale-entry test forced the
+allow-list update rather than letting a cleaned-up file linger.
+
+That this was safe is worth recording, because it is why the remaining 43 can be
+migrated the same way: the canonical constants are `const string`, so the
+compiler inlines them into the LINQ expression tree and EF sees the same literal
+it saw before. **The generated SQL is byte-identical; only the source changed.**
+The next targets, in order: `ReportingDataService.TaxInvoice.cs` (9),
+`AiContextBuilder.cs` (5), then four files at 4.
 
 Two things worth saying plainly:
 

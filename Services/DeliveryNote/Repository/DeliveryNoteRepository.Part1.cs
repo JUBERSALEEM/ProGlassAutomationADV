@@ -3,6 +3,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.DeliveryNote.Database;
@@ -197,10 +198,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .Where(x => x.JobOrderId == jobOrderId &&
                             !x.IsMasterDn &&
                             x.DeliveryType != "Dummy" &&
-                            (x.Status == "Dispatched" ||
-                             x.Status == "Delivered" ||
-                             x.Status == "Signed" ||
-                             x.Status == "Received"))
+                            (x.Status == DeliveryNoteStatusValues.Dispatched ||
+                             x.Status == DeliveryNoteStatusValues.Delivered ||
+                             x.Status == DeliveryNoteStatusValues.Signed ||
+                             x.Status == DeliveryNoteStatusValues.Received))
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync().ConfigureAwait(false);
 
@@ -506,8 +507,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             // PERF: SQL-level projection so no snapshot blob is read.
             return await ctx.DeliveryNotes
                 .Where(x => !x.IsMasterDn &&
-                            (x.Status == "Draft" ||
-                             x.Status == "Dispatching"))
+                            (x.Status == DeliveryNoteStatusValues.Draft ||
+                             x.Status == DeliveryNoteStatusValues.Dispatching))
                 .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
                 .Select(ToListItemProjection)
@@ -519,9 +520,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             using var ctx = new DeliveryNotesDbContext();
             // PERF: SQL-level projection so no snapshot blob is read.
             return await ctx.DeliveryNotes
-                .Where(x => (x.Status == "Delivered" ||
-                             x.Status == "Signed" ||
-                             x.Status == "Received") &&
+                .Where(x => (x.Status == DeliveryNoteStatusValues.Delivered ||
+                             x.Status == DeliveryNoteStatusValues.Signed ||
+                             x.Status == DeliveryNoteStatusValues.Received) &&
                             !x.IsMasterDn)
                 .AsNoTracking()
                 .OrderByDescending(x => x.DeliveryDate)
@@ -738,10 +739,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .Where(x => x.JobOrderId == jobOrderId
                          && !x.IsMasterDn
                          && x.DeliveryType != "Dummy"
-                         && (x.Status == "Dispatched" ||
-                             x.Status == "Delivered" ||
-                             x.Status == "Signed" ||
-                             x.Status == "Received"))
+                         && (x.Status == DeliveryNoteStatusValues.Dispatched ||
+                             x.Status == DeliveryNoteStatusValues.Delivered ||
+                             x.Status == DeliveryNoteStatusValues.Signed ||
+                             x.Status == DeliveryNoteStatusValues.Received))
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync().ConfigureAwait(false);
 
@@ -763,10 +764,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                          && x.DeliveryNoteId != excludeDnId
                          && !x.IsMasterDn
                          && x.DeliveryType != "Dummy"
-                         && (x.Status == "Dispatched" ||
-                             x.Status == "Delivered" ||
-                             x.Status == "Signed" ||
-                             x.Status == "Received"))
+                         && (x.Status == DeliveryNoteStatusValues.Dispatched ||
+                             x.Status == DeliveryNoteStatusValues.Delivered ||
+                             x.Status == DeliveryNoteStatusValues.Signed ||
+                             x.Status == DeliveryNoteStatusValues.Received))
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync().ConfigureAwait(false);
 

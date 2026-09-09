@@ -27,7 +27,7 @@ namespace ProGlassAutomation.Tests.Architecture;
 ///
 /// <para><b>What this test does.</b> It counts comparisons of a
 /// <c>.Status</c> property against a bare string literal, per file. The
-/// current 60 are grandfathered in <see cref="AllowList"/> with a ceiling per
+/// current 43 are grandfathered in <see cref="AllowList"/> with a ceiling per
 /// file. A new offending file fails. An allowlisted file that grows fails. The
 /// message names the canonical home to use instead.</para>
 ///
@@ -41,15 +41,24 @@ public class StatusLiteralRatchetTests
 {
     /// <summary>
     /// Grandfathered offenders, with the maximum number of raw status-literal
-    /// comparisons each may contain. Measured 2026-09-08: 60 total.
+    /// comparisons each may contain. Measured 2026-09-09: 43 total, down from 60.
     ///
     /// Sorted by size so the worst offenders are the obvious next targets.
     /// </summary>
     private static readonly Dictionary<string, int> AllowList = new(StringComparer.Ordinal)
     {
-        // 17 — the largest single offender. Mostly per-status filters in the
-        // list query; the natural first migration.
-        ["Services/DeliveryNote/Repository/DeliveryNoteRepository.Part1.cs"] = 17,
+            // Services/DeliveryNote/Repository/DeliveryNoteRepository.Part1.cs
+            // was here until 2026-09-09 with a ceiling of 17 — the largest
+            // single offender in the tree. All 17 were per-status filters in
+            // the list query and every one now reads from
+            // DeliveryNoteStatusValues. Removing it is the ratchet working:
+            // Stale_AllowList_Entries_Are_Removed fails until a cleaned-up file
+            // is dropped from this list.
+            //
+            // That this was safe at all is worth recording. The constants are
+            // `const string`, so the compiler inlines them into the LINQ
+            // expression tree and EF sees the same literal it saw before. The
+            // generated SQL is byte-identical; only the source changed.
 
         // 9 — already matches BOTH "PartiallyPaid" and "Partially Paid" in
         // four places. Correct today (nothing stores the spaced form, verified
@@ -194,9 +203,9 @@ public class StatusLiteralRatchetTests
     /// narrow what is being counted.
     /// </summary>
     [Fact]
-    public void Baseline_Total_Is_Sixty()
+    public void Baseline_Total_Is_Forty_Three()
     {
-        Assert.Equal(60, AllowList.Values.Sum());
+        Assert.Equal(43, AllowList.Values.Sum());
     }
 
     /// <summary>
