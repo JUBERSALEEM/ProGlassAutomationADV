@@ -47,11 +47,38 @@ namespace ProGlassAutomation.Services.Audit
 
         private static int LockoutRemainingSeconds(AppUser user)
         {
-            if (user.LockedUntilUtc == null) return 0;
-            var remaining = user.LockedUntilUtc.Value - DateTime.UtcNow;
-            return remaining.TotalSeconds > 0
-                ? (int)Math.Ceiling(remaining.TotalSeconds)
-                : 0;
+            // ── SIGN-IN LOCKOUT IS DISABLED ───────────────────────────────
+            // This is the single chokepoint both sign-in paths read:
+            // LoginPanelViewModel.TrySignInAsync calls it through
+            // LockoutRemainingSecondsAsync to show a countdown, and
+            // SwitchUserAsync calls it to reject the attempt. Returning 0
+            // here turns the lockout off everywhere at once, so the two
+            // cannot disagree.
+            //
+            // Why it was removed. The window was persisted to audit.db, so it
+            // survived an app restart. An operator who forgot their password,
+            // guessed five times, and restarted was still locked out — and
+            // with no recovery path in the product, the only way back in was
+            // to wait or edit the database by hand. That is exactly what
+            // happened.
+            //
+            // The trade-off, stated plainly: this is a desktop ERP with no
+            // network listener, so the lockout was protecting against someone
+            // already sitting at the operator's machine. Unlimited attempts
+            // makes an offline guessing attack cheaper. The password hashing
+            // is unchanged and still does the real work — PBKDF2-HMAC-SHA256
+            // at 210,000 iterations, so a stolen audit.db is still expensive
+            // to crack. If this product ever gains remote or multi-user
+            // network access, this decision must be revisited.
+            //
+            // MaxFailedAttemptsBeforeLock and LockoutMinutes are kept so
+            // existing references and the Phase 13 tests still compile; they
+            // are now inert. LockedUntilUtc is left on the row and simply
+            // never read as a lock, so no migration is needed to clear a
+            // stale window — an operator who is locked out right now is not
+            // locked out after this build.
+            _ = user;
+            return 0;
         }
 
         /// <summary>Seeded first-run administrator account name.</summary>
