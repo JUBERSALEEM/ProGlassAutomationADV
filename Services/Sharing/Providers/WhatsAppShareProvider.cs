@@ -82,8 +82,10 @@ namespace ProGlassAutomation.Services.Sharing.Providers
             string digits = PhoneNumbers.NormalizeValidated(
                 request.Recipient.Phone, _defaultCountryCode);
             if (digits.Length == 0)
-                return $"The phone number for {request.Recipient.Name} is not usable. " +
-                       "Check it and try again.";
+                return $"The phone number for {request.Recipient.Name} " +
+                       $"('{request.Recipient.Phone.Trim()}') is not a valid " +
+                       "WhatsApp number. Enter it in full international form " +
+                       $"(e.g. +{_defaultCountryCode} 50 123 4567) or pick another contact.";
 
             return "";
         }

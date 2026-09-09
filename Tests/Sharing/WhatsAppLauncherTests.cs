@@ -41,6 +41,25 @@ namespace ProGlassAutomation.Tests.Sharing
             Assert.NotEqual("", result.Error);
         }
 
+        [Theory]
+        [InlineData("123")]              // too short (< 8 digits)
+        [InlineData("+9715012")]         // contains a '+' (not clean E.164)
+        [InlineData("97150 1234567")]    // contains a space
+        [InlineData("9715012AB567")]     // contains letters
+        public void OpenChat_rejects_malformed_number_without_launching(
+            string badDigits)
+        {
+            // Defense-in-depth for the "WhatsApp opens then closes"
+            // failure: a number that is not a clean E.164 digit string
+            // must be refused here, never handed to the deep link where
+            // WhatsApp drops to the home screen. (The trunk-0-after-code
+            // collision is fixed upstream in PhoneNumbers.Normalize; this
+            // guard catches whatever still slips through.)
+            var result = WhatsAppLauncher.OpenChat(badDigits, "hello");
+            Assert.False(result.IsSuccess);
+            Assert.NotEqual("", result.Error);
+        }
+
         [Fact]
         public void LaunchResult_channel_names_are_human_readable()
         {

@@ -35,6 +35,31 @@ namespace ProGlassAutomation.Tests.Sharing
             Assert.Equal(expected, PhoneNumbers.Normalize(raw));
         }
 
+        // ── Stage 3 hardening: country-code + trunk-0 collision ──────────
+        // These were the numbers that made WhatsApp open then close — the
+        // trunk 0 wedged after the country code produced an invalid number.
+        [Theory]
+        [InlineData("+971 050 123 4567", "971501234567")]  // + code + trunk 0
+        [InlineData("00971 050 1234567", "971501234567")]  // 00 code + trunk 0
+        [InlineData("971 050 1234567", "971501234567")]    // bare code + trunk 0
+        [InlineData("971 50 123 4567", "971501234567")]    // bare code, no trunk
+        [InlineData("+1 0 415 555 2671", "14155552671")]   // intl code + trunk 0
+        public void Normalize_drops_trunk_zero_after_country_code(
+            string raw, string expected)
+        {
+            Assert.Equal(expected, PhoneNumbers.Normalize(raw));
+        }
+
+        [Theory]
+        [InlineData("050-1234567 / 04-2345678", "971501234567")] // two numbers
+        [InlineData("Mr Ali 050 123 4567", "971501234567")]      // name prefix
+        [InlineData("050 123 4567 ext 12", "97150123456712")]    // extension digits appended (still dialable)
+        public void Normalize_reads_number_from_messy_fields(
+            string raw, string expected)
+        {
+            Assert.Equal(expected, PhoneNumbers.Normalize(raw));
+        }
+
         [Fact]
         public void Normalize_keeps_long_unprefixed_verbatim()
         {
@@ -62,14 +87,14 @@ namespace ProGlassAutomation.Tests.Sharing
 
         [Theory]
         [InlineData("971501234567", true)]
-        [InlineData("1234567", true)]
-        [InlineData("123456789012345", true)]
-        [InlineData("123456", false)]
-        [InlineData("1234567890123456", false)]
-        [InlineData("97150A234567", false)]
+        [InlineData("12345678", true)]              // 8 digits — minimum
+        [InlineData("123456789012345", true)]       // 15 digits — maximum
+        [InlineData("1234567", false)]              // 7 digits — too short now
+        [InlineData("1234567890123456", false)]     // 16 digits — too long
+        [InlineData("97150A234567", false)]         // contains a letter
         [InlineData("", false)]
         [InlineData(null, false)]
-        public void IsValidNormalized_enforces_7_to_15_digits(
+        public void IsValidNormalized_enforces_8_to_15_digits(
             string? normalized, bool expected)
         {
             Assert.Equal(expected,

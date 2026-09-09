@@ -113,6 +113,15 @@ namespace ProGlassAutomation.Services.Sharing.Providers
             if (string.IsNullOrWhiteSpace(digits))
                 return WhatsAppLaunchResult.Fail("No phone number to open.");
 
+            // Defense in depth: WhatsApp deep links require a clean E.164
+            // digit string (no '+', no spaces, no trunk 0). A malformed
+            // number is exactly what makes WhatsApp open then immediately
+            // drop to the home screen ("contact not found"). Refuse it here
+            // rather than launch a dead chat, whatever the caller passed.
+            if (!Contacts.PhoneNumbers.IsValidNormalized(digits))
+                return WhatsAppLaunchResult.Fail(
+                    "The phone number is not a valid WhatsApp number.");
+
             string text = message ?? "";
             string encoded = Uri.EscapeDataString(text);
             string lastError = "";
