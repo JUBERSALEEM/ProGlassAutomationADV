@@ -59,7 +59,7 @@ def main() -> int:
     args = ap.parse_args()
 
     english = load_py("en-US")
-    sweep = json.loads((ROOT / "tools" / "i18n" / "sweep-keys.json")
+    sweep = json.loads((HERE / "sweep-keys.json")
                        .read_text(encoding="utf-8"))
     # en-US: sweep keys are authoritative (they ARE the English text).
     merged_en = dict(english)
