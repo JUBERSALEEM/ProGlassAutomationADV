@@ -122,6 +122,7 @@
                         <TextBox x:Name="ReportTextBox"
                                  Text="{Binding AuditReportText, Mode=OneWay}"
                                  IsReadOnly="True"
+                                 AcceptsReturn="True"
                                  TextWrapping="Wrap"
                                  BorderThickness="0"
                                  Background="Transparent"
@@ -203,9 +204,24 @@
             </Border>
         </Grid>
 
+        <!--
+          Height="Auto" with a MinHeight is the fix for clipped button text,
+          and it is worth explaining because the mistake is easy to repeat.
+
+          Both pill styles set Height="{DynamicResource DensityButtonHeight}"
+          — a FIXED 32px — and pair it with Padding="22,0". The zero vertical
+          padding is not an oversight; it is required, because the height is
+          already fixed. These two buttons overrode the padding to "18,8"
+          without overriding the height, so 16 of the 32 pixels went to padding
+          and the label had 16 left for a ~14px font. The text clipped.
+
+          Auto-sizing with a MinHeight means the button is never shorter than
+          any other button in the app, and grows instead of clipping when a
+          localised label is longer than the English one.
+        -->
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-            <Button Content="Copy report" Padding="18,8" Margin="0,0,8,0" Style="{StaticResource OutlinedPillButton}" Click="CopyReport_Click"/>
-            <Button Content="Close" Padding="22,8" Style="{StaticResource PrimaryPillButton}" IsCancel="True"/>
+            <Button Content="Copy report" Height="Auto" MinHeight="{DynamicResource DensityButtonHeight}" Padding="18,8" Margin="0,0,8,0" Style="{StaticResource OutlinedPillButton}" Click="CopyReport_Click"/>
+            <Button Content="Close" Height="Auto" MinHeight="{DynamicResource DensityButtonHeight}" Padding="22,8" Style="{StaticResource PrimaryPillButton}" IsCancel="True"/>
         </StackPanel>
     </Grid>
 </Window>
