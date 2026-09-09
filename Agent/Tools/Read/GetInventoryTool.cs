@@ -27,8 +27,19 @@ namespace ProGlassAutomation.Agent.Tools.Read
     /// <summary>Reports stock levels from the Sheet Store.</summary>
     public sealed class GetInventoryTool : IAgentTool
     {
-        /// <summary>At or below this balance a sheet counts as low stock.</summary>
-        public const int LowStockThreshold = 2;
+        /// <summary>
+        /// At or below this balance a sheet counts as low stock.
+        /// </summary>
+        /// <remarks>
+        /// Was hard-coded to 2 here while <c>DashboardMetricsService</c> used 5,
+        /// so a sheet holding 3 or 4 showed as low stock on the Overview
+        /// dashboard and as fine when the agent was asked the same question
+        /// from the same data. Now both read
+        /// <see cref="ProGlassAutomation.Models.SheetStore.GlassSheetLowStock"/>.
+        /// Kept as a public constant so the two call sites below and the
+        /// "Low stock (≤ N)" line it prints cannot drift from the rule.
+        /// </remarks>
+        public const int LowStockThreshold = ProGlassAutomation.Models.SheetStore.GlassSheetLowStock.Threshold;
 
         /// <summary>Maximum low-stock lines listed.</summary>
         public const int MaxLowStockRows = 10;

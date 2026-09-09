@@ -56,8 +56,10 @@ namespace ProGlassAutomation.Services.Dashboard.Core
     public sealed class DashboardMetricsService : IDashboardMetricsService
     {
         // Sheet types at or below this balance count as "low stock".
-        // Matches the threshold the Overview dashboard already used.
-        private const int LowStockThreshold = 5;
+        // Matches the threshold the Overview dashboard already used — and now
+        // the AI agent agrees, because both read GlassSheetLowStock. The value
+        // is unchanged; only its home moved.
+        private const int LowStockThreshold = ProGlassAutomation.Models.SheetStore.GlassSheetLowStock.Threshold;
 
         /// <summary>
         /// How many rows a dashboard activity feed shows. Bounded so the feed

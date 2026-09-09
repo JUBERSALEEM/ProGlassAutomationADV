@@ -2,6 +2,78 @@
 
 **Severity: Moderate · Estimate: 3 days · Prerequisite: green build**
 
+## Status — 12.3 APPLIED 2026-09-09; 12.1 was already done
+
+| | |
+|---|---|
+| 12.1 Proforma status canonical home | **already existed** — see the correction below |
+| 12.2 `DeliveryTypeValues` | **already done** |
+| 12.3 sweep for the next one | **done** — one real duplicate found and fixed |
+| Fix | `Models/SheetStore/GlassSheetLowStock.cs` + 4 tests |
+
+### 12.1 was wrong — the canonical home already exists
+
+This phase claimed Proforma status has no canonical home. It does:
+`Models/ProformaInvoice/Common/ProformaInvoiceStatus.cs`, with all six
+constants (`Draft`, `Sent`, `Approved`, `Rejected`, `Expired`, `Cancelled`), an
+`All` list and a `Normalize` method. `StatusLiteralRatchetTests` already lists
+it as the Proforma home and pins the raw-literal baseline at 60.
+
+The six-value set was confirmed against the authority rather than by counting
+literals: `Services/Workflow/StatusTransitions.cs:70-75` is the transition
+table. That mattered — a naive count of status-looking strings across the
+Proforma directories also returns `"Confirmed"` (6) and `"Pending"` (8), which
+belong to other entities. Acting on the count would have invented two statuses.
+
+### 12.3 — the sweep found one real duplicate
+
+Scanned every `const` with a literal value, grouped by name, and looked for the
+same name declared in two or more files with different values: **17 candidates**.
+Fifteen are false positives — the same name naming different things:
+`MaxRows` per agent tool, `ProviderKey` where each provider names itself,
+`FontSizeBody` at 10pt for Excel and 10f for PDF, `"Sheet Store"` as an audit
+display label against `"SheetStore"` as a wallpaper module key.
+
+One was real:
+
+```
+Agent/Tools/Read/GetInventoryTool.cs:31              LowStockThreshold = 2
+Services/Dashboard/Core/DashboardMetricsService.cs:60            = 5
+```
+
+Same rule, same `GlassSheet` column, two values. A sheet type holding 3 or 4
+sheets was counted as low stock on the Overview dashboard and reported as fine
+by the AI agent, asked the same question from the same data at the same moment.
+No exception, nothing logged — exactly the defect class the other five fixes
+came from.
+
+`Models/SheetStore/GlassSheetLowStock.cs` is now the single home and both read
+it. **The canonical value is 5**, because the dashboard is the number an
+operator has been acting on and its own comment records that 5 matched what the
+Overview already used; unifying on 2 would have silently shrunk a count someone
+trusts. Moving a reorder alert in the earlier-warning direction is also the safe
+direction. The dashboard's figure does not change; the agent's does.
+
+`Tests/SheetStore/GlassSheetLowStockTests.cs` (4 tests) pins the value, the
+inclusive `<=` boundary, and — the part that holds — fails if either consumer
+stops reading the canonical constant or a new file declares its own. Proven to
+fail: restoring a local `= 5` in the dashboard trips it.
+
+`InventoryItem` is untouched. Consumables have a per-item `ReorderLevel` and
+their own `IsLowStock`, which is a better mechanism than a constant; this fix is
+specific to `GlassSheet`, which has no per-sheet reorder level.
+
+### Found and deliberately not changed
+
+`LicenseFormat.FileExtension = ".proglasslicense"` (the contract library)
+against `LicenseSigner.FileExtension = ".lic"` (the runtime signer, whose
+comment says the file picker and the generator both use it). Two declarations of
+one thing, but a licence file's extension is cosmetic — the payload is a JSON
+envelope — and changing the filter would stop users selecting licence files
+they already have on disk. That needs a decision about existing installations,
+not a blind edit.
+
+
 ## The defect class behind most of what was fixed in 2026-09-08
 
 A status, threshold or rate declared more than once — two spellings, two values,
