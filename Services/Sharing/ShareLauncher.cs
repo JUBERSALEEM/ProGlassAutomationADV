@@ -138,6 +138,21 @@ namespace ProGlassAutomation.Services.Sharing
                 return false;
             }
 
+            // The composer is a WPF Window: constructing and showing it
+            // REQUIRES the UI (STA) thread. Async share flows commonly
+            // resume this continuation on a thread-pool (MTA) thread after
+            // an awaited export (ConfigureAwait(false)) — showing a window
+            // there throws "The calling thread must be STA…". Marshal the
+            // whole open-and-show onto the UI dispatcher so it works from
+            // any thread. When already on the UI thread this runs inline;
+            // off-thread callers block on Invoke, preserving modal
+            // semantics and the return value.
+            return RunOnUi(() => OpenComposerCore(context, dialogs));
+        }
+
+        private static bool OpenComposerCore(
+            ShareContext context, IDialogService? dialogs)
+        {
             try
             {
                 var service = dialogs
@@ -167,6 +182,29 @@ namespace ProGlassAutomation.Services.Sharing
                         "[Sharing.Launcher] error dialog failed: "
                         + ExceptionMessages.Deep(dialogEx));
                 }
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Runs <paramref name="work"/> on the WPF UI (STA) thread and
+        /// returns its result. Executes inline when already on the UI
+        /// thread, or when no Application/Dispatcher exists (headless test
+        /// host); otherwise blocks on Dispatcher.Invoke. Never throws:
+        /// a marshalling failure is logged and reported as false.
+        /// </summary>
+        private static bool RunOnUi(Func<bool> work)
+        {
+            try
+            {
+                var disp = System.Windows.Application.Current?.Dispatcher;
+                if (disp == null || disp.CheckAccess())
+                    return work();
+                return disp.Invoke(work);
+            }
+            catch (Exception ex)
+            {
+                LogSharingFailure("open-composer-dispatch", null, ex);
                 return false;
             }
         }
