@@ -403,7 +403,7 @@
                                                          Stroke="{DynamicResource OutlineBrush}"
                                                          StrokeThickness="1"
                                                          VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </Button>
                                     </DataTemplate>
@@ -430,7 +430,7 @@
                                 </StackPanel>
                             </Border>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       Text="{Binding CustomFontColorStatus}" Margin="0,6,0,0"/>
+                                       Text="{Binding CustomFontColorStatus}" Margin="0,6,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
@@ -481,7 +481,7 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
                                                          VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </Button>
                                     </DataTemplate>
@@ -756,7 +756,7 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
                                                          VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
                                             </StackPanel>
                                         </Button>
                                     </DataTemplate>
@@ -783,7 +783,7 @@
                                 </StackPanel>
                             </Border>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       Text="{Binding CustomAccentStatus}" Margin="0,6,0,0"/>
+                                       Text="{Binding CustomAccentStatus}" Margin="0,6,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
@@ -803,7 +803,7 @@
                                       Padding="10,7" FontSize="{StaticResource TextBodyLarge}"
                                       MaxDropDownHeight="320"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
-                                       Text="{Binding FontStatus}"/>
+                                       Text="{Binding FontStatus}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
@@ -965,9 +965,9 @@
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}">
                                                     <TextBlock.ToolTip>
                                                         <StackPanel>
-                                                            <TextBlock Text="{Binding Label}" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding Label}" FontWeight="SemiBold" TextWrapping="Wrap"/>
                                                             <TextBlock Text="{Binding FileName}" FontSize="{StaticResource TextCaption}"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
                                                         </StackPanel>
                                                     </TextBlock.ToolTip>
                                                 </TextBlock>

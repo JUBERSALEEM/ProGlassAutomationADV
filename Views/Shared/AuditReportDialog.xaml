@@ -50,7 +50,7 @@
                     <TextBlock Text="{Binding OperationId}"
                                FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold"
-                               Foreground="{DynamicResource WarningBrush}"/>
+                               Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap"/>
                 </Border>
             </Grid>
         </Border>
@@ -61,7 +61,7 @@
                 <StackPanel>
                     <TextBlock Text="WHO" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
                     <TextBlock Text="{Binding ActorDisplay}" Margin="0,4,0,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding Username, StringFormat=Login: {0}}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    <TextBlock Text="{Binding Username, StringFormat=Login: {0}}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
                     <TextBlock Text="{Binding OtherUserNotice}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
@@ -69,14 +69,14 @@
                 <StackPanel>
                     <TextBlock Text="WHEN" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
                     <TextBlock Text="{Binding TimeDisplay}" Margin="0,4,0,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding UtcTimeDisplay}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    <TextBlock Text="{Binding UtcTimeDisplay}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource SecondarySurfaceCardStyle}" Margin="0,0,8,0" Padding="12">
                 <StackPanel>
                     <TextBlock Text="WHAT" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
                     <TextBlock Text="{Binding Action}" Margin="0,4,0,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding EntityLine}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    <TextBlock Text="{Binding EntityLine}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
             <Border Style="{StaticResource SecondarySurfaceCardStyle}" Padding="12">
@@ -146,7 +146,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="BEFORE / AFTER FIELD CHANGES" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <Border Grid.Column="1" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" Padding="8,3">
-                            <TextBlock Text="{Binding ChangeSummary}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                            <TextBlock Text="{Binding ChangeSummary}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
                         </Border>
                     </Grid>
 
@@ -173,7 +173,7 @@
                                                     <RowDefinition Height="Auto"/>
                                                     <RowDefinition Height="Auto"/>
                                                 </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding Field}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Text="{Binding Field}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
                                                 <Grid Grid.Row="1" Margin="0,6,0,0">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*"/>

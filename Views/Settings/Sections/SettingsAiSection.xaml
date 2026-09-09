@@ -119,7 +119,7 @@
                             </StackPanel>
                             <TextBlock Text="{Binding AiModel}"
                                        Style="{StaticResource SettingsTileHeroStyle}"
-                                       TextTrimming="CharacterEllipsis"/>
+                                       TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Text="{DynamicResource Settings.ModelIdentifierCurrentlySelectedProvider}"/>
                         </StackPanel>
@@ -133,7 +133,7 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.MaxTokens}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiMaxTokens}"
-                                       Style="{StaticResource SettingsTileHeroStyle}"/>
+                                       Style="{StaticResource SettingsTileHeroStyle}" TextWrapping="Wrap"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Text="{DynamicResource Settings.ResponseLengthCeilingCallAdjustConfigJsonNow}"/>
                         </StackPanel>
@@ -147,7 +147,7 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.Temperature}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding AiTemperature}"
-                                       Style="{StaticResource SettingsTileHeroStyle}"/>
+                                       Style="{StaticResource SettingsTileHeroStyle}" TextWrapping="Wrap"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Text="{DynamicResource Settings.HigherMoreCreativeLowerMoreDeterministicRead}"/>
                         </StackPanel>

@@ -83,7 +83,7 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE72E;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{Binding LocalOnlyLabel}"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{DynamicResource Settings.WhenAgentNeverContactsInternetDefault}"/>
@@ -99,7 +99,7 @@
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE774;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{Binding CloudConsentLabel}"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="{DynamicResource Settings.SeparateExplicitAgreementSendQuestionsOnline}"/>

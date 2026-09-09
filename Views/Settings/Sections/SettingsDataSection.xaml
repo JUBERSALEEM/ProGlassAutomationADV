@@ -193,7 +193,7 @@
                             <TextBlock Text="{Binding BackupStatus}"
                                        Style="{StaticResource SettingsTileFooterHintStyle}"
                                        FontWeight="SemiBold"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                                       Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 

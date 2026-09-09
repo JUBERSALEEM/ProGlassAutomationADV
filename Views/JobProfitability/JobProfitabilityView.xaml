@@ -472,21 +472,21 @@
                                     <StackPanel>
                                         <TextBlock Text="CONFIRMED JOBS" Style="{StaticResource JpLabelStyle}"/>
                                         <TextBlock Text="{Binding ConfirmedJobCountDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="REQUIRED TARGET" Style="{StaticResource JpLabelStyle}"/>
                                         <TextBlock Text="{Binding TargetTotalRequiredValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="STEP 5 GIVEN VALUE" Style="{StaticResource JpLabelStyle}"/>
                                         <TextBlock Text="{Binding TargetTotalGivenValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">

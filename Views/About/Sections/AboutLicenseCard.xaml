@@ -132,25 +132,25 @@
                 <Border Style="{StaticResource LicenseMetricCardStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.Edition}" Style="{StaticResource LicenseMetricLabelStyle}"/>
-                        <TextBlock Text="{Binding EditionDisplay}" Style="{StaticResource LicenseMetricValueStyle}"/>
+                        <TextBlock Text="{Binding EditionDisplay}" Style="{StaticResource LicenseMetricValueStyle}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
                 <Border Style="{StaticResource LicenseMetricCardStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.DAYSRemaining}" Style="{StaticResource LicenseMetricLabelStyle}"/>
-                        <TextBlock Text="{Binding DaysRemainingDisplay}" Style="{StaticResource LicenseMetricValueStyle}"/>
+                        <TextBlock Text="{Binding DaysRemainingDisplay}" Style="{StaticResource LicenseMetricValueStyle}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
                 <Border Style="{StaticResource LicenseMetricCardStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.ActivationMODE}" Style="{StaticResource LicenseMetricLabelStyle}"/>
-                        <TextBlock Text="{Binding ActivationModeDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="{StaticResource TextBodyLarge}"/>
+                        <TextBlock Text="{Binding ActivationModeDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="{StaticResource TextBodyLarge}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
                 <Border Style="{StaticResource LicenseMetricCardStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource About.LicenseWindow}" Style="{StaticResource LicenseMetricLabelStyle}"/>
-                        <TextBlock Text="{Binding LicenseWindowDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="{StaticResource TextBodyLarge}"/>
+                        <TextBlock Text="{Binding LicenseWindowDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="{StaticResource TextBodyLarge}" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
             </UniformGrid>

@@ -418,11 +418,11 @@
                             </StackPanel>
                             <TextBlock Text="{Binding StateText}"
                                        Style="{StaticResource SettingsTileHeroStyle}"
-                                       TextTrimming="CharacterEllipsis"/>
+                                       TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding StatusText}"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"/>
+                                       Style="{StaticResource SettingsTileCaptionStyle}" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding VerifiedText}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                                       Style="{StaticResource SettingsTileFooterHintStyle}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
 
@@ -433,9 +433,9 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="{DynamicResource Settings.LastOutput}"/>
                             </StackPanel>
                             <TextBlock Text="{Binding LastMp4Text}"
-                                       Style="{StaticResource SettingsTileCaptionStyle}"/>
+                                       Style="{StaticResource SettingsTileCaptionStyle}" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding FfmpegStatus}"
-                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                                       Style="{StaticResource SettingsTileFooterHintStyle}" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
                 </UniformGrid>
