@@ -78,22 +78,33 @@ namespace ProGlassAutomation.Services.Sharing.Providers
                 if (request.CancellationToken.IsCancellationRequested)
                     return ShareOutcome.Cancelled(Id);
 
+                // Copy to the clipboard so the file(s) can be pasted (Ctrl+V)
+                // straight into any app, in addition to being revealed for
+                // drag-and-drop.
+                bool copied = ShareClipboard.CopyFiles(staged);
+
                 var revealed = await Task.Run(() =>
                     ProcessStartGuard.TryOpenExplorerSelect(staged[0]))
                     .ConfigureAwait(false);
-                if (!revealed.IsSuccess)
+                if (!revealed.IsSuccess && !copied)
                     return ShareOutcome.Failed(Id,
                         "The file could not be shown. " + revealed.Error,
                         "reveal failed: " + revealed.Error);
 
                 string files = string.Join(", ",
                     request.Artifacts.Select(a => a.FileName));
+                string ready = copied
+                    ? (staged.Count == 1
+                        ? $"Ready: {request.Artifacts[0].FileName} — press Ctrl+V to paste it into any app, or drag it from the folder."
+                        : $"Ready: {staged.Count} files — press Ctrl+V to paste them into any app, or drag them from the folder.")
+                    : (staged.Count == 1
+                        ? $"Ready: {request.Artifacts[0].FileName} — drag it into any app."
+                        : $"Ready: {staged.Count} files — drag them into any app.");
+
                 return ShareOutcome.Completed(
                     Id,
-                    staged.Count == 1
-                        ? $"Ready: {request.Artifacts[0].FileName} — drag it into any app."
-                        : $"Ready: {staged.Count} files — drag them into any app.",
-                    "files: " + files);
+                    ready,
+                    $"files: {files}; clipboard: {(copied ? "yes" : "no")}");
             }
             catch (Exception ex)
             {

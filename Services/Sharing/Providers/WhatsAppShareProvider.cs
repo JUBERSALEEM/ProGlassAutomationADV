@@ -18,13 +18,16 @@
 //   (not a chat), so operators saw only the Explorer reveal and thought
 //   sharing was broken. It now lands directly in the chat.
 //
-// WHAT IT CANNOT DO (stated so nobody "fixes" it later)
+// HOW THE FILE ATTACHES (Sept 2026 senior audit — "nothing attaches")
 // ──────────────
 // WhatsApp click-to-chat links carry TEXT ONLY — no attachment parameter
-// exists on ANY channel. The provider therefore stages the artifact(s) in
-// the share temp folder, REVEALS the first in Explorer beside the chat,
-// and tells the operator exactly that. The outcome is ExternalAppOpened —
-// never "Sent". Delivery/read status is unknowable and never claimed.
+// exists on ANY channel. So the provider stages the artifact(s) and puts
+// them on the CLIPBOARD (CF_HDROP) before opening the chat: the operator
+// presses Ctrl+V in the chat and the file attaches (WhatsApp Desktop and
+// Web both accept a pasted file). If the clipboard is unavailable it falls
+// back to revealing the file in Explorer for drag-and-drop. Either way the
+// outcome is ExternalAppOpened — never "Sent"; delivery/read status is
+// unknowable and never claimed.
 //
 // FROM/TO HONESTY. FROM is the ProGlass user identity shown in OUR
 // composer for context; the WhatsApp account that actually sends is
@@ -127,6 +130,13 @@ namespace ProGlassAutomation.Services.Sharing.Providers
                 if (text.Length == 0)
                     text = $"Please find attached: {request.Artifacts[0].FileName}";
 
+                // Put the staged file(s) on the clipboard BEFORE opening the
+                // chat so the operator can paste them straight in with
+                // Ctrl+V — WhatsApp Desktop and Web both accept a pasted
+                // file as an attachment. This is the real "attach" step;
+                // no WhatsApp link can carry a file itself.
+                bool copied = ShareClipboard.CopyFiles(staged);
+
                 // Deep-link into whichever WhatsApp the machine has, on the
                 // recipient's chat: Desktop app → logged-in Web → wa.me.
                 var launched = await Task.Run(() =>
@@ -138,26 +148,37 @@ namespace ProGlassAutomation.Services.Sharing.Providers
                             : "Install WhatsApp Desktop, or sign in to WhatsApp Web in your browser, and try again."),
                         "launch failed: " + launched.Error);
 
-                // Reveal the staged file(s) beside the chat so the operator
-                // drags them in. Its failure degrades, never fails, the share.
-                try
+                // When the clipboard copy failed, fall back to revealing the
+                // staged file(s) in Explorer so the operator can still drag
+                // them in. Its failure degrades, never fails, the share.
+                if (!copied)
                 {
-                    ProcessStartGuard.TryOpenExplorerSelect(staged[0]);
-                }
-                catch (Exception ex)
-                {
-                    AppLogService.Debug($"[Sharing.WhatsApp] reveal failed: {ex.Message}");
+                    try
+                    {
+                        ProcessStartGuard.TryOpenExplorerSelect(staged[0]);
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Debug($"[Sharing.WhatsApp] reveal failed: {ex.Message}");
+                    }
                 }
 
                 string files = string.Join(", ",
                     request.Artifacts.Select(a => a.FileName));
+                string howToAttach = copied
+                    ? $"Your message is prefilled in {launched.ChannelName} — " +
+                      $"press Ctrl+V to attach {files}, then send. " +
+                      "(Nothing was sent automatically.)"
+                    : $"Your message is prefilled in {launched.ChannelName}. " +
+                      $"WhatsApp links can't carry files, so drag {files} " +
+                      "from the folder that just opened into the chat, then send.";
+
                 return ShareOutcome.ExternalAppOpened(
                     Id,
                     $"Opened {launched.ChannelName} chat with {request.Recipient.Name}.",
-                    $"Your message is prefilled in {launched.ChannelName} — press send when ready. " +
-                    $"WhatsApp links can't carry files, so attach {files} " +
-                    "from the folder that just opened (nothing was sent automatically).",
-                    $"via {launched.ChannelName} to {request.Recipient.AuditIdentity}; files: {files}");
+                    howToAttach,
+                    $"via {launched.ChannelName} to {request.Recipient.AuditIdentity}; " +
+                    $"files: {files}; clipboard: {(copied ? "yes" : "no")}");
             }
             catch (Exception ex)
             {
