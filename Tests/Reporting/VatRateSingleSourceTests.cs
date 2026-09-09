@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using ProGlassAutomation.Services.Reporting;
+using Xunit;
 
 namespace ProGlassAutomation.Tests.Reporting;
 
