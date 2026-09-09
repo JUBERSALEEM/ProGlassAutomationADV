@@ -1410,6 +1410,9 @@
     <sys:String x:Key="Reports.Nav.ProjectsSub">등록 및 진행</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecs">유리 사양</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecsSub">행 단위 추적성</sys:String>
+    <sys:String x:Key="Reports.Financial">재무</sys:String>
+    <sys:String x:Key="Reports.Nav.Profitability">수익성</sys:String>
+    <sys:String x:Key="Reports.Nav.ProfitabilitySub">손익 및 마진</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">문서 및 이행</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">누락된 청구서 지금 수정</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">경고와 함께 생성</sys:String>

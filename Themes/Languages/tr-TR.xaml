@@ -1410,6 +1410,9 @@
     <sys:String x:Key="Reports.Nav.ProjectsSub">Kayıt &amp; ilerleme</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecs">Cam Özellikleri</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecsSub">Satır düzeyinde izlenebilirlik</sys:String>
+    <sys:String x:Key="Reports.Financial">FİNANS</sys:String>
+    <sys:String x:Key="Reports.Nav.Profitability">Kârlılık</sys:String>
+    <sys:String x:Key="Reports.Nav.ProfitabilitySub">K&amp;Z &amp; marjlar</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Belgeler ve karşılama</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Eksik faturayı şimdi düzelt</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Uyarıyla oluştur</sys:String>

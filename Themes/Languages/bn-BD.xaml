@@ -1410,6 +1410,9 @@
     <sys:String x:Key="Reports.Nav.ProjectsSub">নিবন্ধন ও অগ্রগতি</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecs">গ্লাস স্পেক</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecsSub">সারি-স্তরের ট্রেসেবিলিটি</sys:String>
+    <sys:String x:Key="Reports.Financial">আর্থিক</sys:String>
+    <sys:String x:Key="Reports.Nav.Profitability">লাভজনকতা</sys:String>
+    <sys:String x:Key="Reports.Nav.ProfitabilitySub">লাভ-ক্ষতি ও মার্জিন</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">দস্তাবেজ ও পূরণ</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">এখনই অনুপস্থিত ইনভয়েস ঠিক করুন</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">সতর্কতা সহ তৈরি করুন</sys:String>

@@ -1410,6 +1410,9 @@
     <sys:String x:Key="Reports.Nav.ProjectsSub">Registro y progreso</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecs">Especificaciones</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecsSub">Trazabilidad por fila</sys:String>
+    <sys:String x:Key="Reports.Financial">FINANZAS</sys:String>
+    <sys:String x:Key="Reports.Nav.Profitability">Rentabilidad</sys:String>
+    <sys:String x:Key="Reports.Nav.ProfitabilitySub">P&amp;L y márgenes</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">Documentos y cumplimiento</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">Corregir factura faltante ahora</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">Generar con advertencia</sys:String>

@@ -1410,6 +1410,9 @@
     <sys:String x:Key="Reports.Nav.ProjectsSub">रजिस्टर एवं प्रगति</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecs">ग्लास स्पेक्स</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecsSub">पंक्ति-स्तर ट्रेसबिलिटी</sys:String>
+    <sys:String x:Key="Reports.Financial">वित्तीय</sys:String>
+    <sys:String x:Key="Reports.Nav.Profitability">लाभप्रदता</sys:String>
+    <sys:String x:Key="Reports.Nav.ProfitabilitySub">लाभ-हानि एवं मार्जिन</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">दस्तावेज़ और पूर्ति</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">अब लापता इनवॉइस ठीक करें</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">चेतावनी के साथ बनाएँ</sys:String>

@@ -1410,6 +1410,9 @@
     <sys:String x:Key="Reports.Nav.ProjectsSub">السجل والتقدم</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecs">مواصفات الزجاج</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecsSub">التتبع على مستوى الصف</sys:String>
+    <sys:String x:Key="Reports.Financial">المالية</sys:String>
+    <sys:String x:Key="Reports.Nav.Profitability">الربحية</sys:String>
+    <sys:String x:Key="Reports.Nav.ProfitabilitySub">الأرباح والهوامش</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">المستندات والتنفيذ</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">إصلاح الفاتورة المفقودة الآن</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">إنشاء مع تحذير</sys:String>

@@ -72,6 +72,13 @@ namespace ProGlassAutomation.Services.Reporting
                 query = query.Where(p => EF.Functions.Like(p.CompanyName, $"%{filter.Company}%"));
             if (!string.IsNullOrWhiteSpace(filter.Customer))
                 query = query.Where(p => EF.Functions.Like(p.CustomerName, $"%{filter.Customer}%"));
+            // Project is a first-class column on the PI, so it filters DB-side
+            // and paginates cleanly. (Salesman lives only inside the snapshot,
+            // so it is deliberately NOT a filter here — post-deserialize
+            // filtering would desync the pre-computed TotalCount used for
+            // pagination. The summary passes it through harmlessly.)
+            if (!string.IsNullOrWhiteSpace(filter.Project))
+                query = query.Where(p => EF.Functions.Like(p.ProjectName, $"%{filter.Project}%"));
             if (!string.IsNullOrWhiteSpace(filter.ProformaId))
                 query = query.Where(p => p.ProformaId == filter.ProformaId);
             if (filter.DateFrom.HasValue)

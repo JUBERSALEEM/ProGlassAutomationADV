@@ -1410,6 +1410,9 @@
     <sys:String x:Key="Reports.Nav.ProjectsSub">رجسٹر اور پیش رفت</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecs">گلاس اسپیکس</sys:String>
     <sys:String x:Key="Reports.Nav.GlassSpecsSub">قطار کی سطح کی ٹریسنگ</sys:String>
+    <sys:String x:Key="Reports.Financial">مالیات</sys:String>
+    <sys:String x:Key="Reports.Nav.Profitability">منافع</sys:String>
+    <sys:String x:Key="Reports.Nav.ProfitabilitySub">نفع نقصان اور مارجن</sys:String>
     <sys:String x:Key="Reports.DocumentsFulfillment">دستاویزات اور تکمیل</sys:String>
     <sys:String x:Key="Reports.FixMissingInvoiceNow">ابھی لاپتہ انوائس ٹھیک کریں</sys:String>
     <sys:String x:Key="Reports.GenerateWarning">انتباہ کے ساتھ بنائیں</sys:String>
