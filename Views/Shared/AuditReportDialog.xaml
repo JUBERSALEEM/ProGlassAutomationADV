@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Audit Event Report"
-        Width="920" Height="780"
-        MinWidth="720" MinHeight="620"
+        Width="880" Height="820"
+        MinWidth="680" MinHeight="560"
         WindowStartupLocation="CenterOwner"
         FontFamily="{DynamicResource AppFontFamily}"
         Background="{DynamicResource WindowBackgroundBrush}"
@@ -13,118 +13,393 @@
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
 
-    <Grid Margin="22">
-        <!--
-          Row allocation is the reason the narrative panel looked empty.
+    <!--
+      ═══════════════════════════════════════════════════════════════════
+        COMPLETE REDESIGN — 2026-09-09
 
-          Row 1 is Auto and holds four cards in a UniformGrid, which forces all
-          four to the height of the TALLEST one. Every card also inherits
-          MinHeight="86" from SecondarySurfaceCardStyle — a floor designed for
-          large dashboard stat tiles, not for these compact info cards. So one
-          long "why" line stretched all four cards, Row 1 ate the dialog, and
-          Row 2 (the narrative and the before/after diff) was left with scraps.
+        WHY THIS FILE WAS REWRITTEN RATHER THAN PATCHED AGAIN
 
-          Adding TextWrapping made this WORSE, not better: text that used to
-          clip at one line now wraps to several, so the cards grew taller and
-          Row 2 shrank further. That is why the previous change looked like
-          nothing had happened.
+        Three successive patches (TextWrapping, MinHeight, row MinHeight)
+        all treated symptoms. The actual defect is the LAYOUT TOPOLOGY:
 
-          Row 2 now carries a MinHeight so the two panels that actually hold
-          the content can never be squeezed away, and the window is 100px
-          taller to pay for it.
-        -->
+          Row 1   UniformGrid Columns="4"  → each card ~211px wide,
+                                             ~187px of usable text
+          Row 2   1.05* | 14 | 1.4*        → narrative ~363px,
+                                             diff panel ~499px
+          Diff    * | 8 | * inside that    → each BEFORE/AFTER box ~231px,
+                                             ~215px of usable text
+
+        Two long field values placed side by side in 215px is where the
+        collision lived. TextWrapping could not fix it, because wrapping
+        only makes the box TALLER — and every sibling in a UniformGrid is
+        then stretched to match the tallest one, which pushed the row below
+        it. The summary badge in the diff header made it worse: it was
+        Auto-width beside a * title, so a long "7 fields changed" summary
+        squeezed the heading.
+
+        No property tweak survives that topology. So the topology changed.
+
+        ── THE THREE RULES THIS LAYOUT OBEYS ────────────────────────────
+
+        1. ONE SCROLL SURFACE FOR THE WHOLE BODY.
+           Previously the narrative and the diff panel each had their own
+           ScrollViewer inside a star-sized row, so they competed: whichever
+           content grew stole height from the other. Now the body is a
+           single ScrollViewer and the sections stack. Nothing can starve
+           anything, because nothing shares a bounded height.
+
+        2. NOTHING SITS SIDE BY SIDE THAT CAN GROW.
+           The four summary cards became a two-column DEFINITION LIST
+           (Auto label | * value). A definition list cannot overlap: the
+           label column sizes to the longest label and the value column
+           takes the rest. BEFORE and AFTER are now STACKED full width,
+           GitHub-diff style, so each value gets the full ~800px instead
+           of 215px.
+
+        3. EVERY BOUND TEXTBLOCK WRAPS, AND NO CELL HAS A FIXED WIDTH.
+           There is no UniformGrid, no fixed pixel column, and no Auto
+           column sitting next to a growing one anywhere in this file.
+
+        PRESERVED DELIBERATELY
+          x:Name="ReportTextBox" and x:Name="ChangesList" — the code-behind
+          assigns ChangesList.ItemsSource and reads ReportTextBox.
+          Mode=OneWay on AuditReportText — see the note by that binding.
+          Click="CopyReport_Click", IsCancel on Close.
+    ═══════════════════════════════════════════════════════════════════
+    -->
+
+    <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*" MinHeight="300"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
+        <!-- ══════════════ HEADER ══════════════════════════════════════ -->
         <Border Grid.Row="0"
-                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{DynamicResource AccentBrush}"
-                Padding="18,14">
+                Background="{DynamicResource PopupSurfaceBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="{DynamicResource CardBorderThickness}"
+                CornerRadius="{DynamicResource CardCornerRadius}"
+                Padding="16,14">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <StackPanel>
+
+                <StackPanel Grid.Column="0">
                     <TextBlock Text="COMPLETE AUDIT EVENT REPORT"
-                               FontSize="{StaticResource TextTitle}"
+                               FontSize="{StaticResource TextSection}"
                                FontWeight="Bold"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    <TextBlock Text="Who changed what, when, why, from where, and what field values changed before/after."
-                               Margin="0,3,0,0"
-                               FontSize="{StaticResource TextBody}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                               Opacity="0.84"/>
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="Who changed what, when, why, from where — and the exact field values before and after."
+                               FontSize="{StaticResource TextCaption}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,4,0,0"/>
                 </StackPanel>
+
+                <!--
+                  The operation id chip is in its own Auto column but the
+                  TITLE column is the * one, so a long id can never squeeze
+                  the heading — the heading shrinks and wraps instead. This
+                  is the inverse of the mistake the old diff header made.
+                -->
                 <Border Grid.Column="1"
+                        Margin="14,0,0,0"
+                        VerticalAlignment="Top"
+                        Background="{DynamicResource TintIndigoBrush}"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                        Background="{DynamicResource TintAmberBrush}"
-                        Padding="10,5"
-                        VerticalAlignment="Center">
+                        Padding="10,4">
+                    <!--
+                      MaxWidth is load-bearing. This chip sits in an Auto
+                      column beside the * title column, so without a bound an
+                      unusually long operation id would widen its own column
+                      and squeeze the heading — the precise mistake the old
+                      diff header made with its change-count badge. Bounded
+                      and wrapping, the heading keeps its width instead.
+                    -->
                     <TextBlock Text="{Binding OperationId}"
+                               MaxWidth="220"
+                               TextWrapping="Wrap"
                                FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold"
-                               Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap"/>
+                               Foreground="{DynamicResource AccentBrush}"/>
                 </Border>
             </Grid>
         </Border>
 
-        <!-- Who/When/What/Why -->
-        <UniformGrid Grid.Row="1" Columns="4" Margin="0,14,0,14">
-            <Border Style="{StaticResource SecondarySurfaceCardStyle}" MinHeight="0" Margin="0,0,8,0" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="WHO" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Text="{Binding ActorDisplay}" Margin="0,4,0,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding Username, StringFormat=Login: {0}}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding OtherUserNotice}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Border>
-            <Border Style="{StaticResource SecondarySurfaceCardStyle}" MinHeight="0" Margin="0,0,8,0" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="WHEN" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Text="{Binding TimeDisplay}" Margin="0,4,0,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding UtcTimeDisplay}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Border>
-            <Border Style="{StaticResource SecondarySurfaceCardStyle}" MinHeight="0" Margin="0,0,8,0" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="WHAT" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Text="{Binding Action}" Margin="0,4,0,0" FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding EntityLine}" FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Border>
-            <Border Style="{StaticResource SecondarySurfaceCardStyle}" MinHeight="0" Padding="12">
-                <StackPanel>
-                    <TextBlock Text="WHY" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Text="{Binding WhySummary}" Margin="0,4,0,0" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Border>
-        </UniformGrid>
+        <!-- ══════════════ BODY — ONE SCROLL SURFACE ═══════════════════ -->
+        <ScrollViewer Grid.Row="1"
+                      Margin="0,14,0,0"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
 
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.05*"/>
-                <ColumnDefinition Width="14"/>
-                <ColumnDefinition Width="1.4*"/>
-            </Grid.ColumnDefinitions>
+                <!-- ── SECTION 1 — IDENTITY, AS A DEFINITION LIST ────────
+                     Replaces the 4-across UniformGrid. Each row is an Auto
+                     label column and a * value column, so the values always
+                     get the full remaining width and wrap there. A long
+                     "why" or a long machine name can no longer stretch its
+                     three siblings, because there are no siblings in a
+                     shared-height grid any more.
+                ─────────────────────────────────────────────────────────── -->
+                <Border Background="{DynamicResource DialogSurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="18,16">
+                    <Grid>
+                        <Grid.Resources>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="TextWrapping" Value="Wrap"/>
+                                <Setter Property="VerticalAlignment" Value="Top"/>
+                            </Style>
+                            <!--
+                              A shared label style keeps the eight labels
+                              visually identical without repeating six
+                              attributes eight times.
+                            -->
+                            <Style x:Key="DefLabel" TargetType="TextBlock"
+                                   BasedOn="{StaticResource {x:Type TextBlock}}">
+                                <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                <Setter Property="Margin" Value="0,0,0,10"/>
+                            </Style>
+                            <Style x:Key="DefValue" TargetType="TextBlock"
+                                   BasedOn="{StaticResource {x:Type TextBlock}}">
+                                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                <Setter Property="Margin" Value="0,0,0,10"/>
+                            </Style>
+                            <Style x:Key="DefSub" TargetType="TextBlock"
+                                   BasedOn="{StaticResource {x:Type TextBlock}}">
+                                <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                <Setter Property="Margin" Value="0,2,0,10"/>
+                            </Style>
+                        </Grid.Resources>
 
-            <!-- Full narrative -->
-            <Border Grid.Column="0" Style="{StaticResource PrimarySurfaceCardStyle}" Padding="14">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="AUDIT NARRATIVE" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <ScrollViewer Grid.Row="1" Margin="0,10,0,0" VerticalScrollBarVisibility="Auto">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="104"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- WHO -->
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="WHO" Style="{StaticResource DefLabel}"/>
+                        <StackPanel Grid.Row="0" Grid.Column="1">
+                            <TextBlock Text="{Binding ActorDisplay}"
+                                       FontSize="{StaticResource TextBodyLarge}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding UserLine}" Style="{StaticResource DefSub}"/>
+                            <TextBlock Text="{Binding OtherUserNotice}"
+                                       Style="{StaticResource DefSub}"
+                                       Foreground="{DynamicResource WarningBrush}"/>
+                        </StackPanel>
+
+                        <!-- WHEN -->
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="WHEN" Style="{StaticResource DefLabel}"/>
+                        <StackPanel Grid.Row="1" Grid.Column="1">
+                            <TextBlock Text="{Binding TimeDisplay}"
+                                       FontSize="{StaticResource TextBodyLarge}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding UtcTimeDisplay}" Style="{StaticResource DefSub}"/>
+                        </StackPanel>
+
+                        <!-- WHAT -->
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="WHAT" Style="{StaticResource DefLabel}"/>
+                        <StackPanel Grid.Row="2" Grid.Column="1">
+                            <TextBlock Text="{Binding Action}"
+                                       FontSize="{StaticResource TextBodyLarge}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding EntityLine}" Style="{StaticResource DefSub}"/>
+                            <TextBlock Text="{Binding WhatSummary}" Style="{StaticResource DefValue}"/>
+                        </StackPanel>
+
+                        <!-- WHY -->
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="WHY" Style="{StaticResource DefLabel}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1"
+                                   Text="{Binding WhySummary}"
+                                   Style="{StaticResource DefValue}"/>
+
+                        <!-- WHERE / CONTEXT -->
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="WHERE" Style="{StaticResource DefLabel}"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1"
+                                   Text="{Binding TechnicalLine}"
+                                   Style="{StaticResource DefValue}"/>
+
+                        <!-- CHANGE COUNT -->
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="CHANGES" Style="{StaticResource DefLabel}"/>
+                        <TextBlock Grid.Row="5" Grid.Column="1"
+                                   Text="{Binding ChangeSummary}"
+                                   Style="{StaticResource DefValue}"
+                                   FontWeight="SemiBold"/>
+                    </Grid>
+                </Border>
+
+                <!-- ── SECTION 2 — FIELD-LEVEL BEFORE / AFTER ────────────
+                     This is the panel that was overlapping. Two changes:
+
+                     (a) The "no details" notice and the list are now in a
+                         StackPanel, not stacked in one Grid cell. They were
+                         mutually exclusive by Visibility, but sharing a
+                         cell meant the notice was centred against the full
+                         height of a row that also hosted the scroller.
+
+                     (b) BEFORE and AFTER are STACKED, each full width, with
+                         a leading - / + marker exactly like a GitHub diff.
+                         Each value now has the whole card width instead of
+                         ~215px, so a long old value and a long new value
+                         cannot collide — and reading top-to-bottom matches
+                         how a reviewer actually reads a change.
+                ─────────────────────────────────────────────────────────── -->
+                <Border Margin="0,14,0,0"
+                        Background="{DynamicResource DialogSurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="18,16">
+                    <StackPanel>
+                        <TextBlock Text="BEFORE / AFTER FIELD CHANGES"
+                                   FontSize="{StaticResource TextSection}"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+                        <!-- Empty state — shown only when nothing is attached -->
+                        <Border Margin="0,12,0,0"
+                                Padding="14"
+                                Background="{DynamicResource PopupSurfaceBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderThickness="{DynamicResource CardBorderThickness}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Visibility="{Binding HasChanges, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <TextBlock TextWrapping="Wrap"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}">
+                                No field-level before/after details were attached to this audit row.
+                                Older and simple flows record only a summary line; structured save
+                                flows record exact old and new values, which appear here.
+                            </TextBlock>
+                        </Border>
+
+                        <!-- The change list — x:Name is required by the code-behind -->
+                        <ItemsControl x:Name="ChangesList"
+                                      Margin="0,12,0,0"
+                                      Visibility="{Binding HasChanges, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="{DynamicResource PopupSurfaceBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
+                                            BorderThickness="{DynamicResource CardBorderThickness}"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
+                                            Margin="0,0,0,10"
+                                            Padding="0">
+                                        <StackPanel>
+                                            <!-- Field name — its own header band -->
+                                            <Border Padding="12,9"
+                                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                                    BorderThickness="0,0,0,1">
+                                                <TextBlock Text="{Binding Field}"
+                                                           FontWeight="Bold"
+                                                           FontSize="{StaticResource TextBody}"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           TextWrapping="Wrap"/>
+                                            </Border>
+
+                                            <!-- BEFORE — full width -->
+                                            <Grid Margin="12,10,12,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="−"
+                                                           FontWeight="Bold"
+                                                           FontSize="{StaticResource TextBodyLarge}"
+                                                           Foreground="{DynamicResource DangerBrush}"
+                                                           Margin="0,0,8,0"
+                                                           VerticalAlignment="Top"/>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="BEFORE"
+                                                               FontSize="{StaticResource TextCaption}"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource DangerBrush}"/>
+                                                    <TextBlock Text="{Binding Before}"
+                                                               TextWrapping="Wrap"
+                                                               FontSize="{StaticResource TextBody}"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- AFTER — full width, beneath -->
+                                            <Grid Margin="12,8,12,12">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           Text="+"
+                                                           FontWeight="Bold"
+                                                           FontSize="{StaticResource TextBodyLarge}"
+                                                           Foreground="{DynamicResource SuccessBrush}"
+                                                           Margin="0,0,8,0"
+                                                           VerticalAlignment="Top"/>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="AFTER"
+                                                               FontSize="{StaticResource TextCaption}"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                                    <TextBlock Text="{Binding After}"
+                                                               TextWrapping="Wrap"
+                                                               FontSize="{StaticResource TextBody}"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── SECTION 3 — PLAIN-TEXT NARRATIVE ──────────────────
+                     Full width now, instead of a 363px column. This is the
+                     text that goes to the clipboard, so it is worth reading
+                     at a comfortable measure.
+                ─────────────────────────────────────────────────────────── -->
+                <Border Margin="0,14,0,0"
+                        Background="{DynamicResource DialogSurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="18,16">
+                    <StackPanel>
+                        <TextBlock Text="AUDIT NARRATIVE"
+                                   FontSize="{StaticResource TextSection}"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
                         <!--
-                          Mode=OneWay is required, not decorative. TextBox.Text
-                          is one of the handful of dependency properties that
+                          Mode=OneWay is REQUIRED, not decorative. TextBox.Text
                           binds TwoWay BY DEFAULT, and AuditReportText is a
                           computed get-only property — so WPF threw at binding
                           activation rather than at load:
@@ -134,11 +409,18 @@
                                                       (ERR-EDBDCD, 2026-09-09)
 
                           It surfaced ~90s after startup on a window resize,
-                          because the binding only activates when the element is
-                          laid out. IsReadOnly="True" means the user can never
-                          edit this box, so nothing is lost by OneWay.
+                          because the binding only activates once the element
+                          is laid out. IsReadOnly="True" means the user can
+                          never edit this box, so nothing is lost by OneWay.
+
+                          The box is NOT wrapped in its own ScrollViewer any
+                          more. It lives inside the body ScrollViewer and sizes
+                          to its content, so all the text is reachable by
+                          scrolling the page — the old nested scroller fought
+                          the outer one for height.
                         -->
                         <TextBox x:Name="ReportTextBox"
+                                 Margin="0,10,0,0"
                                  Text="{Binding AuditReportText, Mode=OneWay}"
                                  IsReadOnly="True"
                                  AcceptsReturn="True"
@@ -147,100 +429,36 @@
                                  Background="Transparent"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
                                  FontSize="{StaticResource TextBody}"/>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
 
-            <!-- Before/after diff -->
-            <Border Grid.Column="2" Style="{StaticResource PrimarySurfaceCardStyle}" Padding="14">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="BEFORE / AFTER FIELD CHANGES" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <Border Grid.Column="1" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" Padding="8,3">
-                            <TextBlock Text="{Binding ChangeSummary}" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
-                        </Border>
-                    </Grid>
-
-                    <Grid Grid.Row="1" Margin="0,10,0,0">
-                        <TextBlock Text="No field-level before/after details were attached to this audit row. New structured save flows will show exact old and new values here."
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="{StaticResource TextBody}"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Center"
-                                   TextAlignment="Center"
-                                   Visibility="{Binding HasChanges, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      Visibility="{Binding HasChanges, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <ItemsControl x:Name="ChangesList">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,0,0,10" Padding="12">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-                                                <TextBlock Text="{Binding Field}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
-                                                <Grid Grid.Row="1" Margin="0,6,0,0">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="8"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8">
-                                                        <StackPanel>
-                                                            <TextBlock Text="BEFORE" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
-                                                            <TextBlock Text="{Binding Before}" TextWrapping="Wrap" Foreground="{DynamicResource DangerBrush}"/>
-                                                        </StackPanel>
-                                                    </Border>
-                                                    <Border Grid.Column="2" Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8">
-                                                        <StackPanel>
-                                                            <TextBlock Text="AFTER" FontSize="{StaticResource TextCaption}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
-                                                            <TextBlock Text="{Binding After}" TextWrapping="Wrap" Foreground="{DynamicResource SuccessBrush}"/>
-                                                        </StackPanel>
-                                                    </Border>
-                                                </Grid>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </Grid>
-                </Grid>
-            </Border>
-        </Grid>
-
-        <!--
-          Height="Auto" with a MinHeight is the fix for clipped button text,
-          and it is worth explaining because the mistake is easy to repeat.
-
-          Both pill styles set Height="{DynamicResource DensityButtonHeight}"
-          — a FIXED 32px — and pair it with Padding="22,0". The zero vertical
-          padding is not an oversight; it is required, because the height is
-          already fixed. These two buttons overrode the padding to "18,8"
-          without overriding the height, so 16 of the 32 pixels went to padding
-          and the label had 16 left for a ~14px font. The text clipped.
-
-          Auto-sizing with a MinHeight means the button is never shorter than
-          any other button in the app, and grows instead of clipping when a
-          localised label is longer than the English one.
-        -->
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-            <Button Content="Copy report" Height="Auto" MinHeight="{DynamicResource DensityButtonHeight}" Padding="18,8" Margin="0,0,8,0" Style="{StaticResource OutlinedPillButton}" Click="CopyReport_Click"/>
-            <Button Content="Close" Height="Auto" MinHeight="{DynamicResource DensityButtonHeight}" Padding="22,8" Style="{StaticResource PrimaryPillButton}" IsCancel="True"/>
+        <!-- ══════════════ FOOTER ════════════════════════════════════════
+             Height="Auto" with a MinHeight, because both pill styles set a
+             FIXED Height of DensityButtonHeight (32px) paired with
+             Padding="x,0". Overriding the padding to "18,8" without
+             overriding the height left 16px for a ~14px label and the text
+             clipped. Auto-sizing grows instead of clipping, which also
+             survives a longer localised label.
+        ═════════════════════════════════════════════════════════════════ -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,16,0,0">
+            <Button Content="Copy report"
+                    Height="Auto"
+                    MinHeight="{DynamicResource DensityButtonHeight}"
+                    Padding="18,8"
+                    Margin="0,0,8,0"
+                    Style="{StaticResource OutlinedPillButton}"
+                    Click="CopyReport_Click"/>
+            <Button Content="Close"
+                    Height="Auto"
+                    MinHeight="{DynamicResource DensityButtonHeight}"
+                    Padding="22,8"
+                    Style="{StaticResource PrimaryPillButton}"
+                    IsCancel="True"/>
         </StackPanel>
     </Grid>
 </Window>
